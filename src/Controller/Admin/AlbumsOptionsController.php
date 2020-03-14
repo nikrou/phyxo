@@ -16,7 +16,6 @@ use App\Repository\CategoryRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
-use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -41,7 +40,7 @@ class AlbumsOptionsController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function index(Request $request, string $section, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, CategoryMapper $categoryMapper, TranslatorInterface $translator)
+    public function index(Request $request, string $section, EntityManager $em, Conf $conf, ParameterBagInterface $params, CategoryMapper $categoryMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -86,10 +85,10 @@ class AlbumsOptionsController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums_options', ['section' => $section]);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $this->translator->trans('Public / Private', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet($section, $conf), $tpl_params);
 
-        return $this->render('albums_options.tpl', $tpl_params);
+        return $this->render('albums_options.html.twig', $tpl_params);
     }
 
     protected function getCatsBySection(string $section, EntityManager $em): array

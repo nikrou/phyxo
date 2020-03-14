@@ -1,0 +1,209 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Configuration'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Display'|trans}}</li>
+{% endblock %}
+
+{% block content %}
+    <form method="post" action="{{F_ACTION}}" class="properties">
+	<div class="fieldset">
+	    <h3>{{'Main Page'|trans}}</h3>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="menubar_filter_icon" {% if display.menubar_filter_icon %}checked="checked"{% endif %}>
+		    {{'Activate icon "{icon}"'|trans({'icon': 'Display only recently posted photos'|trans})}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="index_new_icon" {% if display.index_new_icon %}checked="checked"{% endif %}>
+		    {{'Activate icon "new" next to albums and pictures'|trans}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="index_sort_order_input" {% if display.index_sort_order_input %}checked="checked"{% endif %}>
+		    {{'Activate icon "{icon}"'|trans({'icon': 'Sort order'|trans})}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="index_flat_icon" {% if display.index_flat_icon %}checked="checked"{% endif %}>
+		    {{'Activate icon "{icon}"'|trans({'icon': 'Display all photos in all sub-albums'|trans})}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="index_posted_date_icon" {% if display.index_posted_date_icon %}checked="checked"{% endif %}>
+		    {{'Activate icon "{icon}"'|trans({'icon': 'Display a calendar by posted date'|trans})}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="index_created_date_icon" {% if display.index_created_date_icon %}checked="checked"{% endif %}>
+		    {{'Activate icon "{icon}"'|trans({'icon': 'Display a calendar by creation date'|trans})}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="index_slideshow_icon" {% if display.index_slideshow_icon %}checked="checked"{% endif %}>
+		    {{'Activate icon "{icon}"'|trans({'icon': 'Slideshow'|trans})}}
+		</label>
+	    </p>
+	    <p>
+		<label>
+		    {{'Number of albums per page'|trans}}
+		    <input class="form-control" type="text" size="3" maxlength="4" name="nb_categories_page" id="nb_categories_page" value="{{display.NB_CATEGORIES_PAGE}}">
+		</label>
+	    </p>
+	</div>
+
+	<div class="fieldset">
+	    <h3>{{'Photo Page'|trans}}</h3>
+	    <p
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_slideshow_icon" {% if display.picture_slideshow_icon %}checked="checked"{% endif %}>
+		    {{'Activate icon "{icon}"'|trans({'icon': 'Slideshow'|trans})}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_metadata_icon" {% if display.picture_metadata_icon %}checked="checked"{% endif %}>
+		    {{'Activate icon "{icon}"'|trans({'icon': 'Show file metadata'|trans})}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_download_icon" {% if display.picture_download_icon %}checked="checked"{% endif %}>
+		    {{'Activate icon "{icon}"'|trans({'icon': 'Download this file'|trans})}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_favorite_icon" {% if display.picture_favorite_icon %}checked="checked"{% endif %}>
+		    {{'Activate icon "{icon}"'|trans({'icon': 'Add this photo to your favorites'|trans})}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_navigation_icons" {% if display.picture_navigation_icons %}checked="checked"{% endif %}>
+		    {{'Activate Navigation Bar'|trans}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_navigation_thumb" {% if display.picture_navigation_thumb %}checked="checked"{% endif %}>
+		    {{'Activate Navigation Thumbnails'|trans}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_menu" {% if display.picture_menu %}checked="checked"{% endif %}>
+		    {{'Show menubar'|trans}}
+		</label>
+	    </p>
+	</div>
+
+	<div class="fieldset">
+	    <h3>{{'Photo Properties'|trans}}</h3>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_informations[author]" {% if display.picture_informations.author %}checked="checked"{% endif %}>
+		    {{'Author'|trans}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_informations[created_on]" {% if display.picture_informations.created_on %}checked="checked"{% endif %}>
+		    {{'Created on'|trans}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_informations[posted_on]" {% if display.picture_informations.posted_on %}checked="checked"{% endif %}>
+		    {{'Posted on'|trans}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_informations[dimensions]" {% if display.picture_informations.dimensions %}checked="checked"{% endif %}>
+		    {{'Dimensions'|trans}}
+		</label>
+	    </p>
+	    <p>
+    		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_informations[file]" {% if display.picture_informations.file %}checked="checked"{% endif %}>
+		    {{'File'|trans}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_informations[filesize]" {% if display.picture_informations.filesize %}checked="checked"{% endif %}>
+		    {{'Filesize'|trans}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_informations[tags]" {% if display.picture_informations.tags %}checked="checked"{% endif %}>
+		    {{'Tags'|trans}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_informations[categories]" {% if display.picture_informations.categories %}checked="checked"{% endif %}>
+		    {{'Albums'|trans}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_informations[visits]" {% if display.picture_informations.visits %}checked="checked"{% endif %}>
+		    {{'Visits'|trans}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_informations[rating_score]" {% if display.picture_informations.rating_score %}checked="checked"{% endif %}>
+		    {{'Rating score'|trans}}
+		</label>
+	    </p>
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="picture_informations[privacy_level]" {% if display.picture_informations.privacy_level %}checked="checked"{% endif %}>
+		    {{'Who can see this photo?'|trans}} ({{'available for administrators only'|trans}})
+		</label>
+	    </p>
+	</div>
+
+	<p>
+	    <input type="hidden" name="pwg_token" value="{{csrf_token}}">
+	    <input type="submit" class="btn btn-submit" name="submit" value="{{'Save Settings'|trans}}">
+	</p>
+    </form>
+{% endblock %}

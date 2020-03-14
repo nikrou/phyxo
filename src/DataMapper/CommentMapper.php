@@ -18,19 +18,17 @@ use App\Repository\CommentRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentMapper
 {
     private $conn, $conf, $userMapper, $eventDispatcher, $translator;
 
-    public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper, RouterInterface $router, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator)
+    public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator)
     {
         $this->conn = $conn;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
-        $this->router = $router;
         $this->eventDispatcher = $eventDispatcher;
         $this->translator = $translator;
     }
@@ -166,14 +164,8 @@ class CommentMapper
         }
 
         $anonymous_id = $comm['ip'];
-
         if ($comment_action != 'reject' && $this->conf['anti-flood_time'] > 0 && !$this->userMapper->isAdmin()) { // anti-flood system
-            $reference_date = $this->conn->db_get_flood_period_expression($this->conf['anti-flood_time']);
-            $counter = (new CommentRepository($this->conn))->countAuthorMessageNewerThan(
-                $comm['author_id'],
-                $reference_date,
-                !$this->userMapper->isGuest() ? $anonymous_id : md5('::1')
-            );
+            $counter = (new CommentRepository($this->conn))->countAuthorMessageNewerThan($comm['author_id'], $this->conf['anti-flood_time'], !$this->userMapper->isGuest() ? $anonymous_id : md5('::1'));
             if ($counter > 0) {
                 $infos[] = $this->translator->trans('Anti-flood system : please wait for a moment before trying to post another comment');
                 $comment_action = 'reject';
@@ -188,7 +180,6 @@ class CommentMapper
             ]));
 
             $this->invalidateUserCacheNbComments();
-
             if (($this->conf['email_admin_on_comment'] && 'validate' == $comment_action)
                 || ($this->conf['email_admin_on_comment_validation'] && 'moderate' == $comment_action)) {
                 $this->eventDispatcher->dispatch(new CommentEvent($comm, $comment_action));

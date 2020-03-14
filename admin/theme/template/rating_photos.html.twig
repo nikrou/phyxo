@@ -1,0 +1,91 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Rating'|trans}}</a></li>
+    <li class="breadcrumb-item">{{NB_ELEMENTS}} {{'Photos'|trans}}</li>
+{% endblock %}
+
+{% block content %}
+    <form action="{{F_ACTION}}" method="GET">
+	<p><a class="btn btn-submit" href="#form-filter" data-toggle="collapse">{{'Show/Hide form filter'|trans}}</a></p>
+	<div class="form-filter collapse" id="form-filter">
+	    <h3>{{'Filter'|trans}}</h3>
+	    <div class="form-group">
+		<label for="order-by">{{'Sort by'|trans}}</label>
+		<select name="order_by" id="order-by" class="form-control">
+		    {% for option, label in order_by_options %}
+			<option value="{{option}}" {% if option == order_by_options_selected %}selected="selected"{% endif %}>{{label}}</option>
+		    {% endfor %}
+		</select>
+	    </div>
+
+	    <div class="form-group">
+		<label for="users">{{'Users'|trans}}</label>
+		<select name="users" id="users" class="form-control">
+		    {% for option, label in user_options %}
+			<option value="{{option}}" {% if option == user_options_selected %}selected="selected"{% endif %}>{{label}}</option>
+		    {% endfor %}
+		</select>
+	    </div>
+
+	    <div class="form-group">
+		<label for="display">{{'Number of items'|trans}}</label>
+		<input type="text" class="form-control" name="display" id="display" size="2" value="{{DISPLAY}}">
+	    </div>
+	    <p>
+		<input class="btn btn-submit" type="submit" value="{{'Submit'|trans}}">
+		<input type="hidden" name="page" value="rating">
+		<input type="hidden" name="section" value="photos">
+	    </p>
+	</div>
+    </form>
+
+    {% if navbar %}{{include('_navigation_bar.html.twig')}}{% endif %}
+
+    <table class="table table-hover table-striped">
+	<thead>
+	    <tr>
+		<th>{{'File'|trans}}</th>
+		<th>{{'Number of rates'|trans}}</th>
+		<th>{{'Rating score'|trans}}</th>
+		<th>{{'Average rate'|trans}}</th>
+		<th>{{'Sum of rates'|trans}}</th>
+		<th>{{'Rate'|trans}}/{{'Username'|trans}}/{{'Rate date'|trans}}</th>
+		<th></th>
+	    </tr>
+	</thead>
+	<tbody>
+	    {% for image in images %}
+		<tr>
+		    <td><a href="{{image.U_URL}}"><img src="{{image.U_THUMB}}" alt="{{image.FILE}}" title="{{image.FILE}}"></a></td>
+		    <td><strong>{{image.NB_RATES}}/{{image.NB_RATES_TOTAL}}</strong></td>
+		    <td><strong>{{image.SCORE_RATE}}</strong></td>
+		    <td><strong>{{image.AVG_RATE}}</strong></td>
+		    <td><strong>{{image.SUM_RATE}}</strong></td>
+		    <td>
+			<table class="table">
+			    {% for rate in image.rates %}
+				<tr id="rate-{{rate.md5sum}}">
+				    <td>{{rate.rate}}</td>
+				<td><b>{{rate.USER}}</b></td>
+				<td>{{rate.date}}</td>
+				<td>
+				    <button
+					data-confirm="{{'Are you sure?'|trans}}" data-action="{{WS_RATES_DELETE}}"
+					data-data="{'image_id': {{image.id}},'user_id': {{rate.user_id}}{% if rate.anonymous_id %},'anonymous_id': '{{rate.anonymous_id}}'{% endif %}}"
+					data-method="POST" data-delete="#rate-{{rate.md5sum}}" data-toggle="modal" data-target="#confirm-delete" class="btn btn-danger fa fa-trash"></button>
+				</td>
+			    </tr>
+			    {% endfor %}
+			</table>
+		    </td>
+		</tr>
+	    {% endfor %}
+	</tbody>
+    </table>
+
+    {% if navbar %}{{include('_navigation_bar.html.twig')}}{% endif %}
+
+    {{include('include/_modal_delete_confirm.html.twig')}}
+{% endblock %}

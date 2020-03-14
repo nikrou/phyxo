@@ -13,14 +13,13 @@ namespace App\Controller\Admin;
 
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class ApiController extends AdminCommonController
 {
-    public function index(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager)
+    public function index(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager)
     {
         $tpl_params = [];
 
@@ -31,7 +30,6 @@ class ApiController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('api');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('api');
         $tpl_params['PAGE_TITLE'] = 'API';
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
@@ -40,7 +38,8 @@ class ApiController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('error')) {
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
 
-        return $this->render('api.tpl', $tpl_params);
+        return $this->render('api.html.twig', $tpl_params);
     }
 }

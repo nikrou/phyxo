@@ -11,7 +11,6 @@
 
 namespace Phyxo\Image;
 
-use Phyxo\Functions\Plugin;
 use Phyxo\Functions\Utils;
 use App\Repository\ImageRepository;
 

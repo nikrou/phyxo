@@ -13,7 +13,6 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\MenuBar;
-use Phyxo\Template\Template;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use App\Repository\ImageRepository;
@@ -33,7 +32,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SearchController extends CommonController
 {
-    public function qsearch(Request $request, EntityManager $em, Conf $conf, Template $template, MenuBar $menuBar, $themesDir, $phyxoVersion, $phyxoWebsite)
+    public function qsearch(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar, $themesDir, $phyxoVersion, $phyxoWebsite)
     {
         $tpl_params = [];
 
@@ -43,7 +42,7 @@ class SearchController extends CommonController
             return $this->createNotFoundException();
         }
 
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $search = ['q' => $request->get('q')];
@@ -58,14 +57,14 @@ class SearchController extends CommonController
         return $this->redirectToRoute('search_results', ['search_id' => $search_id]);
     }
 
-    public function search(Request $request, EntityManager $em, TagMapper $tagMapper, CategoryMapper $categoryMapper, Template $template, Conf $conf,
+    public function search(Request $request, EntityManager $em, TagMapper $tagMapper, CategoryMapper $categoryMapper, Conf $conf,
         $themesDir, $phyxoVersion, $phyxoWebsite, MenuBar $menuBar, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search');
@@ -244,7 +243,7 @@ class SearchController extends CommonController
         return $this->render('search.html.twig', $tpl_params);
     }
 
-    public function searchResults(Request $request, SearchMapper $searchMapper, CategoryMapper $categoryMapper, ImageMapper $imageMapper, Template $template, Conf $conf,
+    public function searchResults(Request $request, SearchMapper $searchMapper, CategoryMapper $categoryMapper, ImageMapper $imageMapper, Conf $conf,
         ImageStandardParams $image_std_params, MenuBar $menuBar, $themesDir, $phyxoVersion, $phyxoWebsite, $search_id, int $start = 0, TranslatorInterface $translator
     ) {
         $tpl_params = [];
@@ -252,7 +251,7 @@ class SearchController extends CommonController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search results');
@@ -331,7 +330,7 @@ class SearchController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function searchRules(Request $request, EntityManager $em, CategoryMapper $categoryMapper, SearchMapper $searchMapper, Template $template, Conf $conf,
+    public function searchRules(Request $request, EntityManager $em, CategoryMapper $categoryMapper, SearchMapper $searchMapper, Conf $conf,
         string $themesDir, string $phyxoVersion, string $phyxoWebsite, int $search_id, MenuBar $menuBar, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -340,7 +339,7 @@ class SearchController extends CommonController
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search rules');
 
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $search = $searchMapper->getSearchArray($search_id);

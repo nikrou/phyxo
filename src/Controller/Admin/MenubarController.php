@@ -15,14 +15,13 @@ use App\Repository\ConfigRepository;
 use Phyxo\Block\BlockManager;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MenubarController extends AdminCommonController
 {
-    public function index(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params)
+    public function index(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params)
     {
         $tpl_params = [];
 
@@ -46,7 +45,6 @@ class MenubarController extends AdminCommonController
         }
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_menubar');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_menubar');
 
@@ -54,7 +52,9 @@ class MenubarController extends AdminCommonController
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
 
-        return $this->render('menubar.tpl', $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+
+        return $this->render('menubar.html.twig', $tpl_params);
     }
 
     public function update(Request $request, EntityManager $em, Conf $conf, TranslatorInterface $translator)

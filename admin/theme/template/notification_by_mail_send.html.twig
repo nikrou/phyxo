@@ -1,0 +1,93 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Notification'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Send'|trans}}</li>
+{% endblock %}
+
+{% block javascripts %}
+    {{parent()}}
+    <script>
+     $(function() {
+	 $("#checkAllLink").click(function () {
+	     $("#notification_by_mail input[type=checkbox]").prop('checked', true);
+	     return false;
+	 });
+
+	 $("#uncheckAllLink").click(function () {
+	     $("#notification_by_mail input[type=checkbox]").prop('checked', false);
+	     return false;
+	 });
+     });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <form method="post" name="notification_by_mail" id="notification_by_mail" action="{{F_ACTION}}">
+	{% if REPOST_SUBMIT_NAME %}
+	    <div class="fieldset">
+		<input class="btn btn-submit" type="submit" value="{{'Continue processing treatment'|trans}}" name="{{REPOST_SUBMIT_NAME}}">
+	    </div>
+	{% endif %}
+
+	{% if subscribe %}
+	    <div class="fieldset">
+		<h3>{{'Subscribe/unsubscribe users'|trans}}</h3>
+		<p><i>{{'Warning: subscribing or unsubscribing will send mails to users'|trans}}</i></p>
+
+		{{include('include/_double_select.html.twig')}}
+	    </div>
+	{% endif %}
+
+	{% if send %}
+	    {% if send.users %}
+		<p>{{'There is no available subscribers to mail.'|trans}}</p>
+		<p>
+		    {{'Subscribers could be listed (available) only if there is new elements to notify.'|trans}}<br>
+		    {{'Anyway only webmasters can see this tab and never administrators.'|trans}}
+		</p>
+	    {% else %}
+		<div class="fieldset">
+		    <h3>{{'Select recipients'|trans}}</h3>
+		    <table class="table table-hover table-striped">
+			<thead>
+			    <tr>
+				<th>{{'User'|trans}}</th>
+				<th>{{'Email'|trans}}</th>
+				<th>{{'Last send'|trans}}</th>
+				<th>{{'To send ?'|trans}}</th>
+			    </tr>
+			</thead>
+			<tbody>
+			    {% for user in send.users %}
+				<tr>
+				    <td><label for="send_selection-{u.ID}">{{user.USERNAME}}</label></td>
+				    <td><label for="send_selection-{u.ID}">{{user.EMAIL}}</label></td>
+				    <td><label for="send_selection-{u.ID}">{{user.LAST_SEND}}</label></td>
+				    <td><input type="checkbox" name="send_selection[]" value="{{user.ID}}" {{user.CHECKED}} id="send_selection-{{user.ID}}"></td>
+				</tr>
+			    {% endfor %}
+			</tbody>
+		    </table>
+		    <p>
+			<a href="#" id="checkAllLink">{{'Check all'|trans}}</a>
+			/ <a href="#" id="uncheckAllLink">{{'Uncheck all'|trans}}</a>
+		    </p>
+		</div>
+
+		<div class="fieldset">
+		    <h3>{{'Options'|trans}}</h3>
+		    <p>
+			<label for="send_customize_mail_content">{{'Complementary mail content'|trans}}</label>
+			<textarea class="form-control" cols="50" rows="5" name="send_customize_mail_content" id="send_customize_mail_content">{{send.CUSTOMIZE_MAIL_CONTENT}}</textarea>
+		    </p>
+		</div>
+
+		<p>
+		    <input class="btn btn-submit" type="submit" value="{{'Send'|trans}}" name="send_submit">
+		</p>
+	    {% endif %}
+	{% endif %}
+    </form>
+{% endblock %}

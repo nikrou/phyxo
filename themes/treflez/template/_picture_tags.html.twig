@@ -2,7 +2,7 @@
     {% if related_tags is defined %}
 	<div id="Tags" class="imageInfo">
 	    {% for tag in related_tags %}
-		<a class="btn btn-primary btn-raised mr-1{% if not tag.validated is defined %} pending{% if tag.status==1 %} added{% else %} deleted{% endif %}{% endif %}" href="{{tag.URL}}">{{tag.name}}</a>
+		<a class="btn btn-primary btn-raised mr-1{% if not tag.validated %} pending{% if tag.status==1 %} added{% else %} deleted{% endif %}{% endif %}" href="{{tag.URL}}">{{tag.name}}</a>
 	    {% endfor %}
 	</div>
     {% endif %}

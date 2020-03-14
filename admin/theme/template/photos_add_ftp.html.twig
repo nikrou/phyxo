@@ -1,0 +1,15 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Upload Photos'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'FTP + Synchronization'|trans}}</li>
+{% endblock %}
+
+{% block content %}
+    <div id="ftpPage">
+	<p><a href="{{U_CAT_UPDATE}}">{{'Administration'|trans}} &raquo; {{'Tools'|trans}} &raquo; {{'Synchronize'|trans}}</a></p>
+
+	{{FTP_HELP_CONTENT}}
+    </div>
+{/block}

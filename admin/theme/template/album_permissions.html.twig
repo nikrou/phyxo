@@ -1,0 +1,120 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Albums'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Album'|trans}}:
+	{% for category_nav in CATEGORIES_NAV %}
+	    <a href="{{category_nav.url}}">{{category_nav.name}}</a>
+	    {% if not loop.last %}/{% endif %}
+	{% endfor %}
+    </li>
+    <li class="breadcrumb-item">{{'Permissions'|trans}}</li>
+{% endblock %}
+
+{% block stylesheets %}
+    {{parent()}}
+    <link rel="stylesheets" href="{{asset('admin/theme/js/plugins/selectize.clear.css')}}"/>
+{% endblock %}
+
+{% block javascripts %}
+    {{parent()}}
+
+    <script src="{{asset('admin/theme/js/LocalStorageCache.js')}}"></script>
+    <script src="{{asset('admin/theme/js/plugins/selectize.js')}}"></script>
+    <script>
+     (function(){
+	 var groupsCache = new GroupsCache({
+	     serverKey: '{{CACHE_KEYS.groups}}',
+	     serverId: '{{CACHE_KEYS._hash}}',
+	     rootUrl: '{{app.request.basepath}}/'
+	 });
+
+	 groupsCache.selectize($('[data-selectize=groups]'));
+
+	 var usersCache = new UsersCache({
+	     serverKey: '{{CACHE_KEYS.users}}',
+	     serverId: '{{CACHE_KEYS._hash}}',
+	     rootUrl: '{{app.request.basepath}}/'
+	 });
+
+	 usersCache.selectize($('[data-selectize=users]'));
+
+	 function checkStatusOptions() {
+	     if ($("input[name=status]:checked").val() == "private") {
+		 $("#privateOptions, #applytoSubAction").show();
+	     }	else {
+		 $("#privateOptions, #applytoSubAction").hide();
+	     }
+	 }
+
+	 checkStatusOptions();
+	 $("#selectStatus").change(function() {
+	     checkStatusOptions();
+	 });
+     }());
+    </script>
+{% endblock %}
+
+{% block content %}
+    <form action="{{F_ACTION}}" method="post" id="categoryPermissions">
+	<div class="fieldset">
+	    <h3>{{'Access type'|trans}}</h3>
+
+	    <p>
+		<label><input type="radio" name="status" value="public" {% if not private %}checked="checked"{% endif %}> <strong>{{'public'|trans}}</strong> :
+		    <em>{{'any visitor can see this album'|trans}}</em>
+		</label>
+	    </p>
+	    <p>
+		<label><input type="radio" name="status" value="private" {% if private %}checked="checked"{% endif %}> <strong>{{'private'|trans}}</strong> :
+		    <em>{{'visitors need to login and have the appropriate permissions to see this album'|trans}}</em>
+		</label>
+	    </p>
+	</div>
+
+	<div class="fieldset">
+	    <h3>{{'Groups and users'|trans}}</h3>
+
+	    <p>
+		{% if groups|length > 0 %}
+		    <label for="groups">{{'Permission granted for groups'|trans}}</label>
+		    <select id="groups" data-selectize="groups" data-value="{{groups_selected|json_encode}}"
+				placeholder="{{'Type in a search term'|trans}}"
+				name="groups[]" multiple></select>
+		{% else %}
+		    {{'There is no group in this gallery.'|trans}} <a href="{{U_GROUPS}}">{{'Group management'|trans}}</a>
+		{% endif %}
+	    </p>
+
+	    <p>
+		<label for="users">{{'Permission granted for users'|trans}}</label>
+		<select id="users" data-selectize="users" data-value="{{users_selected|json_encode}}"
+			    placeholder="{{'Type in a search term'|trans}}"
+			    name="users[]" multiple></select>
+	    </p>
+
+	    {% if nb_users_granted_indirect and nb_users_granted_indirect > 0 %}
+		<p>
+		    {{'{count} users have automatic permission because they belong to a granted group.'|trans({'count': nb_users_granted_indirect})}}
+		    <a class="btn btn-submit" href="#indirectPermissionsDetails" data-toggle="collapse">{{'Show/Hide details'|trans}}</a>
+		</p>
+
+		<ul id="indirectPermissionsDetails" class="collapse">
+		    {% for group_details in user_granted_indirect_groups %}
+			<li><strong>{{group_details.group_name}}</strong> : {{group_details.group_users}}</li>
+		    {% endfor %}
+		</ul>
+	    {% endif %}
+	</div>
+
+	<p>
+	    <input class="btn btn-submit" type="submit" value="{{'Save Settings'|trans}}" name="submit">
+	    <label id="applytoSubAction" class="visually-hidden">
+		<input type="checkbox" name="apply_on_sub" {% if INHERIT %}checked="checked"{% endif %}>
+		{{'Apply to sub-albums'|trans}}
+	    </label>
+	    <input type="hidden" name="pwg_token" value="{{csrf_token}}">
+	</p>
+    </form>
+{% endblock %}

@@ -181,7 +181,7 @@ class CategoryRepository extends BaseRepository
     public function getComputedCategories(array $userdata, $filter_days)
     {
         $query = 'SELECT c.id AS cat_id, id_uppercat';
-        $query .= ', MAX(date_available) AS date_last, COUNT(date_available) AS nb_images FROM ' . self::CATEGORIES_TABLE . ' as c';
+        $query .= ', MAX(date_available) AS date_last, COUNT(ic.image_id) AS nb_images FROM ' . self::CATEGORIES_TABLE . ' as c';
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON ic.category_id = c.id';
         $query .= ' LEFT JOIN ' . self::IMAGES_TABLE . ' AS i ON ic.image_id = i.id AND i.level<=' . $userdata['level'];
 

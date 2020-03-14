@@ -1,0 +1,139 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Image'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Properties'|trans}}</li>
+{% endblock %}
+
+{% block stylesheets %}
+    {{parent()}}
+    <link rel="stylesheet" href="{{asset('admin/theme/js/plugins/selectize.clear.css')}}">
+    <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.theme.css')}}">
+    <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.datepicker.css')}}">
+    <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.timepicker-addon.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    {{parent()}}
+    <script src="{{asset('admin/theme/js/plugins/jquery.colorbox.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/jquery.ui.core.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/jquery.ui.widget.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/jquery.ui.mouse.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/jquery.ui.slider.js')}}"></script>
+    <script src="{{asset('admin/theme/js/LocalStorageCache.js')}}"></script>
+    <script src="{{asset('admin/theme/js/plugins/selectize.js')}}"></script>
+    <script>
+     var categoriesCache = new CategoriesCache({
+	 serverKey: '{{CACHE_KEYS.categories}}',
+	 serverId: '{{CACHE_KEYS._hash}}',
+	 rootUrl: '{{app.request.basepath}}/'
+     });
+
+     var tagsCache = new TagsCache({
+	 serverKey: '{{CACHE_KEYS.tags}}',
+	 serverId: '{{CACHE_KEYS._hash}}',
+	 rootUrl: '{{app.request.basepath}}/'
+     });
+
+     $(function() {
+	 categoriesCache.selectize($('[data-selectize=categories]'));
+	 tagsCache.selectize($('[data-selectize=tags]'), { lang: {
+	     'Add': '{{'Create'|trans}}'
+	 }});
+     });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="fieldset">
+	<h3>{{'Informations'|trans}}</h3>
+
+	<p>
+	    <a href="{{FILE_SRC}}" class="preview-box icon-zoom-in" title="{{TITLE}}"><img src="{{TN_SRC}}" alt="{{'Thumbnail'|trans}}"></a>
+	</p>
+
+	<ul>
+	    <li>{{INTRO.file}}</li>
+	    <li>{{INTRO.add_date}}</li>
+	    <li>{{INTRO.added_by}}</li>
+	    <li>{{INTRO.size}}</li>
+	    <li>{{INTRO.stats}}</li>
+	    <li>{{INTRO.id}}</li>
+	</ul>
+
+	<div>
+	    {% if U_JUMPTO %}
+		<p><a href="{{U_JUMPTO}}"><i class="fa fa-eye"></i> {{'jump to photo'|trans}}</a></p>
+	    {% endif %}
+	    {#  % if not remote PATH % #}
+		<p><a class="btn btn-success" href="{{U_SYNC}}"><i class="fa fa-exchange"></i> {{'Synchronize metadata'|trans}}</a></p>
+		<p>
+		    <form action="{{U_DELETE}}" method="post">
+			<button type="submit" class="btn btn-delete" onclick="return confirm('{{'Are you sure?'|trans}}');">
+			    <i class="fa fa-trash"></i> {{'delete photo'|trans}}
+			</button>
+		    </form>
+		</p>
+	    {# % endif % #}
+	</div>
+    </div>
+
+    <form action="{{F_ACTION}}" method="post" id="catModify">
+	<div class="fieldset">
+	    <h3>{{'Properties'|trans}}</h3>
+	    <p>
+		<label>{{'Title'|trans}}</label>
+		<input class="form-control" type="text" name="name" value="{{NAME}}">
+	    </p>
+
+	    <p>
+		<label>{{'Author'|trans}}</label>
+		<input class="form-control" type="text" name="author" value="{{AUTHOR}}">
+	    </p>
+
+	    <p>
+		<label>{{'Creation date'|trans}}</label>
+		<input type="date" name="date_creation" value="{{DATE_CREATION}}">
+	    </p>
+
+	    <p>
+		<label>{{'Linked albums'|trans}}</label>
+		<select data-selectize="categories" data-value="{{associated_albums|json_encode}}" placeholder="{{'Type in a search term'|trans}}"
+			data-default="{{STORAGE_ALBUM}}" name="associate[]" multiple>
+		</select>
+	    </p>
+
+	    <p>
+		<label for="album">{{'Representation of albums'|trans}}</label>
+		<select id="album" data-selectize="categories" data-value="{{represented_albums|json_encode}}"
+			placeholder="{{'Type in a search term'|trans}}" name="represent[]" multiple></select>
+	    </p>
+
+	    <p>
+		<label>{{'Tags'|trans}}</label>
+		<select data-selectize="tags" data-value="{{tag_selection|json_encode}}" placeholder="{{'Type in a search term'|trans}}"
+			data-create="true" name="tags[]" multiple>
+		</select>
+	    </p>
+
+	    <p>
+		<label for="description">{{'Description'|trans}}</label>
+		<textarea name="description" id="description" class="form-control">{{DESCRIPTION}}</textarea>
+	    </p>
+
+	    <p>
+		<label for="level">{{'Who can see this photo?'|trans}}</label>
+		<select id="level" class="custom-select" name="level" size="1">
+		    {% for option, label in level_options %}
+			<option value="{{option}}" {% if option == level_options_selected %}selected="selected"{% endif %}>{{label}}</option>
+		    {% endfor %}
+		</select>
+	    </p>
+
+	    <p>
+		<input class="btn btn-submit" type="submit" value="{{'Save Settings'|trans}}" name="submit">
+	    </p>
+	</div>
+    </form>
+{% endblock %}

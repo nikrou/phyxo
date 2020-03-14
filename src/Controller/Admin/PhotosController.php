@@ -17,7 +17,6 @@ use App\Repository\ImageRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
-use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -39,7 +38,7 @@ class PhotosController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function direct(Request $request, int $album_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $tokenManager,
+    public function direct(Request $request, int $album_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $tokenManager,
                             TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -152,7 +151,7 @@ class PhotosController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_photos_add');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_photos_add');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Photo', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('direct', $conf['enable_synchronization']), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -163,7 +162,7 @@ class PhotosController extends AdminCommonController
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
 
-        return $this->render('photos_add_direct.tpl', $tpl_params);
+        return $this->render('photos_add_direct.html.twig', $tpl_params);
     }
 
     public function batch(Request $request, EntityManager $em)

@@ -12,9 +12,9 @@
 namespace App\EventSubscriber;
 
 use App\DataMapper\UserMapper;
+use Twig\Environment;
 use App\Events\CommentEvent;
 use Phyxo\Conf;
-use Phyxo\Template\AdminTemplate;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -22,17 +22,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentNotificationSubscriber implements EventSubscriberInterface
 {
-    private $router, $mailer, $conf, $template, $phyxoVersion, $phyxoWebsite, $userMapper, $translator;
+    private $router, $mailer, $conf, $template, $userMapper, $translator;
 
-    public function __construct(\Swift_Mailer $mailer, Conf $conf, RouterInterface $router, AdminTemplate $template, string $phyxoVersion,
-                                string $phyxoWebsite, UserMapper $userMapper, TranslatorInterface $translator)
+    public function __construct(\Swift_Mailer $mailer, Conf $conf, RouterInterface $router, Environment $template,
+                                UserMapper $userMapper, TranslatorInterface $translator)
     {
         $this->mailer = $mailer;
         $this->conf = $conf;
         $this->router = $router;
         $this->template = $template;
-        $this->phyxoVersion = $phyxoVersion;
-        $this->phyxoWebsite = $phyxoWebsite;
         $this->userMapper = $userMapper;
         $this->translator = $translator;
     }
@@ -54,12 +52,12 @@ class CommentNotificationSubscriber implements EventSubscriberInterface
         }
 
         if ($event->getAction() === 'delete') {
-            $subject = $this->translator->trans('number_of_comments_deleted', ['count' => count($comment['ids'])]);
+            $subject = $this->translator->trans('number_of_comments_deleted', ['count' => count($comment['ids'])], 'admin');
             $comment['IDS'] = implode(',', $comment['ids']);
         } elseif ($event->getAction() === 'edit') {
-            $subject = $this->translator->trans('A comment has been edited');
+            $subject = $this->translator->trans('A comment has been edited', [], 'admin');
         } else {
-            $subject = $this->translator->trabs('Comment by {by}', ['by' => $comment['author']]);
+            $subject = $this->translator->trans('Comment by %by%', ['%by%' => $comment['author']], 'admin');
         }
 
         $params = [
@@ -71,9 +69,6 @@ class CommentNotificationSubscriber implements EventSubscriberInterface
             'comment_action' => $event->getAction(),
             'GALLERY_URL' => $this->router->generate('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'LEVEL_SEPARATOR' => $this->conf['level_separator'],
-            'CONTENT_ENCODING' => 'utf-8',
-            'PHYXO_VERSION' => $this->conf['show_version'] ? $this->phyxoVersion : '',
-            'PHYXO_URL' => $this->phyxoWebsite,
         ];
 
         if (!empty($this->conf['mail_sender_email'])) {
@@ -88,8 +83,8 @@ class CommentNotificationSubscriber implements EventSubscriberInterface
         $message = (new \Swift_Message())
             ->setSubject($subject)
             ->addTo(...$from)
-            ->setBody($this->template->render('mail/text/new_comment.text.tpl', $params), 'text/plain')
-            ->addPart($this->template->render('mail/html/new_comment.html.tpl', $params), 'text/html');
+            ->setBody($this->template->render('mail/text/new_comment.text.twig', $params), 'text/plain')
+            ->addPart($this->template->render('mail/html/new_comment.html.twig', $params), 'text/html');
 
         $message->setFrom(...$from);
         $message->setReplyTo(...$from);

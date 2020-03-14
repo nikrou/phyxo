@@ -1,0 +1,52 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'User comments'|trans}}</a></li>
+    <li class="breadcrumb-item">{{NB_ELEMENTS}} {{SECTION_TITLE}}</li>
+{% endblock %}
+
+{% block content %}
+    {% if navbar is defined %}{{include('_navigation_bar.html.twig')}}{% endif %}
+
+    {% if comments is defined %}
+	<form method="post" action="{{F_ACTION}}">
+	    <table class="table table-striped">
+		<tbody>
+		    {% for comment in comments %}
+			<tr>
+			    <td class="checkComment">
+				<input type="checkbox" name="comments[]" value="{{comment.ID}}">
+			    </td>
+			    <td>
+				<div class="comment">
+				    <a href="{{comment.U_PICTURE}}"><img src="{{comment.TN_SRC}}" alt=""></a>
+				    <p>
+					{% if comment.IS_PENDING %}<span class="pendingFlag">{{'Waiting'|trans}}</span> - {% endif %}
+					{% if comment.IP %}{{comment.IP}} - {% endif %}<strong>{{comment.AUTHOR}}</strong> - <em>{{comment.DATE}}</em>
+				    </p>
+				    <blockquote>{{comment.CONTENT}}</blockquote>
+				</div>
+			    </td>
+			</tr>
+		    {% endfor %}
+		</tbody>
+	    </table>
+
+	    <p class="checkActions">
+		{{'Select:'|trans}}
+		<button type="button" class="btn btn-sm btn-all" id="commentSelectAll">{{'All'|trans}}</button>
+		<button type="button" class="btn btn-sm btn-none" id="commentSelectNone">{{'None'|trans}}</button>
+		<button type="button" class="btn btn-sm btn-invert" id="commentSelectInvert">{{'Invert'|trans}}</button>
+	    </p>
+
+	    <p class="bottomButtons">
+		<input class="btn btn-submit" type="submit" name="validate" value="{{'Validate'|trans}}">
+		<input class="btn btn-cancel" type="submit" name="reject" value="{{'Reject'|trans}}">
+	    </p>
+
+	</form>
+    {% else %}
+	<p>{{'No comments'|trans}}</p>
+    {% endif %}
+{% endblock %}

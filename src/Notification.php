@@ -19,27 +19,25 @@ use App\Repository\UserInfosRepository;
 use App\Repository\BaseRepository;
 use App\DataMapper\UserMapper;
 use App\DataMapper\CategoryMapper;
-use App\Security\UserProvider;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\SrcImage;
 use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Conf;
-use Phyxo\Functions\Language;
-use Phyxo\Template\AdminTemplate;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 class Notification
 {
     private $em, $conn, $conf, $userMapper, $categoryMapper, $router;
-    private $env, $must_repost, $userProvider, $template, $phyxoVersion, $phyxoWebsite, $mailer, $translator;
+    private $env, $template, $phyxoVersion, $phyxoWebsite, $mailer, $translator;
 
     private $infos = [], $errors = [];
 
-    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, CategoryMapper $categoryMapper, RouterInterface $router, UserProvider $userProvider,
-                                AdminTemplate $template, string $phyxoVersion, string $phyxoWebsite, \Swift_Mailer $mailer, TranslatorInterface $translator)
+    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, CategoryMapper $categoryMapper, RouterInterface $router,
+                                Environment $template, string $phyxoVersion, string $phyxoWebsite, \Swift_Mailer $mailer, TranslatorInterface $translator)
     {
         $this->em = $em;
         $this->conn = $em->getConnection();
@@ -47,7 +45,6 @@ class Notification
         $this->userMapper = $userMapper;
         $this->categoryMapper = $categoryMapper;
         $this->router = $router;
-        $this->userProvider = $userProvider;
         $this->template = $template;
         $this->phyxoVersion = $phyxoVersion;
         $this->phyxoWebsite = $phyxoWebsite;
@@ -63,8 +60,6 @@ class Notification
         if ((!isset($this->env['sendmail_timeout'])) || (!is_numeric($this->env['sendmail_timeout'])) || ($this->env['sendmail_timeout'] <= 0)) {
             $this->env['sendmail_timeout'] = $conf['nbm_treatment_timeout_default'];
         }
-
-        $this->must_repost = false;
     }
 
     /**
@@ -706,7 +701,6 @@ class Notification
                 }
                 $_POST[$post_keyname] = array_diff($_POST[$post_keyname], $check_key_treated);
 
-                $this->must_repost = true;
                 $this->errors[] = $this->translator->trans('execution_timeout_in_seconds', ['count' => $time_refresh]);
             }
         }
@@ -955,8 +949,8 @@ class Notification
 
         $message = (new \Swift_Message('[' . $this->conf['gallery_title'] . '] ' . $subject))
             ->addTo($to['email'], $to['name'])
-            ->setBody($this->template->render('mail/text/notification.text.tpl', $tpl_params), 'text/plain')
-            ->addPart($this->template->render('mail/html/notification.html.tpl', $tpl_params), 'text/html');
+            ->setBody($this->template->render('mail/text/notification.text.twig', $tpl_params), 'text/plain')
+            ->addPart($this->template->render('mail/html/notification.html.twig', $tpl_params), 'text/html');
 
         $message->setFrom($from['email'], $from['name']);
         $message->setReplyTo($from['email'], $from['name']);

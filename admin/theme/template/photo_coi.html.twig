@@ -1,0 +1,83 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Image'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Center of interest'|trans}}</li>
+{% endblock %}
+
+{% block stylesheets %}
+    {{parent()}}
+    <link rel="stylesheet" type="text/css" href="{{asset('admin/theme/js/plugins/jquery.Jcrop.css')}}" />
+{% endblock %}
+
+{% block javascripts %}
+    {{parent()}}
+    <script src="{{asset('admin/theme/js/plugins/jquery.colorbox.js')}}"></script>
+    <script src="{{asset('admin/theme/js/plugins/jquery.Jcrop.js')}}"></script>
+    <script>
+     function from_coi(f, total) {
+	 return f*total;
+     }
+
+     function to_coi(v, total) {
+	 return v/total;
+     }
+
+     function jOnChange(sel) {
+	 var $img = $("#jcrop");
+	 $("#l").val( to_coi(sel.x, $img.width()) );
+	 $("#t").val( to_coi(sel.y, $img.height()) );
+	 $("#r").val( to_coi(sel.x2, $img.width()) );
+	 $("#b").val( to_coi(sel.y2, $img.height()) );
+     }
+
+     function jOnRelease() {
+	 $("#l,#t,#r,#b").val("");
+     }
+
+     $("#jcrop").Jcrop({
+	 boxWidth: 500, boxHeight: 400,
+	 onChange: jOnChange,
+	 onRelease: jOnRelease
+     }
+	 {% if coi %}
+		      ,function() {
+			  var $img = $("#jcrop");
+			  this.animateTo( [from_coi({{coi.l}}, $img.width()), from_coi({{coi.t}}, $img.height()), from_coi({{coi.r}}, $img.width()), from_coi({{coi.b}}, $img.height()) ] );
+		      }
+	 {% endif %}
+     );
+    </script>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+	<div class="fieldset">
+	    <h3>{{'Photo sizes with crop'|trans}}</h3>
+	    {% for deriv in cropped_derivatives %}
+		<img src="{{deriv.U_IMG}}" alt="{{ALT}}" {{deriv.HTM_SIZE}}>
+	    {% endfor %}
+	</div>
+
+	<div class="fieldset">
+	    <h3>{{'Center of interest'|trans}}</h3>
+	    <p>
+		{{'The center of interest is the most meaningful zone in the photo.'|trans}}
+		{{'For photo sizes with crop, such as "Square", Phyxo will do its best to include the center of interest.'|trans}}
+		{{'By default, the center of interest is placed in the middle of the photo.'|trans}}
+		{{'Select a zone with your mouse to define a new center of interest.'|trans}}
+	    </p>
+	    <input type="hidden" id="l" name="l" value="{% if coi %}{{coi.l}}{% endif %}">
+	    <input type="hidden" id="t" name="t" value="{% if coi %}{{coi.t}}{% endif %}">
+	    <input type="hidden" id="r" name="r" value="{% if coi %}{{coi.r}}{% endif %}">
+	    <input type="hidden" id="b" name="b" value="{% if coi %}{{coi.b}}{% endif %}">
+
+	    <img id="jcrop" src="{{U_IMG}}" alt="{{ALT}}">
+
+	    <p>
+		<input class="btn btn-submit" type="submit" name="submit" value="{{'Submit'|trans}}">
+	    </p>
+	</div>
+    </form>
+{% endblock %}

@@ -12,10 +12,7 @@
 namespace App\Controller;
 
 use Phyxo\Conf;
-use Phyxo\Template\Template;
-use App\Entity\User;
 use App\Security\UserProvider;
-use Phyxo\Extension\Theme;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 abstract class CommonController extends AbstractController
@@ -66,20 +63,9 @@ abstract class CommonController extends AbstractController
         return $extra_params;
     }
 
-    public function addThemeParams(Template $template, Conf $conf, User $user, string $themesDir, string $phyxoVersion, string $phyxoWebsite): array
+    public function addThemeParams(Conf $conf): array
     {
         $tpl_params = [];
-
-        $template->setUser($user);
-
-        // default theme
-        if (isset($this->image_std_params)) {
-            $template->setImageStandardParams($this->image_std_params);
-        }
-        $template->setTheme(new Theme($themesDir, $user->getTheme()), $conf);
-
-        $tpl_params['PHYXO_VERSION'] = $conf['show_version'] ? $phyxoVersion : '';
-        $tpl_params['PHYXO_URL'] = $phyxoWebsite;
 
         $tpl_params['GALLERY_TITLE'] = $conf['gallery_title'];
         $tpl_params['PAGE_TITLE'] = '';

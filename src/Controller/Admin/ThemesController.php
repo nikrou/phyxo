@@ -15,7 +15,6 @@ use App\DataMapper\UserMapper;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
-use Phyxo\Template\Template;
 use Phyxo\Theme\Themes;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,7 +36,7 @@ class ThemesController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function installed(Request $request, Template $template, EntityManager $em, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function installed(Request $request, EntityManager $em, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -141,7 +140,6 @@ class ThemesController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_themes_installed');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('installed'), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
@@ -149,11 +147,12 @@ class ThemesController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('error')) {
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
 
-        return $this->render('themes_installed.tpl', $tpl_params);
+        return $this->render('themes_installed.html.twig', $tpl_params);
     }
 
-    public function update(Request $request, Template $template, EntityManager $em, UserMapper $userMapper, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
+    public function update(Request $request, EntityManager $em, UserMapper $userMapper, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
                             ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -212,7 +211,6 @@ class ThemesController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_themes_update');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('update'), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
@@ -220,8 +218,9 @@ class ThemesController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('error')) {
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
 
-        return $this->render('themes_update.tpl', $tpl_params);
+        return $this->render('themes_update.html.twig', $tpl_params);
     }
 
     public function action(string $theme, string $action, EntityManager $em, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params)
@@ -262,7 +261,7 @@ class ThemesController extends AdminCommonController
         }
     }
 
-    public function new(Request $request, Template $template, EntityManager $em, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function new(Request $request, EntityManager $em, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -289,7 +288,6 @@ class ThemesController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_themes_new');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('new'), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
@@ -297,6 +295,8 @@ class ThemesController extends AdminCommonController
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
 
-        return $this->render('themes_new.tpl', $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+
+        return $this->render('themes_new.html.twig', $tpl_params);
     }
 }

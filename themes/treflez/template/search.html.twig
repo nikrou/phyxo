@@ -155,7 +155,7 @@
 			        </select>
 			        <input id="end_year" name="end_year" type="text" size="4" maxlength="4" class="form-control" placeholder="{{'Year'|trans}}">
 			        <input id="end_linked_date" name="end_linked_date" type="hidden" size="10" disabled="disabled">
-			        <button type="button" class="date_today ml-3 btn btn-info" onClick="document.getElementById('end_day').value={smarty.now|date_format:"%d"};document.getElementById('end_month').value={smarty.now|date_format:"%m"};document.getElementById('end_year').value={smarty.now|date_format:"%Y"};return false;">{{'today'|trans}}</button>
+			        <button type="button" class="date_today ml-3 btn btn-info" onClick="document.getElementById('end_day').value={'now'|date_format:"%d"};document.getElementById('end_month').value={'now'|date_format:"%m"};document.getElementById('end_year').value={'now'|date_format:"%Y"};return false;">{{'today'|trans}}</button>
 			      </div>
 		      </div>
 		    </div>

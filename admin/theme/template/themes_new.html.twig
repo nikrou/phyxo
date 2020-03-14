@@ -1,0 +1,25 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Themes'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Add New Theme'|trans}}</li>
+{% endblock %}
+
+{% block content %}
+    {% if themes %}
+	<div class="extensions">
+	    {% for theme in themes %}
+		<div class="extension theme">
+		    <div>{{theme.name}}</div>
+		    <a href="{{theme.screenshot}}" class="preview-box icon-zoom-in" title="{{theme.name}}">
+			<img src="{{theme.thumbnail}}" alt="">
+		    </a>
+		    <a class="btn btn-sm btn-submit" href="{{theme.install}}">{{'Install'|trans}}</a>
+		</div>
+	    {% endfor %}
+	</div>
+    {% else %}
+	<p>{{'There is no other theme available.'|trans}}</p>
+    {% endif %}
+{% endblock %}

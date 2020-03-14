@@ -18,11 +18,11 @@ use App\Repository\UserInfosRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
+use Phyxo\Functions\Utils;
 use Phyxo\Image\Image;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\WatermarkParams;
 use Phyxo\TabSheet\TabSheet;
-use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
@@ -143,7 +143,7 @@ class ConfigurationController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function index(Request $request, string $section, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager,
+    public function index(Request $request, string $section, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager,
                         UserMapper $userMapper, ImageStandardParams $image_std_params)
     {
         $tpl_params = [];
@@ -152,7 +152,6 @@ class ConfigurationController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_configuration', ['section' => $section]);
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_configuration_update', ['section' => $section]);
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet($section), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_configuration');
@@ -196,7 +195,18 @@ class ConfigurationController extends AdminCommonController
 
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
 
-        return $this->render('configuration_' . $section . '.tpl', $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+
+        return $this->render('configuration_' . $section . '.html.twig', $tpl_params);
+    }
+
+    public function sizeRestore(ImageStandardParams $image_std_params, TranslatorInterface $translator)
+    {
+        $image_std_params->setAndSave($image_std_params->getDefaultSizes());
+        Utils::clear_derivative_cache($image_std_params->getAllTypes(), $image_std_params->getAllTypes());
+        $this->addFlash('info', $translator->trans('Your configuration settings are saved', [], 'admin'));
+
+        return $this->redirectToRoute('admin_configuration', ['section' => 'sizes']);
     }
 
     protected function mainConfiguration(Conf $conf)
@@ -569,6 +579,8 @@ class ConfigurationController extends AdminCommonController
                     }
                 }
             } elseif ($section === 'display') {
+                $conf['picture_informations'] = json_decode($conf['picture_informations'], true);
+
                 if ($request->request->get('nb_categories_page')) {
                     $nb_categories_page = (int) $request->request->get('nb_categories_page');
                     if ($nb_categories_page < 4) {
@@ -589,14 +601,16 @@ class ConfigurationController extends AdminCommonController
                     }
                 }
 
+                $picture_informations = $conf['picture_informations'];
                 foreach ($this->display_info_checkboxes as $name_checkbox) {
                     $new_value = !empty($request->request->get('picture_informations')[$name_checkbox]);
 
-                    if ($conf[$name_checkbox] !== $new_value) {
+                    if ($conf['picture_informations'][$name_checkbox] !== $new_value) {
                         $conf_updated = true;
-                        $conf[$name_checkbox] = $new_value;
+                        $picture_informations[$name_checkbox] = $new_value;
                     }
                 }
+                $conf['picture_informations'] = $picture_informations;
             } elseif ($section === 'watermark') {
                 $watermark = [];
                 if ($request->files->get('watermarkImage')) {

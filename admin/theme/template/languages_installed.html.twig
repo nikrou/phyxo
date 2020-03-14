@@ -1,0 +1,54 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{U_PAGE}">{{'Languages'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Installed Languages'|trans}}</li>
+{% endblock %}
+
+{% block content %}
+    {% for language_state in language_states %}
+	<div class="extensions state state-{language_state}">
+	    {% if language_state == 'active' %}
+		<h3>{{'Active Languages'|trans}}</h3>
+	    {% elseif language_state == 'inactive' %}
+		<h3>{{'Inactive Languages'|trans}}</h3>
+	    {% endif %}
+
+	    <div>
+		{% for language in languages %}
+		    {% if language.state == language_state %}
+			<div class="row extension{% if language.is_default %} extension-default{% endif %}">
+			    <div class="col-2">
+				<div>{{language.name}}{% if language.is_default %} <em>({{'Default'|trans}})</em>{% endif %}</div>
+				{% if language_state == 'active' %}
+				    <div>{{'Version'|trans}} {{language.CURRENT_VERSION}}</div>
+				{% endif %}
+			    </div>
+			    <div class="col-10">
+				<div>
+				    {% if language_state == 'active' %}
+					{% if language.deactivable %}
+					    <a class="btn btn-sm btn-info" href="{{language.action}}" title="{{'Forbid this language to users'|trans}}">{{'Deactivate'|trans}}</a>
+					{% else %}
+					    <span class="btn btn-sm btn-info disabled" title="{{language.deactivate_tooltip}}">{{'Deactivate'|trans}}</span>
+					{% endif %}
+
+					{% if not language.is_default %}
+					    <a class="btn btn-sm btn-success" href="{{language.set_default}}" title="{{'Set as default language for unregistered and new users'|trans}}">{{'Default'|trans}}</a>
+					{% endif %}
+				    {% endif %}
+
+				    {% if language_state == 'inactive' %}
+					<a class="btn btn-sm btn-submit" href="{{language.action}}" class="activate" title="{{'Make this language available to users'|trans}}">{{'Activate'|trans}}</a>
+					<a class="btn btn-sm btn-danger" href="{{language.delete}}" onclick="return confirm('{{'Are you sure?'|trans}}');" title="{{'Delete this language'|trans}}">{{'Delete'|trans}}</a>
+				    {% endif %}
+				</div>
+			    </div> <!-- languageActions -->
+			</div> <!-- languageBox -->
+		    {% endif %}
+		{% endfor %}
+	    </div> <!-- languageBoxes -->
+	</div>
+    {% endfor %}
+{% endblock %}

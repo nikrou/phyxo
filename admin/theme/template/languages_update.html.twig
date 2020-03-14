@@ -1,0 +1,76 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{U_PAGE}">{{'Languages'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Updates'|trans}}</li>
+{% endblock %}
+
+{% block javascripts %}
+    {{parent()}}
+    <script>
+     var ws_url = '{{ws}}';
+     var pwg_token = '{{csrf_token}}';
+     var extType = '{{EXT_TYPE}}';
+     var confirmMsg  = '{{'Are you sure?'|trans}}';
+     var errorHead   = '{{'ERROR'|trans}}';
+     var successHead = '{{'Update Complete'|trans}}';
+     var errorMsg    = '{{'an error happened'|trans}}';
+     var restoreMsg  = '{{'Reset ignored updates'|trans}}';
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="actions">
+	{% if (update_languages|length - SHOW_RESET) > 0 %}
+	    <button type="button" class="btn btn-submit" id="updateAll">{{'Update All'|trans}}</button>
+	    <button type="button" class="btn btn-warning" id="ignoreAll">{{'Ignore All'|trans}}</button>
+	{% endif %}
+	<button type="button" class="btn btn-warning{% if SHOW_RESET == 0 %} collapse{% endif %}" id="resetIgnored">
+	    {{'Reset ignored updates'|trans}}
+	    &nbsp;<small>(<span class="count">{{SHOW_RESET}}</span>)</small>
+	</button>
+    </div>
+    <div class="please-wait collapse">
+	{{'Please wait...'|trans}}
+    </div>
+
+    <p id="up-to-date"{% if (update_languages|length - SHOW_RESET) > 0 %} class="collapse"{% endif %}>{{'All languages are up to date.'|trans}}</p>
+
+    {% if update_languages %}
+	<div class="extensions">
+	    <h3>{{'Languages'|trans}}</h3>
+	    {% for language in update_languages %}
+		<div class="extension row{% if language.IGNORED %} d-none{% endif %}" id="languages_{{language.EXT_ID}}">
+		    <div class="col-2">
+			<div>{{language.EXT_NAME}}</div>
+			<div>{{'Version'|trans}} {{language.CURRENT_VERSION}}</div>
+		    </div>
+		    <div class="col-10">
+			<button type="button" class="btn btn-sm btn-submit install" data-redirect="{{INSTALL_URL}}"
+				data-type="{{EXT_TYPE}}" data-ext-id="{{language.EXT_ID}}" data-revision-id="{{language.REVISION_ID}}">
+			    {{'Install'|trans}}
+			</button>
+			<a class="btn btn-sm btn-success" href="{{language.URL_DOWNLOAD}}">{{'Download'|trans}}</a>
+			<button type="button" class="btn btn-sm btn-warning ignore" data-type="{{EXT_TYPE}}" data-ext-id="{{language.EXT_ID}}">
+			    {{'Ignore this update'|trans}}
+			</button>
+
+			<div class="extension description" id="desc_{{language.ID}}">
+			    <em>{{'Downloads'|trans}}: {{language.DOWNLOADS}}</em>
+			    <button type="button" class="btn btn-link show-description" data-target="#description-{{language.EXT_ID}}" data-toggle="collapse">
+				<i class="fa fa-plus-square-o"></i>
+			    </button>
+			    {{'New version'|trans}} : {{language.NEW_VERSION}} | {{'By {by}'|trans({'by': language.AUTHOR})}}
+			</div>
+			<div class="revision description collapse" id="description-{{language.EXT_ID}}">
+			    <p>{{language.EXT_DESC}}</p>
+			    <hr>
+			    {{language.REV_DESC}}
+			</div>
+		    </div>
+		</div>
+	    {% endfor %}}
+	</div>
+    {% endif %}
+{% endblock %}

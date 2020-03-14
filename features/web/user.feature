@@ -27,8 +27,7 @@ Feature: User albums
     Given I am logged in as "user1" with password "pass1"
     Then I should see "album 1"
     When I follow "album 1"
-    And I follow "photo 1"
-    Then I should see "photo 1"
+    Then I should see photo "photo 1"
 
   Scenario: I can see only protected albums with granted access
     Given I am logged in as "user1" with password "pass1"
@@ -42,6 +41,11 @@ Feature: User albums
     Then the response status code should be 200
     But I should not see "album 1"
     And I should not be allowed to go to album "album 1"
+
+  Scenario: I can see public albums
+    Given I am logged in as "user1" with password "pass1"
+    When I follow "album 3"
+    Then I should see photo "photo 3"
 
   # Scenario: Guest can see only public albums and only if guest access is allowed
   #   When config for "guest_access" equals to "true" of type "boolean"

@@ -310,81 +310,11 @@ $conf['use_exif_mapping'] = [
 $conf['allow_html_in_metadata'] = false;
 
 // +-----------------------------------------------------------------------+
-// |                               sessions                                |
-// +-----------------------------------------------------------------------+
-
-// session_use_cookies: specifies to use cookie to store
-// the session id on client side
-$conf['session_use_cookies'] = true;
-
-// session_use_only_cookies: specifies to only use cookie to store
-// the session id on client side
-$conf['session_use_only_cookies'] = true;
-
-// session_use_trans_sid: do not use transparent session id support
-$conf['session_use_trans_sid'] = false;
-
-// session_name: specifies the name of the session which is used as cookie name
-$conf['session_name'] = 'phyxo_id';
-
-// session_save_handler: comment the line below
-// to use file handler for sessions.
-$conf['session_save_handler'] = 'db';
-
-// authorize_remembering : permits user to stay logged for a long time. It
-// creates a cookie on client side.
-$conf['authorize_remembering'] = true;
-
-// remember_me_name: specifies the name of the cookie used to stay logged
-$conf['remember_me_name'] = 'phyxo_remember';
-
-// remember_me_length : time of validity for "remember me" cookies, in
-// seconds.
-$conf['remember_me_length'] = 5184000;
-
-// session_length : time of validity for normal session, in seconds.
-$conf['session_length'] = 3600;
-
-// session_use_ip_address: avoid session hijacking by using a part of the IP
-// address
-$conf['session_use_ip_address'] = true;
-
-// +-----------------------------------------------------------------------+
 // |                            debug/performance                          |
 // +-----------------------------------------------------------------------+
 
 // show_queries : for debug purpose, show queries and execution times
 $conf['show_queries'] = false;
-
-// show_gt : display generation time at the bottom of each page
-$conf['show_gt'] = true;
-
-// activate template debugging - a new window will appear
-$conf['debug_template'] = false;
-
-// save copies of sent mails into local data dir
-$conf['debug_mail'] = false;
-
-// die_on_sql_error: if an SQL query fails, should everything stop?
-$conf['die_on_sql_error'] = true;
-
-// This tells Smarty whether to check for recompiling or not. Recompiling
-// does not need to happen unless a template is changed. false results in
-// better performance.
-$conf['template_compile_check'] = true;
-
-// This forces Smarty to (re)compile templates on every invocation. This is
-// handy for development and debugging. It should never be used in a
-// production environment.
-$conf['template_force_compile'] = false;
-
-// this permit to show the php errors reporting (see INI 'error_reporting'
-// for possible values)
-// gives an empty value '' to deactivate
-$conf['show_php_errors'] = E_ALL;
-
-// enable log for i derivative script
-$conf['enable_i_log'] = false;
 
 // guest_id : id of the anonymous user
 $conf['guest_id'] = 2;

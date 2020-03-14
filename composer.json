@@ -16,7 +16,6 @@
         "openpsa/universalfeedcreator": "^1.8",
         "pclzip/pclzip": "^2.8",
         "pelago/emogrifier": "^3.1",
-        "smarty/smarty": "^3.1",
         "swiftmailer/swiftmailer": "^6.2",
         "symfony/asset": "4.3.*",
         "symfony/console": "^4.1",

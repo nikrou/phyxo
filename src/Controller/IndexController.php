@@ -17,16 +17,14 @@ use App\Repository\BaseRepository;
 use Phyxo\MenuBar;
 use Phyxo\EntityManager;
 use Phyxo\Conf;
-use Phyxo\Functions\Language;
 use App\DataMapper\ImageMapper;
-use Phyxo\Template\Template;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class IndexController extends CommonController
 {
-    public function mostVisited(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+    public function mostVisited(Request $request, EntityManager $em, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
                                 ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -78,7 +76,7 @@ class IndexController extends CommonController
             );
         }
 
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
@@ -86,7 +84,7 @@ class IndexController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function recentPics(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+    public function recentPics(Request $request, EntityManager $em, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
                                 ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -141,7 +139,7 @@ class IndexController extends CommonController
             );
         }
 
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
@@ -149,7 +147,7 @@ class IndexController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function bestRated(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+    public function bestRated(Request $request, EntityManager $em, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
                             ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -205,7 +203,7 @@ class IndexController extends CommonController
             );
         }
 
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
@@ -237,7 +235,7 @@ class IndexController extends CommonController
     }
 
     public function randomList(Request $request, EntityManager $em, string $list, Conf $conf, ImageMapper $imageMapper, MenuBar $menuBar, int $start = 0,
-                                Template $template, string $themesDir, string $phyxoVersion, string $phyxoWebsite, ImageStandardParams $image_std_params, TranslatorInterface $translator)
+                                ImageStandardParams $image_std_params, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -278,7 +276,8 @@ class IndexController extends CommonController
             );
         }
 
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params['START_ID'] = $start;
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));

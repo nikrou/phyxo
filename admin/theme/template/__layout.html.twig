@@ -1,0 +1,183 @@
+{% trans_default_domain domain|default('admin') %}
+<!DOCTYPE html>
+<html>
+    <head>
+	<meta charset="utf-8">
+	<meta name="generator" content="Phyxo, see https://www.phyxo.net/">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="shortcut icon" href="{{asset('imgs/favicon.ico')}}" type="image/x-icon">
+	<link rel="icon" href="{{asset('imgs/favicon.png')}}" type="image/png">
+	<link rel="icon" sizes="32x32" href="{{asset('imgs/favicon-32.png')}}" type="image/png">
+	<link rel="icon" sizes="64x64" href="{{asset('imgs/favicon-64.png')}}" type="image/png">
+	<link rel="icon" sizes="96x96" href="{{asset('imgs/favicon-96.png')}}" type="image/png">
+	<title>
+	    {% block title %}Phyxo - Administration{% endblock %}
+	</title>
+
+	{% block stylesheets %}
+	    <link rel="stylesheet" href="{{asset('app.css')}}">
+	{% endblock %}
+	{% block html_head %}{% endblock %}
+    </head>
+    <body>
+	{% block header %}
+	    <header>
+		<nav class="navbar navbar-expand-lg navbar-dark">
+		    <a class="navbar-brand mr-auto" href="{{path('admin_home')}}" title="{{'Administration'|trans}}"><i class="fa fa-home"></i> {{GALLERY_TITLE}}</a>
+		    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse">
+			<i class="fa fa-align-justify"></i>
+		    </button>
+
+		    <div class="collapse navbar-collapse" id="navbarCollapse">
+			<ul class="navbar-nav ml-auto">
+			    <li class="nav-item"><a class="nav-link" href="{{U_RETURN}}"><i class="fa fa-eye"></i> {{'Visit Gallery'|trans}}</a></li>
+			    <li class="nav-item"><a class="nav-link" href="{{path('logout')}}"><i class="fa fa-sign-out"></i> {{'Logout'|trans}}  ({{USERNAME}})</a></li>
+			</ul>
+		    </div>
+		</nav>
+
+		{% if header_msgs is defined %}
+		    <div class="alert alert-dark" role="alert">
+			{% for elt in header_msgs %}
+			    {{elt}}
+			{% endfor %}
+		    </div>
+		{% endif %}
+
+		{% if header_notes is defined %}
+		    <div class="alert alert-warning" role="alert">
+			{% for elt in header_notes %}
+			    {{elt}}
+			{% endfor %}
+		    </div>
+		{% endif %}
+	    </header>
+	{% endblock %}
+
+	<div class="wrapper">
+	    <main>
+		<section role="content">
+		    {%  block menu_toggle_button %}
+			<p>
+			    <button type="button" id="sidebarCollapse" class="btn btn-info">
+				<i class="fa fa-align-left"></i>
+				<span>{{'Toggle menu'|trans}}</span>
+			    </button>
+			</p>
+		    {% endblock %}
+
+		    {% block breadcrumb %}
+			<nav aria-label="breadcrumb">
+			    <ol class="breadcrumb">
+				<li class="breadcrumb-item active" aria-current="page"><a href="{{path('admin_home')}}">{{'Home'|trans}}</a></li>
+				{% block breadcrumb_items %}{% endblock %}
+			    </ol>
+			</nav>
+		    {% endblock %}
+
+		    {% block tabs %}
+			{% if tabsheet is defined %}
+			    <ul class="nav nav-tabs">
+				{% for tab in tabsheet %}
+				    <li class="nav-item">
+					{% if tab.url %}
+					    <a class="nav-link{% if tab.selected %} active{% endif %}" href="{{tab.url}}">
+						{% if tab.icon is defined %}
+						    <i class="fa {{tab.icon}}"></i>
+						{% endif %}
+						{{tab.caption}}
+					    </a>
+					{%  else %}
+					    <span class="nav-link disabled">
+						{% if tab.icon is defined %}
+						    <i class="fa {{tab.icon}}"></i>
+						{% endif %}
+						{{tab.caption}}
+					    </span>
+					{% endif %}
+				    </li>
+				{% endfor %}
+			    </ul>
+			{% endif %}
+		    {% endblock %}
+
+		    {% if errors %}
+			<div class="alert alert-danger alert-dismissible fade show" role="alert">
+			    {% for error in errors %}
+				<p>{{error|raw}}</p>
+			    {% endfor %}
+			    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<i class="fa fa-times"></i>
+			    </button>
+			</div>
+		    {% endif %}
+
+		    <div class="alert alert-dismissible fade hide" role="alert">
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			    <i class="fa fa-times"></i>
+			</button>
+		    </div>
+
+		    {% if infos %}
+			<div class="alert alert-success alert-dismissible fade show" role="alert">
+			    {% for info in infos %}
+				<p>{{info|raw}}</p>
+			    {% endfor %}
+			    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<i class="fa fa-times"></i>
+			    </button>
+			</div>
+		    {% endif %}
+
+		    {% if warnings %}
+			<div class="alert alert-warning alert-dismissible fade show" role="alert">
+			    {% for warning in warnings %}
+				<p>{{warning|raw}}</p>
+			    {% endfor %}
+			    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<i class="fa fa-times"></i>
+			    </button>
+			</div>
+		    {% endif %}
+
+		    {% block content %}{% endblock %}
+		</section>
+	    </main>
+
+	    {% block aside %}
+		<aside id="sidebar" role="navigation">
+		    {{include('_menubar.html.twig')}}
+		</aside>
+	    {% endblock %}
+	</div>
+
+	{% block footer %}
+	    <footer>
+		<div class="copyright">
+		    {{'Powered by'|trans}}&nbsp;<a href="{{PHYXO_URL}}">Phyxo</a>&nbsp;{{PHYXO_VERSION}}
+		</div>
+
+		<div id="page-infos">
+		    {% if debug.TIME is defined %}
+			{{'Page generated in'|trans}} {{debug.TIME}} ({{debug.NB_QUERIES}} {{'SQL queries in'|trans}} {{debug.SQL_TIME}}) -
+		    {% endif %}
+
+		    {% if CONTACT_MAIL is defined %}
+			{{'Contact'|trans}}
+			<a href="mailto:{{CONTACT_MAIL}}?subject={{'A comment on your site'|trans}}">{{'Webmaster'|trans}}</a>
+		    {% endif %}
+		</div>
+	    </footer>
+	{% endblock %}
+
+	{% block html_footer %}{% endblock %}
+	{% block javascripts %}
+	    <script src="{{asset('admin/theme/js/jquery/jquery.js')}}"></script>
+	    <script src="{{asset('admin/theme/js/jquery/jquery-migrate-1.2.1.js')}}"></script>
+	    <script>
+	     var phyxo_root_url = "{{app.request.basepath}}/";
+	    </script>
+	    <script src="{{asset('app.js')}}"></script>
+	{% endblock %}
+    </body>
+</html>

@@ -13,7 +13,6 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Phyxo\Template\Template;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
 use Phyxo\EntityManager;
@@ -44,8 +43,8 @@ class PictureController extends CommonController
     private $em, $userMapper, $translator;
     private const VALID_COMMENT = 'valid_comment';
 
-    public function picture(Request $request, int $image_id, string $type, string $element_id, Template $template, Conf $conf, string $themesDir, string $phyxoVersion,
-                            string $phyxoWebsite, MenuBar $menuBar, EntityManager $em, ImageStandardParams $image_std_params, TagMapper $tagMapper,
+    public function picture(Request $request, int $image_id, string $type, string $element_id, Conf $conf,
+                            MenuBar $menuBar, EntityManager $em, ImageStandardParams $image_std_params, TagMapper $tagMapper,
                             CategoryMapper $categoryMapper, UserMapper $userMapper, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager,
                             ImageMapper $imageMapper, Metadata $metadata, TranslatorInterface $translator)
     {
@@ -498,7 +497,7 @@ class PictureController extends CommonController
 
         $tpl_params['SECTION_TITLE'] = '<a href="' . $this->generateUrl('homepage') . '">' . $translator->trans('Home') . '</a>';
 
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         if ($this->get('session')->getFlashBag()->has('info')) {

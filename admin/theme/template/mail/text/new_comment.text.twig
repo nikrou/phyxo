@@ -1,0 +1,22 @@
+{% trans_default_domain 'admin' %}
+{% extends "mail/text/__layout.text.twig" %}
+
+{% block content %}
+    {{'Author: %author%'|trans({'%author%': comment.author})}}
+    {% if comment_action == 'delete' %}
+	{{'This author removed the comment with id %ids%'|trans({'%ids%': comment.IDS})}}
+    {% elseif comment_action == 'edit' %}
+	{{'This author modified following comment'|trans}}
+	{{comment.content}}
+    {% else %}
+	{{'Email: %email%'|trans({'%email%': comment.email})}}
+	{{'Comment'|trans}}
+	{{comment.content}}
+	{% if comment_url %}
+	    {{'Manage this user comment'|trans}}: {{comment_url}}
+	{% endif %}
+	{% if comment_action == 'moderate' %}
+	    {{'This comment requires validation'|trans}}
+	{% endif %}
+    {% endif %}
+{% endblock %}

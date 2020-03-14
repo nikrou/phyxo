@@ -1,0 +1,69 @@
+{% trans_default_domain 'admin' %}
+<ul class="pagination">
+    {% if navbar.URL_FIRST %}
+	<li class="page-item">
+	    <a class="page-link" href="{{navbar.URL_FIRST}}" aria-label="{{'First'|trans}}" rel="first">
+		<i class="fa fa-fast-backward"></i>
+		<span class="visually-hidden">{{'First'|trans}}</span>
+	    </a>
+	</li>
+	<li class="page-item">
+	    <a class="page-link" href="{{navbar.URL_PREV}}" rel="prev">
+		<i class="fa fa-backward"></i>
+		<span class="visually-hidden">{{'Previous'|trans}}</span>
+	    </a>
+	</li>
+    {% else %}
+	<li class="page-item disabled">
+	    <span class="page-link">
+		<i class="fa fa-fast-backward"></i>
+		<span class="visually-hidden">{{'First'|trans}}</span>
+	    </span>
+	</li>
+	<li class="page-item disabled">
+	    <span class="page-link">
+		<i class="fa fa-backward"></i>
+		<span class="visually-hidden">{{'Previous'|trans}}</span>
+	    </span>
+	</li>
+    {% endif %}
+
+    {% set prev_page = 0 %}
+    {% for page, url in navbar.pages %}
+	{% if page > prev_page+1 %}<li class="page-item"><span class="page-link">...</span></li>{% endif %}
+	{% if page == navbar.CURRENT_PAGE %}
+	    <li class="page-item active"><span class="page-link">{{page}}</span></li>
+	{% else %}
+	    <li class="page-item"><a class="page-link" href="{{url}}">{{page}}</a></li>
+	{% endif %}
+	{% set prev_page = page %}
+    {% endfor %}
+
+    {% if navbar.URL_NEXT %}
+	<li class="page-item">
+	    <a class="page-link" href="{{navbar.URL_NEXT}}" rel="next">
+		<i class="fa fa-forward"></i>
+		<span class="visually-hidden">{{'Next'|trans}}</span>
+	    </a>
+	</li>
+	<li class="page-item">
+	    <a class="page-link" href="{{navbar.URL_LAST}}" rel="last">
+		<i class="fa fa-fast-forward"></i>
+		<span class="visually-hidden">{{'Last'|trans}}</span>
+	    </a>
+	</li>
+    {% else %}
+	<li class="page-item disabled">
+	    <span class="page-link">
+		<i class="fa fa-forward"></i>
+		<span class="visually-hidden">{{'Next'|trans}}</span>
+	    </span>
+	</li>
+	<li class="page-item disabled">
+	    <span class="page-link">
+		<i class="fa fa-fast-forward"></i>
+		<span class="visually-hidden">{{'Last'|trans}}</span>
+	    </span>
+	</li>
+    {% endif %}
+</ul>

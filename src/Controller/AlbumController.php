@@ -13,7 +13,6 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\EntityManager;
-use Phyxo\Template\Template;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
 use Phyxo\Image\ImageStandardParams;
@@ -31,7 +30,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AlbumController extends CommonController
 {
-    public function album(Request $request, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, ImageStandardParams $image_std_params, MenuBar $menuBar,
+    public function album(Request $request, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, ImageStandardParams $image_std_params, MenuBar $menuBar,
                             EntityManager $em, ImageMapper $imageMapper, CategoryMapper $categoryMapper, int $start = 0, int $category_id = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -275,7 +274,7 @@ class AlbumController extends CommonController
             );
         }
 
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $tpl_params['U_HOME'] = $this->generateUrl('homepage');
@@ -288,7 +287,7 @@ class AlbumController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function albumFlat(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+    public function albumFlat(Request $request, EntityManager $em, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
                         ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, ImageMapper $imageMapper, int $category_id, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -339,7 +338,7 @@ class AlbumController extends CommonController
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
 
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
         $tpl_params['START_ID'] = $start;
 
@@ -348,7 +347,7 @@ class AlbumController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function albumsFlat(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+    public function albumsFlat(Request $request, EntityManager $em, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
         ImageStandardParams $image_std_params, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -398,7 +397,7 @@ class AlbumController extends CommonController
             );
         }
 
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
         $tpl_params['START_ID'] = $start;
 
@@ -407,7 +406,7 @@ class AlbumController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function albums(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+    public function albums(Request $request, EntityManager $em, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
                             ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -566,7 +565,7 @@ class AlbumController extends CommonController
                     'NAME' => $name,
                 ]);
 
-                if ($conf['index_new_icon']) {
+                if ($conf['index_new_icon'] && !empty($category['max_date_last'])) { // @FIX : cf BUGS
                     $tpl_var['icon_ts'] = $em->getRepository(BaseRepository::class)->getIcon($category['max_date_last'], $this->getUser(), $category['is_child_date_last']);
                 }
 
@@ -615,7 +614,7 @@ class AlbumController extends CommonController
             }
         }
 
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
@@ -623,7 +622,7 @@ class AlbumController extends CommonController
         return $this->render('mainpage_categories.html.twig', $tpl_params);
     }
 
-    public function recentCats(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+    public function recentCats(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar,
                                 ImageStandardParams $image_std_params, ImageMapper $imageMapper, CategoryMapper $categoryMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -831,7 +830,7 @@ class AlbumController extends CommonController
             }
         }
 
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));

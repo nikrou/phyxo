@@ -11,15 +11,12 @@
 
 namespace App\Controller;
 
-use Phyxo\Template\Template;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
 use Phyxo\EntityManager;
 use App\Repository\UserFeedRepository;
 use App\Repository\BaseRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use App\DataMapper\UserMapper;
-use App\DataMapper\CategoryMapper;
 use App\Notification;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,12 +24,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FeedController extends CommonController
 {
-    public function notification(Request $request, Template $template, Conf $conf, EntityManager $em, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar, string $themesDir, TranslatorInterface $translator)
+    public function notification(Request $request, Conf $conf, EntityManager $em, MenuBar $menuBar, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params['PAGE_TITLE'] = $translator->trans('Notification');
 
         $feed_id = md5(uniqid(true));

@@ -17,10 +17,7 @@ use App\Repository\CommentRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Extension\Theme;
-use Phyxo\Template\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 abstract class AdminCommonController extends AbstractController
@@ -58,7 +55,7 @@ abstract class AdminCommonController extends AbstractController
             'U_CONFIG_THEMES' => $router->generate('admin_themes_installed'),
             'U_ALBUMS' => $router->generate('admin_albums'),
             'U_ALBUMS_OPTIONS' => $router->generate('admin_albums_options'),
-            'U_CAT_UPDATE' => $router->generate('admin_synchronize', ['site' => 1]),
+            'U_CAT_UPDATE' => $conf['enable_synchronization'] ? $router->generate('admin_synchronize', ['site' => 1]): '',
             'U_RATING' => $router->generate('admin_rating'),
             'U_RECENT_SET' => $router->generate('admin_batch_manager_global', ['filter' => 'last_import']),
             'U_BATCH' => $router->generate('admin_batch_manager_global'),
@@ -74,7 +71,6 @@ abstract class AdminCommonController extends AbstractController
             'U_UPDATE' => $router->generate('admin_update'),
             'U_DEV_VERSION' => strpos($core_version, 'dev') !== false,
             'U_DEV_API' => $router->generate('api'),
-            'U_DEV_JS_TESTS' => '../tests/functional/'
         ];
 
         if ($conf['activate_comments']) {
@@ -94,23 +90,7 @@ abstract class AdminCommonController extends AbstractController
             $tpl_params['NB_PHOTOS_IN_CADDIE'] = $nb_photos_in_caddie;
             $tpl_params['U_CADDIE'] = $router->generate('admin_batch_manager_global', ['filter' => 'caddie']);
         }
-
-        return $tpl_params;
-    }
-
-    public function addThemeParams(Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params)
-    {
-        $tpl_params = [];
-
-        $template->setUser($this->getUser());
-        $template->setTheme(new Theme($params->get('admin_theme_dir'), '.'));
-        $template->setDomain('admin');
-
-        $tpl_params['PHYXO_VERSION'] = $params->get('core_version');
-        $tpl_params['PHYXO_URL'] = $params->get('phyxo_website');
         $tpl_params['GALLERY_TITLE'] = $conf['gallery_title'];
-
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
 
         return $tpl_params;
     }

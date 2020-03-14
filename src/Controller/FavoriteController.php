@@ -13,10 +13,8 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\EntityManager;
-use Phyxo\Template\Template;
 use Phyxo\MenuBar;
 use Phyxo\Conf;
-use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
 use App\Repository\ImageRepository;
 use App\Repository\FavoriteRepository;
@@ -26,8 +24,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FavoriteController extends CommonController
 {
-    public function index(Request $request, int $start = 0, EntityManager $em, Template $template, MenuBar $menuBar, Conf $conf, $themesDir, $phyxoVersion, $phyxoWebsite,
-                            ImageMapper $imageMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator)
+    public function index(Request $request, int $start = 0, EntityManager $em, MenuBar $menuBar, Conf $conf,
+                            ImageMapper $imageMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -70,8 +68,7 @@ class FavoriteController extends CommonController
             );
         }
 
-        $template->setImageStandardParams($image_std_params);
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));

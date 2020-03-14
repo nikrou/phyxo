@@ -23,7 +23,6 @@ use App\Repository\FavoriteRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\RateRepository;
-use Phyxo\Functions\Plugin;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\SrcImage;
 use Symfony\Component\Routing\RouterInterface;

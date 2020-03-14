@@ -1,0 +1,13 @@
+{% trans_default_domain 'admin' %}
+{% extends "mail/text/__layout.text.twig" %}
+
+{% block content %}
+    {{'Hello,'|trans}}
+
+    {{'Discover album:'|trans}} {{CAT_NAME}}
+    {{LINK}}
+
+    {{CPL_CONTENT}}
+
+    {{'See you soon.'|trans}}
+{% endblock %}

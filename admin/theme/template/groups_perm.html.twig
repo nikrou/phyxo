@@ -1,0 +1,27 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Groups'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Permissions'|trans}}</li>
+{% endblock %}
+
+{% block content %}
+    {% if groups %}
+	<ul class="inline-groups">
+	    {% for group in groups %}
+		<li>
+		    {{group.NAME}}
+		    <a href="{{group.U_PERM}}" title="{{'Permissions'|trans}}">{{'Permissions'|trans}}</a>
+		</li>
+	    {% endfor %}
+	</ul>
+    {% else %}
+	<h3>{{TITLE}}</h3>
+	<form method="post" action="{{F_ACTION}}">
+	    <input type="hidden" name="pwg_token" value="{{csrf_token}}">
+	    {{include('include/_double_select.html.twig')}}
+	</form>
+	<p>{{'Only private albums are listed'|trans}}</p>
+    {% endif %}
+{% endblock %}

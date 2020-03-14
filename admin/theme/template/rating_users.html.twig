@@ -1,0 +1,95 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Rating'|trans}}</a></li>
+    <li class="breadcrumb-item">{{ratings|length}} {{'Users'|trans}}</li>
+{% endblock %}
+
+{% block content %}
+   <form action="{{F_ACTION}}" method="GET">
+       <p><a class="btn btn-submit" href="#form-filter" data-toggle="collapse">{{'Show/Hide form filter'|trans}}</a></p>
+       <div class="form-filter collapse" id="form-filter">
+	   <h3>{{'Filter'|trans}}</h3>
+	   <div class="form-group">
+	       <label for="order-by">{{'Sort by'|trans}}</label>
+	       <select class="custom-select" name="order_by" id="order-by">
+		   {% for option, label in order_by_options %}
+		       <option value="{{option}}" {% if option == order_by_options_selected %}selected="selected"{% endif %}>{{label}}</option>
+		   {% endfor %}
+	       </select>
+	   </div>
+	   <div class="form-group">
+	       <label for="min-rates">{{'Number of rates'|trans}}&gt;</label>
+	       <input class="form-control" type="text" id="min-rates" size="5" name="f_min_rates" value="{{F_MIN_RATES}}">
+	   </div>
+	   <div class="form-group">
+	       <label for="consensus-top-number">{{'Consensus deviation'|trans}}</label>
+	       <input class="form-control" type="text" size="5" id="consensus-top-number" name="consensus_top_number" value="{{CONSENSUS_TOP_NUMBER}}">
+	       {{'Best rated'|trans}}
+	   </div>
+	   <p>
+	       <input type="submit" class="btn btn-submit" value="{{'Submit'|trans}}">
+	       <input type="hidden" name="page" value="rating">
+	       <input type="hidden" name="section" value="users">
+	   </p>
+       </div>
+   </form>
+
+   {% if navbar %}{{include('_navigation_bar.html.twig')}}{% endif %}
+
+   <table class="table table-hover table-striped">
+       <thead>
+	   <tr>
+	       <th>{{'Username'|trans}}</th>
+	       <th>{{'Last'|trans}}</th>
+	       <th>{{'Number of rates'|trans}}</th>
+	       <th>{{'Average rate'|trans}}</th>
+	       <th>{{'Variation'|trans}}</th>
+	       <th>{{'Consensus deviation'|trans}}</th>
+	       <th>{{'Consensus deviation'|trans}} {{CONSENSUS_TOP_NUMBER}}</th>
+	       {% for rate in available_rates %}
+		   <th class="dtc_rate">{{rate}}</th>
+	       {% endfor %}
+	       <th></th>
+	   </tr>
+       </thead>
+       <tbody>
+	   {% for user, rating in atings %}
+	       <tr id="rate-{{rating.md5sum}}">
+		   <td>{{user}}</td>
+		   <td title="First: {{rating.first_date}}">{{rating.last_date}}</td>
+		   <td>{{rating.count}}</td>
+		   <td>{{rating.avg}}</td>
+		   <td>{{rating.cv}}</td>
+		   <td>{{rating.cd}}</td>
+		   <td>{% if rating.cdtop %}{{rating.cdtop}}{% endif %}</td>
+		   {% for rates in rating.rates %}
+		       <td>
+			   {% if rates %}
+			       {% set rate_over %}
+			       {% for rate_arr in rates %}
+				   {% if loop.index <= 29 %}
+				       <img src="{{image_urls[rate_arr.id].tn}}" alt="thumb-{{rate_arr.id}}" width="{{TN_WIDTH}}" height="{{TN_WIDTH}}">
+				   {% endif %}
+			       {% endfor %}
+			       {% endset %}
+			       <a title="{{rate_over}}">{{rates|length}}</a>
+			   {% endif %}
+		       </td>
+		   {% endfor %}
+		   <td>
+		       <button
+			   data-confirm="{{'Are you sure?'|trans}}" data-action="{{WS_RATES_DELETE}}"
+			   data-data="{'user_id': {{rating.uid}}{% if rating.aid %},'anonymous_id': '{{rating.aid}}'{% endif %}}"
+			   data-method="POST" data-delete="#rate-{{rating.md5sum}}" data-toggle="modal" data-target="#confirm-delete" class="btn btn-danger fa fa-trash"></button>
+		   </td>
+	       </tr>
+	   {% endfor %}
+       </tbody>
+   </table>
+
+   {% if navbar %}{{include('_navigation_bar.html.twig')}}{% endif %}
+
+   {{include('include/_modal_delete_confirm.html.twig')}}
+{% endblock %}

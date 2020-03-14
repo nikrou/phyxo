@@ -1,0 +1,91 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Updates'|trans}}</a></li>
+    <li class="breadcrumb-item">Phyxo</li>
+{% endblock %}
+
+{% block javascripts %}
+    {{parent()}}
+    <script>
+     $(function() {
+	 $('input[name="submit"]').click(function() {
+	     if(!confirm('{{'Are you sure?'|trans}}')) {
+		 return false;
+	     }
+	     $(this).hide();
+	     $('.autoupdate_bar').show();
+	 });
+	 $('[name="understand"]').click(function() {
+	     $('[name="submit"]').attr('disabled', !this.checked);
+	 });
+     });
+    </script>
+{% endblock %}
+
+{% block content %}
+    {% if STEP == 0 %}
+	{% if UPGRADE_ERROR %}
+	    <p>{{UPGRADE_ERROR}}</p>
+	{% elseif CHECK_VERSION %}
+	    <p>{{'You are running the latest version of Phyxo.'|trans}}</p>
+	{% elseif DEV_VERSION %}
+	    <p>{{'You are running on development sources, no check possible.'|trans}}</p>
+	{% else %}
+	    <p>{{'Check for upgrade failed for unknown reasons.'|trans}}</p>
+	{% endif %}
+    {% endif %}
+
+    {% if STEP == 1 %}
+	<h4>{{'Two updates are available'|trans}}:</h4>
+	<p>
+	    <ul>
+		<li><a href="{{U_UPDATE_MINOR}}"><strong>{{'Update to Phyxo {version}'|trans({'version': MINOR_VERSION})}}</strong></a>: {{'This is a minor update, with only bug corrections.'|trans}}</li>
+		<li><a href="{U_UPDATE_MAJOR}"><strong>{{'Update to Phyxo {version}'|trans({'version': MAJOR_VERSION})}}</strong></a>: {{'This is a major update, with <a href="%s">new exciting features</a>.'|trans|format(RELEASE_URL)}} {{'Some themes and plugins may be not available yet.'|trans}}</li>
+	    </ul>
+	</p>
+	<p>{{'You can update to Phyxo %s directly, without upgrading to Phyxo %s (recommended).'|trans({'major': MAJOR_VERSION, 'minor': MINOR_VERSION})}}</p>
+    {% endif %}
+
+    {% if STEP == 2 %}
+	<p>
+	    {{'A new version of Phyxo is available.'|trans}}<br>
+	    {{'This is a minor update, with only bug corrections.'|trans}}
+	</p>
+	<form action="" method="post">
+	    <p><input type="submit" class="btn btn-submit" name="submit" value="{{'Update to Phyxo {version}'|trans({'version': UPGRADE_TO})}}"></p>
+	    <p class="autoupdate_bar" style="display:none;">&nbsp; {{'Update in progress... Please wait.'|trans}}</p>
+	    <p><input type="hidden" name="upgrade_to" value="{{UPGRADE_TO}}"></p>
+	</form>
+    {% endif %}
+
+    {% if STEP == 3 %}
+	<p>
+	    {{'A new version of Phyxo is available.'|trans}}<br>
+	    {{'This is a major update, with <a href="%s">new exciting features</a>.'|trans|format(RELEASE_URL)}} {{'Some themes and plugins may be not available yet.'|trans}}
+	</p>
+	<form action="" method="post">
+	    <fieldset>
+		<legend>{{'Update to Phyxo {version}'|trans({'version': UPGRADE_TO})}}</legend>
+		{% if missing.plugins %}
+		    <p><i>{{'Following plugins may not be compatible with the new version of Phyxo:'|trans}}</i></p>
+		    <p><ul>{% for plugin in missing.plugins %}<li><a href="{{plugin.uri}}" class="externalLink">{{plugin.name}}</a></li>{% endfor %}</ul></p>
+		{% endif %}
+		{% if missing.themes %}
+		    <p><i>{{'Following themes may not be compatible with the new version of Phyxo:'|trans}}</i></p>
+		    <p><ul>{% for theme in missing.themes %}<li><a href="{{theme.uri}}" class="externalLink">{{theme.name}}</a></li>{% endfor %}</ul></p>
+		{% endif %}
+		<p>
+		    {% if missing.plugins or missing.themes %}
+			<p><label><input type="checkbox" name="understand"> &nbsp;{{'I decide to update anyway'|trans}}</label></p>
+		    {% endif %}
+		    <p><input type="submit" name="submit" class="btn btn-submit" value="{{'Update to Phyxo {version}'|trans({'version': UPGRADE_TO})}}" {% if missing.plugins or missing.themes %}disabled="disabled"{% endif %}>
+		    </p>
+		    <p class="autoupdate_bar" style="display:none;">&nbsp; {{'Update in progress... Please wait.'|trans}}</p>
+	    </fieldset>
+
+	    <p><input type="hidden" name="upgrade_to" value="{{UPGRADE_TO}}"></p>
+	</form>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,138 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Configuration'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Comments'|trans}}</li>
+{% endblock %}
+
+{% block content %}
+    <form method="post" action="{{F_ACTION}}" class="properties">
+	<div class="fieldset">
+	    <p>
+		<label class="font-checkbox">
+		    <i class="fa fa-check-square"></i>
+		    <input type="checkbox" name="activate_comments" id="activate_comments"{% if comments.activate_comments is defined %} checked="checked"{% endif %} data-toggle="collapse" data-target="#comments-params">
+		    {{'Activate comments'|trans}}
+		</label>
+	    </p>
+
+	    <div id="comments-params" class="collapse{% if comments.activate_comments is defined %} show{% endif %}">
+		<p>
+		    <label class="font-checkbox">
+			<i class="fa fa-check-square"></i>
+			<input type="checkbox" name="comments_forall" {% if comments.comments_forall is defined %}checked="checked"{% endif %}>
+			{{'Comments for all'|trans}}
+		    </label>
+		</p>
+
+		<p>
+		    <label>
+			{{'Number of comments per page'|trans}}
+			<input class="form-control" type="text" size="3" maxlength="4" name="nb_comment_page" id="nb_comment_page" value="{{comments.NB_COMMENTS_PAGE}}">
+		    </label>
+		</p>
+
+		<p>
+		    <label>
+			{{'Default comments order'|trans}}
+			<select name="comments_order" class="custom-select">
+			    {% for value, label in comments.comments_order_options %}
+				<option value="{{value}}" {% if value == comments.comments_order %}selected="selected"{% endif %}>{{label}}</option>
+			    {% endfor %}
+			</select>
+		    </label>
+		</p>
+
+		<p>
+		    <label class="font-checkbox">
+			<i class="fa fa-check-square"></i>
+			<input type="checkbox" name="comments_validation" {% if comments.comments_validation is defined %}checked="checked"{% endif %} data-toggle="collapse" data-target="#admin-comment-validation">
+			{{'Validation'|trans}}
+		    </label>
+		</p>
+
+		<p>
+		    <label class="font-checkbox">
+			<i class="fa fa-check-square"></i>
+			<input type="checkbox" name="comments_author_mandatory" {% if comments.comments_author_mandatory is defined %}checked="checked"{% endif %}>
+			{{'Username is mandatory'|trans}}
+		    </label>
+		</p>
+
+		<p>
+		    <label class="font-checkbox">
+			<i class="fa fa-check-square"></i>
+			<input type="checkbox" name="comments_email_mandatory" {% if comments.comments_email_mandatory is defined %}checked="checked"{% endif %}>
+			{{'Email address is mandatory'|trans}}
+		    </label>
+		</p>
+
+		<p>
+		    <label class="font-checkbox">
+			<i class="fa fa-check-square"></i>
+			<input type="checkbox" name="comments_enable_website" {% if comments.comments_enable_website is defined %}checked="checked"{% endif %}>
+			{{'Allow users to add a link to their website'|trans}}
+		    </label>
+		</p>
+
+		<p>
+		    <label class="font-checkbox">
+			<i class="fa fa-check-square"></i>
+			<input type="checkbox" name="user_can_edit_comment" {% if comments.user_can_edit_comment is defined %}checked="checked"{% endif %} data-toggle="collapse" data-target="#admin-edit-comment">
+			{{'Allow users to edit their own comments'|trans}}
+		    </label>
+		</p>
+
+		<p>
+		    <label class="font-checkbox">
+			<i class="fa fa-check-square"></i>
+			<input type="checkbox" name="user_can_delete_comment" {% if comments.user_can_delete_comment is defined %}checked="checked"{% endif %} data-toggle="collapse" data-target="#admin-delete-comment">
+			{{'Allow users to delete their own comments'|trans}}
+		    </label>
+		</p>
+
+		<p>{{'Notify administrators when a comment is'|trans}}</p>
+		<ul>
+		    <li id="admin-comment-validation" class="form-check-inline collapse{% if comments.comments_validation is defined %} show{% endif %}">
+			<label id="admin-comment-validation" class="font-checkbox">
+			    <i class="fa fa-check-square"></i>
+			    <input type="checkbox" name="email_admin_on_comment_validation" {% if comments.email_admin_on_comment_validation is defined %}checked="checked"{% endif %}>
+			    {{'pending validation'|trans}}
+			</label>
+		    </li>
+
+		    <li>
+			<label class="font-checkbox">
+			    <i class="fa fa-check-square"></i>
+			    <input type="checkbox" name="email_admin_on_comment" {% if comments.email_admin_on_comment is defined %}checked="checked"{% endif %}>
+			    {{'added'|trans}}
+			</label>
+		    </li>
+
+		    <li id="admin-edit-comment" class="collapse{% if comments.user_can_edit_comment is defined %} show{% endif %}">
+			<label id="admin-edit-comment" class="font-checkbox">
+			    <i class="fa fa-check-square"></i>
+			    <input type="checkbox" name="email_admin_on_comment_edition" {% if comments.email_admin_on_comment_edition is defined %}checked="checked"{% endif %}>
+			    {{'modified'|trans}}
+			</label>
+		    </li>
+
+		    <li id="admin-delete-comment" class="collapse{% if comments.user_can_delete_comment is defined %} show{% endif %}">
+			<label class="font-checkbox">
+			    <i class="fa fa-check-square"></i>
+			    <input type="checkbox" name="email_admin_on_comment_deletion" {% if comments.email_admin_on_comment_deletion is defined %}checked="checked"{% endif %}>
+			    {{'deleted'|trans}}
+			</label>
+		    </li>
+		</ul>
+	    </div
+	</div>
+
+	<p>
+	    <input type="hidden" name="pwg_token" value="{{csrf_token}}">
+	    <input type="submit" name="submit" value="{{'Save Settings'|trans}}" class="btn btn-submit">
+	</p>
+
+    </form>
+{% endblock %}

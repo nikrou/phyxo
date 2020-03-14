@@ -1,3 +1,7 @@
+admin_configuration_sizes_restore:
+  path: /configuration/sizes/restore
+  controller: App\Controller\Admin\ConfigurationController:sizeRestore
+
 # options
 admin_configuration:
   path: /configuration/{section}

@@ -1,0 +1,136 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Plugins'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Other plugins'|trans}}</li>
+{% endblock %}
+
+{% block javascripts %}
+    {{parent()}}
+    <script>
+     var ws_url = "{{ws}}";
+     var pwg_token = "{{csrf_token}}";
+     var phyxo_msg = phyxo_msg || {};
+     phyxo_msg.n_plugins_selected = "{{'%d plugins selected'|trans}}";
+     phyxo_msg.no_plugin_selected = "{{'No plugins selected'|trans}}";
+     phyxo_msg.one_plugin_selected = "{{'One plugin selected'|trans}}";
+
+     phyxo_msg.select_all = "{{'All'|trans}}";
+     phyxo_msg.select_none = "{{'None'|trans}}";
+     phyxo_msg.invert_selection = "{{'Invert'|trans}}";
+
+     phyxo_msg.processing = "{{'Loading...'|trans}}";
+     phyxo_msg.search = "{{'Search'|trans}}";
+     phyxo_msg.lengthMenu = "{{'Display _MENU_ users par page'|trans}}";
+     phyxo_msg.info = "{{'Display from element _START_ to _END_ of _TOTAL_ elements'|trans}}";
+     phyxo_msg.infoEmpty = "{{'Display from element 0 to 0 of 0 elements'|trans}}";
+     phyxo_msg.infoFiltered = "{{'(filtered from _MAX_ total records)'|trans}}";
+     phyxo_msg.loadingRecords = "{{'Loading...'|trans}}";
+     phyxo_msg.zeroRecords = "{{'Nothing found'|trans}}";
+     phyxo_msg.emptyTable = "{{'No data available'|trans}}";
+
+     phyxo_msg.loading = "{{'Loading...'|trans}}";
+     phyxo_msg.show_plugins = "{{'Show %s plugins'|trans}}";
+     phyxo_msg.no_matching_plugin = "{{'No matching plugin found'|trans}}";
+     phyxo_msg.showing_to_plugins = "{{'Showing %s to %s of %s plugins'|trans}}";
+     phyxo_msg.filtered_from_total_plugins = "{{'(filtered from %s total plugins)'|trans}}";
+     phyxo_msg.search = "{{'Search'|trans}}";
+     phyxo_msg.first = "{{'First'|trans}}";
+     phyxo_msg.previous = "{{'Previous'|trans}}";
+     phyxo_msg.next = "{{'Next'|trans}}";
+     phyxo_msg.last = "{{'Last'|trans}}";
+
+     var plugins_list_config = {
+	 pageLength: 10,
+	 language: {
+	     processing:     phyxo_msg.loading,
+	     search:         phyxo_msg.search,
+	     lengthMenu:     phyxo_msg.lengthMenu,
+	     info:           phyxo_msg.info,
+	     infoEmpty:      phyxo_msg.infoEmpty,
+	     infoFiltered:   phyxo_msg.infoFiltered,
+	     infoPostFix:    '',
+	     loadingRecords: phyxo_msg.loading,
+	     zeroRecords:    phyxo_msg.zeroRecords,
+	     emptyTable:     phyxo_msg.emptyTable,
+	     paginate: {
+		 first:      phyxo_msg.first,
+		 previous:   phyxo_msg.previous,
+		 next:       phyxo_msg.next,
+		 last:       phyxo_msg.last,
+	     },
+	     select: {
+		 rows: {
+		     _: phyxo_msg.n_plugins_selected,
+		     0: phyxo_msg.no_plugin_selected,
+		     1: phyxo_msg.one_plugin_selected,
+		 },
+		 select_all: phyxo_msg.select_all,
+		 select_none: phyxo_msg.select_none,
+		 invert_selection: phyxo_msg.invert_selection,
+	     }
+	 }
+     };
+    </script>
+{% endblock %}
+
+{% block content %}
+    {% if plugins is defined %}
+	<div class="table-responsive">
+	    <table id="plugins-list" class="table table-striped table-hovered" style="width:100%">
+		<thead>
+		    <tr>
+			<th>{{'name'|trans}}</th>
+			<th>{{'Author'|trans}}</th>
+			<th>{{'Version'|trans}}</th>
+			<th>{{'Description'|trans}}</th>
+			<th></th>
+		    </tr>
+		</thead>
+		<tbody>
+		    {% for plugin in plugins %}
+			<tr>
+			    <td>{{plugin.EXT_NAME}}</td>
+			    <td>
+				{% if plugin.AUTHOR_URL is defined %}
+				    {% set author = '<a href=""' ~ plugin.AUTHOR_URL ~ '">' ~ plugin.AUTHOR ~ '</a>' %}
+				{% else %}
+				    {% set author = '<u>' ~ plugin.AUTHOR ~ '</u>' %}
+				{% endif %}
+				{{'By {by}'|trans({'by': author})|raw}}
+
+				{% if plugin.VISIT_URL is defined %}
+				    &nbsp;|&nbsp;<a class="externalLink" href="{{plugin.VISIT_URL}}">{{'Visit plugin site'|trans}}</a>
+				{% endif %}
+			    </td>
+			    <td>{{plugin.VERSION}}</td>
+			    <td>
+				<div>
+				    {{plugin.SMALL_DESC}}
+				    {% if not plugin.BIG_DESC == plugin.SMALL_DESC %}
+					...
+					<button type="button" class="btn btn-link" data-target="#description-{{plugin.ID}}" data-toggle="collapse">
+					    <i class="fa fa-plus-square-o"></i>
+					</button>
+				    {% endif %}
+				</div>
+				{% if not plugin.BIG_DESC == plugin.SMALL_DESC %}
+				    <div class="description collapse" id="description-{{plugin.ID}}">
+					{{plugin.BIG_DESC|nl2br}}
+				    </div>
+				{% endif %}
+			    </td>
+			    <td>
+				<a class="btn btn-sm btn-submit" href="{{plugin.install}}">{{'Install'|trans}}</a>
+				<a class="btn btn-sm btn-success" href="{{plugin.URL_DOWNLOAD}}">{{'Download'|trans}}</a>
+			    </td>
+			</tr>
+		    {% endfor %}
+		</tbody>
+	    </table>
+	</div>
+    {% else %}
+	<p>{{'There is no other plugin available.'|trans}}</p>
+    {% endif %}
+{% endblock %}

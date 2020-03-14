@@ -100,7 +100,7 @@ class CategoryMapper
                     'IS_UPPERCAT' => isset($selected_category['id_uppercat']) && $selected_category['id_uppercat'] === $row['id'] ? true : false,
                 ]
             );
-            if ($this->conf['index_new_icon']) {
+            if ($this->conf['index_new_icon'] && !empty($row['max_date_last'])) { // @FIX : cf BUGS
                 $row['icon_ts'] = $this->em->getRepository(BaseRepository::class)->getIcon($row['max_date_last'], $user, $child_date_last);
             }
             $cats[$row['id']] = $row;
@@ -326,7 +326,7 @@ class CategoryMapper
 
         $output = '';
         if ($single_link) {
-            $single_url = \Phyxo\Functions\URL::get_root_url() . $url . array_pop(explode(',', $uppercats));
+            $single_url = $this->router->generate('album', ['category_id' => array_pop(explode(',', $uppercats)) ]);
             $output .= '<a href="' . $single_url . '"';
             if (isset($link_class)) {
                 $output .= ' class="' . $link_class . '"';
@@ -345,16 +345,14 @@ class CategoryMapper
                 $output .= $this->conf['level_separator'];
             }
 
-            if (!isset($url) or $single_link) {
+            if (!isset($url) || $single_link) {
                 $output .= $cat['name'];
-            } elseif ($url == '') {
-                $output .= '<a href="' . $this->router->generate('album', ['category_id' => $cat['id']]) . '">' . $cat['name'] . '</a>';
             } else {
-                $output .= '<a href="' . $url . $category_id . '">' . $cat['name'] . '</a>';
+                $output .= '<a href="' . $this->router->generate('album', ['category_id' => $cat['id']]) . '">' . $cat['name'] . '</a>';
             }
         }
 
-        if ($single_link and isset($single_url)) {
+        if ($single_link && isset($single_url)) {
             $output .= '</a>';
         }
 
@@ -362,8 +360,6 @@ class CategoryMapper
     }
 
     /**
-     * Assign a template var useable with {html_options} from a list of categories
-     *
      * @param array[] $categories (at least id,name,global_rank,uppercats for each)
      * @param int[] $selected ids of selected items
      * @param string $blockname variable name in template

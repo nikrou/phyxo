@@ -16,7 +16,6 @@ use App\Repository\UpgradeRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
-use Phyxo\Template\Template;
 use Phyxo\Update\Updates;
 use Phyxo\Upgrade;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -38,7 +37,7 @@ class UpdateController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function core(Request $request, int $step = 0, string $version = null, Template $template, Conf $conf, EntityManager $em, UserMapper $userMapper,
+    public function core(Request $request, int $step = 0, string $version = null, Conf $conf, EntityManager $em, UserMapper $userMapper,
                         ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -127,10 +126,7 @@ class UpdateController extends AdminCommonController
                 try {
                     $updater->upgrade($zip);
                     $updater->removeObsoleteFiles($obsolete_file, $params->get('root_project_dir'));
-
                     $userMapper->invalidateUserCache(true);
-                    $template->delete_compiled_templates();
-                    $fs->remove($params->get('cache_dir') . '/update');
 
                     $page['infos'][] = $translator->trans('Update Complete', [], 'admin');
                     $page['infos'][] = $upgrade_to;
@@ -201,9 +197,8 @@ class UpdateController extends AdminCommonController
                     $fs->remove(__DIR__ . '/../var/cache');
 
                     $userMapper->invalidateUserCache($full = true);
-                    $template->delete_compiled_templates();
 
-                    file_get_contents('./'); // cache warmup
+                    file_get_contents('./'); // @TODO cache warmup
                     \Phyxo\Functions\Utils::redirect('./?now=' . time());
                 } catch (\Exception $e) {
                     $step = 0;
@@ -233,7 +228,7 @@ class UpdateController extends AdminCommonController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_update');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_update');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Updates', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('core'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('error')) {
@@ -244,10 +239,10 @@ class UpdateController extends AdminCommonController
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
 
-        return $this->render('updates_core.tpl', $tpl_params);
+        return $this->render('updates_core.html.twig', $tpl_params);
     }
 
-    public function extensions(Request $request, Template $template, Conf $conf, EntityManager $em, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function extensions(Request $request, Conf $conf, EntityManager $em, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -257,7 +252,7 @@ class UpdateController extends AdminCommonController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_update');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_update_extensions');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Updates', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('extensions'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('error')) {
@@ -268,6 +263,6 @@ class UpdateController extends AdminCommonController
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
 
-        return $this->render('updates_ext.tpl', $tpl_params);
+        return $this->render('updates_ext.html.twig', $tpl_params);
     }
 }

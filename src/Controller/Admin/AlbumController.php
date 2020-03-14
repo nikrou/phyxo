@@ -30,10 +30,10 @@ use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
 use Phyxo\TabSheet\TabSheet;
-use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AlbumController extends AdminCommonController
@@ -52,11 +52,17 @@ class AlbumController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function properties(Request $request, int $album_id, int $parent_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params,
+    public function properties(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
                                 ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
+
+        $tpl_params['albums_options'] = [
+            ['id' => 'true', 'label' => $translator->trans('Yes', [], 'admin')],
+            ['id' => 'true_sub', 'label' => $translator->trans('No and unlock sub-albums', [], 'admin')],
+            ['id' => 'false', 'label' => $translator->trans('No', [], 'admin')]
+        ];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -145,7 +151,8 @@ class AlbumController extends AdminCommonController
                     [
                         'count' => $image_count,
                         'date' => (new \DateTime($min_date))->format('l d M Y')
-                    ]
+                    ],
+                    'admin'
                 );
             } else {
                 $tpl_params['INTRO'] = $translator->trans(
@@ -224,7 +231,6 @@ class AlbumController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('properties', $album_id, $parent_id), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -234,11 +240,12 @@ class AlbumController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('error')) {
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
 
-        return $this->render('album_properties.tpl', $tpl_params);
+        return $this->render('album_properties.html.twig', $tpl_params);
     }
 
-    public function sort_order(Request $request, int $album_id, int $parent_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params,
+    public function sort_order(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
                                 CategoryMapper $categoryMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -375,7 +382,7 @@ class AlbumController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('sort_order', $album_id, $parent_id), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -386,10 +393,10 @@ class AlbumController extends AdminCommonController
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
 
-        return $this->render('album_sort_order.tpl', $tpl_params);
+        return $this->render('album_sort_order.html.twig', $tpl_params);
     }
 
-    public function permissions(Request $request, int $album_id, int $parent_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params,
+    public function permissions(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
                                 CategoryMapper $categoryMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -543,7 +550,7 @@ class AlbumController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('permissions', $album_id, $parent_id), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -554,10 +561,10 @@ class AlbumController extends AdminCommonController
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
 
-        return $this->render('album_permissions.tpl', $tpl_params);
+        return $this->render('album_permissions.html.twig', $tpl_params);
     }
 
-    public function notification(Request $request, int $album_id, int $parent_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params,
+    public function notification(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
                                 CategoryMapper $categoryMapper, ImageStandardParams $image_std_params, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -580,8 +587,8 @@ class AlbumController extends AdminCommonController
                     $element = $em->getConnection()->db_fetch_assoc($result);
                     $src_image = new SrcImage($element, $conf['picture_ext']);
 
-                    $img_url = '<a href="' . $this->generateUrl('picture', ['image_id' => $element['id'], 'type' => 'category', 'element_id' => $category['id']]);
-                    $img_url .= '" class="thumblnk"><img src="' . (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl() . '"></a>';
+                    $img_url = '<a href="' . $this->generateUrl('picture', ['image_id' => $element['id'], 'type' => 'category', 'element_id' => $category['id']], UrlGeneratorInterface::ABSOLUTE_URL);
+                    $img_url .= '"><img src="' . (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl() . '" alt="X"></a>';
                 }
             }
 
@@ -628,7 +635,7 @@ class AlbumController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('notification', $album_id, $parent_id), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -639,7 +646,7 @@ class AlbumController extends AdminCommonController
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
 
-        return $this->render('album_notification.tpl', $tpl_params);
+        return $this->render('album_notification.html.twig', $tpl_params);
     }
 
     public function create(Request $request, int $parent_id = null, CategoryMapper $categoryMapper, UserMapper $userMapper)

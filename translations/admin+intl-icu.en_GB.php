@@ -22,7 +22,9 @@ $lang['number_of_users'] = "{count, plural, =0 {no users} one {one user} other {
 $lang['number_of_rates'] = "{count, plural, =0 {no rates} one {one rate} other {# rates}}";
 $lang['number_of_comments'] = "{count, plural, =0 {no comments} one {one comment} other {# comments}}";
 $lang['number_of_comments_validated'] = "{count, plural, =0 {no user comments} one {one user comment validated} other {# users comments validated}}";
-$lang['number_of_comments_rejected'] = "{count, plural, =0 {no user comment} one {one user comment rejeted} other {# user comments rejeted}}";
+$lang['number_of_comments_rejected'] = "{count, plural, =0 {no user comments} one {one user comment rejeted} other {# user comments rejeted}}";
+$lang['number_of_comments_deleted'] = "{count, plural, =0 {no user comments} one {one user comment deleted} other {# user comments deleted}}";
+$lang['number_of_comments_pending'] = "{count, plural, =0 {no pending comments} one {one user comment pending} other {# user comments pending}}";
 $lang['number_of_photos_in_sub_albums'] = '{count, plural, =0 {no sub-albums} one {in one sub-album} other {in # sub-albums}}';
 $lang['number_of_lines_filtered'] = "{count, plural, =0 {no lines filtered} one {one line filtered} other {# lines filtered}}";
 

@@ -23,7 +23,6 @@ services:
     bind:
       $rememberMeCookie: "%remember_cookie%"
       $databaseConfigFile: "%database_config_file%"
-      $compileDir: "%kernel.cache_dir%/smarty"
       $localDir: "%local_dir%"
       $uploadDir: "%upload_dir%"
       $themesDir: "%themes_dir%"
@@ -62,14 +61,6 @@ services:
   phyxo.conn:
     public: true
     alias: 'Phyxo\DBLayer\iDBLayer'
-
-  Phyxo\Template\AdminTemplate: ~
-
-  Phyxo\Template\Template: ~
-
-  templating.engine.smarty:
-    public: true
-    alias: 'Phyxo\Template\Template'
 
   Phyxo\Conf:
     calls:

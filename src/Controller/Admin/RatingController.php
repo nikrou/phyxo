@@ -22,7 +22,6 @@ use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
 use Phyxo\TabSheet\TabSheet;
-use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -41,7 +40,7 @@ class RatingController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function photos(Request $request, int $start = 0, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, ImageStandardParams $image_std_params,
+    public function photos(Request $request, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, ImageStandardParams $image_std_params,
                             TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -171,13 +170,14 @@ class RatingController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_rating');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_rating');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Rating', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('photos'), $tpl_params);
+        $tpl_params['WS_RATES_DELETE'] = $this->generateUrl('ws') . '?method=pwg.rates.delete';
 
-        return $this->render('rating_photos.tpl', $tpl_params);
+        return $this->render('rating_photos.html.twig', $tpl_params);
     }
 
-    public function users(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, UserMapper $userMapper, ImageStandardParams $image_std_params,
+    public function users(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, UserMapper $userMapper, ImageStandardParams $image_std_params,
                             TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -350,10 +350,10 @@ class RatingController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_rating');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_rating');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Rating', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('users'), $tpl_params);
 
-        return $this->render('rating_users.tpl', $tpl_params);
+        return $this->render('rating_users.html.twig', $tpl_params);
     }
 
     protected function avg_compare($a, $b)

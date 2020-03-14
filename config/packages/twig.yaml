@@ -1,0 +1,6 @@
+twig:
+  paths:
+    - "%admin_theme_dir%/template"
+  globals:
+    PHYXO_VERSION: "%core_version%"
+    PHYXO_URL: "%phyxo_website%"

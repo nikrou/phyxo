@@ -16,7 +16,6 @@ use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Plugin\Plugins;
 use Phyxo\TabSheet\TabSheet;
-use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -37,7 +36,7 @@ class PluginsController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function installed(Request $request, UserMapper $userMapper, Template $template, EntityManager $em, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
+    public function installed(Request $request, UserMapper $userMapper, EntityManager $em, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
                             ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -109,12 +108,12 @@ class PluginsController extends AdminCommonController
         $tpl_params['plugins'] = $tpl_plugins;
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_plugins_installed');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Plugins', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('installed'), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
 
-        return $this->render('plugins_installed.tpl', $tpl_params);
+        return $this->render('plugins_installed.html.twig', $tpl_params);
     }
 
     public function install(int $revision, EntityManager $em, ParameterBagInterface $params, UserMapper $userMapper, TranslatorInterface $translator)
@@ -141,7 +140,7 @@ class PluginsController extends AdminCommonController
         }
     }
 
-    public function new(Request $request, UserMapper $userMapper, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function new(Request $request, UserMapper $userMapper, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -174,15 +173,15 @@ class PluginsController extends AdminCommonController
         $tpl_params['ws'] = $this->generateUrl('ws');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_plugins_new');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Plugins', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('new'), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
 
-        return $this->render('plugins_new.tpl', $tpl_params);
+        return $this->render('plugins_new.html.twig', $tpl_params);
     }
 
-    public function update(Request $request, UserMapper $userMapper, Template $template, EntityManager $em, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
+    public function update(Request $request, UserMapper $userMapper, EntityManager $em, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
                         ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -251,12 +250,12 @@ class PluginsController extends AdminCommonController
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_plugins_update');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Plugins', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('update'), $tpl_params);
 
         $tpl_params['INSTALL_URL'] = $this->generateUrl('admin_plugins_installed');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
 
-        return $this->render('plugins_update.tpl', $tpl_params);
+        return $this->render('plugins_update.html.twig', $tpl_params);
     }
 }

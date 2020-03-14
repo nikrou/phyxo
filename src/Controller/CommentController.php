@@ -12,7 +12,6 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Phyxo\Template\Template;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
 use Phyxo\EntityManager;
@@ -31,7 +30,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentController extends CommonController
 {
-    public function index(int $start = 0, int $comment_id = 0, Request $request, EntityManager $em, Template $template, Conf $conf, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+    public function index(int $start = 0, int $comment_id = 0, Request $request, EntityManager $em, Conf $conf, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
                         string $themesDir, UserMapper $userMapper, CsrfTokenManagerInterface $csrfTokenManager, CategoryMapper $categoryMapper, ImageStandardParams $image_std_params,
                         TranslatorInterface $translator)
     {
@@ -40,7 +39,7 @@ class CommentController extends CommonController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('User comments');

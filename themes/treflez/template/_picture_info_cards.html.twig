@@ -55,7 +55,7 @@
 			</dl>
 		    </div>
 		{% endif %}
-		{% if display_info.created_on and INFO_CREATION_DATE is defined %}
+		{% if display_info.created_on and INFO_CREATION_DATE %}
 		    <div id="datecreate" class="imageInfo">
 			<dl class="row mb-0">
 			    <dt class="col-sm-5">{{'Created on'|trans}}</dt>
@@ -79,7 +79,7 @@
 			</dl>
 		    </div>
 		{% endif %}
-		{% if display_info.dimensions and INFO_DIMENSIONS is defined %}
+		{% if display_info.dimensions and INFO_DIMENSIONS %}
 		    <div id="Dimensions" class="imageInfo">
 			<dl class="row mb-0">
 			    <dt class="col-sm-5">{{'Dimensions'|trans}}</dt>
@@ -95,7 +95,7 @@
 			</dl>
 		    </div>
 		{% endif %}
-		{% if display_info.filesize and INFO_FILESIZE is defined %}
+		{% if display_info.filesize and INFO_FILESIZE %}
 		    <div id="Filesize" class="imageInfo">
 			<dl class="row mb-0">
 			    <dt class="col-sm-5">{{'Filesize'|trans}}</dt>
@@ -103,7 +103,7 @@
 			</dl>
 		    </div>
 		{% endif %}
-		{% if display_info.categories and related_categories is defined %}
+		{% if display_info.categories and related_categories %}
 		    <div id="Categories" class="imageInfo">
 			<dl class="row mb-0">
 			    <dt class="col-sm-5">{{'Albums'|trans}}</dt>

@@ -1,0 +1,41 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Languages'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Add New Language'|trans}}</li>
+{% endblock %}
+
+{% block content %}
+    {% if languages %}
+	<div class="table-responsive">
+	    <table class="table table-striped table-hovered" style="width:100%">
+		<thead>
+		    <tr>
+			<td>{{'Language'|trans}}</td>
+			<td>{{'Version'|trans}}</td>
+			<td>{{'Date'|trans}}</td>
+			<td>{{'Author'|trans}}</td>
+			<td>{{'Actions'|trans}}</td>
+		    </tr>
+		</thead>
+		<tbody>
+		    {% for language in languages %}
+			<tr class="language {% if loop.index is odd %}odd{% else %}even{% endif %}">
+			    <td><a href="{{language.EXT_URL}}" title="{{language.EXT_NAME}}|{{language.EXT_DESC}}">{{language.EXT_NAME}}</a></td>
+			    <td><a href="{{language.EXT_URL}}" title="{{language.EXT_NAME}}|{{language.VER_DESC}}">{{language.VERSION}}</a></td>
+			    <td>{{language.DATE}}</td>
+			    <td>{{language.AUTHOR}}</td>
+			    <td>
+				<a class="btn btn-sm btn-submit" href="{{language.URL_INSTALL}}">{{'Install'|trans}}</a>
+				<a class="btn btn-sm btn-success" href="{{language.URL_DOWNLOAD}}">{{'Download'|trans}}</a>
+			    </td>
+			</tr>
+		    {% endfor %}
+		</tbody>
+	    </table>
+	</div>
+    {% else %}
+       <p>{{'There is no other language available.'|trans}}</p>
+    {% endif %}
+{% endblock %}

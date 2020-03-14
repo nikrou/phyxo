@@ -1,0 +1,207 @@
+{% trans_default_domain 'install' %}
+{% extends "__layout.html.twig" %}
+
+{% block javascripts %}
+    {{parent()}}
+    <script src="{{asset('admin/theme/js/install.js')}}"></script>
+{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block breadcrumb %}
+    <h2>Phyxo {{'Version'|trans}} {{RELEASE}} - {{'Installation'|trans}}</h2>
+{% endblock %}
+
+{% block aside %}
+    <aside id="sidebar" role="navigation" class="install">
+	<h3>{{'Installation steps'|trans}}</h3>
+	<ul class="list-group">
+	    {% for step_key, step in STEPS %}
+		<li class="list-group-item{% if step_key == STEP %} active{% endif %}">{{step.label|trans}}</li>
+	    {% endfor %}
+	</ul>
+	<script>var menuitem_active = "{{STEP}}";</script>
+    </aside>
+{% endblock %}
+
+{% block content %}
+    {% if STEP == 'language' %}
+	<form method="POST" action="{{INSTALL_ACTION}}" name="install_form" id="install-form">
+	    <p>
+		<label for="language">{{'Default gallery language'|trans}}</label>
+		<select class="custom-select" id="language" name="language">
+		    {% for option, label in LANGUAGES %}
+			<option value="{{option}}" {% if option == LANGUAGE %}selected="selected"{% endif %}>{{label}}</option>
+		    {% endfor %}
+		</select>
+	    </p>
+	    <p>
+		<input class="btn btn-submit" type="submit" name="install_language" value="{{'Save and continue'|trans}}">
+	    </p>
+	</form>
+    {% endif %}
+
+    {% if STEP == 'check' %}
+	<form method="POST" action="{{INSTALL_ACTION}}" name="install_form" id="install-form">
+	    <div class="fieldset">
+		<h3>{{'Check directories permissions'|trans}}</h3>
+
+		<p>{{'The installation process requires for the following directories at least read'|trans}}</p>
+		<ul>
+		    {% set success = 'fa fa-check text-success' %}
+		    {% set fail = 'fa fa-times text-danger' %}
+		    {% for key, directory in READ_DIRECTORIES %}
+			<li class="row">
+			    <div class="col">
+				{% if not directory.path %}
+				    {{ROOT}}/{{key}}
+				{% else %}
+				    {{directory.path}}:
+				{% endif %}
+			    </div>
+			    {% if not directory.path %}
+				<div class="col text-danger">
+				    {{'Directory does not exist'|trans}}
+				</div>
+			    {% else %}
+				<div class="col">
+				    <i class="{% if directory.readable %}{{success}}{% else %}{{fail}}{% endif %}"></i> {{'readable'|trans}}
+				</div>
+				<div class="col">
+				    <i class="{% if directory.writable %}{{success}}{% else %}{{fail}}{% endif %}"></i> {{'writable'|trans}}
+				</div>
+			    {% endif %}
+			</li>
+		    {% endfor %}
+		</ul>
+
+		<p>{{'The installation process requires for the following directories read and write access'|trans}}</p>
+		<p>ROOT {{ROOT}}</p>
+		<ul>
+		    {% for key, directory in WRITE_DIRECTORIES %}
+			<li class="row">
+			    <div class="col">
+				{% if not directory.path %}
+				    {{ROOT}}/{{key}}
+				{% else %}
+				    {{directory.path}}:
+				{% endif %}
+			    </div>
+			    {% if not directory.path %}
+				<div class="col text-danger">
+				    {{'Directory does not exist'|trans}}
+				</div>
+			    {% else %}
+				<div class="col">
+				    <i class="{% if directory.readable %}{{success}}{% else %}{{fail}}{% endif %}"></i> {{'readable'|trans}}
+				</div>
+				<div class="col">
+				    <i class="{% if directory.writable %}{{success}}{% else %}{{fail}}{% endif %}"></i> {{'writable'|trans}}
+				</div>
+			    {% endif %}
+			</li>
+		    {% endfor %}
+		</ul>
+
+		<p>
+		    {{'After check permissions'|trans}}, <input type="submit" class="btn btn-sm btn-success" name="retry" value="{{'retry'|trans}}"/>
+		</p>
+	    </div>
+	    <p>
+		<input type="hidden" name="language" value="{{LANGUAGE}}"/>
+		<input class="btn btn-submit" type="submit" name="install_check" value="{{'Save and continue'|trans}}">
+	    </p>
+	</form>
+    {% endif %}
+
+    {% if STEP == 'database' %}
+	<form method="POST" action="{{INSTALL_ACTION}}" name="install_form" id="install-form">
+	    <div class="fieldset">
+		<h3>{{'Database configuration'|trans}}</h3>
+		<p>
+		    {% if DB_ENGINES|length > 1 %}
+			<label for="dblayer">{{'Database type'|trans}}</label>
+			<select name="db_layer" id="dblayer" class="custom-select is-valid">
+			    {% for option, label in DB_ENGINES %}
+				<option value="{{option}}" {% if option == db_layer %}selected="selected"{% endif %}>{{label}}</option>
+			    {% endfor %}
+			</select>
+		    {% else %}
+			<input type="hidden" name="db_layer" value="{{db_layer}}">
+		    {% endif %}
+		</p>
+		<p class="no-sqlite">
+		    <label for="dbhost">{{'Host'|trans}}</label>
+		    <input class="form-control{% if not db_host %} is-invalid{% else %} is-valid{% endif %}" type="text" id="dbhost" name="db_host" value="{{db_host}}" required>
+		    <small class="form-text text-muted">{{'localhost or other, supplied by your host provider'|trans}}</small>
+		</p>
+		<p class="no-sqlite">
+		    <label for="dbuser">{{'User'|trans}}</label>
+		    <input class="form-control{% if not db_user %} is-invalid{% else %} is-valid{% endif %}" type="text" id="dbuser" name="db_user" value="{{db_user}}">
+		    <small class="form-text text-muted">{{'user login given by your host provider'|trans}}</small>
+		</p>
+		<p class="no-sqlite">
+		    <label for="dbpasswd">{{'Password'|trans}}</label>
+		    <input class="form-control{% if not db_password %} is-invalid{% endif %}" type="password" name="db_password" id="dbpasswd" value="">
+		    <small class="form-text text-muted">{{'user password given by your host provider'|trans}}</small>
+		</p>
+		<p>
+		    <label for="dbname">{{'Database name'|trans}}</label>
+		    <input class="form-control{% if not db_name %} is-invalid{% endif %}" type="text" id="dbname" name="db_name" value="{{db_name}}" required>
+		    <small class="form-text text-muted">{{'also given by your host provider'|trans}}</small>
+		</p>
+		<p>
+		    <label for="prefix">{{'Database table prefix'|trans}}</label>
+		    <input class="form-control" type="text" id="prefix" name="db_prefix" value="{{db_prefix}}">
+		    <small class="form-text text-muted">{{'database tables names will be prefixed with it (enables you to manage better your tables)'|trans}}</small>
+		</p>
+	    </div>
+	    <p>
+		<input type="hidden" name="language" value="{{LANGUAGE}}"/>
+		<input class="btn btn-submit" type="submit" name="install_database" value="{{'Save and continue'|trans}}">
+	    </p>
+	</form>
+    {% endif %}
+
+    {% if STEP == 'user' %}
+	<form method="POST" action="{{INSTALL_ACTION}}" name="install_form" id="install-form">
+	    <div class="fieldset">
+		<h3>{{'Create first user'|trans}}</h3>
+		<p>
+		    <label for="admin_name">{{'Username'|trans}}</label>
+		    <input class="form-control" type="text" id="admin_name" name="_username" value="{{_username}}">
+		    <small class="form-text text-muted">{{'It will be shown to the visitors. It is necessary for website administration'|trans}}</small>
+		</p>
+		<p>
+		    <label for="admin_pass1">{{'Password'|trans}}</label>
+		    <input class="form-control" type="password" id="admin_pass1" name="_password" value="">
+		    <small class="form-text text-muted">{{'Keep it confidential, it enables you to access administration panel'|trans}}</small>
+		</p>
+		<p>
+		    <label for="admin_pass2">{{'Password [confirm]'|trans}}</label>
+		    <input class="form-control" type="password" id="admin_pass2" name="_password_confirm" value="">
+		    <small class="form-text text-muted">{{'verification'|trans}}</small>
+		</p>
+		<p>
+		    <label for="admin_mail">{{'Email address'|trans}}</label>
+		    <input class="form-control" type="text" name="_mail_address" id="admin_mail" value="{{_mail_adress}}">
+		    <small class="form-text text-muted">{{'Visitors will be able to contact site administrator with this mail'|trans}}</small>
+		</p>
+	    </div>
+	    <p>
+		<input type="hidden" name="language" value="{{LANGUAGE}}"/>
+		<input class="btn btn-submit" type="submit" name="install_user" value="{{'Save and continue'|trans}}">
+	    </p>
+	</form>
+    {% endif %}
+
+    {% if STEP == 'success' %}
+	<p>
+            {{'Congratulations, Phyxo installation is completed'|trans}}
+	</p>
+	<p>
+	    <a class="btn btn-success" href="{{path('homepage')}}">{{'Visit Gallery'|trans}}</a>
+	</p>
+    {% endif %}
+{% endblock %}

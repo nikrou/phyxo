@@ -1,0 +1,10 @@
+{{MAIL_TITLE}}
+{% if MAIL_SUBTITLE %}{{MAIL_SUBTITLE}}{% endif %}
+----
+{% block content %}{% endblock %}
+
+
+----
+{{'Sent by'|trans}} "{{GALLERY_TITLE}}" {{GALLERY_URL}}
+{{'Powered by'|trans}} "Phyxo{% if PHYXO_VERSION %} {{PHYXO_VERSION}}{% endif %}" {{PHYXO_URL}}
+{{'Contact'|trans}}: {{CONTACT_MAIL}}

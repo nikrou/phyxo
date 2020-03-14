@@ -1,0 +1,109 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Plugins'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Plugin list'|trans}}</li>
+{% endblock %}
+
+{% block javascripts %}
+    {{parent()}}
+    <script>
+     var ws_url = "{{ws}}";
+     var pwg_token = "{{csrf_token}}";
+     var activate_msg = "{{'Do you want to activate anyway?'|trans}}";
+     var confirmMsg  = "{{'Are you sure?'|trans}}";
+     var detailsMsg = {};
+     detailsMsg.show = "{{'show details'|trans}}";
+     detailsMsg.hide = "{{'hide details'|trans}}";
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="showDetails">
+	<button type="button" id="deactivateAll" class="btn btn-info{% if plugins_by_state.active == 0 %} collapse{% endif %}">{{'Deactivate all'|trans}}</button>
+    </div>
+
+    {% for plugin_state, count_plugin_state in plugins_by_state if not count_plugin_state == 0%}
+	<div class="extensions state state-{plugin_state}">
+	    {% if plugin_state == 'active' %}
+		<h3>{{'Active Plugins'|trans}}</h3>
+	    {% elseif plugin_state == 'inactive' %}
+		<h3>{{'Inactive Plugins'|trans}}</h3>
+	    {% elseif plugin_state == 'missing' %}
+		<h3>{{'Missing Plugins'|trans}}</h3>
+	    {% elseif plugin_state == 'merged' %}
+		<h3>{{'Obsolete Plugins'|trans}}</h3>
+	    {% endif %}
+	    <div>
+		{% for plugin in plugins %}
+		    {% if plugin.state == plugin_state %}
+			<div class="row extension plugin" id="plugin-{{plugin.ID}}">
+			    <div class="col-2">
+				<div>{{plugin.NAME}}</div>
+				<div class="version">{{'Version'|trans}} {{plugin.VERSION}}</div>
+			    </div>
+			    <div class="col-10">
+				<div>
+				    {% if plugin.state == 'active' %}
+					<button class="btn btn-sm btn-info deactivate" data-type="{{EXT_TYPE}}" data-ext-id="{{plugin.ID}}">
+					    {{'Deactivate'|trans}}
+					</button>
+					<button class="btn btn-sm btn-success restore" data-type="{{EXT_TYPE}}" data-ext-id="{{plugin.ID}}">
+					    {{'Restore'|trans}}
+					</button>
+				    {% elseif plugin.state == 'inactive' %}
+					<button class="btn btn-sm btn-submit activate" data-type="{{EXT_TYPE}}" data-ext-id="{{plugin.ID}}">
+					    {{'Activate'|trans}}
+					</button>
+					<button class="btn btn-sm btn-danger delete" data-type="{{EXT_TYPE}}" data-ext-id="{{plugin.ID}}">
+					    {{'Delete'|trans}}
+					</button>
+				    {% elseif plugin.state == 'missing' %}
+					<button class="btn btn-sm btn-warning uninstall" data-type="{{EXT_TYPE}}" data-ext-id="{{plugin.ID}}">
+					    {{'Uninstall'|trans}}
+					</button>
+				    {% elseif plugin.state == 'merged' %}
+					<button class="btn btn-sm btn-danger delete" data-type="{{EXT_TYPE}}" data-ext-id="{{plugin.ID}}">
+					    {{'Delete'|trans}}
+					</button>
+				    {% endif %}
+				</div>
+				{% if plugin.AUTHOR is defined %}
+				    <div class="author">
+					{% if plugin.AUTHOR_URL is defined %}
+					    {% set author = '<a href="' ~ plugin.AUTHOR_URL ~ '">' ~ plugin.AUTHOR ~ '</a>' %}
+					{% else %}
+					    {% set author = '<u>' ~ plugin.AUTHOR ~ '</u>' %}
+					{% endif %}
+					{{'By {by}'|trans({'by':  author})|raw}}
+
+					{% if plugin.VISIT_URL is defined %}
+					    &nbsp;|&nbsp;<a class="externalLink" href="{{plugin.VISIT_URL}}">{{'Visit plugin site'|trans}}</a>
+					{% endif %}
+				    </div>
+				{% endif %}
+				{% if not plugin_state == 'missing' and not incompatible_plugins[plugin.ID] is defined %}
+				    <p>
+					<button type="button" class="btn btn-link" data-target="#description-{{plugin.ID}}" data-toggle="collapse">
+					    <i class="fa fa-plus-square-o"></i>
+					    {{'show details'|trans}}
+					</button>
+				    </p>
+				{% endif %}
+
+				<div id="description-{{plugin.ID}}" class="description{% if not plugin_state == 'missing' and not incompatible_plugins[plugin.ID] is defined %} collapse{% endif %}">
+				    <p{% if plugin_state == 'missing' %} class="text-danger"{% endif %}>{{plugin.DESC}}</p>
+				    {% if incompatible_plugins[plugin.ID] is defined %}
+					<p class="text-warning">{{'Warning! This plugin does not seem to be compatible with this version of Phyxo.'|trans}}</p>
+				    {% endif %}
+				</div>
+			    </div>
+			</div>
+		    {% endif %}
+		{% endfor %}
+	    </div>
+	</div>
+    {% endfor %}
+
+{% endblock %}

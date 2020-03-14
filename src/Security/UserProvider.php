@@ -144,7 +144,7 @@ class UserProvider implements UserProviderInterface
 
         $extra_infos = $this->getUserData($userData['id'], in_array($userInfosData['status'], ['admin', 'webmaster']));
         $user_infos = new UserInfos($userInfosData);
-        $user_infos->setForbiddenCategories(empty($extra_infos['forbidden_categories'])?[]:$extra_infos['forbidden_categories']);
+        $user_infos->setForbiddenCategories(empty($extra_infos['forbidden_categories']) ? [] : $extra_infos['forbidden_categories']);
         $user_infos->setImageAccessList(empty($extra_infos['image_access_list'])?[]:explode(',', $extra_infos['image_access_list']));
         $user_infos->setImageAccessType($extra_infos['image_access_type']);
         $user->setInfos($user_infos);
@@ -161,7 +161,8 @@ class UserProvider implements UserProviderInterface
         $userdata = $this->dataTransformer->map($this->em->getConnection()->db_fetch_assoc($result));
         $userdata['id'] = $user_id;
 
-        if (!isset($userdata['need_update']) || !is_bool($userdata['need_update']) || $userdata['need_update'] === true) {
+        // @TODO : cache in appropriate table use uc.cache_update_time
+        if (1 == 1) { //!isset($userdata['need_update']) || !is_bool($userdata['need_update']) || $userdata['need_update'] === true) {
             $userdata['cache_update_time'] = time();
 
             // Set need update are done
@@ -175,6 +176,7 @@ class UserProvider implements UserProviderInterface
             if (!empty($userdata['forbidden_categories'])) {
                 $forbidden_categories = $userdata['forbidden_categories'];
             }
+
             $result = $this->em->getRepository(ImageRepository::class)->getForbiddenImages($forbidden_categories, $userdata['level']);
             $forbidden_ids = $this->em->getConnection()->result2array($result, null, 'id');
 
@@ -184,12 +186,7 @@ class UserProvider implements UserProviderInterface
 
             $userdata['image_access_type'] = 'NOT IN';
             $userdata['image_access_list'] = implode(',', $forbidden_ids);
-
-            $userdata['nb_total_images'] = $this->em->getRepository(ImageCategoryRepository::class)->countTotalImages(
-                $forbidden_categories,
-                $userdata['image_access_type'],
-                $forbidden_ids
-            );
+            $userdata['nb_total_images'] = $this->em->getRepository(ImageCategoryRepository::class)->countTotalImages($forbidden_categories, $userdata['image_access_type'], $forbidden_ids);
 
             // now we update user cache categories
             $user_cache_cats = $this->categoryMapper->getComputedCategories($userdata, null);
@@ -204,9 +201,9 @@ class UserProvider implements UserProviderInterface
                 }
                 if (!empty($forbidden_ids)) {
                     if (empty($userdata['forbidden_categories'])) {
-                        $userdata['forbidden_categories'] = implode(',', $forbidden_ids);
+                        $userdata['forbidden_categories'] = $forbidden_ids;
                     } else {
-                        $userdata['forbidden_categories'] .= ',' . implode(',', $forbidden_ids);
+                        $userdata['forbidden_categories'] = array_merge($userdata['forbidden_categories'], $forbidden_ids);
                     }
                 }
             }
@@ -264,6 +261,7 @@ class UserProvider implements UserProviderInterface
         // retrieve category ids directly authorized to the user
         $result = $this->em->getRepository(UserAccessRepository::class)->findByUserId($user_id);
         $authorized_array = $this->em->getConnection()->result2array($result, null, 'cat_id');
+
 
         $result = $this->em->getRepository(UserGroupRepository::class)->findCategoryAuthorizedToTheGroupTheUserBelongs($user_id);
         $authorized_array = array_merge($authorized_array, $this->em->getConnection()->result2array($result, null, 'cat_id'));

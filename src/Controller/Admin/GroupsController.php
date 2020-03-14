@@ -20,7 +20,6 @@ use App\Repository\UserGroupRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
-use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -39,7 +38,7 @@ class GroupsController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function list(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function list(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -90,7 +89,6 @@ class GroupsController extends AdminCommonController
         $tpl_params['F_ACTION_RENAME'] = $this->generateUrl('admin_groups_action', ['action' => 'rename']);
         $tpl_params['F_ACTION_TOGGLE_DEFAULT'] = $this->generateUrl('admin_groups_action', ['action' => 'toggle_default']);
         $tpl_params['PAGE_TITLE'] = $translator->trans('Groups', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('list'), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_groups');
@@ -102,11 +100,12 @@ class GroupsController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
 
-        return $this->render('groups_list.tpl', $tpl_params);
+        return $this->render('groups_list.html.twig', $tpl_params);
     }
 
-    public function perm(Request $request, int $group_id, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params,
+    public function perm(Request $request, int $group_id, EntityManager $em, Conf $conf, ParameterBagInterface $params,
                         CategoryMapper $categoryMapper, UserMapper $userMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -180,7 +179,7 @@ class GroupsController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_groups');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Groups', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('perm', $group_id), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_groups');
@@ -189,7 +188,7 @@ class GroupsController extends AdminCommonController
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
 
-        return $this->render('groups_perm.tpl', $tpl_params);
+        return $this->render('groups_perm.html.twig', $tpl_params);
     }
 
     public function action(Request $request, string $action, EntityManager $em, TranslatorInterface $translator)

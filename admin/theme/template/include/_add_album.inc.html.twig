@@ -1,0 +1,26 @@
+{% trans_default_domain 'admin' %}
+<div class="collapse">
+    <div id="addAlbumForm">
+	<form action="">
+	    <p>
+		<label>{{'Parent album'|trans}}
+		    <select name="category_parent">
+			<option></option>
+		    </select>
+		</label>
+	    </p>
+
+	    <p>
+		<label>{{'Album name'|trans}}
+		    <input class="form-control" name="category_name" type="text" maxlength="255">
+		</label>
+		<span id="categoryNameError"></span>
+	    </p>
+
+	    <p>
+		<input class="btn btn-submit" type="submit" value="{{'Create'|trans}}">
+		<span id="albumCreationLoading" style="display:none"></span>
+	    </p>
+	</form>
+    </div>
+</div>

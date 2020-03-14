@@ -13,7 +13,6 @@ namespace App\DataMapper;
 
 use App\Metadata;
 use Phyxo\Image\DerivativeImage;
-use Phyxo\Functions\Plugin;
 use Phyxo\Conf;
 use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;

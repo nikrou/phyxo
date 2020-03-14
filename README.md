@@ -87,9 +87,6 @@ You can also get coverage report for tests by running :
 $ ./bin/atoum -ebpc -c .atoum.coverage.php
 ```
 
-And javascript is tested using [Jasmine](http://jasmine.github.io/).
-To run tests, go to [local, Jasmine test page](http://localhost/phyxo/tests/functional/)
-
 ## Static code analysis
 
 Analysis is made using [PHPStan](https://github.com/phpstan/phpstan) :

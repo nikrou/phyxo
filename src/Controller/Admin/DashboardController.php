@@ -25,14 +25,13 @@ use GuzzleHttp\Client;
 use Phyxo\Conf;
 use Phyxo\DBLayer\DBLayer;
 use Phyxo\EntityManager;
-use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DashboardController extends AdminCommonController
 {
-    public function index(Request $request, bool $check_upgrade = false, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function index(Request $request, bool $check_upgrade = false, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -76,8 +75,6 @@ class DashboardController extends AdminCommonController
 
         $tpl_params = array_merge($tpl_params,
             [
-                'PHPWG_URL' => $params->get('phyxo_website'),
-                'PWG_VERSION' => $params->get('core_version'),
                 'OS' => PHP_OS,
                 'PHP_VERSION' => phpversion(),
                 'DB_ENGINE' => DBLayer::availableEngines()[$em->getConnection()->getLayer()],
@@ -115,7 +112,6 @@ class DashboardController extends AdminCommonController
         $tpl_params['U_UPDATE_EXTENSIONS'] = $this->generateUrl('admin_update_extensions');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_home');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
@@ -125,6 +121,8 @@ class DashboardController extends AdminCommonController
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
 
-        return $this->render('dashboard.tpl', $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+
+        return $this->render('dashboard.html.twig', $tpl_params);
     }
 }

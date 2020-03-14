@@ -1,0 +1,81 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{U_PAGE}">{{'Albums'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Album'|trans}}:
+	{% for category_nav in CATEGORIES_NAV %}
+	    <a href="{{category_nav.url}}">{{category_nav.name}}</a>
+	    {% if not loop.last %}/{% endif %}
+	{% endfor %}
+    </li>
+    <li class="breadcrumb-item">{{'Manage photo ranks'|trans}}</li>
+{% endblock %}
+
+{% block javascripts %}
+    {{parent()}}
+    <script src="{{asset('admin/theme/js/ui/jquery.ui.core.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/jquery.ui.widget.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/jquery.ui.mouse.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/jquery.ui.sortable.js')}}"></script>
+    <script src="{{asset('admin/theme/js/element_set_ranks.js')}}"></script>
+{% endblock %}
+
+{% block content %}
+    <form action="{{F_ACTION}}" method="post">
+	{% if thumbnails %}
+	    <p><input class="btn btn-submit" type="submit" value="{{'Submit'|trans}}" name="submit"></p>
+	    <div class="fieldset">
+		<h3>{{'Manual order'|trans}}</h3>
+		<p>{{'Drag to re-order'|trans}}</p>
+		<ul class="thumbnails sort-order">
+		    {% for thumbnail in thumbnails %}
+			<li class="rank-of-image">
+			    <img src="{{thumbnail.TN_SRC}}" class="thumbnail" alt="{{thumbnail.NAME|replace({('"'):(' ')})}}" title="{{thumbnail.NAME|replace({('"'):(' ')})}}"  style="width:{{thumbnail.SIZE[0]}}px; height:{{thumbnail.SIZE[1]}}px; ">
+			    <input type="text" name="rank_of_image[{{thumbnail.ID}}]" value="{{thumbnail.RANK}}" style="display:none">
+			</li>
+		    {% endfor %}
+		</ul>
+	    </div>
+	{% endif %}
+
+	<div class="fieldset">
+	    <h3>{{'Sort order'|trans}}</h3>
+	    <p>
+		<input type="radio" name="image_order_choice" id="image_order_default" value="default"{% if image_order_choice == 'default' %} checked="checked"{% endif %}>
+		<label for="image_order_default">{{'Use the default photo sort order'|trans}}</label>
+	    </p>
+
+	    <p>
+		<input type="radio" name="image_order_choice" id="image_order_rank" value="rank"{% if image_order_choice == 'rank' %} checked="checked"{% endif %}>
+		<label for="image_order_rank">{{'manual order'|trans}}</label>
+	    </p>
+
+	    <p>
+		<input type="radio" name="image_order_choice" id="image_order_user_define" value="user_define"{% if image_order_choice == 'user_define' %} checked="checked"{% endif %}>
+		<label for="image_order_user_define">{{'automatic order'|trans}}</label>
+	    </p>
+
+	    <div id="image_order_user_define_options">
+		{% for order in image_order %}
+		    <p>
+			<select class="custom-select" name="image_order[]">
+			    {% for option, label in image_order_options %}
+				<option value="{{option}}" {% if option == order %}selected="selected"{% endif %}>{{label|raw}}</option>
+			    {% endfor %}
+			</select>
+		    </p>
+		{% endfor %}
+		</div>
+	</div>
+
+	<p>
+	    <input class="btn btn-submit" type="submit" value="{{'Submit'|trans}}" name="submit">
+
+	    <label>
+		<input type="checkbox" name="image_order_subcats" id="image_order_subcats">
+		{{'Apply to sub-albums'|trans}}
+	    </label>
+	</p>
+    </form>
+{% endblock %}

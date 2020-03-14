@@ -1,0 +1,87 @@
+{% trans_default_domain 'admin' %}
+<ul class="accordion">
+    <li>
+	<a data-toggle="collapse" href="#child-photos"><i class="fa fa-image"></i> {{'Photos'|trans}}</a>
+	<ul class="collapse" id="child-photos" data-parent=".accordion">
+	    <li><a href="{{U_ADD_PHOTOS}}"><i class="fa fa-plus-circle"></i> {{'Add'|trans}}</a></li>
+	    <li><a href="{{U_RATING}}"><i class="fa fa-star"></i> {{'Rating'|trans}}</a></li>
+	    <li><a href="{{U_TAGS}}"><i class="fa fa-tags"></i> {{'Tags'|trans}}</a></li>
+	    <li><a href="{{U_RECENT_SET}}"><i class="fa fa-clock-o"></i> {{'Recent photos'|trans}}</a></li>
+	    <li><a href="{{U_BATCH}}"><i class="fa fa-tasks"></i> {{'Batch Manager'|trans}}</a></li>
+	    {% if NB_PHOTOS_IN_CADDIE is defined %}
+		<li><a href="{{U_CADDIE}}"><i class="fa fa-shopping-cart"></i> {{'Caddie'|trans}}<em class="counter">{{NB_PHOTOS_IN_CADDIE}}</em></a></li>
+	    {% endif %}
+	</ul>
+    </li>
+    <li>
+	<a data-toggle="collapse" href="#child-album"><i class="fa fa-sitemap"></i> {{'Albums'|trans}}</a>
+	<ul class="collapse" id="child-album" data-parent=".accordion">
+	    <li><a href="{{U_ALBUMS}}"><i class="fa fa-folder-open"></i>{{'Manage'|trans}}</a></li>
+	    <li><a href="{{U_ALBUMS_OPTIONS}}"><i class="fa fa-pencil"></i>{{'Properties'|trans}}</a></li>
+	</ul>
+    </li>
+    <li>
+	<a data-toggle="collapse" href="#child-users"><i class="fa fa-users"></i> {{'Users'|trans}}</a>
+	<ul class="collapse" id="child-users" data-parent=".accordion">
+	    <li><a href="{{U_USERS}}"><i class="fa fa-user-plus"></i>{{'Manage'|trans}}</a></li>
+	    <li><a href="{{U_GROUPS}}"><i class="fa fa-group"></i>{{'Groups'|trans}}</a></li>
+	    <li><a href="{{U_NOTIFICATION_BY_MAIL}}"><i class="fa fa-envelope"></i>{{'Notification'|trans}}</a></li>
+	</ul>
+    </li>
+    <li>
+	<a data-toggle="collapse" href="#child-plugins"><i class="fa fa-plug"></i> {{'Plugins'|trans}}</a>
+	<ul class="collapse" id="child-plugins" data-parent=".accordion">
+	    <li>
+		<a href="{{U_PLUGINS}}"><i class="fa fa-sliders"></i>{{'Manage'|trans}}</a>
+		{% if plugin_menu_items is defined %}
+		    <ul>
+			{% for menu_item in plugin_menu_items %}
+			    <li><a href="{{menu_item.URL}}">{{menu_item.NAME}}</a></li>
+			{% endfor %}
+		    </ul>
+		{% endif %}
+	    </li>
+	</ul>
+    </li>
+    <li>
+	<a data-toggle="collapse" href="#child-tools"><i class="fa fa-wrench"></i> {{'Tools'|trans}}</a>
+	<ul class="collapse" id="child-tools" data-parent=".accordion">
+	    {% if ENABLE_SYNCHRONIZATION %}
+		<li><a href="{{U_CAT_UPDATE}}"><i class="fa fa-exchange"></i>{{'Synchronize'|trans}}</a></li>
+		<li><a href="{{U_SITE_MANAGER}}"><i class="fa fa-code-fork"></i>{{'Site manager'|trans}}</a></li>
+	    {% endif %}
+	    <li><a href="{{U_HISTORY_STAT}}"><i class="fa fa-bar-chart"></i>{{'History'|trans}}</a></li>
+	    <li><a href="{{U_MAINTENANCE}}"><i class="fa fa-cogs"></i>{{'Maintenance'|trans}}</a></li>
+	    {% if U_COMMENTS is defined %}
+		<li>
+		    <a href="{{U_COMMENTS}}"><i class="fa fa-comments"></i>{{'Comments'|trans}}
+			{% if NB_PENDING_COMMENTS is defined %}
+			    <span class="counter" title="{{'waiting_for_validation'|trans({'count': NB_PENDING_COMMENTS})}}">{{NB_PENDING_COMMENTS}}</span>
+			{% endif %}
+		    </a>
+		</li>
+	    {% endif %}
+	    <li><a href="{{U_UPDATE}}"><i class="fa fa-refresh"></i>{{'Updates'|trans}}</a></li>
+	</ul>
+    </li>
+    <li>
+	<a data-toggle="collapse" href="#child-configuration"><i class="fa fa-cog"></i> {{'Configuration'|trans}}</a>
+	<ul class="collapse" id="child-configuration" data-parent=".accordion">
+	    <li><a href="{{U_CONFIG_GENERAL}}"><i class="fa fa-cogs"></i>{{'Options'|trans}}</a></li>
+	    <li><a href="{{U_CONFIG_MENUBAR}}"><i class="fa fa-bars"></i>{{'Menu Management'|trans}}</a></li>
+	    <li><a href="{{U_CONFIG_LANGUAGES}}"><i class="fa fa-language"></i>{{'Languages'|trans}}</a></li>
+	    <li><a href="{{U_CONFIG_THEMES}}"><i class="fa fa-paint-brush"></i>{{'Themes'|trans}}</a></li>
+	</ul>
+    </li>
+    {% if U_DEV_VERSION is defined %}
+	<li>
+	    <a data-toggle="collapse" href="#child-dev">{{'Development'|trans}}</a>
+	    <ul class="collapse" id="child-dev" data-parent=".accordion">
+		{% if U_DEV_API is defined %}
+		    <li><a href="{{U_DEV_API}}">API</a></li>
+		{% endif %}
+	    </ul>
+	</li>
+    {% endif %}
+</ul>
+<script>var menuitem_active = '{{ACTIVE_MENU}}';</script>

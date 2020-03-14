@@ -1,0 +1,13 @@
+{% trans_default_domain 'admin' %}
+{% extends "mail/html/__layout.html.twig" %}
+
+{% block content %}
+    <div id="cat_group_info">
+	<h2>{{'Informations'|trans}}</h2>
+	<p>{{IMG_URL|raw}}</p>
+	<p>{{'Hello,'|trans}}</p>
+	<p>{{'Discover album:'|trans}} <a href="{{LINK}}">{{CAT_NAME}}</a></p>
+	<p>{{CPL_CONTENT}}</p>
+	<p>{{'See you soon.'|trans}}</p>
+    </div>
+{% endblock %}

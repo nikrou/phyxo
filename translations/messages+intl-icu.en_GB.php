@@ -237,5 +237,6 @@ $lang["The RSS notification feed provides notification on news from this website
 $lang["Photos only RSS feed"] = "Photos only RSS feed";
 $lang["Complete RSS feed (photos, comments)"] = "Complete RSS feed (photos, comments)";
 $lang["photos posted during the last {count} days"] = "photos posted during the last {count} days";
+$lang['in this album'] = 'in this album';
 
 return $lang;

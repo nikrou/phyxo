@@ -1,0 +1,52 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item">{{'Menu Management'|trans}}</li>
+{% endblock %}
+
+{% block javascripts %}
+    {{parent()}}
+    <script src="{{ROOT_URL}}theme/js/ui/jquery.ui.core.js"></script>
+    <script src="{{ROOT_URL}}theme/js/ui/jquery.ui.widget.js"></script>
+    <script src="{{ROOT_URL}}theme/js/ui/jquery.ui.mouse.js"></script>
+    <script src="{{ROOT_URL}}theme/js/ui/jquery.ui.sortable.js"></script>
+    <script src="{{ROOT_URL}}theme/js/menubar.js"></script>
+{% endblock %}
+
+{% block content %}
+    <form id="menuOrdering" action="{{path('admin_menubar_update')}}" method="post">
+	<ul class="menuUl">
+	    {% for block in blocks %}
+		<li class="menuLi {% if block.pos<0 %}menuLi_hidden{% endif %}" id="menu_{{block.reg.getId}}">
+		    <p>
+			<span>
+			    <strong>{{'Hide'|trans}} <input type="checkbox" name="hide_{{block.reg.getId}}" {% if block.pos<0 %}checked="checked"{% endif %}></strong>
+			</span>
+
+			<i class="drag_button fa fa-move visibility-hidden" title="{{'Drag to re-order'|trans}}"></i>
+			<strong>{{block.reg.getName|trans}}</strong> ({{block.reg.getId}})
+		    </p>
+
+		    {% if not block.reg.getOwner == 'core' %}
+			<p class="menuAuthor">
+			    {{'Author'|trans}}: <i>{{block.reg.getOwner}}</i>
+			</p>
+		    {% endif %}
+
+		    <p class="menuPos">
+			<label>
+			    {{'Position'|trans}} :
+			    <input type="text" size="4" name="pos_{{block.reg.getId}}" maxlength="4" value="{{block.pos|abs}}">
+			</label>
+		    </p>
+		</li>
+	    {% endfor %}
+	</ul>
+	<p>
+	    <input type="submit" class="btn btn-submit" name="submit" value="{{'Submit'|trans}}">
+	    <input type="submit" class="btn btn-reset" name="reset" value="{{'Reset'|trans}}">
+	</p>
+
+    </form>
+{% endblock %}

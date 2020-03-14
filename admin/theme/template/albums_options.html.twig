@@ -1,0 +1,18 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Properties'|trans}}</a></li>
+    <li class="breadcrumb-item">{{TABSHEET_TITLE}}</li>
+{% endblock %}
+
+{% block content %}
+    <h2>{{TABSHEET_TITLE}}</h2>
+
+    <form method="post" action="{{F_ACTION}}" id="cat_options">
+	<div class="fieldset">
+	    <h3>{{L_SECTION}}</h3>
+	    {{include('include/_double_select.html.twig')}}
+	</div>
+    </form>
+{% endblock %}

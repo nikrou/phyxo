@@ -12,7 +12,6 @@
 namespace Phyxo\Block;
 
 use Phyxo\Block\DisplayBlock;
-use Phyxo\Functions\Plugin;
 
 /**
  * Manages a set of RegisteredBlock and DisplayBlock.

@@ -1,0 +1,85 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Configuration'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Guest Settings'|trans}}</li>
+{% endblock %}
+
+{% block content %}
+    <form method="post" name="profile" action="{{F_ACTION}}" id="profile" class="properties">
+	<div id="configContent">
+	    {% if not GUEST_USERNAME == 'guest' %}
+	    <h3>{{'The settings for the guest are from the {user} user'|trans({'user': GUEST_USERNAME})}}</h3>
+	    {% endif %}
+
+	    <div class="fieldset">
+		<h3>{{'Preferences'|trans}}</h3>
+
+		<p>
+		    <label for="theme">{{'Theme'|trans}}</label>
+		    <select class="form-control" name="theme">
+			{% for option in themes %}
+			    <option value="{{option}}" {% if option == THEME %}selected="selected"{% endif %}>{{option}}</option>
+			{% endfor %}
+		    </select>
+		</p>
+
+		<p>
+		    <label for="language">{{'Language'|trans}}</label>
+		    <select class="form-control" name="language">
+			{% for option in languages %}
+			    <option value="{{option}}" {% if option == LANGUAGE %}selected="selected"{% endif %}>{{option}}</option>
+			{% endfor %}
+		    </select>
+		</p>
+
+		<p>
+		    <label for="nb_image_page">{{'Number of photos per page'|trans}}</label>
+		    <input class="form-control" type="text" size="4" maxlength="3" name="nb_image_page" id="nb_image_page" value="{{GUEST_NB_IMAGE_PAGE}}">
+		</p>
+
+		<p>
+		    <label for="recent_period">{{'Recent period'|trans}}</label>
+		    <input class="form-control" type="text" size="3" maxlength="2" name="recent_period" id="recent_period" value="{{GUEST_RECENT_PERIOD}}">
+		</p>
+		<p>
+		    <span>{{'Expand all albums'|trans}}</span>
+		    {% for value, label in radio_options %}
+			<label>
+			    <input type="radio" name="expand" value="{{value}}" {% if value == GUEST_EXPAND %}checked="checked"{% endif %}>
+			    {{label}}
+			</label>
+		    {% endfor %}
+		</p>
+		{% if GUEST_ACTIVATE_COMMENTS %}
+		<p>
+		    <span>{{'Show number of comments'|trans}}</span>
+		    {% for value, label in radio_options %}
+			<label>
+			    <input type="radio" name="show_nb_comments" value="{{value}}" {% if value == GUEST_NB_COMMNTS %}checked="checked"{% endif %}>
+			    {{label}}
+			</label>
+		    {% endfor %}
+		</p>
+		{% endif %}
+
+		<p>
+		    <span>{{'Show number of hits'|trans}}</span>
+		    {% for value, label in radio_options %}
+			<label>
+			    <input type="radio" name="show_nb_hits" value="{{value}}" {% if value == GUEST_NB_HITS %}checked="checked"{% endif %}>
+			    {{label}}
+			</label>
+		    {% endfor %}
+		</p>
+	    </div>
+
+	    <p class="bottomButtons">
+		<input type="hidden" name="pwg_token" value="{{csrf_token}}">
+		<input class="btn btn-submit" type="submit" name="validate" value="{{'Submit'|trans}}">
+		<input class="btn btn-reset" type="reset" name="reset" value="{{'Reset'|trans}}">
+	    </p>
+	</div>
+    </form>
+{% endblock %}

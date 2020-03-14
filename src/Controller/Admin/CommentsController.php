@@ -20,7 +20,6 @@ use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
 use Phyxo\TabSheet\TabSheet;
-use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -39,7 +38,7 @@ class CommentsController  extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function index(Request $request, string $section = 'all', int $start = 0, ImageStandardParams $image_std_params, Template $template, Conf $conf, EntityManager $em,
+    public function index(Request $request, string $section = 'all', int $start = 0, ImageStandardParams $image_std_params, Conf $conf, EntityManager $em,
                         ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -86,7 +85,6 @@ class CommentsController  extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_comments', ['section' => $section, 'start' => $start]);
         $tpl_params['PAGE_TITLE'] = $translator->trans('Comments', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet($section), $tpl_params);
 
         $tpl_params['navbar'] = Utils::createNavigationBar(
@@ -102,8 +100,7 @@ class CommentsController  extends AdminCommonController
             $tpl_params['NB_ELEMENTS'] = $nb_total;
             $tpl_params['SECTION_TITLE'] = $translator->trans('All', [], 'admin');
         } else {
-            $tpl_params['NB_ELEMENTS'] = $nb_pending;
-            $tpl_params['SECTION_TITLE'] = $translator->trans('Pending comments', [], 'admin');
+            $tpl_params['SECTION_TITLE'] = $translator->trans('number_of_comments_pending', ['count' => $nb_pending], 'admin');
         }
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_comments');
@@ -116,8 +113,9 @@ class CommentsController  extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
 
-        return $this->render('comments.tpl', $tpl_params);
+        return $this->render('comments.html.twig', $tpl_params);
     }
 
     public function update(Request $request, string $section = 'all', int $start = 0, CommentMapper $commentMapper, TranslatorInterface $translator)

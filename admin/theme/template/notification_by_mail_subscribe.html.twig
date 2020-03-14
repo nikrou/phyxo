@@ -1,0 +1,23 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Notification'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Subscribe'|trans}}</li>
+{% endblock %}
+
+{% block content %}
+    <form method="post" name="notification_by_mail" id="notification_by_mail" action="{{F_ACTION}}">
+	{% if REPOST_SUBMIT_NAME %}
+	    <div class="fieldset">
+		<input class="btn btn-submit" type="submit" value="{{'Continue processing treatment'|trans}}" name="{{REPOST_SUBMIT_NAME}}">
+	    </div>
+	{% endif %}
+
+	<div class="fieldset">
+	    <h3>{{'Subscribe/unsubscribe users'|trans}}</h3>
+	    <p><i>{{'Warning: subscribing or unsubscribing will send mails to users'|trans}}</i></p>
+	    {{include('include/_double_select.html.twig')}}
+	</div>
+    </form>
+{% endblock %}

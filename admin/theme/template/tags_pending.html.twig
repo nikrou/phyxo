@@ -1,0 +1,57 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Tags'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Pendings tags'|trans}}</li>
+{% endblock %}
+
+{% block javascripts %}
+    {{parent()}}
+    <script src="{{asset('admin/theme/js/phyxo.js')}}"></script>
+    <script>
+     $(function() {
+	 phyxo.checkboxesHelper('#pending-tags');
+     });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <form action="{{F_ACTION}}" method="post" id="pending-tags">
+	<table class="table table-stripped table-hover checkboxes">
+	    <thead>
+		<tr>
+		    <th>&nbsp;</th>
+		    <th>{{'Name'|trans}}</th>
+		    <th>{{'Image'|trans}}</th>
+		    <th>{{'Created by'|trans}}</th>
+		    <th>{{'Status'|trans}}</th>
+		</tr>
+	    </thead>
+	    <tbody>
+		{% for tag in tags %}
+		    <tr{% if loop.index is even %} class="even"{% endif %}>
+			<td class="check"><input type="checkbox" name="tag_ids[{{tag.image_id}}][]" value="{{tag.id}}"/></td>
+			<td>{{tag.name}}</td>
+			<td><a href="{{tag.picture_url}}"><img src="{{tag.thumb_src}}" alt=""></a></td>
+			<td>{% if tag.created_by %}{{tag.username}}{% endif %}</td>
+			<td class="{% if tag.status == 1 %}added{% else %}deleted{% endif %}">{{tag.status}}</td>
+		    </tr>
+		{% endfor %}
+	    </tbody>
+	</table>
+
+	<p class="check-actions">
+	    {{'Select:'|trans}}
+	    <a href="#" class="select all">{{'All'|trans}}</a>,
+	    <a href="#" class="select none">{{'None'|trans}}</a>,
+	    <a href="#" class="select invert">{{'Invert'|trans}}</a>
+	</p>
+
+	<p class="formButtons">
+	    <input type="submit" class="btn btn-submit" name="validate" value="{{'Validate'|trans}}">
+	    <input type="submit" class="btn btn-cancel" name="reject" value="{{'Reject'|trans}}">
+	    <input type="hidden" name="pwg_token" value="{{csrf_token}}">
+	</p>
+    </form>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Configuration'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Watermark'|trans}}</li>
+{% endblock %}
+
+{% block content %}
+    <form method="post" action="{{F_ACTION}}" class="watermark" enctype="multipart/form-data">
+	<div class="fieldset">
+	    <div class="form-row align-items-center" id="new-watermark">
+		<div class="col-auto">
+		    <label class="col-form-label">{{'Select a file'|trans}}</label>
+		</div>
+		<div class="col-auto">
+		    <select name="watermark[file]" class="custom-select">
+			{% for option in watermark_files %}
+			    <option value="{{option}}" {% if option==watermark.file %}selected=selected{% endif %}>{{option}}</option>
+			{% endfor %}
+		    </select>
+		    <img style="max-width:100px" id="seleted-watermark-file" src="{{ROOT_URL}}/{{watermark.file}}" alt=""/>
+		</div>
+		<div class="col-auto">
+		    ... {{'or'|trans}}
+		</div>
+		<div class="col-auto">
+		    <button type="button" id="addWatermark" class="btn btn-submit">{{'add a new watermark'|trans}}</button>
+		</div>
+	    </div>
+
+	    <div class="form-row align-items-center d-none" id="add-watermark">
+		<div class="col-auto">
+		    <div class="custom-file" id="new-watermark">
+			<input class="custom-file-input" type="file" size="60" id="watermarkImage" name="watermarkImage">
+			<label class="custom-file-label" for="watermarkImage" data-browse="{{'Browse'|trans}}" for="customFile">{{'Choose a file'|trans}} (png)</label>
+		    </div>
+		</div>
+		<div class="col-auto">
+		    ... {{'or'|trans}}
+		</div>
+		<div class="col-auto">
+		    <button type="button" class="btn btn-submit" id="newWatermark">{{'Select a file'|trans}}</button>
+		</div>
+	    </div>
+
+	    <div>
+		<label>
+		    {{'Apply watermark if width is bigger than'|trans}}
+		    <input class="form-control{% if ferrors.watermark.minw is defined %} dError{% endif %}"
+			   size="4" maxlength="4" type="text" name="watermark[minw]" value="{{watermark.minw}}">
+		</label>
+		{{'pixels'|trans}}
+	    </div>
+
+	    <div>
+		<label>
+		    {{'Apply watermark if height is bigger than'|trans}}
+		    <input class="form-control{% if ferrors.watermark.minw is defined %} dError{% endif %}"
+			   size="4" maxlength="4" type="text" name="watermark[minh]" value="{{watermark.minh}}">
+		</label>
+		{{'pixels'|trans}}
+	    </div>
+
+	    <div>
+		<h4>{{'Position'|trans}}</h4>
+		<div id="watermarkPositionBox">
+		    <label class="right">{{'top right corner'|trans}} <input name="watermark[position]" type="radio" value="topright"{% if watermark.position == 'topright' %} checked="checked"{% endif %}></label>
+		    <label><input name="watermark[position]" type="radio" value="topleft"{% if watermark.position == 'topleft' %} checked="checked"{% endif %}> {{'top left corner'|trans}}</label>
+		    <label class="middle"><input name="watermark[position]" type="radio" value="middle"{% if watermark.position == 'middle' %} checked="checked"{% endif %}> {{'middle'|trans}}</label>
+		    <label class="right">{{'bottom right corner'|trans}} <input name="watermark[position]" type="radio" value="bottomright"{% if watermark.position == 'bottomright' %} checked="checked"{% endif %}></label>
+		    <label><input name="watermark[position]" type="radio" value="bottomleft"{% if watermark.position == 'bottomleft' %} checked="checked"{% endif %}> {{'bottom left corner'|trans}}</label>
+		</div>
+
+		<label>
+		    <input name="watermark[position]" type="radio" value="custom"{% if watermark.position == 'custom' %} checked="checked"{% endif %}>
+		    {{'custom'|trans}}
+		</label>
+
+		<div class="row{% if not watermark.position == 'custom' %} d-none{% endif %}" id="positionCustomDetails">
+		    <div class="col-auto">
+			<label>{{'X Position'|trans}}
+			    <input class="form-control" size="3" maxlength="3" type="text" name="watermark[xpos]" value="{{watermark.xpos}}">
+			</label> %
+		    </div>
+
+
+		    <div class="col-auto">
+			<label>{{'Y Position'|trans}}
+			    <input class="form-control" size="3" maxlength="3" type="text" name="watermark[ypos]" value="{{watermark.ypos}}">
+			</label> %
+		    </div>
+
+		    <div class="col-auto">
+			<label>{{'X Repeat'|trans}}
+			    <input class="form-control" size="3" maxlength="3" type="text" name="watermark[xrepeat]" value="{{watermark.xrepeat}}">
+			</label>
+		    </div>
+		</div>
+	    </div>
+	    <div>
+		<label>
+		    {{'Opacity'|trans}}
+		    <input class="form-control" size="3" maxlength="3" type="text" name="watermark[opacity]" value="{{watermark.opacity}}">
+		</label> %
+	    </div>
+	</div>
+	<p>
+	    <input type="hidden" name="pwg_token" value="{csrf_token}">
+	    <input type="submit" class="btn btn-submit" name="submit" value="{{'Save Settings'|trans}}">
+	</p>
+    </form>
+{% endblock %}

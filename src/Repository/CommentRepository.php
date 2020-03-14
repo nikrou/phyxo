@@ -118,8 +118,10 @@ class CommentRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function countAuthorMessageNewerThan(int $author_id, string $reference_date, string $anonymous_id = null)
+    public function countAuthorMessageNewerThan(int $author_id, string $anti_flood_time, string $anonymous_id = null)
     {
+        $reference_date = $this->conn->db_get_flood_period_expression($anti_flood_time);
+
         $query = 'SELECT count(1) FROM ' . self::COMMENTS_TABLE;
         $query .= ' WHERE date > ' . $reference_date . ' AND author_id = ' . $this->conn->db_real_escape_string($author_id);
         if ($anonymous_id) {

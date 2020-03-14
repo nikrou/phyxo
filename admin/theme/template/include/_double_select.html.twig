@@ -1,0 +1,22 @@
+{% trans_default_domain 'admin' %}
+<div class="double-select">
+    <div class="form-select">
+	<label for="cat-true">{{L_CAT_OPTIONS_TRUE}}</label>
+	<select class="custom-select" id="cat-true" name="cat_true[]" multiple="multiple">
+	    {% for id, label in category_option_true %}
+		<option value="{{id}}" {% if id == category_option_true_selected %}selected="selected"{% endif %}>{{label}}</option>
+	    {% endfor %}
+	</select>
+	<p><input class="btn btn-sm btn-submit" type="submit" value="&raquo;" name="falsify"></p>
+    </div>
+
+    <div class="form-select">
+	<label for="cat-false">{{L_CAT_OPTIONS_FALSE}}</label>
+	<select class="custom-select" id="cat-false" name="cat_false[]" multiple="multiple">
+	    {% for id, label in category_option_false %}
+		<option value="{{id}}" {% if id == category_option_false_selected %}selected="selected"{% endif %}>{{label}}</option>
+	    {% endfor %}
+	</select>
+	<p><input class="btn btn-sm btn-submit" type="submit" value="&laquo;" name="trueify"></p>
+    </div>
+</div>

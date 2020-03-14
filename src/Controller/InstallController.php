@@ -12,7 +12,6 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Phyxo\Template\Template;
 use Phyxo\Language\Languages;
 use Phyxo\DBLayer\DBLayer;
 use Phyxo\Conf;
@@ -24,7 +23,6 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use App\Repository\ThemeRepository;
 use Phyxo\Upgrade;
 use Phyxo\EntityManager;
-use Phyxo\Extension\Theme;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -49,8 +47,8 @@ class InstallController extends AbstractController
     private $rootProjectDir;
     private $databaseConfigFile;
 
-    public function __construct(Template $template, string $translationsDir, string $adminThemeDir, string $defaultLanguage, string $defaultTheme,
-          string $phyxoVersion, string $databaseConfigFile, string $phyxoWebsite, UserPasswordEncoderInterface $passwordEncoder, TranslatorInterface $translator, string $rootProjectDir)
+    public function __construct(string $translationsDir, string $defaultLanguage, string $defaultTheme, string $phyxoVersion,
+          string $databaseConfigFile, UserPasswordEncoderInterface $passwordEncoder, TranslatorInterface $translator, string $rootProjectDir)
     {
         $this->translationsDir = $translationsDir;
         $this->databaseConfigFile = $databaseConfigFile;
@@ -60,22 +58,12 @@ class InstallController extends AbstractController
         $this->passwordEncoder = $passwordEncoder;
         $this->translator = $translator;
         $this->rootProjectDir = $rootProjectDir;
-
-        $template->setTheme(new Theme($adminThemeDir, '.'));
-        $template->setDomain('install');
-        $template->assign([
-            'RELEASE' => $phyxoVersion,
-            'PHYXO_VERSION' => $phyxoVersion,
-            'PHYXO_URL' => $phyxoWebsite,
-            'GALLERY_TITLE' => 'Phyxo',
-            'PAGE_TITLE' => $this->translator->trans('Installation', [], 'install'),
-            'STEPS' => $this->Steps,
-        ]);
     }
 
     public function index(Request $request, string $step = 'language')
     {
         $tpl_params = [];
+        $tpl_params['STEPS'] = $this->Steps;
 
         if (is_readable($this->databaseConfigFile) && ($step !== 'success')) {
             return  $this->redirectToRoute('homepage', []);
@@ -110,8 +98,9 @@ class InstallController extends AbstractController
         }
         $tpl_params['lang_info'] = ['code' => preg_replace('`_.*`', '', $language), 'direction' => 'ltr']; // @TODO: retrieve from common place
         $tpl_params['LANGUAGE'] = $language;
+        $tpl_params['domain'] = 'install';
 
-        return $this->render('install.tpl', $tpl_params);
+        return $this->render('install.html.twig', $tpl_params);
     }
 
     protected function languageStep(Request $request)

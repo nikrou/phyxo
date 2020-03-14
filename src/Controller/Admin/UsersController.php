@@ -25,7 +25,6 @@ use App\Repository\UserRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
-use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -45,7 +44,7 @@ class UsersController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function list(Request $request, EntityManager $em, Conf $conf, UserMapper $userMapper, Template $template, ParameterBagInterface $params,
+    public function list(Request $request, EntityManager $em, Conf $conf, UserMapper $userMapper, ParameterBagInterface $params,
                         CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -110,10 +109,14 @@ class UsersController extends AdminCommonController
 
         $pref_status_options = $label_of_status;
 
-        // a simple "admin" can set/remove statuses webmaster/admin
-        if ($userMapper->isAdmin()) {
-            unset($pref_status_options['webmaster'], $pref_status_options['admin']);
+        if (!$userMapper->isWebmaster()) {
+            unset($pref_status_options['webmaster']);
+
+            if ($userMapper->isAdmin()) {
+                unset($pref_status_options['admin']);
+            }
         }
+
 
         $tpl_params['label_of_status'] = $label_of_status;
         $tpl_params['pref_status_options'] = $pref_status_options;
@@ -132,13 +135,13 @@ class UsersController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_users');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_users');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Users', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('list'), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
 
-        return $this->render('users_list.tpl', $tpl_params);
+        return $this->render('users_list.html.twig', $tpl_params);
     }
 
-    public function perm(Request $request, int $user_id, EntityManager $em, UserMapper $userMapper, CategoryMapper $categoryMapper, Template $template, Conf $conf,
+    public function perm(Request $request, int $user_id, EntityManager $em, UserMapper $userMapper, CategoryMapper $categoryMapper, Conf $conf,
                         ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -195,9 +198,9 @@ class UsersController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_user_perm', ['user_id' => $user_id]);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_users');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Users', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('perm', $user_id), $tpl_params);
 
-        return $this->render('user_perm.tpl', $tpl_params);
+        return $this->render('user_perm.html.twig', $tpl_params);
     }
 }

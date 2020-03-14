@@ -31,7 +31,6 @@ use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
 use Phyxo\LocalSiteReader;
 use Phyxo\TabSheet\TabSheet;
-use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -65,7 +64,7 @@ class BatchManagerController extends AdminCommonController
         return $this->get('session')->get('bulk_manager_filter');
     }
 
-    public function global(Request $request, string $filter = null, int $start = 0, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params,
+    public function global(Request $request, string $filter = null, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params,
                           CategoryMapper $categoryMapper, ImageStandardParams $image_std_params, SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper,
                           UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator)
     {
@@ -370,7 +369,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Site manager', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('global'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -381,7 +380,7 @@ class BatchManagerController extends AdminCommonController
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
 
-        return $this->render('batch_manager_global.tpl', $tpl_params);
+        return $this->render('batch_manager_global.html.twig', $tpl_params);
     }
 
     public function emptyCaddie(Request $request, EntityManager $em, TranslatorInterface $translator)
@@ -882,7 +881,7 @@ class BatchManagerController extends AdminCommonController
         return $tpl_params;
     }
 
-    public function unit(Request $request, string $filter = null, int $start = 0, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, SearchMapper $searchMapper, TagMapper $tagMapper,
+    public function unit(Request $request, string $filter = null, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, SearchMapper $searchMapper, TagMapper $tagMapper,
                         ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -1088,7 +1087,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_batch_manager_unit');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Site manager', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('unit'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -1099,6 +1098,6 @@ class BatchManagerController extends AdminCommonController
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
 
-        return $this->render('batch_manager_unit.tpl', $tpl_params);
+        return $this->render('batch_manager_unit.html.twig', $tpl_params);
     }
 }

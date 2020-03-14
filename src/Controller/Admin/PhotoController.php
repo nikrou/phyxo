@@ -29,7 +29,6 @@ use Phyxo\Image\DerivativeParams;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
 use Phyxo\TabSheet\TabSheet;
-use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -48,7 +47,7 @@ class PhotoController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function edit(Request $request, int $image_id, int $category_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper,
+    public function edit(Request $request, int $image_id, int $category_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper,
                         ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper, UserProvider $userProvider, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -179,7 +178,7 @@ class PhotoController extends AdminCommonController
         $associated_albums = $em->getConnection()->result2array($result, 'id');
 
         foreach ($associated_albums as $album) {
-            $name = $categoryMapper->getCatDisplayNameCache($album['uppercats'], \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=album-');
+            $name = $categoryMapper->getCatDisplayNameCache($album['uppercats']);
 
             if ($album['category_id'] === $storage_category_id) {
                 $tpl_params['STORAGE_CATEGORY'] = $name;
@@ -220,7 +219,7 @@ class PhotoController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Photo', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('properties', ['image_id' => $image_id, 'category_id' => $category_id]), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -231,7 +230,7 @@ class PhotoController extends AdminCommonController
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
 
-        return $this->render('photo_properties.tpl', $tpl_params);
+        return $this->render('photo_properties.html.twig', $tpl_params);
     }
 
     public function delete(int $image_id, int $category_id = null, EntityManager $em, UserMapper $userMapper, ImageMapper $imageMapper, UserProvider $userProvider)
@@ -269,7 +268,7 @@ class PhotoController extends AdminCommonController
         return $this->redirectToRoute('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);
     }
 
-    public function coi(Request $request, int $image_id, int $category_id = null, ImageStandardParams $image_std_params, Template $template, EntityManager $em, Conf $conf,
+    public function coi(Request $request, int $image_id, int $category_id = null, ImageStandardParams $image_std_params, EntityManager $em, Conf $conf,
                         ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -333,7 +332,7 @@ class PhotoController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_photo_coi', ['image_id' => $image_id, 'category_id' => $category_id]);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Photo', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('coi', ['image_id' => $image_id, 'category_id' => $category_id]), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -344,6 +343,6 @@ class PhotoController extends AdminCommonController
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
 
-        return $this->render('photo_coi.tpl', $tpl_params);
+        return $this->render('photo_coi.html.twig', $tpl_params);
     }
 }

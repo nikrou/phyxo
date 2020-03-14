@@ -15,7 +15,6 @@ use App\DataMapper\UserMapper;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Plugin\Plugins;
-use Phyxo\Template\Template;
 use Phyxo\Theme\Themes;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,14 +23,13 @@ class ExtensionController extends AdminCommonController
 {
     protected $params, $conf;
 
-    public function theme(Request $request, string $theme, EntityManager $em, UserMapper $userMapper, string $themesDir, Conf $conf, Template $template, ParameterBagInterface $params)
+    public function theme(Request $request, string $theme, EntityManager $em, UserMapper $userMapper, string $themesDir, Conf $conf, ParameterBagInterface $params)
     {
         $tpl_params = [];
         $this->conf = $conf;
         $this->params = $params;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
 
         $themes = new Themes($em->getConnection(), $userMapper);
         $themes->setRootPath($themesDir);
@@ -68,18 +66,16 @@ class ExtensionController extends AdminCommonController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_themes_installed');
 
-
         return $this->render($themeResponse['template_filename'], $tpl_params);
     }
 
-    public function plugin(Request $request, string $plugin, EntityManager $em, UserMapper $userMapper, string $pluginsDir, Conf $conf, Template $template, ParameterBagInterface $params)
+    public function plugin(Request $request, string $plugin, EntityManager $em, UserMapper $userMapper, string $pluginsDir, Conf $conf, ParameterBagInterface $params)
     {
         $tpl_params = [];
         $this->conf = $conf;
         $this->params = $params;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
 
         $plugins = new Plugins($em->getConnection(), $userMapper);
         $plugins->setRootPath($pluginsDir);

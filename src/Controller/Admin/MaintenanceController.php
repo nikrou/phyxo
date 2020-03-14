@@ -24,7 +24,6 @@ use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\ImageStandardParams;
-use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -33,7 +32,7 @@ class MaintenanceController extends AdminCommonController
 {
     private $translator;
 
-    public function index(Request $request, ?string $action, Template $template, Conf $conf, EntityManager $em, ParameterBagInterface $params, CategoryMapper $categoryMapper,
+    public function index(Request $request, ?string $action, Conf $conf, EntityManager $em, ParameterBagInterface $params, CategoryMapper $categoryMapper,
                           UserMapper $userMapper, RateMapper $rateMapper, TagMapper $tagMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -129,7 +128,6 @@ class MaintenanceController extends AdminCommonController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_maintenance');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_maintenance');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Maintenance', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
 
         $tpl_params = array_merge($tpl_params, [
             'U_MAINT_CATEGORIES' => $this->generateUrl('admin_maintenance', ['action' => 'categories']),
@@ -165,8 +163,9 @@ class MaintenanceController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
 
-        return $this->render('maintenance.tpl', $tpl_params);
+        return $this->render('maintenance.html.twig', $tpl_params);
     }
 
     public function derivatives(string $type, ImageStandardParams $image_std_params)

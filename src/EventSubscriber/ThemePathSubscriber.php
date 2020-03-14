@@ -41,8 +41,14 @@ class ThemePathSubscriber implements EventSubscriberInterface
         }
 
         $request = $event->getRequest();
+
+        if (preg_match('`^/admin/`', $request->getPathInfo())) { // Do not add public themes on admin URLs
+            return;
+        }
+
         $theme = $request->getSession()->get('_theme', $this->defaultTheme);
         if (is_dir($this->themesDir . '/' . $theme . '/template')) {
+            $request->attributes->set('_theme', $theme);
             $this->themeLoader->addPath($this->themesDir . '/' . $theme . '/template');
         }
     }

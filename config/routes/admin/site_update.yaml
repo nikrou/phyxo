@@ -1,3 +1,0 @@
-admin_site_update:
-  path: /site_update
-  controller: App\Controller\Admin\SiteUpdateController:index

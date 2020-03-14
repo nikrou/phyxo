@@ -1,0 +1,26 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block content %}
+    <h2>{{TITLE}}</h2>
+
+    {% if categories_because_of_groups %}
+	<div class="fieldset">
+	    <h3>{{'Albums authorized thanks to group associations'|trans}}</h3>
+
+	    <ul>
+		{% for cat in categories_because_of_groups %}
+		    <li>{{cat}}</li>
+		{% endfor %}
+	    </ul>
+	</div>
+    {% endif %}
+
+    <div class="fieldset">
+	<h3>{{'Other private albums'|trans}}</h3>
+
+	<form method="post" action="{{F_ACTION}}">
+	    {{include('include/_double_select.html.twig')}}
+	</form>
+    </div>
+{% endblock %}

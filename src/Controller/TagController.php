@@ -13,14 +13,12 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\MenuBar;
-use Phyxo\Template\Template;
 use Phyxo\Conf;
 use Phyxo\Functions\Language;
 use App\DataMapper\TagMapper;
 use Phyxo\EntityManager;
 use App\Repository\TagRepository;
 use App\DataMapper\ImageMapper;
-use Phyxo\Functions\Plugin;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
 use Phyxo\Functions\URL;
@@ -28,7 +26,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TagController extends CommonController
 {
-    public function list(Request $request, Template $template, TagMapper $tagMapper, Conf $conf, $themesDir, $phyxoVersion, $phyxoWebsite, MenuBar $menuBar, TranslatorInterface $translator)
+    public function list(Request $request, TagMapper $tagMapper, Conf $conf, MenuBar $menuBar, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -125,16 +123,15 @@ class TagController extends CommonController
         }
 
         $menuBar->setRoute('tags');
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('tags.html.twig', $tpl_params);
     }
 
-    public function imagesByTags(Request $request, EntityManager $em, ImageMapper $imageMapper, ImageStandardParams $image_std_params, string $tag_ids, Template $template,
-                                    Conf $conf, $themesDir, $phyxoVersion, $phyxoWebsite, MenuBar $menuBar, int $start = 0, TranslatorInterface $translator)
+    public function imagesByTags(Request $request, EntityManager $em, ImageMapper $imageMapper, ImageStandardParams $image_std_params, string $tag_ids,
+                                    Conf $conf, MenuBar $menuBar, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -186,7 +183,7 @@ class TagController extends CommonController
         $menuBar->setRoute('images_by_tags');
         $menuBar->setCurrentImages(array_slice($tpl_params['items'], $start, $nb_image_page));
         $menuBar->setCurrentTags($tpl_params['tags']);
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         if ($request->cookies->has('category_view')) {

@@ -10,9 +10,6 @@
  */
 
 // Default settings
-if (!defined('PHPWG_VERSION')) { // can be defined in tests
-    define('PHPWG_VERSION', '2.0.0-dev');
-}
 if (!defined('PHPWG_DEFAULT_LANGUAGE')) {
     define('PHPWG_DEFAULT_LANGUAGE', 'en_GB');
 }
@@ -24,9 +21,7 @@ if (!defined('PWG_DERIVATIVE_DIR')) {
 if (!defined('PHPWG_DOMAIN')) {
     define('PHPWG_DOMAIN', 'phyxo.net');
 }
-if (!defined('PHPWG_URL')) {
-    define('PHPWG_URL', 'https://www.phyxo.net');
-}
+
 if (!defined('PHYXO_UPDATE_URL')) {
     define('PHYXO_UPDATE_URL', 'https://download.phyxo.net/versions');
 }

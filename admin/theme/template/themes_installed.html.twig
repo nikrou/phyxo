@@ -1,0 +1,96 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Themes'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Installed Themes'|trans}}</li>
+{% endblock %}
+
+{%  block javascripts %}
+    {{parent()}}
+    <script>
+     var ws_url = '{{ws}}';
+     var pwg_token = '{{csrf_token}}';
+     var extType = '{{EXT_TYPE}}';
+     var confirmMsg  = '{{'Are you sure?'|trans}}';
+     var errorHead   = '{{'ERROR'|trans}}';
+     var successHead = '{{'Update Complete'|trans}}';
+     var errorMsg    = '{{'an error happened'|trans}}';
+     var restoreMsg  = '{{'Reset ignored updates'|trans}}';
+    </script>
+{% endblock %}
+
+{% block content %}
+    {% for theme_state in theme_states %}
+	<div class="extensions themes state state-{{theme_state}}">
+	    {% if theme_state == 'active' %}
+		<h3>{{'Active Themes'|trans}}</h3>
+		{% else %}
+		<h3>{{'Inactive Themes'|trans}}</h3>
+		{% endif %}
+
+		<div class="card-deck">
+		    {% for theme in themes %}
+			{% if theme.state == theme_state %}
+			    {% if theme.VISIT_URL %}
+				{% set version = '<a class="externalLink" href="' ~ theme.VISIT_URL ~ '">' ~ theme.VERSION ~ '</a>' %}
+			    {% else %}
+				{% set version = theme.VERSION %}
+			    {% endif %}
+
+			    <div class="extension theme card">
+				<div class="card-header">
+				    {{theme.NAME}} {% if theme.IS_DEFAULT %}<em>({{'Default'|trans}})</em>{% endif %} {% if theme.IS_MOBILE %}<em>({{'Mobile'|trans}})</em>{% endif %}
+				    {{'Version'|trans}} {{version|raw}}
+				</div>
+				<div class="card-body">
+				    <a href="{{ROOT_URL}}{{theme.SCREENSHOT}}" class="preview-box icon-zoom-in" title="{{theme.NAME}}">
+					<img class="card-img-top" src="{{ROOT_URL}}../{{theme.SCREENSHOT}}" alt="">
+				    </a>
+				</div>
+				<div class="actions btn-group btn-group-sm">
+				    {% if theme.state == 'active' %}
+					{% if theme.DEACTIVABLE %}
+					    <a href="{{theme.deactivate}}" class="btn btn-sm btn-info" title="{{'Forbid this theme to users'|trans}}"
+					       data-type="{{EXT_TYPE}}" data-ext-id="{{theme.ID}}">
+						{{'Deactivate'|trans}}
+					    </a>
+					{% else %}
+					    <button type="button" class="btn btn-sm btn-info disabled" title="{{theme.DEACTIVATE_TOOLTIP}}">{{'Deactivate'|trans}}</button>
+					{% endif %}
+
+					{% if not theme.IS_DEFAULT is defined %}
+					    <a href="{{theme.set_default}}" class="btn btn-sm btn-success" title="{{'Set as default theme for unregistered and new users'|trans}}">
+						{{'Default'|trans}}
+					    </a>
+					{% endif %}
+
+					{% if theme.ADMIN_URI is defined %}
+					    <a class="btn btn-sm btn-warning" href="{{theme.ADMIN_URI}}" title="{{'Configuration'|trans}}">{{'Configuration'|trans}}</a>
+					{% endif %}
+				    {% else %}
+					{% if theme.ACTIVABLE is defined %}
+					    <a href="{theme.activate}" class="btn btn-sm btn-submit" title="{{'Make this theme available to users'|trans}}">
+						{{'Activate'|trans}}
+					    </a>
+					{% else %}
+					    <button class="btn btn-sm btn-submit disabled" title="{{theme.ACTIVATE_TOOLTIP}}">{{'Activate'|trans}}</button>
+					{% endif %}
+
+					{% if theme.DELETABLE is defined %}
+					    <a href="{theme.delete}" onClick="return confirm('{{'Are you sure?'|trans}}');" class="btn btn-sm btn-danger"
+					       title="{{'Delete this theme'|trans}}">
+						{{'Delete'|trans}}
+					    </a>
+					{% else %}
+					    <button type="button" class="btn btn-sm btn-danger disabled" title="{{theme.DELETE_TOOLTIP}}">{{'Delete'|trans}}</button>
+					{% endif %}
+				    {% endif %}
+				</div>
+			    </div>
+			{% endif %}
+		    {% endfor %}
+		</div>
+	</div>
+    {% endfor %}
+{% endblock %}

@@ -14,30 +14,26 @@ namespace App\EventSubscriber;
 use App\DataMapper\UserMapper;
 use App\Events\GroupEvent;
 use App\Repository\UserRepository;
-use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Template\AdminTemplate;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 class GroupNotificationSubscriber implements EventSubscriberInterface
 {
-    private $mailer, $em, $conf, $router, $template, $userProvider, $phyxoVersion, $phyxoWebsite, $userMapper, $translator;
+    private $mailer, $em, $conf, $router, $template, $userMapper, $translator;
 
-    public function __construct(\Swift_Mailer $mailer, EntityManager $em, Conf $conf, RouterInterface $router, AdminTemplate $template,
-                                UserProvider $userProvider, string $phyxoVersion, string $phyxoWebsite, UserMapper $userMapper, TranslatorInterface $translator)
+    public function __construct(\Swift_Mailer $mailer, EntityManager $em, Conf $conf, RouterInterface $router, Environment $template,
+                                UserMapper $userMapper, TranslatorInterface $translator)
     {
         $this->mailer = $mailer;
         $this->em = $em;
         $this->conf = $conf;
         $this->router = $router;
         $this->template = $template;
-        $this->userProvider = $userProvider;
-        $this->phyxoVersion = $phyxoVersion;
-        $this->phyxoWebsite = $phyxoWebsite;
         $this->userMapper = $userMapper;
         $this->translator = $translator;
     }
@@ -52,7 +48,7 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
     public function onGroupNotify(GroupEvent $event)
     {
         $webmaster = $this->userMapper->getWebmaster();
-        $subject = $this->translator->trans('[{title}] Visit album {album}s', ['title' => $this->conf['gallery_title'], 'album' => $event->getCategory()['name']]);
+        $subject = $this->translator->trans('[{title}] Visit album {album}', ['title' => $this->conf['gallery_title'], 'album' => $event->getCategory()['name']], 'admin');
 
         $params = [
             'GALLERY_TITLE' => $this->conf['gallery_title'],
@@ -60,14 +56,12 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
             'GALLERY_URL' => $this->router->generate('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'CAT_NAME' => $event->getCategory()['name'],
             'LINK' => $this->router->generate('album', ['category_id' => $event->getCategory()['id']], UrlGeneratorInterface::ABSOLUTE_URL),
-            'CPL_CONTENT' => $event->getMailContent() ? htmlentities($event->getMailContent(), ENT_QUOTES, 'utf-8') : '',
+            'CPL_CONTENT' => $event->getMailContent() ? $event->getMailContent() : '',
             'IMG_URL' => $event->getImageUrl(),
             'MAIL_TITLE' => $subject,
             'MAIL_THEME' => $this->conf['mail_theme'],
             'LEVEL_SEPARATOR' => $this->conf['level_separator'],
             'CONTENT_ENCODING' => 'utf-8',
-            'PHYXO_VERSION' => $this->conf['show_version'] ? $this->phyxoVersion : '',
-            'PHYXO_URL' => $this->phyxoWebsite,
         ];
 
         $languages = [];
@@ -86,8 +80,8 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
         }
 
         $message
-          ->setBody($this->template->render('mail/text/cat_group_info.text.tpl', $params), 'text/plain')
-          ->addPart($this->template->render('mail/html/cat_group_info.html.tpl', $params), 'text/html');
+          ->setBody($this->template->render('mail/text/cat_group_info.text.twig', $params), 'text/plain')
+          ->addPart($this->template->render('mail/html/cat_group_info.html.twig', $params), 'text/html');
 
         if (!empty($this->conf['mail_sender_email'])) {
             $from[] = $this->conf['mail_sender_email'];

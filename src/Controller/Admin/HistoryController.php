@@ -22,14 +22,12 @@ use App\Repository\UserRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Plugin;
 use Phyxo\Functions\URL;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
 use Phyxo\TabSheet\TabSheet;
-use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -68,7 +66,7 @@ class HistoryController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function stats(Request $request, int $year = null, int $month = null, int $day = null, Template $template, Conf $conf, EntityManager $em, ParameterBagInterface $params)
+    public function stats(Request $request, int $year = null, int $month = null, int $day = null, Conf $conf, EntityManager $em, ParameterBagInterface $params)
     {
         $tpl_params = [];
 
@@ -172,7 +170,6 @@ class HistoryController extends AdminCommonController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_history');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_history');
         $tpl_params['PAGE_TITLE'] = $this->translator->trans('History', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('stats'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('error')) {
@@ -182,11 +179,12 @@ class HistoryController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
 
-        return $this->render('history_stats.tpl', $tpl_params);
+        return $this->render('history_stats.html.twig', $tpl_params);
     }
 
-    public function search(Request $request, int $start, int $search_id = null, CategoryMapper $categoryMapper, Template $template, Conf $conf, EntityManager $em, ParameterBagInterface $params)
+    public function search(Request $request, int $start, int $search_id = null, CategoryMapper $categoryMapper, Conf $conf, EntityManager $em, ParameterBagInterface $params)
     {
         $tpl_params = [];
 
@@ -225,7 +223,6 @@ class HistoryController extends AdminCommonController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_history');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_history_search');
         $tpl_params['PAGE_TITLE'] = $this->translator->trans('History', [], 'admin');
-        $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('search'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('error')) {
@@ -235,8 +232,9 @@ class HistoryController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
 
-        return $this->render('history_search.tpl', $tpl_params);
+        return $this->render('history_search.html.twig', $tpl_params);
     }
 
     protected function getSearchRules(int $search_id, int $start, Conf $conf, EntityManager $em, CategoryMapper $categoryMapper): array
