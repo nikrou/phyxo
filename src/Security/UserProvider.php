@@ -29,21 +29,25 @@ use App\Repository\UserAccessRepository;
 use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserGroupRepository;
+use Phyxo\Conf;
+use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Csrf\Exception\TokenNotFoundException;
 
 class UserProvider implements UserProviderInterface
 {
-    private $user, $em, $dataTransformer, $categoryMapper, $tokenStorage;
+    private $user, $em, $dataTransformer, $categoryMapper, $tokenStorage, $conf;
 
-    public function __construct(EntityManager $em, DataTransformer $dataTransformer, CategoryMapper $categoryMapper, TokenStorageInterface $tokenStorage)
+    public function __construct(EntityManager $em, DataTransformer $dataTransformer, CategoryMapper $categoryMapper, TokenStorageInterface $tokenStorage, Conf $conf)
     {
         $this->em = $em;
         $this->dataTransformer = $dataTransformer;
         $this->categoryMapper = $categoryMapper;
         $this->tokenStorage = $tokenStorage;
+        $this->conf = $conf;
     }
 
     public function get(): ?User
@@ -57,12 +61,28 @@ class UserProvider implements UserProviderInterface
 
     public function fromToken(TokenInterface $token): ?User
     {
-        if (!$token || !$token->getUser() instanceof SecurityUser) {
+        if (!$token) {
             return null;
         }
 
+        if ($this->conf['guest_access']) {
+            if (!($token instanceof AnonymousToken) && !($token->getUser() instanceof SecurityUser)) {
+                return null;
+            }
+        } else {
+            if (!$token->getUser() instanceof SecurityUser) {
+                throw new AccessDeniedException('Access denied to guest');
+            }
+        }
+
+
         try {
-            $user = $this->loadUserByUsername($token->getUser()->getUsername());
+            if ($token instanceof AnonymousToken) {
+                $token->setUser('guest');
+                $user = $this->loadUserByUsername($token->getUser());
+            } else {
+                $user = $this->loadUserByUsername($token->getUser()->getUsername());
+            }
         } catch (UsernameNotFoundException $exception) {
             throw  new CustomUserMessageAuthenticationException(sprintf('Username "%s" does not exist.', $token->getUser()->getUsername()));
         }

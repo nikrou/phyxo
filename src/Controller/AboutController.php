@@ -25,8 +25,8 @@ class AboutController extends CommonController
 
         $tpl_params['GALLERY_TITLE'] = $conf['gallery_title'];
         $tpl_params['PAGE_TITLE'] = $translator->trans('About Phyxo');
-        $tpl_params['ABOUT_MESSAGE'] = Language::loadLanguageFile('about.html', $rootProjectDir . '/languages/' . $this->getUser()->getLanguage());
-        $tpl_params['THEME_ABOUT'] = Language::loadLanguageFile('about.html', $themesDir . '/' . $this->getUser()->getTheme() . '/languages/' . $this->getUser()->getLanguage());
+        $tpl_params['ABOUT_MESSAGE'] = Language::loadLanguageFile('about.html', $rootProjectDir . '/languages/' . $this->getUser()->getLocale());
+        $tpl_params['THEME_ABOUT'] = Language::loadLanguageFile('about.html', $themesDir . '/' . $this->getUser()->getTheme() . '/languages/' . $this->getUser()->getLocale());
 
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 

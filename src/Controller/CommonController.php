@@ -14,12 +14,14 @@ namespace App\Controller;
 use Phyxo\Conf;
 use App\Security\UserProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 
 abstract class CommonController extends AbstractController
 {
-    protected $image_std_params, $userProvider, $user, $defaultTheme, $themesDir, $conf, $phyxoVersion, $phyxoWebsite;
+    protected $image_std_params, $userProvider, $user, $defaultTheme, $themesDir, $conf, $phyxoVersion, $phyxoWebsite, $session;
 
-    public function __construct(UserProvider $userProvider, string $defaultTheme, string $themesDir, Conf $conf, string $phyxoVersion, string $phyxoWebsite)
+    public function __construct(UserProvider $userProvider, string $defaultTheme, string $themesDir, Conf $conf, string $phyxoVersion, string $phyxoWebsite, SessionInterface $session)
     {
         $this->userProvider = $userProvider;
         $this->defaultTheme = $defaultTheme;
@@ -27,16 +29,22 @@ abstract class CommonController extends AbstractController
         $this->conf = $conf;
         $this->phyxoVersion = $phyxoVersion;
         $this->phyxoWebsite = $phyxoWebsite;
+        $this->session = $session;
     }
 
     public function getUser()
     {
-        if (null === $token = $this->container->get('security.token_storage')->getToken()) {
+        if (($token = $this->container->get('security.token_storage')->getToken()) === null) {
             return;
         }
 
         if (!$this->user) {
             $this->user = $this->userProvider->fromToken($token);
+
+            if ($token instanceof AnonymousToken) {
+                $this->session->set('_theme', $this->user->getTheme());
+                $this->session->set('_locale', $this->user->getLocale());
+            }
         }
 
         return $this->user;

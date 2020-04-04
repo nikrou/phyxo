@@ -40,8 +40,8 @@ security:
           - App\Security\LoginFormAuthenticator
 
       remember_me:
-        secret: '%kernel.secret%'
-        name: '%remember_cookie%'
+        secret: "%kernel.secret%"
+        name: "%remember_cookie%"
         lifetime: 2592000 # 30 days in seconds
 
       logout:
@@ -60,4 +60,4 @@ security:
     - { path: ^/admin, roles: [ROLE_WEBMASTER, ROLE_ADMIN] }
     - { path: ^/(identification|register|password|password/.+)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
     - { path: ^/profile$, roles: ROLE_NORMAL }
-    - { path: ^/, roles: IS_AUTHENTICATED_REMEMBERED }
+    - { path: ^/, roles: [ROLE_NORMAL, IS_AUTHENTICATED_ANONYMOUSLY] }
