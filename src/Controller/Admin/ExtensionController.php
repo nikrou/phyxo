@@ -50,6 +50,9 @@ class ExtensionController extends AdminCommonController
 
                 $user = $this->getUser();
                 $conf = $this->conf;
+                $template_filename = '';
+                $tpl_params = [];
+
                 include_once($themeConfiguration);
 
                 return [
@@ -93,6 +96,9 @@ class ExtensionController extends AdminCommonController
                 if (!defined('PHPWG_PLUGINS_PATH')) {
                     define('PHPWG_PLUGINS_PATH', $this->params->get('plugins_dir') . '/');
                 }
+
+                $template_filename = '';
+                $tpl_params = [];
 
                 include_once($pluginConfiguration);
 

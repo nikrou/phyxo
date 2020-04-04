@@ -19,11 +19,8 @@ use App\Repository\UserGroupRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\ThemeRepository;
-use App\Entity\User;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Phyxo\EntityManager;
-use App\Utils\DataTransformer;
 use App\Repository\UserMailNotificationRepository;
 use App\Repository\UserFeedRepository;
 use App\Repository\FavoriteRepository;
@@ -34,17 +31,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UserMapper
 {
-    private $em, $conf, $autorizationChecker, $user, $dataTransformer, $categoryMapper, $tagMapper;
-    private $passwordEncoder, $defaultLanguage, $themesDir, $userProvider, $translator;
+    private $em, $conf, $autorizationChecker, $user, $tagMapper;
+    private $defaultLanguage, $themesDir, $userProvider, $translator;
 
-    public function __construct(EntityManager $em, Conf $conf, AuthorizationCheckerInterface $autorizationChecker, DataTransformer $dataTransformer,
-                                CategoryMapper $categoryMapper, TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider, TranslatorInterface $translator)
+    public function __construct(EntityManager $em, Conf $conf, AuthorizationCheckerInterface $autorizationChecker,
+                                TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider, TranslatorInterface $translator)
     {
         $this->em = $em;
         $this->conf = $conf;
         $this->autorizationChecker = $autorizationChecker;
-        $this->dataTransformer = $dataTransformer;
-        $this->categoryMapper = $categoryMapper;
         $this->tagMapper = $tagMapper;
         $this->defaultLanguage = $defaultLanguage;
         $this->themesDir = $themesDir;
@@ -59,11 +54,6 @@ class UserMapper
         }
 
         return $this->user;
-    }
-
-    public function setPasswordEncoder(UserPasswordEncoderInterface $passwordEncoder)
-    {
-        $this->passwordEncoder = $passwordEncoder;
     }
 
     /**

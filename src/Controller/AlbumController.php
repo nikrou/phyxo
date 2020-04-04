@@ -30,7 +30,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AlbumController extends CommonController
 {
-    public function album(Request $request, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, ImageStandardParams $image_std_params, MenuBar $menuBar,
+    public function album(Request $request, Conf $conf, ImageStandardParams $image_std_params, MenuBar $menuBar,
                             EntityManager $em, ImageMapper $imageMapper, CategoryMapper $categoryMapper, int $start = 0, int $category_id = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -287,7 +287,7 @@ class AlbumController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function albumFlat(Request $request, EntityManager $em, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+    public function albumFlat(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar,
                         ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, ImageMapper $imageMapper, int $category_id, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -347,7 +347,7 @@ class AlbumController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function albumsFlat(Request $request, EntityManager $em, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+    public function albumsFlat(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar,
         ImageStandardParams $image_std_params, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -406,7 +406,7 @@ class AlbumController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function albums(Request $request, EntityManager $em, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+    public function albums(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar,
                             ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];

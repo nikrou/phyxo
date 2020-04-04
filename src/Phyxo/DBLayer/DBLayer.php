@@ -24,7 +24,7 @@ class DBLayer
     protected $dsn = '';
     protected $cache = [];
 
-    public static function init($layer, $host, $user, $password, $database, $prefix = 'phyxo_')
+    public static function init($layer, $host, $user, $password, $database, $prefix = 'phyxo_'): iDBLayer
     {
         if (file_exists(__DIR__ . '/' . $layer . 'Connection.php')) {
             $className = sprintf('\Phyxo\DBLayer\%sConnection', $layer);
@@ -60,6 +60,9 @@ class DBLayer
         }
 
         $load = (function ($path) {
+            $conf = [];
+            $prefixeTable = self::DEFAULT_PREFIX;
+
             include $path;
 
             return [
@@ -425,6 +428,8 @@ class DBLayer
         $engines = [];
 
         $pattern = __DIR__ . '/%sConnection.php';
+        $dblayers = [];
+
         include_once __DIR__ . '/../../../include/dblayers.inc.php';
 
         foreach ($dblayers as $engine_name => $engine) {

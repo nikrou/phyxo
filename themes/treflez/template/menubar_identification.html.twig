@@ -1,7 +1,11 @@
 <li class="nav-item dropdown">
-    <button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown">
-	{% if app.user %}<i class="fa fa-user"></i> {{app.user.username}}{% else %}{{'Login'|trans}}{% endif %}
-    </button>
+    {% if app.user %}
+	<button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown">
+	    <i class="fa fa-user"></i> {{app.user.username}}
+	</button>
+    {% else %}
+	<a class="nav-link" href={{path('login')}}>{{'Login'|trans}}</a>
+    {% endif %}
     {%  if app.user %}
 	<div class="dropdown-menu dropdown-menu-right" role="menu">
             <div class="dropdown-header">{{'Hello'|trans}} {{app.user.username}}!</div>

@@ -30,8 +30,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentController extends CommonController
 {
-    public function index(int $start = 0, int $comment_id = 0, Request $request, EntityManager $em, Conf $conf, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
-                        string $themesDir, UserMapper $userMapper, CsrfTokenManagerInterface $csrfTokenManager, CategoryMapper $categoryMapper, ImageStandardParams $image_std_params,
+    public function index(int $start = 0, int $comment_id = 0, Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar,
+                        UserMapper $userMapper, CsrfTokenManagerInterface $csrfTokenManager, CategoryMapper $categoryMapper, ImageStandardParams $image_std_params,
                         TranslatorInterface $translator)
     {
         $tpl_params = [];

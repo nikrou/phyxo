@@ -44,7 +44,7 @@ class UserLocaleSubscriber implements EventSubscriberInterface
                 $this->session->set('_dispatch_remember_me', true);
                 $request->setLocale($user->getLocale());
 
-                $dispatcher->dispatch(KernelEvents::REQUEST, new RequestEvent($this->kernel, $request, HttpKernel::MASTER_REQUEST));
+                $dispatcher->dispatch(new RequestEvent($this->kernel, $request, HttpKernel::MASTER_REQUEST), KernelEvents::REQUEST);
             }
         }
     }

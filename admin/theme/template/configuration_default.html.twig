@@ -28,8 +28,8 @@
 		<p>
 		    <label for="language">{{'Language'|trans}}</label>
 		    <select class="form-control" name="language">
-			{% for option in languages %}
-			    <option value="{{option}}" {% if option == LANGUAGE %}selected="selected"{% endif %}>{{option}}</option>
+			{% for option, value in languages %}
+			    <option value="{{option}}" {% if option == LANGUAGE %}selected="selected"{% endif %}>{{value}}</option>
 			{% endfor %}
 		    </select>
 		</p>
