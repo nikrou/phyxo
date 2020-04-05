@@ -22,6 +22,7 @@ use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\SiteRepository;
 use App\Repository\UserAccessRepository;
+use App\Repository\UserCacheRepository;
 use App\Repository\UserGroupRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
@@ -482,6 +483,8 @@ class AlbumController extends AdminCommonController
                 if (count($grant_users) > 0) {
                     $categoryMapper->addPermissionOnCategory([$album_id], $grant_users);
                 }
+
+                $em->getRepository(UserCacheRepository::class)->deleteUserCache();
             }
 
             $this->addFlash('info', $translator->trans('Album updated successfully', [], 'admin'));

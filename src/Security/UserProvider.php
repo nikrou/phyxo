@@ -39,7 +39,7 @@ use Symfony\Component\Security\Csrf\Exception\TokenNotFoundException;
 
 class UserProvider implements UserProviderInterface
 {
-    private $user, $em, $dataTransformer, $categoryMapper, $tokenStorage, $conf;
+    private $user, $em, $dataTransformer, $categoryMapper, $tokenStorage, $conf, $user_data;
 
     public function __construct(EntityManager $em, DataTransformer $dataTransformer, CategoryMapper $categoryMapper, TokenStorageInterface $tokenStorage, Conf $conf)
     {
@@ -117,7 +117,7 @@ class UserProvider implements UserProviderInterface
             );
         }
 
-        return $this->fetchUser($user->getUsername());
+        return $this->fetchUser($user->getUsername(), $force_refresh = true);
     }
 
     public function supportsClass($class): bool
@@ -125,17 +125,21 @@ class UserProvider implements UserProviderInterface
         return User::class === $class;
     }
 
-    private function fetchUser(string $username): ?UserInterface
+    private function fetchUser(string $username, bool $force_refresh = false): ?UserInterface
     {
-        $result = $this->em->getRepository(UserRepository::class)->findByUsername($username);
-        $userData = $this->em->getConnection()->db_fetch_assoc($result);
+        if (!$this->user_data || $force_refresh) {
+            $result = $this->em->getRepository(UserRepository::class)->findByUsername($username);
+            $userData = $this->em->getConnection()->db_fetch_assoc($result);
 
-        // pretend it returns an array on success, false if there is no user
-        if (!$userData) {
-            return null;
+            // pretend it returns an array on success, false if there is no user
+            if (!$userData) {
+                return null;
+            }
+
+            $this->user_data = $this->createUserFromDb($userData);
         }
 
-        return $this->createUserFromDb($userData);
+        return $this->user_data;
     }
 
     private function fetchUserByActivationKey(string $key): ?UserInterface
@@ -164,8 +168,8 @@ class UserProvider implements UserProviderInterface
 
         $extra_infos = $this->getUserData($userData['id'], in_array($userInfosData['status'], ['admin', 'webmaster']));
         $user_infos = new UserInfos($userInfosData);
-        $user_infos->setForbiddenCategories(empty($extra_infos['forbidden_categories']) ? [] : $extra_infos['forbidden_categories']);
-        $user_infos->setImageAccessList(empty($extra_infos['image_access_list'])?[]:explode(',', $extra_infos['image_access_list']));
+        $user_infos->setForbiddenCategories(empty($extra_infos['forbidden_categories']) ? [] : explode(',', $extra_infos['forbidden_categories']));
+        $user_infos->setImageAccessList(empty($extra_infos['image_access_list']) ? [] : explode(',', $extra_infos['image_access_list']));
         $user_infos->setImageAccessType($extra_infos['image_access_type']);
         $user->setInfos($user_infos);
 
@@ -182,7 +186,7 @@ class UserProvider implements UserProviderInterface
         $userdata['id'] = $user_id;
 
         // @TODO : cache in appropriate table use uc.cache_update_time
-        if (1 == 1) { //!isset($userdata['need_update']) || !is_bool($userdata['need_update']) || $userdata['need_update'] === true) {
+        if (!isset($userdata['need_update']) || !is_bool($userdata['need_update']) || $userdata['need_update'] === true) {
             $userdata['cache_update_time'] = time();
 
             // Set need update are done
@@ -240,6 +244,7 @@ class UserProvider implements UserProviderInterface
             );
             $this->em->getConnection()->db_unlock();
 
+            $userdata['forbidden_categories'] = implode(',', $userdata['forbidden_categories']);
             // update user cache
             $this->em->getConnection()->db_start_transaction();
             try {
