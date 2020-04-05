@@ -22,7 +22,10 @@ class pgsqlConnection extends DBLayer implements iDBLayer
 
     public function db_connect(string $host, string $user, string $password, string $database)
     {
-        $this->dsn = sprintf('%s://%s@%s/%s', $this->dblayer, "$user:$password", $host, $database);
+        $this->db_username = $user;
+        $this->db_password = $password;
+
+        $this->dsn = sprintf('%s:host=%s;dbname=%s', $this->dblayer, $host, $database);
 
         $connection_string = '';
         if (strpos($host, ':') !== false) {

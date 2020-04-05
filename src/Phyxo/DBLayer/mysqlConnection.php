@@ -24,6 +24,8 @@ class mysqlConnection extends DBLayer implements iDBLayer
     {
         $port = null;
         $socket = null;
+        $this->db_username = $user;
+        $this->db_password = $password;
 
         if (strpos($host, '/') === 0) {
             $socket = $host;

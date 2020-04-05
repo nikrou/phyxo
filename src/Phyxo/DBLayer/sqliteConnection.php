@@ -22,6 +22,9 @@ class sqliteConnection extends DBLayer implements iDBLayer
 
     public function db_connect(string $host, string $user, string $password, string $database)
     {
+        $this->db_username = $user;
+        $this->db_password = $password;
+
         $this->dsn = sprintf('sqlite:%s/db/%s.db', __DIR__ . '/../../..', $database);
 
         try {

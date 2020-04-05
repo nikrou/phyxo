@@ -39,6 +39,21 @@ interface iDBLayer
     public function getPrefix();
 
     /**
+     * @return string Data Source Name
+     */
+    public function getDsn(): string;
+
+    /**
+     * @return string connexion username
+     */
+    public function getDbUsername(): string;
+
+    /**
+     * @return string connexion password
+     */
+    public function getDbPassword(): string;
+
+    /**
      * Database version
      *
      * This method should return database version number.

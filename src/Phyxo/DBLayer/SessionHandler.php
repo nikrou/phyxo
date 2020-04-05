@@ -17,6 +17,9 @@ class SessionHandler extends PdoSessionHandler
 {
     public function __construct(iDBLayer $conn)
     {
-        parent::__construct($conn->getDsn(), ['db_table' => $conn->getPrefix() . 'sessions']);
+        parent::__construct(
+            $conn->getDsn(),
+            ['db_table' => $conn->getPrefix() . 'sessions', 'db_username' => $conn->getDbUsername(), 'db_password' => $conn->getDbPassword()]
+        );
     }
 }

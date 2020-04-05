@@ -23,7 +23,7 @@ class DBLayer extends atoum\test
 
         // method not overriden
         $other_methods = [
-            'init', 'initFromDSN', '__construct', 'getLayer', 'getQueries', 'getQueriesCount', 'getQueriesTime', 'getDsn',
+            'init', 'initFromDSN', '__construct', 'getLayer', 'getQueries', 'getQueriesCount', 'getQueriesTime',
             'getTemporaryTable', 'availableEngines', 'executeSqlFile', 'initFromConfigFile'
         ];
 

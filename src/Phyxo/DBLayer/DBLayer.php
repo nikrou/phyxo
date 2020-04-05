@@ -17,7 +17,7 @@ class DBLayer
     const MASS_UPDATES_SKIP_EMPTY = 1;
 
     protected $db_link = null;
-    protected $dblayer;
+    protected $dblayer, $db_username, $db_password;
     protected $queries = [];
     protected $queries_time = 0;
     protected $prefix = self::DEFAULT_PREFIX;
@@ -46,7 +46,7 @@ class DBLayer
 
         return self::init(
             $db_params['scheme'],
-            $db_params['host'],
+            isset($db_params['host']) ? $db_params['host'] : '',
             isset($db_params['user']) ? $db_params['user'] : '',
             isset($db_params['pass']) ? $db_params['pass'] : '',
             substr($db_params['path'], 1)
@@ -83,9 +83,19 @@ class DBLayer
         return $this->dblayer;
     }
 
-    public function getDsn()
+    public function getDsn(): string
     {
         return $this->dsn;
+    }
+
+    public function getDbUsername(): string
+    {
+        return $this->db_username;
+    }
+
+    public function getDbPassword(): string
+    {
+        return $this->db_password;
     }
 
     public function __construct($host, $user = '', $password = '', $database)

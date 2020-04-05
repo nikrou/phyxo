@@ -175,7 +175,7 @@ class InstallCommand extends Command
 
             $_params = parse_url($db_params['dsn']);
             $db_params['db_layer'] = $_params['scheme'];
-            $db_params['db_host'] = $_params['host'];
+            $db_params['db_host'] = isset($_params['host']) ? $_params['host'] : '';
             $db_params['db_user'] = isset($_params['user']) ? $_params['user'] : '';
             $db_params['db_password'] = isset($_params['pass']) ? $_params['pass'] : '';
             $db_params['db_name'] = substr($_params['path'], 1);
