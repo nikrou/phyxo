@@ -29,6 +29,7 @@ use App\Repository\UserRepository;
 use App\Security\UserProvider;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Phyxo\MenuBar;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -85,7 +86,7 @@ class SecurityController extends CommonController
     }
 
     public function register(Request $request, UserManager $user_manager, UserPasswordEncoderInterface $passwordEncoder, LoginFormAuthenticator $loginAuthenticator,
-                                CsrfTokenManagerInterface $csrfTokenManager, GuardAuthenticatorHandler $guardHandler, UserProvider $userProvider, TranslatorInterface $translator)
+                                CsrfTokenManagerInterface $csrfTokenManager, GuardAuthenticatorHandler $guardHandler, TranslatorInterface $translator)
     {
         $tpl_params = $this->init();
 
@@ -221,6 +222,7 @@ class SecurityController extends CommonController
                         $errors[] = $translator->trans('Incorrect language value');
                     } else {
                         $data['language'] = $request->request->get('language');
+                        $request->getSession()->set('_locale', $data['language']);
                     }
                 }
 
@@ -251,8 +253,9 @@ class SecurityController extends CommonController
                 if (empty($errors) && !empty($data)) {
                     // @TODO: use UserInfos entity instead of array for updateUserInfos method
                     (new UserInfosRepository($conn))->updateUserInfos($data, $this->getUser()->getId());
-
                     $this->getUser()->setInfos(new UserInfos(array_merge($this->getUser()->getInfos(), $data)));
+
+                    return $this->redirectToRoute('profile');
                 }
             }
         }
