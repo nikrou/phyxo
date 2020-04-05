@@ -2,7 +2,9 @@
 
 - move all administration URL under symfony routing. Fix #34.
 - remove deprecated functions/methods : delete_elements, delete_element_files, safe_version_compare, get_icon, get_moment, create_navigation_bar
-- use symfony translation system
+- use symfony translation system. Fix #37
+- use voters for permissions. Fix #26
+- use symfony event system. Fix #22
 - remove Smarty and use Twig as template engine
 - add favicon (and logo)
 
