@@ -18,6 +18,8 @@ use Phyxo\Functions\Upgrade;
 use Phyxo\Update\Updates;
 use Symfony\Component\Filesystem\Filesystem;
 
+include_once(__DIR__ . '/../src/Phyxo/Functions/Upgrade.php');
+
 /*
 STEP:
 0 = check is needed. If version is latest or check fail, we stay on step 0
@@ -174,11 +176,7 @@ if ($step == 3 && $userMapper->isWebmaster()) {
             $fs->remove(__DIR__ . '/../' . $conf['data_location'] . 'update');
             $fs->remove(__DIR__ . '/../var/cache');
 
-            \Phyxo\Functions\Utils::invalidate_user_cache(true);
-            $template->delete_compiled_templates();
-
-            // @TODO: add flash message
-            file_get_contents('./'); // cache warmup
+            $userMapper->invalidateUserCache($full = true);
             \Phyxo\Functions\Utils::redirect('./?now=' . time());
         } catch (Exception $e) {
             $step = 0;

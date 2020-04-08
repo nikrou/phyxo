@@ -3,6 +3,7 @@ APP_NAME=phyxo
 APP_VERSION=$(shell grep "core_version:" ./config/services.yaml| sed -e 's/.*: //')
 SOURCE=./*
 TARGET=../target
+COMPOSER=php7.2 ~/scripts/composer
 
 ADMIN_MANIFEST=$(DIST)/$(APP_NAME)/admin/theme/build/manifest.json
 FRONT_MANIFEST=$(DIST)/$(APP_NAME)/themes/treflez/build/manifest.json
@@ -20,7 +21,7 @@ config: clean
 	cp -p tools/.htaccess $(DIST)/$(APP_NAME)/
 
 	cp -p composer.* $(DIST)/$(APP_NAME)/
-	composer install --no-dev -o -a -d $(DIST)/$(APP_NAME)
+	$(COMPOSER) install --no-dev -o -a -d $(DIST)/$(APP_NAME)
 	rm -f $(DIST)/$(APP_NAME)/bin/phpunit $(DIST)/$(APP_NAME)/bin/simple-phpunit $(DIST)/$(APP_NAME)/phpunit.xml.dist
 	rm -fr $(DIST)/$(APP_NAME)/config/packages/dev $(DIST)/$(APP_NAME)/config/packages/test $(DIST)/$(APP_NAME)/config/routes/dev
 	rm -f $(DIST)/$(APP_NAME)/composer.* $(DIST)/$(APP_NAME)/symfony.lock $(DIST)/$(APP_NAME)/src/Log.php

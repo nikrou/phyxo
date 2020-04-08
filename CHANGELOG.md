@@ -1,3 +1,7 @@
+# Phyxo 1.10.4 - 2020-04-11
+
+- Restore Upgrade class needed to upgrade for next major release.
+
 # Phyxo 1.10.3 - 2019-10-24
 
 - Fix menubar incorrectly saved causing error 500
