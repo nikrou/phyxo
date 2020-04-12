@@ -1,0 +1,264 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block stylesheets %}
+    {{parent()}}
+    <link rel="stylesheet" href="{{asset('themes/treflez/admin/css/admin.css')}}">
+{% endblock %}
+
+{%  block javascripts %}
+    {{parent()}}
+    <script src="{{asset('themes/treflez/admin/js/admin.js')}}"></script>
+{% endblock %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Themes'|trans}}</a></li>
+    <li class="breadcrumb-item">Treflez</li>
+{% endblock %}
+
+{% block content %}
+    <ul class="nav nav-tabs">
+	<li class="nav-item"><a class="nav-link active" href="#appearance">{{'Appearance'|trans}}</a></li>
+	<li class="nav-item"><a class="nav-link" href="#components">{{'Components'|trans}}</a></li>
+	<li class="nav-item"><a class="nav-link" href="#social-integration">{{'Social Media Integration'|trans}}</a></li>
+	<li class="nav-item"><a class="nav-link" href="#about">{{'About'|trans}}</a></li>
+    </ul>
+
+    <form method="post" class="properties">
+	<div id="appearance" class="tab-content active">
+	    <div  class="fieldset">
+		<h3>{{'Full width layout'|trans}}</h3>
+
+		<p class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="fluid_width" name="fluid_width"{% if theme_config.fluid_width %} checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="fluid_width">{{'Enabled'|trans}}</label>
+		    <span class="form-text text-muted">{{'Use full width containers that span the entire width of the viewport'|trans}}</span>
+		</p>
+		<p class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="fluid_width_col_xxl" name="fluid_width_col_xxl"{% if theme_config.fluid_width_col_xxl %} checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="fluid_width_col_xxl">{{'Use 6 colums for viewports >= 1680px'|trans}}</label>
+		</p>
+	    </div>
+            <div class="fieldset">
+		<h3>{{'Site logo'|trans}}</h3>
+
+		<p class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="logo_image_enabled" name="logo_image_enabled"{% if theme_config.logo_image_enabled %} checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="logo_image_enabled">{{'Enabled'|trans}}</label>
+		    <span class="form-text text-muted">{{'Display a site logo image instead of plain text'|trans}}</span>
+		</p>
+		<p>
+		    <label>
+			{{'Path'|trans}}
+			<input type="text" name="logo_image_path" size="50" {% if theme_config.logo_image_path is defined %}value="{{theme_config.logo_image_path}}"{% else %}placeholder="{{'URL or releative path to the image'|trans}}"{% endif %}>
+		    </label>
+		    <span class="form-text text-muted">{{'The path to the image, relative to your Phyxo installation folder'|trans}}</span>
+		</p>
+	    </div>
+            <div class="fieldset">
+		<h3>{{'Page header'|trans}}</h3>
+		<p>
+		    <label for="page_header">{{'Banner style'|trans}}</label>
+		    <select class="custom-select" name="page_header">
+			<option value="jumbotron"{% if theme_config.page_header == 'jumbotron' %} selected="selected"{% endif %}>{{'Jumbotron'|trans}}</option>
+			<option value="fancy"{% if theme_config.page_header == 'fancy' %} selected="selected"{% endif %}>{{'Hero image'|trans}}</option>
+			<option value="none"{% if theme_config.page_header == 'none' %} selected="selected"{% endif %}>{{'Disabled'|trans}}</option>
+		    </select>
+		</p>
+		<p class="fancy{% if not theme_config.page_header == 'fancy' %} d-none{% endif %}">
+		    <label>
+			{{'Background image'|trans}}
+			<input type="text" name="page_header_image" size="50" {% if theme_config.page_header_image %}value="{{theme_config.page_header_image}}"{% else %}placeholder="{{'URL or releative path to the image'|trans}}"{% endif %}>
+		    </label>
+		    <span class="form-text text-muted">{{'URL or releative path to the image'|trans}}</span>
+		</p>
+		<p class="custom-control custom-checkbox">
+		    <input type="checkbox" class="custom-control-input" id="page_header_both_navs" name="page_header_both_navs"{% if theme_config.page_header_both_navs %} checked=checked{% endif %}>
+		    <label class="custom-control-label" for="page_header_both_navs">{{'Integrate lower navbar'|trans}}</label>
+		</p>
+		<p class="custom-control custom-checkbox fancy{% if not theme_config.page_header == 'fancy' %} d-none{% endif %}">
+		    <input type="checkbox" class="custom-control-input" id="page_header_full" name="page_header_full"{% if theme_config.page_header_full %} checked=checked{% endif %}>
+		    <label class="custom-control-label" for="page_header_full">{{'Span the full viewport height'|trans}}</label>
+		</p>
+            </div>
+            <div class="fieldset">
+		<h3>{{'Category page display'|trans}}</h3>
+		<p>
+		    <label for="category_wells">{{'Display categories as Bootstrap media wells'|trans}}</label>
+		    <select class="custom-select" name="category_wells" id="category_wells">
+			<option value="never"{% if theme_config.category_wells == 'never' %} selected="selected"{% endif %}>{{'Never'|trans}}</option>
+			<option value="always"{% if theme_config.category_wells == 'always' %} selected="selected"{% endif %}>{{'Always'|trans}}</option>
+			<option value="mobile_only"{% if theme_config.category_wells == 'mobile_only' %} selected="selected"{% endif %}>{{'On mobile devices only'|trans}}</option>
+		    </select>
+		    <span class="form-text text-muted">{{'This will display categories as media wells with squared thumbnails, similar to the smartpocket mobile theme.'|trans}}</span>
+		</p>
+		<p class="custom-control custom-checkbox">
+		    <input type="checkbox" class="custom-control-input" id="cat_descriptions" name="cat_descriptions"{% if theme_config.cat_descriptions %} checked=checked{% endif %}>
+		    <label class="custom-control-label" for="cat_descriptions">{{'Display category description in grid view'|trans}}</label>
+		</p>
+		<p class="custom-control custom-checkbox">
+		    <input type="checkbox" class="custom-control-input" id="cat_nb_images" name="cat_nb_images"{% if theme_config.cat_nb_images %} checked=checked{% endif %}>
+		    <label class="custom-control-label" for="cat_nb_images">{{'Display number of images in album and subalbums'|trans}}</label>
+		</p>
+            </div>
+            <div class="fieldset">
+		<h3>{{'Thumbnail page display'|trans}}</h3>
+		<p class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="thumbnail_caption" name="thumbnail_caption"{% if theme_config.thumbnail_caption %} checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="thumbnail_caption">{{'Show image caption'|trans}}</label>
+		</p>
+		<p>
+       		    <label for="thumbnail_linkto">{{'Link thumbnail to'|trans}}</label>
+		    <select class="custom-select" name="thumbnail_linkto">
+			<option value="picture"{% if theme_config.thumbnail_linkto == 'picture' %} selected="selected"{% endif %}>{{'Picture details page'|trans}}</option>
+			<option value="photoswipe"{% if theme_config.thumbnail_linkto == 'photoswipe' %} selected="selected"{% endif %}>{{'PhotoSwipe Slideshow'|trans}}</option>
+			<option value="photoswipe_mobile_only"{% if theme_config.thumbnail_linkto == 'photoswipe_mobile_only' %} selected="selected"{% endif %}>{{'Photoswipe Slideshow (Mobile devices only)'|trans}}</option>
+		    </select>
+		</p>
+
+		<h4>{{'Description display style'|trans}}</h4>
+		<p class="custom-control custom-radio">
+		    <input type="radio" class="custom-control-input" id="thumbnail_cat_desc_simple" name="thumbnail_cat_desc" value="simple"{% if theme_config.thumbnail_cat_desc == 'simple' %} checked="checked"{% endif %} />
+                    <label class="custom-control-label" for="thumbnail_cat_desc_simple">{{'Simple'|trans}}</label>
+                    <span class="form-text text-muted">{{'center-aligned h5 heading'|trans}}</span>
+		</p>
+		<p class="custom-control custom-radio">
+		    <input type="radio" class="custom-control-input" name="thumbnail_cat_desc" id="thumbnail_cat_desc_advanced" value="advanced"{% if theme_config.thumbnail_cat_desc == 'advanced' %} checked="checked"{% endif %} />
+                    <label class="custom-control-label" for="thumbnail_cat_desc_advanced">{{'Advanced'|trans}}</label>
+                    <span class="form-text text-muted">{{'left-aligned free text for advanced descriptions'|trans}}</span>
+		</p>
+	    </div>
+            <div class="fieldset">
+		<h3>{{'Picture page display'|trans}}</h3>
+		<p>
+		    <label for="picture_info">{{'Picture info display position'|trans}}</label>
+		    <select class="custom-select" name="picture_info">
+			<option value="cards"{% if theme_config.picture_info == 'cards' %} selected="selected"{% endif %}>{{'Card grid below the image'|trans}}</option>
+			<option value="tabs"{% if theme_config.picture_info == 'tabs' %} selected="selected"{% endif %}>{{'Tabs below the image'|trans}}</option>
+			<option value="sidebar"{% if theme_config.picture_info == 'sidebar' %} selected="selected"{% endif %}>{{'Sidebar (like Boostrap Default)'|trans}}</option>
+			<option value="disabled"{% if theme_config.picture_info == 'disabled' %} selected="selected"{% endif %}>{{'Disabled'|trans}}</option>
+		    </select>
+		</p>
+            </div>
+	</div>
+
+	<div id="components" class="tab-content">
+	    <div class="fieldset">
+		<h3>Slick Carousel {{'Settings'|trans}}</h3>
+		<p class="custom-control custom-checkbox">
+		    <input type="checkbox" class="custom-control-input" id="slick_enabled" name="slick_enabled"{% if theme_config.slick_enabled %} checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="slick_enabled">{{'Enabled'|trans}}</label>
+		    <span class="form-text text-muted">{{'Enable the slick carousel below the main image on the picture page'|trans}}.</span>
+		</p>
+		<p>
+		    <label for="slick_lazyload">{{'lazyLoad method'|trans}}</label>
+		    <select class="custom-select" name="slick_lazyload">
+			<option value="ondemand"{% if theme_config.slick_lazyload == 'ondemand' %} selected="selected"{% endif %}>ondemand</option>
+			<option value="progressive"{% if theme_config.slick_lazyload == 'progressive' %} selected="selected"{% endif %}>progressive</option>
+		    </select>
+		    <span class="form-text text-muted">
+			<em>ondemand</em> {{'will load the image as soon as you slide to it'|trans}}.
+			<em>progressive</em> {{'loads all images one after another when the page loads (use carefully!)'|trans}}.
+		    </span>
+		</p>
+		<p class="custom-control custom-checkbox">
+		    <input type="checkbox" class="custom-control-input" id="slick_infinite" name="slick_infinite"{% if theme_config.slick_infinite %} checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="slick_infinite">{{'Infinite looping'|trans}}</label>
+		    <span class="form-text text-muted">{{'Endlessly scroll through album images'|trans}}</span>
+		</p>
+		<p class="custom-control custom-checkbox">
+		    <input type="checkbox" class="custom-control-input" id="slick_centered" name="slick_centered"{% if theme_config.slick_centered %} checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="slick_centered">{{'Center mode'|trans}}</label>
+		    <span class="form-text text-muted">{{'Display the currently selected image in the middle. Works best with infinite looping enabled.'|trans}}</span>
+		</p>
+	    </div>
+
+	    <div class="fieldset">
+		<h3>PhotoSwipe {{'Settings'|trans}}</h3>
+		<p class="custom-control custom-checkbox">
+		    <input type="checkbox" class="custom-control-input" id="photoswipe" name="photoswipe"{% if theme_config.photoswipe %} checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="photoswipe">{{'Enabled'|trans}}</label>
+		    <span class="form-text text-muted">{{'Enable PhotoSwipe fullscreen slideshow. Disable if you prefer to use Plugins like Fotorama or Phyxo\'s default slideshow.'|trans}}</span>
+		</p>
+		<p>
+		    <label for="photoswipe_interval">{{'Autoplay interval'|trans}}</label>
+		    <input type="number" name="photoswipe_interval" value="{{theme_config.photoswipe_interval}}" min="1000" max="50000"> {{'milliseconds'|trans}}
+		</p>
+		<p class="custom-control custom-checkbox">
+		    <input type="checkbox" class="custom-control-input" id="photoswipe_metadata" name="photoswipe_metadata"{% if theme_config.photoswipe_metadata %} checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="photoswipe_metadata">{{'Show basic EXIF metadata'|trans}}</label>
+		    <span class="form-text text-muted">{{'For more information on metadata visit'|trans}} <a href="https://github.com/tkuther/piwigo-bootstrap-darkroom/wiki/EXIF-Metadata-in-PhotoSwipe">Wiki:EXIF-Metadata-in-PhotoSwipe</a></span>
+		</p>
+	    </div>
+	    <div class="fieldset">
+		<h3>{{'Quick search'|trans}}</h3>
+		<p class="custom-control custom-checkbox">
+		    <input type="checkbox" class="custom-control-input" id="quicksearch_navbar" name="quicksearch_navbar"{% if theme_config.quicksearch_navbar %} checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="quicksearch_navbar">{{'Quick search'|trans}} {{'directly in the navigation bar'|trans}}</label>
+		</p>
+	    </div>
+
+	    <div class="fieldset">
+		<h3>{{'Tag cloud'|trans}}</h3>
+		<p class="custom-control custom-radio">
+		    <input type="radio" class="custom-control-input" id="tag_cloud_type_basic" name="tag_cloud_type" value="basic"{% if theme_config.tag_cloud_type == 'basic' %} checked="checked"{% endif %} />
+		    <label class="custom-control-label" for="tag_cloud_type_basic">{{'Basic'|trans}}</label>
+		</p>
+		<p class="custom-control custom-radio">
+		    <input type="radio" class="custom-control-input" id="tag_cloud_type_html5" name="tag_cloud_type" value="html5"{% if theme_config.tag_cloud_type == 'html5' %} checked="checked"{% endif %} />
+		    <label class="custom-control-label" for="tag_cloud_type_html5">{{'HTML 5 canvas'|trans}}</label>
+		</p>
+	    </div>
+	</div>
+
+	<div id="social-integration" class="tab-content">
+	    <div class="fieldset">
+		<h3>{{'Social integration'|trans}}</h3>
+		<p class="custom-control custom-checkbox">
+		    <input type="checkbox" class="custom-control-input" id="social_enabled" name="social_enabled"{% if theme_config.social_enabled %} checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="social_enabled">{{'Enabled'|trans}}</label>
+		</p>
+		<p class="custom-control custom-checkbox social{% if not theme_config.social_enabled %} d-none{% endif %}">
+		    <input type="checkbox" class="custom-control-input" id="social_twitter" name="social_twitter"{% if theme_config.social_twitter %}  checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="social_twitter">{{'Twitter'|trans}}</label>
+		</p>
+		<p class="custom-control custom-checkbox social{% if not theme_config.social_enabled %} d-none{% endif %}">
+		    <input type="checkbox" class="custom-control-input" id="social_facebook" name="social_facebook"{% if theme_config.social_facebook %}  checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="social_facebook">{{'Facebook'|trans}}</label>
+		</p>
+		<p class="custom-control custom-checkbox social{% if not theme_config.social_enabled %} d-none{% endif %}">
+		    <input type="checkbox" class="custom-control-input" id="social_google_plus" name="social_google_plus"{% if theme_config.social_google_plus %}  checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="social_google_plus">{{'Google+'|trans}}</label>
+		</p>
+		<p class="custom-control custom-checkbox social{% if not theme_config.social_enabled %} d-none{% endif %}">
+		    <input type="checkbox" class="custom-control-input" id="social_pinterest" name="social_pinterest"{% if theme_config.social_pinterest %}  checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="social_pinterest">{{'Pinterest'|trans}}</label>
+		</p>
+		<p class="custom-control custom-checkbox social{% if not theme_config.social_enabled %} d-none{% endif %}">
+		    <input type="checkbox" class="custom-control-input" id="social_vk" name="social_vk"{% if theme_config.social_vk %}  checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="social_vk">{{'VK'|trans}}</label>
+		</p>
+		<p class="custom-control custom-checkbox social{% if not theme_config.social_enabled %} d-none{% endif %}">
+		    <input type="checkbox" class="custom-control-input" id="social_buttons" name="social_buttons"{% if theme_config.social_buttons %} checked="checked"{% endif %}>
+		    <label class="custom-control-label" for="social_buttons">{{'Use colored share buttons instead of icons'|trans}}</label>
+		</p>
+	    </div>
+	</div>
+
+	<div id="about" class="tab-content">
+	    <div class="fieldset">
+		<h3>{{'Treflez'|trans}}</h3>
+		<h4>{{'Version'|trans}}: 0.1.0</h4>
+		<h5>{{'By'|trans}}: <a href="https://github.com/nikrou/phyxo">Nicolas Roudaire</a></h5>
+
+		<p>{{'A mobile-ready theme based on Bootstrap'|trans}}</p>
+		<p><a href="https://github.com/nikrou/phyxo/issues">{{'Bug reports and feature requests'|trans}}</a></p>
+	    </div>
+	</div>
+
+	<p>
+	    <input type="hidden" name="_settings" value="true" />
+	    <input class="btn btn-submit" type="submit" name="submit" value="{{'Save Settings'|trans}}">
+	</p>
+    </form>
+{% endblock %}

@@ -20,7 +20,7 @@ if (isset($_POST['_settings'])) {  // @TODO : need to find a better way to use P
 }
 
 // Assign the template contents to ADMIN_CONTENT
-$tpl_params['theme_config'] = $themeconfig;
+$tpl_params['theme_config'] = $themeconfig->getConfig();
 
 // Add our template to the global template
-$template_filename = dirname(__FILE__) . '/template/settings.tpl';
+$template_filename = 'settings.html.twig';

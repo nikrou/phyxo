@@ -12,6 +12,7 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\UserMapper;
+use App\Twig\ThemeLoader;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Plugin\Plugins;
@@ -23,7 +24,7 @@ class ExtensionController extends AdminCommonController
 {
     protected $params, $conf;
 
-    public function theme(Request $request, string $theme, EntityManager $em, UserMapper $userMapper, string $themesDir, Conf $conf, ParameterBagInterface $params)
+    public function theme(Request $request, string $theme, EntityManager $em, UserMapper $userMapper, string $themesDir, Conf $conf, ThemeLoader $themeLoader, ParameterBagInterface $params)
     {
         $tpl_params = [];
         $this->conf = $conf;
@@ -39,6 +40,8 @@ class ExtensionController extends AdminCommonController
 
         $filename = $themesDir . '/' . $theme . '/admin/admin.inc.php';
         if (is_readable($filename)) {
+            $themeLoader->addPath($this->params->get('themes_dir') . '/' . $theme . '/admin/template');
+
             $load = (function ($themeConfiguration) {
                 // For old Piwigo themes
                 if (!defined('PHPWG_ROOT_PATH')) {
