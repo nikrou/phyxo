@@ -14,13 +14,13 @@
    "license": "GPL-2.0",
    "dependencies": {
       "@babel/core": "^7.9.0",
-      "@babel/preset-env": "^7.9.0",
+      "@babel/preset-env": "^7.9.5",
       "babel-loader": "^8.1.0",
       "babel-preset-env": "^1.7.0",
       "bootstrap": "^4.4.1",
       "bootstrap-slider": "^10.6.2",
       "clean-webpack-plugin": "^3.0.0",
-      "css-loader": "^3.4.2",
+      "css-loader": "^3.5.2",
       "datatables.net": "^1.10.20",
       "datatables.net-bs4": "^1.10.20",
       "datatables.net-buttons": "^1.6.1",
@@ -29,8 +29,8 @@
       "extract-text-webpack-plugin": "^4.0.0-beta.0",
       "file-loader": "^6.0.0",
       "font-awesome": "^4.7.0",
-      "html-webpack-plugin": "^4.0.4",
-      "jquery": "^3.4.1",
+      "html-webpack-plugin": "^4.2.0",
+      "jquery": "^3.5.0",
       "jquery-colorbox": "^1.6.4",
       "lozad": "^1.14.0",
       "mini-css-extract-plugin": "^0.9.0",
@@ -54,6 +54,6 @@
    "devDependencies": {
       "node-sass": "^4.13.1",
       "sass-loader": "^8.0.2",
-      "url-loader": "^4.0.0"
+      "url-loader": "^4.1.0"
    }
 }

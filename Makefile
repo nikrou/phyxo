@@ -101,8 +101,6 @@ admin_js_files := $(wildcard admin/theme/src/*/*.js)
 admin_scss_files := $(wildcard admin/theme/src/*/*.scss)
 
 $(ADMIN_MANIFEST): $(admin_js_files) $(admin_scss_files) $(ADMIN_THEME_PATH)/webpack.config.js $(ADMIN_THEME_PATH)/node_modules
-	@echo "Build admin theme"
-	touch $(ADMIN_MANIFEST)
 
 $(ADMIN_THEME_PATH)/node_modules: $(ADMIN_THEME_PATH)/package-lock.json
 	cd $(ADMIN_THEME_PATH) ;		\
@@ -118,8 +116,6 @@ public_js_files := $(wildcard themes/trelfez/src/*/*.js)
 public_scss_files := $(wildcard themes/treflez/src/*/*.scss)
 
 $(PUBLIC_MANIFEST): $(public_js_files) $(public_scss_files) $(PUBLIC_THEME_PATH)/webpack.config.js $(PUBLIC_THEME_PATH)/node_modules
-	@echo "Build theme"
-	touch $(PUBLIC_MANIFEST)
 
 $(PUBLIC_THEME_PATH)/node_modules: $(PUBLIC_THEME_PATH)/package-lock.json
 	cd $(PUBLIC_THEME_PATH) ;		\

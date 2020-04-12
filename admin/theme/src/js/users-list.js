@@ -9,21 +9,19 @@ import 'datatables.net-select';
 import 'datatables.net-buttons';
 import 'sprintf-js';
 
-$(function() {
+$(function () {
   const users_list = $('#users-list');
   let datatable;
 
   if ($('#addUserForm').length > 0) {
     $('.alert').hide();
-    $('#addUserForm').submit(function() {
+    $('#addUserForm').submit(function () {
       $.ajax({
         url: `${ws_url}?method=pwg.users.add`,
         type: 'POST',
         data: $(this).serialize() + '&pwg_token=' + pwg_token,
-        beforeSend: function() {
-          $('.alert')
-            .find('p')
-            .remove();
+        beforeSend: function () {
+          $('.alert').find('p').remove();
           $('.alert')
             .removeClass('alert-info')
             .removeClass('alert-danger')
@@ -39,12 +37,14 @@ $(function() {
             return false;
           }
         },
-        success: function(json) {
+        success: function (json) {
           const data = $.parseJSON(json);
+
           if (data.stat == 'ok') {
             $(
-              '#addUserForm input[type="text"], #addUserForm input[type="password"]'
+              '#addUserForm input[type="text"], #addUserForm input[name="password"]'
             ).val('');
+            $('#addUserForm').collapse();
 
             const new_user = data.result.users[0];
             $('.alert')
@@ -57,7 +57,6 @@ $(function() {
               )
               .show();
             datatable.ajax.reload();
-            $('#addUserForm').hide();
           } else {
             $('.alert')
               .addClass('alert-danger')
@@ -65,7 +64,7 @@ $(function() {
               .append('<p>&#x2718; ' + data.message + '</p>')
               .show();
           }
-        }
+        },
       });
 
       return false;
@@ -79,41 +78,41 @@ $(function() {
       pageLength: users_list_config.pageLength,
       ajax: {
         url: `${ws_url}?method=pwg.users.getList&display=all`,
-        dataSrc: function(json) {
+        dataSrc: function (json) {
           return json.result.users;
-        }
+        },
       },
       columns: users_list_config.columns,
       language: users_list_config.language,
       select: {
         style: 'multi',
-        selector: 'td:first-child input[type="checkbox"]'
+        selector: 'td:first-child input[type="checkbox"]',
       },
       dom: 'lifrtpB',
       buttons: [
         {
           text: users_list_config.language.select.select_all,
           className: 'btn btn-primary',
-          action: function() {
+          action: function () {
             datatable.rows().select();
-          }
+          },
         },
         {
           text: users_list_config.language.select.select_none,
           className: 'btn btn-secondary',
-          action: function() {
+          action: function () {
             datatable.rows().deselect();
-          }
+          },
         },
         {
           text: users_list_config.language.select.invert_selection,
           className: 'btn btn-success',
-          action: function() {
+          action: function () {
             const rows_selected = datatable.rows({ selected: true });
             datatable.rows().select();
             rows_selected.deselect();
-          }
-        }
+          },
+        },
       ],
       columnDefs: [
         {
@@ -121,37 +120,37 @@ $(function() {
           searchable: false,
           orderable: false,
           className: 'select-checkbox',
-          render: function(data, type, user, meta) {
+          render: function (data, type, user, meta) {
             return '<input type="checkbox" data-user_id="' + data + '">';
-          }
+          },
         },
         {
           targets: 1,
-          render: function(data, type, user, meta) {
+          render: function (data, type, user, meta) {
             return (
               '<span class="details-control"><i class="fa fa-edit"></i> ' +
               data +
               '</span>'
             );
-          }
+          },
         },
         {
           targets: 4,
-          render: function(data, type, user, meta) {
+          render: function (data, type, user, meta) {
             if (data) {
               return data
-                .map(function(group) {
+                .map(function (group) {
                   return groups[group];
                 })
                 .join(', ');
             } else {
               return '';
             }
-          }
+          },
         },
         {
           targets: 5,
-          render: function(data, type, user, meta) {
+          render: function (data, type, user, meta) {
             const level_keys = Object.keys(levels);
 
             if (data && level_keys.includes(data)) {
@@ -159,16 +158,14 @@ $(function() {
             } else {
               return '';
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
-    datatable.on('select', function(e, dt, type, indexes) {
-      datatable.rows(indexes).every(function(id, tableCounter, rowCounter) {
-        $(this.node())
-          .find('[type="checkbox"]')
-          .prop('checked', true);
+    datatable.on('select', function (e, dt, type, indexes) {
+      datatable.rows(indexes).every(function (id, tableCounter, rowCounter) {
+        $(this.node()).find('[type="checkbox"]').prop('checked', true);
       });
 
       if (datatable.rows({ selected: true }).count() > 0) {
@@ -177,11 +174,9 @@ $(function() {
       }
     });
 
-    datatable.on('deselect', function(e, dt, type, indexes) {
-      datatable.rows(indexes).every(function(id, tableCounter, rowCounter) {
-        $(this.node())
-          .find('[type="checkbox"]')
-          .prop('checked', false);
+    datatable.on('deselect', function (e, dt, type, indexes) {
+      datatable.rows(indexes).every(function (id, tableCounter, rowCounter) {
+        $(this.node()).find('[type="checkbox"]').prop('checked', false);
       });
 
       if (datatable.rows({ selected: true }).count() === 0) {
@@ -190,7 +185,7 @@ $(function() {
       }
     });
 
-    datatable.on('click', '.details-control', function() {
+    datatable.on('click', '.details-control', function () {
       const tr = $(this).parents('tr');
       const row = datatable.row(tr);
 
@@ -209,20 +204,20 @@ $(function() {
           valueField: 'value',
           labelField: 'label',
           searchField: ['label'],
-          plugins: ['remove_button']
+          plugins: ['remove_button'],
         });
 
         const groupSelectize = $('[data-selectize=groups]')[0].selectize;
 
-        groupSelectize.load(function(callback) {
+        groupSelectize.load(function (callback) {
           callback(formUser.groupOptions);
         });
 
         $.each(
-          $.grep(formUser.groupOptions, function(group) {
+          $.grep(formUser.groupOptions, function (group) {
             return group.isSelected;
           }),
-          function(i, group) {
+          function (i, group) {
             groupSelectize.addItem(group.value);
           }
         );
@@ -242,10 +237,10 @@ $(function() {
           {
             min: 0,
             max: nb_image_page_values.length - 1,
-            value: nb_image_page_init
+            value: nb_image_page_init,
           }
         );
-        slider_images.on('change', function(values) {
+        slider_images.on('change', function (values) {
           $('#user' + formUser.id + ' .nb_image_page_infos').html(
             getNbImagePageInfoFromIdx(values.newValue)
           );
@@ -264,10 +259,10 @@ $(function() {
           {
             min: 0,
             max: recent_period_values.length - 1,
-            value: recent_period_init
+            value: recent_period_init,
           }
         );
-        slider_period.on('change', function(values) {
+        slider_period.on('change', function (values) {
           $('#user' + formUser.id + ' .recent_period_infos').html(
             getRecentPeriodInfoFromIdx(values.newValue)
           );
@@ -280,11 +275,11 @@ $(function() {
     function prepareFormUser(user) {
       /* Prepare data for template */
       user.statusOptions = [];
-      $('#action select[name="status"] option').each(function() {
+      $('#action select[name="status"] option').each(function () {
         let option = {
           value: $(this).val(),
           label: $(this).html(),
-          isSelected: false
+          isSelected: false,
         };
 
         if (user.status == $(this).val()) {
@@ -295,11 +290,11 @@ $(function() {
       });
 
       user.levelOptions = [];
-      $('#action select[name="level"] option').each(function() {
+      $('#action select[name="level"] option').each(function () {
         let option = {
           value: $(this).val(),
           label: $(this).html(),
-          isSelected: false
+          isSelected: false,
         };
 
         if (user.level == $(this).val()) {
@@ -310,11 +305,11 @@ $(function() {
       });
 
       user.groupOptions = [];
-      $('#action select[name=associate] option').each(function() {
+      $('#action select[name=associate] option').each(function () {
         let option = {
           value: $(this).val(),
           label: $(this).html(),
-          isSelected: false
+          isSelected: false,
         };
 
         if (user.groups && user.groups.includes(parseInt($(this).val(), 10))) {
@@ -325,11 +320,11 @@ $(function() {
       });
 
       user.themeOptions = [];
-      $('#action select[name=theme] option').each(function() {
+      $('#action select[name=theme] option').each(function () {
         let option = {
           value: $(this).val(),
           label: $(this).html(),
-          isSelected: false
+          isSelected: false,
         };
 
         if (user.theme == $(this).val()) {
@@ -340,11 +335,11 @@ $(function() {
       });
 
       user.languageOptions = [];
-      $('#action select[name=language] option').each(function() {
+      $('#action select[name=language] option').each(function () {
         let option = {
           value: $(this).val(),
           label: $(this).html(),
-          isSelected: false
+          isSelected: false,
         };
 
         if (user.language == $(this).val()) {
@@ -374,7 +369,7 @@ $(function() {
 
       user.email = user.email || '';
 
-      $('#action select[name=status] option').each(function() {
+      $('#action select[name=status] option').each(function () {
         if (user.status == $(this).val()) {
           user.statusLabel = $(this).html();
         }
@@ -411,7 +406,7 @@ $(function() {
       50,
       60,
       80,
-      99
+      99,
     ];
 
     function getRecentPeriodInfoFromIdx(idx) {
@@ -461,14 +456,14 @@ $(function() {
       200,
       300,
       500,
-      999
+      999,
     ];
 
     function getNbImagePageInfoFromIdx(idx) {
       return phyxo_msg.photos_per_page.replace('%d', nb_image_page_values[idx]);
     }
 
-    $(document).on('click', '#changePassword [type="submit"]', function() {
+    $(document).on('click', '#changePassword [type="submit"]', function () {
       const userId = $(this)
         .parentsUntil('form')
         .parent()
@@ -481,20 +476,18 @@ $(function() {
         data: {
           pwg_token: pwg_token,
           user_id: userId,
-          password: $('#changePassword input[type="text"]').val()
+          password: $('#changePassword input[type="text"]').val(),
         },
-        beforeSend: function() {
+        beforeSend: function () {
           $('#changePassword input[type="text"]').val('');
           $('#changePassword').toggle('slow');
-          $('.alert')
-            .find('p')
-            .remove();
+          $('.alert').find('p').remove();
           $('.alert')
             .removeClass('alert-info')
             .removeClass('alert-danger')
             .hide();
         },
-        success: function(data) {
+        success: function (data) {
           $('.alert')
             .addClass('alert-info')
             .addClass('show')
@@ -502,13 +495,13 @@ $(function() {
             .show();
           datatable.ajax.reload();
         },
-        error: function(XMLHttpRequest, textStatus, errorThrows) {}
+        error: function (XMLHttpRequest, textStatus, errorThrows) {},
       });
 
       return false;
     });
 
-    $(document).on('click', '#changeUsername [type="submit"]', function() {
+    $(document).on('click', '#changeUsername [type="submit"]', function () {
       const userId = $(this)
         .parentsUntil('form')
         .parent()
@@ -521,20 +514,18 @@ $(function() {
         data: {
           pwg_token: pwg_token,
           user_id: userId,
-          username: $('#changeUsername input[type=text]').val()
+          username: $('#changeUsername input[type=text]').val(),
         },
-        beforeSend: function() {
+        beforeSend: function () {
           $('#changeUsername input[type="text"]').val('');
           $('#changeUsername').toggle('slow');
-          $('.alert')
-            .find('p')
-            .remove();
+          $('.alert').find('p').remove();
           $('.alert')
             .removeClass('alert-info')
             .removeClass('alert-danger')
             .hide();
         },
-        success: function(json) {
+        success: function (json) {
           const data = $.parseJSON(json);
           $('.alert')
             .addClass('alert-info')
@@ -550,7 +541,7 @@ $(function() {
             .show();
           datatable.ajax.reload();
         },
-        error: function(XMLHttpRequest, textStatus, errorThrows) {}
+        error: function (XMLHttpRequest, textStatus, errorThrows) {},
       });
 
       return false;
@@ -559,7 +550,7 @@ $(function() {
     $(document).on(
       'change',
       '.userProperty input, .userProperty select',
-      function() {
+      function () {
         const userId = $(this)
           .parentsUntil('form')
           .parent()
@@ -571,7 +562,7 @@ $(function() {
     );
 
     /* delete user */
-    $(document).on('click', '#user-delete', function() {
+    $(document).on('click', '#user-delete', function () {
       if (!confirm(phyxo_msg.are_you_sure)) {
         return false;
       }
@@ -579,23 +570,23 @@ $(function() {
       const userId = $(this).data('user_id');
       const username = $(this).data('username');
 
+      $('#confirm_deletion').prop('checked', false);
+
       $.ajax({
         url: `${ws_url}?method=pwg.users.delete`,
         type: 'POST',
         data: {
           user_id: userId,
-          pwg_token: pwg_token
+          pwg_token: pwg_token,
         },
-        beforeSend: function() {
-          $('.alert')
-            .find('p')
-            .remove();
+        beforeSend: function () {
+          $('.alert').find('p').remove();
           $('.alert')
             .removeClass('alert-info')
             .removeClass('alert-danger')
             .hide();
         },
-        success: function(data) {
+        success: function (data) {
           datatable.ajax.reload();
           $('.alert')
             .addClass('alert-info')
@@ -607,13 +598,13 @@ $(function() {
             )
             .show();
         },
-        error: function(XMLHttpRequest, textStatus, errorThrows) {}
+        error: function (XMLHttpRequest, textStatus, errorThrows) {},
       });
 
       return false;
     });
 
-    $(document).on('click', '.user-infos input[type=submit]', function() {
+    $(document).on('click', '.user-infos input[type=submit]', function () {
       const userId = $(this).data('user_id');
 
       let fd = new FormData();
@@ -640,7 +631,7 @@ $(function() {
       if ($('#user' + userId + ' select[name="group_id[]"]').val().length > 0) {
         $('#user' + userId + ' select[name="group_id[]"]')
           .val()
-          .forEach(function(group) {
+          .forEach(function (group) {
             fd.append('group_id[]', group);
           });
       } else {
@@ -685,16 +676,14 @@ $(function() {
         data: fd,
         processData: false,
         contentType: false,
-        beforeSend: function() {
-          $('.alert')
-            .find('p')
-            .remove();
+        beforeSend: function () {
+          $('.alert').find('p').remove();
           $('.alert')
             .removeClass('alert-info')
             .removeClass('alert-danger')
             .hide();
         },
-        success: function(data) {
+        success: function (data) {
           datatable.ajax.reload();
           $('.alert')
             .addClass('alert-info')
@@ -702,7 +691,7 @@ $(function() {
             .append('<p>&#x2714; ' + phyxo_msg.user_infos_updated + '</p>')
             .show();
         },
-        error: function(XMLHttpRequest, textStatus, errorThrows) {}
+        error: function (XMLHttpRequest, textStatus, errorThrows) {},
       });
 
       return false;
@@ -713,7 +702,7 @@ $(function() {
      */
     $('[id^=action_]').hide();
     $('#permitAction input[type=submit]').prop('disabled', true);
-    $('select[name="selectAction"]').change(function() {
+    $('select[name="selectAction"]').change(function () {
       $('#permitAction input[type=submit]').prop('disabled', false);
       $('[id^=action_]').hide();
       $('#action_' + $(this).prop('value')).show();
@@ -731,10 +720,10 @@ $(function() {
         {
           min: 0,
           max: nb_image_page_values.length - 1,
-          value: nb_image_page_init
+          value: nb_image_page_init,
         }
       );
-      slider_images.on('change', function(values) {
+      slider_images.on('change', function (values) {
         $('#action_nb_image_page .nb_image_page_infos').html(
           getNbImagePageInfoFromIdx(values.newValue)
         );
@@ -753,10 +742,10 @@ $(function() {
         {
           min: 0,
           max: recent_period_values.length - 1,
-          value: recent_period_init
+          value: recent_period_init,
         }
       );
-      slider_period.on('change', function(values) {
+      slider_period.on('change', function (values) {
         $('#action_recent_period .recent_period_infos').html(
           getRecentPeriodInfoFromIdx(values.newValue)
         );
@@ -769,14 +758,14 @@ $(function() {
       }
     });
 
-    $('#applyAction').click(function() {
+    $('#applyAction').click(function () {
       const action = $('select[name="selectAction"]').prop('value');
       let method = 'pwg.users.setInfo';
       const rowData = datatable.rows({ selected: true }).data();
 
       const data = {
         pwg_token: pwg_token,
-        user_id: rowData.toArray().map(data => data.id)
+        user_id: rowData.toArray().map((data) => data.id),
       };
 
       switch (action) {
@@ -832,20 +821,26 @@ $(function() {
           return false;
       }
 
+      let alert_message = '';
+      if (action === 'delete') {
+        alert_message = phyxo_msg.users_deleted;
+      } else {
+        alert_message = phyxo_msg.users_updated;
+      }
+
+      $('#confirm_deletion').prop('checked', false);
       $.ajax({
         url: `${ws_url}?method=${method}`,
         type: 'POST',
         data: data,
-        beforeSend: function() {
-          $('.alert')
-            .find('p')
-            .remove();
+        beforeSend: function () {
+          $('.alert').find('p').remove();
           $('.alert')
             .removeClass('alert-info')
             .removeClass('alert-danger')
             .hide();
         },
-        success: function(data) {
+        success: function (data) {
           datatable.ajax.reload();
           $('[name="selectAction"]').val(-1);
           $('[id^=action_]').hide();
@@ -855,10 +850,10 @@ $(function() {
           $('.alert')
             .addClass('alert-info')
             .addClass('show')
-            .append('<p>&#x2714; ' + phyxo_msg.users_updated + '</p>')
+            .append('<p>&#x2714; ' + alert_message + '</p>')
             .show();
         },
-        error: function(XMLHttpRequest, textStatus, errorThrows) {}
+        error: function (XMLHttpRequest, textStatus, errorThrows) {},
       });
 
       return false;

@@ -32,9 +32,10 @@
      phyxo_msg.emptyTable = "{{'No data available'|trans}}";
 
      phyxo_msg.user_password_updated = "{{'User password updated'|trans}}";
-     phyxo_msg.users_updated = "{{'Users modified'|trans}}";
+     phyxo_msg.users_updated = "{{'Users updated'|trans}}";
      phyxo_msg.new_user_pattern = "{{'User "%s" added'|trans}}";
      phyxo_msg.username_changed_pattern = "{{'Username has been changed to %s'|trans}}";
+     phyxo_msg.users_deleted = "{{'Users deleted'|trans}}";
      phyxo_msg.user_deleted = "{{'User "%s" deleted'|trans}}";
      phyxo_msg.user_infos_updated = "{{'User infos updated'|trans}}";
      phyxo_msg.registeredOn_pattern = "{{'Registered on %s, %s.'|trans}}";
@@ -132,12 +133,6 @@
 {% endblock %}
 
 {% block content %}
-    <div class="alert alert-dismissible fade" role="alert">
-	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-	    <i class="fa fa-times"></i>
-	</button>
-    </div>
-
     <p>
 	<a href="#add-user" data-toggle="collapse" class="btn btn-submit"><i class="fa fa-plus-circle"></i> {{'Add a user'|trans}}</a>
     </p>
