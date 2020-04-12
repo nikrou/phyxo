@@ -147,7 +147,7 @@
 				</div>
 			    {% else %}
 				<div class="text-center{% if thumbnail.id == current.id %} thumbnail-active{% endif %}">
-				    <a href="{thumbnail.URL}">
+				    <a href="{{thumbnail.URL}}">
 					<img {% if derivative.is_cached() %}data-lazy="{{derivative.getUrl()}}"{% else %}data-lazy="{{ROOT_URL}}{{themeconf.icon_dir}}/img_small.png" data-src="{{derivative.getUrl()}}"{% endif %} alt="{{thumbnail.TN_ALT}}" title="{{thumbnail.TN_TITLE}}" class="img-fluid">
 				    </a>
 				</div>

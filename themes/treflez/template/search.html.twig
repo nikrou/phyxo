@@ -1,194 +1,194 @@
 {% extends "__layout.html.twig" %}
 
 {% block content %}
-  <nav class="navbar navbar-contextual navbar-expand-lg {{theme_config.navbar_contextual_style}} {{theme_config.navbar_contextual_bg}} sticky-top mb-5">
-	  <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
-      <div class="navbar-brand mr-auto">
-		    <a href="{U_HOME}">{{'Home'|trans}}</a>{{LEVEL_SEPARATOR}}
-		    {{'Search'|trans}}
+    <nav class="navbar navbar-contextual navbar-expand-lg {{theme_config.navbar_contextual_style}} {{theme_config.navbar_contextual_bg}} sticky-top mb-5">
+	<div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
+	    <div class="navbar-brand mr-auto">
+		<a href="{{U_HOME}}">{{'Home'|trans}}</a>{{LEVEL_SEPARATOR}}
+		{{'Search'|trans}}
 	    </div>
-      <ul class="navbar-nav justify-content-end">
-		    {% if PLUGIN_INDEX_ACTIONS is defined %}{{PLUGIN_INDEX_ACTIONS}}{% endif %}
-      </ul>
-	  </div>
-  </nav>
+	    <ul class="navbar-nav justify-content-end">
+		{% if PLUGIN_INDEX_ACTIONS is defined %}{{PLUGIN_INDEX_ACTIONS}}{% endif %}
+	    </ul>
+	</div>
+    </nav>
 
-  {{include('_infos_errors.html.twig')}}
+    {{include('_infos_errors.html.twig')}}
 
-  <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
-	  <form method="post" name="search" action="{{F_SEARCH_ACTION}}">
-      <div class="card">
-		    <h4 class="card-header">
-          {{'Search for words'|trans}}
-		    </h4>
-		    <div class="card-body">
-          <div class="form-group">
-			      <input type="text" id="search_allwords" name="search_allwords" class="form-control mb-3" />
-          </div>
-          <div class="form-group">
-			      <div class="form-check form-check-inline radio">
-              <label class="form-check-label mr-3">
-				        <input type="radio" name="mode" value="AND" checked="checked" class="form-check-input mr-1">{{'Search for all terms'|trans}}
-              </label>
-              <label class="form-check-label">
-				        <input type="radio" name="mode" value="OR" class="form-check-input mr-1">{{'Search for any term'|trans}}
-              </label>
-			      </div>
-          </div>
-          <label>{{'Apply on properties'|trans}}</label>
-          <div class="form-group">
-			      <div class="form-check checkbox">
-              <label class="form-check-label mr-2">
-				        <input class="form-check-input" type="checkbox" name="fields[]" value="name" checked="checked"> {{'Photo title'|trans}}
-              </label>
-			      </div>
-			      <div class="form-check checkbox">
-              <label class="form-check-label mr-2">
-				        <input class="form-check-input" type="checkbox" name="fields[]" value="comment" checked="checked"> {{'Photo description'|trans}}
-              </label>
-			      </div>
-			      <div class="form-check checkbox">
-              <label class="form-check-label mr-2">
-				        <input class="form-check-input" type="checkbox" name="fields[]" value="file" checked="checked"> {{'Filename'|trans}}
-              </label>
-			      </div>
-			      {% if TAGS is defined %}
-			      <div class="form-check checkbox">
-				      <label class="form-check-label mr-2">
-				        <input class="form-check-input" type="checkbox" name="search_in_tags" value="tags"> {{'Tags'|trans}}
-				      </label>
-			      </div>
-			      {% endif %}
-          </div>
+    <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
+	<form method="post" name="search" action="{{F_SEARCH_ACTION}}">
+	    <div class="card">
+		<h4 class="card-header">
+		    {{'Search for words'|trans}}
+		</h4>
+		<div class="card-body">
+		    <div class="form-group">
+			<input type="text" id="search_allwords" name="search_allwords" class="form-control mb-3" />
 		    </div>
-      </div>
-	    {% if AUTHORS|length >=1 %}
-		  <div class="card mt-3">
-		    <h4 class="card-header">
-			    {{'Search for Author'|trans}}
-		    </h4>
-		    <div class="card-body">
-			    <div class="form-group">
-			      <select class="form-control" id="authors" placeholder="{{'Type in a search term'|trans}}" name="authors[]" multiple>
-				      {% for author in AUTHORS %}
-				        <option value="{{author.author|striptags}}">{{author.author|striptags}} ({{'number_of_photos'|trans({'count': author.counter})}})</option>
-				      {% endfor %}
-			      </select>
+		    <div class="form-group">
+			<div class="form-check form-check-inline radio">
+			    <label class="form-check-label mr-3">
+				<input type="radio" name="mode" value="AND" checked="checked" class="form-check-input mr-1">{{'Search for all terms'|trans}}
+			    </label>
+			    <label class="form-check-label">
+				<input type="radio" name="mode" value="OR" class="form-check-input mr-1">{{'Search for any term'|trans}}
+			    </label>
+			</div>
+		    </div>
+		    <label>{{'Apply on properties'|trans}}</label>
+		    <div class="form-group">
+			<div class="form-check checkbox">
+			    <label class="form-check-label mr-2">
+				<input class="form-check-input" type="checkbox" name="fields[]" value="name" checked="checked"> {{'Photo title'|trans}}
+			    </label>
+			</div>
+			<div class="form-check checkbox">
+			    <label class="form-check-label mr-2">
+				<input class="form-check-input" type="checkbox" name="fields[]" value="comment" checked="checked"> {{'Photo description'|trans}}
+			    </label>
+			</div>
+			<div class="form-check checkbox">
+			    <label class="form-check-label mr-2">
+				<input class="form-check-input" type="checkbox" name="fields[]" value="file" checked="checked"> {{'Filename'|trans}}
+			    </label>
+			</div>
+			{% if TAGS is defined %}
+			    <div class="form-check checkbox">
+				<label class="form-check-label mr-2">
+				    <input class="form-check-input" type="checkbox" name="search_in_tags" value="tags"> {{'Tags'|trans}}
+				</label>
 			    </div>
+			{% endif %}
 		    </div>
-		  </div>
+		</div>
+	    </div>
+	    {% if AUTHORS|length >=1 %}
+		<div class="card mt-3">
+		    <h4 class="card-header">
+			{{'Search for Author'|trans}}
+		    </h4>
+		    <div class="card-body">
+			<div class="form-group">
+			    <select class="form-control" id="authors" placeholder="{{'Type in a search term'|trans}}" name="authors[]" multiple>
+				{% for author in AUTHORS %}
+				    <option value="{{author.author|striptags}}">{{author.author|striptags}} ({{'number_of_photos'|trans({'count': author.counter})}})</option>
+				{% endfor %}
+			    </select>
+			</div>
+		    </div>
+		</div>
 	    {% endif %}
 	    {% if TAGS is defined %}
-		  <div class="card mt-3">
+		<div class="card mt-3">
 		    <h4 class="card-header">
-			    {{'Search tags'|trans}}
+			{{'Search tags'|trans}}
 		    </h4>
 		    <div class="card-body">
-			    <div class="form-group mb-3">
-			      <select class="form-control" id="tags" placeholder="{{'Type in a search term'|trans}}" name="tags[]" multiple>
-				      {% for tag in TAGS %}
-				        <option value="{{tag.id}}">{{tag.name}} ({{'number_of_photos'|trans({'count': tag.counter})}})  </option>
-				      {% endfor %}
-			      </select>
+			<div class="form-group mb-3">
+			    <select class="form-control" id="tags" placeholder="{{'Type in a search term'|trans}}" name="tags[]" multiple>
+				{% for tag in TAGS %}
+				    <option value="{{tag.id}}">{{tag.name}} ({{'number_of_photos'|trans({'count': tag.counter})}})  </option>
+				{% endfor %}
+			    </select>
+			</div>
+			<div class="form-group">
+			    <div class="form-check form-check-inline radio">
+				<label class="form-check-label mr-3">
+				    <input class="form-check-input" type="radio" name="tag_mode" value="AND" checked="checked"> {{'All tags'|trans}}
+				</label>
+				<label class="form-check-label">
+				    <input class="form-check-input" type="radio" name="tag_mode" value="OR"> {{'Any tag'|trans}}
+				</label>
 			    </div>
-			    <div class="form-group">
-			      <div class="form-check form-check-inline radio">
-				      <label class="form-check-label mr-3">
-				        <input class="form-check-input" type="radio" name="tag_mode" value="AND" checked="checked"> {{'All tags'|trans}}
-				      </label>
-				      <label class="form-check-label">
-				        <input class="form-check-input" type="radio" name="tag_mode" value="OR"> {{'Any tag'|trans}}
-				      </label>
-			      </div>
-			    </div>
+			</div>
 		    </div>
-		  </div>
+		</div>
 	    {% endif %}
-      <div class="card mt-3">
-		    <h4 class="card-header">
-          {{'Search by date'|trans}}
-		    </h4>
-		    <div class="card-body">
-          <label>{{'Kind of date'|trans}}</label>
-          <div class="form-group">
-			      <div class="form-check form-check-inline radio">
-			        <label class="form-check-label mr-3">
-				        <input class="form-check-input" type="radio" name="date_type" value="date_creation" checked="checked"> {{'Creation date'|trans}}
-			        </label>
-			        <label class="form-check-label">
-				        <input class="form-check-input" type="radio" name="date_type" value="date_available"> {{'Post date'|trans}}
-			        </label>
-			      </div>
-          </div>
-          <label>{{'Date'|trans}}</label>
-          <div class="form-group">
-			      <div class="form-inline">
-			        <select id="start_day" name="start_day" class="form-control mr-3">
-				        <option value="0">--</option>
-				        {% for day in 1..32 %}
-				          <option value="{{loop.index}}" {% if loop.index==START_DAY_SELECTED|default('') %}selected="selected"{% endif %}>{{loop.index}}</option>
-				        {% endfor %}
-			        </select>
-			        <select id="start_month" name="start_month" class="form-control mr-3">
-                {% for option in month_list %}
-                  <option value="{{loop.index0}}" {% if loop.index==START_MONTH_SELECTED|default('') %}selected="selected"{% endif %}>{{option}}</option>
-                {% endfor %}
-			        </select>
-			        <input id="start_year" name="start_year" type="text" size="4" maxlength="4" class="form-control" placeholder="{{'Year'|trans}}">
-			        <input id="start_linked_date" name="start_linked_date" type="hidden" size="10" disabled="disabled">
-			        <button type="button" class="date_today ml-3 btn btn-info" onClick="document.getElementById('start_day').value={{'now'|date('d')}};document.getElementById('start_month').value={{'now'|date('m')}};document.getElementById('start_year').value={{'now'|date('Y')}};return false;">{{'today'|trans}}</button>
-			      </div>
-          </div>
-          <label>{{'End-Date'|trans}}</label>
-          <div class="form-group">
-			      <div class="form-inline">
-			        <select id="end_day" name="end_day" class="form-control mr-3">
-				        <option value="0">--</option>
-                {% for day in 1..32 %}
-				          <option value="{loop.index}" {% if loop.index==END_DAY_SELECTED|default('') %}selected="selected"{% endif %}>{loop.index}</option>
-                {% endfor %}
-			        </select>
-			        <select id="end_month" name="end_month" class="form-control mr-3">
-                {% for option in month_list %}
-                  <option value="{{loop.index0}}" {% if loop.index0==END_MONTH_SELECTED|default('') %}selected="selected"{% endif %}>{{option}}</option>
-                {% endfor %}
-			        </select>
-			        <input id="end_year" name="end_year" type="text" size="4" maxlength="4" class="form-control" placeholder="{{'Year'|trans}}">
-			        <input id="end_linked_date" name="end_linked_date" type="hidden" size="10" disabled="disabled">
-			        <button type="button" class="date_today ml-3 btn btn-info" onClick="document.getElementById('end_day').value={'now'|date_format:"%d"};document.getElementById('end_month').value={'now'|date_format:"%m"};document.getElementById('end_year').value={'now'|date_format:"%Y"};return false;">{{'today'|trans}}</button>
-			      </div>
-		      </div>
+	    <div class="card mt-3">
+		<h4 class="card-header">
+		    {{'Search by date'|trans}}
+		</h4>
+		<div class="card-body">
+		    <label>{{'Kind of date'|trans}}</label>
+		    <div class="form-group">
+			<div class="form-check form-check-inline radio">
+			    <label class="form-check-label mr-3">
+				<input class="form-check-input" type="radio" name="date_type" value="date_creation" checked="checked"> {{'Creation date'|trans}}
+			    </label>
+			    <label class="form-check-label">
+				<input class="form-check-input" type="radio" name="date_type" value="date_available"> {{'Post date'|trans}}
+			    </label>
+			</div>
 		    </div>
-      </div>
-      <div class="card my-3">
-		    <h4 class="card-header">
-          {{'Search in albums'|trans}}
-		    </h4>
-		    <div class="card-body">
-          <div class="row mb-3">
-			      <div class="col-lg-7 col-md-9 col-sm-12 col-xs-12">
-              <select class="form-control" id="categories" name="cat[]" multiple>
-                {% for option in category_options %}
-                  <option value="{{option}}" {% if option==category_options_selected %}selected="selected"{% endif %}>{{option}}</option>
-                {% endfor %}
-              </select>
-			      </div>
-          </div>
-          <div class="form-group">
-			      <div class="form-check checkbox">
-			        <label class="form-check-label">
-				        <input class="form-check-input" type="checkbox" name="subcats-included" value="1" checked="checked"> {{'Search in sub-albums'|trans}}
-			        </label>
-			      </div>
-          </div>
+		    <label>{{'Date'|trans}}</label>
+		    <div class="form-group">
+			<div class="form-inline">
+			    <select id="start_day" name="start_day" class="form-control mr-3">
+				<option value="0">--</option>
+				{% for day in 1..32 %}
+				    <option value="{{loop.index}}" {% if loop.index==START_DAY_SELECTED|default('') %}selected="selected"{% endif %}>{{loop.index}}</option>
+				{% endfor %}
+			    </select>
+			    <select id="start_month" name="start_month" class="form-control mr-3">
+				{% for option in month_list %}
+				    <option value="{{loop.index0}}" {% if loop.index==START_MONTH_SELECTED|default('') %}selected="selected"{% endif %}>{{option}}</option>
+				{% endfor %}
+			    </select>
+			    <input id="start_year" name="start_year" type="text" size="4" maxlength="4" class="form-control" placeholder="{{'Year'|trans}}">
+			    <input id="start_linked_date" name="start_linked_date" type="hidden" size="10" disabled="disabled">
+			    <button type="button" class="date_today ml-3 btn btn-info" onClick="document.getElementById('start_day').value={{'now'|date('d')}};document.getElementById('start_month').value={{'now'|date('m')}};document.getElementById('start_year').value={{'now'|date('Y')}};return false;">{{'today'|trans}}</button>
+			</div>
 		    </div>
-      </div>
-      <input type="submit" name="submit" value="{{'Submit'|trans}}" class="btn btn-primary btn-raised">
-      <input type="reset" value="{{'Reset'|trans}}" class="btn btn-info btn-raised">
-	  </form>
-  </div>
+		    <label>{{'End-Date'|trans}}</label>
+		    <div class="form-group">
+			<div class="form-inline">
+			    <select id="end_day" name="end_day" class="form-control mr-3">
+				<option value="0">--</option>
+				{% for day in 1..32 %}
+				    <option value="{{loop.index}}" {% if loop.index==END_DAY_SELECTED|default('') %}selected="selected"{% endif %}>{{loop.index}}</option>
+				{% endfor %}
+			    </select>
+			    <select id="end_month" name="end_month" class="form-control mr-3">
+				{% for option in month_list %}
+				    <option value="{{loop.index0}}" {% if loop.index0==END_MONTH_SELECTED|default('') %}selected="selected"{% endif %}>{{option}}</option>
+				{% endfor %}
+			    </select>
+			    <input id="end_year" name="end_year" type="text" size="4" maxlength="4" class="form-control" placeholder="{{'Year'|trans}}">
+			    <input id="end_linked_date" name="end_linked_date" type="hidden" size="10" disabled="disabled">
+			    <button type="button" class="date_today ml-3 btn btn-info" onClick="document.getElementById('end_day').value={'now'|date_format:"%d"};document.getElementById('end_month').value={'now'|date_format:"%m"};document.getElementById('end_year').value={'now'|date_format:"%Y"};return false;">{{'today'|trans}}</button>
+			</div>
+		    </div>
+		</div>
+	    </div>
+	    <div class="card my-3">
+		<h4 class="card-header">
+		    {{'Search in albums'|trans}}
+		</h4>
+		<div class="card-body">
+		    <div class="row mb-3">
+			<div class="col-lg-7 col-md-9 col-sm-12 col-xs-12">
+			    <select class="form-control" id="categories" name="cat[]" multiple>
+				{% for option in category_options %}
+				    <option value="{{option}}" {% if option==category_options_selected %}selected="selected"{% endif %}>{{option}}</option>
+				{% endfor %}
+			    </select>
+			</div>
+		    </div>
+		    <div class="form-group">
+			<div class="form-check checkbox">
+			    <label class="form-check-label">
+				<input class="form-check-input" type="checkbox" name="subcats-included" value="1" checked="checked"> {{'Search in sub-albums'|trans}}
+			    </label>
+			</div>
+		    </div>
+		</div>
+	    </div>
+	    <input type="submit" name="submit" value="{{'Submit'|trans}}" class="btn btn-primary btn-raised">
+	    <input type="reset" value="{{'Reset'|trans}}" class="btn btn-info btn-raised">
+	</form>
+    </div>
 
-  <script>
-    document.getElementById('search_allwords').focus();
-  </script>
+    <script>
+     document.getElementById('search_allwords').focus();
+    </script>
 {% endblock %}

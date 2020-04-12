@@ -70,7 +70,7 @@
 					{% endif %}
 				    {% else %}
 					{% if theme.ACTIVABLE is defined %}
-					    <a href="{theme.activate}" class="btn btn-sm btn-submit" title="{{'Make this theme available to users'|trans}}">
+					    <a href="{{theme.activate}}" class="btn btn-sm btn-submit" title="{{'Make this theme available to users'|trans}}">
 						{{'Activate'|trans}}
 					    </a>
 					{% else %}
@@ -78,7 +78,7 @@
 					{% endif %}
 
 					{% if theme.DELETABLE is defined %}
-					    <a href="{theme.delete}" onClick="return confirm('{{'Are you sure?'|trans}}');" class="btn btn-sm btn-danger"
+					    <a href="{{theme.delete}}" onClick="return confirm('{{'Are you sure?'|trans}}');" class="btn btn-sm btn-danger"
 					       title="{{'Delete this theme'|trans}}">
 						{{'Delete'|trans}}
 					    </a>

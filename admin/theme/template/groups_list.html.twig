@@ -40,7 +40,7 @@
 		{% if groups %}
 		    {% for group in groups %}
 			<tr>
-			    <td><input class="group_selection" name="group_selection[]" type="checkbox" value="{group.ID}"></td>
+			    <td><input class="group_selection" name="group_selection[]" type="checkbox" value="{{group.ID}}"></td>
 			    <td>{{group.NAME}}
 				<i><small>{{group.IS_DEFAULT}}</small></i>
 			    </td>

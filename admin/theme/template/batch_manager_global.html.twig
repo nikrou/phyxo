@@ -544,15 +544,15 @@
 			    <div class="thumbnail{% if selection[thumbnail.id] %} thumbSelected{% endif %}">
 				<span class="wrapper-label">
 				    <label>
-					<input type="checkbox" name="selection[]" value="{thumbnail.id}" {% if selection[thumbnail.id] %}checked="checked"{% endif %}>
+					<input type="checkbox" name="selection[]" value="{{thumbnail.id}}" {% if selection[thumbnail.id] %}checked="checked"{% endif %}>
 					<span class="wrapper-thumbnail">
 					    <div class="actions">
 						<a href="{{thumbnail.FILE_SRC}}" class="preview-box"><i class="fa fa-search-plus"></i><span class="visually-hidden">{{'Zoom'|trans}}</span></a>
 						<a href="{{thumbnail.U_EDIT}}"><i class="fa fa-pencil"></i><span class="visually-hidden">{{'Edit'|trans}}</span></a>
 					    </div>
 					    {% if thumbnail.level > 0 %}
-						<em class="levelIndicatorB">{{'Level ' ~ thumbnail.level|trans}}</em>
-						<em class="levelIndicatorF" title="{{'Who can see these photos?'|trans}} : ">{{'Level ' ~ thumbnail.level|trans}}</em>
+						<em class="levelIndicatorB">{{"Level #{thumbnail.level}"|trans}}</em>
+						<em class="levelIndicatorF" title="{{'Who can see these photos?'|trans}}">{{"Level #{thumbnail.level}"|trans}}</em>
 					    {% endif %}
 					    <img src="{{thumbnail.thumb.getUrl()}}" alt="{{thumbnail.file}}" title="{{thumbnail.TITLE}}" {{thumbnail.thumb.get_size_htm()}}>
 					</span>
@@ -668,7 +668,7 @@
 			    <p>
 				<select data-selectize="tags" name="del_tags[]" multiple placeholder="{{'Type in a search term'|trans}}">
 				    {% for tag in associated_tags %}
-					<option value="{tag.id}">{{tag.name}}</option>
+					<option value="{{tag.id}}">{{tag.name}}</option>
 				    {% endfor %}
 				</select>
 			    </p>

@@ -6,7 +6,7 @@
     <script>
      var ws_url = '{{ws}}';
      var phyxo_need_update_msg = '<a href="{{U_UPDATE}}">{{'A new version of Phyxo is available.'|trans}}</a>';
-     var ext_need_update_msg = '<a href="{U_UPDATE_EXTENSIONS}">{{'Some upgrades are available for extensions.'|trans}}</a>';
+     var ext_need_update_msg = '<a href="{{U_UPDATE_EXTENSIONS}}">{{'Some upgrades are available for extensions.'|trans}}</a>';
      var phyxo_is_uptodate_msg = "{{'You are running the latest version of Phyxo.'|trans}}";
     </script>
 {% endblock %}
@@ -30,7 +30,7 @@
 	<dt>{{'Environment'|trans}}</dt>
 	<dd>
 	    <ul>
-		<li>{{'Operating system'|trans}}: {OS}</li>
+		<li>{{'Operating system'|trans}}: {{OS}}</li>
 		<li>PHP: {{PHP_VERSION}} [{{PHP_DATATIME}}]</li>
 		<li>{{DB_ENGINE}}: {{DB_VERSION}} [{{DB_DATATIME}}]</li>
 		{% if GRAPHICS_LIBRARY is defined %}

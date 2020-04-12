@@ -2,7 +2,7 @@
 {% extends "__layout.html.twig" %}
 
 {% block breadcrumb_items %}
-    <li class="breadcrumb-item"><a href="{U_PAGE}">{{'Albums'|trans}}</a></li>
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Albums'|trans}}</a></li>
     <li class="breadcrumb-item">{{'Album'|trans}}:
 	{% for category_nav in CATEGORIES_NAV %}
 	    <a href="{{category_nav.url}}">{{category_nav.name}}</a>
