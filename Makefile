@@ -101,11 +101,13 @@ admin_js_files := $(wildcard admin/theme/src/*/*.js)
 admin_scss_files := $(wildcard admin/theme/src/*/*.scss)
 
 $(ADMIN_MANIFEST): $(admin_js_files) $(admin_scss_files) $(ADMIN_THEME_PATH)/webpack.config.js $(ADMIN_THEME_PATH)/node_modules
+	cd $(ADMIN_THEME_PATH) ;		\
+	npm run build ;				\
+	cd -
 
 $(ADMIN_THEME_PATH)/node_modules: $(ADMIN_THEME_PATH)/package-lock.json
 	cd $(ADMIN_THEME_PATH) ;		\
 	npm ci ;				\
-	npm run build ;				\
 	cd -
 
 
@@ -116,11 +118,13 @@ public_js_files := $(wildcard themes/trelfez/src/*/*.js)
 public_scss_files := $(wildcard themes/treflez/src/*/*.scss)
 
 $(PUBLIC_MANIFEST): $(public_js_files) $(public_scss_files) $(PUBLIC_THEME_PATH)/webpack.config.js $(PUBLIC_THEME_PATH)/node_modules
+	cd $(PUBLIC_THEME_PATH) ;		\
+	npm run build ;				\
+	cd -
 
 $(PUBLIC_THEME_PATH)/node_modules: $(PUBLIC_THEME_PATH)/package-lock.json
 	cd $(PUBLIC_THEME_PATH) ;		\
 	npm ci ;				\
-	npm run build ;				\
 	cd -
 
 ##
@@ -130,6 +134,13 @@ $(PUBLIC_THEME_PATH)/node_modules: $(PUBLIC_THEME_PATH)/package-lock.json
 
 clean: ## clean dist directory
 	@rm -fr $(DIST)
+
+behat: ## execute behat tests
+	@if test ! "$(DATABASE_URL)" = ""; then						\
+		DATABASE_URL="$(DATABASE_URL)" ./bin/behat --stop-on-failure -v;	\
+	else										\
+		echo 'You must define DATABASE_URL';					\
+	fi
 
 unit-tests: ## execute unit tests
 	@./bin/atoum
