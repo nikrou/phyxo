@@ -25,6 +25,7 @@ use App\Repository\UserMailNotificationRepository;
 use App\Repository\UserFeedRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\CaddieRepository;
+use App\Repository\CommentRepository;
 use App\Repository\ImageTagRepository;
 use App\Security\UserProvider;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -337,6 +338,7 @@ class UserMapper
         // destruction of the caddie associated with the user
         $this->em->getRepository(CaddieRepository::class)->emptyCaddie($user_id);
 
+        $this->em->getRepository(CommentRepository::class)->deleteByUserId($user_id);
         // remove  created_by user in image_tag
         $this->em->getRepository(ImageTagRepository::class)->removeCreatedByKey($user_id);
 

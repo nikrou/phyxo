@@ -179,6 +179,15 @@ class CommentRepository extends BaseRepository
         return $this->conn->db_changes($result);
     }
 
+    public function deleteByUserId(int $author_id)
+    {
+        $query = 'DELETE FROM ' . self::COMMENTS_TABLE;
+        $query .= ' WHERE author_id = ' . $author_id;
+        $result = $this->conn->db_query($query);
+
+        return $this->conn->db_changes($result);
+    }
+
     public function deleteByImage($images)
     {
         $query = 'DELETE FROM ' . self::COMMENTS_TABLE;
