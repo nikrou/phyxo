@@ -25,19 +25,16 @@ use Phyxo\EntityManager;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MaintenanceController extends AdminCommonController
 {
-    private $translator;
-
     public function index(Request $request, ?string $action, Conf $conf, EntityManager $em, ParameterBagInterface $params, CategoryMapper $categoryMapper,
                           UserMapper $userMapper, RateMapper $rateMapper, TagMapper $tagMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator)
     {
         $tpl_params = [];
-        $this->translator = $translator;
-
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         switch ($action) {
@@ -119,6 +116,45 @@ class MaintenanceController extends AdminCommonController
                   $em->getRepository(SearchRepository::class)->delete();
                   return  $this->redirectToRoute('admin_maintenance');
               }
+          case 'obsolete':
+              {
+                $obsolete_file = $obsolete_file = $params->get('install_dir') . '/obsolete.list';
+                if (!is_readable($obsolete_file)) {
+                    return;
+                }
+
+                $fs = new Filesystem();
+                $old_files = file($obsolete_file, FILE_IGNORE_NEW_LINES);
+                $count_files = 0;
+                $not_writable_files = 0;
+
+                try {
+                    foreach ($old_files as $old_file) {
+                        $path = $params->get('root_project_dir') . '/' . $old_file;
+                        if (is_readable($path)) {
+                            if (is_writable($path)) {
+                                $fs->remove($path);
+                                $count_files++;
+                            } else {
+                                $not_writable_files++;
+                            }
+                        } elseif (is_dir($path)) {
+                            $fs->remove($path);
+                        }
+                    }
+                    if ($count_files > 0) {
+                        $this->addFlash('info', $translator->trans('All old files ({count}) have been removed.', ['count' => $count_files], 'admin'));
+                    }
+
+                    if ($not_writable_files > 0) {
+                        $this->addFlash('error', $translator->trans('Some files ({count}) could have not be removed.', ['count' => $not_writable_files], 'admin'));
+                    }
+                } catch (\Exception $e) {
+                    $this->addFlash('error', $translator->trans('Some files ({count}) could have not be removed.', [], 'admin'));
+                }
+
+                return  $this->redirectToRoute('admin_maintenance');
+              }
           default:
               {
                   break;
@@ -140,6 +176,7 @@ class MaintenanceController extends AdminCommonController
             'U_MAINT_DATABASE' => $this->generateUrl('admin_maintenance', ['action' => 'database']),
             'U_MAINT_SEARCH' => $this->generateUrl('admin_maintenance', ['action' => 'search']),
             'U_MAINT_DERIVATIVES' => $this->generateUrl('admin_maintenance', ['action' => 'derivatives']),
+            'U_MAINT_OBSOLETE' => $this->generateUrl('admin_maintenance', ['action' => 'obsolete']),
         ]);
 
         $purge_urls[$translator->trans('All', [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => 'all']);

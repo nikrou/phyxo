@@ -156,8 +156,8 @@ class UpdateController extends AdminCommonController
                     $updater->upgrade($zip);
 
                     $upgrade = new Upgrade($em, $conf);
-                    $upgrade->deactivate_non_standard_plugins();
-                    $upgrade->deactivate_non_standard_themes();
+                    $upgrade->deactivateNonStandardPlugins();
+                    $upgrade->deactivateNonStandardThemes();
 
                     $tables = $em->getConnection()->db_get_tables($em->getConnection()->getPrefix());
                     $columns_of = $em->getConnection()->db_get_columns_of($tables);

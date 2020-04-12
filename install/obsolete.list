@@ -4,10 +4,12 @@ ws.php
 doc
 src/Log.php
 src/LegacyPages
+src/Controller/AdminController.php
 src/Controller/BaseController.php
 src/Controller/UserController.php
 src/Phyxo/Functions/Rate.php
 src/Phyxo/Functions/Theme.php
+src/Phyxo/Functions/Upgrade.php
 src/Phyxo/Functions/SQL.php
 src/Phyxo/Image/ImageStdParams.php
 src/Phyxo/Model/Repository/Comments.php
@@ -16,6 +18,7 @@ src/Phyxo/Model/Repository/Users.php
 src/Phyxo/Template/TemplateAdapter.php
 admin/index.php
 include/cache.class.php
+include/common.inc.php
 include/derivative.inc.php
 include/derivative_params.inc.php
 include/derivative_std_params.inc.php
