@@ -135,6 +135,7 @@ class AlbumController extends AdminCommonController
         $tpl_params['U_JUMPTO'] = $this->generateUrl('album', ['category_id' => $category['id']]);
         $tpl_params['U_ADD_PHOTOS_ALBUM'] = $this->generateUrl('admin_photos_add', ['album_id' => $category['id']]);
         $tpl_params['U_CHILDREN'] = $this->generateUrl('admin_albums', ['parent_id' => $category['id']]);
+        $tpl_params['ws'] = $this->generateUrl('ws');
 
         if ($conf['activate_comments']) {
             $tpl_params['CAT_COMMENTABLE'] = $em->getConnection()->boolean_to_string($category['commentable']);
@@ -546,6 +547,7 @@ class AlbumController extends AdminCommonController
         $tpl_params['CATEGORIES_NAV'] = $categoryMapper->getAlbumsDisplayName($category['uppercats'], 'admin_album', ['parent_id' => $parent_id]);
         $tpl_params['U_GROUPS'] = $this->generateUrl('admin_groups');
         $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['groups', 'users'], $em, $this->generateUrl('homepage'));
+        $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params['private'] = ($category['status'] === 'private');
         $tpl_params['INHERIT'] = $conf['inheritance_by_default'];

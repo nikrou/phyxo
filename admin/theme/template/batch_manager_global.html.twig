@@ -26,9 +26,10 @@
 {% endblock %}
 
 {% block javascripts %}
-    {% set app_lang = 'en' %}
-
     {{parent()}}
+    <script>
+     var ws_url = '{{ws}}';
+    </script>
     <script src="{{asset('admin/theme/js/scripts.js')}}"></script>
     <script src="{{asset('admin/theme/js/plugins/jquery.colorbox.js')}}"></script>
     <script src="{{asset('admin/theme/js/common.js')}}"></script>
@@ -46,8 +47,8 @@
 
     <script src="{{asset('admin/theme/js/ui/jquery.ui.datepicker.js')}}"></script>
     <script src="{{asset('admin/theme/js/ui/jquery.ui.timepicker-addon.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/i18n/jquery.ui.datepicker-' ~ app_lang ~ '.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/i18n/jquery.ui.timepicker-' ~ app_lang ~ '.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/i18n/jquery.ui.datepicker-' ~ app.user.lang ~ '.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/i18n/jquery.ui.timepicker-' ~ app.user.lang ~ '.js')}}"></script>
     <script src="{{asset('admin/theme/js/datepicker.js')}}"></script>
     <script>
      var lang = {
@@ -119,7 +120,7 @@
      var selectedMessage_all = "{{'All %d photos are selected'|trans}}";
 
      $(function() {
-	 var associated_categories = {{associated_categories|json_encode}};
+	 var associated_categories = {{associated_categories|json_encode|raw}};
 
 	 if (associated_categories) {
 	     categoriesCache.selectize($('[data-selectize=categories]'), {

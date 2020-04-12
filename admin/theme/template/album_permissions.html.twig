@@ -20,6 +20,9 @@
 {% block javascripts %}
     {{parent()}}
 
+    <script>
+     var ws_url = '{{ws}}';
+    </script>
     <script src="{{asset('admin/theme/js/LocalStorageCache.js')}}"></script>
     <script src="{{asset('admin/theme/js/plugins/selectize.js')}}"></script>
     <script>
@@ -90,8 +93,8 @@
 	    <p>
 		<label for="users">{{'Permission granted for users'|trans}}</label>
 		<select id="users" data-selectize="users" data-value="{{users_selected|json_encode}}"
-			    placeholder="{{'Type in a search term'|trans}}"
-			    name="users[]" multiple></select>
+			placeholder="{{'Type in a search term'|trans}}"
+			name="users[]" multiple></select>
 	    </p>
 
 	    {% if nb_users_granted_indirect and nb_users_granted_indirect > 0 %}

@@ -141,8 +141,8 @@ class PhotosController extends AdminCommonController
             );
         }
         $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['categories'], $em, $this->generateUrl('homepage'));
-
         $tpl_params['ws'] = $this->generateUrl('ws');
+
         $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');
         $tpl_params['U_EDIT_PATTERN'] = $this->generateUrl('admin_photo', ['image_id' => 0]);
         $tpl_params['U_ALBUM_PATTERN'] = $this->generateUrl('admin_album', ['album_id' => 0]);

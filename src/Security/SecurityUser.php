@@ -17,7 +17,7 @@ use Symfony\Component\Security\Core\User\EquatableInterface;
 
 class SecurityUser implements UserInterface, EquatableInterface
 {
-    private $id, $username, $password, $mail_address, $salt, $roles = [], $locale, $theme;
+    private $id, $username, $password, $mail_address, $salt, $roles = [], $locale, $lang, $theme;
 
     public function __construct(User $user)
     {
@@ -27,6 +27,7 @@ class SecurityUser implements UserInterface, EquatableInterface
         $this->mail_address = $user->getMailAddress();
         $this->roles = $user->getRoles();
         $this->locale = $user->getLanguage();
+        $this->lang = preg_replace('`_.*`', '', $this->locale);
         $this->theme = $user->getTheme();
     }
 
@@ -64,6 +65,11 @@ class SecurityUser implements UserInterface, EquatableInterface
     public function getLocale(): string
     {
         return $this->locale;
+    }
+
+    public function getLang(): string
+    {
+        return $this->lang;
     }
 
     public function getTheme(): string

@@ -15,9 +15,10 @@
 {% endblock %}
 
 {% block javascripts %}
-    {% set app_lang = 'en' %}
-
     {{parent()}}
+    <script>
+     var ws_url = '{{ws}}';
+    </script>
     <script src="{{asset('admin/theme/js/ui/jquery.ui.core.js')}}"></script>
     <script src="{{asset('admin/theme/js/ui/jquery.ui.widget.js')}}"></script>
     <script src="{{asset('admin/theme/js/ui/jquery.ui.mouse.js')}}"></script>
@@ -27,8 +28,8 @@
     <script src="{{asset('admin/theme/js/LocalStorageCache.js')}}"></script>
     <script src="{{asset('admin/theme/js/ui/jquery.ui.datepicker.js')}}"></script>
     <script src="{{asset('admin/theme/js/ui/jquery.ui.timepicker-addon.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/i18n/jquery.ui.datepicker-' ~ app_lang ~ '.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/i18n/jquery.ui.timepicker-' ~ app_lang ~ '.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/i18n/jquery.ui.datepicker-' ~ app.user.lang ~ '.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/i18n/jquery.ui.timepicker-' ~ app.user.lang ~ '.js')}}"></script>
     <script src="{{asset('admin/theme/js/datepicker.js')}}"></script>
     <script>
      var tagsCache = new TagsCache({
@@ -108,7 +109,7 @@
 		    <p>
 			<label for="tags-{{element.id}}">{{'Tags'|trans}}</label>
 			<select data-selectize="tags" data-value="{{element.TAGS|json_encode}}"
-				placeholder="{{'Type in a search term'|trans}}" data-create="true" id="tags-{{element.id}} name="tags-{{element.id}}[]" multiple></select>
+						placeholder="{{'Type in a search term'|trans}}" data-create="true" id="tags-{{element.id}} name="tags-{{element.id}}[]" multiple></select>
 		    </p>
 
 		    <p>

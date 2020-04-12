@@ -1,5 +1,5 @@
 (function ($, exports) {
-  "use strict";
+  'use strict';
 
   /**
    * Base LocalStorage cache
@@ -40,7 +40,10 @@
     if (this.ready && this.storage[this.key] != undefined) {
       var cache = JSON.parse(this.storage[this.key]);
 
-      if (now - cache.timestamp <= this.lifetime && cache.key == this.serverKey) {
+      if (
+        now - cache.timestamp <= this.lifetime &&
+        cache.key == this.serverKey
+      ) {
         callback(cache.data);
         return;
       }
@@ -61,7 +64,7 @@
       this.storage[this.key] = JSON.stringify({
         timestamp: new Date().getTime(),
         key: this.serverKey,
-        data: data
+        data: data,
       });
     }
   };
@@ -75,11 +78,10 @@
     }
   };
 
-
   /**
    * Abstract class containing common initialization code for selectize
    */
-  var AbstractSelectizer = function () { };
+  var AbstractSelectizer = function () {};
   AbstractSelectizer.prototype = new LocalStorageCache({});
 
   /*
@@ -96,14 +98,15 @@
   AbstractSelectizer.prototype._selectize = function ($target, globalOptions) {
     this.get(function (data) {
       $target.each(function () {
-        var filtered, value, defaultValue,
+        var filtered,
+          value,
+          defaultValue,
           options = $.extend({}, globalOptions);
 
         // apply filter function
         if (options.filter != undefined) {
           filtered = options.filter.call(this, data, options);
-        }
-        else {
+        } else {
           filtered = data;
         }
 
@@ -127,14 +130,15 @@
           options.value = value;
         }
         if (options.value != undefined) {
-          $.each(value, $.proxy(function (i, cat) {
-            if (cat) {
-              if ($.isNumeric(cat))
-                this.selectize.addItem(cat);
-              else
-                this.selectize.addItem(cat.id);
-            }
-          }, this));
+          $.each(
+            value,
+            $.proxy(function (i, cat) {
+              if (cat) {
+                if ($.isNumeric(cat)) this.selectize.addItem(cat);
+                else this.selectize.addItem(cat.id);
+              }
+            }, this)
+          );
         }
 
         // set default
@@ -177,21 +181,26 @@
 
   // redefine Selectize templates without escape
   AbstractSelectizer.getRender = function (field_label, lang) {
-    lang = lang || { 'Add': 'Add' };
+    lang = lang || { Add: 'Add' };
 
     return {
-      'option': function (data, escape) {
+      option: function (data, escape) {
         return '<div class="option">' + data[field_label] + '</div>';
       },
-      'item': function (data, escape) {
+      item: function (data, escape) {
         return '<div class="item">' + data[field_label] + '</div>';
       },
-      'option_create': function (data, escape) {
-        return '<div class="create">' + lang['Add'] + ' <strong>' + data.input + '</strong>&hellip;</div>';
-      }
+      option_create: function (data, escape) {
+        return (
+          '<div class="create">' +
+          lang['Add'] +
+          ' <strong>' +
+          data.input +
+          '</strong>&hellip;</div>'
+        );
+      },
     };
   };
-
 
   /**
    * Special LocalStorage for admin categories list
@@ -205,7 +214,9 @@
     options.key = 'categoriesAdminList';
 
     options.loader = function (callback) {
-      $.getJSON(options.rootUrl + 'ws?method=pwg.categories.getAdminList', function (data) {
+      $.getJSON(ws_url + '?method=pwg.categories.getAdminList', function (
+        data
+      ) {
         var cats = data.result.categories.map(function (c, i) {
           c.pos = i;
           delete c['comment'];
@@ -235,12 +246,11 @@
       sortField: 'pos',
       searchField: ['fullname'],
       plugins: ['remove_button'],
-      render: AbstractSelectizer.getRender('fullname', options.lang)
+      render: AbstractSelectizer.getRender('fullname', options.lang),
     });
 
     this._selectize($target, options);
   };
-
 
   /**
    * Special LocalStorage for admin tags list
@@ -254,7 +264,7 @@
     options.key = 'tagsAdminList';
 
     options.loader = function (callback) {
-      $.getJSON(options.rootUrl + 'ws?method=pwg.tags.getAdminList', function (data) {
+      $.getJSON(ws_url + '?method=pwg.tags.getAdminList', function (data) {
         var tags = data.result.tags.map(function (t) {
           t.id = '~~' + t.id + '~~';
           delete t['url_name'];
@@ -284,12 +294,11 @@
       sortField: 'name',
       searchField: ['name'],
       plugins: ['remove_button'],
-      render: AbstractSelectizer.getRender('name', options.lang)
+      render: AbstractSelectizer.getRender('name', options.lang),
     });
 
     this._selectize($target, options);
   };
-
 
   /**
    * Special LocalStorage for admin groups list
@@ -303,7 +312,9 @@
     options.key = 'groupsAdminList';
 
     options.loader = function (callback) {
-      $.getJSON(options.rootUrl + 'ws?method=pwg.groups.getList&per_page=9999', function (data) {
+      $.getJSON(ws_url + '?method=pwg.groups.getList&per_page=9999', function (
+        data
+      ) {
         var groups = data.result.groups.map(function (g) {
           delete g['lastmodified'];
           return g;
@@ -331,12 +342,11 @@
       sortField: 'name',
       searchField: ['name'],
       plugins: ['remove_button'],
-      render: AbstractSelectizer.getRender('name', options.lang)
+      render: AbstractSelectizer.getRender('name', options.lang),
     });
 
     this._selectize($target, options);
   };
-
 
   /**
    * Special LocalStorage for admin users list
@@ -354,17 +364,21 @@
 
       // recursive loader
       (function load(page) {
-        jQuery.getJSON(options.rootUrl + 'ws?method=pwg.users.getList&display=username&per_page=9999&page=' + page, function (data) {
-          users = users.concat(data.result.users);
+        jQuery.getJSON(
+          ws_url +
+            '?method=pwg.users.getList&display=username&per_page=9999&page=' +
+            page,
+          function (data) {
+            users = users.concat(data.result.users);
 
-          if (data.result.paging.count == data.result.paging.per_page) {
-            load(++page);
+            if (data.result.paging.count == data.result.paging.per_page) {
+              load(++page);
+            } else {
+              callback(users);
+            }
           }
-          else {
-            callback(users);
-          }
-        });
-      }(0));
+        );
+      })(0);
     };
 
     this._init(options);
@@ -385,12 +399,11 @@
       sortField: 'username',
       searchField: ['username'],
       plugins: ['remove_button'],
-      render: AbstractSelectizer.getRender('username', options.lang)
+      render: AbstractSelectizer.getRender('username', options.lang),
     });
 
     this._selectize($target, options);
   };
-
 
   /**
    * Expose classes in global scope
@@ -400,5 +413,4 @@
   exports.TagsCache = TagsCache;
   exports.GroupsCache = GroupsCache;
   exports.UsersCache = UsersCache;
-
-}(jQuery, window));
+})(jQuery, window);

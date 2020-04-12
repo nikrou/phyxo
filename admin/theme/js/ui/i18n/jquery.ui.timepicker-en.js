@@ -1,0 +1,1 @@
+/* English translation for the jQuery Timepicker Addon */

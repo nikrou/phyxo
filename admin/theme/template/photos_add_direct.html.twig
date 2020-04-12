@@ -14,7 +14,6 @@
 {% endblock %}
 
 {% block javascripts %}
-    {% set app_lang = 'en' %}
     {{parent()}}
     <script src="{{asset('admin/theme/js/LocalStorageCache.js')}}"></script>
     <script src="{{asset('admin/theme/js/plugins/plupload/moxie.js')}}"></script>
@@ -22,7 +21,7 @@
     <script src="{{asset('admin/theme/js/plugins/selectize.js')}}"></script>
     <script src="{{asset('admin/theme/js/plugins/plupload/plupload.js')}}"></script>
     <script src="{{asset('admin/theme/js/plugins/plupload/jquery.plupload.queue/jquery.plupload.queue.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/plupload/i18n/' ~ app_lang ~ '.js')}}"></script>
+    <script src="{{asset('admin/theme/js/plugins/plupload/i18n/' ~ app.user.lang ~ '.js')}}"></script>
     <script src="{{asset('admin/theme/js/plugins/jquery.colorbox.js')}}"></script>
     <script src="{{asset('admin/theme/js/photos_add_direct.js')}}"></script>
 
