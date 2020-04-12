@@ -751,5 +751,8 @@ $lang['This author removed the comment with id %id%'] = "Cet auteur a supprimé 
 $lang['Author: %author%'] = 'Auteur : %author%';
 $lang['Email: %email%'] = 'Email : %email%';
 $lang['A comment by %by%'] = 'Un commentaire par %by%';
+$lang['Remove obsolete files from old releases'] = "Supprimer les fichiers obsolètes d'anciennes versions";
+$lang['All old files ({count}) have been removed.'] = "Tous les anciens fichiers ({count}) ont été supprimés.";
+$lang['Some files ({count}) could have not be removed.'] = "Certains fichiers ({count}) n'ont pas pu être supprimés.";
 
 return $lang;
