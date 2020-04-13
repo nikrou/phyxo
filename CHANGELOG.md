@@ -1,3 +1,7 @@
+# Phyxo 2.1.0 - YYYY-MM-DD
+
+- nothing yet
+
 # Phyxo 2.0.0 - 2020-04-13
 
 - move all administration URL under symfony routing. Fix #34.
