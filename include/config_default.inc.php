@@ -323,7 +323,6 @@ $conf['guest_id'] = 2;
 $conf['default_user_id'] = $conf['guest_id'];
 
 // Registering process and guest members get language from the browser
-// if language isn't available PHPWG_DEFAULT_LANGUAGE is used as previously
 $conf['browser_language'] = true;
 
 // webmaster_id : webmaster'id.

@@ -29,7 +29,7 @@ class Updates
     private $update_url, $pem_url, $missing = [];
     private $userMapper, $conn;
 
-    public function __construct(iDBLayer $conn = null, UserMapper $userMapper, string $core_version = PHPWG_VERSION)
+    public function __construct(iDBLayer $conn = null, UserMapper $userMapper, string $core_version)
     {
         $this->conn = $conn;
         $this->userMapper = $userMapper;

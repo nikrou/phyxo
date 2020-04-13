@@ -1065,7 +1065,7 @@ class Image
             foreach (explode(',', $params['tag_ids']) as $candidate) {
                 $candidate = trim($candidate);
 
-                if (preg_match(PATTERN_ID, $candidate)) {
+                if (preg_match('/^\d+$/', $candidate)) {
                     $tag_ids[] = $candidate;
                 }
             }

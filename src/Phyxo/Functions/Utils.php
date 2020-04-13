@@ -1079,11 +1079,12 @@ class Utils
         $pattern .= '\.[a-zA-Z0-9]{3,4}$#';
 
         // @TODO: use glob
+        $derivative_dir = '_data/i/';
         $base_dir = __DIR__ . '/../../../';
-        if ($contents = @opendir($base_dir . PWG_DERIVATIVE_DIR)) {
+        if ($contents = @opendir($base_dir . $derivative_dir)) {
             while (($node = readdir($contents)) !== false) {
-                if ($node != '.' and $node != '..' && is_dir($base_dir . PWG_DERIVATIVE_DIR . $node)) {
-                    self::clear_derivative_cache_rec($base_dir . PWG_DERIVATIVE_DIR . $node, $pattern);
+                if ($node != '.' and $node != '..' && is_dir($base_dir . $derivative_dir . $node)) {
+                    self::clear_derivative_cache_rec($base_dir . $derivative_dir . $node, $pattern);
                 }
             }
             closedir($contents);

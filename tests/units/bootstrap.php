@@ -12,13 +12,10 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 define('PEM_URL', 'http://localhost/pem');
-define('PHPWG_VERSION', 'tests');
-
 define('TESTS_CONFIG_PATH', __DIR__ . '/fixtures/config/');
 
 define('PHPWG_TMP_PATH', __DIR__ . '/tmp');
 define('PHPWG_ZIP_PATH', __DIR__ . '/fixtures/zip');
-define('PHPWG_DEFAULT_LANGUAGE', 'en_GB');
 
 $conf['admin_theme'] = 'default';
 
