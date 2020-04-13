@@ -68,6 +68,7 @@ class ExtensionController extends AdminCommonController
         }
 
         $themeResponse = $load($filename);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($tpl_params, $themeResponse['tpl_params']);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_themes_installed');
@@ -116,9 +117,9 @@ class ExtensionController extends AdminCommonController
 
         $pluginResponse = $load($filename, $conf, $this->getUser());
         $tpl_params = array_merge($tpl_params, $pluginResponse['tpl_params']);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_plugins_installed');
-
 
         return $this->render($pluginResponse['template_filename'], $tpl_params);
     }

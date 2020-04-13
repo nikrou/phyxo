@@ -110,14 +110,15 @@ class PictureController extends CommonController
 
         $picture['src_image'] = new SrcImage($picture, $conf['picture_ext']);
 
-        if ($picture['src_image']->is_original()) { // we have a photo
-            if (!empty(['enabled_high'])) {
-                $picture['element_url'] = $picture['src_image']->getUrl();
-                $picture['U_DOWNLOAD'] = $this->generateUrl('action', ['image_id' => $image_id, 'part' => 'e', 'download' => 'download']);
+        if ($conf['picture_download_icon']) {
+            if ($picture['src_image']->is_original()) { // we have a photo
+                if (!empty(['enabled_high'])) {
+                    $picture['element_url'] = $picture['src_image']->getUrl();
+                    $picture['U_DOWNLOAD'] = $this->generateUrl('action', ['image_id' => $image_id, 'part' => 'e', 'download' => 'download']);
+                }
+            } else { // not a pic - need download link
+                $picture['download_url'] = $picture['element_url'] = \Phyxo\Functions\URL::get_element_url($picture);
             }
-        } else { // not a pic - need download link
-            $picture['download_url'] = $picture['element_url'] = \Phyxo\Functions\URL::get_element_url($picture);
-            ;
         }
 
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('comment');
