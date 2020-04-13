@@ -20,7 +20,7 @@
 			{% if comment.U_DELETE is defined %}
 			    <form method="post" action="{{comment.U_DELETE}}" class="form-inline-action">
 				<input type="hidden" name="_csrf_token" value="{{csrf_token}}">
-				<input class="btn btn-danger btn-sm" type="submit" value="{{'Delete'|trans}}" onclick="return confirm('{{'Are you sure?'|trans}}}');">
+				<input class="btn btn-danger btn-sm" type="submit" value="{{'Delete'|trans}}" onclick="return confirm('{{'Are you sure?'|trans}}');">
 			    </form>
 			{% endif %}
 			{% if comment.U_CANCEL is defined %}

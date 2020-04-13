@@ -253,5 +253,6 @@ $lang['Validate'] = "Valider";
 $lang['Your comment has been registered'] = 'Votre commentaire a été enregistré';
 $lang['Your comment has NOT been registered because it did not pass the validation rules'] = 'Votre commentaire n\'a pas été enregistré parce qu\'il ne satisfait aux règles de validation';
 $lang['Related tags'] = 'Tags liés';
+$lang['The comment has been deleted'] = "Le commentaire a été supprimé";
 
 return $lang;

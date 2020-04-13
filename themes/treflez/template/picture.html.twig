@@ -67,7 +67,7 @@
 	    {% if COMMENT_IMG is defined %}
 		<div class="text-center col-lg-10 -col-md-12 mx-auto">
 		    <section id="important-info">
-			<h5 class="imageComment">{{COMMENT_IMG}}</h5>
+			<h5 class="imageComment">{{COMMENT_IMG|raw('html')}}</h5>
 		    </section>
 		</div>
 	    {% endif %}

@@ -62,7 +62,7 @@ class PictureController extends CommonController
             $edit_comment = $request->get('comment_to_edit');
         } elseif ($request->get('action') === 'delete_comment' && $request->get('comment_to_delete')) {
             if ($commentMapper->deleteUserComment([(int) $request->get('comment_to_delete')])) {
-                $this->addFlash('info', 'Comment deleted');
+                $this->addFlash('info', $translator->trans('The comment has been deleted'));
 
                 return $this->redirectToRoute($request->get('_route'), ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id]);
             }
