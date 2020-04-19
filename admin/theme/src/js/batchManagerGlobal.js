@@ -1,27 +1,33 @@
+import './doubleSlider';
+
 var derivatives = {
   elements: null,
   done: 0,
   total: 0,
 
-  finished: function() {
+  finished: function () {
     return (
       derivatives.done == derivatives.total &&
       derivatives.elements &&
       derivatives.elements.length == 0
     );
-  }
+  },
 };
 
-$(function() {
+$(function () {
+  if ($('#batchManagerGlobal').length === 0) {
+    return;
+  }
+
   var last_clicked = 0,
     last_clickedstatus = true;
-  $.fn.enableShiftClick = function() {
+  $.fn.enableShiftClick = function () {
     var inputs = [],
       count = 0;
-    this.find('input[type=checkbox]').each(function() {
+    this.find('input[type=checkbox]').each(function () {
       var pos = count;
       inputs[count++] = this;
-      $(this).bind('shclick', function(dummy, event) {
+      $(this).bind('shclick', function (dummy, event) {
         if (event.shiftKey) {
           var first = last_clicked;
           var last = pos;
@@ -34,9 +40,7 @@ $(function() {
             input = $(inputs[i]);
             $(input).prop('checked', last_clickedstatus);
             if (last_clickedstatus) {
-              $(input)
-                .siblings('.wrapper-thumbnail')
-                .addClass('thumbSelected');
+              $(input).siblings('.wrapper-thumbnail').addClass('thumbSelected');
             } else {
               $(input)
                 .siblings('.wrapper-thumbnail')
@@ -49,51 +53,38 @@ $(function() {
         }
         return true;
       });
-      $(this).click(function(event) {
+      $(this).click(function (event) {
         $(this).triggerHandler('shclick', event);
       });
     });
   };
   $('ul.thumbnails').enableShiftClick();
 
-  $('.removeFilter').click(function() {
-    var filter = $(this)
-      .parent('li')
-      .attr('id');
+  $('.removeFilter').click(function () {
+    console.log('clic removeFilter');
+    var filter = $(this).parent('li').attr('id');
     filter_disable(filter);
 
     return false;
   });
 
-  $('#addFilter').change(function() {
+  $('#addFilter').change(function () {
     var filter = $(this).prop('value');
     filter_enable(filter);
     $(this).prop('value', -1);
   });
 
-  $('#removeFilters').click(function() {
-    $('#filterList li').each(function() {
+  $('#removeFilters').click(function () {
+    $('#filterList li').each(function () {
       var filter = $(this).attr('id');
       filter_disable(filter);
     });
     return false;
   });
 
-  $('[data-slider=widths]').pwgDoubleSlider(sliders.widths);
-  $('[data-slider=heights]').pwgDoubleSlider(sliders.heights);
-  $('[data-slider=ratios]').pwgDoubleSlider(sliders.ratios);
-  $('[data-slider=filesizes]').pwgDoubleSlider(sliders.filesizes);
-
-  $('a.preview-box').colorbox();
-
-  $('[data-datepicker]').pwgDatepicker({
-    showTimepicker: true,
-    cancelButton: lang.Cancel
-  });
-
   $('[data-add-album]').pwgAddAlbum({ cache: categoriesCache });
 
-  $('input[name=remove_author]').click(function() {
+  $('input[name=remove_author]').click(function () {
     if ($(this).is(':checked')) {
       $('input[name=author]').hide();
     } else {
@@ -101,7 +92,7 @@ $(function() {
     }
   });
 
-  $('input[name=remove_title]').click(function() {
+  $('input[name=remove_title]').click(function () {
     if ($(this).is(':checked')) {
       $('input[name=title]').hide();
     } else {
@@ -109,7 +100,7 @@ $(function() {
     }
   });
 
-  $('input[name=remove_date_creation]').click(function() {
+  $('input[name=remove_date_creation]').click(function () {
     if ($(this).is(':checked')) {
       $('#set_date_creation').hide();
     } else {
@@ -149,7 +140,7 @@ function progress(success) {
     max: derivatives.total,
     textFormat: 'fraction',
     boxImage: 'theme/images/progressbar.gif',
-    barImage: 'theme/images/progressbg_orange.gif'
+    barImage: 'theme/images/progressbg_orange.gif',
   });
   if (success !== undefined) {
     var type = success ? 'regenerateSuccess' : 'regenerateError',
@@ -165,7 +156,7 @@ function progress(success) {
 function getDerivativeUrls() {
   var ids = derivatives.elements.splice(0, 500);
   var params = { max_urls: 100000, ids: ids, types: [] };
-  $('#action_generate_derivatives input').each(function(i, t) {
+  $('#action_generate_derivatives input').each(function (i, t) {
     if ($(t).is(':checked')) params.types.push(t.value);
   });
 
@@ -174,7 +165,7 @@ function getDerivativeUrls() {
     url: 'ws?method=pwg.getMissingDerivatives',
     data: params,
     dataType: 'json',
-    success: function(data) {
+    success: function (data) {
       if (!data.stat || data.stat != 'ok') {
         return;
       }
@@ -185,14 +176,14 @@ function getDerivativeUrls() {
           type: 'GET',
           url: data.result.urls[i] + '&ajaxload=true',
           dataType: 'json',
-          success: function(data) {
+          success: function (data) {
             derivatives.done++;
             progress(true);
           },
-          error: function(data) {
+          error: function (data) {
             derivatives.done++;
             progress(false);
-          }
+          },
         });
       }
       if (derivatives.elements.length)
@@ -200,7 +191,7 @@ function getDerivativeUrls() {
           getDerivativeUrls,
           25 * (derivatives.total - derivatives.done)
         );
-    }
+    },
   });
 }
 

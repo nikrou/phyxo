@@ -12,16 +12,16 @@
 	    <p>
 		<label class="font-checkbox">
 		    <i class="fa fa-check-square"></i>
-		    <input type="checkbox" name="activate_comments" id="activate_comments"{% if comments.activate_comments is defined %} checked="checked"{% endif %} data-toggle="collapse" data-target="#comments-params">
+		    <input type="checkbox" name="activate_comments" id="activate_comments"{% if comments.activate_comments %} checked="checked"{% endif %} data-toggle="collapse" data-target="#comments-params">
 		    {{'Activate comments'|trans}}
 		</label>
 	    </p>
 
-	    <div id="comments-params" class="collapse{% if comments.activate_comments is defined %} show{% endif %}">
+	    <div id="comments-params" class="collapse{% if comments.activate_comments %} show{% endif %}">
 		<p>
 		    <label class="font-checkbox">
 			<i class="fa fa-check-square"></i>
-			<input type="checkbox" name="comments_forall" {% if comments.comments_forall is defined %}checked="checked"{% endif %}>
+			<input type="checkbox" name="comments_forall" {% if comments.comments_forall %}checked="checked"{% endif %}>
 			{{'Comments for all'|trans}}
 		    </label>
 		</p>
@@ -47,7 +47,7 @@
 		<p>
 		    <label class="font-checkbox">
 			<i class="fa fa-check-square"></i>
-			<input type="checkbox" name="comments_validation" {% if comments.comments_validation is defined %}checked="checked"{% endif %} data-toggle="collapse" data-target="#admin-comment-validation">
+			<input type="checkbox" name="comments_validation" {% if comments.comments_validation %}checked="checked"{% endif %} data-toggle="collapse" data-target="#admin-comment-validation">
 			{{'Validation'|trans}}
 		    </label>
 		</p>
@@ -55,7 +55,7 @@
 		<p>
 		    <label class="font-checkbox">
 			<i class="fa fa-check-square"></i>
-			<input type="checkbox" name="comments_author_mandatory" {% if comments.comments_author_mandatory is defined %}checked="checked"{% endif %}>
+			<input type="checkbox" name="comments_author_mandatory" {% if comments.comments_author_mandatory %}checked="checked"{% endif %}>
 			{{'Username is mandatory'|trans}}
 		    </label>
 		</p>
@@ -63,7 +63,7 @@
 		<p>
 		    <label class="font-checkbox">
 			<i class="fa fa-check-square"></i>
-			<input type="checkbox" name="comments_email_mandatory" {% if comments.comments_email_mandatory is defined %}checked="checked"{% endif %}>
+			<input type="checkbox" name="comments_email_mandatory" {% if comments.comments_email_mandatory %}checked="checked"{% endif %}>
 			{{'Email address is mandatory'|trans}}
 		    </label>
 		</p>
@@ -71,7 +71,7 @@
 		<p>
 		    <label class="font-checkbox">
 			<i class="fa fa-check-square"></i>
-			<input type="checkbox" name="comments_enable_website" {% if comments.comments_enable_website is defined %}checked="checked"{% endif %}>
+			<input type="checkbox" name="comments_enable_website" {% if comments.comments_enable_website %}checked="checked"{% endif %}>
 			{{'Allow users to add a link to their website'|trans}}
 		    </label>
 		</p>
@@ -79,7 +79,7 @@
 		<p>
 		    <label class="font-checkbox">
 			<i class="fa fa-check-square"></i>
-			<input type="checkbox" name="user_can_edit_comment" {% if comments.user_can_edit_comment is defined %}checked="checked"{% endif %} data-toggle="collapse" data-target="#admin-edit-comment">
+			<input type="checkbox" name="user_can_edit_comment" {% if comments.user_can_edit_comment %}checked="checked"{% endif %} data-toggle="collapse" data-target="#admin-edit-comment">
 			{{'Allow users to edit their own comments'|trans}}
 		    </label>
 		</p>
@@ -87,17 +87,17 @@
 		<p>
 		    <label class="font-checkbox">
 			<i class="fa fa-check-square"></i>
-			<input type="checkbox" name="user_can_delete_comment" {% if comments.user_can_delete_comment is defined %}checked="checked"{% endif %} data-toggle="collapse" data-target="#admin-delete-comment">
+			<input type="checkbox" name="user_can_delete_comment" {% if comments.user_can_delete_comment %}checked="checked"{% endif %} data-toggle="collapse" data-target="#admin-delete-comment">
 			{{'Allow users to delete their own comments'|trans}}
 		    </label>
 		</p>
 
 		<p>{{'Notify administrators when a comment is'|trans}}</p>
 		<ul>
-		    <li id="admin-comment-validation" class="form-check-inline collapse{% if comments.comments_validation is defined %} show{% endif %}">
+		    <li id="admin-comment-validation" class="form-check-inline collapse{% if comments.comments_validation %} show{% endif %}">
 			<label id="admin-comment-validation" class="font-checkbox">
 			    <i class="fa fa-check-square"></i>
-			    <input type="checkbox" name="email_admin_on_comment_validation" {% if comments.email_admin_on_comment_validation is defined %}checked="checked"{% endif %}>
+			    <input type="checkbox" name="email_admin_on_comment_validation" {% if comments.email_admin_on_comment_validation %}checked="checked"{% endif %}>
 			    {{'pending validation'|trans}}
 			</label>
 		    </li>
@@ -105,23 +105,23 @@
 		    <li>
 			<label class="font-checkbox">
 			    <i class="fa fa-check-square"></i>
-			    <input type="checkbox" name="email_admin_on_comment" {% if comments.email_admin_on_comment is defined %}checked="checked"{% endif %}>
+			    <input type="checkbox" name="email_admin_on_comment" {% if comments.email_admin_on_comment %}checked="checked"{% endif %}>
 			    {{'added'|trans}}
 			</label>
 		    </li>
 
-		    <li id="admin-edit-comment" class="collapse{% if comments.user_can_edit_comment is defined %} show{% endif %}">
+		    <li id="admin-edit-comment" class="collapse{% if comments.user_can_edit_comment %} show{% endif %}">
 			<label id="admin-edit-comment" class="font-checkbox">
 			    <i class="fa fa-check-square"></i>
-			    <input type="checkbox" name="email_admin_on_comment_edition" {% if comments.email_admin_on_comment_edition is defined %}checked="checked"{% endif %}>
+			    <input type="checkbox" name="email_admin_on_comment_edition" {% if comments.email_admin_on_comment_edition %}checked="checked"{% endif %}>
 			    {{'modified'|trans}}
 			</label>
 		    </li>
 
-		    <li id="admin-delete-comment" class="collapse{% if comments.user_can_delete_comment is defined %} show{% endif %}">
+		    <li id="admin-delete-comment" class="collapse{% if comments.user_can_delete_comment %} show{% endif %}">
 			<label class="font-checkbox">
 			    <i class="fa fa-check-square"></i>
-			    <input type="checkbox" name="email_admin_on_comment_deletion" {% if comments.email_admin_on_comment_deletion is defined %}checked="checked"{% endif %}>
+			    <input type="checkbox" name="email_admin_on_comment_deletion" {% if comments.email_admin_on_comment_deletion %}checked="checked"{% endif %}>
 			    {{'deleted'|trans}}
 			</label>
 		    </li>

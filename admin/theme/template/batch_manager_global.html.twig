@@ -13,8 +13,6 @@
     <link rel="stylesheet" href="{{asset('admin/theme/js/plugins/selectize.clear.css')}}">
 
     <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.theme.css')}}">
-    <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.datepicker.css')}}">
-    <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.timepicker-addon.css')}}">
     {% if thumb_params %}
 	<style type="text/css">
 	 .wrapper-thumbnail {
@@ -37,19 +35,11 @@
     <script src="{{asset('admin/theme/js/ui/jquery.ui.widget.js')}}"></script>
     <script src="{{asset('admin/theme/js/ui/jquery.ui.mouse.js')}}"></script>
     <script src="{{asset('admin/theme/js/ui/jquery.ui.slider.js')}}"></script>
-    <script src="{{asset('admin/theme/js/doubleSlider.js')}}"></script>
     <script src="{{asset('admin/theme/js/LocalStorageCache.js')}}"></script>
     <script src="{{asset('admin/theme/js/plugins/selectize.js')}}"></script>
     <script src="{{asset('admin/theme/js/plugins/jquery.progressbar.js')}}"></script>
     <script src="{{asset('admin/theme/js/plugins/jquery.ajaxmanager.js')}}"></script>
-    <script src="{{asset('admin/theme/src/js/add_album.js')}}"></script>
-    <script src="{{asset('admin/theme/js/batchManagerGlobal.js')}}"></script>
 
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.datepicker.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.timepicker-addon.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/i18n/jquery.ui.datepicker-' ~ app.user.lang ~ '.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/i18n/jquery.ui.timepicker-' ~ app.user.lang ~ '.js')}}"></script>
-    <script src="{{asset('admin/theme/js/datepicker.js')}}"></script>
     <script>
      var lang = {
 	 Cancel: '{{'Cancel'|trans}}',
@@ -57,9 +47,9 @@
      };
 
      var tagsCache = new TagsCache({
-	 serverKey: '{CACHE_KEYS.tags}',
-	 serverId: '{CACHE_KEYS._hash}',
-	 rootUrl: '{ROOT_URL}'
+	 serverKey: '{{CACHE_KEYS.tags}}',
+	 serverId: '{{CACHE_KEYS._hash}}',
+	 rootUrl: '{{app.request.basepath}}/'
      });
 
      tagsCache.selectize($('[data-selectize=tags]'), { lang: {
@@ -67,8 +57,8 @@
      }});
 
      var categoriesCache = new CategoriesCache({
-	 serverKey: '{CACHE_KEYS.categories}',
-	 serverId: '{CACHE_KEYS._hash}',
+	 serverKey: '{{CACHE_KEYS.categories}}',
+	 serverId: '{{CACHE_KEYS._hash}}',
 	 rootUrl: '{{app.request.basepath}}/'
      });
 
@@ -707,10 +697,9 @@
 			    <label class="custom-control-label" for="remove_date_creation">{{'remove creation date'|trans}}</label>
 			</p>
 			<div id="set_date_creation">
-			    <input type="hidden" name="date_creation" value="{{DATE_CREATION}}">
 			    <label>
 				<i class="fa fa-calendar"></i>
-				<input type="text" data-datepicker="date_creation" readonly>
+				<input type="datetime" name="date_creation" value="{{DATE_CREATION}}">
 			    </label>
 			</div>
 		    </div>

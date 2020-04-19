@@ -10,8 +10,6 @@
     {{parent()}}
     <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.core.css')}}">
     <link rel="stylesheet" href="{{asset('admin/theme/js/plugins/selectize.clear.css')}}">
-    <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.datepicker.css')}}">
-    <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.timepicker-addon.css')}}">
 {% endblock %}
 
 {% block javascripts %}
@@ -23,14 +21,8 @@
     <script src="{{asset('admin/theme/js/ui/jquery.ui.widget.js')}}"></script>
     <script src="{{asset('admin/theme/js/ui/jquery.ui.mouse.js')}}"></script>
     <script src="{{asset('admin/theme/js/plugins/jquery.colorbox.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.datepicker.js')}}"></script>
     <script src="{{asset('admin/theme/js/plugins/selectize.js')}}"></script>
     <script src="{{asset('admin/theme/js/LocalStorageCache.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.datepicker.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.timepicker-addon.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/i18n/jquery.ui.datepicker-' ~ app.user.lang ~ '.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/i18n/jquery.ui.timepicker-' ~ app.user.lang ~ '.js')}}"></script>
-    <script src="{{asset('admin/theme/js/datepicker.js')}}"></script>
     <script>
      var tagsCache = new TagsCache({
 	 serverKey: '{{CACHE_KEYS.tags}}',
@@ -43,11 +35,6 @@
      }});
 
      $(function() {
-	 $('[data-datepicker]').pwgDatepicker({
-	     showTimepicker: true,
-	     cancelButton: '{{'Cancel'|trans}}'
-	 });
-
 	 $("a.preview-box").colorbox();
      });
     </script>
@@ -89,12 +76,10 @@
 
 		    <p>
 			<label>{{'Creation date'|trans}}</label>
-			<input type="hidden" name="date_creation-{{element.id}}" value="{{element.DATE_CREATION}}">
 			<label>
 			    <i class="fa fa-calendar"></i>
-			    <input type="text" data-datepicker="date_creation-{{element.id}}" data-datepicker-unset="date_creation_unset-{{element.id}}" readonly>
+			    <input type="datetime" name="date_creation-{{element.id}}" value="{{element.DATE_CREATION}}">
 			</label>
-			<a href="#" id="date_creation_unset-{{element.id}}"><i class="fa fa-times-circle"></i>{{'unset'|trans}}</a>
 		    </p>
 
 		    <p>
@@ -114,7 +99,7 @@
 
 		    <p>
 			<label for="description-{{element.id}}">{{'Description'|trans}}</label>
-			<textarea cols="50" rows="5" name="description-{{element.id}}" id="description-{{element.id}}" class="form-control">{{element.DESCRIPTION}}</textarea>
+			<textarea cols="50" rows="5" name="description-{{element.id}}" id="description-{{element.id}}" class="form-control">{{element.DESCRIPTION|raw('html')}}</textarea>
 		    </p>
 		</div>
 	    {% endfor %}

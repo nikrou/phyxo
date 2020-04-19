@@ -543,7 +543,7 @@ class BatchManagerController extends AdminCommonController
             if ($request->request->get('confirm_deletion') == 1) {
                 $deleted_count = $imageMapper->deleteElements($collection, true);
                 if ($deleted_count > 0) {
-                    $this->addFlash('info', $this->translator->trans_dec('%d photo was deleted', '%d photos were deleted', $deleted_count));
+                    $this->addFlash('info', $this->translator->trans('number_of_photos_deleted', ['count' => $deleted_count], 'admin'));
                     $redirect = true;
                 } else {
                     $this->addFlash('error', $this->translator->trans('No photo can be deleted', [], 'admin'));
@@ -1088,6 +1088,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_batch_manager_unit');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Site manager', [], 'admin');
+        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['tags', 'categories'], $em, $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
