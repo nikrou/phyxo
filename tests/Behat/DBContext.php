@@ -62,7 +62,7 @@ class DBContext implements Context
     {
         foreach ($table->getHash() as $albumRow) {
             $parent = null;
-            if ($albumRow['parent'] !== null) {
+            if (isset($albumRow['parent']) && $albumRow['parent'] !== null) {
                 $parent = $this->storage->get('album_' . $albumRow['parent']);
             }
             $album_id = $this->getCategoryMapper()->createAlbum($albumRow['name'], $parent, $albumRow);

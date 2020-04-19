@@ -65,7 +65,9 @@
 		<div id="Categories" class="imageInfo">
 		    <dt>{{'Albums'|trans}}</dt>
                     <dd>
-			{{related_categories|map(cat => cat)|join('<br />')}}
+			{% for cat in related_categories %}
+			    {% if not loop.first %}<br/> {% endif %}<a href="{{cat.url}}">{{cat.label}}</a>
+			{% endfor %}
                     </dd>
 		</div>
 	    {% endif %}

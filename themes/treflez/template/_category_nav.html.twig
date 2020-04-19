@@ -8,7 +8,7 @@
         </button>
         <div class="navbar-collapse collapse justify-content-end" id="secondary-navbar">
             <ul class="navbar-nav">
-		{% if image_orders is defined %}
+		{% if image_orders %}
                     <li class="nav-item dropdown">
 			<button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown" title="{{'Sort order'|trans}}">
                             <i class="fa fa-sort" aria-hidden="true"></i>
@@ -16,12 +16,12 @@
                         </button>
                         <div class="dropdown-menu dropdown-menu-right" role="menu">
 			    {% for image_order in image_orders %}
-				<a class="dropdown-item{% if image_order.SELECTED %} active{% endif %}" href="{{image_order.URL}}" rel="nofollow">{{image_order.DISPLAY}}</a>
+				<a class="dropdown-item{% if image_order.SELECTED %} active{% endif %}" href="{{image_order.URL}}">{{image_order.DISPLAY|raw('html')}}</a>
 			    {% endfor %}
                         </div>
                     </li>
 		{% endif %}
-		{% if image_derivatives is defined %}
+		{% if image_derivatives %}
                     <li class="nav-item dropdown">
                         <button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown" title="{{'Photo sizes'|trans}}">
                             <i class="fa fa-photo" aria-hidden="true"></i>
@@ -29,14 +29,14 @@
                         </button>
                         <div class="dropdown-menu dropdown-menu-right" role="menu">
 			    {%  for image_derivative in image_derivatives %}
-				<a class="dropdown-item{% if image_derivative.SELECTED %} active{% endif %}" href="{{image_derivative.URL}}" rel="nofollow">{{image_derivative.DISPLAY}}</a>
+				<a class="dropdown-item{% if image_derivative.SELECTED %} active{% endif %}" href="{{image_derivative.URL}}">{{image_derivative.DISPLAY}}</a>
 			    {% endfor %}
                         </div>
                     </li>
 		{% endif %}
-		{% if favorite is defined %}
+		{% if favorite %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{favorite.U_FAVORITE}}" title="{{'Delete all photos from your favorites'|trans}}" rel="nofollow">
+                        <a class="nav-link" href="{{favorite.U_FAVORITE}}" title="{{'Delete all photos from your favorites'|trans}}">
                             <i class="fa fa-heartbeat fa-fw" aria-hidden="true"></i><span class="d-lg-none ml-2">{{'Delete all photos from your favorites'|trans}}</span>
                         </a>
                     </li>
@@ -57,14 +57,14 @@
 		{% endif %}
 		{% if U_SEARCH_RULES is defined %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{U_SEARCH_RULES}}" onclick="bd_popup(this.href); return false;" title="{{'Search rules'|trans}}" rel="nofollow">
+                        <a class="nav-link" href="{{U_SEARCH_RULES}}" onclick="bd_popup(this.href); return false;" title="{{'Search rules'|trans}}">
                             <i class="fa fa-search fa-fw" aria-hidden="true"></i><span class="d-lg-none ml-2">{{'Search rules'|trans}}</span>
                         </a>
                     </li>
 		{% endif %}
 		{% if U_SLIDESHOW is defined %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% if theme_config.photoswipe %}javascript:;{% else %}{{U_SLIDESHOW}}{% endif %}" id="startSlideshow" title="{{'slideshow'|trans}}" rel="nofollow">
+                        <a class="nav-link" href="{% if theme_config.photoswipe %}javascript:;{% else %}{{U_SLIDESHOW}}{% endif %}" id="startSlideshow" title="{{'slideshow'|trans}}">
                             <i class="fa fa-play fa-fw" aria-hidden="true"></i><span class="d-lg-none ml-2 text-capitalize">{{'slideshow'|trans}}</span>
                         </a>
                     </li>
@@ -92,12 +92,12 @@
                         </button>
                         <div class="dropdown-menu dropdown-menu-right">
 			    {% if U_MODE_POSTED %}
-				<a class="dropdown-item" href="{{U_MODE_POSTED}}" title="{{'display a calendar by posted date'|trans}}" rel="nofollow">
+				<a class="dropdown-item" href="{{U_MODE_POSTED}}" title="{{'display a calendar by posted date'|trans}}">
                                     <i class="fa fa-share" aria-hidden="true"></i> {{'display a calendar by posted date'|trans}}
 				</a>
 			    {% endif %}
 			    {% if U_MODE_CREATED %}
-				<a class="dropdown-item" href="{{U_MODE_CREATED}}" title="{{'display a calendar by creation date'|trans}}" rel="nofollow">
+				<a class="dropdown-item" href="{{U_MODE_CREATED}}" title="{{'display a calendar by creation date'|trans}}">
                                     <i class="fa fa-camera" aria-hidden="true"></i> {{'display a calendar by creation date'|trans}}
 				</a>
 			    {% endif %}

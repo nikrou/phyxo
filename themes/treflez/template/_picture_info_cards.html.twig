@@ -109,7 +109,7 @@
 			    <dt class="col-sm-5">{{'Albums'|trans}}</dt>
 			    <dd class="col-sm-7">
 				{% for cat in related_categories %}
-				    {% if not loop.first %}, {% endif %}{{cat}}
+				    {% if not loop.first %}, {% endif %}<a href="{{cat.url}}">{{cat.label}}</a>
 				{% endfor %}
 			    </dd>
 			</dl>
@@ -166,7 +166,7 @@
 		    <h5 class="card-title">{{'EXIF Metadata'|trans}}</h5>
 		    <div id="metadata">
 			{% if not metadata.0.lines is empty and (metadata.0.lines[exif_make] is defined) or (metadata.0.lines[exif_model] is defined) %}
-			<div class="row" style="line-height: 40px">
+			    <div class="row" style="line-height: 40px">
 				<div class="col-12">
 				    <span class="camera-compact fa-3x mr-3" title="{{exif_make}} &amp; {{exif_model}}"></span>
 				    {% if metadata.0.lines[exif_make] is defined %}{{metadata.0.lines[exif_make]}}{% endif %}

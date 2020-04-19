@@ -102,10 +102,6 @@ class Metadata
             $iptc['keywords'] = implode(',', array_unique(explode(',', $iptc['keywords'])));
         }
 
-        foreach ($iptc as $iptc_key => $value) {
-            $iptc[$iptc_key] = addslashes($iptc[$iptc_key]);
-        }
-
         return $iptc;
     }
 

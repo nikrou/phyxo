@@ -121,7 +121,7 @@
 					<td>
 					    <div id="Categories" class="imageInfo">
 						{% for cat in related_categories %}
-						    {% if not loop.first %}, {% endif %}{{cat}}
+						    {% if not loop.first %}, {% endif %}<a href="{{cat.url}}">{{cat.label}}</a>
 						{% endfor %}
 					    </div>
 					</td>

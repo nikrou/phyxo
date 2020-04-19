@@ -24,7 +24,7 @@
 		<div class="h-100">
 		    <a href="{{thumbnail.URL}}" data-index="{{idx}}" class="ripple{% if category_view != 'list' %} d-block{% endif %}">
 			<img data-photo-id="{{thumbnail.id}}" class="{% if category_view == 'list' %}card-img-left{% else %}card-img-top{% endif %}"
-			     {% if derivative.is_cached() %}src="{{derivative.getUrl()}}"{% else %}src="{{ROOT_URL}}themes/treflez/img/transparent.png" data-src="{{derivative.getUrl()}}"{% endif %} alt="{{thumbnail.TN_ALT}}" title="{{thumbnail.TN_TITLE}}">
+			     {% if derivative.is_cached() %}src="{{derivative.getUrl()}}"{% else %}src="{{ROOT_URL}}themes/treflez/img/transparent.png" data-src="{{derivative.getUrl()}}"{% endif %} alt="{{thumbnail.TN_ALT}}" title="{{thumbnail.TN_TITLE|raw('html')}}">
 			{% if loaded_plugins.UserCollections is defined and not U_LOGIN %}
 			    <div class="addCollection" data-id="{{thumbnail.id}}" data-cols="[{{thumbnail.COLLECTIONS}}]">
 				<i class="fa fa-star"></i><span class="ml-2">{{'Collections'|trans}}</span>
@@ -32,7 +32,8 @@
 			{% endif %}
 		    </a>
 		    {% set idx=idx+1 %}
-		    {% if SHOW_THUMBNAIL_CAPTION is defined %}
+
+		    {% if SHOW_THUMBNAIL_CAPTION %}
 			<div class="card-body{% if not theme_config.thumbnail_caption and category_view != 'list' %} d-none{% endif %}{% if not theme_config.thumbnail_caption %} list-view-only{% endif %}">
 			    <h6 class="card-title">
 				<a href="{{thumbnail.URL}}" class="ellipsis{% if thumbnail.icon_ts %} recent{% endif %}">{{thumbnail.NAME}}</a>
