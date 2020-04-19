@@ -1,34 +1,32 @@
-$(function() {
+$(function () {
   // global vars
   var cachedMethods = [];
 
   getMethodList();
 
   // manual set of ws_url
-  $('#urlForm').submit(function() {
-    ws_url = $(this)
-      .children("input[name='ws_url']")
-      .val();
+  $('#urlForm').submit(function () {
+    ws_url = $(this).children("input[name='ws_url']").val();
     getMethodList();
     return false;
   });
 
   // invoke buttons
-  $('#invokeMethod').click(function() {
+  $('#invokeMethod').click(function () {
     invokeMethod($('#methodName').html(), false);
     return false;
   });
-  $('#invokeMethodBlank').click(function() {
+  $('#invokeMethodBlank').click(function () {
     invokeMethod($('#methodName').html(), true);
     return false;
   });
 
   // resizable iframe
-  $('#increaseIframe').click(function() {
+  $('#increaseIframe').click(function () {
     $('#iframeWrapper').css('height', $('#iframeWrapper').height() + 100);
     adaptHeight();
   });
-  $('#decreaseIframe').click(function() {
+  $('#decreaseIframe').click(function () {
     if ($('#iframeWrapper').height() > 200) {
       $('#iframeWrapper').css('height', $('#iframeWrapper').height() - 100);
       adaptHeight();
@@ -86,7 +84,7 @@ $(function() {
     $('#urlForm').show();
   }
 
-  // parse Piwigo JSON
+  // parse JSON
   function parsePwgJSON(json) {
     try {
       resp = jQuery.parseJSON(json);
@@ -113,9 +111,9 @@ $(function() {
     $.ajax({
       type: 'GET',
       url: ws_url,
-      data: { method: 'reflection.getMethodList' }
+      data: { method: 'reflection.getMethodList' },
     })
-      .done(function(result) {
+      .done(function (result) {
         result = parsePwgJSON(result);
 
         if (result != null) {
@@ -125,19 +123,17 @@ $(function() {
           for (var i = 0; i < methods.length; i++) {
             ml += '<li><a href="#top">' + methods[i] + '</a></li>';
           }
-          $('#methodsList')
-            .html(ml)
-            .show();
+          $('#methodsList').html(ml).show();
 
           adaptHeight();
 
           // trigger method selection
-          $('#methodsList li a').click(function() {
+          $('#methodsList li a').click(function () {
             selectMethod($(this).html());
           });
         }
       })
-      .error(function(jqXHR, textStatus, errorThrown) {
+      .error(function (jqXHR, textStatus, errorThrown) {
         askForUrl();
       });
   }
@@ -151,9 +147,9 @@ $(function() {
       $.ajax({
         type: 'GET',
         url: ws_url,
-        data: { method: 'reflection.getMethodDetails', methodName: methodName }
+        data: { method: 'reflection.getMethodDetails', methodName: methodName },
       })
-        .done(function(result) {
+        .done(function (result) {
           result = parsePwgJSON(result);
 
           if (result != null) {
@@ -173,7 +169,7 @@ $(function() {
             fillNewMethod(methodName);
           }
         })
-        .error(function(jqXHR, textStatus, errorThrown) {
+        .error(function (jqXHR, textStatus, errorThrown) {
           displayError('unknown error');
         });
     }
@@ -185,9 +181,7 @@ $(function() {
 
     method = cachedMethods[methodName];
 
-    $('#methodName')
-      .html(method.name)
-      .show();
+    $('#methodName').html(method.name).show();
 
     if (method.description != '') {
       $('#methodDescription blockquote').html(method.description);
@@ -260,7 +254,7 @@ $(function() {
     adaptHeight();
 
     // trigger field modification
-    $('input.methodParameterValue').change(function() {
+    $('input.methodParameterValue').change(function () {
       $("input.methodParameterSend[data-id='" + $(this).data('id') + "']").attr(
         'checked',
         'checked'
@@ -291,7 +285,7 @@ $(function() {
 
         var paramSplitted = paramValue.split('|');
         if (method.params[i].acceptArray && paramSplitted.length > 1) {
-          $.each(paramSplitted, function(v) {
+          $.each(paramSplitted, function (v) {
             reqUrl += '&' + method.params[i].name + '[]=' + paramSplitted[v];
           });
         } else {
@@ -337,7 +331,7 @@ $(function() {
         if (method.params[i].acceptArray && paramSplitted.length > 1) {
           params[paramName] = [];
 
-          $.each(paramSplitted, function(i, value) {
+          $.each(paramSplitted, function (i, value) {
             params[paramName].push(value);
             t +=
               '<input type="hidden" name="' +

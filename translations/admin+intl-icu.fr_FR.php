@@ -10,6 +10,7 @@
  */
 
 $lang['number_of_photos'] = "{count, plural, =0 {aucune photo} one {une photo} other {# photos}}";
+$lang['number_of_photos_deleted'] = "{count, plural, =0 {aucune photo supprimée} one {une photo a été supprimée} other {# photos ont été supprimées}}";
 $lang['number_of_physicals'] = "{count, plural, =0 {aucun physique} one {un physique} other {# physiques}}";
 $lang['number_of_virtuals'] = "{count, plural, =0 {aucun virtuel} one {un virtuel} other {# virtuels}}";
 $lang['number_of_albums_including'] = "{count, plural, =0 {aucun album} one {un album dont} other {# albums dont}}";
@@ -723,9 +724,13 @@ $lang['Downloads'] = "Téléchargements";
 $lang['There is no other language available.'] = 'Il n\'y a pas d\'autre langue disponible.';
 $lang['There is no other plugin available.'] = 'Il n\'y a pas d\'autre plugin disponible.';
 $lang['There is no other theme available.'] = 'Il n\'y a pas d\'autre thème disponible.';
-$lang['Your configuration settings are saved'] = 'Vos paramètres de configuration sont enregistrés';
+$lang['Your configuration settings have been saved'] = 'Vos paramètres de configuration ont été enregistrés';
 $lang['Update to Phyxo {version}'] = 'Mettre à jour vers Phyxo {version}';
 $lang['You can update to Phyxo {major} directly, without upgrading to Phyxo {minor} (recommended).'] = 'Vous pouvez mettre à jour vers Phyxo {major} directement, sans passer par Phyxo {minor} (recommandé).';
+$lang['No photo can be deleted'] = "Aucune photo ne peut être supprimée";
+$lang['The following tag was deleted'] = 'Le tag suivant a été supprimé';
+$lang['The following tags were deleted'] = 'Les tags suivants ont été supprimés';
+$lang['Virtual album deleted'] = 'Album virtuel supprimé';
 
 // mail
 $lang['[{title}] Visit album {album}'] = '[{title}] Venez visiter l\'album {album}';

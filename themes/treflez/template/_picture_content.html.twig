@@ -16,7 +16,7 @@
 		</div>
 	    </div>
 {% else %}
-	    <img {% if current.selected_derivative.is_cached() %}src="{{current.selected_derivative.getUrl()}}" {{current.selected_derivative.get_size_htm()}}{% else %}src="{{ROOT_URL}}themes/treflez/img/transparent.png" data-src="{{current.selected_derivative.getUrl()}}"{% endif %} alt="{% if ALT_IMG is defined %}ALT_IMG{% endif %}" id="theMainImage" usemap="#map{{current.selected_derivative.get_type()}}" title="{% if COMMENT_IMG is defined %}{{COMMENT_IMG|striptags}}{% else %}{% if current.TITLE_ESC is defined %}{{current.TITLE_ESC}}{% endif %}{% if ALT_IMG is defined %} - {{ALT_IMG}}{% endif %}{% endif %}">
+	    <img {% if current.selected_derivative.is_cached() %}src="{{current.selected_derivative.getUrl()}}" {{current.selected_derivative.get_size_htm()}}{% else %}src="{{ROOT_URL}}themes/treflez/img/transparent.png" data-src="{{current.selected_derivative.getUrl()}}"{% endif %} alt="{% if ALT_IMG is defined %}ALT_IMG{% endif %}" id="theMainImage" usemap="#map{{current.selected_derivative.get_type()}}" title="{% if COMMENT_IMG is defined %}{{COMMENT_IMG|raw('html')}}{% else %}{% if current.TITLE_ESC is defined %}{{current.TITLE_ESC}}{% endif %}{% if ALT_IMG is defined %} - {{ALT_IMG}}{% endif %}{% endif %}">
 
 	    {% for derivative in current.unique_derivatives %}
 		<map name="map{{derivative.get_type()}}">

@@ -51,6 +51,45 @@ class AlbumController extends CommonController
         $tpl_params['TITLE'] = $categoryMapper->getBreadcrumb($category['upper_names']);
         $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
 
+        $preferred_image_orders = [
+            [$translator->trans('Default'), '', true],
+            [$translator->trans('Photo title, A &rarr; Z'), 'name ASC', true],
+            [$translator->trans('Photo title, Z &rarr; A'), 'name DESC', true],
+            [$translator->trans('Date created, new &rarr; old'), 'date_creation DESC', true],
+            [$translator->trans('Date created, old &rarr; new'), 'date_creation ASC', true],
+            [$translator->trans('Date posted, new &rarr; old'), 'date_available DESC', true],
+            [$translator->trans('Date posted, old &rarr; new'), 'date_available ASC', true],
+            [$translator->trans('Rating score, high &rarr; low'), 'rating_score DESC', $conf['rate']],
+            [$translator->trans('Rating score, low &rarr; high'), 'rating_score ASC', $conf['rate']],
+            [$translator->trans('Visits, high &rarr; low'), 'hit DESC', true],
+            [$translator->trans('Visits, low &rarr; high'), 'hit ASC', true],
+            [$translator->trans('Permissions'), 'level DESC', $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN'), true],
+        ];
+
+        $order_index = 0;
+        if ($this->get('session')->has('image_order_index')) {
+            $order_index = $this->get('session')->get('image_order_index');
+        }
+        if ($request->get('order')) {
+            $order_index = (int) $request->get('order');
+            $this->get('session')->set('image_order_index', $order_index);
+        }
+        $order_by = $conf['order_by'];
+        $tpl_params['image_orders'] = [];
+        foreach ($preferred_image_orders as $order_id => $order) {
+            if ($order[2] === true) {
+                $tpl_params['image_orders'][] = [
+                    'DISPLAY' => $order[0],
+                    'URL' => $this->generateUrl('album', ['category_id' => $category['id'], 'start' => $start, 'order' => $order_id]),
+                    'SELECTED' => false
+                ];
+            }
+        }
+        $tpl_params['image_orders'][$order_index]['SELECTED'] = true;
+        if ($preferred_image_orders[$order_index][1] !== '') {
+            $order_by = str_replace('ORDER BY ', 'ORDER BY ' . $preferred_image_orders[$order_index][1] . ',', $order_by);
+        }
+
         $order = 'rank';
         $filter = [];
         $where[] = 'id_uppercat = ' . $category_id;
@@ -247,7 +286,7 @@ class AlbumController extends CommonController
         );
 
         $where_sql = 'category_id = ' . $category_id;
-        $result = $em->getRepository(ImageRepository::class)->searchDistinctId('image_id', [$where_sql . ' ' . $forbidden], true, $conf['order_by']);
+        $result = $em->getRepository(ImageRepository::class)->searchDistinctId('image_id', [$where_sql . ' ' . $forbidden], true, $order_by);
         $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'image_id');
 
         if (count($tpl_params['items']) > 0) {
@@ -278,10 +317,10 @@ class AlbumController extends CommonController
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $tpl_params['U_HOME'] = $this->generateUrl('homepage');
+        $tpl_params['SHOW_THUMBNAIL_CAPTION'] = $conf['show_thumbnail_caption'];
         $tpl_params['U_MODE_POSTED'] = $this->generateUrl('calendar_category_monthly', ['date_type' => 'posted', 'view_type' => 'calendar', 'category_id' => $category_id]);
         $tpl_params['U_MODE_CREATED'] = $this->generateUrl('calendar_category_monthly', ['date_type' => 'created', 'view_type' => 'calendar', 'category_id' => $category_id]);
         $tpl_params['START_ID'] = $start;
-
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('thumbnails.html.twig', $tpl_params);

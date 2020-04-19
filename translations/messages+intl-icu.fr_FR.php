@@ -249,6 +249,23 @@ $lang['Filesize'] = 'Poids';
 $lang['File'] = 'Fichier';
 $lang['Dimensions'] = 'Dimensions';
 $lang['Validate'] = "Valider";
+$lang['Virtual album added'] = 'Album virtuel ajouté';
+
+$lang['Date created, new &rarr; old'] = 'Date de création, récent &rarr; ancien';
+$lang['Date created, old &rarr; new'] = 'Date de création, ancien &rarr; récent';
+$lang['Date posted, new &rarr; old'] = 'Date d\'ajout, récent &rarr; ancien';
+$lang['Date posted, old &rarr; new'] = 'Date d\'ajout, ancien &rarr; récent';
+$lang['File name, A &rarr; Z'] = 'Nom du fichier, A &rarr; Z';
+$lang['File name, Z &rarr; A'] = 'Nom du fichier, Z &rarr; A';
+$lang['Manual sort order'] = 'Ordre manuel';
+$lang['Numeric identifier, 1 &rarr; 9'] = 'Identifiant, 1 &rarr; 9';
+$lang['Numeric identifier, 9 &rarr; 1'] = 'Identifiant, 9 &rarr; 1';
+$lang['Photo title, A &rarr; Z'] = 'Titre de la photo, A &rarr; Z';
+$lang['Photo title, Z &rarr; A'] = 'Titre de la photo, Z &rarr; A';
+$lang['Rating score, high &rarr; low'] = 'Note, haute &rarr; basse';
+$lang['Rating score, low &rarr; high'] = 'Note, basse &rarr; haute';
+$lang['Visits, high &rarr; low'] = 'Nombre de visites, élevé &rarr; faible';
+$lang['Visits, low &rarr; high'] = 'Nombre de visites, faible &rarr; élevé';
 
 $lang['Your comment has been registered'] = 'Votre commentaire a été enregistré';
 $lang['Your comment has NOT been registered because it did not pass the validation rules'] = 'Votre commentaire n\'a pas été enregistré parce qu\'il ne satisfait aux règles de validation';

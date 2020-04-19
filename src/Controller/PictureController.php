@@ -267,7 +267,7 @@ class PictureController extends CommonController
             // related categories
             if (count($related_categories) === 1 && !empty($category['id']) && $related_categories[0]['id'] === $category['id']) {
                 // no need to go to db, we have all the info
-                $tpl_params['related_categories'] = $categoryMapper->getCatDisplayName($category);
+                $tpl_params['related_categories'] = $categoryMapper->getBreadcrumb($category);
             } else { // use only 1 sql query to get names for all related categories
                 $ids = [];
                 foreach ($related_categories as $_category) { // add all uppercats to $ids
@@ -281,7 +281,7 @@ class PictureController extends CommonController
                     foreach (explode(',', $_category['uppercats']) as $id) {
                         $cats[] = $cat_map[$id];
                     }
-                    $tpl_params['related_categories'][] = $categoryMapper->getCatDisplayName($cats);
+                    $tpl_params['related_categories'] = $categoryMapper->getBreadcrumb($cats);
                 }
             }
         }
@@ -489,13 +489,10 @@ class PictureController extends CommonController
                 'label' => $translator->trans('Random photos'),
             ]];
         } else {
-            $tpl_params['TITLE'][] = [
-                'url' => $this->generateUrl('album', ['category_id' => $category['id']]),
-                'label' => $tpl_params['related_categories'][0],
-            ];
+            $tpl_params['TITLE'] = $tpl_params['related_categories'];
         }
-        $tpl_params['TITLE'][] = ['label' => $picture['name']];
 
+        $tpl_params['TITLE'][] = ['label' => $picture['name']];
         $tpl_params['SECTION_TITLE'] = '<a href="' . $this->generateUrl('homepage') . '">' . $translator->trans('Home') . '</a>';
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);

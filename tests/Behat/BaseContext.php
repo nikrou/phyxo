@@ -55,6 +55,20 @@ abstract class BaseContext extends RawMinkContext implements Context
         }
     }
 
+    public function findByDataTestid(string $data_id, $parent = null)
+    {
+        if ($parent === null) {
+            $parent = $this->getSession()->getPage();
+        }
+        $element = $parent->find('css', sprintf('*[data-testid="%s"]', $data_id));
+
+        if ($element === null) {
+            throw new \Exception(sprintf('Element with data-testid="%s" not found', $data_id));
+        }
+
+        return $element;
+    }
+
     protected function throwExpectationException($message)
     {
         throw new ExpectationException($message, $this->getSession());

@@ -59,7 +59,7 @@ class Utils
     const MKGETDIR_DEFAULT = self::MKGETDIR_RECURSIVE | self::MKGETDIR_DIE_ON_ERROR | self::MKGETDIR_PROTECT_INDEX;
 
     /**
-     * Returns the path to use for the Piwigo cookie.
+     * Returns the path to use for the Phyxo cookie.
      * If Phyxo is installed on :
      * http://domain.org/meeting/gallery/
      * it will return : "/meeting/gallery"

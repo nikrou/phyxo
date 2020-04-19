@@ -457,7 +457,7 @@ class Plugins extends Extensions
         $archive = tempnam($this->plugins_root_path, 'zip');
         $get_data = [
             'rid' => $revision,
-            'origin' => 'piwigo_' . $action,
+            'origin' => 'phyxo_' . $action,
         ];
 
         try {

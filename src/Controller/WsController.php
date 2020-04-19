@@ -92,7 +92,7 @@ class WsController extends AbstractController
             'pwg.getVersion',
             '\Phyxo\Functions\Ws\Main::getVersion',
             null,
-            'Returns the Piwigo version.'
+            'Returns the Phyxo version.'
         );
 
         $this->service->addMethod(
@@ -484,7 +484,7 @@ class WsController extends AbstractController
             'pwg.images.checkUpload',
             '\Phyxo\Functions\Ws\Image::checkUpload',
             null,
-            'Checks if Piwigo is ready for upload.',
+            'Checks if Phyxo is ready for upload.',
             ['admin_only' => true]
         );
 

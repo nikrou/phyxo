@@ -6,7 +6,7 @@
    *
    * @param options {object}
    *    - key (required) identifier of the collection
-   *    - serverId (recommended) identifier of the Piwigo instance
+   *    - serverId (recommended) identifier of the Phyxo instance
    *    - serverKey (required) state of collection server-side
    *    - lifetime (optional) cache lifetime in seconds
    *    - loader (required) function called to fetch data, takes a callback as first argument
@@ -206,7 +206,7 @@
    * Special LocalStorage for admin categories list
    *
    * @param options {object}
-   *    - serverId (recommended) identifier of the Piwigo instance
+   *    - serverId (recommended) identifier of the Phyxo instance
    *    - serverKey (required) state of collection server-side
    *    - rootUrl (required) used for WS call
    */
@@ -256,7 +256,7 @@
    * Special LocalStorage for admin tags list
    *
    * @param options {object}
-   *    - serverId (recommended) identifier of the Piwigo instance
+   *    - serverId (recommended) identifier of the Phyxo instance
    *    - serverKey (required) state of collection server-side
    *    - rootUrl (required) used for WS call
    */
@@ -304,7 +304,7 @@
    * Special LocalStorage for admin groups list
    *
    * @param options {object}
-   *    - serverId (recommended) identifier of the Piwigo instance
+   *    - serverId (recommended) identifier of the Phyxo instance
    *    - serverKey (required) state of collection server-side
    *    - rootUrl (required) used for WS call
    */
@@ -352,7 +352,7 @@
    * Special LocalStorage for admin users list
    *
    * @param options {object}
-   *    - serverId (recommended) identifier of the Piwigo instance
+   *    - serverId (recommended) identifier of the Phyxo instance
    *    - serverKey (required) state of collection server-side
    *    - rootUrl (required) used for WS call
    */

@@ -2,6 +2,13 @@
 
 - nothing yet
 
+# Phyxo 2.0.1 - 2020-04-19
+
+- updates some translations
+- fix various bugs (missing titles on albums pages). Thanks to @regexgit for report
+- fix batch actions (missing localStorage keys and datepicker library). Thanks to @regexgit for report
+- restore image ordre configuration in theme. Thanks to @regexgit for report
+
 # Phyxo 2.0.0 - 2020-04-13
 
 - move all administration URL under symfony routing. Fix #34.

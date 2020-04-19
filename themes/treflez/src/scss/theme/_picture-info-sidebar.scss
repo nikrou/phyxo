@@ -7,11 +7,13 @@
 
   .handle {
     margin-top: 10px;
+    background-color: $gray-700;
     float: right;
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
 
     a {
+      outline: none;
       display: block;
       padding: 10px;
       color: #fff;
@@ -29,6 +31,7 @@
 
   .info {
     float: right;
+    background-color: $gray-700;
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
     width: 250px;

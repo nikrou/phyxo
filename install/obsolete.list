@@ -66,6 +66,7 @@ admin/menubar.php
 admin/configuration.php
 admin/comments.php
 admin/theme/js/comments.js
+admin/theme/js/ui/i18n
 admin/updates.php
 admin/updates_core.php
 admin/updates_ext.php

@@ -204,7 +204,7 @@ class ConfigurationController extends AdminCommonController
     {
         $image_std_params->setAndSave($image_std_params->getDefaultSizes());
         Utils::clear_derivative_cache($image_std_params->getAllTypes(), $image_std_params->getAllTypes());
-        $this->addFlash('info', $translator->trans('Your configuration settings are saved', [], 'admin'));
+        $this->addFlash('info', $translator->trans('Your configuration settings have been saved', [], 'admin'));
 
         return $this->redirectToRoute('admin_configuration', ['section' => 'sizes']);
     }

@@ -1126,7 +1126,7 @@ class Image
 
     /**
      * API method
-     * Checks if Piwigo is ready for upload
+     * Checks if Phyxo is ready for upload
      * @param mixed[] $params
      */
     public static function checkUpload($params, Server $service)

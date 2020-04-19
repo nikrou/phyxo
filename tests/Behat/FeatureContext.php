@@ -161,6 +161,59 @@ class FeatureContext extends BaseContext
     }
 
     /**
+     * @When I should see link :link_label
+     */
+    public function iShouldSeeLink(string $link_label)
+    {
+        $link = $this->getSession()->getPage()->findLink($link_label);
+
+        if ($link === null) {
+            throw new \Exception(sprintf('Link "%s" not found on the page but should be', $link_label));
+        }
+    }
+
+    /**
+     * @When I should not see link :link_label
+     */
+    public function iShouldNotSeeLink(string $link_label)
+    {
+        $link = $this->findLink($link_label);
+
+        if ($link !== null) {
+            throw new \Exception(sprintf('Link "%s" found on the page but should not be', $link_label));
+        }
+    }
+
+    /**
+     * @Then I should see :description for :album_name description
+     */
+    public function iShouldSeeForDescription(string $description, string $album_name)
+    {
+        $album = $this->getPage()->find('css', sprintf('*[data-id="%d"]', $this->storage->get('album_' . $album_name)));
+        $this->assert
+            ->string($description)
+            ->isEqualTo($this->findByDataTestid('album-description', $album)->getText());
+    }
+
+    /**
+     * @Then I should see :nb_images for :album_name number of images
+     */
+    public function iShouldSeeForNumberOfImages(string $nb_images, string $album_name)
+    {
+        $album = $this->getPage()->find('css', sprintf('*[data-id="%d"]', $this->storage->get('album_' . $album_name)));
+        $element = $this->findByDataTestid('album-nb-images', $album);
+
+        // @FIX:  Element visibility check is not supported by Behat\Symfony2Extension\Driver\KernelDriver
+        // if (!$element->isVisible()) {
+        //     throw new \Exception('Number of images exists but it is not visible');
+        // }
+
+        $this->assert
+            ->string($nb_images)
+            ->isEqualTo($element->getText());
+    }
+
+    /**
      * @When I add a comment :
      */
     public function iAddAComment(PyStringNode $comment)

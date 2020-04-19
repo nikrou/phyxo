@@ -10,8 +10,6 @@
     {{parent()}}
     <link rel="stylesheet" href="{{asset('admin/theme/js/plugins/selectize.clear.css')}}">
     <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.theme.css')}}">
-    <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.datepicker.css')}}">
-    <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.timepicker-addon.css')}}">
 {% endblock %}
 
 {% block javascripts %}
@@ -24,6 +22,7 @@
     <script src="{{asset('admin/theme/js/LocalStorageCache.js')}}"></script>
     <script src="{{asset('admin/theme/js/plugins/selectize.js')}}"></script>
     <script>
+     var ws_url = '{{ws}}';
      var categoriesCache = new CategoriesCache({
 	 serverKey: '{{CACHE_KEYS.categories}}',
 	 serverId: '{{CACHE_KEYS._hash}}',
@@ -57,7 +56,7 @@
 	    <li>{{INTRO.file}}</li>
 	    <li>{{INTRO.add_date}}</li>
 	    <li>{{INTRO.added_by}}</li>
-	    <li>{{INTRO.size}}</li>
+	    <li>{{INTRO.size|raw('html')}}</li>
 	    <li>{{INTRO.stats}}</li>
 	    <li>{{INTRO.id}}</li>
 	</ul>
@@ -67,14 +66,14 @@
 		<p><a href="{{U_JUMPTO}}"><i class="fa fa-eye"></i> {{'jump to photo'|trans}}</a></p>
 	    {% endif %}
 	    {#  % if not remote PATH % #}
-		<p><a class="btn btn-success" href="{{U_SYNC}}"><i class="fa fa-exchange"></i> {{'Synchronize metadata'|trans}}</a></p>
-		<p>
-		    <form action="{{U_DELETE}}" method="post">
-			<button type="submit" class="btn btn-delete" onclick="return confirm('{{'Are you sure?'|trans}}');">
-			    <i class="fa fa-trash"></i> {{'delete photo'|trans}}
-			</button>
-		    </form>
-		</p>
+	    <p><a class="btn btn-success" href="{{U_SYNC}}"><i class="fa fa-exchange"></i> {{'Synchronize metadata'|trans}}</a></p>
+	    <p>
+		<form action="{{U_DELETE}}" method="post">
+		    <button type="submit" class="btn btn-delete" onclick="return confirm('{{'Are you sure?'|trans}}');">
+			<i class="fa fa-trash"></i> {{'delete photo'|trans}}
+		    </button>
+		</form>
+	    </p>
 	    {# % endif % #}
 	</div>
     </div>
@@ -94,32 +93,32 @@
 
 	    <p>
 		<label>{{'Creation date'|trans}}</label>
-		<input type="date" name="date_creation" value="{{DATE_CREATION}}">
+		<input type="datetime" name="date_creation" value="{{DATE_CREATION}}">
 	    </p>
 
 	    <p>
 		<label>{{'Linked albums'|trans}}</label>
 		<select data-selectize="categories" data-value="{{associated_albums|json_encode}}" placeholder="{{'Type in a search term'|trans}}"
-			data-default="{{STORAGE_ALBUM}}" name="associate[]" multiple>
+					data-default="{{STORAGE_ALBUM}}" name="associate[]" multiple>
 		</select>
 	    </p>
 
 	    <p>
 		<label for="album">{{'Representation of albums'|trans}}</label>
 		<select id="album" data-selectize="categories" data-value="{{represented_albums|json_encode}}"
-			placeholder="{{'Type in a search term'|trans}}" name="represent[]" multiple></select>
+			    placeholder="{{'Type in a search term'|trans}}" name="represent[]" multiple></select>
 	    </p>
 
 	    <p>
 		<label>{{'Tags'|trans}}</label>
 		<select data-selectize="tags" data-value="{{tag_selection|json_encode}}" placeholder="{{'Type in a search term'|trans}}"
-			data-create="true" name="tags[]" multiple>
+					data-create="true" name="tags[]" multiple>
 		</select>
 	    </p>
 
 	    <p>
 		<label for="description">{{'Description'|trans}}</label>
-		<textarea name="description" id="description" class="form-control">{{DESCRIPTION}}</textarea>
+		<textarea name="description" id="description" class="form-control">{{DESCRIPTION|raw('html')}}</textarea>
 	    </p>
 
 	    <p>
