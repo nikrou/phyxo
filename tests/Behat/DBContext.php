@@ -61,7 +61,11 @@ class DBContext implements Context
     public function givenAlbums(TableNode $table): void
     {
         foreach ($table->getHash() as $albumRow) {
-            $album_id = $this->getCategoryMapper()->createAlbum($albumRow['name'], null, $albumRow);
+            $parent = null;
+            if ($albumRow['parent'] !== null) {
+                $parent = $this->storage->get('album_' . $albumRow['parent']);
+            }
+            $album_id = $this->getCategoryMapper()->createAlbum($albumRow['name'], $parent, $albumRow);
             $this->storage->set('album_' . $albumRow['name'], $album_id);
         }
     }
