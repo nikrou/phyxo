@@ -231,6 +231,7 @@ class AlbumController extends AdminCommonController
 
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_album', ['album_id' => $album_id, 'parent_id' => $parent_id]);
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
+        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['categories'], $em, $this->generateUrl('homepage'));
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('properties', $album_id, $parent_id), $tpl_params);
@@ -311,7 +312,7 @@ class AlbumController extends AdminCommonController
                 $em->getRepository(CategoryRepository::class)->updateByUppercats(['image_order' => $image_order], $cat_info['uppercats']);
             }
 
-            $this->addFlash('info', $translator->trans('Your configuration settings are saved', [], 'admin'));
+            $this->addFlash('info', $translator->trans('Your configuration settings have been saved', [], 'admin'));
 
             return $this->redirectToRoute('admin_album_sort_order', ['album_id' => $album_id, 'parent_id' => $parent_id]);
         }
@@ -681,7 +682,7 @@ class AlbumController extends AdminCommonController
         $element_ids = $em->getConnection()->result2array($result, null, 'id');
         $imageMapper->deleteElements($element_ids);
 
-        $this->addFlash('info', $translator->trans('Virtual album deleted'));
+        $this->addFlash('info', $translator->trans('Virtual album deleted', [], 'admin'));
         $categoryMapper->updateGlobalRank();
         $userMapper->invalidateUserCache();
 

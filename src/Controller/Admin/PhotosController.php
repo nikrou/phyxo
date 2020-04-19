@@ -146,7 +146,7 @@ class PhotosController extends AdminCommonController
         $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');
         $tpl_params['U_EDIT_PATTERN'] = $this->generateUrl('admin_photo', ['image_id' => 0]);
         $tpl_params['U_ALBUM_PATTERN'] = $this->generateUrl('admin_album', ['album_id' => 0]);
-        $tpl_params['U_BATCH'] = $this->generateUrl('admin_photos_add_batch');
+        $tpl_params['F_ACTION_BATCH'] = $this->generateUrl('admin_photos_add_batch');
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_photos_add');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_photos_add');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_photos_add');

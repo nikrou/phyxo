@@ -277,7 +277,11 @@ class TagsController extends AdminCommonController
 
                 $tagMapper->deleteTags($_POST['tags']);
 
-                $this->addFlash('info', $translator->trans_dec('The following tag was deleted', 'The %d following tags were deleted', count($tag_names)) . ' : ' . implode(', ', $tag_names));
+                if (count($tag_names) > 1) {
+                    $this->addFlash('info', $translator->trans('The following tags were deleted' . ' : ' . implode(', ', $tag_names)));
+                } else {
+                    $this->addFlash('info', $translator->trans('The following tag was deleted' . ' : ' . implode(', ', $tag_names)));
+                }
             }
         }
 

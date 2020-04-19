@@ -1,30 +1,43 @@
 <fieldset>
   <legend>Démarrage rapide</legend>
 
-<ol>
-  <li>Créez un répertoire sur votre ordinateur.</li>
+  <ol>
+    <li>Créez un répertoire sur votre ordinateur.</li>
 
-  <li>Copiez des photos à l'intérieur de ce répertoire. <em>Attention</em> : le nom des répertoires et des fichiers ne doit contenir que des lettres, des chiffres et les caractères  "-", "_" ou ".". Pas d'espace ou de caractères accentués.</li>
+    <li>
+      Copiez des photos à l'intérieur de ce répertoire. <em>Attention</em> : le
+      nom des répertoires et des fichiers ne doit contenir que des lettres, des
+      chiffres et les caractères "-", "_" ou ".". Pas d'espace ou de caractères
+      accentués.
+    </li>
 
-  <li>Avec un client FTP, copiez le répertoire dans le répertoire "galleries" de votre installation de Piwigo.</li>
+    <li>
+      Avec un client FTP, copiez le répertoire dans le répertoire "galleries" de
+      votre installation de Phyxo.
+    </li>
 
-  <li>Connectez-vous à votre galerie Piwigo, rendez-vous sur <span class="pwgScreen">Administration</span> et cliquez sur le gros bouton de synchronisation.</li>
-</ol>
+    <li>
+      Connectez-vous à votre galerie Phyxo, rendez-vous sur
+      <span class="pwgScreen">Administration</span> et cliquez sur le gros
+      bouton de synchronisation.
+    </li>
+  </ol>
 
-<p>Bravo ! Vous avez créé avec succès le premier album de votre galerie.</p>
-
+  <p>Bravo ! Vous avez créé avec succès le premier album de votre galerie.</p>
 </fieldset>
 
 <fieldset>
   <legend>Organisation des répertoires et des fichiers</legend>
 
-<ul>
+  <ul>
+    <li>
+      <p>
+        Les répertoires représentant les albums se trouvent dans le répertoire
+        "galleries". Ci-dessous l'arbre des répertoires d'une très petite
+        galerie (mais utilisant de nombreuses fonctionnalités) :
+      </p>
 
-  <li>
-
-    <p>Les répertoires représentant les albums se trouvent dans le répertoire "galleries". Ci-dessous l'arbre des répertoires d'une très petite galerie (mais utilisant de nombreuses fonctionnalités) : </p>
-  
-<pre>
+      <pre>
 galleries
 |-- mariage
 |   |-- ceremonie
@@ -43,36 +56,51 @@ galleries
     |-- video-decollage-avion.avi
     +-- pwg_representative
         +-- video-decollage-avion.jpg
-</pre>
+</pre
+      >
+    </li>
 
-  </li>
-  
-  <li>A l'exception de celui appelé "pwg_representative", chaque répertoire dans "galleries" génère un album. Le nombre de niveaux (profondeur) n'est pas limité.</li>
+    <li>
+      A l'exception de celui appelé "pwg_representative", chaque répertoire dans
+      "galleries" génère un album. Le nombre de niveaux (profondeur) n'est pas
+      limité.
+    </li>
 
-  <li>Fondamentalement, une photo est représentée par un fichier. Pour Piwigo, un fichier peut être une photo si son extension figure dans la liste du paramètre de configuration <code>file_ext</code> (voir
-fichier <span class="filename">include/config.inc.php</span>). Un fichier
-peut être une photo si son extension figure dans la liste du paramètre de configuration
-<code>picture_ext</code>.</li>
+    <li>
+      Fondamentalement, une photo est représentée par un fichier. Pour Phyxo, un
+      fichier peut être une photo si son extension figure dans la liste du
+      paramètre de configuration <code>file_ext</code> (voir fichier
+      <span class="filename">include/config.inc.php</span>). Un fichier peut
+      être une photo si son extension figure dans la liste du paramètre de
+      configuration <code>picture_ext</code>.
+    </li>
 
-  <li>Les éléments autres que les photos (vidéos, sons, fichiers texte, tout ce que vous
-voulez...) sont représentés par défaut par une icône correspondant à
-l'extension du nom du fichier. Optionnellement, un
-représentant peut être associé (voir le fichier <span
-class="filename">video-decollage-avion.avi</span> dans l'exemple).</li>
+    <li>
+      Les éléments autres que les photos (vidéos, sons, fichiers texte, tout ce
+      que vous voulez...) sont représentés par défaut par une icône
+      correspondant à l'extension du nom du fichier. Optionnellement, un
+      représentant peut être associé (voir le fichier
+      <span class="filename">video-decollage-avion.avi</span> dans l'exemple).
+    </li>
 
-  <li><em>Attention</em> : le nom d'un répertoire ou d'un fichier ne doit
-être composé que de lettres, de chiffres, de "-", "_" ou ".". Pas d'espace
-ou de caractères accentués.</li>
+    <li>
+      <em>Attention</em> : le nom d'un répertoire ou d'un fichier ne doit être
+      composé que de lettres, de chiffres, de "-", "_" ou ".". Pas d'espace ou
+      de caractères accentués.
+    </li>
 
-  <li><em>Conseil</em> : un album peut contenir des photos et des
-sous-album à la fois. Néanmoins, il est fortement conseillé pour chaque
-album de choisir entre contenir des photos <strong>ou bien</strong>
-des sous-album.</li>
+    <li>
+      <em>Conseil</em> : un album peut contenir des photos et des sous-album à
+      la fois. Néanmoins, il est fortement conseillé pour chaque album de
+      choisir entre contenir des photos <strong>ou bien</strong> des sous-album.
+    </li>
 
-  <li>Une fois que les fichiers sont
-correctement placés dans les répertoires, se rendre sur l'écran <span
-class="pwgScreen">Administration &raquo; Outils &raquo; Synchroniser</span>.</li>
-
-</ul>
-
+    <li>
+      Une fois que les fichiers sont correctement placés dans les répertoires,
+      se rendre sur l'écran
+      <span class="pwgScreen"
+        >Administration &raquo; Outils &raquo; Synchroniser</span
+      >.
+    </li>
+  </ul>
 </fieldset>
