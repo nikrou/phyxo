@@ -76,6 +76,7 @@
 	{% if theme_config.social_enabled == 3 %}
 	    <div id="theImageShareButtons" class="row justify-content-center{% if not theme_config.slick_enabled %} pb-4{% endif %}">
 		<section id="share">
+		    <h4 class="sr-only">{{'Social networks'|trans}}</h4>
 		    {% if theme_config.social_twitter %}
 			<a href="http://twitter.com/share?text={{'current.TITLE'}}&amp;url=//{{app.request.uri}}"
 			   onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;" title="Share on Twitter"{% if theme_config.social_buttons %} class="btn btn-sm btn-social btn-raised btn-twitter"{% endif %}>
@@ -89,7 +90,7 @@
 			</a>
 		    {% endif %}
 		    {% if theme_config.social_google_plus %}
-			<a href="https://plus.google.com/share?url=//{app.request.Host}}{{app.request.uri}}"
+			<a href="https://plus.google.com/share?url=//{{app.request.Host}}{{app.request.uri}}"
 			   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;" title="Share on Google+"{% if theme_config.social_buttons %} class="btn btn-sm btn-social btn-raised btn-google"{% endif %}>
 			    <i class="fa fa-google"></i>{% if theme_config.social_buttons %} Google+{% endif %}
 			</a>
@@ -142,13 +143,13 @@
 					      {% endif %}
 					{% endif %}
 					{% endif %}>
-					<img {% if derivative.is_cached() %}data-lazy="{{derivative.getUrl()}}"{% else %}data-lazy="{{ROOT_URL}}{{themeconf.icon_dir}}/img_small.png" data-src="{{derivative.getUrl()}}"{% endif %} alt="{{thumbnail.TN_ALT}}" title="{{thumbnail.TN_TITLE|raw('html')}}" class="img-fluid">
+					<img {% if derivative.is_cached() %}data-lazy="{{derivative.getUrl()}}"{% else %}data-lazy="{{ROOT_URL}}{{themeconf.icon_dir}}/img_small.png" data-src="{{derivative.getUrl()}}"{% endif %} alt="{{thumbnail.TN_ALT}}" title="{{thumbnail.TN_TITLE|raw('html')}}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" class="img-fluid">
 				    </a>
 				</div>
 			    {% else %}
 				<div class="text-center{% if thumbnail.id == current.id %} thumbnail-active{% endif %}">
 				    <a href="{{thumbnail.URL}}">
-					<img {% if derivative.is_cached() %}data-lazy="{{derivative.getUrl()}}"{% else %}data-lazy="{{ROOT_URL}}{{themeconf.icon_dir}}/img_small.png" data-src="{{derivative.getUrl()}}"{% endif %} alt="{{thumbnail.TN_ALT}}" title="{{thumbnail.TN_TITLE|raw('html')}}" class="img-fluid">
+					<img {% if derivative.is_cached() %}data-lazy="{{derivative.getUrl()}}"{% else %}data-lazy="{{ROOT_URL}}{{themeconf.icon_dir}}/img_small.png" data-src="{{derivative.getUrl()}}"{% endif %} alt="{{thumbnail.TN_ALT}}" title="{{thumbnail.TN_TITLE|raw('html')}}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" class="img-fluid">
 				    </a>
 				</div>
 			    {% endif %}

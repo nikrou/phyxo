@@ -168,7 +168,7 @@ class PhotoController extends AdminCommonController
         // image level options
         $selected_level = $row['level'];
         $tpl_params['level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator, 'admin');
-        $tpl_params['level_options_selected'] = [$selected_level];
+        $tpl_params['level_options_selected'] = $selected_level;
 
         // associate to albums
         $result = $em->getRepository(CategoryRepository::class)->findAll();
