@@ -27,6 +27,7 @@ $lang['Discover'] = 'Découvrir';
 $lang['Components'] = 'Composants';
 $lang['Appearance'] = 'Aspect';
 $lang['Filter and display comments'] = "Filtrer les commentaires";
+$lang['Social networks'] = 'Réseaux sociaux';
 
 $lang['exif_field_Make'] = 'Marque';
 $lang['exif_field_Model'] = 'Modèle';

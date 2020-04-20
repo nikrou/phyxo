@@ -3,27 +3,28 @@
 parameters:
   core_version: 2.0.1
   phyxo_website: https://www.phyxo.net
-  pem_url: "https://ext.phyxo.net"
+  pem_url: 'https://ext.phyxo.net'
   update_url: https://download.phyxo.net/versions
+  update_channel: 'stable'
 
-  local_dir: "%kernel.project_dir%/local"
-  upload_dir: "%kernel.project_dir%/upload"
-  database_config_file: "%local_dir%/config/database.inc.php"
-  admin_theme_dir: "%kernel.project_dir%/admin/theme"
-  themes_dir: "%kernel.project_dir%/themes"
-  plugins_dir: "%kernel.project_dir%/plugins"
-  languages_dir: "%kernel.project_dir%/languages"
-  install_dir: "%kernel.project_dir%/install"
-  cache_dir: "%kernel.cache_dir%"
-  default_config_file: "%kernel.project_dir%/include/config_default.inc.php"
-  default_theme: "treflez"
-  user_config_file: "%local_dir%/config/config.inc.php"
-  constants_file: "%kernel.project_dir%/include/constants.php"
-  media_cache_dir: "%kernel.project_dir%/_data/i"
-  root_project_dir: "%kernel.project_dir%"
+  local_dir: '%kernel.project_dir%/local'
+  upload_dir: '%kernel.project_dir%/upload'
+  database_config_file: '%local_dir%/config/database.inc.php'
+  admin_theme_dir: '%kernel.project_dir%/admin/theme'
+  themes_dir: '%kernel.project_dir%/themes'
+  plugins_dir: '%kernel.project_dir%/plugins'
+  languages_dir: '%kernel.project_dir%/languages'
+  install_dir: '%kernel.project_dir%/install'
+  cache_dir: '%kernel.cache_dir%'
+  default_config_file: '%kernel.project_dir%/include/config_default.inc.php'
+  default_theme: 'treflez'
+  user_config_file: '%local_dir%/config/config.inc.php'
+  constants_file: '%kernel.project_dir%/include/constants.php'
+  media_cache_dir: '%kernel.project_dir%/_data/i'
+  root_project_dir: '%kernel.project_dir%'
 
-  start_param: "start"
-  locale: "en"
+  start_param: 'start'
+  locale: 'en'
 
   # cookies
   main_cookie: phyxo_id
