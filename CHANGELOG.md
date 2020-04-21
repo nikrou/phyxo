@@ -2,7 +2,7 @@
 
 - nothing yet
 
-# Phyxo 2.0.1 - 2020-04-19
+# Phyxo 2.0.1 - 2020-04-21
 
 - updates some translations
 - fix various bugs (missing titles on albums pages). Thanks to @regexgit for report

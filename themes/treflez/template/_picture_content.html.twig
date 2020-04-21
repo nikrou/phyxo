@@ -16,17 +16,17 @@
 		</div>
 	    </div>
 {% else %}
-	    <img {% if current.selected_derivative.is_cached() %}src="{{current.selected_derivative.getUrl()}}" {{current.selected_derivative.get_size_htm()}}{% else %}src="{{ROOT_URL}}themes/treflez/img/transparent.png" data-src="{{current.selected_derivative.getUrl()}}"{% endif %} alt="{% if ALT_IMG is defined %}ALT_IMG{% endif %}" id="theMainImage" usemap="#map{{current.selected_derivative.get_type()}}" title="{% if COMMENT_IMG is defined %}{{COMMENT_IMG|raw('html')}}{% else %}{% if current.TITLE_ESC is defined %}{{current.TITLE_ESC}}{% endif %}{% if ALT_IMG is defined %} - {{ALT_IMG}}{% endif %}{% endif %}">
+	    <img {% if current.selected_derivative.is_cached() %}src="{{current.selected_derivative.getUrl()}}" {{current.selected_derivative.get_size_htm()|raw('html')}}{% else %}src="{{ROOT_URL}}themes/treflez/img/transparent.png" data-src="{{current.selected_derivative.getUrl()}}"{% endif %} alt="{% if ALT_IMG is defined %}ALT_IMG{% endif %}" id="theMainImage" usemap="#map{{current.selected_derivative.get_type()}}" title="{% if COMMENT_IMG is defined %}{{COMMENT_IMG|raw('html')}}{% else %}{% if current.TITLE_ESC is defined %}{{current.TITLE_ESC}}{% endif %}{% if ALT_IMG is defined %} - {{ALT_IMG}}{% endif %}{% endif %}">
 
 	    {% for derivative in current.unique_derivatives %}
 		<map name="map{{derivative.get_type()}}">
 		    {% set size = derivative.get_size() %}
 		    {% if previous is defined %}
-			<area shape=rect coords="0,0,{{(size[0]/4)}},{{size[1]}}" href="{{previous.U_IMG}}" title="{{'Previous'|trans}}{% if previous.TITLE_ESC is defined %} : {{previous.TITLE_ESC}}{% endif %}" alt="{% if previous.TITLE_ESC is defined %}{{previous.TITLE_ESC}}{% endif %}">
+			<area shape=rect coords="0,0,{{(size[0]/4)|number_format}},{{size[1]|number_format}}" href="{{previous.U_IMG}}" title="{{'Previous'|trans}}{% if previous.TITLE_ESC is defined %} : {{previous.TITLE_ESC}}{% endif %}" alt="{% if previous.TITLE_ESC is defined %}{{previous.TITLE_ESC}}{% endif %}">
 		    {% endif %}
-		    <area shape=rect coords="{{(size[0]/4)}},0,{{(size[0]/1.34)}},{{(size[1]/4)}}" href="{{U_UP}}" title="{{'Thumbnails'|trans}}" alt="{{'Thumbnails'|trans}}">
+		    <area shape=rect coords="{{(size[0]/4)|number_format}},0,{{(size[0]/1.34)|number_format}},{{(size[1]/4)|number_format}}" href="{{U_UP}}" title="{{'Thumbnails'|trans}}" alt="{{'Thumbnails'|trans}}">
 		    {% if next is defined %}
-			<area shape=rect coords="{{(size[0]/1.33)}},0,{{size[0]}},{{size[1]}}" href="{{next.U_IMG}}" title="{{'Next'|trans}}{% if next.TITLE_ESC is defined %} : {{next.TITLE_ESC}}{% endif %}" alt="{% if next.TITLE_ESC is defined %}{{next.TITLE_ESC}}{% endif %}">
+			<area shape=rect coords="{{(size[0]/1.33)|number_format}},0,{{size[0]|number_format}},{{size[1]|number_format}}" href="{{next.U_IMG}}" title="{{'Next'|trans}}{% if next.TITLE_ESC is defined %} : {{next.TITLE_ESC}}{% endif %}" alt="{% if next.TITLE_ESC is defined %}{{next.TITLE_ESC}}{% endif %}">
 		    {% endif %}
 		</map>
 	    {% endfor %}
