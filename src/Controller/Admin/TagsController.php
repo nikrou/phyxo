@@ -318,39 +318,31 @@ class TagsController extends AdminCommonController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $status_options[null] = '----------';
+        $status_options[null] = '';
         foreach (User::ALL_STATUS as $status) {
             $status_options[$status] = $translator->trans('user_status_' . $status, [], 'admin');
         }
 
         if ($request->isMethod('POST')) {
             if ($request->request->get('permission_add') && isset($status_options[$request->request->get('permission_add')])) {
-                $Permissions['add'] = $request->request->get('permission_add');
-                $conf['tags_permission_add'] = $Permissions['add'];
+                $conf['tags_permission_add'] = $request->request->get('permission_add');
+            } else {
+                $conf['tags_permission_add'] = '';
             }
-
-            $Permissions['existing_tags_only'] = $request->request->get('existing_tags_only') ? 1 : 0;
-            $conf['tags_existing_tags_only'] = $Permissions['existing_tags_only'];
 
             if ($request->request->get('permission_delete') && isset($status_options[$request->request->get('permission_delete')])) {
-                $Permissions['delete'] = $request->request->get('permission_delete');
-                $conf['tags_permission_delete'] = $Permissions['delete'];
+                $conf['tags_permission_delete'] = $request->request->get('permission_delete');
+            } else {
+                $conf['tags_permission_delete'] = '';
             }
 
-            $Permissions['publish_tags_immediately'] = $request->request->get('publish_tags_immediately') ? 0 : 1;
-            $conf['publish_tags_immediately'] = $Permissions['publish_tags_immediately'];
-
-            $Permissions['delete_tags_immediately'] = $request->request->get('delete_tags_immediately') ? 0 : 1;
-            $conf['delete_tags_immediately'] = $Permissions['delete_tags_immediately'];
-
-            $Permissions['show_pending_added_tags'] = $request->request->get('show_pending_added_tags') ? 1 : 0;
-            $conf['show_pending_added_tags'] = $Permissions['show_pending_added_tags'];
-
-            $Permissions['show_pending_deleted_tags'] = $request->request->get('show_pending_deleted_tags') ? 1 : 0;
-            $conf['show_pending_deleted_tags'] = $Permissions['show_pending_deleted_tags'];
+            $conf['tags_existing_tags_only'] = $request->request->get('existing_tags_only') ? 1 : 0;
+            $conf['publish_tags_immediately'] = $request->request->get('publish_tags_immediately') ? 0 : 1;
+            $conf['delete_tags_immediately'] = $request->request->get('delete_tags_immediately') ? 0 : 1;
+            $conf['show_pending_added_tags'] = $request->request->get('show_pending_added_tags') ? 1 : 0;
+            $conf['show_pending_deleted_tags'] = $request->request->get('show_pending_deleted_tags') ? 1 : 0;
 
             $tagMapper->invalidateUserCacheNbTags();
-
             $this->addFlash('info', $translator->trans('Settings have been updated', [], 'admin'));
 
             $this->redirectToRoute('admin_tags_permissions');

@@ -223,6 +223,27 @@ class FeatureContext extends BaseContext
     }
 
     /**
+     * @Then the option :option from :from" is selected
+     */
+    public function theOptionFromSelectIsSelected(string $option, string $from)
+    {
+        $selectField = $this->findField($from);
+
+        if ($selectField === null) {
+            throw new \Exception(sprintf('The select "%s" was not found in the page', $from));
+        }
+
+        $optionField = $selectField->find('xpath', "//option[@selected]");
+        if ($optionField === null) {
+            throw new \Exception(sprintf('No option is selected in the %s select', $from));
+        }
+
+        if ($optionField->getValue() !== $option) {
+            throw new \Exception(sprintf('The option "%s" was not selected but should be', $option));
+        }
+    }
+
+    /**
      * @When /^I restart my browser$/
      */
     public function iRestartMyBrowser()

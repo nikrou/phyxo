@@ -9,10 +9,9 @@
 {% block content %}
     <form method="post" action="{{F_ACTION}}" class="general">
 	<div class="fieldset">
-	    <h3>{{'Who can add tags?'|trans}}</h3>
-
 	    <p class="field">
-		<select class="custom-select" name="permission_add">
+		<label class="h3" for="permission_add">{{'Who can add tags?'|trans}}</label>
+		<select class="custom-select" name="permission_add" id="permission_add">
 		    {% for status, label in STATUS_OPTIONS %}
 			<option value="{{status}}" {% if status == PERMISSIONS.add %}selected="selected"{% endif %}>{{label}}</option>
 		    {% endfor %}
@@ -29,9 +28,9 @@
 	</div>
 
 	<div class="fieldset">
-	    <h3>{{'Who can delete related tags?'|trans}}</h3>
 	    <p class="field">
-		<select class="custom-select" name="permission_delete">
+		<label class="h3" for="permission_delete">{{'Who can delete related tags?'|trans}}</label>
+		<select class="custom-select" name="permission_delete" id="permission_delete">
 		    {% for status, label in STATUS_OPTIONS %}
 			<option value="{{status}}" {% if status == PERMISSIONS.delete %}selected="selected"{% endif %}>{{label}}</option>
 		    {% endfor %}
@@ -47,6 +46,9 @@
 	    </p>
 	</div>
 
+	<pre>
+	    {{dump(PERMISSIONS)}}
+	</pre>
 	<div class="fieldset">
 	    <h3>{{'Display for pending tags'|trans}}</h3>
 	    <p class="form-text text-muted">
@@ -60,7 +62,7 @@
 		</span>
 	    </p>
 	    <p class="custom-control custom-checkbox">
-		<input class="custom-control-input" type="checkbox" value="1" id="show_pending_deleted_tags" name="show_pending_delete_tags" {% if PERMISSIONS.show_pending_deleted_tags %}checked="checked"{% endif %}>
+		<input class="custom-control-input" type="checkbox" value="1" id="show_pending_deleted_tags" name="show_pending_deleted_tags" {% if PERMISSIONS.show_pending_deleted_tags %}checked="checked"{% endif %}>
 		<label class="custom-control-label" for="show_pending_deleted_tags">{{'Show deleted pending tags to the user who delete them'|trans}}</label>
 		<span class="form-text text-muted">
 		    {{'A css class is added to tag to show deleted pending tags differently to the user who delete them'|trans}}
