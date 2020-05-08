@@ -18,9 +18,8 @@ use mageekguy\atoum\asserter as Atoum;
 class FeatureContext extends BaseContext
 {
     use KernelDictionary;
-    use ContainerAccesser;
 
-    private $storage;
+    private $assert, $storage;
 
     public function __construct(Storage $storage)
     {

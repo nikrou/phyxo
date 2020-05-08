@@ -11,6 +11,11 @@
 
 namespace App\Tests\Behat;
 
+use App\DataMapper\CategoryMapper;
+use App\DataMapper\CommentMapper;
+use App\DataMapper\ImageMapper;
+use App\DataMapper\TagMapper;
+use App\DataMapper\UserMapper;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -18,16 +23,20 @@ use Behat\Gherkin\Node\TableNode;
 
 use App\Entity\User;
 use App\Repository\UserAccessRepository;
+use App\Utils\UserManager;
 use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Symfony2Extension\Context\KernelDictionary;
+use Phyxo\Conf;
 use Phyxo\DBLayer\DBLayer;
+use Phyxo\DBLayer\iDBLayer;
+use Phyxo\EntityManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class DBContext implements Context
 {
     private $sqlInitFile, $sqlCleanupFile;
 
     use KernelDictionary;
-    use ContainerAccesser;
 
     private $storage;
 
@@ -36,6 +45,11 @@ class DBContext implements Context
         $this->sqlInitFile = $sql_init_file;
         $this->sqlCleanupFile = $sql_cleanup_file;
         $this->storage = $storage;
+    }
+
+    protected function getContainer():  ContainerInterface
+    {
+        return $this->getKernel()->getContainer()->get('test.service_container');
     }
 
     /**
@@ -47,9 +61,9 @@ class DBContext implements Context
         foreach ($table->getHash() as $userRow) {
             $user = new User();
             $user->setUsername($userRow['username']);
-            $user->setPassword($this->getPasswordEncoder()->encodePassword($user, $userRow['password']));
+            $user->setPassword($this->getContainer()->get('security.password_encoder')->encodePassword($user, $userRow['password']));
             $user->setStatus(!empty($userRow['status']) ? $userRow['status'] : User::STATUS_NORMAL);
-            $user_id = $this->getUserManager()->register($user);
+            $user_id = $this->getContainer()->get(UserManager::class)->register($user);
             $this->storage->set('user_' . $userRow['username'], $user_id);
         }
     }
@@ -65,7 +79,7 @@ class DBContext implements Context
             if (isset($albumRow['parent']) && $albumRow['parent'] !== null) {
                 $parent = $this->storage->get('album_' . $albumRow['parent']);
             }
-            $album_id = $this->getCategoryMapper()->createAlbum($albumRow['name'], $parent, $albumRow);
+            $album_id = $this->getContainer()->get(CategoryMapper::class)->createAlbum($albumRow['name'], $parent, $albumRow);
             $this->storage->set('album_' . $albumRow['name'], $album_id);
         }
     }
@@ -99,10 +113,10 @@ class DBContext implements Context
      */
     public function userCanAccessAlbum(string $username, string $album_name)
     {
-        $user_id = $this->getUserMapper()->getUserId($username);
-        $album = $this->getCategoryMapper()->findAlbumByName($album_name);
+        $user_id = $this->getContainer()->get(UserMapper::class)->getUserId($username);
+        $album = $this->getContainer()->get(CategoryMapper::class)->findAlbumByName($album_name);
 
-        $this->getEntityManager()->getRepository(UserAccessRepository::class)->insertUserAccess(['user_id', 'cat_id'], [['user_id' => $user_id, 'cat_id' => $album['id']]]);
+        $this->getContainer()->get(EntityManager::class)->getRepository(UserAccessRepository::class)->insertUserAccess(['user_id', 'cat_id'], [['user_id' => $user_id, 'cat_id' => $album['id']]]);
     }
 
     /**
@@ -110,10 +124,10 @@ class DBContext implements Context
      */
     public function userCannotAccessAlbum(string $username, string $album_name)
     {
-        $user_id = $this->getUserMapper()->getUserId($username);
-        $album = $this->getCategoryMapper()->findAlbumByName($album_name);
+        $user_id = $this->getContainer()->get(UserMapper::class)->getUserId($username);
+        $album = $this->getContainer()->get(CategoryMapper::class)->findAlbumByName($album_name);
 
-        $this->getEntityManager()->getRepository(UserAccessRepository::class)->deleteByUserIdsAndCatIds([$user_id], [$album['id']]);
+        $this->getContainer()->get(EntityManager::class)->getRepository(UserAccessRepository::class)->deleteByUserIdsAndCatIds([$user_id], [$album['id']]);
     }
 
     /**
@@ -121,7 +135,7 @@ class DBContext implements Context
      */
     public function configForParamEqualsTo(string $param, string $value)
     {
-        $this->getConf()->addOrUpdateParam($param, $value);
+        $this->getContainer()->get(Conf::class)->addOrUpdateParam($param, $value);
     }
 
     /**
@@ -161,7 +175,7 @@ class DBContext implements Context
      */
     public function givenCommentOnPhotoByUser(string $comment, string $photo_name, string $username)
     {
-        $comment_id = $this->getCommentMapper()->createComment($comment, $this->storage->get('image_' . $photo_name), $username, $this->storage->get('user_' . $username));
+        $comment_id = $this->getContainer()->get(CommentMapper::class)->createComment($comment, $this->storage->get('image_' . $photo_name), $username, $this->storage->get('user_' . $username));
         $this->storage->set('comment_' . md5($comment), $comment_id);
     }
 
@@ -170,7 +184,7 @@ class DBContext implements Context
      */
     public function prepareDB(BeforeScenarioScope $scope)
     {
-        $this->getConnection()->executeSqlFile($this->sqlInitFile, DBLayer::DEFAULT_PREFIX, $this->getConnection()->getPrefix());
+        $this->getContainer()->get(iDBLayer::class)->executeSqlFile($this->sqlInitFile, DBLayer::DEFAULT_PREFIX, $this->getContainer()->get(iDBLayer::class)->getPrefix());
     }
 
     /**
@@ -178,27 +192,27 @@ class DBContext implements Context
      */
     public function cleanDB(AfterScenarioScope $scope)
     {
-        $this->getConnection()->executeSqlFile($this->sqlCleanupFile, DBLayer::DEFAULT_PREFIX, $this->getConnection()->getPrefix());
+        $this->getContainer()->get(iDBLayer::class)->executeSqlFile($this->sqlCleanupFile, DBLayer::DEFAULT_PREFIX, $this->getContainer()->get(iDBLayer::class)->getPrefix());
     }
 
     protected function addImageToAlbum(array $image, string $album_name)
     {
         try {
-            $album = $this->getCategoryMapper()->findAlbumByName($album_name);
+            $album = $this->getContainer()->get(CategoryMapper::class)->findAlbumByName($album_name);
         } catch (\Exception $e) {
             throw new \Exception('Album with name ' . $album_name . ' does not exist');
         }
 
         $image['date_available'] = (new \DateTime())->format('Y-m-d H:i:s');
-        $image_id = $this->getImageMapper()->addImage($image);
+        $image_id = $this->getContainer()->get(ImageMapper::class)->addImage($image);
         $this->storage->set('image_' . $image['name'], $image_id);
 
-        $this->getCategoryMapper()->associateImagesToCategories([$image_id], [$album['id']]);
+        $this->getContainer()->get(CategoryMapper::class)->associateImagesToCategories([$image_id], [$album['id']]);
     }
 
     protected function addTag(string $tag_name)
     {
-        $tag = $this->getTagMapper()->createTag($tag_name);
+        $tag = $this->getContainer()->get(TagMapper::class)->createTag($tag_name);
         if (empty($tag['id'])) {
             throw new \Exception($tag['error']);
         } else {
@@ -216,7 +230,7 @@ class DBContext implements Context
             $tag_ids[] = $tag_id;
         }
 
-        $this->getTagMapper()->toBeValidatedTags($tag_ids, $image_id, ['validated' => $validated, 'user_id' => $user_id]);
+        $this->getContainer()->get(TagMapper::class)->toBeValidatedTags($tag_ids, $image_id, ['validated' => $validated, 'user_id' => $user_id]);
     }
 
     protected function removeTagsFromImage(array $tags, int $image_id, int $user_id = null, bool $validated = true)
@@ -229,11 +243,12 @@ class DBContext implements Context
             $tag_ids[] = $tag_id;
         }
 
+        $conf = $this->getContainer()->get(Conf::class);
         // if publish_tags_immediately (or delete_tags_immediately) is not set we consider its value is 1
-        if (isset($this->getConf()['publish_tags_immediately']) && $this->getConf()['publish_tags_immediately'] == 0) {
-            $this->getTagMapper()->toBeValidatedTags($tag_ids, $image_id, ['status' => 0, 'validated' => $validated, 'user_id' => $user_id]);
+        if (isset($conf['publish_tags_immediately']) && $conf['publish_tags_immediately'] == 0) {
+            $this->getContainer()->get(TagMapper::class)->toBeValidatedTags($tag_ids, $image_id, ['status' => 0, 'validated' => $validated, 'user_id' => $user_id]);
         } else {
-            $this->getTagMapper()->dissociateTags($tag_ids, $image_id);
+            $this->getContainer()->get(TagMapper::class)->dissociateTags($tag_ids, $image_id);
         }
     }
 }

@@ -25,16 +25,15 @@
 		{% for order in main.order_by %}
 		    <div class="input-group filter {% if ORDER_BY_IS_CUSTOM is defined %}transparent{% endif %}">
 			<select class="custom-select" name="order_by[]" {% if ORDER_BY_IS_CUSTOM is defined %}disabled{% endif %}>
-			    {% for option in main.order_by_options %}
-				<option value="{{option}}"{% if option==order %} selected="selected"{% endif %}>{{option}}</option>
+			    {% for id, option in main.order_by_options %}
+				<option value="{{id}}"{% if id==order %} selected="selected"{% endif %}>{{option|raw('html')}}</option>
 			    {% endfor %}
 			</select>
 			<div class="input-group-append">
-			    {% if loop.index==0 %}
-				<button class="input-group-btn add-filter btn btn-success fa fa-plus"><span class="visually-hidden">{{'Add a criteria'|trans}}</span></button>
-			    {% else %}
-				<button class="input-group-btn remove-filter btn btn-danger fa fa-minus"><span class="visually-hidden">{{'delete'|trans}}</span></button>
-			    {% endif %}
+			    <button class="input-group-btn add-filter btn btn-success fa fa-plus"><span class="visually-hidden">{{'Add a criteria'|trans}}</span></button>
+			    <button class="input-group-btn remove-filter btn btn-danger fa fa-minus"{% if loop.index == 1 %} disabled="disabled"{% endif %}>
+				<span class="visually-hidden">{{'delete'|trans}}</span>
+			    </button>
         		</div>
 		    </div>
 		{% endfor %}

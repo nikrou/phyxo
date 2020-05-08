@@ -107,14 +107,7 @@ $(function () {
 
       const firstFilter = order_filters.find('.filter:first');
       const newFilter = firstFilter.clone();
-      newFilter
-        .find('.btn')
-        .removeClass('add-filter')
-        .addClass('remove-filter')
-        .removeClass('btn-success')
-        .addClass('btn-danger')
-        .removeClass('fa-plus')
-        .addClass('fa-minus');
+      newFilter.find('.btn.remove-filter').prop('disabled', false);
       newFilter.appendTo(order_filters);
     })
     .on('click', '.remove-filter', function (e) {
