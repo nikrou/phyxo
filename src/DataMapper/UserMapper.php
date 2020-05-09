@@ -11,6 +11,7 @@
 
 namespace App\DataMapper;
 
+use App\Entity\User;
 use Phyxo\Conf;
 use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\UserCacheRepository;
@@ -32,7 +33,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UserMapper
 {
-    private $em, $conf, $autorizationChecker, $user, $tagMapper;
+    private $em, $conf, $autorizationChecker, $tagMapper;
     private $defaultLanguage, $themesDir, $userProvider, $translator;
 
     public function __construct(EntityManager $em, Conf $conf, AuthorizationCheckerInterface $autorizationChecker,
@@ -48,13 +49,9 @@ class UserMapper
         $this->translator = $translator;
     }
 
-    public function getUser() //: ?User @TODO : modify tests or implementation
+    public function getUser()//: ?User @TODO : modify tests or implementation
     {
-        if (!$this->user) {
-            $this->user = $this->userProvider->get();
-        }
-
-        return $this->user;
+        return $this->userProvider->getUser();
     }
 
     /**

@@ -38,16 +38,7 @@ abstract class CommonController extends AbstractController
             return;
         }
 
-        if (!$this->user) {
-            $this->user = $this->userProvider->fromToken($token);
-
-            if ($token instanceof AnonymousToken) {
-                $this->session->set('_theme', $this->user->getTheme());
-                $this->session->set('_locale', $this->user->getLocale());
-            }
-        }
-
-        return $this->user;
+        return $this->userProvider->fromToken($token);
     }
 
     protected function loadThemeConf(string $theme = null, Conf $core_conf = null): array

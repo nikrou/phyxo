@@ -12,7 +12,6 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Image\DerivativeParams;
@@ -26,14 +25,13 @@ use Symfony\Component\HttpFoundation\File\MimeType\FileinfoMimeTypeGuesser;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Image\ImageStandardParams;
 
-class MediaController extends AbstractController
+class MediaController
 {
-    private $page, $conf, $image_std_params;
+    private $page, $image_std_params;
 
-    public function index(Request $request, string $path, string $derivative, string $sizes, string $image_extension, string $mediaCacheDir, string $rootProjectDir, Conf $conf, EntityManager $em,
-                        LoggerInterface $logger, Filesystem $fs, ImageStandardParams $image_std_params)
+    public function index(Request $request, string $path, string $derivative, string $sizes, string $image_extension, string $mediaCacheDir, string $rootProjectDir, Conf $conf,
+                        EntityManager $em, LoggerInterface $logger, ImageStandardParams $image_std_params)
     {
-        $this->conf = $conf;
         $this->page = [];
 
         $image_path = sprintf('%s/%s.%s', '.', $path, $image_extension);
@@ -203,6 +201,7 @@ class MediaController extends AbstractController
             $image->strip();
         }
 
+        $fs = new Filesystem();
         $fs->mkdir(dirname($mediaCacheDir . '/' . $derivative_path));
         $image->set_compression_quality($this->image_std_params->getQuality());
         $logger->info(sprintf('WRITE %s', $mediaCacheDir . '/' . $derivative_path));
@@ -324,11 +323,6 @@ class MediaController extends AbstractController
 
     protected function makeDerivativeResponse(string $image_path): Response
     {
-        // if (isset($_GET['ajaxload']) and $_GET['ajaxload'] == 'true') {
-        //     echo json_encode(['url' => $image_path]);
-        //     return;
-        // }
-
         $response = new BinaryFileResponse($image_path);
         $response->setCache([
             'etag' => md5_file($image_path),
@@ -339,11 +333,11 @@ class MediaController extends AbstractController
 
         $mimeTypeGuesser = new FileinfoMimeTypeGuesser();
         if ($mimeTypeGuesser->isSupported()) {
-           $response->headers->set('Content-Type', $mimeTypeGuesser->guess($image_path));
+            $response->headers->set('Content-Type', $mimeTypeGuesser->guess($image_path));
         } else {
-           $response->headers->set('Content-Type', 'text/plain');
-       }
+            $response->headers->set('Content-Type', 'text/plain');
+        }
 
-       return $response;
+        return $response;
     }
 }

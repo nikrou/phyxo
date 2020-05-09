@@ -110,11 +110,6 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
         return isset(self::STATUS_TO_ROLE[$status]) ? self::STATUS_TO_ROLE[$status] : 'ROLE_USER';
     }
 
-    public function getLocale(): string
-    {
-        return $this->getLanguage();
-    }
-
     public function offsetExists($offset)
     {
         return isset($this->user_infos[$offset]);
@@ -185,6 +180,21 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
         return $this->mail_address;
     }
 
+    public function getTheme(): string
+    {
+        return $this->user_infos['theme'];
+    }
+
+    public function getLocale(): string
+    {
+        return $this->user_infos['language'];
+    }
+
+    public function getLang(): string
+    {
+        return preg_replace('`_.*`', '', $this->user_infos['language']);
+    }
+
     public function eraseCredentials()
     {
         //$this->password = null;
@@ -205,6 +215,10 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
         }
 
         if ($this->username !== $user->getUsername()) {
+            return false;
+        }
+
+        if ($this->getRoles() !== $user->getRoles()) {
             return false;
         }
 

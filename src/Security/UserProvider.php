@@ -30,6 +30,7 @@ use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserGroupRepository;
 use Phyxo\Conf;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -39,18 +40,25 @@ use Symfony\Component\Security\Csrf\Exception\TokenNotFoundException;
 
 class UserProvider implements UserProviderInterface
 {
-    private $user, $em, $dataTransformer, $categoryMapper, $tokenStorage, $conf, $user_data;
+    private $user, $em, $session, $dataTransformer, $categoryMapper, $tokenStorage, $conf, $user_data;
 
-    public function __construct(EntityManager $em, DataTransformer $dataTransformer, CategoryMapper $categoryMapper, TokenStorageInterface $tokenStorage, Conf $conf)
+    public function __construct(EntityManager $em, SessionInterface $session, DataTransformer $dataTransformer, CategoryMapper $categoryMapper, TokenStorageInterface $tokenStorage, Conf $conf)
     {
         $this->em = $em;
+        $this->session = $session;
         $this->dataTransformer = $dataTransformer;
         $this->categoryMapper = $categoryMapper;
         $this->tokenStorage = $tokenStorage;
         $this->conf = $conf;
     }
 
-    public function get(): ?User
+    protected function populateSession(User $user)
+    {
+        $this->session->set('_theme', $user->getTheme());
+        $this->session->set('_locale', $user->getLocale());
+    }
+
+    public function getUser(): ?User
     {
         if (!$this->user) {
             $this->user = $this->fromToken($this->tokenStorage->getToken());
@@ -59,35 +67,37 @@ class UserProvider implements UserProviderInterface
         return $this->user;
     }
 
-    public function fromToken(TokenInterface $token): ?User
+    public function fromToken(TokenInterface $token): ?UserInterface
     {
         if (!$token) {
             return null;
         }
 
-        if ($this->conf['guest_access']) {
-            if (!($token instanceof AnonymousToken) && !($token->getUser() instanceof SecurityUser)) {
-                return null;
-            }
-        } else {
-            if (!$token->getUser() instanceof SecurityUser) {
-                throw new AccessDeniedException('Access denied to guest');
-            }
-        }
-
-
-        try {
-            if ($token instanceof AnonymousToken) {
-                $token->setUser('guest');
-                $user = $this->loadUserByUsername($token->getUser());
+        if (!$this->user) {
+            if ($this->conf['guest_access']) {
+                if (!($token instanceof AnonymousToken) && !($token->getUser() instanceof UserInterface)) {
+                    return null;
+                }
             } else {
-                $user = $this->loadUserByUsername($token->getUser()->getUsername());
+                if (!$token->getUser() instanceof UserInterface) {
+                    throw new AccessDeniedException('Access denied to guest');
+                }
             }
-        } catch (UsernameNotFoundException $exception) {
-            throw  new CustomUserMessageAuthenticationException(sprintf('Username "%s" does not exist.', $token->getUser()->getUsername()));
+
+
+            try {
+                if ($token instanceof AnonymousToken) {
+                    $token->setUser('guest');
+                    $this->user = $this->loadUserByUsername($token->getUser());
+                } else {
+                    $this->user = $this->loadUserByUsername($token->getUser()->getUsername());
+                }
+            } catch (UsernameNotFoundException $exception) {
+                throw  new CustomUserMessageAuthenticationException(sprintf('Username "%s" does not exist.', $token->getUser()->getUsername()));
+            }
         }
 
-        return $user;
+        return $this->user;
     }
 
     // @throws UsernameNotFoundException if the user is not found
@@ -96,6 +106,7 @@ class UserProvider implements UserProviderInterface
         if (($user = $this->fetchUser($username)) === null) {
             throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
         }
+        $this->populateSession($user);
 
         return $user;
     }
@@ -105,6 +116,7 @@ class UserProvider implements UserProviderInterface
         if (($user = $this->fetchUserByActivationKey($key)) === null) {
             throw new TokenNotFoundException(sprintf('Activation key "%s" does not exist.', $key));
         }
+        $this->populateSession($user);
 
         return $user;
     }
@@ -117,7 +129,10 @@ class UserProvider implements UserProviderInterface
             );
         }
 
-        return $this->fetchUser($user->getUsername(), $force_refresh = true);
+        $user = $this->fetchUser($user->getUsername(), $force_refresh = true);
+        $this->populateSession($user);
+
+        return $user;
     }
 
     public function supportsClass($class): bool
@@ -127,17 +142,16 @@ class UserProvider implements UserProviderInterface
 
     private function fetchUser(string $username, bool $force_refresh = false): ?UserInterface
     {
-        if (!$this->user_data || $force_refresh) {
-            $result = $this->em->getRepository(UserRepository::class)->findByUsername($username);
-            $userData = $this->em->getConnection()->db_fetch_assoc($result);
+        // @TODO : find a way to cash some request: if ($this->user_data === null || $force_refresh) -> tests failed
+        $result = $this->em->getRepository(UserRepository::class)->findByUsername($username);
+        $userData = $this->em->getConnection()->db_fetch_assoc($result);
 
-            // pretend it returns an array on success, false if there is no user
-            if (!$userData) {
-                return null;
-            }
-
-            $this->user_data = $this->createUserFromDb($userData);
+        // pretend it returns an array on success, false if there is no user
+        if (!$userData) {
+            return null;
         }
+
+        $this->user_data = $this->createUserFromDb($userData);
 
         return $this->user_data;
     }
