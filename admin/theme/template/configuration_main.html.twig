@@ -93,8 +93,8 @@
 	    <p>
 		<label>{{'Week starts on'|trans}}
 		    <select class="custom-select" name="week_starts_on">
-			{% for option in main.week_starts_on_options %}
-			    <option value="{{option}}"{% if option==main.week_starts_on_options_selected %} selected="selected"{% endif %}>{{option}}</option>
+			{% for id,option in main.week_starts_on_options %}
+			    <option value="{{id}}"{% if id==main.week_starts_on_options_selected %} selected="selected"{% endif %}>{{option}}</option>
 			{% endfor %}
 		    </select>
 		</label>

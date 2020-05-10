@@ -10,49 +10,49 @@
     <form method="post" action="{{F_ACTION}}" class="properties">
 	<div class="fieldset">
 	    <h3>{{'Original Size'|trans}}</h3>
-	    {% if is_gd is defined %}
-		    <div>
-			{{'Resize after upload disabled due to the use of GD as graphic library'|trans}}
-			<input type="checkbox" name="original_resize" disabled="disabled" style="visibility: hidden">
-			<input type="hidden" name="original_resize_maxwidth" value="{{sizes.original_resize_maxwidth}}">
-			<input type="hidden" name="original_resize_maxheight" value="{{sizes.original_resize_maxheight}}">
-			<input type="hidden" name="original_resize_quality" value="{{sizes.original_resize_quality}}">
-		    </div>
-		{% else %}
-		    <div>
-			<label class="font-checkbox">
-			    <i class="fa fa-check-square"></i>
-			    <input type="checkbox" name="original_resize" {% if sizes.original_resize %}checked="checked"{% endif %} data-toggle="collapse" data-target="#resize-original">
-			    {{'Resize after upload'|trans}}
-			</label>
-		    </div>
+	    {% if is_gd  %}
+		<div>
+		    {{'Resize after upload disabled due to the use of GD as graphic library'|trans}}
+		    <input type="checkbox" name="original_resize" disabled="disabled" style="visibility: hidden">
+		    <input type="hidden" name="original_resize_maxwidth" value="{{sizes.original_resize_maxwidth}}">
+		    <input type="hidden" name="original_resize_maxheight" value="{{sizes.original_resize_maxheight}}">
+		    <input type="hidden" name="original_resize_quality" value="{{sizes.original_resize_quality}}">
+		</div>
+	    {% else %}
+		<div>
+		    <label class="font-checkbox">
+			<i class="fa fa-check-square"></i>
+			<input type="checkbox" name="original_resize" {% if sizes.original_resize %}checked="checked"{% endif %} data-toggle="collapse" data-target="#resize-original">
+			{{'Resize after upload'|trans}}
+		    </label>
+		</div>
 
-		    <div class="collapse" id="resize-original">
-			<p>
-			    <label>
-				{{'Maximum width'|trans}}
-				<input type="text" name="original_resize_maxwidth" value="{{sizes.original_resize_maxwidth}}" size="4" maxlength="4"{% if ferrors.original_resize_maxwidth %} class="dError"{% endif %}>
-				{{'pixels'|trans}}
-				{% if ferrors.original_resize_maxwidth %}<span class="dErrorDesc" title="{{ferrors.original_resize_maxwidth}}">X</span>{% endif %}
-			    </label>
-			</p>
-			<p>
-			    <label>
-				{{'Maximum height'|trans}}
-				<input type="text" name="original_resize_maxheight" value="{{sizes.original_resize_maxheight}}" size="4" maxlength="4"{% if ferrors.original_resize_maxheight %} class="dError"{% endif %}>
-				{{'pixels'|trans}}
-				{% if ferrors.original_resize_maxheight %}<span class="dErrorDesc" title="{{ferrors.original_resize_maxheight}}">X</span>{% endif %}
-			    </label>
-			</p>
-			<p>
-			    <label>
-				{{'Image quality'|trans}}
-				<input type="text" name="original_resize_quality" value="{{sizes.original_resize_quality}}" size="3" maxlength="3"{% if ferrors.original_resize_quality %} class="dError"{% endif %}> %
-				{% if ferrors.original_resize_quality %}<span class="dErrorDesc" title="{{ferrors.original_resize_quality}}">X</span>{% endif %}
-			    </label>
-			</p>
-		    </div>
-		{% endif %}
+		<div class="collapse" id="resize-original">
+		    <p>
+			<label>
+			    {{'Maximum width'|trans}}
+			    <input type="text" name="original_resize_maxwidth" value="{{sizes.original_resize_maxwidth}}" size="4" maxlength="4"{% if ferrors.original_resize_maxwidth %} class="dError"{% endif %}>
+			    {{'pixels'|trans}}
+			    {% if ferrors.original_resize_maxwidth %}<span class="dErrorDesc" title="{{ferrors.original_resize_maxwidth}}">X</span>{% endif %}
+			</label>
+		    </p>
+		    <p>
+			<label>
+			    {{'Maximum height'|trans}}
+			    <input type="text" name="original_resize_maxheight" value="{{sizes.original_resize_maxheight}}" size="4" maxlength="4"{% if ferrors.original_resize_maxheight %} class="dError"{% endif %}>
+			    {{'pixels'|trans}}
+			    {% if ferrors.original_resize_maxheight %}<span class="dErrorDesc" title="{{ferrors.original_resize_maxheight}}">X</span>{% endif %}
+			</label>
+		    </p>
+		    <p>
+			<label>
+			    {{'Image quality'|trans}}
+			    <input type="text" name="original_resize_quality" value="{{sizes.original_resize_quality}}" size="3" maxlength="3"{% if ferrors.original_resize_quality %} class="dError"{% endif %}> %
+			    {% if ferrors.original_resize_quality %}<span class="dErrorDesc" title="{{ferrors.original_resize_quality}}">X</span>{% endif %}
+			</label>
+		    </p>
+		</div>
+	    {% endif %}
 	</div>
 
 	<div class="fieldset">

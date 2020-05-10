@@ -11,9 +11,7 @@
 
 namespace App\Repository;
 
-use App\Entity\User;
 use Symfony\Component\Security\Core\User\UserInterface;
-
 
 class CategoryRepository extends BaseRepository
 {
