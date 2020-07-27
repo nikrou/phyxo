@@ -1,3 +1,10 @@
+# Phyxo 2.0.2 - 2020-07-27
+
+- updates php dependencies
+- updates administration theme dependencies
+- updates Treflez theme dependencies
+- fix small issue setting guest params
+
 # Phyxo 2.0.1 - 2020-04-21
 
 - updates some translations
