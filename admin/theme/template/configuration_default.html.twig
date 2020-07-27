@@ -19,8 +19,8 @@
 		<p>
 		    <label for="theme">{{'Theme'|trans}}</label>
 		    <select class="form-control" name="theme">
-			{% for option in themes %}
-			    <option value="{{option}}" {% if option == THEME %}selected="selected"{% endif %}>{{option}}</option>
+			{% for option, value in themes %}
+			    <option value="{{option}}" {% if option == THEME %}selected="selected"{% endif %}>{{value}}</option>
 			{% endfor %}
 		    </select>
 		</p>
