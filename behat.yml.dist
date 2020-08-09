@@ -5,7 +5,7 @@ default:
   extensions:
     Behat\Symfony2Extension:
       kernel:
-        env:   test
+        env: test
         debug: true
         bootstrap: config/bootstrap.php
         class: App\Kernel
@@ -25,7 +25,7 @@ default:
 
         selenium2:
           chrome:
-            api_url: "http://localhost:9222"
+            api_url: 'http://localhost:9222'
 
   suites:
     web:
@@ -37,9 +37,9 @@ default:
             - '@storage'
 
         - App\Tests\Behat\DBContext:
-              - features/sql/db_init.sql
-              - features/sql/db_cleanup.sql
-              - '@storage'
+            - features/sql/db_init.sql
+            - features/sql/db_cleanup.sql
+            - '@storage'
 
         - Behat\MinkExtension\Context\MinkContext: ~
 

@@ -22,7 +22,7 @@ class UserListCommand extends Command
 {
     protected static $defaultName = 'phyxo:user:list';
 
-    private $em;
+    private $em, $databaseConfigFile;
 
     private $Fields = [
         'id' => 'Id',
@@ -33,16 +33,17 @@ class UserListCommand extends Command
         'theme' => 'Theme',
     ];
 
-    public function __construct(EntityManager $em)
+    public function __construct(EntityManager $em, string $databaseConfigFile)
     {
         parent::__construct();
 
         $this->em = $em;
+        $this->databaseConfigFile = $databaseConfigFile;
     }
 
     public function isEnabled()
     {
-        return is_readable($this->getApplication()->getKernel()->getDbConfigFile());
+        return is_readable($this->databaseConfigFile);
     }
 
     public function configure()

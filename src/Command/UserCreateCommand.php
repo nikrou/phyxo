@@ -25,18 +25,19 @@ class UserCreateCommand extends Command
     protected static $defaultName = 'phyxo:user:create';
 
     private $params = ['username' => '', 'password' => '', 'mail_address' => ''];
-    private $userManager, $passwordEncoder;
+    private $userManager, $passwordEncoder, $databaseConfigFile;
 
-    public function __construct(UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, string $databaseConfigFile)
     {
         parent::__construct();
         $this->userManager = $userManager;
         $this->passwordEncoder = $passwordEncoder;
+        $this->databaseConfigFile = $databaseConfigFile;
     }
 
     public function isEnabled()
     {
-        return is_readable($this->getApplication()->getKernel()->getDbConfigFile());
+        return is_readable($this->databaseConfigFile);
     }
 
     public function configure()
@@ -88,7 +89,6 @@ class UserCreateCommand extends Command
         } else {
             $io->text(sprintf('<info>User status type is:</info> %s', $this->params['status']));
         }
-
     }
 
     public function execute(InputInterface $input, OutputInterface $output)

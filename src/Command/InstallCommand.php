@@ -34,19 +34,23 @@ class InstallCommand extends Command
     protected static $defaultName = 'phyxo:install';
 
     private $db_params = ['db_layer' => '', 'db_host' => '', 'db_name' => '', 'db_user' => '', 'db_password' => '', 'db_prefix' => ''];
-    private $phyxoVersion, $defaultTheme;
+    private $phyxoVersion, $databaseConfigFile, $rootProjectDir, $translationsDir;
+    private $defaultTheme;
 
-    public function __construct(string $phyxoVersion, string $defaultTheme)
+    public function __construct(string $phyxoVersion, string $defaultTheme, string $databaseConfigFile, string $rootProjectDir, string $translationsDir)
     {
         parent::__construct();
 
         $this->phyxoVersion = $phyxoVersion;
         $this->defaultTheme = $defaultTheme;
+        $this->databaseConfigFile = $databaseConfigFile;
+        $this->rootProjectDir = $rootProjectDir;
+        $this->translationsDir = $translationsDir;
     }
 
     public function isEnabled()
     {
-        return !is_readable($this->getApplication()->getKernel()->getDbConfigFile());
+        return !is_readable($this->databaseConfigFile);
     }
 
     public function configure()
@@ -141,11 +145,11 @@ class InstallCommand extends Command
         try {
             $this->installDatabase($this->db_params);
 
-            rename($this->getApplication()->getKernel()->getDbConfigFile() . '.tmp', $this->getApplication()->getKernel()->getDbConfigFile());
+            rename($this->databaseConfigFile . '.tmp', $this->databaseConfigFile);
 
             $env_file_content = 'APP_ENV=prod' . "\n";
             $env_file_content .= 'APP_SECRET=' . hash('sha256', openssl_random_pseudo_bytes(50)) . "\n";
-            file_put_contents($this->getApplication()->getKernel()->getProjectDir() . '/.env', $env_file_content);
+            file_put_contents($this->rootProjectDir . '/.env.local', $env_file_content);
 
             // clear cache
             $command = $this->getApplication()->find('cache:clear');
@@ -187,18 +191,18 @@ class InstallCommand extends Command
 
         // load configuration
         $conf = new Conf($conn);
-        $conf->loadFromFile($this->getApplication()->getKernel()->getProjectDir() . '/include/config_default.inc.php');
-        $conf->loadFromFile($this->getApplication()->getKernel()->getProjectDir() . '/local/config/config.inc.php');
+        $conf->loadFromFile($this->rootProjectDir . '/include/config_default.inc.php');
+        $conf->loadFromFile($this->rootProjectDir . '/local/config/config.inc.php');
 
         // tables creation, based on phyxo_structure.sql
         $conn->executeSqlFile(
-            $this->getApplication()->getKernel()->getProjectDir() . '/install/phyxo_structure-' . $conn->getLayer() . '.sql',
+            $this->rootProjectDir . '/install/phyxo_structure-' . $conn->getLayer() . '.sql',
             DBLayer::DEFAULT_PREFIX,
             $db_params['db_prefix']
         );
         // We fill the tables with basic informations
         $conn->executeSqlFile(
-            $this->getApplication()->getKernel()->getProjectDir() . '/install/config.sql',
+            $this->rootProjectDir . '/install/config.sql',
             DBLayer::DEFAULT_PREFIX,
             $db_params['db_prefix']
         );
@@ -214,7 +218,7 @@ class InstallCommand extends Command
         $conf['page_banner'] = '<h1>%gallery_title%</h1><p>' . 'Welcome to my photo gallery' . '</p>';
 
         $languages = new Languages($em, null);
-        $languages->setRootPath($this->getApplication()->getKernel()->getProjectDir() . '/language');
+        $languages->setRootPath($this->translationsDir);
         foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
             $languages->performAction('activate', $language_code);
         }
@@ -229,7 +233,7 @@ class InstallCommand extends Command
         $dbnow = $em->getRepository(BaseRepository::class)->getNow();
         $datas = [];
         $upgrade = new Upgrade($em, $conf);
-        foreach ($upgrade->getAvailableUpgradeIds($this->getApplication()->getKernel()->getProjectDir()) as $upgrade_id) {
+        foreach ($upgrade->getAvailableUpgradeIds($this->rootProjectDir) as $upgrade_id) {
             $datas[] = [
                 'id' => $upgrade_id,
                 'applied' => $dbnow,
@@ -248,7 +252,7 @@ class InstallCommand extends Command
         }
         $file_content .= '$conf[\'db_prefix\'] = \'' . $db_params['db_prefix'] . "';\n\n";
 
-        file_put_contents($this->getApplication()->getKernel()->getDbConfigFile() . '.tmp', $file_content);
+        file_put_contents($this->databaseConfigFile . '.tmp', $file_content);
     }
 
     protected function writeInfo($io, string $message)

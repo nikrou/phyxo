@@ -31,6 +31,9 @@ Feature: Comment
   Scenario: Add a comment
     Given I am logged in as "user1" with password "pass1"
     And config for "key_comment_valid_time" equals to "0"
+    And config for "comments_email_mandatory" equals to "false"
+    And config for "comments_validation" equals to "false"
+    And config for "email_admin_on_comment" equals to "false"
     When I follow "album 1"
     And I follow "photo 1"
     And I add a comment :

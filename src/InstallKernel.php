@@ -11,53 +11,16 @@
 
 namespace App;
 
-use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\HttpKernel\Kernel as BaseKernel;
-use Symfony\Component\Routing\RouteCollectionBuilder;
+use App\Kernel as BaseKernel;
 
 class InstallKernel extends BaseKernel
 {
-    use MicroKernelTrait;
-
-    const CONFIG_EXTS = '.{php,xml,yaml,yml}';
-
-    // override Kernel::getProjectDir because it defines project dir based on composer.json file
-    public function getProjectDir()
-    {
-        return realpath(__DIR__ . '/../');
-    }
-
-    public function getUploadDir()
-    {
-        return $this->getProjectDir() . '/upload';
-    }
-
     public function getCacheDir()
     {
         return $this->getProjectDir() . '/var/cache/install/' . $this->environment;
-    }
-
-    public function getLogDir()
-    {
-        return $this->getProjectDir() . '/var/log';
-    }
-
-    public function getDbConfigFile()
-    {
-        return $this->getProjectDir() . '/local/config/database.inc.php';
-    }
-
-    public function registerBundles()
-    {
-        $contents = require $this->getProjectDir() . '/config/bundles.php';
-        foreach ($contents as $class => $envs) {
-            if (isset($envs['all']) || isset($envs[$this->environment]) && (!isset($envs['install']) || $envs['install'] === true)) {
-                yield new $class();
-            }
-        }
     }
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader)
@@ -73,14 +36,5 @@ class InstallKernel extends BaseKernel
         $loader->load($confDir . '/{packages}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, 'glob');
         $loader->load($confDir . '/{services_install}' . self::CONFIG_EXTS, 'glob');
         $loader->load($confDir . '/{services_install}_' . $this->environment . self::CONFIG_EXTS, 'glob');
-    }
-
-    protected function configureRoutes(RouteCollectionBuilder $routes)
-    {
-        $confDir = $this->getProjectDir() . '/config';
-
-        $routes->import($confDir . '/{routes}/*' . self::CONFIG_EXTS, '/', 'glob');
-        $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, '/', 'glob');
-        $routes->import($confDir . '/{routes}' . self::CONFIG_EXTS, '/', 'glob');
     }
 }
