@@ -149,7 +149,7 @@ class InstallCommand extends Command
 
             $env_file_content = 'APP_ENV=prod' . "\n";
             $env_file_content .= 'APP_SECRET=' . hash('sha256', openssl_random_pseudo_bytes(50)) . "\n";
-            file_put_contents($this->rootProjectDir . '/.env.local', $env_file_content);
+            file_put_contents($this->rootProjectDir . '/.env.local', $env_file_content, FILE_APPEND);
 
             // clear cache
             $command = $this->getApplication()->find('cache:clear');

@@ -1,3 +1,7 @@
+imports:
+  - { resource: database_default.yaml }
+  - { resource: database.yaml, ignore_errors: true }
+
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
@@ -10,6 +14,7 @@ parameters:
   local_dir: '%kernel.project_dir%/local'
   upload_dir: '%kernel.project_dir%/upload'
   database_config_file: '%local_dir%/config/database.inc.php'
+  database_yaml_file: '%kernel.project_dir%/config/database.yaml'
   admin_theme_dir: '%kernel.project_dir%/admin/theme'
   themes_dir: '%kernel.project_dir%/themes'
   plugins_dir: '%kernel.project_dir%/plugins'

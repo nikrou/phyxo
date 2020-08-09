@@ -1,0 +1,39 @@
+doctrine:
+    dbal:
+        url: '%env(DATABASE_URL)%'
+        driver: '%database_driver%'
+        host: '%database_host%'
+        port: '%database_port%'
+        dbname: '%database_name%'
+        user: '%database_user%'
+        password: '%database_password%'
+        server_version: '%database_version%'
+
+        types:
+            category_status: App\Type\CategoryStatusType
+            history_section: App\Type\HistorySectionType
+            history_image_type: App\Type\HistoryImageTypeType
+            plugin_state: App\Type\PluginStateType
+            user_cache_image_access_type: App\Type\UserCacheImageAccessTypeType
+            user_infos_status: App\Type\UserInfosStatusType
+
+        mapping_types:
+            enum: string
+            categories_status: category_status
+            history_section: history_section
+            history_image_type: history_image_type
+            plugins_state: plugin_state
+            user_cache_image_access_type: user_cache_image_access_type
+            user_infos_status: user_infos_status
+
+    orm:
+        auto_generate_proxy_classes: true
+        naming_strategy: doctrine.orm.naming_strategy.underscore
+        auto_mapping: true
+        mappings:
+            App:
+                is_bundle: false
+                type: annotation
+                dir: '%kernel.project_dir%/src/Entity'
+                prefix: 'App\Entity'
+                alias: App

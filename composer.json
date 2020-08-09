@@ -12,6 +12,10 @@
     "minimum-stability": "stable",
     "require": {
         "php": ">=7.1.0",
+        "composer/package-versions-deprecated": "^1.10",
+        "doctrine/doctrine-bundle": "^1.11",
+        "doctrine/doctrine-migrations-bundle": "^3.0",
+        "doctrine/orm": "^2.7",
         "guzzlehttp/guzzle": "^6.3",
         "openpsa/universalfeedcreator": "^1.8",
         "pclzip/pclzip": "^2.8",

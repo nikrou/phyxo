@@ -1,0 +1,30 @@
+name: Phyxo tests
+
+on: [push]
+
+jobs:
+  phyxo:
+    name: Phyxo
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: true
+      matrix:
+        php-versions: ['7.2', '7.3', '7.4']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP, extensions and composer with shivammathur/setup-php
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+        env:
+          update: true
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Unit tests
+        run: ./bin/atoum
