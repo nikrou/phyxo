@@ -72,11 +72,14 @@ class UsersController extends AdminCommonController
 
         $default_user = $userMapper->getDefaultUserInfo(true);
 
-        $protected_users = [$this->getUser()->getId(), $conf['guest_id'], $conf['default_user_id'], $conf['webmaster_id']];
+        $protected_users = [$this->getUser()->getId()];
+        $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
+        $guest_id = $em->getConnection()->result2array($result, null, 'user_id')[0];
+        $protected_users[] = $guest_id;
 
         // an admin can't delete other admin/webmaster
         if ($userMapper->isAdmin()) {
-            $result = $em->getRepository(UserInfosRepository::class)->findByStatuses(['webmaster', 'admin']);
+            $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_WEBMASTER, User::STATUS_ADMIN]);
             $protected_users = array_merge($protected_users, $em->getConnection()->result2array($result, null, 'user_id'));
         }
 
@@ -99,7 +102,7 @@ class UsersController extends AdminCommonController
             'language_selected' => $userMapper->getDefaultLanguage(),
             'association_options' => $groups,
             'protected_users' => implode(',', array_unique($protected_users)),
-            'guest_user' => $conf['guest_id'],
+            'guest_user' => $guest_id,
         ]);
 
         // Status options

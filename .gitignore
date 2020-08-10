@@ -8,6 +8,7 @@
 
 ;; conf
 /config/services_dev.yaml
+/config/database.yaml
 /local/config/config.inc.php
 /local/config/database.*.php
 /local/watermarks

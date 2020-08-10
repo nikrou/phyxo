@@ -55,6 +55,15 @@ class UserRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    public function findByStatus(string $status)
+    {
+        $query = 'SELECT id, username, password, mail_address FROM ' . self::USERS_TABLE . ' AS u';
+        $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' AS i ON i.user_id =  u.id';
+        $query .= ' WHERE i.status in (\'' . $this->conn->db_real_escape_string($status) . '\')';
+
+        return $this->conn->db_query($query);
+    }
+
     public function findByActivationKey(string $key)
     {
         $query = 'SELECT id, username, password, mail_address, status FROM ' . self::USERS_TABLE;

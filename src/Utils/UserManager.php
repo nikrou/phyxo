@@ -11,7 +11,6 @@
 
 namespace App\Utils;
 
-use Phyxo\Conf;
 use App\Repository\UserRepository;
 use App\Repository\GroupRepository;
 use App\Repository\UserGroupRepository;
@@ -21,12 +20,11 @@ use Phyxo\EntityManager;
 
 class UserManager
 {
-    private $em, $conf;
+    private $em;
 
-    public function __construct(EntityManager $em, Conf $conf)
+    public function __construct(EntityManager $em)
     {
         $this->em = $em;
-        $this->conf = $conf;
     }
 
     public function register(User $user): int
@@ -79,7 +77,7 @@ class UserManager
 
         // @TODO: only one webmaster and only one guest
         if ($status === User::STATUS_WEBMASTER) {
-            $level = max($this->conf['available_permission_levels']);
+            $level = 10; // @FIX: find a way to only inject that param instead of conf ; max($this->conf['available_permission_levels']);
         }
 
         $inserts[] = array_merge(
@@ -97,7 +95,7 @@ class UserManager
 
     public function getDefaultUserInfo(): array
     {
-        $result = $this->em->getRepository(UserInfosRepository::class)->findByUserId($this->conf['default_user_id']);
+        $result = $this->em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
         if ($default_user = $this->em->getConnection()->db_fetch_assoc($result)) {
             foreach ($default_user as &$value) {
                 // If the field is true or false, the variable is transformed into a boolean value.

@@ -305,22 +305,16 @@ class InstallController extends AbstractController
                 $conn = DBLayer::initFromConfigFile($this->databaseConfigFile . '.tmp');
                 $em = new EntityManager($conn);
 
-                $conf = new Conf($conn);
-                $conf->loadFromFile($this->rootProjectDir . '/include/config_default.inc.php');
-                $conf->loadFromFile($this->rootProjectDir . '/local/config/config.inc.php');
-
                 $webmaster = new User();
-                $webmaster->setId($conf['webmaster_id']);
                 $webmaster->setUsername($db_params['username']);
                 $webmaster->setMailAddress($db_params['mail_address']);
                 $webmaster->setPassword($this->passwordEncoder->encodePassword($webmaster, $db_params['password']));
                 $webmaster->setStatus(User::STATUS_WEBMASTER);
 
                 $guest = new User();
-                $guest->setId($conf['guest_id']);
                 $guest->setUsername('guest');
                 $guest->setStatus(User::STATUS_GUEST);
-                $user_manager = new UserManager($em, $conf);
+                $user_manager = new UserManager($em);
 
                 try {
                     $user_manager->register($webmaster);

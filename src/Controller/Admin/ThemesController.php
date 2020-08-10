@@ -12,6 +12,8 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\UserMapper;
+use App\Entity\User;
+use App\Repository\UserInfosRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
@@ -228,7 +230,10 @@ class ThemesController extends AdminCommonController
         $themes = new Themes($em->getConnection(), $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
 
-        $error = $themes->performAction($action, $theme, [$conf['default_user_id'], $conf['guest_id']]);
+        $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
+        $guest_id = $em->getConnection()->result2array($result, null, 'user_id')[0];
+
+        $error = $themes->performAction($action, $theme, [$guest_id]);
 
         if (!empty($error)) {
             $this->addFlash('error', $error);

@@ -11,6 +11,7 @@
 
 namespace Phyxo\Functions;
 
+use App\Entity\User;
 use Phyxo\Block\RegisteredBlock;
 use App\Repository\CommentRepository;
 use App\Repository\ImageCategoryRepository;
@@ -217,15 +218,15 @@ class Utils
     }
 
     /**
-     * Returns webmaster mail address depending on $conf['webmaster_id']
+     * Returns webmaster mail address
      *
      * @return string
      */
     public static function get_webmaster_mail_address()
     {
-        global $conf, $conn;
+        global $conn;
 
-        $result = (new UserRepository($conn))->findById($conf['webmaster_id']);
+        $result = (new UserRepository($conn))->findByStatus(User::STATUS_WEBMASTER);
         $row = $conn->db_fetch_assoc($result);
         $email = $row['mail_address'];
 

@@ -11,11 +11,13 @@
 
 namespace App\DataMapper;
 
+use App\Entity\User;
 use App\Events\CommentEvent;
 use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Conf;
 use App\Repository\CommentRepository;
 use App\Repository\UserCacheRepository;
+use App\Repository\UserInfosRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -117,7 +119,9 @@ class CommentMapper
                 }
                 $comm['author'] = 'guest';
             }
-            $comm['author_id'] = $this->conf['guest_id'];
+            $result = (new UserInfosRepository($this->conn))->findByStatuses([User::STATUS_GUEST]);
+            $comm['author_id'] = $this->conn->result2array($result, null, 'user_id')[0];
+
             // if a guest try to use the name of an already existing user, he must be rejected
             if ($comm['author'] !== 'guest') {
                 if ((new UserRepository($this->conn))->isUserExists($comm['author'])) {

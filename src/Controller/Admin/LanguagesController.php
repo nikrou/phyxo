@@ -12,6 +12,7 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\UserMapper;
+use App\Entity\User;
 use App\Repository\UserInfosRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
@@ -123,7 +124,10 @@ class LanguagesController extends AdminCommonController
         $languages = new Languages($em, $userMapper);
         $languages->setRootPath($params->get('translator.default_path'));
 
-        $error = $languages->performAction($action, $language, [$conf['default_user_id'], $conf['guest_id']]);
+        $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
+        $guest_id = $em->getConnection()->result2array($result, null, 'user_id')[0];
+
+        $error = $languages->performAction($action, $language, [$guest_id]);
 
         if (!empty($error)) {
             $this->addFlash('error', $error);

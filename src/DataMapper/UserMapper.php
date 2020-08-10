@@ -109,30 +109,31 @@ class UserMapper
 
     public function getWebmasterEmail()
     {
-        $result = $this->em->getRepository(UserRepository::class)->findById($this->conf['webmaster_id']);
+        $result = $this->em->getRepository(UserRepository::class)->findByStatus(User::STATUS_WEBMASTER);
         $row = $this->em->getConnection()->db_fetch_assoc($result);
 
         return $row['mail_address'];
     }
 
     /**
-     * Returns webmaster user depending on $conf['webmaster_id']
+     * Returns webmaster user
      */
     public function getWebmaster(): array
     {
-        $result = $this->em->getRepository(UserRepository::class)->findById($this->conf['webmaster_id']);
+        $result = $this->em->getRepository(UserRepository::class)->findByStatus(User::STATUS_WEBMASTER);
         $row = $this->em->getConnection()->db_fetch_assoc($result);
 
         return $row;
     }
 
     /**
-     * Returns webmaster mail address depending on $conf['webmaster_id']
+     * Returns webmaster mail address
      */
     public function getWebmasterUsername(): string
     {
-        $result = $this->em->getRepository(UserRepository::class)->findById($this->conf['webmaster_id']);
+        $result = $this->em->getRepository(UserRepository::class)->findByStatus(User::STATUS_WEBMASTER);
         $row = $this->em->getConnection()->db_fetch_assoc($result);
+
         return $row['username'];
     }
 
@@ -144,7 +145,7 @@ class UserMapper
      */
     public function getDefaultUserInfo($convert_str = true)
     {
-        $result = $this->em->getRepository(UserInfosRepository::class)->findByUserId($this->conf['default_user_id']);
+        $result = $this->em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
         if ($this->em->getConnection()->db_num_rows($result) > 0) {
             $default_user = $this->em->getConnection()->db_fetch_assoc($result);
 

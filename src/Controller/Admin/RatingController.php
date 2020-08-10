@@ -12,8 +12,10 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\UserMapper;
+use App\Entity\User;
 use App\Repository\ImageRepository;
 use App\Repository\RateRepository;
+use App\Repository\UserInfosRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
@@ -63,10 +65,13 @@ class RatingController extends AdminCommonController
 
         $user_filter = '';
         if ($request->get('users')) {
+            $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
+            $guest_id = $em->getConnection()->result2array($result, null, 'user_id')[0];
+
             if ($request->get('users') === 'user') {
-                $user_filter = 'r.user_id != ' . $conf['guest_id'];
+                $user_filter = 'r.user_id != ' . $guest_id;
             } elseif ($request->get('users') === 'guest') {
-                $user_filter = 'r.user_id = ' . $conf['guest_id'];
+                $user_filter = 'r.user_id = ' . $guest_id;
             }
             $navbar_params['users'] = $request->get('users');
         }

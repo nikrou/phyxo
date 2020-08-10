@@ -316,17 +316,8 @@ $conf['allow_html_in_metadata'] = false;
 // show_queries : for debug purpose, show queries and execution times
 $conf['show_queries'] = false;
 
-// guest_id : id of the anonymous user
-$conf['guest_id'] = 2;
-
-// default_user_id : id of user used for default value
-$conf['default_user_id'] = $conf['guest_id'];
-
 // Registering process and guest members get language from the browser
 $conf['browser_language'] = true;
-
-// webmaster_id : webmaster'id.
-$conf['webmaster_id'] = 1;
 
 // does the guest have access ?
 // (not a security feature, set your categories "private" too)

@@ -240,16 +240,14 @@ class User
             return new Error(403, 'Invalid security token');
         }
 
-        $protected_users = [
-            $service->getUserMapper()->getUser()->getId(),
-            $service->getConf()['guest_id'],
-            $service->getConf()['default_user_id'],
-            $service->getConf()['webmaster_id'],
-        ];
+        $protected_users = [$service->getUserMapper()->getUser()->getId()];
+        $result = (new UserInfosRepository($service->getConnection()))->findByStatuses([EntityUser::STATUS_GUEST]);
+        $guest_id = $service->getConnection()->result2array($result, null, 'user_id')[0];
+        $protected_users[] = $guest_id;
 
         // an admin can't delete other admin/webmaster
         if ($service->getUserMapper()->isAdmin()) {
-            $result = (new UserInfosRepository($service->getConnection()))->findByStatuses(['webmaster', 'admin']);
+            $result = (new UserInfosRepository($service->getConnection()))->findByStatuses([EntityUser::STATUS_WEBMASTER, EntityUser::STATUS_ADMIN]);
             $protected_users = array_merge($protected_users, $service->getConnection()->result2array($result, null, 'user_id'));
         }
 
@@ -322,7 +320,7 @@ class User
         }
 
         if (!empty($params['status'])) {
-            if (in_array($params['status'], ['webmaster', 'admin']) && !$service->getUserMapper()->isWebmaster()) {
+            if (in_array($params['status'], [EntityUser::STATUS_WEBMASTER, EntityUser::STATUS_ADMIN]) && !$service->getUserMapper()->isWebmaster()) {
                 return new Error(403, 'Only webmasters can grant "webmaster/admin" status');
             }
 
@@ -330,15 +328,14 @@ class User
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid status');
             }
 
-            $protected_users = [
-                $service->getUserMapper()->getUser()->getId(),
-                $service->getConf()['guest_id'],
-                $service->getConf()['webmaster_id'],
-            ];
+            $protected_users = [$service->getUserMapper()->getUser()->getId()];
+            $result = (new UserInfosRepository($service->getConnection()))->findByStatuses([EntityUser::STATUS_GUEST]);
+            $guest_id = $service->getConnection()->result2array($result, null, 'user_id')[0];
+            $protected_users[] = $guest_id;
 
             // an admin can't change status of other admin/webmaster
             if ($service->getUserMapper()->isAdmin()) {
-                $result = (new UserInfosRepository($service->getConnection()))->findByStatuses(['webmaster', 'admin']);
+                $result = (new UserInfosRepository($service->getConnection()))->findByStatuses([EntityUser::STATUS_WEBMASTER, EntityUser::STATUS_ADMIN]);
                 $protected_users = array_merge($protected_users, $service->getConnection()->result2array($result, null, 'user_id'));
             }
 

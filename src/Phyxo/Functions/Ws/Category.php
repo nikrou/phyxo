@@ -11,6 +11,7 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Entity\User;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedArray;
 use Phyxo\Ws\NamedStruct;
@@ -20,6 +21,7 @@ use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\ImageRepository;
 use Phyxo\Ws\Server;
 use App\Repository\BaseRepository;
+use App\Repository\UserInfosRepository;
 use Phyxo\Image\SrcImage;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
@@ -147,7 +149,6 @@ class Category
     public static function getList($params, Server $service)
     {
         $where = ['1=1'];
-        $join_type = 'INNER';
         $join_user = $service->getUserMapper()->getUser()->getId();
 
         if (!$params['recursive']) {
@@ -164,7 +165,8 @@ class Category
             $where[] = 'status = \'public\'';
             $where[] = 'visible = \'' . $service->getConnection()->boolean_to_db(true) . '\'';
 
-            $join_user = $service->getConf()['guest_id'];
+            $result = (new UserInfosRepository($service->getConnection()))->findByStatuses([User::STATUS_GUEST]);
+            $join_user = $service->getConnection()->result2array($result, null, 'user_id')[0];
         } elseif ($service->getUserMapper()->isAdmin()) {
             /* in this very specific case, we don't want to hide empty
              * categories. Method calculatePermissions will only return
@@ -176,7 +178,6 @@ class Category
             if (!empty($forbidden_categories)) {
                 $where[] = 'id NOT IN (' . $forbidden_categories . ')';
             }
-            $join_type = 'LEFT';
         }
 
         $result = (new CategoryRepository($service->getConnection()))->findWithUserAndCondition($join_user, $where);

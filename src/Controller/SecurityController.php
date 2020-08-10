@@ -318,7 +318,7 @@ class SecurityController extends CommonController
                         $user['id']
                     );
 
-                    $result = (new UserRepository($conn))->findById($this->conf['webmaster_id']);
+                    $result = (new UserRepository($conn))->findByStatus(User::STATUS_WEBMASTER);
                     $row = $conn->db_fetch_assoc($result);
                     $webmaster_mail_address = $row['mail_address'];
 

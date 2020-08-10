@@ -12,12 +12,14 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\CategoryMapper;
+use App\Entity\User;
 use App\Repository\CategoryRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\SearchRepository;
 use App\Repository\TagRepository;
+use App\Repository\UserInfosRepository;
 use App\Repository\UserRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
@@ -329,6 +331,9 @@ class HistoryController extends AdminCommonController
         $summary['total_filesize'] = 0;
         $summary['guests_ip'] = [];
 
+        $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
+        $guest_id = $em->getConnection()->result2array($result, null, 'user_id')[0];
+
         foreach ($history_lines as $line) {
             if (isset($line['image_type']) && $line['image_type'] === 'high') {
                 if (isset($image_infos[$line['image_id']]['filesize'])) {
@@ -336,7 +341,7 @@ class HistoryController extends AdminCommonController
                 }
             }
 
-            if ($line['user_id'] === $conf['guest_id']) {
+            if ($line['user_id'] === $guest_id) {
                 if (!isset($summary['guests_ip'][$line['ip']])) {
                     $summary['guests_ip'][$line['ip']] = 0;
                 }
@@ -395,7 +400,7 @@ class HistoryController extends AdminCommonController
             $summary['nb_guests'] = count(array_keys($summary['guests_ip']));
 
             // we delete the "guest" from the $username_of hash so that it is avoided in next steps
-            unset($username_of[$conf['guest_id']]);
+            unset($username_of[$guest_id]);
         }
 
         $summary['nb_members'] = count($username_of);

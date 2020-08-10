@@ -12,6 +12,7 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\UserMapper;
+use App\Entity\User;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
@@ -398,7 +399,11 @@ class ConfigurationController extends AdminCommonController
 
         $languages = $em->getConnection()->result2array($em->getRepository(LanguageRepository::class)->findAll(), 'id', 'name');
         $themes = $em->getConnection()->result2array($em->getRepository(ThemeRepository::class)->findAll(), 'id', 'name');
-        $userdata = $this->userProvider->getUserData($conf['guest_id'], false);
+
+        $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
+        $guest_id = $em->getConnection()->result2array($result, null, 'user_id')[0];
+
+        $userdata = $this->userProvider->getUserData($guest_id, false);
 
         $tpl_params['radio_options'] = [
             'true' => $this->translator->trans('Yes', [], 'admin'),
@@ -513,7 +518,11 @@ class ConfigurationController extends AdminCommonController
             } elseif ($section === 'default') {
                 $languages = $em->getConnection()->result2array($em->getRepository(LanguageRepository::class)->findAll(), 'id', 'name');
                 $themes = $em->getConnection()->result2array($em->getRepository(ThemeRepository::class)->findAll(), 'id', 'name');
-                $userdata = $this->userProvider->getUserData($conf['guest_id'], false);
+
+                $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
+                $guest_id = $em->getConnection()->result2array($result, null, 'user_id')[0];
+
+                $userdata = $this->userProvider->getUserData($guest_id, false);
                 $fields = ['nb_image_page', 'language', 'expand', 'show_nb_hits', 'recent_period', 'theme'];
 
                 if ($conf['activate_comments']) {

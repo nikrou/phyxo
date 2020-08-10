@@ -11,6 +11,7 @@
 
 namespace Phyxo;
 
+use App\Entity\User;
 use App\Repository\UpgradeRepository;
 use App\Repository\PluginRepository;
 use App\Repository\ThemeRepository;
@@ -60,12 +61,15 @@ class Upgrade
             $this->em->getRepository(ThemeRepository::class)->deleteByIds($theme_ids);
 
             // what is the default theme?
-            $result = $this->em->getRepository(UserInfosRepository::class)->findByUserId($this->conf['default_user_id']);
+            $result = $this->em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
             $user_infos = $this->em->getConnection()->db_fetch_assoc($result);
 
             // if the default theme has just been deactivated, let's set another core theme as default
             if (in_array($user_infos['theme'], $theme_ids)) {
-                $this->em->getRepository(UserInfosRepository::class)->updateUserInfos(['theme' => 'treflez'], $this->conf['default_user_id']);
+                $result = $this->em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
+                $guest_id = $this->em->getConnection()->result2array($result, null, 'user_id')[0];
+
+                $this->em->getRepository(UserInfosRepository::class)->updateUserInfos(['theme' => 'treflez'], $guest_id);
             }
 
             return $theme_names;
