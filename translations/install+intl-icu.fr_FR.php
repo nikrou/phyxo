@@ -75,5 +75,6 @@ $lang['Toggle menu'] = "Menu";
 $lang['Powered by'] = 'Propulsé par';
 $lang['Version'] = "Version";
 $lang['Password'] = 'Mot de passe';
+$lang['Cannot create database configuration file "{filename}"'] = 'Impossible de créer le fichier de configuration "{file}"';
 
 return $lang;

@@ -48,13 +48,13 @@ Feature: User albums
     Then I should see photo "photo 3"
 
   Scenario: Guest can see only public albums and only if guest access is allowed
-    When config for "guest_access" equals to "true"
+    When config for "guest_access" of type "boolean" equals to "true"
     And I am on homepage
     Then I should see "album 3"
     But I should not see "album 1"
     And I should not see "album 2"
 
   Scenario: Guest can see public albums if guest access is forbidden
-    When config for "guest_access" equals to "false"
+    When config for "guest_access" of type "boolean" equals to "false"
     And I am on homepage
     Then I should not see "album 3"

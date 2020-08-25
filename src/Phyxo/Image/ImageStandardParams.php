@@ -40,7 +40,7 @@ class ImageStandardParams
     {
         $this->conf = $conf;
 
-        $this->derivatives = unserialize(base64_decode($conf[$this->conf_key]));
+        $this->derivatives = $conf[$this->conf_key];
 
         $this->loadFromConf();
     }
@@ -189,7 +189,7 @@ class ImageStandardParams
 
     protected function loadFromConf()
     {
-        if (!empty($this->derivatives)) {
+        if (!empty($this->derivatives) && isset($this->derivatives['d'])) {
             $this->type_map = $this->derivatives['d'];
             $this->watermark = isset($this->derivatives['w']) ? $this->derivatives['w'] : new WatermarkParams();
             if (isset($this->derivatives['c'])) {
@@ -253,6 +253,6 @@ class ImageStandardParams
             'c' => $this->customs,
         ];
 
-        $this->conf->addOrUpdateParam($this->conf_key, base64_encode(serialize($conf_derivatives)));
+        $this->conf->addOrUpdateParam($this->conf_key, $conf_derivatives, 'base64');
     }
 }

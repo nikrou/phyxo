@@ -48,6 +48,7 @@ DROP TABLE IF EXISTS "phyxo_config";
 CREATE TABLE "phyxo_config"
 (
   "param" VARCHAR(40) default '' NOT NULL,
+  "type" VARCHAR(15),
   "value" TEXT,
   "comment" VARCHAR(255),
   PRIMARY KEY ("param")

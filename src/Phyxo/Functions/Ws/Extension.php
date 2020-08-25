@@ -106,7 +106,7 @@ class Extension
         }
 
         if (!empty($conf['updates_ignored'])) {
-            $updates_ignored = json_decode($conf['updates_ignored'], true);
+            $updates_ignored = $conf['updates_ignored'];
         } else {
             $updates_ignored = ['plugins' => [], 'themes' => [], 'languages' => []];
         }
@@ -153,7 +153,7 @@ class Extension
         $result['phyxo_need_update'] = $_SESSION['need_update'];
 
         if (!empty($service->getConf()['updates_ignored'])) {
-            $updates_ignored = json_decode($service->getConf()['updates_ignored'], true);
+            $updates_ignored = $service->getConf()['updates_ignored'];
         } else {
             $updates_ignored = [];
         }

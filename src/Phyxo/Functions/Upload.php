@@ -57,7 +57,7 @@ class Upload
         return $upload_form_config;
     }
 
-    public static function save_upload_form_config(iDBLayer $conn, array $data, array &$errors = [], array &$form_errors = [])
+    public static function save_upload_form_config(array $data, array &$errors = [], array &$form_errors = []): array
     {
         $upload_form_config = self::get_upload_form_config();
         $updates = [];
@@ -75,12 +75,12 @@ class Upload
 
                 $updates[] = [
                     'param' => $field,
-                    'value' => $conn->boolean_to_string($value)
+                    'value' => true
                 ];
             } elseif ($upload_form_config[$field]['can_be_null'] and empty($value)) {
                 $updates[] = [
                     'param' => $field,
-                    'value' => 'false'
+                    'value' => null,
                 ];
             } else {
                 $min = $upload_form_config[$field]['min'];
@@ -105,16 +105,9 @@ class Upload
         }
 
         if (count($errors) == 0) {
-            (new ConfigRepository($conn))->massUpdates(
-                [
-                    'primary' => ['param'],
-                    'update' => ['value']
-                ],
-                $updates
-            );
-            return true;
+            return $updates;
         }
 
-        return false;
+        return [];
     }
 }

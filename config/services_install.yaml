@@ -15,30 +15,32 @@ services:
       # The best practice is to be explicit about your dependencies anyway.
 
     bind:
-      $rememberMeCookie: "%remember_cookie%"
-      $databaseConfigFile: "%database_config_file%"
-      $localDir: "%local_dir%"
-      $uploadDir: "%upload_dir%"
-      $themesDir: "%themes_dir%"
-      $pluginsDir: "%plugins_dir%"
-      $translationsDir: "%translator.default_path%"
-      $languagesDir: "%languages_dir%"
-      $cacheDir: "%cache_dir%"
-      $mediaCacheDir: "%media_cache_dir%"
-      $rootProjectDir: "%root_project_dir%"
-      $phyxoVersion: "%core_version%"
-      $phyxoWebsite: "%phyxo_website%"
-      $pemURL: "%pem_url%"
-      $defaultLanguage: "%kernel.default_locale%"
-      $defaultTheme: "%default_theme%"
-      $startParam: "%start_param%"
-      $adminThemeDir: "%admin_theme_dir%"
+      $rememberMeCookie: '%remember_cookie%'
+      $databaseConfigFile: '%database_config_file%'
+      $databaseYamlFile: '%database_yaml_file%'
+      $localDir: '%local_dir%'
+      $uploadDir: '%upload_dir%'
+      $themesDir: '%themes_dir%'
+      $pluginsDir: '%plugins_dir%'
+      $translationsDir: '%translator.default_path%'
+      $languagesDir: '%languages_dir%'
+      $cacheDir: '%cache_dir%'
+      $mediaCacheDir: '%media_cache_dir%'
+      $rootProjectDir: '%root_project_dir%'
+      $phyxoVersion: '%core_version%'
+      $phyxoWebsite: '%phyxo_website%'
+      $pemURL: '%pem_url%'
+      $defaultLanguage: '%kernel.default_locale%'
+      $defaultTheme: '%default_theme%'
+      $startParam: '%start_param%'
+      $adminThemeDir: '%admin_theme_dir%'
+      $prefix: '%database_prefix%'
 
   # makes classes in src/ available to be used as services
   # this creates a service per class whose id is the fully-qualified class name
   App\:
-    resource: "../src/*"
-    exclude: "../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Phyxo,LegacyPages,Command}"
+    resource: '../src/*'
+    exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Phyxo,LegacyPages,Command}'
 
   App\Security\LoginFormAuthenticator:
     autowire: false
@@ -67,14 +69,14 @@ services:
   # controllers are imported separately to make sure services can be injected
   # as action arguments even if you don't extend any base controller class
   App\Controller\:
-    resource: "../src/Controller"
-    tags: ["controller.service_arguments"]
+    resource: '../src/Controller'
+    tags: ['controller.service_arguments']
 
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
   Phyxo\DBLayer\iDBLayer:
     factory: 'Phyxo\DBLayer\DBLayer::initFromConfigFile'
-    arguments: ["%database_config_file%"]
+    arguments: ['%database_config_file%']
 
   phyxo.conn:
     public: true
@@ -83,7 +85,7 @@ services:
   Phyxo\Conf:
     calls:
       - method: init
-        arguments: ["%default_config_file%", "%user_config_file%"]
+        arguments: ['%default_config_file%', '%user_config_file%']
 
   phyxo.conf:
     public: true
@@ -108,9 +110,9 @@ services:
   App\Command\InstallCommand: ~
 
   App\Utils\RuntimeTranslator:
-    decorates: "translator"
+    decorates: 'translator'
     decoration_priority: 5
     arguments:
       $translator: '@App\Utils\RuntimeTranslator.inner'
-      $cache: "@cache.app"
-      $formatter: "@translator.formatter.default"
+      $cache: '@cache.app'
+      $formatter: '@translator.formatter.default'

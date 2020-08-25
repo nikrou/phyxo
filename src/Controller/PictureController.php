@@ -210,7 +210,7 @@ class PictureController extends CommonController
         if ($picture['src_image']->is_original() && isset($picture['width'])) {
             $tpl_params['INFO_DIMENSIONS'] = $picture['width'] . '*' . $picture['height'];
         }
-        $tpl_params['display_info'] = json_decode($conf['picture_informations'], true);
+        $tpl_params['display_info'] = $conf['picture_informations'];
 
         // admin links
         if ($userMapper->isAdmin()) {

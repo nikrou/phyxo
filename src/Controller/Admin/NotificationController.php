@@ -156,7 +156,7 @@ class NotificationController extends AdminCommonController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $conf_derivatives = unserialize(base64_decode($conf['derivatives']));
+        $conf_derivatives = $conf['derivatives'];
 
         if ($request->isMethod('POST')) {
             $check_key_treated = $notification->do_action_send_mail_notification(

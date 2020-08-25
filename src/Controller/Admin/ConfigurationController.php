@@ -265,7 +265,7 @@ class ConfigurationController extends AdminCommonController
         foreach ($this->display_checkboxes as $checkbox) {
             $tpl_params['display'][$checkbox] = $conf[$checkbox];
         }
-        $tpl_params['display']['picture_informations'] = json_decode($conf['picture_informations'], true);
+        $tpl_params['display']['picture_informations'] = $conf['picture_informations'];
         $tpl_params['display']['NB_CATEGORIES_PAGE'] = $conf['nb_categories_page'];
 
         return $tpl_params;
@@ -289,7 +289,7 @@ class ConfigurationController extends AdminCommonController
         // derivatives = multiple size
         $enabled = $image_std_params->getDefinedTypeMap();
         if (!empty($conf['disabled_derivatives'])) {
-            $disabled = json_decode($conf['disabled_derivatives'], true);
+            $disabled = $conf['disabled_derivatives'];
         } else {
             $disabled = [];
         }
@@ -588,8 +588,6 @@ class ConfigurationController extends AdminCommonController
                     }
                 }
             } elseif ($section === 'display') {
-                $conf['picture_informations'] = json_decode($conf['picture_informations'], true);
-
                 if ($request->request->get('nb_categories_page')) {
                     $nb_categories_page = (int) $request->request->get('nb_categories_page');
                     if ($nb_categories_page < 4) {
@@ -776,7 +774,9 @@ class ConfigurationController extends AdminCommonController
                 }
 
                 $errors = [];
-                \Phyxo\Functions\Upload::save_upload_form_config($em->getConnection(), $updates, $errors, $errors);
+                foreach (\Phyxo\Functions\Upload::save_upload_form_config($updates, $errors, $errors) as $update) {
+                    $conf[$update['param']] = $update['value'];
+                }
 
                 if ($request->request->get('resize_quality') < 50 || $request->request->get('resize_quality') > 98) {
                     $this->addFlash('error', 'resize_quality [50..98]');
@@ -859,7 +859,7 @@ class ConfigurationController extends AdminCommonController
 
                     $enabled = $image_std_params->getDefinedTypeMap();
                     if (!empty($conf['disabled_derivatives'])) {
-                        $disabled = unserialize(base64_decode($conf['disabled_derivatives']));
+                        $disabled = $conf['disabled_derivatives'];
                     } else {
                         $disabled = [];
                     }
@@ -935,7 +935,7 @@ class ConfigurationController extends AdminCommonController
                     if (count($disabled) == 0) {
                         unset($conf['disabled_derivatives']);
                     } else {
-                        $conf['disabled_derivatives'] = base64_encode(serialize($disabled));
+                        $conf['disabled_derivatives'] = $disabled;
                     }
 
                     if (count($changed_types)) {

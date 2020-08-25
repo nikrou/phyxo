@@ -61,7 +61,7 @@ class MenuBar
         if (empty($this->conf['blk_menubar'])) {
             $this->menu->loadDefaultBlocks();
         } else {
-            $this->menu->loadMenuConfig(json_decode($this->conf['blk_menubar'], true));
+            $this->menu->loadMenuConfig($this->conf['blk_menubar']);
         }
         $this->menu->prepareDisplay();
 

@@ -28,12 +28,13 @@ Feature: Comment
     And I follow "photo 2"
     Then I should see "a good comment"
 
+  # @TODO: add more scenarios with variations for config keys
   Scenario: Add a comment
     Given I am logged in as "user1" with password "pass1"
-    And config for "key_comment_valid_time" equals to "0"
-    And config for "comments_email_mandatory" equals to "false"
-    And config for "comments_validation" equals to "false"
-    And config for "email_admin_on_comment" equals to "false"
+    And config for "key_comment_valid_time" of type "integer" equals to "0"
+    And config for "comments_email_mandatory" of type "boolean" equals to "false"
+    And config for "comments_validation" of type "boolean" equals to "false"
+    And config for "email_admin_on_comment" of type "boolean" equals to "false"
     When I follow "album 1"
     And I follow "photo 1"
     And I add a comment :
@@ -42,6 +43,23 @@ Feature: Comment
       """
     Then I should see "Your comment has been registered"
     And I should see "What a good pics !"
+
+  # @TODO: add more scenarios with variations for config keys
+  Scenario: Add a comment when comments need admins validation
+    Given I am logged in as "user1" with password "pass1"
+    And config for "key_comment_valid_time" of type "integer" equals to "0"
+    And config for "comments_email_mandatory" of type "boolean" equals to "false"
+    And config for "comments_validation" of type "boolean" equals to "true"
+    And config for "email_admin_on_comment_validation" of type "boolean" equals to "false"
+    When I follow "album 1"
+    And I follow "photo 1"
+    And I add a comment :
+      """
+      What a good pics !
+      """
+    Then I should see "Your comment has been registered"
+    And I should see "An administrator must authorize your comment before it is visible"
+    And I should not see "What a good pics !"
 
   # @see bug http://piwigo.org/bugs/view.php?id=2887
   Scenario: I cannot see private photos on user comments page

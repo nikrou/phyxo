@@ -20,7 +20,6 @@ use Behat\Behat\Context\Context;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
-
 use App\Entity\User;
 use App\Repository\UserAccessRepository;
 use App\Utils\UserManager;
@@ -132,10 +131,12 @@ class DBContext implements Context
 
     /**
      * @When config for :param equals to :value
+     * @When config for :param of type :type equals to :value
      */
-    public function configForParamEqualsTo(string $param, string $value)
+    public function configForParamEqualsTo(string $param, string $value, string $type = 'string')
     {
-        $this->getContainer()->get(Conf::class)->addOrUpdateParam($param, $value);
+        $conf = $this->getContainer()->get(Conf::class);
+        $conf->addOrUpdateParam($param, $conf->dbToConf($value, $type), $type);
     }
 
     /**
@@ -244,8 +245,8 @@ class DBContext implements Context
         }
 
         $conf = $this->getContainer()->get(Conf::class);
-        // if publish_tags_immediately (or delete_tags_immediately) is not set we consider its value is 1
-        if (isset($conf['publish_tags_immediately']) && $conf['publish_tags_immediately'] == 0) {
+        // if publish_tags_immediately (or delete_tags_immediately) is not set we consider its value is true
+        if (isset($conf['publish_tags_immediately']) && $conf['publish_tags_immediately'] === false) {
             $this->getContainer()->get(TagMapper::class)->toBeValidatedTags($tag_ids, $image_id, ['status' => 0, 'validated' => $validated, 'user_id' => $user_id]);
         } else {
             $this->getContainer()->get(TagMapper::class)->dissociateTags($tag_ids, $image_id);

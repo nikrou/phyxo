@@ -78,7 +78,7 @@ class Upgrade
         return [];
     }
 
-    public function getAvailableUpgradeIds(string $root_dir): array
+    public static function getAvailableUpgradeIds(string $root_dir): array
     {
         $upgrades_path = $root_dir . '/install/db';
 

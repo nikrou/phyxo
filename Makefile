@@ -21,16 +21,17 @@ PUBLIC_MANIFEST=$(PUBLIC_THEME_PATH)/build/manifest.json
 ##
 
 config: clean ## prepare environment for building archive
-	mkdir -p $(DIST)/$(APP_NAME)
-	cp -pr *.php admin include install languages templates translations config imgs src \
+	mkdir -p $(DIST)/$(APP_NAME)/bin
+	cp -pr .env *.php admin include install languages templates translations config imgs src \
 	CHANGELOG.md LICENSE README.md $(DIST)/$(APP_NAME)/
 	cp -p tools/.htaccess $(DIST)/$(APP_NAME)/
 
-	cp -p composer.* $(DIST)/$(APP_NAME)/
+	cp -p composer.* symfony.lock $(DIST)/$(APP_NAME)/
+	cp -p bin/console $(DIST)/$(APP_NAME)/bin/
 	$(COMPOSER) install --no-dev -o -a -d $(DIST)/$(APP_NAME)
 
 	rm -f $(DIST)/$(APP_NAME)/bin/phpunit $(DIST)/$(APP_NAME)/bin/simple-phpunit $(DIST)/$(APP_NAME)/phpunit.xml.dist
-	rm -fr $(DIST)/$(APP_NAME)/config/packages/dev $(DIST)/$(APP_NAME)/config/packages/test $(DIST)/$(APP_NAME)/config/routes/dev
+	rm -fr $(DIST)/$(APP_NAME)/config/packages/dev $(DIST)/$(APP_NAME)/config/packages/test $(DIST)/$(APP_NAME)/config/routes/dev $(DIST)/$(APP_NAME)/config/database.yaml
 	rm -f $(DIST)/$(APP_NAME)/config/services_dev.yaml $(DIST)/$(APP_NAME)/config/services_test.yaml
 	rm -f $(DIST)/$(APP_NAME)/composer.* $(DIST)/$(APP_NAME)/symfony.lock $(DIST)/$(APP_NAME)/src/Log.php
 
@@ -54,7 +55,7 @@ config: clean ## prepare environment for building archive
 	# copy only distrib plugins and themes
 	cp -pr themes/treflez $(DIST)/$(APP_NAME)/themes/
 
-	# # remove node_modules and other stuff for dev
+	# remove node_modules and other stuff for dev
 	rm -fr $(DIST)/$(APP_NAME)/themes/treflez/src $(DIST)/$(APP_NAME)/themes/treflez/node_modules \
 	 	$(DIST)/$(APP_NAME)/themes/treflez/webpack.config.js $(DIST)/$(APP_NAME)/themes/treflez/package.json \
 	 	$(DIST)/$(APP_NAME)/themes/treflez/package-lock.json $(DIST)/$(APP_NAME)/themes/treflez/postcss.config.js \
@@ -63,16 +64,14 @@ config: clean ## prepare environment for building archive
 	 	$(DIST)/$(APP_NAME)/admin/theme/package-lock.json $(DIST)/$(APP_NAME)/admin/theme/postcss.config.js
 
 	find $(DIST) -name '*~' -exec rm \{\} \;
-	find $(DIST) -name '.env*' -exec rm \{\} \;
+	find $(DIST) -name '.env.local*' -o -name '.env.*.local' -exec rm \{\} \;
+	echo 'APP_ENV=prod' > $(DIST)/$(APP_NAME)/.env.local
+
 	rm -fr $(DIST)/$(APP_NAME)/public
 	rm -fr $(DIST)/$(APP_NAME)/vendor/atoum
 	rm -fr $(DIST)/$(APP_NAME)/vendor/symfony/phpunit-bridge
 	find ./$(DIST)/ -type d -name '.git' | xargs -r rm -rf
 	find ./$(DIST)/ -type f -name '.*ignore' | xargs -r rm -rf
-
-	# production env file
-	cp -p .env.prod.dist $(DIST)/$(APP_NAME)/.env
-
 
 dist: config $(ADMIN_MANIFEST) $(PUBLIC_MANIFEST) dist-tgz dist-zip ## build archives (zip and tgz) for Phyxo
 
@@ -82,7 +81,7 @@ dist-tgz: config $(ADMIN_MANIFEST) $(PUBLIC_MANIFEST) ## build tgz archive for P
 	tar zcvf $(TARGET)/$(APP_NAME)-$(APP_VERSION).tgz $(APP_NAME) ; \
 	cd ..
 
-dist-zip: config $(ADMIN_MANIFEST) $(PUBLIC_MANIFEST) ## build zip archive fro Phyxo
+dist-zip: config $(ADMIN_MANIFEST) $(PUBLIC_MANIFEST) ## build zip archive for Phyxo
 	cd $(DIST); \
 	mkdir -p $(TARGET); \
 	rm $(TARGET)/$(APP_NAME)-$(APP_VERSION).zip ; \

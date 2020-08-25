@@ -150,7 +150,7 @@ class Config
             $this->createDefaultConfig();
         }
 
-        $this->config = json_decode($conf[self::CONF_PARAM], true);
+        $this->config = $conf[self::CONF_PARAM];
 
         $this->populateConfig();
     }
@@ -200,7 +200,7 @@ class Config
 
     public function save()
     {
-        $this->core_config->addOrUpdateParam(self::CONF_PARAM, $this->config);
+        $this->core_config->addOrUpdateParam(self::CONF_PARAM, $this->config, 'json');
     }
 
     private function createDefaultConfig()

@@ -30,11 +30,11 @@ class MenubarController extends AdminCommonController
         $menu = new BlockManager('menubar');
         $menu->loadDefaultBlocks();
         $menu->loadRegisteredBlocks();
-        $menu->loadMenuConfig(json_decode($conf['blk_menubar'], true));
+        $menu->loadMenuConfig($conf['blk_menubar']);
         $menu->prepareDisplay();
         $reg_blocks = $menu->getRegisteredBlocks();
 
-        $mb_conf = json_decode($conf['blk_menubar'], true);
+        $mb_conf = $conf['blk_menubar'];
         $mb_conf = $this->makeConsecutive($reg_blocks, $mb_conf);
 
         foreach ($mb_conf as $id => $pos) {
@@ -64,7 +64,7 @@ class MenubarController extends AdminCommonController
             $menu->loadDefaultBlocks();
             $reg_blocks = $menu->getRegisteredBlocks();
 
-            $mb_conf = json_decode($conf['blk_menubar'], true);
+            $mb_conf = $conf['blk_menubar'];
 
             foreach ($mb_conf as $id => $pos) {
                 $hide = isset($_POST['hide_' . $id]);

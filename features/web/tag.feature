@@ -78,7 +78,7 @@ Feature: Tag
 
   Scenario: Show tags mark as added (but not validated) for creator only, when show_pending_added_tags is true
     Given I am logged in as "user1" with password "pass1"
-    And config for "show_pending_added_tags" equals to "1"
+    And config for "show_pending_added_tags" of type "boolean" equals to "true"
     And I add tag "tag 4" on photo "photo 5" by user "user1" not validated
     When I follow "album 2"
     And I follow "photo 5"
@@ -92,7 +92,7 @@ Feature: Tag
 
   Scenario: Don't show tags mark as added but not validated, when show_pending_added_tags is false
     Given I am logged in as "user1" with password "pass1"
-    And config for "show_pending_added_tags" equals to "0"
+    And config for "show_pending_added_tags" of type "boolean" equals to "false"
     And I add tag "tag 4" on photo "photo 5" by user "user1" not validated
     When I follow "album 2"
     And I follow "photo 5"
@@ -106,8 +106,8 @@ Feature: Tag
 
   Scenario: Show tags mark as deleted but not validated, when show_pending_deleted_tags is true
     Given I am logged in as "user1" with password "pass1"
-    And config for "publish_tags_immediately" equals to "0"
-    And config for "show_pending_deleted_tags" equals to "1"
+    And config for "publish_tags_immediately" of type "boolean" equals to "false"
+    And config for "show_pending_deleted_tags" of type "boolean" equals to "true"
     And I remove tag "tag 5" on photo "photo 5" by user "user1" not validated
     When I follow "album 2"
     And I follow "photo 5"
@@ -115,8 +115,8 @@ Feature: Tag
 
   Scenario: Don't show tags mark as deleted but not validated, when show_pending_deleted_tags is false
     Given I am logged in as "user1" with password "pass1"
-    And config for "publish_tags_immediately" equals to "0"
-    And config for "show_pending_deleted_tags" equals to "0"
+    And config for "publish_tags_immediately" of type "boolean" equals to "false"
+    And config for "show_pending_deleted_tags" of type "boolean" equals to "false"
     And I remove tag "tag 5" on photo "photo 5" by user "user1" not validated
     When I follow "album 2"
     And I follow "photo 5"

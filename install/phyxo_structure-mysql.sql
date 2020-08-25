@@ -66,6 +66,7 @@ CREATE TABLE `phyxo_comments` (
 DROP TABLE IF EXISTS `phyxo_config`;
 CREATE TABLE `phyxo_config` (
   `param` varchar(40) NOT NULL default '',
+  `type` VARCHAR(15),
   `value` text,
   `comment` varchar(255) default NULL,
   PRIMARY KEY  (`param`)

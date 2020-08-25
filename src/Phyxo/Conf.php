@@ -11,7 +11,7 @@
 
 namespace Phyxo;
 
-use Phyxo\DBLayer\iDBLayer;
+use App\Entity\Config;
 use App\Repository\ConfigRepository;
 
 /**
@@ -23,16 +23,16 @@ use App\Repository\ConfigRepository;
  */
 class Conf implements \ArrayAccess
 {
-    private $conn, $keys = [];
+    private $configRepository, $keys = [];
     const FILE_PREFIX = 'file_';
     const DB_PREFIX = 'db_';
 
-    public function __construct(iDBLayer $conn)
+    public function __construct(ConfigRepository $configRepository)
     {
-        $this->conn = $conn;
+        $this->configRepository = $configRepository;
     }
 
-    public function init(string $default_config_file, string $user_config_file = '')
+    public function init(string $default_config_file, string $user_config_file = ''): void
     {
         $this->loadFromFile($default_config_file);
         if (!empty($user_config_file)) {
@@ -41,7 +41,7 @@ class Conf implements \ArrayAccess
         $this->loadFromDB();
     }
 
-    public function loadFromFile($conf_file)
+    public function loadFromFile($conf_file): void
     {
         if (!is_readable($conf_file)) {
             return;
@@ -54,7 +54,7 @@ class Conf implements \ArrayAccess
 
         if (!empty($conf)) {
             foreach ($conf as $key => $value) {
-                $this->keys[self::FILE_PREFIX . $key] = $value;
+                $this->keys[self::FILE_PREFIX . $key] = ['value' => $value, 'type' => null];
             }
             unset($conf);
         }
@@ -62,64 +62,97 @@ class Conf implements \ArrayAccess
 
     /**
      * Add configuration parameters from database to global $conf array
-     *
-     * @param string $condition SQL condition
-     * @return void
      */
-    public function loadFromDB($condition = '')
+    public function loadFromDB(): void
     {
-        $result = (new ConfigRepository($this->conn))->findAll($condition);
-        while ($row = $this->conn->db_fetch_assoc($result)) {
-            $value = isset($row['value']) ? $row['value'] : '';
-            if ($this->conn->is_boolean($value)) {
-                $value = $this->conn->get_boolean($value);
-            }
-            $this->keys[self::DB_PREFIX . $row['param']] = $value;
+        foreach ($this->configRepository->findAll() as $config) {
+            $this->keys[self::DB_PREFIX . $config->getParam()] = [
+                'value' => $this->dbToConf($config->getValue(), $config->getType() ?? 'string'),
+                'type' => $config->getType()
+            ];
         }
     }
 
     /**
      * Add or update a config parameter
-     *
-     * @param string $param
-     * @param string $value
      */
-    public function addOrUpdateParam($param, $value)
+    public function addOrUpdateParam(string $param, $value, string $type = 'string'): void
     {
-        (new ConfigRepository($this->conn))->addOrUpdateParam($param, $value);
+        $config = new Config();
+        $config->setParam($param);
+        $config->setValue($this->confToDb($value, $type));
+        $config->setType($type);
 
-        $this->keys[self::DB_PREFIX . $param] = $value;
+        $this->configRepository->addOrUpdate($config);
+
+        $this->keys[self::DB_PREFIX . $param]['value'] = $value;
+    }
+
+    public function dbToConf(?string $value, string $type = 'string')
+    {
+        if (is_null($value)) {
+            return null;
+        } elseif ($type === 'boolean') {
+            return ($value === 'true');
+        } elseif ($type === 'integer') {
+            return (int) $value;
+        } elseif ($type === 'json') {
+            return json_decode($value, true);
+        } elseif ($type === 'base64') {
+            return unserialize(base64_decode($value));
+        } else {
+            return $value;
+        }
+    }
+
+    protected function confToDb($value, string $type = 'string'): string
+    {
+        if (is_null($value)) {
+            return null;
+        } elseif ($type === 'boolean') {
+            return ($value === true) ? 'true' : 'false';
+        } elseif ($type === 'base64') {
+            return base64_encode(serialize($value));
+        } elseif ($type === 'json' || is_array($value) || is_object($value)) {
+            return json_encode($value, true);
+        } else {
+            return $value;
+        }
     }
 
     // ArrayAccess methods
-    public function offsetExists($param)
+    public function offsetExists($param): bool
     {
         return isset($this->keys[self::FILE_PREFIX . $param]) || isset($this->keys[self::DB_PREFIX . $param]);
     }
 
     public function offsetGet($param)
     {
-        if (isset($this->keys[self::DB_PREFIX . $param])) {
-            return $this->keys[self::DB_PREFIX . $param];
-        } elseif (isset($this->keys[self::FILE_PREFIX . $param])) {
-            return $this->keys[self::FILE_PREFIX . $param];
-        } else {
-            return null;
+        $value = null;
+
+        if (isset($this->keys[self::FILE_PREFIX . $param]['value'])) {
+            $value = $this->keys[self::FILE_PREFIX . $param]['value'];
         }
+
+        if (isset($this->keys[self::DB_PREFIX . $param]['value'])) {
+            $value = $this->keys[self::DB_PREFIX . $param]['value'];
+        }
+
+        return $value;
     }
 
-    public function offsetSet($param, $value)
+    public function offsetSet($param, $value): void
     {
         if (isset($this->keys[self::FILE_PREFIX . $param])) {
-            $this->keys[self::FILE_PREFIX . $param] = $value;
+            $this->keys[self::FILE_PREFIX . $param]['value'] = $value;
         } else {
             // if new key add it to database
-            $this->keys[self::DB_PREFIX . $param] = $value;
+            $this->keys[self::DB_PREFIX . $param]['value'] = $value;
             $this->addOrUpdateParam($param, $value);
         }
     }
 
-    public function offsetUnset($param)
+    public function offsetUnset($param): void
     {
         if (isset($this->keys[self::DB_PREFIX . $param])) {
             unset($this->keys[self::DB_PREFIX . $param]);
@@ -134,7 +167,7 @@ class Conf implements \ArrayAccess
      *
      * @param string|string[] $params
      */
-    protected function deleteParam($params)
+    protected function deleteParam($params): void
     {
         if (!is_array($params)) {
             $params = [$params];
@@ -144,7 +177,7 @@ class Conf implements \ArrayAccess
             return;
         }
 
-        (new ConfigRepository($this->conn))->delete($params);
+        $this->configRepository->delete($params);
 
         foreach ($params as $param) {
             unset($this->keys[self::DB_PREFIX . $param]);

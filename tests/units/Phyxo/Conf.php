@@ -13,6 +13,7 @@ namespace tests\units\Phyxo;
 
 require_once __DIR__ . '/../bootstrap.php';
 
+use App\Repository\ConfigRepository;
 use mageekguy\atoum;
 use Prophecy\Prophet;
 
@@ -21,7 +22,7 @@ class Conf extends atoum\test
     public function testLoadFile()
     {
         $prophet = new Prophet();
-        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
+        $conn = $prophet->prophesize(ConfigRepository::class);
         $conf = new \Phyxo\Conf($conn->reveal());
         $conf->loadFromFile(TESTS_CONFIG_PATH . 'config_default.inc.php');
 
@@ -41,7 +42,7 @@ class Conf extends atoum\test
     public function testUpdateConfValue()
     {
         $prophet = new Prophet();
-        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
+        $conn = $prophet->prophesize(ConfigRepository::class);
         $conf = new \Phyxo\Conf($conn->reveal());
         $conf->loadFromFile(TESTS_CONFIG_PATH . 'config_default.inc.php');
 
@@ -63,7 +64,7 @@ class Conf extends atoum\test
     public function testDeleteConfParam()
     {
         $prophet = new Prophet();
-        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
+        $conn = $prophet->prophesize(ConfigRepository::class);
         $conf = new \Phyxo\Conf($conn->reveal());
         $conf->loadFromFile(TESTS_CONFIG_PATH . 'config_default.inc.php');
 
@@ -85,7 +86,7 @@ class Conf extends atoum\test
     public function testAddNewKey()
     {
         $prophet = new Prophet();
-        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
+        $conn = $prophet->prophesize(ConfigRepository::class);
         $conf = new \Phyxo\Conf($conn->reveal());
         $conf->loadFromFile(TESTS_CONFIG_PATH . 'config_default.inc.php');
 

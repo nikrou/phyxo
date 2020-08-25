@@ -168,7 +168,7 @@ class ThemesController extends AdminCommonController
 
         $tpl_params['SHOW_RESET'] = 0;
         if (!empty($conf['updates_ignored'])) {
-            $updates_ignored = json_decode($conf['updates_ignored'], true);
+            $updates_ignored = $conf['updates_ignored'];
         } else {
             $updates_ignored = ['plugins' => [], 'themes' => [], 'languages' => []];
         }

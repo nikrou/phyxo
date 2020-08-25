@@ -23,6 +23,7 @@ services:
     bind:
       $rememberMeCookie: '%remember_cookie%'
       $databaseConfigFile: '%database_config_file%'
+      $databaseYamlFile: '%database_yaml_file%'
       $localDir: '%local_dir%'
       $uploadDir: '%upload_dir%'
       $themesDir: '%themes_dir%'
@@ -39,18 +40,24 @@ services:
       $defaultTheme: '%default_theme%'
       $startParam: '%start_param%'
       $adminThemeDir: '%admin_theme_dir%'
+      $prefix: '%database_prefix%'
 
   # makes classes in src/ available to be used as services
   # this creates a service per class whose id is the fully-qualified class name
   App\:
     resource: '../src/*'
-    exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Phyxo,LegacyPages}'
+    exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Phyxo}'
 
   # controllers are imported separately to make sure services can be injected
   # as action arguments even if you don't extend any base controller class
   App\Controller\:
     resource: '../src/Controller'
     tags: ['controller.service_arguments']
+
+  kernel.listener.prefix:
+    class: App\EventSubscriber\TablePrefixSubscriber
+    tags:
+      - { name: doctrine.event_listener, event: loadClassMetadata, method: loadClassMetadata }
 
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
