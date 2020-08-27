@@ -18,6 +18,10 @@ env:
   - DB=pgsql
   - DB=sqlite
 
+jobs:
+  allow_failures:
+    - env: DB=sqlite3
+
 # before_install:
 #   - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
 
@@ -37,7 +41,6 @@ before_script:
 
   - php bin/console phyxo:install --db_prefix=phyxo_
   - php bin/console phyxo:user:create --username guest --password '' --mail_address '' --status guest
-  - php -S localhost:1080 -t . &
 
 script:
   - php ./bin/atoum

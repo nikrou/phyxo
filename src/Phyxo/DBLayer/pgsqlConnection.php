@@ -35,7 +35,12 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         if (!empty($port)) {
             $connection_string .= sprintf(' port=%d', $port);
         }
-        $connection_string .= sprintf(' user=%s password=%s dbname=%s', $user, $password, $database);
+
+        if (empty($password)) {
+            $connection_string .= sprintf(' user=%s dbname=%s', $user, $database);
+        } else {
+            $connection_string .= sprintf(' user=%s password=%s dbname=%s', $user, $password, $database);
+        }
 
         if (($this->db_link = @pg_connect($connection_string)) === false) {
             throw new dbException('Unable to connect to database');
