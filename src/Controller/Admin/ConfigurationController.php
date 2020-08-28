@@ -201,11 +201,12 @@ class ConfigurationController extends AdminCommonController
         return $this->render('configuration_' . $section . '.html.twig', $tpl_params);
     }
 
-    public function sizeRestore(ImageStandardParams $image_std_params, TranslatorInterface $translator)
+    public function sizeRestore(ImageStandardParams $image_std_params, Conf $conf, TranslatorInterface $translator)
     {
         $image_std_params->setAndSave($image_std_params->getDefaultSizes());
         Utils::clear_derivative_cache($image_std_params->getAllTypes(), $image_std_params->getAllTypes());
         $this->addFlash('info', $translator->trans('Your configuration settings have been saved', [], 'admin'));
+        unset($conf['disabled_derivatives']);
 
         return $this->redirectToRoute('admin_configuration', ['section' => 'sizes']);
     }
@@ -393,7 +394,7 @@ class ConfigurationController extends AdminCommonController
         return $tpl_params;
     }
 
-    protected function defaultConfiguration(Conf $conf, EntityManager $em, UserMapper $userMapper)
+    protected function defaultConfiguration(Conf $conf, EntityManager $em)
     {
         $tpl_params = [];
 
@@ -575,7 +576,7 @@ class ConfigurationController extends AdminCommonController
                     $comments_order = $request->request->get('comments_order');
                     if (isset($comments_order[$comments_order]) && $conf['$comments_order'] !== $comments_order) {
                         $conf_updated = true;
-                        $conf['comments_order'] = $_POST['comments_order'];
+                        $conf['comments_order'] = $request->request->get('comments_order');
                     }
                 }
 
@@ -854,8 +855,8 @@ class ConfigurationController extends AdminCommonController
 
                 // step 3 - save data
                 if (count($errors) == 0) {
-                    $quality_changed = $image_std_params->getQuality() != intval($_POST['resize_quality']);
-                    $image_std_params->setQuality(intval($_POST['resize_quality']));
+                    $quality_changed = $image_std_params->getQuality() != intval($request->request->get('resize_quality'));
+                    $image_std_params->setQuality(intval($request->request->get('resize_quality')));
 
                     $enabled = $image_std_params->getDefinedTypeMap();
                     if (!empty($conf['disabled_derivatives'])) {
@@ -925,17 +926,17 @@ class ConfigurationController extends AdminCommonController
                     }
 
                     foreach (array_keys($image_std_params->getCustoms()) as $custom) {
-                        if (isset($_POST['delete_custom_derivative_' . $custom])) {
+                        if ($request->request->get('delete_custom_derivative_' . $custom)) {
                             $changed_types[] = $custom;
                             $image_std_params->unsetCustom($custom);
                         }
                     }
 
                     $image_std_params->setAndSave($enabled_by);
-                    if (count($disabled) == 0) {
+                    if (count($disabled) === 0) {
                         unset($conf['disabled_derivatives']);
                     } else {
-                        $conf['disabled_derivatives'] = $disabled;
+                        $conf->addOrUpdateParam('disabled_derivatives', $disabled, 'base64');
                     }
 
                     if (count($changed_types)) {

@@ -83,6 +83,28 @@ class Conf extends atoum\test
             ->isIdenticalTo(['key1' => 'value1', 'key2' => 'value2']);
     }
 
+    public function testDeleteMultipleConfParams()
+    {
+        $prophet = new Prophet();
+        $conn = $prophet->prophesize(ConfigRepository::class);
+        $conf = new \Phyxo\Conf($conn->reveal());
+        $conf->loadFromFile(TESTS_CONFIG_PATH . 'config_default.inc.php');
+
+        unset($conf['simple_value'], $conf['boolean_true']);
+
+        $this
+            ->variable($conf['simple_value'])
+            ->isNull()
+            ->variable($conf['boolean_true'])
+            ->isNull()
+            ->boolean($conf['boolean_false'])
+            ->isIdenticalTo(false)
+            ->array($conf['array'])
+            ->isIdenticalTo(['one', 'two', 'three'])
+            ->array($conf['hash'])
+            ->isIdenticalTo(['key1' => 'value1', 'key2' => 'value2']);
+    }
+
     public function testAddNewKey()
     {
         $prophet = new Prophet();

@@ -35,7 +35,7 @@ class NotificationController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function params(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, Notification $notification, TranslatorInterface $translator)
+    public function params(Request $request, ConfigRepository $configRepository, Conf $conf, ParameterBagInterface $params, Notification $notification, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -43,9 +43,7 @@ class NotificationController extends AdminCommonController
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->isMethod('POST')) {
-            $updated_param_count = 0;
-            $result = $em->getRepository(ConfigRepository::class)->findAll('param like \'nbm\\_%\'');
-            while ($nbm_user = $em->getConnection()->db_fetch_assoc($result)) {
+            foreach ($configRepository->findAll('param like \'nbm\\_%\'') as $nbm_user) {
                 if ($request->request->get($nbm_user['param'])) {
                     $new_value = $request->request->get($nbm_user['param']);
                     if ($conf[$nbm_user['param']] !== $new_value) {

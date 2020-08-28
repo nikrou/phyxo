@@ -26,6 +26,7 @@ use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
 use App\Security\UserProvider;
 use App\Utils\UserManager;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -34,7 +35,7 @@ use Symfony\Component\Security\Core\Security;
 class Server
 {
     private $upload_dir, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $searchMapper, $imageMapper, $phyxoVersion, $conn,
-            $em, $conf, $router, $image_std_params, $userManager, $passwordEncoder, $pem_url, $security, $params, $userProvider, $request;
+            $em, $conf, $router, $image_std_params, $userManager, $passwordEncoder, $pem_url, $security, $params, $userProvider, $request, $managerRegistry;
 
     private $_requestHandler;
     private $_requestFormat;
@@ -268,6 +269,16 @@ class Server
     public function getRequest(): Request
     {
         return $this->request;
+    }
+
+    public function setManagerRegistry(ManagerRegistry $managerRegistry)
+    {
+        $this->managerRegistry = $managerRegistry;
+    }
+
+    public function getManagerRegistry(): ManagerRegistry
+    {
+        return $this->managerRegistry;
     }
 
     /**

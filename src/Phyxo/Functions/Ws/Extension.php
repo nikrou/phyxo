@@ -119,7 +119,7 @@ class Extension
                 $updates_ignored = ['plugins' => [], 'themes' => [], 'languages' => []];
             }
 
-            $service->getEntityManager()->getRepository(ConfigRepository::class)->addOrUpdateParam('updates_ignored', $updates_ignored);
+            $service->getManagerRegistry()->getRepository(ConfigRepository::class)->addOrUpdateParam('updates_ignored', $updates_ignored);
             return true;
         }
 
@@ -132,7 +132,7 @@ class Extension
             $updates_ignored[$params['type']][] = $params['id'];
         }
 
-        $service->getEntityManager()->getRepository(ConfigRepository::class)->addOrUpdateParam('updates_ignored', $updates_ignored);
+        $service->getManagerRegistry()->getRepository(ConfigRepository::class)->addOrUpdateParam('updates_ignored', $updates_ignored);
 
         return true;
     }

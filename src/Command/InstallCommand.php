@@ -302,12 +302,14 @@ class InstallCommand extends Command
 
         // Available upgrades must be ignored after a fresh installation.
         // To make Phyxo avoid upgrading, we must tell it upgrades have already been made.
-        $raw_query = 'INSERT INTO phyxo_upgrade (id, applied, description) VALUES(:id, now(), :description)';
+        $raw_query = 'INSERT INTO phyxo_upgrade (id, applied, description) VALUES(:id, :applied, :description)';
         $raw_query = str_replace($this->default_prefix, $db_params['db_prefix'], $raw_query);
         $statement = $conn->prepare($raw_query);
+        $now = new \DateTime();
 
         foreach (Upgrade::getAvailableUpgradeIds($this->rootProjectDir) as $upgrade_id) {
             $statement->bindValue('id', $upgrade_id);
+            $statement->bindValue('applied', $now->format('Y-m-d H:i:s'));
             $statement->bindValue('description', 'upgrade included in installation');
             $statement->execute();
         }

@@ -47,6 +47,12 @@ class ConfigRepository extends ServiceEntityRepository
 
     public function delete(array $params = []): void
     {
-        $this->findAll(['params' => $params])->remove();
+        $entities = $this->findBy(['param' => array_values($params)]);
+        foreach ($entities as $entity) {
+            $this->_em->remove($entity);
+        }
+        if (count($entities) > 0) {
+            $this->_em->flush($entity);
+        }
     }
 }

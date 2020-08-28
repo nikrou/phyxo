@@ -57,7 +57,7 @@ class MenubarController extends AdminCommonController
         return $this->render('menubar.html.twig', $tpl_params);
     }
 
-    public function update(Request $request, EntityManager $em, Conf $conf, TranslatorInterface $translator)
+    public function update(Request $request, ConfigRepository $configRepository, Conf $conf, TranslatorInterface $translator)
     {
         if ($request->isMethod('POST')) {
             $menu = new BlockManager('menubar');
@@ -67,7 +67,7 @@ class MenubarController extends AdminCommonController
             $mb_conf = $conf['blk_menubar'];
 
             foreach ($mb_conf as $id => $pos) {
-                $hide = isset($_POST['hide_' . $id]);
+                $hide = $request->request->get('hide_' . $id);
                 $mb_conf[$id] = ($hide ? -1 : +1) * abs($pos);
 
                 if ($pos = $request->request->get('pos_' . $id)) {
@@ -75,7 +75,7 @@ class MenubarController extends AdminCommonController
                 }
             }
             $mb_conf = $this->makeConsecutive($reg_blocks, $mb_conf);
-            $em->getRepository(ConfigRepository::class)->addOrUpdateParam('blk_' . $menu->getId(), $mb_conf);
+            $configRepository->addOrUpdateParam('blk_' . $menu->getId(), $mb_conf);
 
             $this->addFlash('info', $translator->trans('Order of menubar items has been updated successfully.', [], 'admin'));
         }

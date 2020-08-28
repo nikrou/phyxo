@@ -29,6 +29,7 @@ use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Utils\UserManager;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -41,7 +42,7 @@ class WsController extends AbstractController
     public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, CategoryMapper $categoryMapper, Conf $conf, iDBLayer $conn, EntityManager $em,
                            UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, RateMapper $rateMapper, SearchMapper $searchMapper, RouterInterface $router,
                            string $phyxoVersion, ImageStandardParams $image_std_params, string $pemURL, Security $security, ParameterBagInterface $params,
-                           ImageMapper $imageMapper, Request $request)
+                           ImageMapper $imageMapper, Request $request, ManagerRegistry $managerRegistry)
     {
         $this->service = new Server($params->get('upload_dir'));
         $this->service->setRequest($request);
@@ -65,6 +66,7 @@ class WsController extends AbstractController
         $this->service->setPasswordEncoder($passwordEncoder);
         $this->service->setExtensionsURL($pemURL);
         $this->service->setSecurity($security);
+        $this->service->setManagerRegistry($managerRegistry);
         $this->service->setParams($params);
 
         $this->addDefaultMethods();
