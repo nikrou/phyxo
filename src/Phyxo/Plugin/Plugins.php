@@ -16,7 +16,6 @@ use App\Entity\Plugin;
 use Phyxo\Plugin\DummyPluginMaintain;
 use Phyxo\Extension\Extensions;
 use App\Repository\PluginRepository;
-use Phyxo\DBLayer\iDBLayer;
 use Symfony\Component\Filesystem\Filesystem;
 
 class Plugins extends Extensions
@@ -25,11 +24,10 @@ class Plugins extends Extensions
     private $fs_plugins_retrieved = false, $db_plugins_retrieved = false, $server_plugins_retrieved = false;
     private $default_plugins = [];
     private $plugins_root_path, $userMapper;
-    private $conn, $pluginRepository;
+    private $pluginRepository;
 
-    public function __construct(iDBLayer $conn, PluginRepository $pluginRepository, UserMapper $userMapper)
+    public function __construct(PluginRepository $pluginRepository, UserMapper $userMapper)
     {
-        $this->conn = $conn;
         $this->userMapper = $userMapper;
         $this->pluginRepository = $pluginRepository;
     }

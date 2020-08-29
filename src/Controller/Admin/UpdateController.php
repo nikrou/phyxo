@@ -16,6 +16,7 @@ use App\Entity\User;
 use App\Repository\PluginRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UpgradeRepository;
+use App\Repository\UserInfosRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
@@ -166,15 +167,15 @@ class UpdateController extends AdminCommonController
                     $themeRepository->deleteByIds(array_keys($themes_deactivated));
 
                     // what is the default theme?
-                    $result = $this->em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
-                    $user_infos = $this->em->getConnection()->db_fetch_assoc($result);
+                    $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
+                    $user_infos = $em->getConnection()->db_fetch_assoc($result);
 
                     // if the default theme has just been deactivated, let's set another core theme as default
                     if (in_array($user_infos['theme'], array_keys($themes_deactivated))) {
-                        $result = $this->em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
-                        $guest_id = $this->em->getConnection()->result2array($result, null, 'user_id')[0];
+                        $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
+                        $guest_id = $em->getConnection()->result2array($result, null, 'user_id')[0];
 
-                        $this->em->getRepository(UserInfosRepository::class)->updateUserInfos(['theme' => $this->defaultTheme], $guest_id);
+                        $em->getRepository(UserInfosRepository::class)->updateUserInfos(['theme' => $this->defaultTheme], $guest_id);
                     }
 
                     $tables = $em->getConnection()->db_get_tables($em->getConnection()->getPrefix());

@@ -89,8 +89,8 @@
 							<label for="language" class="col-12 col-md-3 col-form-label">{{'Language'|trans}}</label>
 							<div class="col-12 col-md-4">
 								<select class="form-control" name="language">
-									{% for id, language in languages %}
-										<option value="{{id}}" {% if id==LANGUAGE %} selected="selected" {% endif %}>{{language}}</option>
+									{% for language in languages %}
+										<option value="{{language.id}}" {% if language.id==LANGUAGE %} selected="selected" {% endif %}>{{language.name}}</option>
 									{% endfor %}
 								</select>
 							</div>

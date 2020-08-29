@@ -12,6 +12,7 @@
 namespace Phyxo\Language;
 
 use App\DataMapper\UserMapper;
+use App\Entity\Language;
 use Phyxo\Extension\Extensions;
 use App\Repository\LanguageRepository;
 use App\Repository\UserInfosRepository;
@@ -21,17 +22,18 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class Languages extends Extensions
 {
-    private $em;
+    private $em, $languageRepository;
     private $languages_root_path, $userMapper;
     private $fs_languages = [], $db_languages = [], $server_languages = [];
     private $fs_languages_retrieved = false, $db_languages_retrieved = false, $server_languages_retrieved = false;
 
-    public function __construct(EntityManager $em = null, UserMapper $userMapper = null)
+    public function __construct(EntityManager $em = null, LanguageRepository $languageRepository = null, UserMapper $userMapper = null)
     {
         if (!is_null($em)) {
             $this->em = $em;
         }
 
+        $this->languageRepository = $languageRepository;
         $this->userMapper = $userMapper;
     }
 
@@ -74,13 +76,18 @@ class Languages extends Extensions
                     break;
                 }
 
-                $this->em->getRepository(LanguageRepository::class)->addLanguage($language_id, $this->fs_languages[$language_id]['name'], $this->fs_languages[$language_id]['version']);
+                $language = new Language();
+                $language->setId($language_id);
+                $language->setName($this->fs_languages[$language_id]['name']);
+                $language->setVersion($this->fs_languages[$language_id]['version']);
+                $this->languageRepository->addLanguage($language);
+
                 break;
 
             case 'update':
                 try {
                     $new_version = $this->getFsLanguages()[$language_id]['version'];
-                    $this->em->getRepository(LanguageRepository::class)->updateLanguage(['version' => $new_version], ['id' => $language_id]);
+                    $this->languageRepository->updateVersion($language_id, $new_version);
                 } catch (\Exception $e) {
                     $error = $e->getMessage();
                 }
@@ -97,7 +104,7 @@ class Languages extends Extensions
                     break;
                 }
 
-                $this->em->getRepository(LanguageRepository::class)->deleteLanguage($language_id);
+                $this->languageRepository->deleteById($language_id);
                 break;
 
             case 'delete':
@@ -110,8 +117,7 @@ class Languages extends Extensions
                     break;
                 }
 
-                // Set default language to user who are using this language
-                $this->em->getRepository(LanguageRepository::class)->deleteLanguage($language_id);
+                $this->languageRepository->deleteById($language_id);
 
                 // find associated files
                 $translation_files = glob($this->languages_root_path . '/*+intl-icu.' . $language_id . '.php');
@@ -189,8 +195,10 @@ class Languages extends Extensions
     public function getDbLanguages(): array
     {
         if (!$this->db_languages_retrieved) {
-            $result = $this->em->getRepository(LanguageRepository::class)->findAll();
-            $this->db_languages = $this->em->getConnection()->result2array($result, 'id');
+            $this->db_languages = [];
+            foreach ($this->languageRepository->findAll() as $language) {
+                $this->db_languages[$language->getId()] = $language;
+            }
             $this->db_languages_retrieved = true;
         }
 

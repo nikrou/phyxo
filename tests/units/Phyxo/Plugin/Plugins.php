@@ -49,7 +49,6 @@ class Plugins extends atoum\test
         $workspace = $this->mirrorToWorkspace();
 
         $prophet = new Prophet();
-        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
 
         $userMapper->getUser()->willReturn(new class {
@@ -61,7 +60,7 @@ class Plugins extends atoum\test
 
         $pluginRepository = $prophet->prophesize('App\Repository\PluginRepository');
 
-        $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $pluginRepository->reveal(), $userMapper->reveal());
+        $plugins = new \Phyxo\Plugin\Plugins($pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
 
         $this
@@ -74,7 +73,6 @@ class Plugins extends atoum\test
         $workspace = $this->mirrorToWorkspace();
 
         $prophet = new Prophet();
-        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
 
         $userMapper->getUser()->willReturn(new class {
@@ -86,7 +84,7 @@ class Plugins extends atoum\test
 
         $pluginRepository = $prophet->prophesize('App\Repository\PluginRepository');
 
-        $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $pluginRepository->reveal(), $userMapper->reveal());
+        $plugins = new \Phyxo\Plugin\Plugins($pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
 
         $plugins->sortFsPlugins($sort_type);
@@ -104,7 +102,6 @@ class Plugins extends atoum\test
         $workspace = $this->mirrorToWorkspace();
 
         $prophet = new Prophet();
-        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
 
         $userMapper->getUser()->willReturn(new class {
@@ -116,7 +113,7 @@ class Plugins extends atoum\test
 
         $pluginRepository = $prophet->prophesize('App\Repository\PluginRepository');
 
-        $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $pluginRepository->reveal(), $userMapper->reveal());
+        $plugins = new \Phyxo\Plugin\Plugins($pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
 
         $plugin_id = 'myPlugin';
@@ -134,7 +131,6 @@ class Plugins extends atoum\test
         $workspace = $this->mirrorToWorkspace();
 
         $prophet = new Prophet();
-        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
 
         $userMapper->getUser()->willReturn(new class {
@@ -146,7 +142,7 @@ class Plugins extends atoum\test
 
         $pluginRepository = $prophet->prophesize('App\Repository\PluginRepository');
 
-        $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $pluginRepository->reveal(), $userMapper->reveal());
+        $plugins = new \Phyxo\Plugin\Plugins($pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
 
         $this->calling($plugins)->download = function ($get_data, $archive) {
@@ -182,7 +178,6 @@ class Plugins extends atoum\test
         $workspace = $this->mirrorToWorkspace();
 
         $prophet = new Prophet();
-        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
 
         $userMapper->getUser()->willReturn(new class {
@@ -194,7 +189,7 @@ class Plugins extends atoum\test
 
         $pluginRepository = $prophet->prophesize('App\Repository\PluginRepository');
 
-        $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $pluginRepository->reveal(), $userMapper->reveal());
+        $plugins = new \Phyxo\Plugin\Plugins($pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
 
         $this->calling($plugins)->download = function ($get_data, $archive) {

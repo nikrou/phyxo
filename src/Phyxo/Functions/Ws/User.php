@@ -354,17 +354,14 @@ class User
         }
 
         if (!empty($params['language'])) {
-            $languages = $service->getConnection()->result2array((new LanguageRepository($service->getConnection()))->findAll(), 'id', 'name');
-
-            if (!isset($languages[$params['language']])) {
+            if (is_null($service->getManagerRegistry()->getRepository(LanguageRepository::class)->findOneBy(['id' => $params['language']]))) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid language');
             }
             $updates_infos['language'] = $params['language'];
         }
 
         if (!empty($params['theme'])) {
-            $theme = $service->getManagerRegistry->getRepository(ThemeRepository::class)->findById($params['theem']);
-            if (is_null($theme)) {
+            if (is_null($service->getManagerRegistry->getRepository(ThemeRepository::class)->findOneBy(['id' => $params['theme']]))) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid theme');
             }
             $updates_infos['theme'] = $params['theme'];

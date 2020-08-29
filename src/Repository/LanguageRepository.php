@@ -11,30 +11,42 @@
 
 namespace App\Repository;
 
-class LanguageRepository extends BaseRepository
+use App\Entity\Language;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
+
+class LanguageRepository extends ServiceEntityRepository
 {
-    public function findAll()
+    public function __construct(ManagerRegistry $registry)
     {
-        $query = 'SELECT id, version, name FROM ' . self::LANGUAGES_TABLE;
-        $query .= ' ORDER BY name ASC';
-
-        return $this->conn->db_query($query);
+        parent::__construct($registry, Language::class);
     }
 
-    public function addLanguage(string $id, string $name, string $version)
+    public function addLanguage(Language $language)
     {
-        return $this->conn->single_insert(self::LANGUAGES_TABLE, ['id' => $id, 'name' => $name, 'version' => $version], false);
+        $this->_em->persist($language);
+        $this->_em->flush($language);
     }
 
-    public function deleteLanguage(string $id)
+    public function updateVersion(string $language_id, string $version)
     {
-        $query = 'DELETE FROM ' . self::LANGUAGES_TABLE;
-        $query .= ' WHERE id= \'' . $this->conn->db_real_escape_string($id) . '\'';
-        $this->conn->db_query($query);
+        $qb = $this->createQueryBuilder('l');
+        $qb->update();
+        $qb->set('version', ':version');
+        $qb->where('id = :id');
+        $qb->setParameter('id', $language_id);
+        $qb->setParameter('version', $version);
+
+        return $qb->getQuery()->getResult();
     }
 
-    public function updateLanguage(array $datas, array $where)
+    public function deleteById(string $language_id)
     {
-        $this->conn->single_update(self::LANGUAGES_TABLE, $datas, $where);
+        $qb = $this->createQueryBuilder('l');
+        $qb->where('id', ':id');
+        $qb->setParameter('id', $language_id);
+        $qb->delete();
+
+        return $qb->getQuery()->getResult();
     }
 }

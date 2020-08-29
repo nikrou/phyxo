@@ -82,7 +82,9 @@ class Languages extends atoum\test
             }
         });
 
-        $languages = new \Phyxo\Language\Languages($em->reveal(), $userMapper->reveal());
+        $languageRepository = $prophet->prophesize('App\Repository\LanguageRepository');
+
+        $languages = new \Phyxo\Language\Languages($em->reveal(), $languageRepository->reveal(), $userMapper->reveal());
         $languages->setRootPath($this->languages_path);
 
         $this

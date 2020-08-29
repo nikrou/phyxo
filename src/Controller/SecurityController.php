@@ -141,7 +141,7 @@ class SecurityController extends CommonController
         return $this->render('register.html.twig', $tpl_params);
     }
 
-    public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, UserManager $user_manager, MenuBar $menuBar,
+    public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, UserManager $user_manager, MenuBar $menuBar, LanguageRepository $languageRepository,
                             UserProvider $userProvider, TranslatorInterface $translator, CsrfTokenManagerInterface $csrfTokenManager, ThemeRepository $themeRepository)
     {
         $this->userProvider = $userProvider;
@@ -151,7 +151,7 @@ class SecurityController extends CommonController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $languages = $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name');
+        $languages = $languageRepository->findAll();
         $themes = $themeRepository->findAll();
 
         $custom_fields = ['nb_image_page', 'language', 'expand', 'show_nb_hits', 'recent_period', 'theme'];

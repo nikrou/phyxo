@@ -11,7 +11,6 @@
 
 namespace App\Controller\Admin;
 
-use App\DataMapper\UserMapper;
 use App\Entity\User;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
@@ -145,7 +144,7 @@ class ConfigurationController extends AdminCommonController
     }
 
     public function index(Request $request, string $section, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager,
-                        ThemeRepository $themeRepository, ImageStandardParams $image_std_params)
+                        ThemeRepository $themeRepository, LanguageRepository $languageRepository, ImageStandardParams $image_std_params)
     {
         $tpl_params = [];
 
@@ -187,7 +186,7 @@ class ConfigurationController extends AdminCommonController
                 break;
 
             case 'default':
-                $tpl_params = array_merge($tpl_params, $this->defaultConfiguration($conf, $em, $themeRepository));
+                $tpl_params = array_merge($tpl_params, $this->defaultConfiguration($conf, $em, $themeRepository, $languageRepository));
                 break;
 
             default:
@@ -394,11 +393,15 @@ class ConfigurationController extends AdminCommonController
         return $tpl_params;
     }
 
-    protected function defaultConfiguration(Conf $conf, EntityManager $em, ThemeRepository $themeRepository)
+    protected function defaultConfiguration(Conf $conf, EntityManager $em, ThemeRepository $themeRepository, LanguageRepository $languageRepository)
     {
         $tpl_params = [];
 
-        $languages = $em->getConnection()->result2array($em->getRepository(LanguageRepository::class)->findAll(), 'id', 'name');
+        $languages = [];
+        foreach ($languageRepository->findAll() as $language) {
+            $languages[$language->getId()] = $language->getName();
+        }
+
         $themes = [];
         foreach ($themeRepository->findAll() as $theme) {
             $themes[$theme->getId()] = $theme->getName();
