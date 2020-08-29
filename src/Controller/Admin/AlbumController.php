@@ -20,7 +20,6 @@ use App\Repository\GroupAccessRepository;
 use App\Repository\GroupRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
-use App\Repository\SiteRepository;
 use App\Repository\UserAccessRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserGroupRepository;
@@ -175,9 +174,6 @@ class AlbumController extends AdminCommonController
             $tpl_params['U_DELETE'] = $this->generateUrl('admin_album_delete', ['album_id' => $category['id'], 'parent_id' => $parent_id]);
             $tpl_params['parent_category'] = empty($category['id_uppercat']) ? [] : [$category['id_uppercat']];
         } else {
-            $result = $em->getRepository(SiteRepository::class)->getSiteUrl($album_id);
-            $row = $em->getConnection()->db_fetch_assoc($result);
-
             $uppercats = '';
             $local_dir = '';
             $result = $em->getRepository(CategoryRepository::class)->findById($album_id);

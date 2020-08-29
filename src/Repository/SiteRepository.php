@@ -11,63 +11,40 @@
 
 namespace App\Repository;
 
-class SiteRepository extends BaseRepository
+use App\Entity\Site;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
+
+class SiteRepository extends ServiceEntityRepository
 {
-    public function count(string $url) : int
+    public function __construct(ManagerRegistry $registry)
     {
-        $query = 'SELECT COUNT(id) AS count FROM ' . self::SITES_TABLE;
-        $query .= ' WHERE galleries_url = \'' . $this->conn->db_real_escape_string($url) . '\'';
-        list($nb_sites) = $this->conn->db_fetch_row($this->conn->db_query($query));
-
-        return $nb_sites;
+        parent::__construct($registry, Site::class);
     }
 
-    public function addSite(array $datas)
+    public function addSite(Site $site)
     {
-        return $this->conn->single_insert(self::SITES_TABLE, $datas, false);
-    }
-
-    public function findById(int $id)
-    {
-        $query = 'SELECT galleries_url FROM ' . self::SITES_TABLE;
-        $query .= ' WHERE id = ' . $id;
-
-        return $this->conn->db_query($query);
+        $this->_em->persist($site);
+        $this->_em->flush($site);
     }
 
     public function isSiteExists(string $url): bool
     {
-        $query = 'SELECT count(1) site_exists FROM ' . self::SITES_TABLE;
-        $query .= ' WHERE galleries_url = \'' . $this->conn->db_real_escape_string($url) . '\'';
+        $qb = $this->createQueryBuilder('s');
+        $qb->select('count(s.id)');
+        $qb->where('galleries_url', ':url');
+        $qb->setParameter('url', $url);
 
-        $result = $this->conn->db_query($query);
-        $row = $this->conn->db_fetch_assoc($result);
-
-        return $row['site_exists'] == 1;
+        return $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
-    public function findAll()
+    public function deleteById(int $id)
     {
-        $query = 'SELECT id, galleries_url FROM ' . self::SITES_TABLE;
+        $qb = $this->createQueryBuilder('l');
+        $qb->where('id', ':id');
+        $qb->setParameter('id', $id);
+        $qb->delete();
 
-        return $this->conn->db_query($query);
-    }
-
-    // retrieving the site url : "http://domain.com/gallery/" or simply "./galleries/"
-    public function getSiteUrl(int $category_id)
-    {
-        $query = 'SELECT galleries_url FROM ' . self::SITES_TABLE . ' AS s';
-        $query .= ' LEFT JOIN ' . self::CATEGORIES_TABLE . ' AS c';
-        $query .= ' ON s.id = c.site_id';
-        $query .= ' WHERE c.id = ' . $category_id;
-
-        return $this->conn->db_query($query);
-    }
-
-    public function deleteSite(int $id)
-    {
-        $query = 'DELETE FROM ' . self::SITES_TABLE;
-        $query .= ' WHERE id = ' . $id;
-        $this->conn->db_query($query);
+        return $qb->getQuery()->getResult();
     }
 }

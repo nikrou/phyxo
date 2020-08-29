@@ -13,6 +13,7 @@ namespace App\Controller\Admin;
 
 use App\DataMapper\CategoryMapper;
 use App\DataMapper\ImageMapper;
+use App\Entity\Site;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\SiteRepository;
@@ -27,7 +28,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class SiteController extends AdminCommonController
 {
     public function index(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, KernelInterface $kernel, CsrfTokenManagerInterface $csrfTokenManager,
-                        TranslatorInterface $translator)
+                        TranslatorInterface $translator, SiteRepository $siteRepository)
     {
         $tpl_params = [];
 
@@ -45,15 +46,16 @@ class SiteController extends AdminCommonController
                 }
 
                 // site must not exists
-
-                if ($em->getRepository(SiteRepository::class)->isSiteExists($url)) {
+                if ($siteRepository->isSiteExists($url)) {
                     $this->addFlash('error', $translator->trans('This site already exists', [], 'admin') . ' [' . $url . ']');
                 } else {
                     $gallery_url = $kernel->getProjectDir() . '/' . $url;
                     if (!file_exists($gallery_url)) {
                         $this->addFlash('error', $translator->trans('Directory does not exist', [], 'admin') . ' [' . $gallery_url . ']');
                     } else {
-                        $em->getRepository(SiteRepository::class)->addSite(['galleries_url' => $url]);
+                        $site = new Site();
+                        $site->setGalleriesUrl($url);
+                        $siteRepository->addSite($site);
                         $this->addFlash('info', $url . ' ' . $translator->trans('created', [], 'admin'));
                     }
                 }
@@ -65,17 +67,16 @@ class SiteController extends AdminCommonController
         $result = $em->getRepository(CategoryRepository::class)->findSitesDetail();
         $sites_detail = $em->getConnection()->result2array($result, 'site_id');
 
-        $result = $em->getRepository(SiteRepository::class)->findAll();
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-            $is_remote = \Phyxo\Functions\URL::url_is_remote($row['galleries_url']);
+        foreach ($siteRepository->findAll() as $site) {
+            $is_remote = \Phyxo\Functions\URL::url_is_remote($site->getGalleryUrl());
 
             $tpl_var = [
-                'ID' => $row['id'],
-                'NAME' => $row['galleries_url'],
+                'ID' => $site->getId(),
+                'NAME' => $site->getGalleryUrl(),
                 'TYPE' => $translator->trans($is_remote ? 'Remote' : 'Local', [], 'admin'),
-                'CATEGORIES' => isset($sites_detail[$row['id']]['nb_categories']) ?? null,
-                'IMAGES' => isset($sites_detail[$row['id']]['nb_images']) ?? null,
-                'U_SYNCHRONIZE' => $this->generateUrl('admin_synchronize', ['site' => $row['id']]),
+                'CATEGORIES' => isset($sites_detail[$site->getId()]['nb_categories']) ?? null,
+                'IMAGES' => isset($sites_detail[$site->getId()]['nb_images']) ?? null,
+                'U_SYNCHRONIZE' => $this->generateUrl('admin_synchronize', ['site' => $site->getId()]),
             ];
 
             $plugin_links = [];
@@ -104,12 +105,11 @@ class SiteController extends AdminCommonController
         return $this->render('site_manager.html.twig', $tpl_params);
     }
 
-    public function delete(Request $request, EntityManager $em, ImageMapper $imageMapper, CategoryMapper $categoryMapper, TranslatorInterface $translator)
+    public function delete(Request $request, EntityManager $em, ImageMapper $imageMapper, CategoryMapper $categoryMapper, TranslatorInterface $translator, SiteRepository $siteRepository)
     {
         $site = $request->request->get('site');
 
-        $result = $em->getRepository(SiteRepository::class)->findById($site);
-        list($galleries_url) = $em->getConnection()->db_fetch_row($result);
+        $galleries_url = $siteRepository->findOneBy(['id' => $site]);
 
         if ($galleries_url) {
             // destruction of the categories of the site
@@ -122,7 +122,7 @@ class SiteController extends AdminCommonController
             $element_ids = $em->getConnection()->result2array($result, null, 'id');
             $imageMapper->deleteElements($element_ids);
 
-            $em->getRepository(SiteRepository::class)->deleteSite($site);
+            $siteRepository->deleteById($site);
             $this->addFlash('info', $galleries_url . ' ' . $translator->trans('deleted', [], 'admin'));
         }
 

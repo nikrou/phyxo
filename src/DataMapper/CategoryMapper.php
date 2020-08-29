@@ -29,14 +29,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CategoryMapper
 {
-    private $em, $conf, $router, $translator;
+    private $em, $conf, $router, $translator, $siteRepository;
 
-    public function __construct(Conf $conf, EntityManager $em, RouterInterface $router, TranslatorInterface $translator)
+    public function __construct(Conf $conf, EntityManager $em, RouterInterface $router, TranslatorInterface $translator, SiteRepository $siteRepository)
     {
         $this->conf = $conf;
         $this->em = $em;
         $this->router = $router;
         $this->translator = $translator;
+        $this->siteRepository = $siteRepository;
     }
 
     /**
@@ -1013,8 +1014,10 @@ class CategoryMapper
         $cat_dirs = $this->em->getConnection()->result2array($result, 'id', 'dir');
 
         // caching galleries_url
-        $result = $this->em->getRepository(SiteRepository::class)->findAll();
-        $galleries_url = $this->em->getConnection()->result2array($result, 'id', 'galleries_url');
+        $galleries_url = [];
+        foreach ($this->siteRepository->findAll() as $site) {
+            $galleries_url[$site->getId()] = $site->getGalleryUrl();
+        }
 
         // categories : id, site_id, uppercats
         $result = $this->em->getRepository(CategoryRepository::class)->findByIdsAndDir($cat_ids, 'IS NOT NULL');

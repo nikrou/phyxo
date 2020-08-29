@@ -2,7 +2,7 @@
 -- phyxo_caddie
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS phyxo_caddie;
+DROP TABLE IF EXISTS "phyxo_caddie";
 CREATE TABLE "phyxo_caddie"
 (
   "user_id" INTEGER default 0 NOT NULL,
@@ -477,9 +477,8 @@ CREATE TABLE "phyxo_user_mail_notification"
 -----------------------------------------------------------------------------
 -- phyxo_users
 -----------------------------------------------------------------------------
-DROP TABLE IF EXISTS "phyxo_comments";
-DROP TABLE IF EXISTS "phyxo_users";
 
+DROP TABLE IF EXISTS "phyxo_users";
 CREATE TABLE "phyxo_users"
 (
   "id" serial  NOT NULL,
@@ -512,6 +511,7 @@ CREATE TABLE "phyxo_image_tag"
 -- phyxo_comments
 -----------------------------------------------------------------------------
 
+DROP TABLE IF EXISTS "phyxo_comments";
 CREATE TABLE "phyxo_comments"
 (
   "id" serial  NOT NULL,
