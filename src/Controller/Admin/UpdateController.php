@@ -41,7 +41,8 @@ class UpdateController extends AdminCommonController
     }
 
     public function core(Request $request, int $step = 0, string $version = null, Conf $conf, EntityManager $em, UserMapper $userMapper, string $defaultTheme,
-                        ParameterBagInterface $params, TranslatorInterface $translator, PluginRepository $pluginRepository, ThemeRepository $themeRepository)
+                        ParameterBagInterface $params, TranslatorInterface $translator, PluginRepository $pluginRepository, ThemeRepository $themeRepository,
+                        UpgradeRepository $upgradeRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -181,8 +182,10 @@ class UpdateController extends AdminCommonController
                     $tables = $em->getConnection()->db_get_tables($em->getConnection()->getPrefix());
                     $columns_of = $em->getConnection()->db_get_columns_of($tables);
 
-                    $result = $em->getRepository(UpgradeRepository::class)->findAll();
-                    $applied_upgrades = $em->getConnection()->result2array($result, null, 'id');
+                    $applied_upgrades = [];
+                    foreach ($upgradeRepository->findAll() as $upgrade) {
+                        $applied_upgrades[] = $upgrade->getId();
+                    }
 
                     if (!in_array(142, $applied_upgrades)) {
                         $current_release = '1.0.0';

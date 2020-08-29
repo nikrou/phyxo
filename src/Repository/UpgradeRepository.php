@@ -11,25 +11,49 @@
 
 namespace App\Repository;
 
-class UpgradeRepository extends BaseRepository
+use App\Entity\Upgrade;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
+
+/**
+ * @method Upgrade|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Upgrade|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Upgrade[]    findAll()
+ * @method Upgrade[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ */
+class UpgradeRepository extends ServiceEntityRepository
 {
-    public function findAll()
+    public function __construct(ManagerRegistry $registry)
     {
-        $query = 'SELECT id, applied, description FROM ' . self::UPGRADE_TABLE;
-
-        return $this->conn->db_query($query);
+        parent::__construct($registry, Upgrade::class);
     }
 
-    public function addUpgrade(string $id, string $description)
+    // /**
+    //  * @return Upgrade[] Returns an array of Upgrade objects
+    //  */
+    /*
+    public function findByExampleField($value)
     {
-        $query = 'INSERT INTO ' . self::UPGRADE_TABLE;
-        $query .= ' (id, applied, description)';
-        $query .= ' VALUES(\'' . $this->conn->db_real_escape_string($id) . '\', NOW(), \'' . $this->conn->db_real_escape_string($description) . '\')';
-        $this->conn->db_query($query);
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.exampleField = :val')
+            ->setParameter('val', $value)
+            ->orderBy('u.id', 'ASC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+        ;
     }
+     */
 
-    public function massInserts(array $fields, array $datas)
+    /*
+    public function findOneBySomeField($value): ?Upgrade
     {
-        $this->conn->mass_inserts(self::UPGRADE_TABLE, $fields, $datas);
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.exampleField = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
     }
+     */
 }
