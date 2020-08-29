@@ -234,7 +234,7 @@ CREATE TYPE PLUGINS_STATE AS ENUM('active', 'inactive');
 CREATE TABLE "phyxo_plugins"
 (
   "id" VARCHAR(64) default '' NOT NULL,
-  "state" PLUGINS_STATE default 'inactive'::PLUGINS_STATE,
+  "state" VARCHAR(25) default 'inactive',
   "version" VARCHAR(64) default '0' NOT NULL,
   PRIMARY KEY ("id")
 );

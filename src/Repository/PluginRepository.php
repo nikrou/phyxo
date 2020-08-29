@@ -11,55 +11,77 @@
 
 namespace App\Repository;
 
-class PluginRepository extends BaseRepository
+use App\Entity\Plugin;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
+
+class PluginRepository extends ServiceEntityRepository
 {
-    public function findAll(? string $state = null)
+    public function __construct(ManagerRegistry $registry)
     {
-        $query = 'SELECT id, state, version FROM ' . self::PLUGINS_TABLE;
-        if (!is_null($state)) {
-            $query .= ' WHERE state = \'' . $this->conn->db_real_escape_string($state) . '\'';
+        parent::__construct($registry, Plugin::class);
+    }
+
+    public function findAllByState(string $state = '')
+    {
+        $qb = $this->createQueryBuilder('p');
+
+        if ($state !== '') {
+            $qb->where('state', ':state');
+            $qb->setParameter('state', $state);
         }
 
-        return $this->conn->db_query($query);
+        return $qb->getQuery()->getResult();
     }
 
-    public function findByStateAndExcludeIds(string $status, array $plugin_ids = [])
+    public function addPlugin(Plugin $plugin)
     {
-        $query = 'SELECT id, state, version FROM ' . self::PLUGINS_TABLE;
-        $query .= ' WHERE state = \'active\'';
-
-        if (!empty($plugin_ids)) {
-            $query .= ' AND id NOT ' . $this->conn->in($plugin_ids);
-        }
-
-        return $this->conn->db_query($query);
+        $this->_em->persist($plugin);
+        $this->_em->flush($plugin);
     }
 
-    public function addPlugin(string $id, string $version, string $state = 'inactive')
+    public function updateVersion(string $plugin_id, string $version)
     {
-        return $this->conn->single_insert(self::PLUGINS_TABLE, ['id' => $id, 'version' => $version, 'state' => $state], false);
+        $qb = $this->createQueryBuilder('p');
+        $qb->update();
+        $qb->set('version', ':version');
+        $qb->where('id = :id');
+        $qb->setParameter('id', $plugin_id);
+        $qb->setParameter('version', $version);
+
+        return $qb->getQuery()->getResult();
     }
 
-    public function updatePlugin(array $datas, array $where)
+    public function updateState(string $plugin_id, string $state)
     {
-        $this->conn->single_update(self::PLUGINS_TABLE, $datas, $where);
+        $qb = $this->createQueryBuilder('p');
+        $qb->update();
+        $qb->set('state', ':state');
+        $qb->where('id = :id');
+        $qb->setParameter('id', $plugin_id);
+        $qb->setParameter('state', $state);
+
+        return $qb->getQuery()->getResult();
     }
 
-    public function deactivateIds(array $plugin_ids = [])
+    public function deactivateNonStandardPlugins()
     {
-        $query = 'UPDATE ' . self::PLUGINS_TABLE;
-        $query .= ' SET state=\'inactive\'';
+        $qb = $this->createQueryBuilder('p');
+        $qb->update();
+        $qb->set('state', Plugin::INACTIVE);
+        $qb->where('state = :state');
+        $qb->setParameter('state', Plugin::ACTIVE);
 
-        if (!empty($plugin_ids)) {
-            $query .= ' WHERE id ' . $this->conn->in($plugin_ids);
-        }
-        $this->conn->db_query($query);
+        return $qb->getQuery()->getResult();
     }
 
-    public function deletePlugin(string $plugin_id)
+    public function deleteById(string $plugin_id)
     {
-        $query = 'DELETE FROM ' . self::PLUGINS_TABLE;
-        $query .= ' WHERE id=\'' . $this->conn->db_real_escape_string($plugin_id) . '\'';
-        $this->conn->db_query($query);
+        $qb = $this->createQueryBuilder('p');
+        $qb->where('id', ':id');
+        $qb->setParameter('id', $plugin_id);
+        $qb->delete();
+
+        return $qb->getQuery()->getResult();
     }
 }

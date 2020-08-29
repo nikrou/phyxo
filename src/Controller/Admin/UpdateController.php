@@ -12,12 +12,14 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\UserMapper;
+use App\Entity\User;
+use App\Repository\PluginRepository;
+use App\Repository\ThemeRepository;
 use App\Repository\UpgradeRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Update\Updates;
-use Phyxo\Upgrade;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +27,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UpdateController extends AdminCommonController
 {
-    private $translator;
+    private $translator, $defaultTheme;
 
     protected function setTabsheet(string $section = 'core'): array
     {
@@ -37,11 +39,12 @@ class UpdateController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function core(Request $request, int $step = 0, string $version = null, Conf $conf, EntityManager $em, UserMapper $userMapper,
-                        ParameterBagInterface $params, TranslatorInterface $translator)
+    public function core(Request $request, int $step = 0, string $version = null, Conf $conf, EntityManager $em, UserMapper $userMapper, string $defaultTheme,
+                        ParameterBagInterface $params, TranslatorInterface $translator, PluginRepository $pluginRepository, ThemeRepository $themeRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
+        $this->defaultTheme = $defaultTheme;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -155,9 +158,24 @@ class UpdateController extends AdminCommonController
                 try {
                     $updater->upgrade($zip);
 
-                    $upgrade = new Upgrade($em, $this->getDoctrine());
-                    $upgrade->deactivateNonStandardPlugins();
-                    $upgrade->deactivateNonStandardThemes();
+                    $pluginRepository->deactivateNonStandardPlugins();
+                    $themes_deactivated = [];
+                    foreach ($themeRepository->findExcept([$this->defaultTheme]) as $theme) {
+                        $themes_deactivated[$theme->getId()] = $theme->getName();
+                    }
+                    $themeRepository->deleteByIds(array_keys($themes_deactivated));
+
+                    // what is the default theme?
+                    $result = $this->em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
+                    $user_infos = $this->em->getConnection()->db_fetch_assoc($result);
+
+                    // if the default theme has just been deactivated, let's set another core theme as default
+                    if (in_array($user_infos['theme'], array_keys($themes_deactivated))) {
+                        $result = $this->em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
+                        $guest_id = $this->em->getConnection()->result2array($result, null, 'user_id')[0];
+
+                        $this->em->getRepository(UserInfosRepository::class)->updateUserInfos(['theme' => $this->defaultTheme], $guest_id);
+                    }
 
                     $tables = $em->getConnection()->db_get_tables($em->getConnection()->getPrefix());
                     $columns_of = $em->getConnection()->db_get_columns_of($tables);

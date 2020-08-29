@@ -238,7 +238,7 @@ DROP TABLE IF EXISTS "phyxo_plugins";
 CREATE TABLE "phyxo_plugins"
 (
   "id" VARCHAR(64) default '' NOT NULL,
-  "state" VARCHAR(50) default 'inactive',
+  "state" VARCHAR(25) default 'inactive',
   "version" VARCHAR(64) default '0' NOT NULL,
   PRIMARY KEY ("id")
 );

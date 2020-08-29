@@ -59,7 +59,9 @@ class Plugins extends atoum\test
             }
         });
 
-        $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $userMapper->reveal());
+        $pluginRepository = $prophet->prophesize('App\Repository\PluginRepository');
+
+        $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
 
         $this
@@ -82,7 +84,9 @@ class Plugins extends atoum\test
             }
         });
 
-        $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $userMapper->reveal());
+        $pluginRepository = $prophet->prophesize('App\Repository\PluginRepository');
+
+        $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
 
         $plugins->sortFsPlugins($sort_type);
@@ -110,7 +114,9 @@ class Plugins extends atoum\test
             }
         });
 
-        $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $userMapper->reveal());
+        $pluginRepository = $prophet->prophesize('App\Repository\PluginRepository');
+
+        $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
 
         $plugin_id = 'myPlugin';
@@ -138,7 +144,9 @@ class Plugins extends atoum\test
             }
         });
 
-        $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $userMapper->reveal());
+        $pluginRepository = $prophet->prophesize('App\Repository\PluginRepository');
+
+        $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
 
         $this->calling($plugins)->download = function ($get_data, $archive) {
@@ -184,7 +192,9 @@ class Plugins extends atoum\test
             }
         });
 
-        $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $userMapper->reveal());
+        $pluginRepository = $prophet->prophesize('App\Repository\PluginRepository');
+
+        $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
 
         $this->calling($plugins)->download = function ($get_data, $archive) {

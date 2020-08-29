@@ -245,7 +245,7 @@ CREATE TABLE `phyxo_old_permalinks` (
 DROP TABLE IF EXISTS `phyxo_plugins`;
 CREATE TABLE `phyxo_plugins` (
   `id` varchar(64) binary NOT NULL default '',
-  `state` enum('inactive','active') NOT NULL default 'inactive',
+  `state` varchar(25) NOT NULL default 'inactive',
   `version` varchar(64) NOT NULL default '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM;

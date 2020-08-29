@@ -12,6 +12,7 @@
 namespace Phyxo\Plugin;
 
 use App\DataMapper\UserMapper;
+use App\Entity\Plugin;
 use Phyxo\Plugin\DummyPluginMaintain;
 use Phyxo\Extension\Extensions;
 use App\Repository\PluginRepository;
@@ -24,12 +25,13 @@ class Plugins extends Extensions
     private $fs_plugins_retrieved = false, $db_plugins_retrieved = false, $server_plugins_retrieved = false;
     private $default_plugins = [];
     private $plugins_root_path, $userMapper;
-    private $conn;
+    private $conn, $pluginRepository;
 
-    public function __construct(iDBLayer $conn, UserMapper $userMapper)
+    public function __construct(iDBLayer $conn, PluginRepository $pluginRepository, UserMapper $userMapper)
     {
         $this->conn = $conn;
         $this->userMapper = $userMapper;
+        $this->pluginRepository = $pluginRepository;
     }
 
     public function setRootPath(string $plugins_root_path)
@@ -95,7 +97,10 @@ class Plugins extends Extensions
                 $plugin_maintain->install($this->fs_plugins[$plugin_id]['version'], $error);
 
                 if (empty($error)) {
-                    (new PluginRepository($this->conn))->addPlugin($plugin_id, $this->fs_plugins[$plugin_id]['version']);
+                    $plugin = new Plugin();
+                    $plugin->setId($plugin_id);
+                    $plugin->setVersion($this->fs_plugins[$plugin_id]['version']);
+                    $this->pluginRepository->addPlugin($plugin);
                 }
                 break;
 
@@ -110,7 +115,7 @@ class Plugins extends Extensions
                     $plugin_maintain = $this->buildMaintainClass($plugin_id);
                     $plugin_maintain->update($previous_version, $new_version, $error);
                     if ($new_version !== 'auto') {
-                        (new PluginRepository($this->conn))->updatePlugin(['version' => $new_version], ['id' => $plugin_id]);
+                        $this->pluginRepository->updateVersion($plugin_id, $new_version);
                     }
                 } catch (\Exception $e) {
                     $error = $e->getMessage();
@@ -126,7 +131,7 @@ class Plugins extends Extensions
                 }
 
                 if (empty($errors)) {
-                    (new PluginRepository($this->conn))->updatePlugin(['state' => 'active'], ['id' => $plugin_id]);
+                    $this->pluginRepository->updateState($plugin_id, Plugin::ACTIVE);
                 }
                 break;
 
@@ -134,7 +139,7 @@ class Plugins extends Extensions
                 if (!isset($crt_db_plugin) || $crt_db_plugin['state'] !== 'active') {
                     break;
                 }
-                (new PluginRepository($this->conn))->updatePlugin(['state' => 'inactive'], ['id' => $plugin_id]);
+                $this->pluginRepository->updateState($plugin_id, Plugin::INACTIVE);
                 $plugin_maintain->deactivate();
                 break;
 
@@ -145,7 +150,7 @@ class Plugins extends Extensions
                 if ($crt_db_plugin['state'] === 'active') {
                     $this->performAction('deactivate', $plugin_id);
                 }
-                (new PluginRepository($this->conn))->deletePlugin($plugin_id);
+                $this->pluginRepository->deleteById($plugin_id);
                 $plugin_maintain->uninstall();
                 break;
 
@@ -255,8 +260,10 @@ class Plugins extends Extensions
     public function getDbPlugins($state = null, $id = '')
     {
         if (!$this->db_plugins_retrieved) {
-            $result = (new PluginRepository($this->conn))->findAll($state);
-            $this->db_plugins = $this->conn->result2array($result, 'id');
+            $this->db_plugins = [];
+            foreach ($this->pluginRepository->findAllByState($state) as $plugin) {
+                $this->db_plugins[$plugin->getId()] = $plugin;
+            }
             $this->db_plugins_retrieved = true;
         }
 

@@ -13,7 +13,6 @@ doctrine:
             category_status: App\Type\CategoryStatusType
             history_section: App\Type\HistorySectionType
             history_image_type: App\Type\HistoryImageTypeType
-            plugin_state: App\Type\PluginStateType
             user_cache_image_access_type: App\Type\UserCacheImageAccessTypeType
             user_infos_status: App\Type\UserInfosStatusType
 
@@ -22,7 +21,6 @@ doctrine:
             categories_status: category_status
             history_section: history_section
             history_image_type: history_image_type
-            plugins_state: plugin_state
             user_cache_image_access_type: user_cache_image_access_type
             user_infos_status: user_infos_status
 
