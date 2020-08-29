@@ -33,13 +33,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UserMapper
 {
-    private $em, $conf, $autorizationChecker, $tagMapper;
+    private $em, $conf, $autorizationChecker, $tagMapper, $themeRepository;
     private $defaultLanguage, $themesDir, $userProvider, $translator;
 
-    public function __construct(EntityManager $em, Conf $conf, AuthorizationCheckerInterface $autorizationChecker,
+    public function __construct(EntityManager $em, Conf $conf, AuthorizationCheckerInterface $autorizationChecker, ThemeRepository $themeRepository,
                                 TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider, TranslatorInterface $translator)
     {
         $this->em = $em;
+        $this->themeRepository = $themeRepository;
         $this->conf = $conf;
         $this->autorizationChecker = $autorizationChecker;
         $this->tagMapper = $tagMapper;
@@ -194,10 +195,9 @@ class UserMapper
         }
 
         // let's find the first available theme
-        $result = $this->em->getRepository(ThemeRepository::class)->findAll();
-        $active_themes = array_keys($this->em->getConnection()->result2array($result, 'id', 'name'));
+        $themes = $this->themeRepository->findAll();
 
-        return $active_themes[0];
+        return $themes->first()->getName();
     }
 
     /**

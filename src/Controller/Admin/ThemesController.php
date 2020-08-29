@@ -13,6 +13,7 @@ namespace App\Controller\Admin;
 
 use App\DataMapper\UserMapper;
 use App\Entity\User;
+use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
@@ -38,20 +39,20 @@ class ThemesController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function installed(Request $request, EntityManager $em, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function installed(Request $request, EntityManager $em, ThemeRepository $themeRepository, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $themes = new Themes($em->getConnection(), $userMapper);
+        $themes = new Themes($em->getConnection(), $themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
 
         $db_themes = $themes->getDbThemes();
         $db_theme_ids = [];
         foreach ($db_themes as $db_theme) {
-            $db_theme_ids[] = $db_theme['id'];
+            $db_theme_ids[] = $db_theme->getId();
         }
         $default_theme = $userMapper->getDefaultTheme();
 
@@ -155,14 +156,14 @@ class ThemesController extends AdminCommonController
     }
 
     public function update(Request $request, EntityManager $em, UserMapper $userMapper, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
-                            ParameterBagInterface $params, TranslatorInterface $translator)
+                            ThemeRepository $themeRepository, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $themes = new Themes($em->getConnection(), $userMapper);
+        $themes = new Themes($em->getConnection(), $themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
         $themes->setExtensionsURL($params->get('pem_url'));
 
@@ -225,9 +226,9 @@ class ThemesController extends AdminCommonController
         return $this->render('themes_update.html.twig', $tpl_params);
     }
 
-    public function action(string $theme, string $action, EntityManager $em, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params)
+    public function action(string $theme, string $action, EntityManager $em, UserMapper $userMapper, ThemeRepository $themeRepository, ParameterBagInterface $params)
     {
-        $themes = new Themes($em->getConnection(), $userMapper);
+        $themes = new Themes($em->getConnection(), $themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
 
         $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
@@ -242,7 +243,7 @@ class ThemesController extends AdminCommonController
         return $this->redirectToRoute('admin_themes_installed');
     }
 
-    public function install(int $revision, EntityManager $em, ParameterBagInterface $params, UserMapper $userMapper, TranslatorInterface $translator)
+    public function install(int $revision, EntityManager $em, ParameterBagInterface $params, UserMapper $userMapper, ThemeRepository $themeRepository, TranslatorInterface $translator)
     {
         if (!$userMapper->isWebmaster()) {
             $this->addFlash('error', $translator->trans('Webmaster status is required.', [], 'admin'));
@@ -250,7 +251,7 @@ class ThemesController extends AdminCommonController
             return $this->redirectToRoute('admin_themes_new');
         }
 
-        $themes = new Themes($em->getConnection(), $userMapper);
+        $themes = new Themes($em->getConnection(), $themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
         $themes->setExtensionsURL($params->get('pem_url'));
 
@@ -266,14 +267,14 @@ class ThemesController extends AdminCommonController
         }
     }
 
-    public function new(Request $request, EntityManager $em, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function new(Request $request, EntityManager $em, ThemeRepository $themeRepository, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $themes = new Themes($em->getConnection(), $userMapper);
+        $themes = new Themes($em->getConnection(), $themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
         $themes->setExtensionsURL($params->get('pem_url'));
 

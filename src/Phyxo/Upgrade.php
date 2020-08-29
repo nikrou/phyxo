@@ -16,15 +16,16 @@ use App\Repository\UpgradeRepository;
 use App\Repository\PluginRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
 
 class Upgrade
 {
-    private $em, $conf;
+    private $em, $managerRegistry;
 
-    public function __construct(EntityManager $em, Conf $conf)
+    public function __construct(EntityManager $em, ManagerRegistry $managerRegistry)
     {
         $this->em = $em;
-        $this->conf = $conf;
+        $this->managerRegistry = $managerRegistry;
     }
 
     public function deactivateNonStandardPlugins(): array
@@ -48,7 +49,7 @@ class Upgrade
     {
         $standard_themes = ['treflez'];
 
-        $result = $this->em->getRepository(ThemeRepository::class)->findExcept($standard_themes);
+        $result = $this->managerRegistry->getRepository(ThemeRepository::class)->findExcept($standard_themes);
         $theme_ids = [];
         $theme_names = [];
 
@@ -58,7 +59,7 @@ class Upgrade
         }
 
         if (!empty($theme_ids)) {
-            $this->em->getRepository(ThemeRepository::class)->deleteByIds($theme_ids);
+            $this->managerRegistry->getRepository(ThemeRepository::class)->deleteByIds($theme_ids);
 
             // what is the default theme?
             $result = $this->em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);

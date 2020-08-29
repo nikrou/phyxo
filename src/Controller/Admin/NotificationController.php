@@ -35,7 +35,7 @@ class NotificationController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function params(Request $request, ConfigRepository $configRepository, Conf $conf, ParameterBagInterface $params, Notification $notification, TranslatorInterface $translator)
+    public function params(Request $request, EntityManager $em, ConfigRepository $configRepository, Conf $conf, ParameterBagInterface $params, Notification $notification, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;

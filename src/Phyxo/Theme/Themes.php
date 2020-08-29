@@ -12,6 +12,7 @@
 namespace Phyxo\Theme;
 
 use App\DataMapper\UserMapper;
+use App\Entity\Theme;
 use Phyxo\Extension\Extensions;
 use Phyxo\Theme\DummyThemeMaintain;
 use App\Repository\ThemeRepository;
@@ -21,14 +22,15 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class Themes extends Extensions
 {
-    private $conn;
+    private $conn, $themeRepository;
     private $themes_root_path, $userMapper;
     private $fs_themes = [], $db_themes = [], $server_themes = [];
     private $fs_themes_retrieved = false, $db_themes_retrieved = false, $server_themes_retrieved = false;
 
-    public function __construct(iDBLayer $conn, UserMapper $userMapper)
+    public function __construct(iDBLayer $conn, ThemeRepository $themeRepository, UserMapper $userMapper)
     {
         $this->conn = $conn;
+        $this->themeRepository = $themeRepository;
         $this->userMapper = $userMapper;
     }
 
@@ -96,7 +98,11 @@ class Themes extends Extensions
                 $theme_maintain->activate($this->fs_themes[$theme_id]['version'], $error);
 
                 if (empty($error)) {
-                    (new ThemeRepository($this->conn))->addTheme($theme_id, $this->fs_themes[$theme_id]['version'], $this->fs_themes[$theme_id]['name']);
+                    $theme = new Theme();
+                    $theme->setId($theme_id);
+                    $theme->setVersion($this->fs_themes[$theme_id]['version']);
+                    $theme->setName($this->fs_themes[$theme_id]['name']);
+                    $this->themeRepository->addTheme($theme);
                 }
                 break;
 
@@ -112,21 +118,20 @@ class Themes extends Extensions
                     break;
                 }
 
-                if ($theme_id == $this->userMapper->getDefaultTheme()) {
+                if ($this->userMapper->getDefaultTheme() === $theme_id) {
                     // find a random theme to replace
-                    $new_theme = null;
-                    $result = (new ThemeRepository($this->conn))->findById($theme_id);
-                    if ($this->conn->db_num_rows($result) == 0) {
-                        $new_theme = 'treflez';
+                    $random_theme = $this->themeRepository->findById($theme_id);
+                    if (is_null($random_theme)) {
+                        $new_theme = 'treflez'; // @TODO: find default theme instead
                     } else {
-                        list($new_theme) = $this->conn->db_fetch_row($result);
+                        $new_theme = $random_theme->getId();
                     }
 
                     $this->setDefaultTheme($new_theme);
                 }
 
                 $theme_maintain->deactivate();
-                (new ThemeRepository($this->conn))->deleteById($theme_id);
+                $this->themeRepository->deleteById($theme_id);
                 break;
 
             case 'delete':
@@ -207,7 +212,9 @@ class Themes extends Extensions
     public function getDbThemes()
     {
         if (!$this->db_themes_retrieved) {
-            $this->db_themes = $this->conn->result2array((new ThemeRepository($this->conn))->findAll(), 'id');
+            foreach ($this->themeRepository->findAll() as $theme) {
+                $this->db_themes[$theme->getId()] = $theme;
+            }
             $this->db_themes_retrieved = true;
         }
         return $this->db_themes;
@@ -272,10 +279,10 @@ class Themes extends Extensions
                     $theme['parent'] = $val[1];
                 }
                 if (preg_match('/["\']activable["\'].*?(true|false)/i', $theme_data, $val)) {
-                    $theme['activable'] = $this->conn->get_boolean($val[1]);
+                    $theme['activable'] = $val[1] !== 'false';
                 }
                 if (preg_match('/["\']mobile["\'].*?(true|false)/i', $theme_data, $val)) {
-                    $theme['mobile'] = $this->conn->get_boolean($val[1]);
+                    $theme['mobile'] = $val[1] !== 'false';
                 }
 
                 // screenshot

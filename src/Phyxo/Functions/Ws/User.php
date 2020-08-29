@@ -363,8 +363,8 @@ class User
         }
 
         if (!empty($params['theme'])) {
-            $themes = $service->getConnection()->result2array((new ThemeRepository($service->getConnection()))->findAll(), 'id', 'name');
-            if (!isset($themes[$params['theme']])) {
+            $theme = $service->getManagerRegistry->getRepository(ThemeRepository::class)->findById($params['theem']);
+            if (is_null($theme)) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid theme');
             }
             $updates_infos['theme'] = $params['theme'];

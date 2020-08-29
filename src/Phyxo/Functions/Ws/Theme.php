@@ -11,6 +11,7 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Repository\ThemeRepository;
 use Phyxo\Theme\Themes;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\Server;
@@ -33,7 +34,7 @@ class Theme
 
         define('IN_ADMIN', true); // @TODO: remove ?
 
-        $themes = new Themes($service->getConnection(), $service->getUserMapper());
+        $themes = new Themes($service->getConnection(), $service->getManagerRegistry()->getRepository(ThemeRepository::class), $service->getUserMapper());
         $errors = $themes->performAction($params['action'], $params['theme']);
 
         if (!empty($errors)) {

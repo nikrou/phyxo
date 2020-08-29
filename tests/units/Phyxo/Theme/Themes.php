@@ -118,7 +118,9 @@ class Themes extends atoum\test
             }
         });
 
-        $themes = new \Phyxo\Theme\Themes($conn->reveal(), $userMapper->reveal());
+        $themeRepository = $prophet->prophesize('App\Repository\ThemeRepository');
+
+        $themes = new \Phyxo\Theme\Themes($conn->reveal(), $themeRepository->reveal(), $userMapper->reveal());
         $themes->setRootPath($workspace);
 
         $this
@@ -143,7 +145,9 @@ class Themes extends atoum\test
             }
         });
 
-        $themes = new \Phyxo\Theme\Themes($conn->reveal(), $userMapper->reveal());
+        $themeRepository = $prophet->prophesize('App\Repository\ThemeRepository');
+
+        $themes = new \Phyxo\Theme\Themes($conn->reveal(), $themeRepository->reveal(), $userMapper->reveal());
         $themes->setRootPath($workspace);
 
         $themes->sortFsThemes($sort_type);

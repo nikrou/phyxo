@@ -155,7 +155,7 @@ class UpdateController extends AdminCommonController
                 try {
                     $updater->upgrade($zip);
 
-                    $upgrade = new Upgrade($em, $conf);
+                    $upgrade = new Upgrade($em, $this->getDoctrine());
                     $upgrade->deactivateNonStandardPlugins();
                     $upgrade->deactivateNonStandardThemes();
 

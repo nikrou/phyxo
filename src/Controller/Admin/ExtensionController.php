@@ -12,6 +12,7 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\UserMapper;
+use App\Repository\ThemeRepository;
 use App\Twig\ThemeLoader;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
@@ -24,7 +25,8 @@ class ExtensionController extends AdminCommonController
 {
     protected $params, $conf;
 
-    public function theme(Request $request, string $theme, EntityManager $em, UserMapper $userMapper, string $themesDir, Conf $conf, ThemeLoader $themeLoader, ParameterBagInterface $params)
+    public function theme(Request $request, string $theme, EntityManager $em, ThemeRepository $themeRepository, UserMapper $userMapper, string $themesDir, Conf $conf,
+                            ThemeLoader $themeLoader, ParameterBagInterface $params)
     {
         $tpl_params = [];
         $this->conf = $conf;
@@ -32,7 +34,7 @@ class ExtensionController extends AdminCommonController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $themes = new Themes($em->getConnection(), $userMapper);
+        $themes = new Themes($em->getConnection(), $themeRepository, $userMapper);
         $themes->setRootPath($themesDir);
         if (!in_array($theme, array_keys($themes->getFsThemes()))) {
             throw $this->createNotFoundException('Invalid theme');

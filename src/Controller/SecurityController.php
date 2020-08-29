@@ -29,7 +29,6 @@ use App\Repository\UserRepository;
 use App\Security\UserProvider;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Phyxo\MenuBar;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -143,7 +142,7 @@ class SecurityController extends CommonController
     }
 
     public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, UserManager $user_manager, MenuBar $menuBar,
-                            UserProvider $userProvider, TranslatorInterface $translator, CsrfTokenManagerInterface $csrfTokenManager)
+                            UserProvider $userProvider, TranslatorInterface $translator, CsrfTokenManagerInterface $csrfTokenManager, ThemeRepository $themeRepository)
     {
         $this->userProvider = $userProvider;
         $tpl_params = $this->init();
@@ -153,7 +152,7 @@ class SecurityController extends CommonController
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $languages = $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name');
-        $themes = $conn->result2array((new ThemeRepository($conn))->findAll(), 'id', 'name');
+        $themes = $themeRepository->findAll();
 
         $custom_fields = ['nb_image_page', 'language', 'expand', 'show_nb_hits', 'recent_period', 'theme'];
 
@@ -227,11 +226,7 @@ class SecurityController extends CommonController
                 }
 
                 if ($request->request->get('theme')) {
-                    if (!isset($themes[$request->request->get('theme')])) {
-                        $errors[] = $translator->trans('Incorrect theme value');
-                    } else {
-                        $data['theme'] = $request->request->get('theme');
-                    }
+                    $data['theme'] = $request->request->get('theme');
                 }
 
                 if ($request->request->get('expand')) {

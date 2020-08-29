@@ -45,7 +45,7 @@ class UsersController extends AdminCommonController
     }
 
     public function list(Request $request, EntityManager $em, Conf $conf, UserMapper $userMapper, ParameterBagInterface $params,
-                        CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator)
+                        CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator, ThemeRepository $themeRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -83,8 +83,10 @@ class UsersController extends AdminCommonController
             $protected_users = array_merge($protected_users, $em->getConnection()->result2array($result, null, 'user_id'));
         }
 
-        $result = $em->getRepository(ThemeRepository::class)->findAll();
-        $themes = $em->getConnection()->result2array($result, 'id', 'name');
+        $themes = [];
+        foreach ($themeRepository->findAll() as $theme) {
+            $themes[$theme->getId()] = $theme->getName();
+        }
 
         $result = $em->getRepository(LanguageRepository::class)->findAll();
         $languages = $em->getConnection()->result2array($result, 'id', 'name');

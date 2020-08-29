@@ -11,48 +11,42 @@
 
 namespace App\Repository;
 
-class ThemeRepository extends BaseRepository
+use App\Entity\Theme;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
+
+class ThemeRepository extends ServiceEntityRepository
 {
-    public function findAll()
+    public function __construct(ManagerRegistry $registry)
     {
-        $query = 'SELECT id, version, name FROM ' . self::THEMES_TABLE;
-        $query .= ' ORDER BY name ASC';
-
-        return $this->conn->db_query($query);
+        parent::__construct($registry, Theme::class);
     }
 
-    public function addTheme(string $id, string $version, string $name)
+    public function addTheme(Theme $theme)
     {
-        return $this->conn->single_insert(self::THEMES_TABLE, ['id' => $id, 'version' => $version, 'name' => $name], false);
-    }
-
-    public function findById(string $theme_id)
-    {
-        $query = 'SELECT id FROM ' . self::THEMES_TABLE;
-        $query .= ' WHERE id != \'' . $this->conn->db_real_escape_string($theme_id) . '\'';
-
-        return $this->conn->db_query($query);
+        $this->_em->persist($theme);
+        $this->_em->flush($theme);
     }
 
     public function findExcept(array $ids)
     {
-        $query = 'SELECT id,name  FROM ' . self::THEMES_TABLE;
-        $query .= ' WHERE id NOT ' . $this->conn->in($ids);
+        $qb = $this->createQueryBuilder('t');
+        $qb->where($qb->expr()->notIn('id', $ids));
 
-        return $this->conn->db_query($query);
+        return $qb->getQuery()->getResult();
     }
 
     public function deleteById(string $theme_id)
     {
-        $query = 'DELETE FROM ' . self::THEMES_TABLE;
-        $query .= ' WHERE id = \'' . $this->conn->db_real_escape_string($theme_id) . '\'';
-        $this->conn->db_query($query);
+        return $this->deleteByIds([$theme_id]);
     }
 
     public function deleteByIds(array $theme_ids)
     {
-        $query = 'DELETE FROM ' . self::THEMES_TABLE;
-        $query .= ' WHERE id ' . $this->conn->in($theme_ids);
-        $this->conn->db_query($query);
+        $qb = $this->createQueryBuilder('t');
+        $qb->where($qb->expr()->in('id', $theme_ids));
+        $qb->delete();
+
+        return $qb->getQuery()->getResult();
     }
 }
