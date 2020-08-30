@@ -27,13 +27,13 @@ class ConfigRepository extends ServiceEntityRepository
         $_config = $this->find($config->getParam());
         $_config = $this->_em->merge($config);
         $this->_em->persist($_config);
-        $this->_em->flush($_config);
+        $this->_em->flush();
     }
 
     public function addParam(Config $config)
     {
         $this->_em->persist($config);
-        $this->_em->flush($config);
+        $this->_em->flush();
     }
 
     public function findMatching(string $expression): array
@@ -52,7 +52,7 @@ class ConfigRepository extends ServiceEntityRepository
             $this->_em->remove($entity);
         }
         if (count($entities) > 0) {
-            $this->_em->flush($entity);
+            $this->_em->flush();
         }
     }
 }

@@ -11,49 +11,49 @@
 
 namespace App\Repository;
 
-class SearchRepository extends BaseRepository
-{
-    public function findById(int $id)
-    {
-        $query = 'SELECT rules FROM ' . self::SEARCH_TABLE;
-        $query .= ' WHERE id = ' . $id;
+use App\Entity\Search;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
 
-        return $this->conn->db_query($query);
+class SearchRepository extends ServiceEntityRepository
+{
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, Search::class);
     }
 
-    public function findByRules(string $rules)
+    public function findByRules(string $rules): ?Search
     {
-        $query = 'SElECT id FROM ' . self::SEARCH_TABLE;
-        $query .= ' WHERE rules = \'' . $this->conn->db_real_escape_string($rules) . '\'';
-        $result = $this->conn->db_query($query);
-        $row = $this->conn->db_fetch_assoc($result);
+        $qb = $this->createQueryBuilder('s');
+        $qb->where('rules', ':rules');
+        $qb->setParameter('rules', $rules);
 
-        if ($row !== false) {
-            return $row['id'];
-        } else {
-            return false;
-        }
+        return $qb->getQuery()->getOneOrNullResult();
     }
 
     public function updateLastSeen(int $id)
     {
-        $query = 'UPDATE ' . self::SEARCH_TABLE;
-        $query .= ' SET last_seen = NOW() WHERE id=' . $id;
-        $this->conn->db_query($query);
+        $qb = $this->createQueryBuilder('s');
+        $qb->update();
+        $qb->set('last_seen', ':last_seen');
+        $qb->setParameter('last_seen', new \DateTime());
+        $qb->where('id', ':id');
+        $qb->setParameter('id', $id);
+
+        return $qb->getQuery()->getResult();
     }
 
-    public function addSearch(string $rules)
+    public function addSearch(Search $search)
     {
-        $query = 'INSERT INTO ' . self::SEARCH_TABLE;
-        $query .= ' (rules, last_seen) VALUES (\'' . $rules . '\', NOW())';
-        $this->conn->db_query($query);
-
-        return $this->conn->db_insert_id(self::SEARCH_TABLE);
+        $this->_em->persist($search);
+        $this->_em->flush();
     }
 
-    public function delete()
+    public function purge()
     {
-        $query = 'DELETE FROM ' . self::SEARCH_TABLE;
-        $this->conn->db_query($query);
+        $qb = $this->createQueryBuilder('s');
+        $qb->delete();
+
+        return $qb->getQuery()->getResult();
     }
 }

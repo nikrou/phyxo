@@ -21,12 +21,12 @@ use App\Repository\TagRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\ImageRepository;
-use App\Repository\SearchRepository;
 use App\Repository\BaseRepository;
 use Phyxo\EntityManager;
 use Phyxo\Conf;
 use Symfony\Component\Security\Core\User\UserInterface;
 use App\DataMapper\UserMapper;
+use App\Entity\Search;
 
 class SearchMapper
 {
@@ -37,20 +37,6 @@ class SearchMapper
         $this->em = $em;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
-    }
-
-    /**
-     * Returns search rules stored into a serialized array in "search"
-     * table. Each search rules set is numericaly identified.
-     */
-    public function getSearchArray(int $search_id): array
-    {
-        $result = $this->em->getRepository(SearchRepository::class)->findById($search_id);
-        if (($row = $this->em->getConnection()->db_fetch_row($result)) !== false) {
-            return unserialize(base64_decode($row[0])); // @TODO: remove unserialize
-        } else {
-            return [];
-        }
     }
 
     /**
@@ -578,13 +564,12 @@ class SearchMapper
      * Returns an array of 'items' corresponding to the search id.
      * It can be either a quick search or a regular search.
      */
-    public function getSearchResults(int $search_id, UserInterface $user, array $filter, bool $super_order_by, string $images_where = ''): array
+    public function getSearchResults(array $rules, UserInterface $user, array $filter, bool $super_order_by, string $images_where = ''): array
     {
-        $search = $this->getSearchArray($search_id);
-        if (!isset($search['q'])) {
-            return ['items' => $this->getRegularSearchResults($search, $user, $filter, $images_where)];
+        if (!isset($rules['q'])) {
+            return ['items' => $this->getRegularSearchResults($rules, $user, $filter, $images_where)];
         } else {
-            return $this->getQuickSearchResults($search['q'], ['super_order_by' => $super_order_by, 'images_where' => $images_where], $filter);
+            return $this->getQuickSearchResults($rules['q'], ['super_order_by' => $super_order_by, 'images_where' => $images_where], $filter);
         }
     }
 }

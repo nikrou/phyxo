@@ -24,6 +24,7 @@ use App\Repository\SearchRepository;
 use App\DataMapper\SearchMapper;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\ImageMapper;
+use App\Entity\Search;
 use App\Repository\TagRepository;
 use Phyxo\Functions\DateTime;
 use Phyxo\Functions\Utils;
@@ -32,7 +33,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SearchController extends CommonController
 {
-    public function qsearch(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar, $themesDir, $phyxoVersion, $phyxoWebsite)
+    public function qsearch(Request $request, Conf $conf, MenuBar $menuBar, SearchRepository $searchRepository)
     {
         $tpl_params = [];
 
@@ -45,20 +46,27 @@ class SearchController extends CommonController
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
-        $search = ['q' => $request->get('q')];
-        $search_id = $em->getRepository(SearchRepository::class)->findByRules(base64_encode(serialize($search)));
+        $rules = ['q' => $request->get('q')];
+        $search_id = null;
+        $search = $searchRepository->findByRules(base64_encode(serialize($rules)));
 
-        if ($search_id !== false) {
-            $em->getRepository(SearchRepository::class)->updateLastSeen($search_id);
+        if (!is_null($search)) {
+            $search_id = $search->getId();
+            $searchRepository->updateLastSeen($search_id);
         } else {
-            $search_id = $em->getRepository(SearchRepository::class)->addSearch(base64_encode(serialize($search)));
+            $search = new Search();
+            $search->setRules(base64_encode(serialize($rules)));
+            $search->setLastSeen(new \DateTime());
+            $searchRepository->addSearch($search);
+
+            $search_id = $search->getId();
         }
 
         return $this->redirectToRoute('search_results', ['search_id' => $search_id]);
     }
 
     public function search(Request $request, EntityManager $em, TagMapper $tagMapper, CategoryMapper $categoryMapper, Conf $conf,
-        $themesDir, $phyxoVersion, $phyxoWebsite, MenuBar $menuBar, TranslatorInterface $translator)
+        SearchRepository $searchRepository, MenuBar $menuBar, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -212,9 +220,12 @@ class SearchController extends CommonController
                 $search['mode'] = 'AND';
 
                 // register search rules in database, then they will be available on thumbnails page and picture page.
-                $search_id = $em->getRepository(SearchRepository::class)->addSearch(base64_encode(serialize($search)));
+                $new_search = new Search();
+                $new_search->setRules(base64_encode(serialize($search)));
+                $new_search->setLastSeen(new \DateTime());
+                $searchRepository->addSearch($new_search);
 
-                return $this->redirectToRoute('search_results', ['search_id' => $search_id]);
+                return $this->redirectToRoute('search_results', ['search_id' => $new_search->getId()]);
             } else {
                 $tpl_params['errors'][] = $translator->trans('Empty query. No criteria has been entered.');
             }
@@ -244,7 +255,7 @@ class SearchController extends CommonController
     }
 
     public function searchResults(Request $request, SearchMapper $searchMapper, CategoryMapper $categoryMapper, ImageMapper $imageMapper, Conf $conf,
-        ImageStandardParams $image_std_params, MenuBar $menuBar, $themesDir, $phyxoVersion, $phyxoWebsite, $search_id, int $start = 0, TranslatorInterface $translator
+                        SearchRepository $searchRepository, ImageStandardParams $image_std_params, MenuBar $menuBar, $search_id, int $start = 0, TranslatorInterface $translator
     ) {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -259,8 +270,16 @@ class SearchController extends CommonController
         $tpl_params['U_SEARCH_RULES'] = $this->generateUrl('search_rules', ['search_id' => $search_id]);
 
         $filter = [];
-        $search_results = $searchMapper->getSearchResults($search_id, $this->getUser(), $filter, $super_order_by = true);
-        $tpl_params['items'] = $search_results['items'];
+        $rules = [];
+        $tpl_params['items'] = [];
+
+        $search = $searchRepository->findOneBy(['id' => $search_id]);
+        if (!is_null($search) && !empty($search->getRules())) {
+            $rules = unserialize(base64_decode($search->getRules()));
+
+            $search_results = $searchMapper->getSearchResults($rules, $this->getUser(), $filter, $super_order_by = true);
+            $tpl_params['items'] = $search_results['items'];
+        }
 
         if (!empty($search_results['qsearch_details'])) {
             $cats = [];
@@ -312,11 +331,11 @@ class SearchController extends CommonController
             );
 
             if (!empty($search_results['qsearch_details']) && !empty($search_results['qsearch_details']['unmatched_terms'])) {
-                $tpl_params['no_search_results'] = array_map('htmlspecialchars', $search_results['qsearch_details']['unmatched_terms']);
+                $tpl_params['no_search_results'] = $search_results['qsearch_details']['unmatched_terms'];
             }
         } else {
             if (!empty($search_results['qsearch_details']) && !empty($search_results['qsearch_details']['q'])) {
-                $tpl_params['no_search_results'] = htmlspecialchars($search_results['qsearch_details']['q']); // @TODO: use template engine filter
+                $tpl_params['no_search_results'] = $search_results['qsearch_details']['q'];
             }
         }
 
@@ -331,7 +350,7 @@ class SearchController extends CommonController
     }
 
     public function searchRules(Request $request, EntityManager $em, CategoryMapper $categoryMapper, SearchMapper $searchMapper, Conf $conf,
-        string $themesDir, string $phyxoVersion, string $phyxoWebsite, int $search_id, MenuBar $menuBar, TranslatorInterface $translator)
+                                SearchRepository $searchRepository, int $search_id, MenuBar $menuBar, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -342,34 +361,39 @@ class SearchController extends CommonController
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
-        $search = $searchMapper->getSearchArray($search_id);
-        if (isset($search['q'])) {
-            $tpl_params['search_words'] = $search['q'];
+        $rules = [];
+        $search = $searchRepository->findOneBy(['id' => $search_id]);
+        if (!is_null($search) && !empty($search->getRules())) {
+            $rules = unserialize(base64_decode($search->getRules()));
+        }
+
+        if (isset($rules['q'])) {
+            $tpl_params['search_words'] = $rules['q'];
         } else {
-            $tpl_params['INTRODUCTION'] = $search['mode'] === 'OR'? $translator->trans('At least one listed rule must be satisfied.') : $translator->trans('Each listed rule must be satisfied.');
+            $tpl_params['INTRODUCTION'] = $rules['mode'] === 'OR'? $translator->trans('At least one listed rule must be satisfied.') : $translator->trans('Each listed rule must be satisfied.');
         }
 
-        if (isset($search['fields']['allwords'])) {
-            $tpl_params['search_words'] = $translator->trans('searched words : {words}', ['words' => join(', ', $search['fields']['allwords']['words'])]);
+        if (isset($rules['fields']['allwords'])) {
+            $tpl_params['search_words'] = $translator->trans('searched words : {words}', ['words' => join(', ', $rules['fields']['allwords']['words'])]);
         }
 
-        if (isset($search['fields']['tags'])) {
-            $tpl_params['SEARCH_TAGS_MODE'] = $search['fields']['tags']['mode'];
+        if (isset($rules['fields']['tags'])) {
+            $tpl_params['SEARCH_TAGS_MODE'] = $rules['fields']['tags']['mode'];
 
-            $result = $em->getRepository(TagRepository::class)->findTags($search['fields']['tags']['words']);
+            $result = $em->getRepository(TagRepository::class)->findTags($rules['fields']['tags']['words']);
             $tpl_params['search_tags'] = $em->getConnection()->result2array($result, 'name');
         }
 
-        if (isset($search['fields']['author'])) {
-            $tpl_params['search_words'] = $translator->trans('author(s) : {authors}', ['authors' => join(', ', array_map('strip_tags', $search['fields']['author']['words']))]);
+        if (isset($rules['fields']['author'])) {
+            $tpl_params['search_words'] = $translator->trans('author(s) : {authors}', ['authors' => join(', ', array_map('strip_tags', $rules['fields']['author']['words']))]);
         }
 
-        if (isset($search['fields']['cat'])) {
-            if ($search['fields']['cat']['sub_inc']) {
+        if (isset($rules['fields']['cat'])) {
+            if ($rules['fields']['cat']['sub_inc']) {
                 // searching all the categories id of sub-categories
-                $cat_ids = $em->getRepository(CategoryRepository::class)->getSubcatIds($search['fields']['cat']['words']);
+                $cat_ids = $em->getRepository(CategoryRepository::class)->getSubcatIds($rules['fields']['cat']['words']);
             } else {
-                $cat_ids = $search['fields']['cat']['words'];
+                $cat_ids = $rules['fields']['cat']['words'];
             }
 
             $result = $em->getRepository(CategoryRepository::class)->findByIds($cat_ids);
@@ -409,27 +433,27 @@ class SearchController extends CommonController
                 'before' => $datefield . '-before',
             ];
 
-            if (isset($search['fields'][$keys['date']])) {
-                $tpl_params[strtoupper($datefield)] = sprintf($lang_items['date'], DateTime::format_date($search['fields'][$keys['date']]));
-            } elseif (isset($search['fields'][$keys['before']]) and isset($search['fields'][$keys['after']])) {
+            if (isset($rules['fields'][$keys['date']])) {
+                $tpl_params[strtoupper($datefield)] = sprintf($lang_items['date'], DateTime::format_date($rules['fields'][$keys['date']]));
+            } elseif (isset($rules['fields'][$keys['before']], $rules['fields'][$keys['after']])) {
                 $tpl_params[strtoupper($datefield)] = sprintf(
                     $lang_items['period'],
-                    DateTime::format_date($search['fields'][$keys['after']]['date']),
-                    $search['fields'][$keys['after']]['inc'] ? $translator->trans('included') : $translator->trans('excluded'),
-                    DateTime::format_date($search['fields'][$keys['before']]['date']),
-                    $search['fields'][$keys['before']]['inc'] ? $translator->trans('included') : $translator->trans('excluded')
+                    DateTime::format_date($rules['fields'][$keys['after']]['date']),
+                    $rules['fields'][$keys['after']]['inc'] ? $translator->trans('included') : $translator->trans('excluded'),
+                    DateTime::format_date($rules['fields'][$keys['before']]['date']),
+                    $rules['fields'][$keys['before']]['inc'] ? $translator->trans('included') : $translator->trans('excluded')
                 );
-            } elseif (isset($search['fields'][$keys['before']])) {
+            } elseif (isset($rules['fields'][$keys['before']])) {
                 $tpl_params[strtoupper($datefield)] = sprintf(
                     $lang_items['before'],
-                    DateTime::format_date($search['fields'][$keys['before']]['date']),
-                    $search['fields'][$keys['before']]['inc'] ? $translator->trans('included') : $translator->trans('excluded')
+                    DateTime::format_date($rules['fields'][$keys['before']]['date']),
+                    $rules['fields'][$keys['before']]['inc'] ? $translator->trans('included') : $translator->trans('excluded')
                 );
-            } elseif (isset($search['fields'][$keys['after']])) {
+            } elseif (isset($rules['fields'][$keys['after']])) {
                 $tpl_params[strtoupper($datefield)] = sprintf(
                     $lang_items['after'],
-                    DateTime::format_date($search['fields'][$keys['after']]['date']),
-                    $search['fields'][$keys['after']]['inc'] ? $translator->trans('included') : $translator->trans('excluded')
+                    DateTime::format_date($rules['fields'][$keys['after']]['date']),
+                    $rules['fields'][$keys['after']]['inc'] ? $translator->trans('included') : $translator->trans('excluded')
                 );
             }
         }

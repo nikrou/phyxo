@@ -5,8 +5,8 @@
 DROP TABLE IF EXISTS "phyxo_caddie";
 CREATE TABLE "phyxo_caddie"
 (
-  "user_id" INTEGER default 0 NOT NULL,
-  "element_id" INTEGER default 0 NOT NULL,
+  "user_id" INTEGER DEFAULT 0 NOT NULL,
+  "element_id" INTEGER DEFAULT 0 NOT NULL,
   PRIMARY KEY ("user_id","element_id")
 );
 
@@ -22,21 +22,21 @@ CREATE TYPE CATEGORIES_STATUS AS ENUM('public', 'private');
 CREATE TABLE "phyxo_categories"
 (
   "id" serial  NOT NULL,
-  "name" VARCHAR(255) default '' NOT NULL,
+  "name" VARCHAR(255) DEFAULT '' NOT NULL,
   "id_uppercat" INTEGER,
   "comment" TEXT,
   "dir" VARCHAR(255),
   "rank" INTEGER,
-  "status" CATEGORIES_STATUS default 'public'::CATEGORIES_STATUS,
-  "site_id" INTEGER default 1,
-  "visible" BOOLEAN default true,
+  "status" CATEGORIES_STATUS DEFAULT 'public'::CATEGORIES_STATUS,
+  "site_id" INTEGER DEFAULT 1,
+  "visible" BOOLEAN DEFAULT true,
   "representative_picture_id" INTEGER,
-  "uppercats" VARCHAR(255) default '' NOT NULL,
-  "commentable" BOOLEAN default true,
+  "uppercats" VARCHAR(255) DEFAULT '' NOT NULL,
+  "commentable" BOOLEAN DEFAULT true,
   "global_rank" VARCHAR(255),
   "image_order" VARCHAR(128),
   "permalink" VARCHAR(64),
-  "lastmodified" TIMESTAMP NOT NULL default now(),
+  "lastmodified" TIMESTAMP NOT NULL DEFAULT now(),
   PRIMARY KEY ("id"),
   CONSTRAINT "categories_i3" UNIQUE ("permalink")
 );
@@ -47,7 +47,7 @@ CREATE TABLE "phyxo_categories"
 DROP TABLE IF EXISTS "phyxo_config";
 CREATE TABLE "phyxo_config"
 (
-  "param" VARCHAR(40) default '' NOT NULL,
+  "param" VARCHAR(40) DEFAULT '' NOT NULL,
   "type" VARCHAR(15),
   "value" TEXT,
   "comment" VARCHAR(255),
@@ -62,8 +62,8 @@ CREATE TABLE "phyxo_config"
 DROP TABLE IF EXISTS "phyxo_favorites";
 CREATE TABLE "phyxo_favorites"
 (
-  "user_id" INTEGER default 0 NOT NULL,
-  "image_id" INTEGER default 0 NOT NULL,
+  "user_id" INTEGER DEFAULT 0 NOT NULL,
+  "image_id" INTEGER DEFAULT 0 NOT NULL,
   PRIMARY KEY ("user_id","image_id")
 );
 
@@ -74,8 +74,8 @@ CREATE TABLE "phyxo_favorites"
 DROP TABLE IF EXISTS "phyxo_group_access";
 CREATE TABLE "phyxo_group_access"
 (
-  "group_id" INTEGER default 0 NOT NULL,
-  "cat_id" INTEGER default 0 NOT NULL,
+  "group_id" INTEGER DEFAULT 0 NOT NULL,
+  "cat_id" INTEGER DEFAULT 0 NOT NULL,
   PRIMARY KEY ("group_id","cat_id")
 );
 
@@ -88,9 +88,9 @@ DROP TABLE IF EXISTS "phyxo_groups";
 CREATE TABLE "phyxo_groups"
 (
   "id" serial  NOT NULL,
-  "name" VARCHAR(255) default '' NOT NULL,
-  "is_default" BOOLEAN default false,
-  "lastmodified" TIMESTAMP NOT NULL default now(),
+  "name" VARCHAR(255) DEFAULT '' NOT NULL,
+  "is_default" BOOLEAN DEFAULT false,
+  "lastmodified" TIMESTAMP NOT NULL DEFAULT now(),
   PRIMARY KEY ("id"),
   CONSTRAINT "groups_ui1" UNIQUE ("name")
 );
@@ -112,14 +112,14 @@ CREATE TABLE "phyxo_history"
   "id" serial  NOT NULL,
   "date" DATE NOT NULL,
   "time" TIME NOT NULL,
-  "user_id" INTEGER default 0 NOT NULL,
-  "ip" VARCHAR(15) default '' NOT NULL,
-  "section" HISTORY_SECTION default NULL,
+  "user_id" INTEGER DEFAULT 0 NOT NULL,
+  "ip" VARCHAR(15) DEFAULT '' NOT NULL,
+  "section" HISTORY_SECTION DEFAULT NULL,
   "category_id" INTEGER,
   "tag_ids" VARCHAR(50),
   "image_id" INTEGER,
-  "summarized" BOOLEAN default false,
-  "image_type" HISTORY_IMAGE_TYPE default NULL,
+  "summarized" BOOLEAN DEFAULT false,
+  "image_type" HISTORY_IMAGE_TYPE DEFAULT NULL,
   PRIMARY KEY ("id")
 );
 
@@ -131,7 +131,7 @@ CREATE TABLE "phyxo_history"
 DROP TABLE IF EXISTS "phyxo_history_summary";
 CREATE TABLE "phyxo_history_summary"
 (
-  "year" INTEGER default 0 NOT NULL,
+  "year" INTEGER DEFAULT 0 NOT NULL,
   "month" INTEGER,
   "day" INTEGER,
   "hour" INTEGER,
@@ -150,8 +150,8 @@ CREATE TABLE "phyxo_history_summary"
 DROP TABLE IF EXISTS "phyxo_image_category";
 CREATE TABLE "phyxo_image_category"
 (
-  "image_id" INTEGER default 0 NOT NULL,
-  "category_id" INTEGER default 0 NOT NULL,
+  "image_id" INTEGER DEFAULT 0 NOT NULL,
+  "category_id" INTEGER DEFAULT 0 NOT NULL,
   "rank" INTEGER,
   PRIMARY KEY ("image_id","category_id")
 );
@@ -165,29 +165,29 @@ DROP TABLE IF EXISTS "phyxo_images";
 CREATE TABLE "phyxo_images"
 (
   "id" serial  NOT NULL,
-  "file" VARCHAR(255) default '' NOT NULL,
+  "file" VARCHAR(255) DEFAULT '' NOT NULL,
   "date_available" TIMESTAMP NOT NULL,
   "date_creation" TIMESTAMP,
   "name" VARCHAR(255),
   "comment" TEXT,
   "author" VARCHAR(255),
-  "hit" INTEGER default 0 NOT NULL,
+  "hit" INTEGER DEFAULT 0 NOT NULL,
   "filesize" INTEGER,
   "width" INTEGER,
   "height" INTEGER,
-  "coi" VARCHAR(4) default NULL,
+  "coi" VARCHAR(4) DEFAULT NULL,
   "representative_ext" VARCHAR(4),
   "date_metadata_update" DATE,
   "rating_score" FLOAT,
-  "path" VARCHAR(255) default '' NOT NULL,
+  "path" VARCHAR(255) DEFAULT '' NOT NULL,
   "storage_category_id" INTEGER,
-  "level" INTEGER default 0 NOT NULL,
+  "level" INTEGER DEFAULT 0 NOT NULL,
   "md5sum" VARCHAR(32),
-  "added_by" INTEGER NOT NULL default 0,
-  "rotation" INTEGER default NULL,
-  "latitude" FLOAT default NULL,
-  "longitude" FLOAT default NULL,
-  "lastmodified" TIMESTAMP NOT NULL default now(),
+  "added_by" INTEGER NOT NULL DEFAULT 0,
+  "rotation" INTEGER DEFAULT NULL,
+  "latitude" FLOAT DEFAULT NULL,
+  "longitude" FLOAT DEFAULT NULL,
+  "lastmodified" TIMESTAMP NOT NULL DEFAULT now(),
 
   PRIMARY KEY ("id")
 );
@@ -200,9 +200,9 @@ CREATE TABLE "phyxo_images"
 DROP TABLE IF EXISTS "phyxo_languages";
 CREATE TABLE "phyxo_languages"
 (
-  "id" VARCHAR(64) NOT NULL default '',
-  "version" VARCHAR(64) NOT NULL default '0',
-  "name" VARCHAR(64) default NULL,
+  "id" VARCHAR(64) NOT NULL DEFAULT '',
+  "version" VARCHAR(64) NOT NULL DEFAULT '0',
+  "name" VARCHAR(64) DEFAULT NULL,
   PRIMARY KEY  ("id")
 );
 
@@ -214,11 +214,11 @@ CREATE TABLE "phyxo_languages"
 DROP TABLE IF EXISTS "phyxo_old_permalinks";
 CREATE TABLE "phyxo_old_permalinks"
 (
-  "cat_id" INTEGER default 0 NOT NULL,
-  "permalink" VARCHAR(64) default '' NOT NULL,
+  "cat_id" INTEGER DEFAULT 0 NOT NULL,
+  "permalink" VARCHAR(64) DEFAULT '' NOT NULL,
   "date_deleted" TIMESTAMP NOT NULL,
   "last_hit" TIMESTAMP,
-  "hit" INTEGER default 0 NOT NULL,
+  "hit" INTEGER DEFAULT 0 NOT NULL,
   PRIMARY KEY ("permalink")
 );
 
@@ -233,9 +233,9 @@ DROP TYPE IF EXISTS PLUGINS_STATE;
 CREATE TYPE PLUGINS_STATE AS ENUM('active', 'inactive');
 CREATE TABLE "phyxo_plugins"
 (
-  "id" VARCHAR(64) default '' NOT NULL,
-  "state" VARCHAR(25) default 'inactive',
-  "version" VARCHAR(64) default '0' NOT NULL,
+  "id" VARCHAR(64) DEFAULT '' NOT NULL,
+  "state" VARCHAR(25) DEFAULT 'inactive',
+  "version" VARCHAR(64) DEFAULT '0' NOT NULL,
   PRIMARY KEY ("id")
 );
 
@@ -247,10 +247,10 @@ CREATE TABLE "phyxo_plugins"
 DROP TABLE IF EXISTS "phyxo_rate";
 CREATE TABLE "phyxo_rate"
 (
-  "user_id" INTEGER default 0 NOT NULL,
-  "element_id" INTEGER default 0 NOT NULL,
-  "anonymous_id" VARCHAR(45) default '' NOT NULL,
-  "rate" INTEGER default 0 NOT NULL,
+  "user_id" INTEGER DEFAULT 0 NOT NULL,
+  "element_id" INTEGER DEFAULT 0 NOT NULL,
+  "anonymous_id" VARCHAR(45) DEFAULT '' NOT NULL,
+  "rate" INTEGER DEFAULT 0 NOT NULL,
   "date" DATE  NOT NULL,
   PRIMARY KEY ("user_id","element_id","anonymous_id")
 );
@@ -292,7 +292,7 @@ DROP TABLE IF EXISTS "phyxo_sites";
 CREATE TABLE "phyxo_sites"
 (
   "id" serial  NOT NULL,
-  "galleries_url" VARCHAR(255) default '' NOT NULL,
+  "galleries_url" VARCHAR(255) DEFAULT '' NOT NULL,
   PRIMARY KEY ("id"),
   CONSTRAINT "sites_ui1" UNIQUE ("galleries_url")
 );
@@ -306,9 +306,9 @@ DROP TABLE IF EXISTS "phyxo_tags";
 CREATE TABLE "phyxo_tags"
 (
   "id" serial  NOT NULL,
-  "name" VARCHAR(255) default '' NOT NULL,
-  "url_name" VARCHAR(255) default '' NOT NULL,
-  "lastmodified" TIMESTAMP NOT NULL default now(),
+  "name" VARCHAR(255) DEFAULT '' NOT NULL,
+  "url_name" VARCHAR(255) DEFAULT '' NOT NULL,
+  "lastmodified" TIMESTAMP NOT NULL DEFAULT now(),
 
   PRIMARY KEY ("id")
 );
@@ -321,9 +321,9 @@ CREATE TABLE "phyxo_tags"
 DROP TABLE IF EXISTS "phyxo_themes";
 CREATE TABLE "phyxo_themes"
 (
-  "id" varchar(64) NOT NULL default '',
-  "version" varchar(64) NOT NULL default '0',
-  "name" varchar(64) default NULL,
+  "id" varchar(64) NOT NULL DEFAULT '',
+  "version" varchar(64) NOT NULL DEFAULT '0',
+  "name" varchar(64) DEFAULT NULL,
   PRIMARY KEY  ("id")
 );
 
@@ -335,8 +335,8 @@ CREATE TABLE "phyxo_themes"
 DROP TABLE IF EXISTS "phyxo_upgrade";
 CREATE TABLE "phyxo_upgrade"
 (
-  "id" VARCHAR(20) default '' NOT NULL,
-  "applied" TIMESTAMP NOT NULL,
+  "id" VARCHAR(20) DEFAULT '' NOT NULL,
+  "applied" DATE DEFAULT NULL,
   "description" VARCHAR(255),
   PRIMARY KEY ("id")
 );
@@ -349,8 +349,8 @@ CREATE TABLE "phyxo_upgrade"
 DROP TABLE IF EXISTS "phyxo_user_access";
 CREATE TABLE "phyxo_user_access"
 (
-  "user_id" INTEGER default 0 NOT NULL,
-  "cat_id" INTEGER default 0 NOT NULL,
+  "user_id" INTEGER DEFAULT 0 NOT NULL,
+  "cat_id" INTEGER DEFAULT 0 NOT NULL,
   PRIMARY KEY ("user_id","cat_id")
 );
 
@@ -365,15 +365,15 @@ DROP TYPE IF EXISTS USER_CACHE_IMAGE_ACCESS_TYPE;
 CREATE TYPE USER_CACHE_IMAGE_ACCESS_TYPE AS ENUM('NOT IN','IN');
 CREATE TABLE "phyxo_user_cache"
 (
-  "user_id" INTEGER default 0 NOT NULL,
-  "need_update" BOOLEAN default true,
-  "cache_update_time" INTEGER default 0 NOT NULL,
+  "user_id" INTEGER DEFAULT 0 NOT NULL,
+  "need_update" BOOLEAN DEFAULT true,
+  "cache_update_time" INTEGER DEFAULT 0 NOT NULL,
   "forbidden_categories" TEXT,
   "nb_total_images" INTEGER,
   "last_photo_date" date DEFAULT NULL,
   "nb_available_tags" INTEGER DEFAULT NULL,
   "nb_available_comments" INTEGER DEFAULT NULL,
-  "image_access_type" USER_CACHE_IMAGE_ACCESS_TYPE default 'NOT IN'::USER_CACHE_IMAGE_ACCESS_TYPE,
+  "image_access_type" USER_CACHE_IMAGE_ACCESS_TYPE DEFAULT 'NOT IN'::USER_CACHE_IMAGE_ACCESS_TYPE,
   "image_access_list" TEXT,
   PRIMARY KEY ("user_id")
 );
@@ -386,15 +386,15 @@ CREATE TABLE "phyxo_user_cache"
 DROP TABLE IF EXISTS "phyxo_user_cache_categories";
 CREATE TABLE "phyxo_user_cache_categories"
 (
-  "user_id" INTEGER default 0 NOT NULL,
-  "cat_id" INTEGER default 0 NOT NULL,
+  "user_id" INTEGER DEFAULT 0 NOT NULL,
+  "cat_id" INTEGER DEFAULT 0 NOT NULL,
   "date_last" TIMESTAMP,
   "max_date_last" TIMESTAMP,
-  "nb_images" INTEGER default 0 NOT NULL,
-  "count_images" INTEGER default 0,
-  "nb_categories" INTEGER default 0,
-  "count_categories" INTEGER default 0,
-  "user_representative_picture_id" INTEGER default NULL,
+  "nb_images" INTEGER DEFAULT 0 NOT NULL,
+  "count_images" INTEGER DEFAULT 0,
+  "nb_categories" INTEGER DEFAULT 0,
+  "count_categories" INTEGER DEFAULT 0,
+  "user_representative_picture_id" INTEGER DEFAULT NULL,
   PRIMARY KEY ("user_id","cat_id")
 );
 
@@ -406,8 +406,8 @@ CREATE TABLE "phyxo_user_cache_categories"
 DROP TABLE IF EXISTS "phyxo_user_feed";
 CREATE TABLE "phyxo_user_feed"
 (
-  "id" VARCHAR(50) default '' NOT NULL,
-  "user_id" INTEGER default 0 NOT NULL,
+  "id" VARCHAR(50) DEFAULT '' NOT NULL,
+  "user_id" INTEGER DEFAULT 0 NOT NULL,
   "last_check" TIMESTAMP,
   PRIMARY KEY ("id")
 );
@@ -420,8 +420,8 @@ CREATE TABLE "phyxo_user_feed"
 DROP TABLE IF EXISTS "phyxo_user_group";
 CREATE TABLE "phyxo_user_group"
 (
-  "user_id" INTEGER default 0 NOT NULL,
-  "group_id" INTEGER default 0 NOT NULL,
+  "user_id" INTEGER DEFAULT 0 NOT NULL,
+  "group_id" INTEGER DEFAULT 0 NOT NULL,
   PRIMARY KEY ("user_id","group_id")
 );
 
@@ -436,21 +436,21 @@ DROP TYPE IF EXISTS USER_INFOS_STATUS;
 CREATE TYPE USER_INFOS_STATUS AS ENUM('webmaster','admin','normal','guest');
 CREATE TABLE "phyxo_user_infos"
 (
-  "user_id" INTEGER default 0 NOT NULL,
-  "nb_image_page" INTEGER default 15 NOT NULL,
-  "status" USER_INFOS_STATUS default 'guest'::USER_INFOS_STATUS,
-  "language" VARCHAR(50) default 'en_GB' NOT NULL,
-  "expand" BOOLEAN default false,
-  "show_nb_comments" BOOLEAN default false,
-  "show_nb_hits" BOOLEAN default false,
-  "recent_period" INTEGER default 7 NOT NULL,
-  "theme" VARCHAR(255) default 'treflez' NOT NULL,
+  "user_id" INTEGER DEFAULT 0 NOT NULL,
+  "nb_image_page" INTEGER DEFAULT 15 NOT NULL,
+  "status" USER_INFOS_STATUS DEFAULT 'guest'::USER_INFOS_STATUS,
+  "language" VARCHAR(50) DEFAULT 'en_GB' NOT NULL,
+  "expand" BOOLEAN DEFAULT false,
+  "show_nb_comments" BOOLEAN DEFAULT false,
+  "show_nb_hits" BOOLEAN DEFAULT false,
+  "recent_period" INTEGER DEFAULT 7 NOT NULL,
+  "theme" VARCHAR(255) DEFAULT 'treflez' NOT NULL,
   "registration_date" TIMESTAMP NOT NULL,
-  "enabled_high" BOOLEAN default true,
-  "level" INTEGER default 0 NOT NULL,
-  "activation_key" VARCHAR(255) default NULL,
-  "activation_key_expire" TIMESTAMP default NULL,
-  "lastmodified" TIMESTAMP NOT NULL default now(),
+  "enabled_high" BOOLEAN DEFAULT true,
+  "level" INTEGER DEFAULT 0 NOT NULL,
+  "activation_key" VARCHAR(255) DEFAULT NULL,
+  "activation_key_expire" TIMESTAMP DEFAULT NULL,
+  "lastmodified" TIMESTAMP NOT NULL DEFAULT now(),
 
   PRIMARY KEY ("user_id"),
   CONSTRAINT "user_infos_ui1" UNIQUE ("user_id")
@@ -464,9 +464,9 @@ CREATE TABLE "phyxo_user_infos"
 DROP TABLE IF EXISTS "phyxo_user_mail_notification";
 CREATE TABLE "phyxo_user_mail_notification"
 (
-  "user_id" INTEGER default 0 NOT NULL,
-  "check_key" VARCHAR(16) default '' NOT NULL,
-  "enabled" BOOLEAN default false,
+  "user_id" INTEGER DEFAULT 0 NOT NULL,
+  "check_key" VARCHAR(16) DEFAULT '' NOT NULL,
+  "enabled" BOOLEAN DEFAULT false,
   "last_send" TIMESTAMP,
   PRIMARY KEY ("user_id"),
   CONSTRAINT "user_mail_notification_ui1" UNIQUE ("check_key")
@@ -482,9 +482,9 @@ DROP TABLE IF EXISTS "phyxo_users";
 CREATE TABLE "phyxo_users"
 (
   "id" serial  NOT NULL,
-  "username" VARCHAR(100) default '' NOT NULL,
-  "password" VARCHAR(255) default NULL,
-  "mail_address" VARCHAR(255) default NULL,
+  "username" VARCHAR(100) DEFAULT '' NOT NULL,
+  "password" VARCHAR(255) DEFAULT NULL,
+  "mail_address" VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY ("id"),
   CONSTRAINT "users_ui1" UNIQUE ("username")
 );
@@ -497,11 +497,11 @@ CREATE TABLE "phyxo_users"
 DROP TABLE IF EXISTS "phyxo_image_tag";
 CREATE TABLE "phyxo_image_tag"
 (
-  "image_id" INTEGER default 0 NOT NULL,
-  "tag_id" INTEGER default 0 NOT NULL,
-  "validated" BOOLEAN default true,
+  "image_id" INTEGER DEFAULT 0 NOT NULL,
+  "tag_id" INTEGER DEFAULT 0 NOT NULL,
+  "validated" BOOLEAN DEFAULT true,
   "created_by" INTEGER REFERENCES "phyxo_users" (id),
-  "status" INTEGER default 1,
+  "status" INTEGER DEFAULT 1,
 
   PRIMARY KEY ("image_id","tag_id")
 );
@@ -515,14 +515,14 @@ DROP TABLE IF EXISTS "phyxo_comments";
 CREATE TABLE "phyxo_comments"
 (
   "id" serial  NOT NULL,
-  "image_id" INTEGER default 0 NOT NULL,
+  "image_id" INTEGER DEFAULT 0 NOT NULL,
   "date" TIMESTAMP  NOT NULL,
   "author" VARCHAR(255),
   "email" VARCHAR(255),
   "anonymous_id" VARCHAR(45),
   "website_url" VARCHAR(255),
   "content" TEXT,
-  "validated" BOOLEAN default false,
+  "validated" BOOLEAN DEFAULT false,
   "validation_date" TIMESTAMP,
   "author_id" INTEGER REFERENCES "phyxo_users" (id),
   PRIMARY KEY ("id")

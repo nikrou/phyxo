@@ -32,7 +32,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class MaintenanceController extends AdminCommonController
 {
     public function index(Request $request, ?string $action, Conf $conf, EntityManager $em, ParameterBagInterface $params, CategoryMapper $categoryMapper,
-                          UserMapper $userMapper, RateMapper $rateMapper, TagMapper $tagMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator)
+                          UserMapper $userMapper, RateMapper $rateMapper, TagMapper $tagMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator,
+                          SearchRepository $searchRepository)
     {
         $tpl_params = [];
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -113,7 +114,8 @@ class MaintenanceController extends AdminCommonController
               }
           case 'search':
               {
-                  $em->getRepository(SearchRepository::class)->delete();
+                  $searchRepository->purge();
+
                   return  $this->redirectToRoute('admin_maintenance');
               }
           case 'obsolete':

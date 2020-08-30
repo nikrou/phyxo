@@ -12,6 +12,7 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\CategoryMapper;
+use App\Entity\Search;
 use App\Entity\User;
 use App\Repository\CategoryRepository;
 use App\Repository\HistoryRepository;
@@ -186,7 +187,8 @@ class HistoryController extends AdminCommonController
         return $this->render('history_stats.html.twig', $tpl_params);
     }
 
-    public function search(Request $request, int $start, int $search_id = null, CategoryMapper $categoryMapper, Conf $conf, EntityManager $em, ParameterBagInterface $params)
+    public function search(Request $request, SearchRepository $searchRepository, int $start, int $search_id = null, CategoryMapper $categoryMapper, Conf $conf,
+                            EntityManager $em, ParameterBagInterface $params)
     {
         $tpl_params = [];
 
@@ -196,12 +198,15 @@ class HistoryController extends AdminCommonController
         $tpl_params['display_thumbnails'] = $this->display_thumbnails;
 
         if (!is_null($search_id)) {
-            $searchRules = $this->getSearchRules($search_id, $start, $conf, $em, $categoryMapper);
+            $rules = [];
+            $search = $searchRepository->findOneBy(['id' => $search_id]);
+            if (!is_null($search) && !empty($search->getRules())) {
+                $rules = unserialize(base64_decode($search->getRules()));
+            }
 
-            $nb_lines = $searchRules['nb_lines'];
-            $tpl_params['search_results'] = $searchRules['search_results'];
-            $tpl_params['search_summary'] = $searchRules['search_summary'];
-            unset($searchRules);
+            $tpl_params['search_results'] = $this->getElementFromSearchRules($rules, $start, $conf, $em, $categoryMapper);
+            $tpl_params['search_summary'] = $tpl_params['search_results']['search_summary'];
+            $nb_lines = $tpl_params['search_results']['nb_lines'];
 
             $tpl_params['navbar'] = Utils::createNavigationBar(
                 $this->get('router'),
@@ -219,7 +224,6 @@ class HistoryController extends AdminCommonController
         $result = $em->getRepository(UserRepository::class)->findAll('ORDER BY username ASC');
         $tpl_params['user_options'] = $em->getConnection()->result2array($result, 'id', 'username');
         $tpl_params['user_options_selected'] = $request->request->get('user') ?? -1;
-
 
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_history_search_save');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_history');
@@ -239,25 +243,18 @@ class HistoryController extends AdminCommonController
         return $this->render('history_search.html.twig', $tpl_params);
     }
 
-    protected function getSearchRules(int $search_id, int $start, Conf $conf, EntityManager $em, CategoryMapper $categoryMapper): array
+    protected function getElementFromSearchRules(array $rules, int $start, Conf $conf, EntityManager $em, CategoryMapper $categoryMapper): array
     {
         $search_results = [];
 
-        $result = $em->getRepository(SearchRepository::class)->findById($search_id);
-        list($serialized_rules) = $em->getConnection()->db_fetch_row($result);
-
-        $search = unserialize(base64_decode($serialized_rules));
-
-        if (isset($search['fields']['filename'])) {
-            $result = $em->getRepository(ImageRepository::class)->findByFields('file', $search['fields']['filename']);
-            $search['image_ids'] = $em->getConnection()->result2array($result, null, 'id');
-
-            // merge avec page['search'] ????
+        if (isset($rules['fields']['filename'])) {
+            $result = $em->getRepository(ImageRepository::class)->findByFields('file', $rules['fields']['filename']);
+            $rules['image_ids'] = $em->getConnection()->result2array($result, null, 'id');
         }
 
-        $nb_lines = $em->getRepository(HistoryRepository::class)->getHistory($search, $this->types, 0, 0, $count_only = true);
+        $nb_lines = $em->getRepository(HistoryRepository::class)->getHistory($rules, $this->types, 0, 0, $count_only = true);
 
-        $result = $em->getRepository(HistoryRepository::class)->getHistory($search, $this->types, $conf['nb_logs_page'], $start * $conf['nb_logs_page']);
+        $result = $em->getRepository(HistoryRepository::class)->getHistory($rules, $this->types, $conf['nb_logs_page'], $start * $conf['nb_logs_page']);
         $data = $em->getConnection()->result2array($result);
         usort($data, function ($a, $b) {
             return strcmp($a['date'] . $a['time'], $b['date'] . $b['time']);
@@ -376,7 +373,7 @@ class HistoryController extends AdminCommonController
                 );
             }
 
-            $image_string = $this->getImageString($line, $image_infos, $search, $conf, $this->image_std_params);
+            $image_string = $this->getImageString($line, $image_infos, $rules, $conf, $this->image_std_params);
 
             $search_results[] = [
                 'DATE' => $line['date'],
@@ -489,39 +486,39 @@ class HistoryController extends AdminCommonController
         return $image_string;
     }
 
-    public function saveSearch(Request $request, EntityManager $em)
+    public function saveSearch(Request $request, EntityManager $em, SearchRepository $searchRepository)
     {
         if ($request->isMethod('POST')) {
-            $search = [];
+            $rules = [];
             if ($date_after = $request->request->get('start')) {
-                $search['fields']['date-after'] = $date_after;
+                $rules['fields']['date-after'] = $date_after;
             }
 
             if ($date_end = $request->request->get('end')) {
-                $search['fields']['date-before'] = $date_end;
+                $rules['fields']['date-before'] = $date_end;
             }
 
             if ($types = $request->request->get('types')) {
-                $search['fields']['types'] = $types;
+                $rules['fields']['types'] = $types;
             } else {
-                $search['fields']['types'] = $this->types;
+                $rules['fields']['types'] = $this->types;
             }
 
-            $search['fields']['user'] = $request->request->get('user');
+            $rules['fields']['user'] = $request->request->get('user');
 
             if ($image_id = $request->request->get('image_id')) {
-                $search['fields']['image_id'] = intval($image_id);
+                $rules['fields']['image_id'] = intval($image_id);
             }
 
             if ($filename = $request->request->get('filename')) {
-                $search['fields']['filename'] = str_replace('*', '%', $em->getConnection()->db_real_escape_string($filename));
+                $rules['fields']['filename'] = str_replace('*', '%', $em->getConnection()->db_real_escape_string($filename));
             }
 
             if ($ip = $request->request->get('ip')) {
-                $search['fields']['ip'] = str_replace('*', '%', $em->getConnection()->db_real_escape_string($ip));
+                $rules['fields']['ip'] = str_replace('*', '%', $em->getConnection()->db_real_escape_string($ip));
             }
 
-            $search['fields']['display_thumbnail'] = $request->request->get('display_thumbnail');
+            $rules['fields']['display_thumbnail'] = $request->request->get('display_thumbnail');
             // Display choice are also save to one cookie
             $cookie_val = null;
             if ($display_thumbnail = $request->request->get('display_thumbnail')) {
@@ -532,11 +529,12 @@ class HistoryController extends AdminCommonController
             setcookie('display_thumbnail', $cookie_val, strtotime('+1 month'), $request->getBasePath());
 
             // TODO manage inconsistency of having $_POST['image_id'] and $_POST['filename'] simultaneously
-            if (!empty($search)) {
-                // register search rules in database, then they will be available on thumbnails page and picture page.
-                $search_id = $em->getRepository(SearchRepository::class)->addSearch(base64_encode(serialize($search)));
+            if (!empty($rules)) {
+                $search = new Search();
+                $search->setRules(base64_encode(serialize($rules)));
+                $searchRepository->addSearch($search);
 
-                return $this->redirectToRoute('admin_history_search', ['search_id' => $search_id]);
+                return $this->redirectToRoute('admin_history_search', ['search_id' => $search->getId()]);
             } else {
                 $this->addFlash('error', $this->translator->trans('Empty query. No criteria has been entered.', [], 'admin'));
                 return $this->redirectToRoute('admin_history_search');

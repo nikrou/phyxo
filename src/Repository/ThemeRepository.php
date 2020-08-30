@@ -25,7 +25,7 @@ class ThemeRepository extends ServiceEntityRepository
     public function addTheme(Theme $theme)
     {
         $this->_em->persist($theme);
-        $this->_em->flush($theme);
+        $this->_em->flush();
     }
 
     public function findExcept(array $ids)

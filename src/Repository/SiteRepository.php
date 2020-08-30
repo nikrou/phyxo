@@ -25,7 +25,7 @@ class SiteRepository extends ServiceEntityRepository
     public function addSite(Site $site)
     {
         $this->_em->persist($site);
-        $this->_em->flush($site);
+        $this->_em->flush();
     }
 
     public function isSiteExists(string $url): bool

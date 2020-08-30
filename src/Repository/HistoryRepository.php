@@ -28,7 +28,7 @@ class HistoryRepository extends BaseRepository
         if (isset($search['fields']['types'])) {
             $local_clauses = [];
 
-            foreach ($types as $type) {
+            foreach (array_keys($types) as $type) {
                 if (in_array($type, $search['fields']['types'])) {
                     $clause = 'image_type ';
                     if ($type == 'none') {
@@ -79,8 +79,11 @@ class HistoryRepository extends BaseRepository
         } else {
             $query = 'SELECT date,time,user_id,ip,section,category_id,tag_ids,image_id,image_type';
         }
+
         $query .= ' FROM ' . self::HISTORY_TABLE;
-        $query .= ' WHERE ' . $where_separator;
+        if (!empty($where_separator)) {
+            $query .= ' WHERE ' . $where_separator;
+        }
 
         if (!$count_only) {
             $query .= ' LIMIT ' . $limit;

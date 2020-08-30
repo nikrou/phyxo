@@ -38,6 +38,24 @@ class TablePrefixSubscriber implements EventSubscriberInterface
             ]);
         }
 
+        if ($classMetadata->isIdGeneratorSequence()) {
+            $newDefinition = $classMetadata->sequenceGeneratorDefinition;
+            $newDefinition['sequenceName'] = $this->prefix . $newDefinition['sequenceName'];
+
+            $classMetadata->setSequenceGeneratorDefinition($newDefinition);
+            $em = $event->getEntityManager();
+            if (isset($classMetadata->idGenerator)) {
+                $sequenceGenerator = new \Doctrine\ORM\Id\SequenceGenerator(
+                    $em->getConfiguration()->getQuoteStrategy()->getSequenceName(
+                        $newDefinition,
+                        $classMetadata,
+                        $em->getConnection()->getDatabasePlatform()),
+                    $newDefinition['allocationSize']
+                );
+                $classMetadata->setIdGenerator($sequenceGenerator);
+            }
+        }
+
         foreach ($classMetadata->getAssociationMappings() as $fieldName => $mapping) {
             if ($mapping['type'] == ClassMetadataInfo::MANY_TO_MANY && $mapping['isOwningSide']) {
                 $mappedTableName = $mapping['joinTable']['name'];
