@@ -11,7 +11,7 @@
 
 namespace Phyxo\Extension;
 
-use GuzzleHttp\Client;
+use Symfony\Component\HttpClient\HttpClient;
 use PclZip;
 
 class Extensions
@@ -23,10 +23,10 @@ class Extensions
     public function getJsonFromServer($url, $params = [])
     {
         try {
-            $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
+            $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $url, ['query' => $params]);
-            if ($response->getStatusCode() === 200 && $response->getBody()->isReadable()) {
-                return json_decode($response->getBody(), true);
+            if ($response->getStatusCode() === 200 && $response->getContent()) {
+                return json_decode($response-> getContent(), true);
             } else {
                 throw new \Exception("Response is not readable");
             }
@@ -50,10 +50,10 @@ class Extensions
         $url = $this->pem_url . '/download.php';
 
         try {
-            $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
+            $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $url, ['query' => $params]);
-            if ($response->getStatusCode() === 200 && $response->getBody()->isReadable()) {
-                file_put_contents($filename, $response->getBody());
+            if ($response->getStatusCode() === 200 && $response->getContent()) {
+                file_put_contents($filename, $response->getContent());
             } else {
                 throw new \Exception("Response is not readable");
             }

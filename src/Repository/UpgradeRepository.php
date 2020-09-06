@@ -13,7 +13,7 @@ namespace App\Repository;
 
 use App\Entity\Upgrade;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 class UpgradeRepository extends ServiceEntityRepository
 {

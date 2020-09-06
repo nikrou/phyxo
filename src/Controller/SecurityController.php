@@ -29,7 +29,10 @@ use App\Repository\UserRepository;
 use App\Security\UserProvider;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Phyxo\MenuBar;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -287,7 +290,7 @@ class SecurityController extends CommonController
         return $this->render('profile.html.twig', $tpl_params);
     }
 
-    public function forgotPassword(Request $request, iDBLayer $conn, UserManager $user_manager, \Swift_Mailer $mailer, CsrfTokenManagerInterface $csrfTokenManager,
+    public function forgotPassword(Request $request, iDBLayer $conn, UserManager $user_manager, MailerInterface $mailer, CsrfTokenManagerInterface $csrfTokenManager,
                                     TranslatorInterface $translator)
     {
         $tpl_params = $this->init();
@@ -327,11 +330,12 @@ class SecurityController extends CommonController
                         'GALLERY_TITLE' => $this->conf['gallery_title'],
                     ];
 
-                    if ($this->sendActivationKey($mail_params, $mailer, $webmaster_mail_address, $translator)) {
+                    try {
+                        $this->sendActivationKey($mail_params, $mailer, $webmaster_mail_address, $translator);
                         $title = $translator->trans('Password reset');
 
                         $infos[] = $translator->trans('Check your email for the confirmation link');
-                    } else {
+                    } catch (\Exception $e) {
                         $errors[] = $translator->trans('Error sending email');
                     }
                 }
@@ -353,7 +357,7 @@ class SecurityController extends CommonController
         return $this->render('forgot_password.html.twig', $tpl_params);
     }
 
-    protected function sendActivationKey(array $params, \Swift_Mailer $mailer, string $webmaster_mail_address, TranslatorInterface $translator)
+    protected function sendActivationKey(array $params, MailerInterface $mailer, string $webmaster_mail_address, TranslatorInterface $translator): void
     {
         $tpl_params = array_merge([
             'gallery_url' => $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
@@ -363,15 +367,17 @@ class SecurityController extends CommonController
             'PHYXO_URL' => $this->phyxoWebsite,
         ], $params);
 
-        $message = (new \Swift_Message('[' . $this->conf['gallery_title'] . '] ' . $translator->trans('Password Reset')))
-            ->addTo($params['user']['mail_address'])
-            ->setBody($this->renderView('mail/text/reset_password.text.twig', $tpl_params), 'text/plain')
-            ->addPart($this->renderView('mail/html/reset_password.html.twig', $tpl_params), 'text/html');
+        $message = (new TemplatedEmail())
+            ->subject('[' . $this->conf['gallery_title'] . '] ' . $translator->trans('Password Reset'))
+            ->to($params['user']['mail_address'])
+            ->textTemplate('mail/text/reset_password.text.twig')
+            ->htmlTemplate('mail/html/reset_password.html.twig')
+            ->context($tpl_params);
 
-        $message->setFrom($webmaster_mail_address);
-        $message->setReplyTo($webmaster_mail_address);
+        $message->from($webmaster_mail_address);
+        $message->replyTo($webmaster_mail_address);
 
-        return $mailer->send($message);
+        $mailer->send($message);
     }
 
     public function resetPassword(Request $request, iDBLayer $conn, string $activation_key, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder,

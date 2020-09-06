@@ -24,6 +24,8 @@ use Phyxo\Image\SrcImage;
 use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Conf;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -37,7 +39,7 @@ class Notification
     private $infos = [], $errors = [];
 
     public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, CategoryMapper $categoryMapper, RouterInterface $router,
-                                Environment $template, string $phyxoVersion, string $phyxoWebsite, \Swift_Mailer $mailer, TranslatorInterface $translator)
+                                Environment $template, string $phyxoVersion, string $phyxoWebsite, MailerInterface $mailer, TranslatorInterface $translator)
     {
         $this->em = $em;
         $this->conn = $em->getConnection();
@@ -947,13 +949,14 @@ class Notification
 
         $tpl_params = array_merge($tpl_params, $params);
 
-        $message = (new \Swift_Message('[' . $this->conf['gallery_title'] . '] ' . $subject))
-            ->addTo($to['email'], $to['name'])
-            ->setBody($this->template->render('mail/text/notification.text.twig', $tpl_params), 'text/plain')
-            ->addPart($this->template->render('mail/html/notification.html.twig', $tpl_params), 'text/html');
+        $message = (new TemplatedEmail('[' . $this->conf['gallery_title'] . '] ' . $subject))
+            ->to($to['email'], $to['name'])
+            ->textTemplate('mail/text/notification.text.twig')
+            ->htmlTemplate('mail/html/notification.html.twig')
+            ->context($tpl_params);
 
-        $message->setFrom($from['email'], $from['name']);
-        $message->setReplyTo($from['email'], $from['name']);
+        $message->from($from['email'], $from['name']);
+        $message->replyTo($from['email'], $from['name']);
 
         return $this->mailer->send($message);
     }

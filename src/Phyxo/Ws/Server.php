@@ -26,7 +26,7 @@ use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
 use App\Security\UserProvider;
 use App\Utils\UserManager;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;

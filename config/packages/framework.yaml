@@ -1,5 +1,5 @@
 framework:
-  secret: "%env(APP_SECRET)%"
+  secret: '%env(APP_SECRET)%'
   default_locale: en_GB
   csrf_protection: ~
   #http_method_override: true
@@ -15,6 +15,10 @@ framework:
   #fragments: true
   php_errors:
     log: true
+
+  http_client:
+    default_options:
+      max_redirects: 5
 
   cache:
     # Put the unique name of your app here: the prefix seed

@@ -52,18 +52,22 @@
 ;; atoum
 /coverage
 
+/behat.yml
+
+###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php
 /.env.*.local
 /public/bundles/
 /var/
 /vendor/
+###< symfony/framework-bundle ###
 
-;; php-cs-fixer
-.php_cs
-.php_cs.cache
+###> behat/symfony2-extension ###
+behat.yml
+###< behat/symfony2-extension ###
 
-.phpunit
-/phpunit.xml
-
-/behat.yml
+###> friendsofphp/php-cs-fixer ###
+/.php_cs
+/.php_cs.cache
+###< friendsofphp/php-cs-fixer ###

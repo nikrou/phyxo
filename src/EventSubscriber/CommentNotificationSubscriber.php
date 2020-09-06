@@ -15,7 +15,9 @@ use App\DataMapper\UserMapper;
 use Twig\Environment;
 use App\Events\CommentEvent;
 use Phyxo\Conf;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -24,7 +26,7 @@ class CommentNotificationSubscriber implements EventSubscriberInterface
 {
     private $router, $mailer, $conf, $template, $userMapper, $translator;
 
-    public function __construct(\Swift_Mailer $mailer, Conf $conf, RouterInterface $router, Environment $template,
+    public function __construct(MailerInterface $mailer, Conf $conf, RouterInterface $router, Environment $template,
                                 UserMapper $userMapper, TranslatorInterface $translator)
     {
         $this->mailer = $mailer;
@@ -80,14 +82,15 @@ class CommentNotificationSubscriber implements EventSubscriberInterface
             $from = [$webmaster['mail_address'], $webmaster['username']];
         }
 
-        $message = (new \Swift_Message())
-            ->setSubject($subject)
-            ->addTo(...$from)
-            ->setBody($this->template->render('mail/text/new_comment.text.twig', $params), 'text/plain')
-            ->addPart($this->template->render('mail/html/new_comment.html.twig', $params), 'text/html');
+        $message = (new TemplatedEmail())
+            ->subject($subject)
+            ->to(...$from)
+            ->textTemplate('mail/text/new_comment.text.twig')
+            ->htmlTemplate('mail/html/new_comment.html.twig')
+            ->context($params);
 
-        $message->setFrom(...$from);
-        $message->setReplyTo(...$from);
+        $message->from(...$from);
+        $message->replyTo(...$from);
 
         $this->mailer->send($message);
     }

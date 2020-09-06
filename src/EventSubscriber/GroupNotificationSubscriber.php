@@ -16,7 +16,9 @@ use App\Events\GroupEvent;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -26,7 +28,7 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
 {
     private $mailer, $em, $conf, $router, $template, $userMapper, $translator;
 
-    public function __construct(\Swift_Mailer $mailer, EntityManager $em, Conf $conf, RouterInterface $router, Environment $template,
+    public function __construct(MailerInterface $mailer, EntityManager $em, Conf $conf, RouterInterface $router, Environment $template,
                                 UserMapper $userMapper, TranslatorInterface $translator)
     {
         $this->mailer = $mailer;
@@ -70,7 +72,7 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
             $languages[$row['language']][] = $row;
         }
 
-        $message = (new \Swift_Message())->setSubject($subject);
+        $message = (new TemplatedEmail())->subject($subject);
 
         foreach ($languages as $language => $users) {
             //@switch to language in template (@see switch_lang_to and switch_lang_back from Mail class)
@@ -80,8 +82,9 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
         }
 
         $message
-          ->setBody($this->template->render('mail/text/cat_group_info.text.twig', $params), 'text/plain')
-          ->addPart($this->template->render('mail/html/cat_group_info.html.twig', $params), 'text/html');
+          ->textTemplate('mail/text/cat_group_info.text.twig')
+          ->htmlTemplate('mail/html/cat_group_info.html.twig')
+          ->context($params);
 
         if (!empty($this->conf['mail_sender_email'])) {
             $from[] = $this->conf['mail_sender_email'];
@@ -92,8 +95,8 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
             $from = [$webmaster['mail_address'], $webmaster['username']];
         }
 
-        $message->setFrom(...$from);
-        $message->setReplyTo(...$from);
+        $message->from(...$from);
+        $message->replyTo(...$from);
 
         $this->mailer->send($message);
     }

@@ -26,13 +26,13 @@ use App\Repository\ImageCategoryRepository;
 use App\Repository\BaseRepository;
 use App\Security\TagVoter;
 use Phyxo\Functions\Utils;
-use GuzzleHttp\Client;
 use Phyxo\Functions\URL;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\SrcImage;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\Routing\RouterInterface;
 
 class Image
@@ -1585,7 +1585,7 @@ class Image
         $derivative_image = new DerivativeImage($src_image, $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB), $service->getImageStandardParams());
 
         // force cache generation
-        $client = new Client(['http_errors' => false]);
+        $client = HttpClient::create(['http_errors' => false]);
         $client->request('GET', $service->getRouter()->generate('media', $derivative_image->relativeThumbInfos(), RouterInterface::ABSOLUTE_URL));
 
         return $image_id;

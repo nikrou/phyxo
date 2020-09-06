@@ -21,17 +21,17 @@ use App\Repository\ImageTagRepository;
 use App\Repository\RateRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
-use GuzzleHttp\Client;
 use Phyxo\Conf;
 use Phyxo\DBLayer\DBLayer;
 use Phyxo\EntityManager;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DashboardController extends AdminCommonController
 {
-    public function index(Request $request, bool $check_upgrade = false, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function index(Request $request, bool $check_upgrade = false, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator, HttpClientInterface $client)
     {
         $tpl_params = [];
 
@@ -40,10 +40,9 @@ class DashboardController extends AdminCommonController
 
         if ($check_upgrade) {
             try {
-                $client = new Client();
                 $response = $client->request('GET', $params->get('update_url'));
-                if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
-                    $versions = json_decode($response->getBody(), true);
+                if ($response->getStatusCode() == 200 && $response->getContent()) {
+                    $versions = json_decode($response->getContent(), true);
                     $latest_version = $versions[0]['version'];
                 } else {
                     throw new \Exception('Unable to check for upgrade.');

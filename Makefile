@@ -39,10 +39,6 @@ config: clean ## prepare environment for building archive
 	find $(DIST)/$(APP_NAME)/vendor -path '*/.git/*' | xargs rm -fr ;
 
 	rm -fr $(DIST)/$(APP_NAME)/vendor/symfony/*/Tests \
-		$(DIST)/$(APP_NAME)/vendor/swiftmailer/swiftmailer/doc \
-		$(DIST)/$(APP_NAME)/vendor/swiftmailer-bundle/Resources/doc \
-		$(DIST)/$(APP_NAME)/vendor/swiftmailer/swiftmailer/.github \
-		$(DIST)/$(APP_NAME)/vendor/swiftmailer/swiftmailer/tests \
 		$(DIST)/$(APP_NAME)/vendor/openpsa/universalfeedcreator/test \
 		$(DIST)/$(APP_NAME)/vendor/twig/twig/doc
 

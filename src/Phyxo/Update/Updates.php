@@ -16,10 +16,10 @@ use Phyxo\Plugin\Plugins;
 use Phyxo\Theme\Themes;
 use Phyxo\Language\Languages;
 use PclZip;
-use GuzzleHttp\Client;
 use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Extension\Extensions;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpClient\HttpClient;
 
 class Updates
 {
@@ -70,10 +70,10 @@ class Updates
     public function getAllVersions()
     {
         try {
-            $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
+            $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $this->update_url);
-            if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
-                $this->versions = json_decode($response->getBody(), true);
+            if ($response->getStatusCode() == 200 && $response->getContent()) {
+                $this->versions = json_decode($response->getContent(), true);
                 return $this->versions;
             } else {
                 return false;
@@ -116,10 +116,10 @@ class Updates
         $fs->mkdir(dirname($zip_file));
 
         try {
-            $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
+            $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $this->getFileURL());
-            if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
-                file_put_contents($zip_file, $response->getBody());
+            if ($response->getStatusCode() == 200 && $response->getContent()) {
+                file_put_contents($zip_file, $response->getContent());
             }
         } catch (\Exception $e) {
         }
@@ -175,10 +175,10 @@ class Updates
         $url = $this->pem_url . '/api/get_version_list.php';
 
         try {
-            $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
+            $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $url, $get_data);
-            if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
-                $pem_versions = json_decode($response->getBody(), true);
+            if ($response->getStatusCode() == 200 && $response->getContent()) {
+                $pem_versions = json_decode($response->getContent(), true);
             } else {
                 throw new \Exception("Reponse from server is not readable");
             }
@@ -228,10 +228,10 @@ class Updates
         }
 
         try {
-            $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
+            $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('POST', $url, $post_data);
-            if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
-                $pem_exts = json_decode($response->getBody(), true);
+            if ($response->getStatusCode() == 200 && $response->getContent()) {
+                $pem_exts = json_decode($response->getContent(), true);
             } else {
                 throw new \Exception("Reponse from server is not readable");
             }
@@ -269,10 +269,10 @@ class Updates
 
         if (preg_match('/(\d+\.\d+)\.(\d+)$/', $this->core_version, $matches)) {
             try {
-                $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
+                $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
                 $response = $client->request('GET', $this->update_url);
-                if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
-                    $all_versions = json_decode($response->getBody(), true);
+                if ($response->getStatusCode() == 200 && $response->getContent()) {
+                    $all_versions = json_decode($response->getContent(), true);
                 }
             } catch (\Exception $e) {
                 throw new \Exception($e->getMessage());

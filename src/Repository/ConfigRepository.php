@@ -13,7 +13,7 @@ namespace App\Repository;
 
 use App\Entity\Config;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 class ConfigRepository extends ServiceEntityRepository
 {
