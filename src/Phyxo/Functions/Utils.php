@@ -12,6 +12,7 @@
 namespace Phyxo\Functions;
 
 use App\Entity\User;
+use App\Entity\UserInfos;
 use Phyxo\Block\RegisteredBlock;
 use App\Repository\CommentRepository;
 use App\Repository\ImageCategoryRepository;
@@ -32,6 +33,7 @@ use App\Repository\TagRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\UserGroupRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\EntityManager;
 use Symfony\Component\Routing\RouterInterface;
 use Phyxo\Image\ImageStandardParams;
@@ -215,22 +217,6 @@ class Utils
             $path = __DIR__ . '/../../../' . $path;
         }
         return $path;
-    }
-
-    /**
-     * Returns webmaster mail address
-     *
-     * @return string
-     */
-    public static function get_webmaster_mail_address()
-    {
-        global $conn;
-
-        $result = (new UserRepository($conn))->findByStatus(User::STATUS_WEBMASTER);
-        $row = $conn->db_fetch_assoc($result);
-        $email = $row['mail_address'];
-
-        return $email;
     }
 
     /**
@@ -557,18 +543,7 @@ class Utils
      */
     public static function url_check_format($url)
     {
-        return filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED) !== false;
-    }
-
-    /**
-     * check email format
-     *
-     * @param string $mail_address
-     * @return bool
-     */
-    public static function email_check_format($mail_address)
-    {
-        return filter_var($mail_address, FILTER_VALIDATE_EMAIL) !== false;
+        return filter_var($url, FILTER_VALIDATE_URL) !== false;
     }
 
     /**
@@ -994,26 +969,6 @@ class Utils
     }
 
     /**
-     * Returns the username corresponding to the given user identifier if exists.
-     *
-     * @param int $user_id
-     * @return string|false
-     */
-    public static function get_username($user_id)
-    {
-        global $conf, $conn;
-
-        $result = (new UserRepository($conn))->findById($user_id);
-        if ($conn->db_num_rows($result) > 0) {
-            $row = $conn->db_fetch_assoc($result);
-
-            return $row['username'];
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * Returns the argument_ids array with new sequenced keys based on related
      * names. Sequence is not case sensitive.
      * Warning: By definition, this function breaks original keys.
@@ -1169,31 +1124,49 @@ class Utils
      * Used to invalidate LocalStorage cache on admin pages.
      * @param string|string[] list of keys to retrieve (categories,groups,images,tags,users)
      */
-    public static function getAdminClientCacheKeys(array $requested = [], EntityManager $em, string $base_url = ''): array
+    public static function getAdminClientCacheKeys(array $requested = [], EntityManager $em, ManagerRegistry $managerRegistry, string $base_url = ''): array
     {
         $tables = [
             'categories' => CategoryRepository::class,
             'groups' => GroupRepository::class,
             'images' => ImageRepository::class,
             'tags' => TagRepository::class,
-            'users' => UserInfosRepository::class
+        ];
+
+        $otherTables = [
+            'users' => UserInfos::class
         ];
 
         if (empty($requested)) {
-            $requested = array_keys($tables);
+            $returned = array_keys($tables);
         } else {
-            $requested = array_intersect($requested, array_keys($tables));
+            $returned = array_intersect($requested, array_keys($tables));
         }
 
         $keys = [
             '_hash' => md5($base_url),
         ];
 
-        foreach ($requested as $repository) {
-            $result = $em->getRepository($tables[$repository])->getMaxLastModified();
-            $row = $em->getConnection()->db_fetch_row($result);
+        foreach ($returned as $repository) {
+            if (isset($tables[$repository])) {
+                $result = $em->getRepository($tables[$repository])->getMaxLastModified();
+                $row = $em->getConnection()->db_fetch_row($result);
 
-            $keys[$repository] = sprintf('%s_%s', $row[0], $row[1]);
+                $keys[$repository] = sprintf('%s_%s', $row[0], $row[1]);
+            }
+        }
+
+        if (empty($requested)) {
+            $returned = array_keys($otherTables);
+        } else {
+            $returned = array_intersect($requested, array_keys($otherTables));
+        }
+
+        foreach ($returned as $repository) {
+            if (isset($otherTables[$repository])) {
+                $tableInfos = $managerRegistry->getRepository($otherTables[$repository])->getMaxLastModified();
+                $keys[$repository] = sprintf('%s_%s', (new \Datetime($tableInfos['max']))->getTimestamp(), $tableInfos['count']);
+            }
         }
 
         return $keys;

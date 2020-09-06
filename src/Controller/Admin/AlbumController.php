@@ -26,6 +26,7 @@ use App\Repository\UserGroupRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
+use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
@@ -227,7 +228,7 @@ class AlbumController extends AdminCommonController
 
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_album', ['album_id' => $album_id, 'parent_id' => $parent_id]);
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
-        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['categories'], $em, $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['categories'], $em, $this->getDoctrine(), $this->generateUrl('homepage'));
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('properties', $album_id, $parent_id), $tpl_params);
@@ -396,7 +397,7 @@ class AlbumController extends AdminCommonController
     }
 
     public function permissions(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                                CategoryMapper $categoryMapper, TranslatorInterface $translator)
+                                CategoryMapper $categoryMapper, TranslatorInterface $translator, UserRepository $userRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -498,8 +499,10 @@ class AlbumController extends AdminCommonController
         $tpl_params['groups_selected'] = $em->getConnection()->result2array($result, null, 'group_id');
 
         // users...
-        $result = $em->getRepository(UserRepository::class)->findAll();
-        $tpl_params['users'] = $em->getConnection()->result2array($result, 'id', 'username');
+        $tpl_params['users'] = [];
+        foreach ($userRepository->findAll() as $user) {
+            $tpl_params['users'][$user->getId()] = $user;
+        }
 
         $result = $em->getRepository(UserAccessRepository::class)->findByCatId($album_id);
         $tpl_params['users_selected'] = $em->getConnection()->result2array($result, null, 'user_id');
@@ -543,7 +546,7 @@ class AlbumController extends AdminCommonController
 
         $tpl_params['CATEGORIES_NAV'] = $categoryMapper->getAlbumsDisplayName($category['uppercats'], 'admin_album', ['parent_id' => $parent_id]);
         $tpl_params['U_GROUPS'] = $this->generateUrl('admin_groups');
-        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['groups', 'users'], $em, $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['groups', 'users'], $em, $this->getDoctrine(), $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params['private'] = ($category['status'] === 'private');

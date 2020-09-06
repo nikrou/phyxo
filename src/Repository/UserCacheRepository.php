@@ -13,6 +13,15 @@ namespace App\Repository;
 
 class UserCacheRepository extends BaseRepository
 {
+    public function getUserCacheData(int $user_id)
+    {
+        $query = 'SELECT user_id, need_update, cache_update_time, forbidden_categories, nb_total_images,';
+        $query .= ' last_photo_date, nb_available_tags, nb_available_comments, image_access_type, image_access_list FROM ' . self::USER_CACHE_TABLE;
+        $query .= ' WHERE user_id  = ' . $this->conn->db_real_escape_string($user_id);
+
+        return $this->conn->db_query($query);
+    }
+
     public function deleteUserCache(? int $user_id = null)
     {
         $query = 'DELETE FROM ' . self::USER_CACHE_TABLE;

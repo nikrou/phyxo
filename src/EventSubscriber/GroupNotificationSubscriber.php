@@ -54,7 +54,7 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
 
         $params = [
             'GALLERY_TITLE' => $this->conf['gallery_title'],
-            'CONTACT_MAIL' => $webmaster['mail_address'],
+            'CONTACT_MAIL' => $webmaster->getMailAddress(),
             'GALLERY_URL' => $this->router->generate('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'CAT_NAME' => $event->getCategory()['name'],
             'LINK' => $this->router->generate('album', ['category_id' => $event->getCategory()['id']], UrlGeneratorInterface::ABSOLUTE_URL),
@@ -92,7 +92,7 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
                 $from[] = $this->conf['mail_sender_name'];
             }
         } else {
-            $from = [$webmaster['mail_address'], $webmaster['username']];
+            $from = [$webmaster->getMailAddress(), $webmaster->getUsername()];
         }
 
         $message->from(...$from);

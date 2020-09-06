@@ -29,25 +29,28 @@ use App\Repository\CaddieRepository;
 use App\Repository\CommentRepository;
 use App\Repository\ImageTagRepository;
 use App\Security\UserProvider;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UserMapper
 {
-    private $em, $conf, $autorizationChecker, $tagMapper, $themeRepository;
-    private $defaultLanguage, $themesDir, $userProvider, $translator;
+    private $em, $conf, $autorizationChecker, $tagMapper, $themeRepository, $userRepository, $userInfosRepository;
+    private $defaultLanguage, $defaultTheme, $themesDir, $userProvider, $default_user, $default_user_retrieved = false;
+    private $webmaster, $webmaster_retrieved = false;
 
     public function __construct(EntityManager $em, Conf $conf, AuthorizationCheckerInterface $autorizationChecker, ThemeRepository $themeRepository,
-                                TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider, TranslatorInterface $translator)
+                                UserRepository $userRepository, UserInfosRepository $userInfosRepository, string $defaultTheme,
+                                TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider)
     {
         $this->em = $em;
         $this->themeRepository = $themeRepository;
+        $this->userRepository = $userRepository;
+        $this->userInfosRepository = $userInfosRepository;
         $this->conf = $conf;
         $this->autorizationChecker = $autorizationChecker;
         $this->tagMapper = $tagMapper;
         $this->defaultLanguage = $defaultLanguage;
+        $this->defaultTheme = $defaultTheme;
         $this->themesDir = $themesDir;
         $this->userProvider = $userProvider;
-        $this->translator = $translator;
     }
 
     public function getUser()//: ?User @TODO : modify tests or implementation
@@ -56,129 +59,26 @@ class UserMapper
     }
 
     /**
-     * Checks if an email is well formed and not already in use.
-     *
-     * @param int $user_id
-     * @param string $mail_address
-     * @return string|void error message or nothing
-     */
-    public function validateMailAddress($user_id, $mail_address)
-    {
-        if (empty($mail_address) && !($this->conf['obligatory_user_mail_address']
-            && in_array(\Phyxo\Functions\Utils::script_basename(), ['register', 'profile']))) {
-            return;
-        }
-
-        if (!\Phyxo\Functions\Utils::email_check_format($mail_address)) {
-            return $this->translator->trans('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
-        }
-
-        if (!empty($mail_address) && $this->em->getRepository(UserRepository::class)->isEmailExistsExceptUser($mail_address, $user_id)) {
-            return $this->translator->trans('this email address is already in use');
-        }
-    }
-
-    /**
-     * Returns user identifier thanks to his name.
-     *
-     * @param string $username
-     * @param int|false
-     */
-    public function getUserId($username)
-    {
-        $result = $this->em->getRepository(UserRepository::class)->findByUsername($username);
-        if ($this->em->getConnection()->db_num_rows($result) === 0) {
-            return false;
-        } else {
-            $user = $this->em->getConnection()->db_fetch_assoc($result);
-
-            return $user['id'];
-        }
-    }
-
-    public function getUsernameFromId(int $id)
-    {
-        $result = $this->em->getRepository(UserRepository::class)->findById($id);
-        if ($this->em->getConnection()->db_num_rows($result) > 0) {
-            $row = $this->em->getConnection()->db_fetch_assoc($result);
-
-            return $row['username'];
-        } else {
-            return false;
-        }
-    }
-
-    public function getWebmasterEmail()
-    {
-        $result = $this->em->getRepository(UserRepository::class)->findByStatus(User::STATUS_WEBMASTER);
-        $row = $this->em->getConnection()->db_fetch_assoc($result);
-
-        return $row['mail_address'];
-    }
-
-    /**
      * Returns webmaster user
      */
-    public function getWebmaster(): array
+    public function getWebmaster(): User
     {
-        $result = $this->em->getRepository(UserRepository::class)->findByStatus(User::STATUS_WEBMASTER);
-        $row = $this->em->getConnection()->db_fetch_assoc($result);
-
-        return $row;
-    }
-
-    /**
-     * Returns webmaster mail address
-     */
-    public function getWebmasterUsername(): string
-    {
-        $result = $this->em->getRepository(UserRepository::class)->findByStatus(User::STATUS_WEBMASTER);
-        $row = $this->em->getConnection()->db_fetch_assoc($result);
-
-        return $row['username'];
-    }
-
-    /**
-     * Returns a array with default user valuees.
-     *
-     * @param convert_str ceonferts 'true' and 'false' into booleans
-     * @return array
-     */
-    public function getDefaultUserInfo($convert_str = true)
-    {
-        $result = $this->em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
-        if ($this->em->getConnection()->db_num_rows($result) > 0) {
-            $default_user = $this->em->getConnection()->db_fetch_assoc($result);
-
-            unset($default_user['user_id'], $default_user['status'], $default_user['registration_date']);
-            foreach ($default_user as &$value) {
-                // If the field is true or false, the variable is transformed into a boolean value.
-                if (!is_null($value) && $this->em->getConnection()->is_boolean($value)) {
-                    $value = $this->em->getConnection()->get_boolean($value);
-                }
-            }
-
-            return $default_user;
-        } else {
-            return false;
+        if (!$this->webmaster_retrieved) {
+            $this->webmaster = $this->userInfosRepository->findOneByStatus(User::STATUS_WEBMASTER);
+            $this->webmaster_retrieved = true;
         }
+
+        return $this->webmaster;
     }
 
-    /**
-     * Returns a default user value.
-     *
-     * @param string $value_name
-     * @param mixed $default
-     * @return mixed
-     */
-    public function getDefaultUserValue($value_name, $default)
+    protected function getDefaultUser(): ?User
     {
-        $default_user = $this->getDefaultUserInfo(true);
-        if ($default_user === false or empty($default_user[$value_name])) {
-            return $default;
-        } else {
-            return $default_user[$value_name];
+        if (!$this->default_user_retrieved) {
+            $this->default_user = $this->userInfosRepository->findOneByStatus(User::STATUS_GUEST);
+            $this->default_user_retrieved = true;
         }
+
+        return $this->default_user;
     }
 
     /**
@@ -187,27 +87,25 @@ class UserMapper
      *
      * @return string
      */
-    public function getDefaultTheme()
+    public function getDefaultTheme(): string
     {
-        $theme = $this->getDefaultUserValue('theme', $this->defaultLanguage);
+        $theme = is_null($this->getDefaultUser()) ? $this->defaultTheme : $this->getDefaultUser()->getTheme();
         if (is_readable($this->themesDir . '/' . $theme . '/' . 'themeconf.inc.php')) {
             return $theme;
         }
 
         // let's find the first available theme
-        $themes = $this->themeRepository->findAll();
+        $theme = $this->themeRepository->findOneBy([]);
 
-        return $themes->first()->getName();
+        return $theme->getName();
     }
 
     /**
      * Returns the default language.
-     *
-     * @return string
      */
-    public function getDefaultLanguage()
+    public function getDefaultLanguage(): string
     {
-        return $this->getDefaultUserValue('language', $this->defaultLanguage);
+        return is_null($this->getDefaultUser()) ? $this->defaultLanguage : $this->getDefaultUser()->getLanguage();
     }
 
     public function isGuest(): bool
@@ -341,6 +239,6 @@ class UserMapper
         $this->em->getRepository(ImageTagRepository::class)->removeCreatedByKey($user_id);
 
         // destruction of the user
-        $this->em->getRepository(UserRepository::class)->deleteById($user_id);
+        $this->userRepository->deleteById($user_id);
     }
 }

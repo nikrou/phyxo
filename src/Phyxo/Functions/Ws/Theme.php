@@ -11,7 +11,7 @@
 
 namespace Phyxo\Functions\Ws;
 
-use App\Repository\ThemeRepository;
+use App\Entity\Theme as EntityTheme;
 use Phyxo\Theme\Themes;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\Server;
@@ -32,9 +32,7 @@ class Theme
             return new Error(403, 'Invalid security token');
         }
 
-        define('IN_ADMIN', true); // @TODO: remove ?
-
-        $themes = new Themes($service->getConnection(), $service->getManagerRegistry()->getRepository(ThemeRepository::class), $service->getUserMapper());
+        $themes = new Themes($service->getConnection(), $service->getManagerRegistry()->getRepository(EntityTheme::class), $service->getUserMapper());
         $errors = $themes->performAction($params['action'], $params['theme']);
 
         if (!empty($errors)) {

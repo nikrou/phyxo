@@ -24,15 +24,17 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentMapper
 {
-    private $conn, $conf, $userMapper, $eventDispatcher, $translator;
+    private $conn, $conf, $userMapper, $eventDispatcher, $translator, $userRepository;
 
-    public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator)
+    public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator,
+                                UserRepository $userRepository)
     {
         $this->conn = $conn;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
         $this->eventDispatcher = $eventDispatcher;
         $this->translator = $translator;
+        $this->userRepository = $userRepository;
     }
 
     public function getUser()
@@ -124,7 +126,7 @@ class CommentMapper
 
             // if a guest try to use the name of an already existing user, he must be rejected
             if ($comm['author'] !== 'guest') {
-                if ((new UserRepository($this->conn))->isUserExists($comm['author'])) {
+                if ($this->userRepository->isUserExists($comm['author'])) {
                     $infos[] = $this->translator->trans('This login is already used by another user');
                     $comment_action = 'reject';
                 }
@@ -162,7 +164,7 @@ class CommentMapper
                 $infos[] = $this->translator->trans('Email address is missing. Please specify an email address.');
                 $comment_action = 'reject';
             }
-        } elseif (!\Phyxo\Functions\Utils::email_check_format($comm['email'])) {
+        } elseif (filter_var($comm['email'], FILTER_VALIDATE_EMAIL) !== false) {
             $infos[] = $this->translator->trans('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
             $comment_action = 'reject';
         }

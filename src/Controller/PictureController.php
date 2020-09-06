@@ -563,7 +563,7 @@ class PictureController extends CommonController
         $anonymous_id = null;
         if ($this->conf['rate_anonymous'] || $this->userMapper->isClassicUser()) {
             if ($rate_summary['count'] > 0) {
-                if (!$this->getUser()->isClassicUser()) {
+                if (!$this->userMapper->isClassicUser()) {
                     $ip_components = explode('.', $request->getClientIp());
                     if (count($ip_components) > 3) {
                         array_pop($ip_components);

@@ -11,6 +11,7 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Entity\Language;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedArray;
@@ -23,6 +24,7 @@ use App\Repository\UserGroupRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Entity\User as EntityUser;
+use App\Entity\UserInfos;
 
 class User
 {
@@ -123,14 +125,9 @@ class User
         $booleanFields = ['expand', 'show_nb_comments', 'show_nb_hits', 'enabled_high'];
 
         $users = [];
-        $result = (new UserRepository($service->getConnection()))->getList($display, $where_clauses, $params['order'], $params['per_page'], $params['per_page'] * $params['page']);
-        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-            foreach ($booleanFields as $field) {
-                if (isset($row[$field])) {
-                    $row[$field] = $service->getConnection()->get_boolean($row[$field]);
-                }
-            }
-            $users[$row['id']] = $row;
+        // $result = (new UserRepository($service->getConnection()))->getList($display, $where_clauses, $params['order'], $params['per_page'], $params['per_page'] * $params['page']);
+        foreach ($service->getManagerRegistry()->getRepository(EntityUser::class)->getList() as $user) {
+            $users[$user['id']] = $user;
         }
 
         if (count($users) > 0) {
@@ -143,13 +140,13 @@ class User
 
             if (isset($params['display']['registration_date_string'])) {
                 foreach ($users as $cur_user) {
-                    $users[$cur_user['id']]['registration_date_string'] = \Phyxo\Functions\DateTime::format_date($cur_user['registration_date'], ['day', 'month', 'year']);
+                    $users[$cur_user['id']]['registration_date_string'] = \Phyxo\Functions\DateTime::format_date($cur_user['userInfos']['registration_date'], ['day', 'month', 'year']);
                 }
             }
 
             if (isset($params['display']['registration_date_since'])) {
                 foreach ($users as $cur_user) {
-                    $users[$cur_user['id']]['registration_date_since'] = \Phyxo\Functions\DateTime::time_since($cur_user['registration_date'], 'month');
+                    $users[$cur_user['id']]['registration_date_since'] = \Phyxo\Functions\DateTime::time_since($cur_user['userInfos']['registration_date'], 'month');
                 }
             }
 
@@ -288,34 +285,49 @@ class User
             return new Error(403, 'Invalid security token');
         }
 
-        $updates = $updates_infos = [];
+        $updates_infos = [];
         $update_status = null;
 
-        if (count($params['user_id']) == 1) {
-            if (!$service->getEntityManager()->getRepository(UserRepository::class)->isUserExists($params['user_id'][0], 'id')) {
+        if (count($params['user_id']) === 1) {
+            $needUpdate = false;
+            $user = $service->getEntityManager()->getRepository(EntityUser::class)->find($params['user_id'][0]);
+
+            if (is_null($user)) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'This user does not exist.');
             }
 
             if (!empty($params['username'])) {
-                $user_id = $service->getUserMapper()->getUserId($params['username']);
-                if ($user_id and $user_id != $params['user_id'][0]) {
+                if ($service->getManagerRegistry()->getRepository(EntityUser::class)->isUsernameExistsExceptUser($params['username'], $params['user_id'][0])) {
                     return new Error(Server::WS_ERR_INVALID_PARAM, 'this login is already used');
                 }
+
                 if ($params['username'] != strip_tags($params['username'])) {
                     return new Error(Server::WS_ERR_INVALID_PARAM, 'html tags are not allowed in login');
                 }
-                $updates['username'] = $params['username'];
+                $user->setUsername($params['username']);
+                $needUpdate = true;
             }
 
             if (!empty($params['email'])) {
-                if (($error = $service->getUserMapper()->validateMailAddress($params['user_id'][0], $params['email'])) != '') {
-                    return new Error(Server::WS_ERR_INVALID_PARAM, $error);
+                if (filter_var($params['email'], FILTER_VALIDATE_EMAIL) === false) {
+                    return new Error(Server::WS_ERR_INVALID_PARAM, 'mail address must be like xxx@yyy.eee (example : jack@altern.org)');
                 }
-                $updates['mail_address'] = $params['email'];
+
+                if ($service->getManagerRegistry()->getRepository(EntityUser::class)->isEmailExistsExceptUser($params['email'], $params['user_id'][0])) {
+                    return new Error(Server::WS_ERR_INVALID_PARAM, 'this email address is already in use');
+                }
+
+                $user->setMailAddress($params['email']);
+                $needUpdate = true;
             }
 
             if (!empty($params['password'])) {
-                $updates['password'] = $service->getPasswordEncoder()->encodePassword(new EntityUser(), $params['password']);
+                $user->setPassword($service->getPasswordEncoder()->encodePassword(new EntityUser(), $params['password']));
+                $needUpdate = true;
+            }
+
+            if ($needUpdate) {
+                $service->getManagerRegistry()->getRepository(EntityUser::class)->updateUser($user);
             }
         }
 
@@ -329,14 +341,14 @@ class User
             }
 
             $protected_users = [$service->getUserMapper()->getUser()->getId()];
-            $result = (new UserInfosRepository($service->getConnection()))->findByStatuses([EntityUser::STATUS_GUEST]);
-            $guest_id = $service->getConnection()->result2array($result, null, 'user_id')[0];
-            $protected_users[] = $guest_id;
+            $guestUserInfos = $service->getManagerRegistry()->getRepository(UserInfos::class)->findOneByStatus(EntityUser::STATUS_GUEST);
+            $protected_users[] = $guestUserInfos->getUser()->getId();
 
             // an admin can't change status of other admin/webmaster
-            if ($service->getUserMapper()->isAdmin()) {
-                $result = (new UserInfosRepository($service->getConnection()))->findByStatuses([EntityUser::STATUS_WEBMASTER, EntityUser::STATUS_ADMIN]);
-                $protected_users = array_merge($protected_users, $service->getConnection()->result2array($result, null, 'user_id'));
+            if ($service->getUserMapper()->isAdmin() && !$service->getUserMapper()->isWebmaster()) {
+                foreach ($service->getManagerRegistry()->getRepository(UserInfos::class)->findOneBy(['status' => [EntityUser::STATUS_WEBMASTER, EntityUser::STATUS_ADMIN]]) as $userInfos) {
+                    $protected_users[] = $userInfos->getUser()->getId();
+                }
             }
 
             // status update query is separated from the rest as not applying to the same
@@ -354,14 +366,14 @@ class User
         }
 
         if (!empty($params['language'])) {
-            if (is_null($service->getManagerRegistry()->getRepository(LanguageRepository::class)->findOneBy(['id' => $params['language']]))) {
+            if (is_null($service->getManagerRegistry()->getRepository(Language::class)->findOneBy(['id' => $params['language']]))) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid language');
             }
             $updates_infos['language'] = $params['language'];
         }
 
         if (!empty($params['theme'])) {
-            if (is_null($service->getManagerRegistry->getRepository(ThemeRepository::class)->findOneBy(['id' => $params['theme']]))) {
+            if (is_null($service->getManagerRegistry->getRepository(Theme::class)->findOneBy(['id' => $params['theme']]))) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid theme');
             }
             $updates_infos['theme'] = $params['theme'];
@@ -376,30 +388,27 @@ class User
         }
 
         if (!empty($params['expand']) || (isset($params['expand']) && $params['expand'] === false)) {
-            $updates_infos['expand'] = $service->getConnection()->boolean_to_string($params['expand']);
+            $updates_infos['expand'] = $params['expand'];
         }
 
         if (!empty($params['show_nb_comments']) || (isset($params['show_nb_comments']) && $params['show_nb_comments'] === false)) {
-            $updates_infos['show_nb_comments'] = $service->getConnection()->boolean_to_string($params['show_nb_comments']);
+            $updates_infos['show_nb_comments'] = $params['show_nb_comments'];
         }
 
         if (!empty($params['show_nb_hits']) || (isset($params['show_nb_hits']) && $params['show_nb_hits'] === false)) {
-            $updates_infos['show_nb_hits'] = $service->getConnection()->boolean_to_string($params['show_nb_hits']);
+            $updates_infos['show_nb_hits'] = $params['show_nb_hits'];
         }
 
         if (!empty($params['enabled_high']) || (isset($params['enabled_high']) && $params['enabled_high'] === false)) {
-            $updates_infos['enabled_high'] = $service->getConnection()->boolean_to_string($params['enabled_high']);
+            $updates_infos['enabled_high'] = $params['enabled_high'];
         }
 
-        // perform updates
-        (new UserRepository($service->getConnection()))->updateUser($updates, $params['user_id'][0]);
-
         if (isset($update_status) && count($params['user_id_for_status']) > 0) {
-            (new UserInfosRepository($service->getConnection()))->updateFieldForUsers('status', $update_status, $params['user_id_for_status']);
+            $service->getManagerRegistry()->getRepository(UserInfos::class)->updateFieldForUsers('status', $update_status, $params['user_id_for_status']);
         }
 
         if (count($updates_infos) > 0) {
-            (new UserInfosRepository($service->getConnection()))->updateFieldsForUsers($updates_infos, $params['user_id']);
+            $service->getManagerRegistry()->getRepository(UserInfos::class)->updateFieldsForUsers($updates_infos, $params['user_id']);
         }
 
         // manage association to groups

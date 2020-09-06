@@ -483,7 +483,7 @@ class Notification
                 }
             }
 
-            $this->env['send_as_mail_address'] = $this->userMapper->getWebmasterEmail();
+            $this->env['send_as_mail_address'] = $this->userMapper->getWebmaster()->getMailAddress();
             // Init mail counter
             $this->env['error_on_mail_count'] = 0;
             $this->env['sent_mail_count'] = 0;

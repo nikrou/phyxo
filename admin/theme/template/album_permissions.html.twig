@@ -52,7 +52,7 @@
 	 }
 
 	 checkStatusOptions();
-	 $("#selectStatus").change(function() {
+	 $("input[name=status]").change(function() {
 	     checkStatusOptions();
 	 });
      }());
@@ -76,7 +76,7 @@
 	    </p>
 	</div>
 
-	<div class="fieldset">
+	<div class="fieldset" id="privateOptions">
 	    <h3>{{'Groups and users'|trans}}</h3>
 
 	    <p>

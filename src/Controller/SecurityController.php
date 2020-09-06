@@ -23,7 +23,6 @@ use Phyxo\DBLayer\iDBLayer;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
-use App\Entity\UserInfos;
 use App\Exception\MissingGuestUserException;
 use App\Repository\UserRepository;
 use App\Security\UserProvider;
@@ -127,6 +126,7 @@ class SecurityController extends CommonController
                 $user->setUsername($request->request->get('_username'));
                 $user->setMailAddress($request->request->get('_mail_address'));
                 $user->setPassword($passwordEncoder->encodePassword($user, $request->request->get('_password')));
+                $user->addRole('ROLE_NORMAL');
 
                 try {
                     $user_manager->register($user);
@@ -144,8 +144,9 @@ class SecurityController extends CommonController
         return $this->render('register.html.twig', $tpl_params);
     }
 
-    public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, UserManager $user_manager, MenuBar $menuBar, LanguageRepository $languageRepository,
-                            UserProvider $userProvider, TranslatorInterface $translator, CsrfTokenManagerInterface $csrfTokenManager, ThemeRepository $themeRepository)
+    public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, MenuBar $menuBar, LanguageRepository $languageRepository,
+                            UserProvider $userProvider, TranslatorInterface $translator, CsrfTokenManagerInterface $csrfTokenManager, ThemeRepository $themeRepository,
+                            UserInfosRepository $userInfosRepository, UserRepository $userRepository)
     {
         $this->userProvider = $userProvider;
         $tpl_params = $this->init();
@@ -157,21 +158,14 @@ class SecurityController extends CommonController
         $languages = $languageRepository->findAll();
         $themes = $themeRepository->findAll();
 
-        $custom_fields = ['nb_image_page', 'language', 'expand', 'show_nb_hits', 'recent_period', 'theme'];
-
         // @TODO: use symfony forms
         if ($request->isMethod('POST')) {
             if ($request->request->get('reset_to_default')) {
-                $userdata = $user_manager->getDefaultUserInfo();
-                $user_infos = $this->getUser()->getInfos();
-
-                $userdata = array_merge($user_infos, $userdata);
-                $userdata['user_id'] = $this->getUser()->getId();
-
-                (new UserInfosRepository($conn))->massUpdates(['primary' => ['user_id'], 'update' => $custom_fields], [$userdata]);
-                $this->getUser()->setInfos(new UserInfos($userdata));
+                $guestUserInfos = $userInfosRepository->findOneByStatus(User::STATUS_GUEST);
+                $this->getUser()->getUserInfos()->fromArray($guestUserInfos->toArray());
+                $userRepository->updateUser($this->getUser());
             } else {
-                $userdata = [];
+                $needFlush = false;
 
                 if ($request->request->get('_password') && $request->request->get('_new_password') && $request->request->get('_new_password_confirm')) {
                     if (!$passwordEncoder->isPasswordValid($this->getUser(), $request->request->get('_password'))) {
@@ -181,7 +175,8 @@ class SecurityController extends CommonController
                     }
 
                     if (empty($errors)) {
-                        $userdata['password'] = $passwordEncoder->encodePassword($this->getUser(), $request->request->get('_new_password'));
+                        $this->getUser()->setPassword($passwordEncoder->encodePassword($this->getUser(), $request->request->get('_new_password')));
+                        $needFlush = true;
                     }
                 }
 
@@ -190,68 +185,62 @@ class SecurityController extends CommonController
                         $errors[] = $translator->trans('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
                     }
 
-                    if ((new UserRepository($conn))->isEmailExistsExceptUser($request->request->get('_mail_address'), $this->getUser()->getId())) {
+                    if ($userRepository->isEmailExistsExceptUser($request->request->get('_mail_address'), $this->getUser()->getId())) {
                         $errors[] = $translator->trans('this email address is already in use');
                     }
 
                     if (empty($errors)) {
-                        $userdata['mail_address'] = $request->request->get('_mail_address');
+                        $this->getUser()->setMailAddress($request->request->get('_mail_address'));
+                        $needFlush = true;
                     }
                 }
 
-                if (empty($errors) && !empty($userdata)) {
-                    // @TODO: use User entity instead of array for updateUser method
-                    (new UserRepository($conn))->updateUser($userdata, $this->getUser()->getId());
-                    if (!empty($userdata['password'])) {
-                        $this->getUser()->setPassword($userdata['password']);
-                    }
-
-                    if (!empty($userdata['mail_address'])) {
-                        $this->getUser()->setMailAddress($userdata['mail_address']);
-                    }
-                }
-
-                $data = [];
                 if ($request->request->get('nb_image_page')) {
-                    if (($data['nb_image_page'] = (int) $request->request->get('nb_image_page')) === 0) {
+                    if ((int) $request->request->get('nb_image_page') === 0) {
                         $errors[] = $translator->trans('The number of photos per page must be a not null scalar');
-                        unset($data['nb_image_page']);
+                    } else {
+                        $this->getUser()->getUserInfos()->setNbImagePage((int) $request->request->get('nb_image_page'));
+                        $needFlush = true;
                     }
                 }
 
                 if ($request->request->get('language')) {
-                    if (!isset($languages[$request->request->get('language')])) {
-                        $errors[] = $translator->trans('Incorrect language value');
-                    } else {
-                        $data['language'] = $request->request->get('language');
-                        $request->getSession()->set('_locale', $data['language']);
-                    }
+                    // if (!isset($languages[$request->request->get('language')])) {
+                    //     $errors[] = $translator->trans('Incorrect language value');
+                    // } else {
+                    $request->getSession()->set('_locale', $request->request->get('language'));
+                    $this->getUser()->getUserInfos()->setLanguage($request->request->get('language'));
+                    $needFlush = true;
+                    // }
                 }
 
                 if ($request->request->get('theme')) {
-                    $data['theme'] = $request->request->get('theme');
+                    $this->getUser()->getUserInfos()->setTheme($request->request->get('theme'));
+                    $needFlush = true;
                 }
 
                 if ($request->request->get('expand')) {
-                    $data['expand'] = $request->request->get('expand');
+                    $this->getUser()->getUserInfos()->setExpand($request->request->get('expand') === 'true');
+                    $needFlush = true;
                 }
 
                 if ($request->request->get('show_nb_comments')) {
-                    $data['show_nb_comments'] = $request->request->get('show_nb_comments');
+                    $this->getUser()->getUserInfos()->setShowNbComments($request->request->get('show_nb_comments') === 'true');
+                    $needFlush = true;
                 }
 
                 if ($request->request->get('show_nb_hits')) {
-                    $data['show_nb_hits'] = $request->request->get('show_nb_hits');
+                    $this->getUser()->getUserInfos()->setShowNbHits($request->request->get('show_nb_hits') === 'true');
+                    $needFlush = true;
                 }
 
-                if ($request->request->get('recent_period')) {
-                    $data['recent_period'] = $request->request->get('recent_period');
+                if ($request->request->get('recent_period') && $this->getUser()->getUserInfos()->getRecentPeriod() != $request->request->get('recent_period')) {
+                    $this->getUser()->getUserInfos()->setRecentPeriod((int) $request->request->get('recent_period'));
+                    $needFlush = true;
                 }
 
-                if (empty($errors) && !empty($data)) {
-                    // @TODO: use UserInfos entity instead of array for updateUserInfos method
-                    (new UserInfosRepository($conn))->updateUserInfos($data, $this->getUser()->getId());
-                    $this->getUser()->setInfos(new UserInfos(array_merge($this->getUser()->getInfos(), $data)));
+                if (empty($errors) && $needFlush) {
+                    $userRepository->updateUser($this->getUser());
 
                     return $this->redirectToRoute('profile');
                 }
@@ -266,7 +255,7 @@ class SecurityController extends CommonController
             'EMAIL' => $this->getUser()->getMailAddress(),
             'NB_IMAGE_PAGE' => $this->getUser()->getNbImagePage(),
             'RECENT_PERIOD' => $this->getUser()->getRecentPeriod(),
-            'EXPAND' => $conn->boolean_to_string($this->getUser()->wantExpand()),
+            'EXPAND' => $conn->boolean_to_string($this->getUser()->getExpand()),
             'NB_COMMENTS' => $conn->boolean_to_string($this->getUser()->getShowNbComments()),
             'NB_HITS' => $conn->boolean_to_string($this->getUser()->getShowNbHits()),
             'THEME' => $this->getUser()->getTheme(),
@@ -290,8 +279,8 @@ class SecurityController extends CommonController
         return $this->render('profile.html.twig', $tpl_params);
     }
 
-    public function forgotPassword(Request $request, iDBLayer $conn, UserManager $user_manager, MailerInterface $mailer, CsrfTokenManagerInterface $csrfTokenManager,
-                                    TranslatorInterface $translator)
+    public function forgotPassword(Request $request, UserManager $user_manager, MailerInterface $mailer, CsrfTokenManagerInterface $csrfTokenManager,
+                                    TranslatorInterface $translator, UserRepository $userRepository, UserInfosRepository $userInfosRepository)
     {
         $tpl_params = $this->init();
 
@@ -303,22 +292,20 @@ class SecurityController extends CommonController
         $title = $translator->trans('Forgot your password?');
 
         if ($request->request->get('_username_or_email')) {
-            if ($user = $user_manager->findUserByUsernameOrEmail($request->request->get('_username_or_email'))) {
-                if (empty($user['mail_address'])) {
+            $user = $userRepository->findUserByUsernameOrEmail($request->request->get('_username_or_email'));
+            if (is_null($user)) {
+                $errors[] = $translator->trans('Invalid username or email');
+            } else {
+                if (is_null($user->getMailAddress())) {
                     $errors[] = $translator->trans('User "%s" has no email address, password reset is not possible', $user['username']);
                 } else {
                     $activation_key = $user_manager->generateActivationKey();
-                    (new UserInfosRepository($conn))->updateUserInfos(
-                        [
-                            'activation_key' => $activation_key,
-                            'activation_key_expire' => (new \DateTime())->add(new \DateInterval('PT1H'))->format('c'),
-                        ],
-                        $user['id']
-                    );
+                    $user->getUserInfos()->setActivationKey($activation_key);
+                    $user->getUserInfos()->setActivationKeyExpire((new \DateTime())->add(new \DateInterval('PT1H')));
+                    $userRepository->updateUser($user);
 
-                    $result = (new UserRepository($conn))->findByStatus(User::STATUS_WEBMASTER);
-                    $row = $conn->db_fetch_assoc($result);
-                    $webmaster_mail_address = $row['mail_address'];
+                    $webmaster = $userInfosRepository->findOneByStatus(User::STATUS_WEBMASTER);
+                    $webmaster_mail_address = $webmaster->getUser()->getMailAddress();
 
                     $mail_params = [
                         'user' => $user,
@@ -339,8 +326,6 @@ class SecurityController extends CommonController
                         $errors[] = $translator->trans('Error sending email');
                     }
                 }
-            } else {
-                $errors[] = $translator->trans('Invalid username or email');
             }
         }
 
@@ -380,8 +365,8 @@ class SecurityController extends CommonController
         $mailer->send($message);
     }
 
-    public function resetPassword(Request $request, iDBLayer $conn, string $activation_key, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder,
-                                    UserProvider $userProvider, TranslatorInterface $translator)
+    public function resetPassword(Request $request, string $activation_key, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder,
+                                    UserProvider $userProvider, TranslatorInterface $translator, UserRepository $userRepository)
     {
         $token = $csrfTokenManager->getToken('authenticate');
         $errors = [];
@@ -396,10 +381,10 @@ class SecurityController extends CommonController
         if ($request->isMethod('POST')) {
             if ($request->request->get('_password') && $request->request->get('_password_confirmation') &&
                 $request->request->get('_password') != $request->request->get('_password_confirm')) {
-                (new UserRepository($conn))->updateUser(
-                    ['password' => $passwordEncoder->encodePassword(new User(), $request->request->get('_password'))], $user->getId()
-                );
-                (new UserInfosRepository($conn))->updateUserInfos(['activation_key' => null, 'activation_key_expire' => null], $user->getId());
+                $user->setPassword($passwordEncoder->encodePassword(new User(), $request->request->get('_password')));
+                $user->setActivationKey(null);
+                $user->setActivationKeyExpire(null);
+                $userRepository->updateUser($user);
                 $infos[] = $translator->trans('Your password has been reset');
             } else {
                 $errors[] = $translator->trans('The passwords do not match');

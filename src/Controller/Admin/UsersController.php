@@ -45,7 +45,8 @@ class UsersController extends AdminCommonController
     }
 
     public function list(Request $request, EntityManager $em, Conf $conf, UserMapper $userMapper, ParameterBagInterface $params,
-                        CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator, ThemeRepository $themeRepository, LanguageRepository $languageRepository)
+                        CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator, ThemeRepository $themeRepository, LanguageRepository $languageRepository,
+                        UserRepository $userRepository, UserInfosRepository $userInfosRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -59,10 +60,11 @@ class UsersController extends AdminCommonController
             $groups[$row['id']] = $row['name'];
         }
 
-        $result = $em->getRepository(UserRepository::class)->getUserInfosList();
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-            $users[] = $row;
-            $user_ids[] = $row['id'];
+        $users = [];
+        $user_ids = [];
+        foreach ($userRepository->findAll() as $user) {
+            $users[] = $user;
+            $user_ids[] = $user->getId();
         }
 
         $tpl_params['users'] = $users;
@@ -70,17 +72,16 @@ class UsersController extends AdminCommonController
         $tpl_params['ACTIVATE_COMMENTS'] = $conf['activate_comments'];
         $tpl_params['Double_Password'] = $conf['double_password_type_in_admin'];
 
-        $default_user = $userMapper->getDefaultUserInfo(true);
+        $guestUserInfos = $userInfosRepository->findOneByStatus(User::STATUS_GUEST);
 
         $protected_users = [$this->getUser()->getId()];
-        $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
-        $guest_id = $em->getConnection()->result2array($result, null, 'user_id')[0];
-        $protected_users[] = $guest_id;
+        $protected_users[] = $guestUserInfos->getUser()->getId();
 
         // an admin can't delete other admin/webmaster
         if ($userMapper->isAdmin()) {
-            $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_WEBMASTER, User::STATUS_ADMIN]);
-            $protected_users = array_merge($protected_users, $em->getConnection()->result2array($result, null, 'user_id'));
+            foreach ($userInfosRepository->findBy(['status' => [User::STATUS_WEBMASTER, User::STATUS_ADMIN]]) as $userInfos) {
+                $protected_users[] = $userInfos->getUser()->getId();
+            }
         }
 
         $themes = [];
@@ -98,15 +99,15 @@ class UsersController extends AdminCommonController
             'F_ADD_ACTION' => $this->generateUrl('admin_users'),
             'F_USER_PERM' => $this->generateUrl('admin_user_perm', ['user_id' => $dummy_user]),
             'F_USER_PERM_DUMMY_USER' => $dummy_user,
-            'NB_IMAGE_PAGE' => $default_user['nb_image_page'],
-            'RECENT_PERIOD' => $default_user['recent_period'],
+            'NB_IMAGE_PAGE' => $guestUserInfos->getNbImagePage(),
+            'RECENT_PERIOD' => $guestUserInfos->getRecentPeriod(),
             'theme_options' => $themes,
-            'theme_selected' => $userMapper->getDefaultTheme(),
+            'theme_selected' => $guestUserInfos->getTheme(),
             'language_options' => $languages,
-            'language_selected' => $userMapper->getDefaultLanguage(),
+            'language_selected' => $guestUserInfos->getLanguage(),
             'association_options' => $groups,
             'protected_users' => implode(',', array_unique($protected_users)),
-            'guest_user' => $guest_id,
+            'guest_user' => $guestUserInfos->getUser()->getId(),
         ]);
 
         // Status options
@@ -134,7 +135,7 @@ class UsersController extends AdminCommonController
             $level_options[$level] = $translator->trans(sprintf('Level %d', $level), [], 'admin');
         }
         $tpl_params['level_options'] = $level_options;
-        $tpl_params['level_selected'] = $default_user['level'];
+        $tpl_params['level_selected'] = $guestUserInfos->getLevel();
 
         $tpl_params['ws'] = $this->generateUrl('ws');
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
@@ -149,7 +150,7 @@ class UsersController extends AdminCommonController
     }
 
     public function perm(Request $request, int $user_id, EntityManager $em, UserMapper $userMapper, CategoryMapper $categoryMapper, Conf $conf,
-                        ParameterBagInterface $params, TranslatorInterface $translator)
+                        ParameterBagInterface $params, TranslatorInterface $translator, UserRepository $userRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -166,7 +167,8 @@ class UsersController extends AdminCommonController
             }
         }
 
-        $tpl_params['TITLE'] = $translator->trans('Manage permissions for user "{user}"', ['user' => $userMapper->getUsernameFromId($user_id)], 'admin');
+        $user = $userRepository->find($user_id);
+        $tpl_params['TITLE'] = $translator->trans('Manage permissions for user "{user}"', ['user' => $user->getUsername()], 'admin');
         $tpl_params['L_CAT_OPTIONS_TRUE'] = $translator->trans('Authorized', [], 'admin');
         $tpl_params['L_CAT_OPTIONS_FALSE'] = $translator->trans('Forbidden', [], 'admin');
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_user_perm', ['user_id' => $user_id]);

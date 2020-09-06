@@ -16,6 +16,8 @@ use Phyxo\Language\Languages;
 use Phyxo\DBLayer\DBLayer;
 use App\Utils\UserManager;
 use App\Entity\User;
+use App\Repository\UserInfosRepository;
+use App\Repository\UserRepository;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Phyxo\Upgrade;
 use Phyxo\EntityManager;
@@ -34,11 +36,12 @@ class InstallController extends AbstractController
     ];
 
     private $languages_options, $passwordEncoder, $phyxoVersion, $default_language, $default_theme, $translationsDir;
-    private $rootProjectDir, $translator, $databaseConfigFile, $databaseYamlFile;
+    private $rootProjectDir, $translator, $databaseConfigFile, $databaseYamlFile, $userRepository, $userInfosRepository;
     private $default_prefix = 'phyxo_';
 
     public function __construct(string $translationsDir, string $defaultLanguage, string $phyxoVersion, string $defaultTheme,
-          string $databaseConfigFile, string $databaseYamlFile, UserPasswordEncoderInterface $passwordEncoder, TranslatorInterface $translator, string $rootProjectDir)
+          string $databaseConfigFile, string $databaseYamlFile, UserPasswordEncoderInterface $passwordEncoder, TranslatorInterface $translator, string $rootProjectDir,
+          UserRepository $userRepository, UserInfosRepository $userInfosRepository)
     {
         $this->translationsDir = $translationsDir;
         $this->databaseConfigFile = $databaseConfigFile;
@@ -49,6 +52,8 @@ class InstallController extends AbstractController
         $this->passwordEncoder = $passwordEncoder;
         $this->translator = $translator;
         $this->rootProjectDir = $rootProjectDir;
+        $this->userRepository = $userRepository;
+        $this->userInfosRepository = $userInfosRepository;
     }
 
     public function index(Request $request, string $step = 'language')
@@ -305,12 +310,12 @@ class InstallController extends AbstractController
                 $webmaster->setUsername($db_params['username']);
                 $webmaster->setMailAddress($db_params['mail_address']);
                 $webmaster->setPassword($this->passwordEncoder->encodePassword($webmaster, $db_params['password']));
-                $webmaster->setStatus(User::STATUS_WEBMASTER);
+                $webmaster->addRole(User::getRoleFromStatus(User::STATUS_WEBMASTER));
 
                 $guest = new User();
                 $guest->setUsername('guest');
-                $guest->setStatus(User::STATUS_GUEST);
-                $user_manager = new UserManager($em);
+                $guest->addRole(User::getRoleFromStatus(User::STATUS_GUEST));
+                $user_manager = new UserManager($em, $this->userRepository, $this->userInfosRepository, $this->default_language, $this->default_theme);
 
                 try {
                     $user_manager->register($webmaster);

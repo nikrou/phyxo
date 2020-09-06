@@ -11,104 +11,213 @@
 
 namespace App\Entity;
 
-class UserInfos implements \ArrayAccess
+use App\Repository\UserInfosRepository;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity(repositoryClass=UserInfosRepository::class)
+ * @ORM\Table(name="user_infos")
+ */
+class UserInfos
 {
-    private $infos = [];
+    private $nb_total_images;
     private $forbidden_categories = [], $image_access_list = [], $image_access_type = 'NOT IN';
 
-    public function __construct(array $infos = [])
+    /**
+     * @ORM\Id
+     * @ORM\OneToOne(targetEntity=User::class, inversedBy="userInfos", cascade={"persist", "remove"})
+     * @ORM\JoinColumn(name="user_id", nullable=false)
+     */
+    private $user;
+
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $status;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $nb_image_page = 15;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $theme;
+
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $language;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $registration_date;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $level = 0;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $recent_period = 7;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $expand = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $show_nb_comments = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $show_nb_hits = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $enabled_high = true;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $lastmodified;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $activation_key;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $activation_key_expire;
+
+    public function getStatus(): ?string
     {
-        $this->infos = $infos;
+        return $this->status;
     }
 
-    public function asArray()
+    public function setStatus(string $status): self
     {
-        return $this->infos;
+        $this->status = $status;
+
+        return $this;
     }
 
-    public function offsetExists($offset)
+    public function getUser(): ?User
     {
-        return isset($this->infos[$offset]);
+        return $this->user;
     }
 
-    public function offsetGet($offset)
+    public function setUser(User $user): self
     {
-        return $this->infos[$offset] ?? null;
+        $this->user = $user;
+
+        return $this;
     }
 
-    public function offsetSet($offset, $value)
+    public function getNbImagePage(): ?int
     {
-        $this->infos[$offset] = $value;
+        return $this->nb_image_page;
     }
 
-    public function offsetUnset($offset)
+    public function setNbImagePage(int $nb_image_page): self
     {
-        unset($this->infos[$offset]);
+        $this->nb_image_page = $nb_image_page;
+
+        return $this;
     }
 
-    public function getTheme()
+    public function getTheme(): ?string
     {
-        return $this->infos['theme'] ? $this->infos['theme'] : 'treflez'; // @TODO: inject defaultTheme
+        return $this->theme;
     }
 
-    public function getNbImagePage()
+    public function setTheme(string $theme): self
     {
-        return $this->infos['nb_image_page'] ?? null;
+        $this->theme = $theme;
+
+        return $this;
     }
 
-    public function getNbTotalImages()
+    public function getLanguage(): ?string
     {
-        return $this->infos['nb_total_images'] ?? null;
+        return $this->language;
     }
 
-    public function getRecentPeriod()
+    public function setLanguage(string $language): self
     {
-        return $this->infos['recent_period'] ?? null;
+        $this->language = $language;
+
+        return $this;
     }
 
-    public function getShowNbHits()
+    public function getRegistrationDate(): ?\DateTimeInterface
     {
-        return $this->infos['show_nb_hits'] ?? null;
+        return $this->registration_date;
     }
 
-    public function getShowNbComments()
+    public function setRegistrationDate(?\DateTimeInterface $registration_date): self
     {
-        return $this->infos['show_nb_comments'] ?? null;
+        $this->registration_date = $registration_date;
+
+        return $this;
     }
 
-    public function getLanguage() : string
+    public function getLevel(): ?int
     {
-        return $this->infos['language'] ?? '';
+        return $this->level;
     }
 
-    public function getUserId()
+    public function setLevel(?int $level): self
     {
-        return $this->infos['user_id'] ?? null;
+        $this->level = $level;
+
+        return $this;
     }
 
-    public function getLevel()
+    public function getRecentPeriod(): ?int
     {
-        return $this->infos['level'] ?? null;
+        return $this->recent_period;
     }
 
-    public function getStatus()
+    public function setRecentPeriod(int $recent_period): self
     {
-        return $this->infos['status'] ?? null;
+        $this->recent_period = $recent_period;
+
+        return $this;
     }
 
-    public function wantExpand()
+    public function setNbTotalImages(int $total): self
     {
-        return $this->infos['expand'] ?? false;
+        $this->nb_total_images = $total;
+
+        return $this;
     }
 
-    public function hasEnabledHigh(): bool
+    public function getNbTotalImages(): ?int
     {
-        return $this->infos['enabled_high'];
+        return $this->nb_total_images ?? null;
     }
 
-    public function getLastPhotoDate()
+    public function getExpand(): ?bool
     {
-        return $this->infos['last_photo_date'] ?? null;
+        return $this->expand;
+    }
+
+    public function setExpand(bool $expand): self
+    {
+        $this->expand = $expand;
+
+        return $this;
     }
 
     public function getForbiddenCategories(): array
@@ -116,9 +225,11 @@ class UserInfos implements \ArrayAccess
         return $this->forbidden_categories;
     }
 
-    public function setForbiddenCategories(array $forbidden_categories = [])
+    public function setForbiddenCategories(array $forbidden_categories = []): self
     {
         $this->forbidden_categories = $forbidden_categories;
+
+        return $this;
     }
 
     public function getImageAccessList(): array
@@ -126,9 +237,11 @@ class UserInfos implements \ArrayAccess
         return $this->image_access_list;
     }
 
-    public function setImageAccessList(array $image_access_list = [])
+    public function setImageAccessList(array $image_access_list = []): self
     {
         $this->image_access_list = $image_access_list;
+
+        return $this;
     }
 
     public function getImageAccessType(): string
@@ -136,8 +249,110 @@ class UserInfos implements \ArrayAccess
         return $this->image_access_type;
     }
 
-    public function setImageAccessType(string $image_access_type = 'NOT IN')
+    public function setImageAccessType(string $image_access_type = 'NOT IN'): self
     {
         $this->image_access_type = $image_access_type;
+
+        return $this;
+    }
+
+    public function getShowNbComments(): ?bool
+    {
+        return $this->show_nb_comments;
+    }
+
+    public function setShowNbComments(bool $show_nb_comments): self
+    {
+        $this->show_nb_comments = $show_nb_comments;
+
+        return $this;
+    }
+
+    public function getShowNbHits(): ?bool
+    {
+        return $this->show_nb_hits;
+    }
+
+    public function setShowNbHits(bool $show_nb_hits): self
+    {
+        $this->show_nb_hits = $show_nb_hits;
+
+        return $this;
+    }
+
+    public function getEnabledHigh(): ?bool
+    {
+        return $this->enabled_high;
+    }
+
+    public function setEnabledHigh(bool $enabled_high): self
+    {
+        $this->enabled_high = $enabled_high;
+
+        return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'nb_image_page' => $this->getNbImagePage(),
+            'language' => $this->getLanguage(),
+            'expand' => $this->getExpand(),
+            'show_nb_comments' => $this->getShowNbComments(),
+            'show_nb_hits' => $this->getShowNbHits(),
+            'recent_period' => $this->getRecentPeriod(),
+            'theme' => $this->getTheme(),
+            'enabled_high' => $this->getEnabledHigh(),
+            'level' => $this->getLevel(),
+        ];
+    }
+
+    public function fromArray(array $data): void
+    {
+        $this->setNbImagePage($data['nb_image_page']);
+        $this->setLanguage($data['language']);
+        $this->setExpand($data['expand']);
+        $this->setShowNbComments($data['show_nb_comments']);
+        $this->setShowNbHits($data['show_nb_hits']);
+        $this->setRecentPeriod($data['recent_period']);
+        $this->setTheme($data['theme']);
+        $this->setEnabledHigh($data['enabled_high']);
+        $this->setLevel($data['level']);
+    }
+
+    public function getLastmodified(): ?\DateTimeInterface
+    {
+        return $this->lastmodified;
+    }
+
+    public function setLastmodified(\DateTimeInterface $lastmodified): self
+    {
+        $this->lastmodified = $lastmodified;
+
+        return $this;
+    }
+
+    public function getActivationKey(): ?string
+    {
+        return $this->activation_key;
+    }
+
+    public function setActivationKey(?string $activation_key): self
+    {
+        $this->activation_key = $activation_key;
+
+        return $this;
+    }
+
+    public function getActivationKeyExpire(): ?\DateTimeInterface
+    {
+        return $this->activation_key_expire;
+    }
+
+    public function setActivationKeyExpire(?\DateTimeInterface $activation_key_expire): self
+    {
+        $this->activation_key_expire = $activation_key_expire;
+
+        return $this;
     }
 }

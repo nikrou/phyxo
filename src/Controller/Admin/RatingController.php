@@ -43,7 +43,7 @@ class RatingController extends AdminCommonController
     }
 
     public function photos(Request $request, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, ImageStandardParams $image_std_params,
-                            TranslatorInterface $translator)
+                            TranslatorInterface $translator, UserRepository $userRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -77,9 +77,8 @@ class RatingController extends AdminCommonController
         }
 
         $users = [];
-        $result = $em->getRepository(UserRepository::class)->findAll();
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-            $users[$row['id']] = $row['username'];
+        foreach ($userRepository->findAll() as $user) {
+            $users[$user->getId()] = $user->getUsername();
         }
 
         $nb_images = $em->getRepository(RateRepository::class)->countImagesRatedForUser($user_filter);
@@ -183,7 +182,7 @@ class RatingController extends AdminCommonController
     }
 
     public function users(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, UserMapper $userMapper, ImageStandardParams $image_std_params,
-                            TranslatorInterface $translator)
+                            TranslatorInterface $translator, UserRepository $userRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -202,10 +201,9 @@ class RatingController extends AdminCommonController
 
         // build users
         $users_by_id = [];
-        $result = $em->getRepository(UserRepository::class)->getUserInfosList();
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-            $users_by_id[(int)$row['id']] = [
-                'name' => $row['username'],
+        foreach ($userRepository->findAll() as $user) {
+            $users_by_id[$user->getId()] = [
+                'name' => $user->getUsername(),
                 'anon' => $userMapper->isClassicUser()
             ];
         }

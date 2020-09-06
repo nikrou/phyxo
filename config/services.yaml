@@ -54,6 +54,10 @@ services:
     resource: '../src/Controller'
     tags: ['controller.service_arguments']
 
+  App\EventSubscriber\UserStatusSubscriber:
+    tags:
+      - { name: 'doctrine.event_subscriber' }
+
   kernel.listener.prefix:
     class: App\EventSubscriber\TablePrefixSubscriber
     tags:

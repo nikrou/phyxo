@@ -11,6 +11,7 @@
 
 namespace App\Repository;
 
+use App\Entity\User;
 use Phyxo\DBLayer\iDBLayer;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -81,7 +82,7 @@ class BaseRepository
      * @param string $prefix_condition    prefixes query if condition is not empty
      * @param bool   $force_one_condition use at least "1 = 1"
      */
-    public function getSQLConditionFandF(UserInterface $user, array $filter = [], $condition_fields, ? string $prefix_condition = null, bool $force_one_condition = false): string
+    public function getSQLConditionFandF(User $user, array $filter = [], $condition_fields, ? string $prefix_condition = null, bool $force_one_condition = false): string
     {
         $sql_list = [];
 

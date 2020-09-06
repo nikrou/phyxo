@@ -25,6 +25,7 @@ use App\Repository\UserAccessRepository;
 use App\Utils\UserManager;
 use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Symfony2Extension\Context\KernelDictionary;
+use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\Conf;
 use Phyxo\DBLayer\DBLayer;
 use Phyxo\DBLayer\iDBLayer;
@@ -61,7 +62,7 @@ class DBContext implements Context
             $user = new User();
             $user->setUsername($userRow['username']);
             $user->setPassword($this->getContainer()->get('security.password_encoder')->encodePassword($user, $userRow['password']));
-            $user->setStatus(!empty($userRow['status']) ? $userRow['status'] : User::STATUS_NORMAL);
+            $user->addRole(User::getRoleFromStatus(!empty($userRow['status']) ? $userRow['status'] : User::STATUS_NORMAL));
             $user_id = $this->getContainer()->get(UserManager::class)->register($user);
             $this->storage->set('user_' . $userRow['username'], $user_id);
         }
@@ -112,10 +113,13 @@ class DBContext implements Context
      */
     public function userCanAccessAlbum(string $username, string $album_name)
     {
-        $user_id = $this->getContainer()->get(UserMapper::class)->getUserId($username);
+        $user = $this->getContainer()->get(ManagerRegistry::class)->getRepository(User::class)->findOneByUsername($username);
+        if (is_null($user)) {
+            throw new \Exception(sprintf('User with username "%s" do not exists', $username));
+        }
         $album = $this->getContainer()->get(CategoryMapper::class)->findAlbumByName($album_name);
 
-        $this->getContainer()->get(EntityManager::class)->getRepository(UserAccessRepository::class)->insertUserAccess(['user_id', 'cat_id'], [['user_id' => $user_id, 'cat_id' => $album['id']]]);
+        $this->getContainer()->get(EntityManager::class)->getRepository(UserAccessRepository::class)->insertUserAccess(['user_id', 'cat_id'], [['user_id' => $user->getId(), 'cat_id' => $album['id']]]);
     }
 
     /**
@@ -123,10 +127,13 @@ class DBContext implements Context
      */
     public function userCannotAccessAlbum(string $username, string $album_name)
     {
-        $user_id = $this->getContainer()->get(UserMapper::class)->getUserId($username);
+        $user = $this->getContainer()->get(ManagerRegistry::class)->getRepository(User::class)->findOneByUsername($username);
+        if (is_null($user)) {
+            throw new \Exception(sprintf('User with username "%s" do not exists', $username));
+        }
         $album = $this->getContainer()->get(CategoryMapper::class)->findAlbumByName($album_name);
 
-        $this->getContainer()->get(EntityManager::class)->getRepository(UserAccessRepository::class)->deleteByUserIdsAndCatIds([$user_id], [$album['id']]);
+        $this->getContainer()->get(EntityManager::class)->getRepository(UserAccessRepository::class)->deleteByUserIdsAndCatIds([$user->getId()], [$album['id']]);
     }
 
     /**

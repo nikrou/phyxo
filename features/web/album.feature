@@ -40,6 +40,7 @@ Feature: Album
     And I should see link "album 1"
     And I should see link "album 2"
     But I should not see link "album 3"
+    And I should not be allowed to go to album "album 3"
     And I should not see link "album 4"
 
   Scenario: See public albums description and number of images

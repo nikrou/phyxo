@@ -1,6 +1,6 @@
 parameters:
   # database connexion settings.
-  database_driver: ''
+  database_driver: 'pdo_mysql'
   database_host: ''
   database_port: ''
   database_name: ''

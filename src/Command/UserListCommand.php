@@ -22,7 +22,7 @@ class UserListCommand extends Command
 {
     protected static $defaultName = 'phyxo:user:list';
 
-    private $em, $databaseConfigFile;
+    private $userRepository, $databaseConfigFile;
 
     private $Fields = [
         'id' => 'Id',
@@ -33,11 +33,11 @@ class UserListCommand extends Command
         'theme' => 'Theme',
     ];
 
-    public function __construct(EntityManager $em, string $databaseConfigFile)
+    public function __construct(UserRepository $userRepository, string $databaseConfigFile)
     {
         parent::__construct();
 
-        $this->em = $em;
+        $this->userRepository = $userRepository;
         $this->databaseConfigFile = $databaseConfigFile;
     }
 
@@ -58,9 +58,15 @@ class UserListCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $users = [];
-        $result = $this->em->getRepository(UserRepository::class)->getUserInfosList();
-        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $users[] = array_intersect_key($row, array_flip(array_keys($this->Fields)));
+        foreach ($this->userRepository->findAll() as $user) {
+            $users[] = [
+                'id' => $user->getId(),
+                'username' => $user->getUsername(),
+                'mail_address' => $user->getMailAddress(),
+                'status' => $user->getUserInfos()->getStatus(),
+                'language' => $user->getUserInfos()->getLanguage(),
+                'theme' => $user->getUserInfos()->getTheme(),
+            ];
         }
 
         $io->table(array_values($this->Fields), $users);

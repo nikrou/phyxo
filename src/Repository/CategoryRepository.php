@@ -11,6 +11,7 @@
 
 namespace App\Repository;
 
+use App\Entity\User;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class CategoryRepository extends BaseRepository
@@ -451,7 +452,7 @@ class CategoryRepository extends BaseRepository
         return $image_id;
     }
 
-    public function getCategoriesForMenu(UserInterface $user, array $filter = [], array $ids_uppercat = [])
+    public function getCategoriesForMenu(User $user, array $filter = [], array $ids_uppercat = [])
     {
         $query = 'SELECT id, name, permalink, nb_images, global_rank,uppercats,';
         $query .= 'date_last, max_date_last, count_images, count_categories';
@@ -460,7 +461,7 @@ class CategoryRepository extends BaseRepository
         $query .= ' ON id = cat_id and user_id = ' . $user->getId();
         $query .= ' WHERE';
         // Always expand when filter is activated
-        if (!$user->wantExpand() && empty($filter['enabled'])) {
+        if (!$user->getExpand() && empty($filter['enabled'])) {
             $query .= ' (id_uppercat is NULL';
             if (!empty($ids_uppercat)) {
                 $query .= ' OR id_uppercat ' . $this->conn->in($ids_uppercat);

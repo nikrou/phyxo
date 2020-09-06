@@ -48,7 +48,8 @@ class PhotoController extends AdminCommonController
     }
 
     public function edit(Request $request, int $image_id, int $category_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper,
-                        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper, UserProvider $userProvider, TranslatorInterface $translator)
+                        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper, UserProvider $userProvider, TranslatorInterface $translator,
+                        UserRepository $userRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -136,11 +137,7 @@ class PhotoController extends AdminCommonController
         $tpl_params['DESCRIPTION'] = $row['comment'];
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_photo', ['image_id' => $image_id]);
 
-        $added_by = 'N/A';
-        $result = $em->getRepository(UserRepository::class)->findById($row['added_by']);
-        while ($user_row = $em->getConnection()->db_fetch_assoc($result)) {
-            $added_by = $user_row['username'];
-        }
+        $added_by = $userRepository->findOneById($row['added_by']);
 
         $intro_vars = [
             'file' => $translator->trans('Original file : {file}', ['file' => $image_file], 'admin'),
@@ -152,7 +149,7 @@ class PhotoController extends AdminCommonController
                 ],
                 'admin'
             ),
-            'added_by' => $translator->trans('Added by {by}', ['by' => $added_by], 'admin'),
+            'added_by' => $translator->trans('Added by {by}', ['by' => is_null($added_by) ? 'N/A' : $added_by->getUsername()], 'admin'),
             'size' => $row['width'] . '&times;' . $row['height'] . ' pixels, ' . sprintf('%.2f', $row['filesize'] / 1024) . 'MB',
             'stats' => $translator->trans('Visited {hit} times', ['hit' => $row['hit']], 'admin'),
             'id' => $translator->trans('Numeric identifier : {id}', ['id' => $row['id']], 'admin'),
@@ -213,7 +210,7 @@ class PhotoController extends AdminCommonController
         $tpl_params['associated_albums'] = $associated_albums;
         $tpl_params['represented_albums'] = $represented_albums;
         $tpl_params['STORAGE_ALBUM'] = $storage_category_id;
-        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['tags', 'categories'], $em, $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['tags', 'categories'], $em, $this->getDoctrine(), $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);

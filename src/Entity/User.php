@@ -11,10 +11,16 @@
 
 namespace App\Entity;
 
-use Symfony\Component\Security\Core\User\UserInterface;
+use App\Repository\UserRepository;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\EquatableInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
-class User implements UserInterface, EquatableInterface, \ArrayAccess
+/**
+ * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @ORM\Table(name="users")
+ */
+class User implements UserInterface, EquatableInterface
 {
     const STATUS_WEBMASTER = 'webmaster';
     const STATUS_ADMIN = 'admin';
@@ -30,119 +36,99 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
         self::STATUS_GUEST => 'ROLE_USER'
     ];
 
-    protected $id;
-    protected $username;
-    protected $password;
-    protected $mail_address;
-    protected $salt;
+    private $salt;
 
-    protected $user_infos = null;
-    protected $roles = [];
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private $username;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $password;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $mail_address;
+
+    /**
+     * @ORM\OneToOne(targetEntity=UserInfos::class, mappedBy="user", cascade={"persist", "remove"})
+     */
+    private $userInfos;
+
+    private $roles = [];
 
     public function __construct()
     {
         $this->roles = ['ROLE_USER'];
-        $this->user_infos = new UserInfos();
+        $this->userInfos = new UserInfos();
     }
 
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setUsername(string $username)
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(string $username): self
     {
         $this->username = $username;
+
+        return $this;
     }
 
-    public function setPassword(? string $password = null)
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(?string $password): self
     {
         $this->password = $password;
+
+        return $this;
     }
 
-    public function setMailAddress(? string $mail_address = null)
+    public function getMailAddress(): ?string
+    {
+        return $this->mail_address;
+    }
+
+    public function setMailAddress(?string $mail_address): self
     {
         $this->mail_address = $mail_address;
+
+        return $this;
     }
 
-    public function setInfos(UserInfos $user_infos)
+    public function getUserInfos(): ?UserInfos
     {
-        $this->user_infos = $user_infos;
-        $this->setRolesByStatus();
+        return $this->userInfos;
     }
 
-    public function getInfos()
+    public function setUserInfos(UserInfos $userInfos): self
     {
-        return array_merge(
-            [
-                'id' => $this->id,
-                'username' => $this->username,
-                'mail_address' => $this->mail_address,
-            ],
-            $this->user_infos->asArray()
-        );
-    }
+        $this->userInfos = $userInfos;
 
-    protected function setRolesByStatus()
-    {
-        $this->roles = ['ROLE_USER'];
-
-        if ($this->user_infos['status'] === self::STATUS_NORMAL) {
-            $this->roles[] = 'ROLE_NORMAL';
+        // set the owning side of the relation if necessary
+        if ($userInfos->getUser() !== $this) {
+            $userInfos->setUser($this);
         }
 
-        if ($this->user_infos['status'] === self::STATUS_ADMIN) {
-            $this->roles[] = 'ROLE_ADMIN';
-        }
-
-        if ($this->user_infos['status'] === self::STATUS_WEBMASTER) {
-            $this->roles[] = 'ROLE_WEBMASTER';
-        }
-    }
-
-    public static function getRoleFromStatus(string $status)
-    {
-        return isset(self::STATUS_TO_ROLE[$status]) ? self::STATUS_TO_ROLE[$status] : 'ROLE_USER';
-    }
-
-    public function offsetExists($offset)
-    {
-        return isset($this->user_infos[$offset]);
-    }
-
-    public function offsetGet($offset)
-    {
-        return $this->user_infos[$offset] ?? null;
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        $this->user_infos[$offset] = $value;
-    }
-
-    public function offsetUnset($offset)
-    {
-        unset($this->user_infos[$offset]);
-    }
-
-    public function __call(string $method, array $args)
-    {
-        if (method_exists($this->user_infos, $method)) {
-            return $this->user_infos->$method(...$args);
-        }
-
-        return null;
-    }
-
-    public function setStatus(string $status)
-    {
-        $this->user_infos['status'] = $status;
-        $this->setRolesByStatus();
+        return $this;
     }
 
     public function addRole(string $role)
@@ -155,49 +141,14 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
         return array_unique($this->roles);
     }
 
-    public function isGuest(): bool
+    public function eraseCredentials()
     {
-        return $this->getRoles() === ['ROLE_USER'];
-    }
-
-    public function getPassword()
-    {
-        return $this->password;
+        //$this->password = null;
     }
 
     public function getSalt()
     {
         // not needed when using bcrypt or argon
-    }
-
-    public function getUsername()
-    {
-        return $this->username;
-    }
-
-    public function getMailAddress()
-    {
-        return $this->mail_address;
-    }
-
-    public function getTheme(): string
-    {
-        return $this->user_infos['theme'];
-    }
-
-    public function getLocale(): string
-    {
-        return $this->user_infos['language'];
-    }
-
-    public function getLang(): string
-    {
-        return preg_replace('`_.*`', '', $this->user_infos['language']);
-    }
-
-    public function eraseCredentials()
-    {
-        //$this->password = null;
     }
 
     public function isEqualTo(UserInterface $user)
@@ -223,5 +174,53 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
         }
 
         return true;
+    }
+
+    public static function getRoleFromStatus(string $status)
+    {
+        return isset(self::STATUS_TO_ROLE[$status]) ? self::STATUS_TO_ROLE[$status] : 'ROLE_USER';
+    }
+
+    public function getStatusFromRoles()
+    {
+        if (in_array('ROLE_WEBMASTER', $this->roles)) {
+            return self::STATUS_WEBMASTER;
+        }
+
+        if (in_array('ROLE_ADMIN', $this->roles)) {
+            return self::STATUS_ADMIN;
+        }
+
+        if (in_array('ROLE_NORMAL', $this->roles)) {
+            return self::STATUS_NORMAL;
+        }
+
+        return self::STATUS_GUEST;
+    }
+
+    public function __call($method, $parameters)
+    {
+        $userInfos = $this->getUserInfos();
+        if (method_exists($userInfos, $method)) {
+            return call_user_func_array([$userInfos, $method], $parameters);
+        }
+
+        throw new \RuntimeException(sprintf('The "%s()" method does not exist in UserInfos class.', $method));
+    }
+
+    public function getLocale(): ?string
+    {
+        return $this->getUserInfos()->getLanguage();
+    }
+
+    public function getLang(): ?string
+    {
+        return preg_replace('`_.*`', '', $this->getUserInfos()->getLanguage());
+    }
+
+    // to remove ?
+    public function isGuest(): bool
+    {
+        return $this->getRoles() === ['ROLE_USER'];
     }
 }

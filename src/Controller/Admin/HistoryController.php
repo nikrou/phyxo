@@ -188,7 +188,7 @@ class HistoryController extends AdminCommonController
     }
 
     public function search(Request $request, SearchRepository $searchRepository, int $start, int $search_id = null, CategoryMapper $categoryMapper, Conf $conf,
-                            EntityManager $em, ParameterBagInterface $params)
+                            EntityManager $em, ParameterBagInterface $params, UserRepository $userRepository)
     {
         $tpl_params = [];
 
@@ -204,7 +204,7 @@ class HistoryController extends AdminCommonController
                 $rules = unserialize(base64_decode($search->getRules()));
             }
 
-            $tpl_params['search_results'] = $this->getElementFromSearchRules($rules, $start, $conf, $em, $categoryMapper);
+            $tpl_params['search_results'] = $this->getElementFromSearchRules($rules, $start, $conf, $em, $categoryMapper, $userRepository);
             $tpl_params['search_summary'] = $tpl_params['search_results']['search_summary'];
             $nb_lines = $tpl_params['search_results']['nb_lines'];
 
@@ -221,8 +221,10 @@ class HistoryController extends AdminCommonController
         $tpl_params['display_thumbnail_selected'] = $request->request->get('display_thumbnail') ?? '';
         $tpl_params['type_option_selected'] = $request->request->get('types') ?? '';
 
-        $result = $em->getRepository(UserRepository::class)->findAll('ORDER BY username ASC');
-        $tpl_params['user_options'] = $em->getConnection()->result2array($result, 'id', 'username');
+        $tpl_params['user_options'] = [];
+        foreach ($userRepository->findBy([], ['username' => 'ASC']) as $user) {
+            $tpl_params['user_options'][$user->getId()] = $user->getUsername();
+        }
         $tpl_params['user_options_selected'] = $request->request->get('user') ?? -1;
 
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_history_search_save');
@@ -243,7 +245,8 @@ class HistoryController extends AdminCommonController
         return $this->render('history_search.html.twig', $tpl_params);
     }
 
-    protected function getElementFromSearchRules(array $rules, int $start, Conf $conf, EntityManager $em, CategoryMapper $categoryMapper): array
+    protected function getElementFromSearchRules(array $rules, int $start, Conf $conf, EntityManager $em, CategoryMapper $categoryMapper,
+                    UserRepository $userRepository): array
     {
         $search_results = [];
 
@@ -287,9 +290,8 @@ class HistoryController extends AdminCommonController
 
         if (count($user_ids) > 0) {
             $username_of = [];
-            $result = $em->getRepository(UserRepository::class)->findByIds($user_ids);
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                $username_of[$row['id']] = stripslashes($row['username']);
+            foreach ($userRepository->findBy(['id' => $user_ids]) as $user) {
+                $username_of[$user->getId()] = $user->getUsername();
             }
         }
 

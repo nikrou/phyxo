@@ -96,7 +96,7 @@ class UserCreateCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $user = new User();
-        $user->setStatus($this->params['status']);
+        $user->addRole(User::getRoleFromStatus($this->params['status']));
         $user->setUsername($this->params['username']);
         $user->setMailAddress($this->params['mail_address']);
         if ($this->params['password']) {

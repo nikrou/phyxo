@@ -11,259 +11,92 @@
 
 namespace App\Repository;
 
-class UserRepository extends BaseRepository
+use App\Entity\User;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\AbstractQuery;
+
+class UserRepository extends ServiceEntityRepository
 {
-    public function count() : int
+    public function __construct(ManagerRegistry $registry)
     {
-        $query = 'SELECT COUNT(1) FROM ' . self::USERS_TABLE;
-        $result = $this->conn->db_query($query);
-        list($nb_users) = $this->conn->db_fetch_row($result);
-
-        return $nb_users;
+        parent::__construct($registry, User::class);
     }
 
-    public function findByUsername(string $username)
+    public function addUser(User $user): int
     {
-        $query = 'SELECT id, username, password, mail_address FROM ' . self::USERS_TABLE;
-        $query .= ' WHERE username = \'' . $this->conn->db_real_escape_string($username) . '\'';
+        $this->_em->persist($user);
+        $this->_em->flush();
 
-        return $this->conn->db_query($query);
+        return $user->getId();
     }
 
-    public function findByUsernameWithRoles(string $username)
+    public function updateUser(User $user): void
     {
-        $query = 'SELECT id, username, password, mail_address, status, theme, language FROM ' . self::USERS_TABLE;
-        $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' ON id = user_id';
-        $query .= ' WHERE username = \'' . $this->conn->db_real_escape_string($username) . '\'';
-
-        return $this->conn->db_query($query);
+        $this->_em->persist($user);
+        $this->_em->flush();
     }
 
-    public function findByEmail(string $mail_address)
+    public function getList(): array
     {
-        $query = 'SELECT id, username, password, mail_address FROM ' . self::USERS_TABLE;
-        $query .= ' WHERE UPPER(mail_address) = UPPER(\'' . $this->conn->db_real_escape_string($mail_address) . '\');';
+        $qb = $this->createQueryBuilder('u');
+        $qb->select('u', 'ui');
+        $qb->leftJoin('u.userInfos', 'ui');
 
-        return $this->conn->db_query($query);
-    }
-
-    public function findById(int $id)
-    {
-        $query = 'SELECT id, username, password, mail_address FROM ' . self::USERS_TABLE;
-        $query .= ' WHERE id = ' . $id;
-
-        return $this->conn->db_query($query);
-    }
-
-    public function findByStatus(string $status)
-    {
-        $query = 'SELECT id, username, password, mail_address FROM ' . self::USERS_TABLE . ' AS u';
-        $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' AS i ON i.user_id =  u.id';
-        $query .= ' WHERE i.status in (\'' . $this->conn->db_real_escape_string($status) . '\')';
-
-        return $this->conn->db_query($query);
-    }
-
-    public function findByActivationKey(string $key)
-    {
-        $query = 'SELECT id, username, password, mail_address, status FROM ' . self::USERS_TABLE;
-        $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' ON id = user_id';
-        $query .= ' WHERE activation_key = \'' . $this->conn->db_real_escape_string($key) . '\'';
-        $query .= ' AND activation_key_expire >= now()';
-
-        return $this->conn->db_query($query);
-    }
-
-    public function findByIds(array $ids)
-    {
-        $query = 'SELECT id, username, password, mail_address FROM ' . self::USERS_TABLE;
-        $query .= ' WHERE id ' . $this->conn->in($ids);
-
-        return $this->conn->db_query($query);
-    }
-
-    public function findAll(? string $order_by = null)
-    {
-        $query = 'SELECT id, username, password, mail_address FROM ' . self::USERS_TABLE;
-
-        if (!is_null($order_by)) {
-            $query .= ' ' . $order_by;
-        }
-
-        return $this->conn->db_query($query);
-    }
-
-    public function getList(array $fields, array $where, string $order, int $limit, int $offset = 0)
-    {
-        $query = 'SELECT DISTINCT ';
-
-        $first = true;
-        foreach ($fields as $field => $name) {
-            if (!$first) {
-                $query .= ', ';
-            } else {
-                $first = false;
-            }
-            $query .= $field . ' AS ' . $name;
-        }
-
-        $query .= ' FROM ' . self::USERS_TABLE . ' AS u';
-        $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' AS ui ON u.id = ui.user_id';
-        $query .= ' LEFT JOIN ' . self::USER_GROUP_TABLE . ' AS ug ON u.id = ug.user_id';
-        $query .= ' WHERE ' . implode(' AND ', $where);
-        $query .= ' ORDER BY ' . $this->conn->db_real_escape_string($order);
-        $query .= ' LIMIT ' . $limit;
-        $query .= ' OFFSET ' . $offset;
-
-        return $this->conn->db_query($query);
-    }
-
-    public function getUserInfosByUsername(string $username)
-    {
-        $query = 'SELECT u.password, ui.status FROM ' . self::USERS_TABLE . ' AS u';
-        $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' AS ui ON u.id = ui.user_id';
-        $query .= ' WHERE username = \'' . $this->conn->db_real_escape_string($username) . '\'';
-
-        return $this->conn->db_query($query);
-    }
-
-    public function getUserInfosList(array $wheres = [], array $search_wheres = [], string $order = '', ? int $limit = null, int $offset = 0)
-    {
-        $query = 'SELECT id, username, password, mail_address, status, nb_image_page, language,';
-        $query .= ' expand, show_nb_comments, show_nb_hits, recent_period, theme, registration_date,';
-        $query .= ' enabled_high, level, activation_key, activation_key_expire, lastmodified';
-        $query .= ' FROM ' . self::USERS_TABLE . ' AS u';
-        $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' AS ui ON u.id = ui.user_id';
-        if (count($wheres) > 0 || count($search_wheres) > 0) {
-            $query .= ' WHERE';
-        }
-        if (count($wheres) > 0) {
-            $query .= ' ' . implode(' AND ', $wheres);
-        }
-        if (count($search_wheres) > 0) {
-            if (count($wheres) > 0) {
-                $query .= ' AND';
-            }
-            $query .= ' ' . implode(' OR ', $wheres);
-        }
-
-        if ($order !== '') {
-            $query .= ' ORDER BY ' . $order;
-        }
-        if (!is_null($limit)) {
-            $query .= ' LIMIT ' . $limit;
-            $query .= ' OFFSET ' . $offset;
-        }
-
-        return $this->conn->db_query($query);
-    }
-
-    public function getAdminsExceptOurself(int $user_id)
-    {
-        $query = 'SELECT username AS name,';
-        $query .= 'u.mail_address AS email FROM ' . self::USERS_TABLE . ' AS u';
-        $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' AS i ON i.user_id =  u.id';
-        $query .= ' WHERE i.status in (\'webmaster\',  \'admin\')';
-        $query .= ' AND u.mail_address IS NOT NULL';
-        $query .= ' AND i.user_id != ' . $user_id;
-        $query .= ' ORDER BY name';
-
-        return $this->conn->db_query($query);
-    }
-
-    public function isUserExists(string $value, string $field = 'username') : bool
-    {
-        $query = 'SELECT COUNT(1) AS user_exists FROM ' . self::USERS_TABLE;
-        $query .= ' WHERE ' . $field . ' = \'' . $this->conn->db_real_escape_string($value) . '\'';
-        $result = $this->conn->db_query($query);
-        $row = $this->conn->db_fetch_assoc($result);
-
-        return $row['user_exists'] == 1;
+        return $qb->getQuery()->getResult(AbstractQuery::HYDRATE_ARRAY);
     }
 
     public function isEmailExistsExceptUser(string $mail_address, int $user_id) : bool
     {
-        $query = 'SELECT COUNT(1) AS mail_address_exists FROM ' . self::USERS_TABLE;
-        $query .= ' WHERE mail_address = \'' . $this->conn->db_real_escape_string($mail_address) . '\'';
-        $query .= ' AND id != ' . $user_id;
-        $result = $this->conn->db_query($query);
-        $row = $this->conn->db_fetch_assoc($result);
+        $qb = $this->createQueryBuilder('u');
+        $qb->select('count(1)');
+        $qb->where('u.mail_address = :mail_address');
+        $qb->andWhere('u.id != :id');
+        $qb->setParameter('mail_address', $mail_address);
+        $qb->setParameter('id', $user_id);
 
-        return $row['mail_address_exists'] == 1;
+        return $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
-    public function findUsersWithNoMailNotificationInfos()
+    public function isUsernameExistsExceptUser(string $username, int $user_id) : bool
     {
-        $query = 'SELECT u.id AS user_id,';
-        $query .= ' u.username,';
-        $query .= ' u.mail_address FROM ' . self::USERS_TABLE . ' AS u';
-        $query .= ' LEFT JOIN ' . self::USER_MAIL_NOTIFICATION_TABLE . ' AS um ON u.id = um.user_id';
-        $query .= ' WHERE u.mail_address IS NOT NULL';
-        $query .= ' AND um.user_id is null';
-        $query .= ' ORDER BY user_id';
+        $qb = $this->createQueryBuilder('u');
+        $qb->select('count(1)');
+        $qb->where('u.username = :username');
+        $qb->andWhere('u.id != :id');
+        $qb->setParameter('username', $username);
+        $qb->setParameter('id', $user_id);
 
-        return $this->conn->db_query($query);
+        return $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
-    public function getDistinctLanguagesForUsers(int $group_id, ? string $language = null)
+    public function isUserExists(string $value, string $field = 'username') : bool
     {
-        $query = 'SELECT DISTINCT language FROM ' . self::USERS_TABLE . ' AS u';
-        $query .= ' LEFT JOIN ' . self::USER_GROUP_TABLE . ' AS ug ON id = ug.user_id';
-        $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' AS ui ON ui.user_id = ug.user_id';
-        $query .= ' WHERE group_id = ' . $group_id . ' AND mail_adress IS NOT NULL';
+        $qb = $this->createQueryBuilder('u');
+        $qb->select('count(1)');
+        $qb->where('u.' . $field . ' = :value');
+        $qb->setParameter('value', $value);
 
-        if (!is_null($language)) {
-            $query .= ' AND language = \'' . $this->conn->db_real_escape_string($language) . '\'';
-        }
-
-        return $this->conn->db_query($query);
+        return $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
-    public function getUsersByGroup(int $group_id)
+    public function findUserByUsernameOrEmail(string $value): ?User
     {
-        $query = 'SELECT u.username AS name, u.mail_address AS email, language FROM ' . self::USERS_TABLE . ' AS u';
-        $query .= ' LEFT JOIN ' . self::USER_GROUP_TABLE . ' AS ug ON id = ug.user_id';
-        $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' AS ui ON ui.user_id = ug.user_id';
-        $query .= ' WHERE group_id = ' . $group_id . ' AND mail_address IS NOT NULL';
+        $qb = $this->createQueryBuilder('u');
+        $qb->where('u.username = :username');
+        $qb->orWhere('u.mail_address = :mail_address');
+        $qb->setParameters(['username' => $value, 'mail_address' => $value]);
 
-        return $this->conn->db_query($query);
+        return $qb->getQuery()->getOneOrNullResult();
     }
 
-    public function getUsersByLanguage(int $group_id, string $languages)
+    public function deleteById(int $user_id): void
     {
-        $query = 'SELECT u.username AS name, u.mail_address AS email FROM ' . self::USERS_TABLE . ' AS u';
-        $query .= ' LEFT JOIN ' . self::USER_GROUP_TABLE . ' AS ug ON id = ug.user_id';
-        $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' AS ui ON ui.user_id = ug.user_id';
-        $query .= ' WHERE group_id = ' . $group_id . ' AND mail_address IS NOT NULL';
-        $query .= ' AND language  = \'' . $this->conn->db_real_escape_string($languages) . '\'';
+        $qb = $this->createQueryBuilder('u');
+        $qb->delete();
+        $qb->where('id = :id');
+        $qb->setParameters('id', $user_id);
 
-        return $this->conn->db_query($query);
-    }
-
-    public function updateUser(array $datas, int $user_id)
-    {
-        $this->conn->single_update(self::USERS_TABLE, $datas, ['id' => $user_id]);
-    }
-
-    public function addUser(array $datas, bool $auto_increment_for_table = true)
-    {
-        return $this->conn->single_insert(self::USERS_TABLE, $datas, $auto_increment_for_table);
-    }
-
-    public function massInserts(array $fields, array $datas)
-    {
-        $this->conn->mass_inserts(self::USERS_TABLE, $fields, $datas);
-    }
-
-    public function massUpdates(array $fields, array $datas)
-    {
-        $this->conn->mass_updates(self::USERS_TABLE, $fields, $datas);
-    }
-
-    public function deleteById(int $id)
-    {
-        $query = 'DELETE FROM ' . self::USERS_TABLE;
-        $query .= ' WHERE id = ' . $id;
-        $this->conn->db_query($query);
+        $qb->getQuery()->getResult();
     }
 }

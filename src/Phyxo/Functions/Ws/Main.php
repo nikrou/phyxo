@@ -134,7 +134,7 @@ class Main
         $infos['nb_image_category'] = (new ImageCategoryRepository($service->getConnection()))->count();
         $infos['nb_tags'] = (new TagRepository($service->getConnection()))->count();
         $infos['nb_image_tag'] = (new ImageTagRepository($service->getConnection()))->count();
-        $infos['nb_users'] = (new UserRepository($service->getConnection()))->count();
+        $infos['nb_users'] = $service->getManagerRegistry->getRepository(User::class)->count([]);
         $infos['nb_groups'] = (new GroupRepository($service->getConnection()))->count();
         $infos['nb_comments'] = (new CommentRepository($service->getConnection()))->count();
 

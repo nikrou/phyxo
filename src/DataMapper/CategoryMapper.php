@@ -118,7 +118,7 @@ class CategoryMapper
      * Get computed array of categories, that means cache data of all categories
      * available for the current user (count_categories, count_images, etc.).
      */
-    public function getComputedCategories(&$userdata, $filter_days = null)
+    public function getComputedCategories($userdata, $filter_days = null)
     {
         $result = $this->em->getRepository(CategoryRepository::class)->getComputedCategories($userdata, $filter_days);
         $userdata['last_photo_date'] = null;
