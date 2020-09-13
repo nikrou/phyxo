@@ -12,30 +12,46 @@
 namespace App\Controller\Admin;
 
 use App\Notification;
-use App\Repository\ConfigRepository;
+use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class NotificationController extends AdminCommonController
 {
-    private $translator;
+    private $translator, $authorizationChecker;
+    private $conf_types = [
+        'nbm_send_html_mail' => 'boolean',
+        'nbm_send_mail_as' => 'string',
+        'nbm_send_detailed_content' => 'boolean',
+        'nbm_complementary_mail_content' => 'string',
+        'nbm_send_recent_post_dates' => 'boolean',
+    ];
+
+    public function __construct(AuthorizationCheckerInterface $authorizationChecker, UserProvider $userProvider)
+    {
+        parent::__construct($userProvider);
+        $this->authorizationChecker = $authorizationChecker;
+    }
 
     protected function setTabsheet(string $section = 'params'): array
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('params', $this->translator->trans('Parameters', [], 'admin'), $this->generateUrl('admin_notification'));
         $tabsheet->add('subscribe', $this->translator->trans('Subscribe', [], 'admin'), $this->generateUrl('admin_notification_subscribe'));
-        $tabsheet->add('send', $this->translator->trans('Send', [], 'admin'), $this->generateUrl('admin_notification_send'));
+        if ($this->authorizationChecker->isGranted('ROLE_WEBMASTER')) {
+            $tabsheet->add('send', $this->translator->trans('Send', [], 'admin'), $this->generateUrl('admin_notification_send'));
+        }
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
     }
 
-    public function params(Request $request, EntityManager $em, ConfigRepository $configRepository, Conf $conf, ParameterBagInterface $params, Notification $notification, TranslatorInterface $translator)
+    public function params(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, Notification $notification, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -43,12 +59,12 @@ class NotificationController extends AdminCommonController
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->isMethod('POST')) {
-            foreach ($configRepository->findAll('param like \'nbm\\_%\'') as $nbm_user) {
-                if ($request->request->get($nbm_user['param'])) {
-                    $new_value = $request->request->get($nbm_user['param']);
-                    if ($conf[$nbm_user['param']] !== $new_value) {
-                        $conf[$nbm_user['param']] = $new_value;
-                    }
+            // @TODO: find a way to make only one query
+            foreach ($this->conf_types as $conf_key => $conf_type) {
+                if ($conf_type === 'boolean') {
+                    $conf->addOrUpdateParam($conf_key, $request->request->get($conf_key) === 'true', 'boolean');
+                } else { // string
+                    $conf->addOrUpdateParam($conf_key, $request->request->get($conf_key), 'string');
                 }
             }
 
@@ -91,14 +107,17 @@ class NotificationController extends AdminCommonController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        if ($request->request->get('falsify') && $request->request->get('cat_true')) {
-            $check_key_treated = $notification->unsubscribe_notification_by_mail(true, $request->request->get('cat_true'));
-            $notification->do_timeout_treatment('cat_true', $check_key_treated);
-        } elseif ($request->request->get('trueify') && $request->request->get('cat_false')) {
-            $check_key_treated = $notification->subscribe_notification_by_mail(true, $request->request->get('cat_false'));
-            $notification->do_timeout_treatment('cat_false', $check_key_treated);
+        if ($request->isMethod('POST')) {
+            if ($request->request->get('falsify') && $request->request->get('cat_true')) {
+                $check_key_treated = $notification->unsubscribe_notification_by_mail(true, $request->request->get('cat_true'));
+                $notification->do_timeout_treatment('cat_true', $check_key_treated);
+            } elseif ($request->request->get('trueify') && $request->request->get('cat_false')) {
+                $check_key_treated = $notification->subscribe_notification_by_mail(true, $request->request->get('cat_false'));
+                $notification->do_timeout_treatment('cat_false', $check_key_treated);
+            }
+        } else {
+            $notification->insert_new_data_user_mail_notification();
         }
-
         $data_users = $notification->get_user_notifications('subscribe');
 
         $opt_true = [];
@@ -106,15 +125,15 @@ class NotificationController extends AdminCommonController
         $opt_false = [];
         $opt_false_selected = [];
         foreach ($data_users as $nbm_user) {
-            if ($em->getConnection()->get_boolean($nbm_user['enabled'])) {
-                $opt_true[$nbm_user['check_key']] = stripslashes($nbm_user['username']) . '[' . $nbm_user['mail_address'] . ']';
-                if ($request->request->get('falsify') && $request->request->get('cat_true') && in_array($nbm_user['check_key'], $request->request->get('cat_true'))) {
-                    $opt_true_selected[] = $nbm_user['check_key'];
+            if ($nbm_user->getEnabled()) {
+                $opt_true[$nbm_user->getCheckKey()] = $nbm_user->getUser()->getUsername() . '[' . $nbm_user->getUser()->getMailAddress() . ']';
+                if ($request->request->get('falsify') && $request->request->get('cat_true') && in_array($nbm_user->getCheckKey(), $request->request->get('cat_true'))) {
+                    $opt_true_selected[] = $nbm_user->getCheckKey();
                 }
             } else {
-                $opt_false[$nbm_user['check_key']] = stripslashes($nbm_user['username']) . '[' . $nbm_user['mail_address'] . ']';
-                if ($request->request->get('trueify') && $request->request->get('cat_false') && in_array($nbm_user['check_key'], $request->request->get('cat_false'))) {
-                    $opt_false_selected[] = $nbm_user['check_key'];
+                $opt_false[$nbm_user->getCheckKey()] = $nbm_user->getUser()->getUsername() . '[' . $nbm_user->getUser()->getMailAddress() . ']';
+                if ($request->request->get('trueify') && $request->request->get('cat_false') && in_array($nbm_user->getCheckKey(), $request->request->get('cat_false'))) {
+                    $opt_false_selected[] = $nbm_user->getCheckKey();
                 }
             }
         }
@@ -160,13 +179,13 @@ class NotificationController extends AdminCommonController
             $check_key_treated = $notification->do_action_send_mail_notification(
                 'send',
                 $request->request->get('send_selection'),
-                htmlentities($request->request->get('send_customize_mail_content'), ENT_QUOTES, 'utf-8'),
+                $request->request->get('send_customize_mail_content'),
                 $conf_derivatives
             );
             $notification->do_timeout_treatment('send_selection', $check_key_treated);
 
             if ($request->request->get('send_customize_mail_content')) {
-                $tpl_var['CUSTOMIZE_MAIL_CONTENT'] = htmlentities($request->request->get('send_customize_mail_content'), ENT_QUOTES, 'utf-8');
+                $tpl_var['CUSTOMIZE_MAIL_CONTENT'] = $request->request->get('send_customize_mail_content');
             } else {
                 $tpl_var['CUSTOMIZE_MAIL_CONTENT'] = $conf['nbm_complementary_mail_content'];
             }
@@ -175,20 +194,15 @@ class NotificationController extends AdminCommonController
         $tpl_var = ['users' => []];
         $data_users = $notification->do_action_send_mail_notification('list_to_send', [], '', $conf_derivatives);
 
-        if (count($data_users) > 0) {
-            foreach ($data_users as $nbm_user) {
-                if ((!$must_repost) || (($must_repost) && in_array($nbm_user['check_key'], $request->request->get('send_selection')))) {
-                    $tpl_var['users'][] = [
-                        'ID' => $nbm_user['check_key'],
-                        'CHECKED' => ( // not check if not selected,  on init select<all
-                        isset($_POST['send_selection']) && // not init
-                        !in_array($nbm_user['check_key'], $request->request->get('send_selection')) // not selected
-                        ) ? '' : 'checked="checked"',
-                        'USERNAME' => stripslashes($nbm_user['username']),
-                        'EMAIL' => $nbm_user['mail_address'],
-                        'LAST_SEND' => $nbm_user['last_send']
-                    ];
-                }
+        foreach ($data_users as $nbm_user) {
+            if ((!$must_repost) || (($must_repost) && in_array($nbm_user->getCheckKey(), $request->request->get('send_selection')))) {
+                $tpl_var['users'][] = [
+                    'ID' => $nbm_user->getCheckKey(),
+                    'CHECKED' => ($request->request->get('send_selection') && !in_array($nbm_user->getCheckKey(), $request->request->get('send_selection'))) ? '' : 'checked="checked"',
+                    'USERNAME' => $nbm_user->getUser()->getUsername(),
+                    'EMAIL' => $nbm_user->getUser()->getMailAddress(),
+                    'LAST_SEND' => $nbm_user->getLastSend() ? $nbm_user->getLastSend()->format('Y-m-d H:m:i') : ''
+                ];
             }
         }
 

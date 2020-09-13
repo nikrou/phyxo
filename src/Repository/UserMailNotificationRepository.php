@@ -11,63 +11,73 @@
 
 namespace App\Repository;
 
-class UserMailNotificationRepository extends BaseRepository
-{
-    public function findInfosForUsers(bool $send, bool $enabled, array $check_keys = [], string $order_by)
-    {
-        $query = 'SELECT username, mail_address, user_id, check_key, enabled, last_send FROM ' . self::USER_MAIL_NOTIFICATION_TABLE . ' AS n';
-        $query .= ' LEFT JOIN ' . self::USERS_TABLE . ' AS u';
-        $query .= ' ON u.id = n.user_id';
-        $query .= ' WHERE 1 = 1';
+use App\Entity\UserMailNotification;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 
+class UserMailNotificationRepository extends ServiceEntityRepository
+{
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, UserMailNotification::class);
+    }
+
+    public function addOrUpdateUserMailNotification(UserMailNotification $user_mail_notification)
+    {
+        $this->_em->persist($user_mail_notification);
+        $this->_em->flush();
+    }
+
+    public function findInfosForUsers(bool $send, ?bool $enabled_filter_value, array $check_keys = [], array $orders = [])
+    {
+        $qb = $this->createQueryBuilder('n');
+        $qb->leftJoin('n.user', 'u');
         if ($send) {
-            $query .= ' AND n.enabled = \'' . $this->conn->boolean_to_db(true) . '\' AND u.mail_address IS NOT NULL';
+            $qb->where('u.mail_address != \'\'');
+            $qb->andWhere($qb->expr()->isNotNull('u.mail_address'));
+            $qb->andWhere('n.enabled = true');
+        }
+
+        if (!is_null($enabled_filter_value)) {
+            $qb->andWhere('n.enabled = :enabled');
+            $qb->setParameter('enabled', $enabled_filter_value);
         }
 
         if (count($check_keys) > 0) {
-            $query .= ' AND check_key ' . $this->conn->in($check_keys);
+            $qb->andWhere($qb->expr()->in('n.check_key', $check_keys));
         }
 
-        $query .= ' ' . $order_by;
 
-        return $this->conn->db_query($query);
+        if (count($orders) > 0) {
+            foreach ($orders as $order_by) {
+                $qb->orderBy($order_by);
+            }
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
-    public function getDistinctUser()
+    public function findUsersWithNoMailNotificationInfos()
     {
-        $query = 'SELECT DISTINCT user_id FROM ' . self::USER_MAIL_NOTIFICATION_TABLE;
+        $subQuery = $this->createQueryBuilder('n');
+        $subQuery->select('identity(n.user)');
 
-        return $this->conn->db_query($query);
-    }
+        $qb = $this->_em->createQueryBuilder();
+        $qb->from('App\Entity\User', 'u');
+        $qb->select('u');
+        $qb->where('u.mail_address != \'\'');
+        $qb->andWhere($qb->expr()->isNotNull('u.mail_address'));
+        $qb->andWhere($qb->expr()->notIn('u.id', $subQuery->getDQL()));
 
-    public function deleteByUserId(int $user_id)
-    {
-        $query = 'DELETE FROM ' . self::USER_MAIL_NOTIFICATION_TABLE;
-        $query .= ' WHERE user_id = ' . $user_id;
-        $this->conn->db_query($query);
+        return $qb->getQuery()->getResult();
     }
 
     public function deleteByCheckKeys(array $check_keys)
     {
-        $query = 'DELETE FROM ' . self::USER_MAIL_NOTIFICATION_TABLE;
-        $query .= ' WHERE check_key  ' . $this->conn->in($check_keys);
-        $this->conn->db_query($query);
-    }
+        $qb = $this->createQueryBuilder('n');
+        $qb->delete();
+        $qb->where($qb->expr()->in('n.check_key', $check_keys));
 
-    public function deleteByUserIds(array $user_ids)
-    {
-        $query = 'DELETE FROM ' . self::USER_MAIL_NOTIFICATION_TABLE;
-        $query .= ' WHERE user_id ' . $this->conn->in($user_ids);
-        $this->conn->db_query($query);
-    }
-
-    public function massUpdates(array $fields, array $datas)
-    {
-        $this->conn->mass_updates(self::USER_MAIL_NOTIFICATION_TABLE, $fields, $datas);
-    }
-
-    public function massInserts(array $fields, array $datas)
-    {
-        $this->conn->mass_inserts(self::USER_MAIL_NOTIFICATION_TABLE, $fields, $datas);
+        $qb->getQuery()->getResult();
     }
 }

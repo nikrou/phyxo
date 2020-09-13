@@ -257,7 +257,7 @@ class CommentRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function getNewComments(UserInterface $user, array $filter = [], ? string $start = null, ? string $end = null, bool $count_only = false)
+    public function getNewComments(UserInterface $user, array $filter = [], \DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only = false)
     {
         if ($count_only) {
             $query = 'SELECT count(1)';
@@ -269,14 +269,14 @@ class CommentRepository extends BaseRepository
         $query .= ' WHERE';
 
         if (!is_null($start)) {
-            $query .= ' c.validation_date > \'' . $this->conn->db_real_escape_string($start) . '\'';
+            $query .= ' c.validation_date > \'' . $this->conn->db_real_escape_string($start->format('Y-m-d H:m:i')) . '\'';
         }
 
         if (!is_null($end)) {
             if (!is_null($start)) {
                 $query .= ' AND';
             }
-            $query .= ' c.validation_date <= \'' . $this->conn->db_real_escape_string($end) . '\'';
+            $query .= ' c.validation_date <= \'' . $this->conn->db_real_escape_string($end->format('Y-m-d H:m:i')) . '\'';
         }
 
         $query .= ' ' . $this->getStandardSQLWhereRestrictFilter($user, $filter, ' AND ');
@@ -290,7 +290,7 @@ class CommentRepository extends BaseRepository
         }
     }
 
-    public function getUnvalidatedComments(? string $start, ? string $end, bool $count_only)
+    public function getUnvalidatedComments(\DateTimeInterface $start = null, \DateTimeInterface $end, bool $count_only)
     {
         if ($count_only) {
             $query = 'SELECT count(1)';
@@ -301,14 +301,14 @@ class CommentRepository extends BaseRepository
         $query .= ' WHERE';
 
         if (!is_null($start)) {
-            $query .= ' date > \'' . $this->conn->db_real_escape_string($start) . '\'';
+            $query .= ' date > \'' . $this->conn->db_real_escape_string($start->format('Y-m-d H:m:i')) . '\'';
         }
 
         if (!is_null($end)) {
             if (!is_null($start)) {
                 $query .= ' AND';
             }
-            $query .= ' date <= \'' . $this->conn->db_real_escape_string($end) . '\'';
+            $query .= ' date <= \'' . $this->conn->db_real_escape_string($end->format('Y-m-d H:m:i')) . '\'';
         }
 
         $query .= ' AND validated = \'' . $this->conn->boolean_to_db(false) . '\'';

@@ -63,6 +63,9 @@ class DBContext implements Context
             $user->setUsername($userRow['username']);
             $user->setPassword($this->getContainer()->get('security.password_encoder')->encodePassword($user, $userRow['password']));
             $user->addRole(User::getRoleFromStatus(!empty($userRow['status']) ? $userRow['status'] : User::STATUS_NORMAL));
+            if (!empty($userRow['mail_address'])) {
+                $user->setMailAddress($userRow['mail_address']);
+            }
             $user_id = $this->getContainer()->get(UserManager::class)->register($user);
             $this->storage->set('user_' . $userRow['username'], $user_id);
         }

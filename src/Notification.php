@@ -14,32 +14,34 @@ namespace App;
 use App\Repository\ImageRepository;
 use App\Repository\CommentRepository;
 use App\Repository\UserMailNotificationRepository;
-use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\BaseRepository;
 use App\DataMapper\UserMapper;
 use App\DataMapper\CategoryMapper;
+use App\Entity\UserMailNotification;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\SrcImage;
 use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Conf;
+use Phyxo\Functions\Utils;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Twig\Environment;
 
 class Notification
 {
     private $em, $conn, $conf, $userMapper, $categoryMapper, $router;
-    private $env, $template, $phyxoVersion, $phyxoWebsite, $mailer, $translator;
+    private $env, $mailer, $translator, $userMailNotificationRepository, $userInfosRepository;
 
     private $infos = [], $errors = [];
 
     public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, CategoryMapper $categoryMapper, RouterInterface $router,
-                                Environment $template, string $phyxoVersion, string $phyxoWebsite, MailerInterface $mailer, TranslatorInterface $translator)
+                                string $phyxoVersion, string $phyxoWebsite, MailerInterface $mailer, TranslatorInterface $translator,
+                                UserMailNotificationRepository $userMailNotificationRepository, UserInfosRepository $userInfosRepository)
     {
         $this->em = $em;
         $this->conn = $em->getConnection();
@@ -47,11 +49,12 @@ class Notification
         $this->userMapper = $userMapper;
         $this->categoryMapper = $categoryMapper;
         $this->router = $router;
-        $this->template = $template;
         $this->phyxoVersion = $phyxoVersion;
         $this->phyxoWebsite = $phyxoWebsite;
         $this->mailer = $mailer;
         $this->translator = $translator;
+        $this->userMailNotificationRepository = $userMailNotificationRepository;
+        $this->userInfosRepository = $userInfosRepository;
 
         $this->env = [
             'start_time' => microtime(true),
@@ -66,110 +69,74 @@ class Notification
 
     /**
      * Returns number of new comments between two dates.
-     *
-     * @param string $start (mysql datetime format)
-     * @param string $end (mysql datetime format)
-     * @return int
      */
-    public function nb_new_comments($start = null, $end = null)
+    public function nb_new_comments(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
     {
         return $this->em->getRepository(CommentRepository::class)->getNewComments($this->userMapper->getUser(), [], $start, $end, $count_only = true);
     }
 
     /**
      * Returns new comments between two dates.
-     *
-     * @param string $start (mysql datetime format)
-     * @param string $end (mysql datetime format)
-     * @return int[] comment ids
      */
-    public function new_comments($start = null, $end = null)
+    public function new_comments(\DateTimeInterface $start = null, \DateTimeInterface $end = null): array
     {
         return $this->em->getRepository(CommentRepository::class)->getNewComments($this->userMapper->getUser(), [], $start, $end);
     }
 
     /**
      * Returns number of unvalidated comments between two dates.
-     *
-     * @param string $start (mysql datetime format)
-     * @param string $end (mysql datetime format)
-     * @return int
      */
-    public function nb_unvalidated_comments($start = null, $end = null)
+    public function nb_unvalidated_comments(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
     {
         return $this->em->getRepository(CommentRepository::class)->getUnvalidatedComments($start, $end, $count_only = true);
     }
 
     /**
      * Returns number of new photos between two dates.
-     *
-     * @param string $start (mysql datetime format)
-     * @param string $end (mysql datetime format)
-     * @return int
      */
-    public function nb_new_elements($start = null, $end = null)
+    public function nb_new_elements(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
     {
         return $this->em->getRepository(ImageRepository::class)->getNewElements($this->userMapper->getUser(), [], $start, $end, $count_only = true);
     }
 
     /**
      * Returns new photos between two dates.es
-     *
-     * @param string $start (mysql datetime format)
-     * @param string $end (mysql datetime format)
-     * @return int[] photos ids
      */
-    public function new_elements($start = null, $end = null)
+    public function new_elements(\DateTimeInterface $start = null, \DateTimeInterface $end = null): array
     {
         return $this->em->getRepository(ImageRepository::class)->getNewElements($this->userMapper->getUser(), [], $start, $end);
     }
 
     /**
      * Returns number of updated categories between two dates.
-     *
-     * @param string $start (mysql datetime format)
-     * @param string $end (mysql datetime format)
-     * @return int
      */
-    public function nb_updated_categories($start = null, $end = null)
+    public function nb_updated_categories(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
     {
         return $this->em->getRepository(ImageRepository::class)->getUpdatedCategories($this->userMapper->getUser(), [], $start, $end, $count_only = true);
     }
 
     /**
      * Returns updated categories between two dates.
-     *
-     * @param string $start (mysql datetime format)
-     * @param string $end (mysql datetime format)
-     * @return int[] categories ids
      */
-    public function updated_categories($start = null, $end = null)
+    public function updated_categories(\DateTimeInterface $start = null, \DateTimeInterface $end = null): array
     {
         return $this->em->getRepository(ImageRepository::class)->getUpdatedCategories($this->userMapper->getUser(), [], $start, $end, $count_only = true);
     }
 
     /**
      * Returns number of new users between two dates.
-     *
-     * @param string $start (mysql datetime format)
-     * @param string $end (mysql datetime format)
-     * @return int
      */
-    public function nb_new_users($start = null, $end = null)
+    public function nb_new_users(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
     {
-        return $this->em->getRepository(UserInfosRepository::class)->getNewUsers($start, $end, $count_only = true);
+        return $this->userInfosRepository->countNewUsers($start, $end);
     }
 
     /**
      * Returns new users between two dates.
-     *
-     * @param string $start (mysql datetime format)
-     * @param string $end (mysql datetime format)
-     * @return int[] user ids
      */
-    public function new_users($start = null, $end = null)
+    public function new_users(\DateTimeInterface $start = null, \DateTimeInterface $end = null)
     {
-        return $this->em->getRepository(UserInfosRepository::class)->getNewUsers($start, $end);
+        return $this->userInfosRepository->getNewUsers($start, $end);
     }
 
     /**
@@ -179,12 +146,8 @@ class Notification
      * updated categories. Administrators are also informed about: number of
      * unvalidated comments, number of new users.
      * @todo number of unvalidated elements
-     *
-     * @param string $start (mysql datetime format)
-     * @param string $end (mysql datetime format)
-     * @return boolean
      */
-    public function news_exists($start = null, $end = null)
+    public function news_exists(\DateTimeInterface $start = null, \DateTimeInterface $end = null): bool
     {
         return (($this->nb_new_comments($start, $end) > 0) || ($this->nb_new_elements($start, $end) > 0)
             || ($this->nb_updated_categories($start, $end) > 0) || (($this->userMapper->isAdmin())
@@ -311,11 +274,8 @@ class Notification
      * Returns information about recently published elements grouped by post date.
      * Same as get_recent_post_dates() but parameters as an indexed array.
      * @see get_recent_post_dates()
-     *
-     * @param array $args
-     * @return array
      */
-    public function get_recent_post_dates_array($args)
+    public function get_recent_post_dates_array(array $args): array
     {
         return $this->get_recent_post_dates(
             (empty($args['max_dates']) ? 3 : $args['max_dates']),
@@ -411,47 +371,27 @@ class Notification
     }
 
     /*
-     * Add quote to all elements of check_key_list
-     *
-     * @return quoted check key list
-     */
-    public function quote_check_key_list($check_key_list = [])
-    {
-        return array_map(function ($s) {
-            return '\'' . $s . '\'';
-        }, $check_key_list);
-    }
-
-    /*
      * Execute all main queries to get list of user
      *
      * Type are the type of list 'subscribe', 'send'
      *
      * return array of users
      */
-    public function get_user_notifications($action, $check_key_list = [], $enabled_filter_value = false)
+    public function get_user_notifications($action, $check_key_list = [], ?bool $enabled_filter_value = null)
     {
-        $data_users = [];
-
         if (in_array($action, ['subscribe', 'send'])) {
             if ($action == 'send') {
-                $order_by = ' ORDER BY last_send, username';
+                $orders = ['n.last_send', 'u.username'];
             } else {
-                $order_by = ' ORDER BY username';
+                $orders = ['u.username'];
             }
 
-            $result = (new UserMailNotificationRepository($this->conn))->findInfosForUsers(
-                ($action === 'send'),
-                $enabled_filter_value,
-                $check_key_list,
-                $order_by
-            );
-            while ($nbm_user = $this->conn->db_fetch_assoc($result)) {
-                $data_users[] = $nbm_user;
-            }
+
+
+            return $this->userMailNotificationRepository->findInfosForUsers(($action === 'send'), $enabled_filter_value, $check_key_list, $orders);
+        } else {
+            return [];
         }
-
-        return $data_users;
     }
 
     /*
@@ -501,7 +441,7 @@ class Notification
     public function inc_mail_sent_success($nbm_user)
     {
         $this->env['sent_mail_count'] += 1;
-        $this->infos[] = sprintf($this->env['msg_info'], stripslashes($nbm_user['username']), $nbm_user['mail_address']);
+        $this->infos[] = sprintf($this->env['msg_info'], $nbm_user->getUser()->getUsername(), $nbm_user->getUser()->getMailAddress());
     }
 
     /*
@@ -512,7 +452,7 @@ class Notification
     public function inc_mail_sent_failed($nbm_user)
     {
         $this->env['error_on_mail_count'] += 1;
-        $this->errors[] = sprintf($this->env['msg_error'], stripslashes($nbm_user['username']), $nbm_user['mail_address']);
+        $this->errors[] = sprintf($this->env['msg_error'], $nbm_user->getUser()->getUsername(), $nbm_user->getUser()->getMailAddress());
     }
 
     /*
@@ -540,7 +480,7 @@ class Notification
     public function assign_vars_nbm_mail_content($nbm_user): array
     {
         return [
-            'USERNAME' => $nbm_user['username'],
+            'USERNAME' => $nbm_user->getUser()->getUsername(),
             'SEND_AS_NAME' => $this->env['send_as_name'],
             'UNSUBSCRIBE_LINK' => $this->router->generate('notification_unsubscribe', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'SUBSCRIBE_LINK' => $this->router->generate('notification_subscribe', [], UrlGeneratorInterface::ABSOLUTE_URL),
@@ -556,7 +496,7 @@ class Notification
      *
      * @return check_key list treated
      */
-    public function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_subscribe = false, $check_key_list = [])
+    public function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, bool $is_subscribe = false, $check_key_list = [])
     {
         $check_key_treated = [];
         $updated_data_count = 0;
@@ -570,9 +510,7 @@ class Notification
             $msg_error = $this->translator->trans('User %s [%s] was not removed from the subscription list.');
         }
 
-        if (count($check_key_list) != 0) {
-            $updates = [];
-            $enabled_value = $this->conn->boolean_to_db($is_subscribe);
+        if (count($check_key_list) > 0) {
             $data_users = $this->get_user_notifications('subscribe', $check_key_list, !$is_subscribe);
 
             // Prepare message after change language
@@ -589,11 +527,11 @@ class Notification
                 }
 
                 // Fill return list
-                $check_key_treated[] = $nbm_user['check_key'];
+                $check_key_treated[] = $nbm_user->getCheckKey();
 
                 $do_update = true;
-                if ($nbm_user['mail_address'] != '') {
-                    $subject = '[' . $this->conf['gallery_title'] . '] ' . ($is_subscribe ? $this->translator->trans('Subscribe to notification by mail') : $this->translator->trans('Unsubscribe from notification by mail'));
+                if ($nbm_user->getUser()->getMailAddress() !== '') {
+                    $subject = ($is_subscribe ? $this->translator->trans('Subscribe to notification by mail') : $this->translator->trans('Unsubscribe from notification by mail'));
 
                     $mail_params = [];
                     $mail_params = $this->assign_vars_nbm_mail_content($nbm_user);
@@ -603,49 +541,38 @@ class Notification
 
                     $mail_params[$section_action_by] = true;
 
-                    $ret = $this->sendMail(
-                        [
-                            'name' => $nbm_user['username'],
-                            'email' => $nbm_user['mail_address'],
-                        ],
-                        [
-                            'name' => $this->env['send_as_name'],
-                            'email' => $this->env['send_as_mail_address']
-                        ],
-                        $subject,
-                        $mail_params
-                    );
-
-                    if ($ret) {
+                    try {
+                        $this->sendMail(
+                            [
+                                'name' => $nbm_user->getUser()->getUsername(),
+                                'email' => $nbm_user->getUser()->getMailAddress(),
+                            ],
+                            [
+                                'name' => $this->env['send_as_name'],
+                                'email' => $this->env['send_as_mail_address']
+                            ],
+                            $subject,
+                            $mail_params
+                        );
                         $this->inc_mail_sent_success($nbm_user);
-                    } else {
+                    } catch (\Exception $e) {
                         $this->inc_mail_sent_failed($nbm_user);
                         $do_update = false;
                     }
                 }
 
                 if ($do_update) {
-                    $updates[] = [
-                        'check_key' => $nbm_user['check_key'],
-                        'enabled' => $enabled_value
-                    ];
+                    $nbm_user->setEnabled($is_subscribe);
+                    $this->userMailNotificationRepository->addOrUpdateUserMailNotification($nbm_user);
                     $updated_data_count += 1;
-                    $this->infos[] = sprintf($msg_info, stripslashes($nbm_user['username']), $nbm_user['mail_address']);
+                    $this->infos[] = sprintf($msg_info, $nbm_user->getUser()->getUsername(), $nbm_user->getUser()->getMailAddress());
                 } else {
                     $error_on_updated_data_count += 1;
-                    $this->errors[] = sprintf($msg_error, stripslashes($nbm_user['username']), $nbm_user['mail_address']);
+                    $this->errors[] = sprintf($msg_error, $nbm_user->getUser()->getUsername(), $nbm_user->getUser()->getMailAddress());
                 }
             }
 
             $this->display_counter_info();
-
-            (new UserMailNotificationRepository($this->conn))->massUpdates(
-                [
-                    'primary' => ['check_key'],
-                    'update' => ['enabled']
-                ],
-                $updates
-            );
         }
 
         if ($updated_data_count > 0) {
@@ -711,63 +638,34 @@ class Notification
     // Inserting News users
     public function insert_new_data_user_mail_notification()
     {
+        $new_users = $this->userMailNotificationRepository->findUsersWithNoMailNotificationInfos();
+
         // null mail_address are not selected in the list
-        $result = (new UserRepository($this->conn))->findUsersWithNoMailNotificationInfos();
-        if ($this->conn->db_num_rows($result) > 0) {
-            $inserts = [];
+        if (count($new_users) > 0) {
             $check_key_list = [];
 
-            while ($nbm_user = $this->conn->db_fetch_assoc($result)) {
-                // Calculate key
-                $nbm_user['check_key'] = \Phyxo\Functions\Utils::generate_key(16);
+            foreach ($new_users as $new_user) {
+                $nbm_user = new UserMailNotification();
+                $nbm_user->setCheckKey(Utils::generate_key(16));
+                $check_key_list[] = $nbm_user->getCheckKey();
+                $nbm_user->setEnabled(false);
+                $nbm_user->setUser($new_user);
 
-                // Save key
-                $check_key_list[] = $nbm_user['check_key'];
+                $this->userMailNotificationRepository->addOrUpdateUserMailNotification($nbm_user);
 
-                // Insert new nbm_users
-                $inserts[] = [
-                    'user_id' => $nbm_user['user_id'],
-                    'check_key' => $nbm_user['check_key'],
-                    'enabled' => 'false' // By default if false, set to true with specific functions
-                ];
-
-                $this->infos[] = $this->translator->trans('User {username} [{mail_address] added.', ['username' => $nbm_user['username'], 'mail_address' => $nbm_user['mail_address']]);
+                $this->infos[] = $this->translator->trans('User {username} [{mail_address] added.', ['username' => $new_user->getUsername(), 'mail_address' => $new_user->getMailAddress()]);
             }
 
-            // Insert new nbm_users
-            (new UserMailNotificationRepository($this->conn))->massInserts(['user_id', 'check_key', 'enabled'], $inserts);
             // Update field enabled with specific function
-            $check_key_treated = $this->do_subscribe_unsubscribe_notification_by_mail(
-                true,
-                $this->conf['nbm_default_value_user_enabled'],
-                $check_key_list
-            );
+            $check_key_treated = $this->do_subscribe_unsubscribe_notification_by_mail(true, $this->conf['nbm_default_value_user_enabled'], $check_key_list);
 
             // On timeout simulate like tabsheet send
             if ($this->env['is_sendmail_timeout']) {
                 $check_key_list = array_diff($check_key_list, $check_key_treated);
                 if (count($check_key_list) > 0) {
-                    (new UserMailNotificationRepository($this->conn))->deleteByCheckKeys($check_key_list);
-
-                    // Redirect
+                    $this->userMailNotificationRepository->deleteByCheckKeys($check_key_list);
                 }
             }
-        }
-    }
-
-    /*
-     * Apply global functions to mail content
-     * return customize mail content rendered
-     */
-    public function render_global_customize_mail_content($customize_mail_content)
-    {
-        // @TODO : find a better way to detect html or remove test
-        if ($this->conf['nbm_send_html_mail'] and !(strpos($customize_mail_content, '<') === 0)) {
-            // On HTML mail, detects if the content are HTML format.
-            // If it's plain text format, convert content to readable HTML
-            return nl2br(htmlspecialchars($customize_mail_content));
-        } else {
-            return $customize_mail_content;
         }
     }
 
@@ -780,104 +678,106 @@ class Notification
     {
         $return_list = [];
 
-        if (in_array($action, ['list_to_send', 'send'])) {
-            $dbnow = (new BaseRepository($this->conn))->getNow();
+        if (!in_array($action, ['list_to_send', 'send'])) {
+            return [];
+        }
 
-            $is_action_send = ($action == 'send');
+        $now = new \DateTime();
 
-            // disabled and null mail_address are not selected in the list
-            $data_users = $this->get_user_notifications('send', $check_key_list);
+        $is_action_send = ($action == 'send');
 
-            // List all if it's define on options or on timeout
-            $is_list_all_without_test = ($this->env['is_sendmail_timeout'] || $this->conf['nbm_list_all_enabled_users_to_send']);
+        // disabled and null mail_address are not selected in the list
+        $data_users = $this->get_user_notifications('send', $check_key_list);
 
-            // Check if exist news to list user or send mails
-            if ((!$is_list_all_without_test) or ($is_action_send)) {
-                if (count($data_users) > 0) {
-                    $datas = [];
+        // List all if it's define on options or on timeout
+        $is_list_all_without_test = ($this->env['is_sendmail_timeout'] || $this->conf['nbm_list_all_enabled_users_to_send']);
 
-                    if (!isset($customize_mail_content)) {
-                        $customize_mail_content = $this->conf['nbm_complementary_mail_content'];
+        // Check if exist news to list user or send mails
+        if ((!$is_list_all_without_test) || ($is_action_send)) {
+            if (count($data_users) > 0) {
+                if (!isset($customize_mail_content)) {
+                    $customize_mail_content = $this->conf['nbm_complementary_mail_content'];
+                }
+
+                // Prepare message after change language
+                if ($is_action_send) {
+                    $msg_break_timeout = $this->translator->trans('Time to send mail is limited. Others mails are skipped.');
+                } else {
+                    $msg_break_timeout = $this->translator->trans('Prepared time for list of users to send mail is limited. Others users are not listed.');
+                }
+
+                // Begin nbm users environment
+                $this->begin_users_env_nbm($is_action_send);
+
+                foreach ($data_users as $nbm_user) {
+                    if ((!$is_action_send) && $this->check_sendmail_timeout()) {
+                        // Stop fill list on 'list_to_send', if the quota is override
+                        $this->infos[] = $msg_break_timeout;
+                        break;
+                    }
+                    if (($is_action_send) && $this->check_sendmail_timeout()) {
+                        // Stop fill list on 'send', if the quota is override
+                        $this->errors[] = $msg_break_timeout;
+                        break;
                     }
 
-                    // Prepare message after change language
                     if ($is_action_send) {
-                        $msg_break_timeout = $this->translator->trans('Time to send mail is limited. Others mails are skipped.');
-                    } else {
-                        $msg_break_timeout = $this->translator->trans('Prepared time for list of users to send mail is limited. Others users are not listed.');
-                    }
+                        $tpl_params = [];
 
-                    // Begin nbm users environment
-                    $this->begin_users_env_nbm($is_action_send);
+                        // Fill return list of "treated" check_key for 'send'
+                        $return_list[] = $nbm_user->getCheckKey();
 
-                    foreach ($data_users as $nbm_user) {
-                        if ((!$is_action_send) && $this->check_sendmail_timeout()) {
-                            // Stop fill list on 'list_to_send', if the quota is override
-                            $this->infos[] = $msg_break_timeout;
-                            break;
-                        }
-                        if (($is_action_send) && $this->check_sendmail_timeout()) {
-                            // Stop fill list on 'send', if the quota is override
-                            $this->errors[] = $msg_break_timeout;
-                            break;
+                        if ($this->conf['nbm_send_detailed_content']) {
+                            $news = $this->news($nbm_user->getLastSend(), $now, false, $this->conf['nbm_send_html_mail']);
+                            $exist_data = count($news) > 0;
+                        } else {
+                            $exist_data = $this->news_exists($nbm_user->getLastSend(), $now);
                         }
 
-                        if ($is_action_send) {
-                            $tpl_params = [];
+                        if ($exist_data) {
+                            $subject = $this->translator->trans('New photos added');
 
-                            // Fill return list of "treated" check_key for 'send'
-                            $return_list[] = $nbm_user['check_key'];
+                            // Assign current var for nbm mail
+                            $tpl_params = $this->assign_vars_nbm_mail_content($nbm_user);
 
-                            if ($this->conf['nbm_send_detailed_content']) {
-                                $news = $this->news($nbm_user['last_send'], $dbnow, false, $this->conf['nbm_send_html_mail']);
-                                $exist_data = count($news) > 0;
+                            if (!is_null($nbm_user->getLastSend())) {
+                                $tpl_params['content_new_elements_between'] = [
+                                    'DATE_BETWEEN_1' => $nbm_user->getLastSend(),
+                                    'DATE_BETWEEN_2' => $now,
+                                ];
                             } else {
-                                $exist_data = $this->news_exists($nbm_user['last_send'], $dbnow);
+                                $tpl_params['content_new_elements_single'] = ['DATE_SINGLE' => $now];
                             }
 
-                            if ($exist_data) {
-                                $subject = '[' . $this->conf['gallery_title'] . '] ' . $this->translator->trans('New photos added');
+                            if ($this->conf['nbm_send_detailed_content']) {
+                                $tpl_params['global_new_lines'] = $news;
+                            }
 
-                                // Assign current var for nbm mail
-                                $tpl_params = $this->assign_vars_nbm_mail_content($nbm_user);
+                            $nbm_user_customize_mail_content = $customize_mail_content;
 
-                                if (!is_null($nbm_user['last_send'])) {
-                                    $tpl_params['content_new_elements_between'] = [
-                                        'DATE_BETWEEN_1' => $nbm_user['last_send'],
-                                        'DATE_BETWEEN_2' => $dbnow,
-                                    ];
-                                } else {
-                                    $tpl_params['content_new_elements_single'] = ['DATE_SINGLE' => $dbnow];
-                                }
+                            if (!empty($nbm_user_customize_mail_content)) {
+                                $tpl_params['custom_mail_content'] = $nbm_user_customize_mail_content;
+                            }
 
-                                if ($this->conf['nbm_send_detailed_content']) {
-                                    $tpl_params['global_new_lines'] = $news;
-                                }
-
-                                $nbm_user_customize_mail_content = $customize_mail_content;
-
-                                if (!empty($nbm_user_customize_mail_content)) {
-                                    $tpl_params['custom_mail_content'] = $nbm_user_customize_mail_content;
-                                }
-
-                                if ($this->conf['nbm_send_html_mail'] && $this->conf['nbm_send_recent_post_dates']) {
-                                    $recent_post_dates = $this->get_recent_post_dates_array(
+                            if ($this->conf['nbm_send_html_mail'] && $this->conf['nbm_send_recent_post_dates']) {
+                                $recent_post_dates = $this->get_recent_post_dates_array(
                                         $this->conf['recent_post_dates']['NBM']
                                     );
-                                    foreach ($recent_post_dates as $date_detail) {
-                                        $tpl_params['recent_posts'][] = [
-                                            'TITLE' => $this->get_title_recent_post_date($date_detail),
-                                            'HTML_DATA' => $this->get_html_description_recent_post_date($date_detail, $this->conf['picture_ext'])
-                                        ];
-                                    }
+                                foreach ($recent_post_dates as $date_detail) {
+                                    $tpl_params['recent_posts'][] = [
+                                        'TITLE' => $this->get_title_recent_post_date($date_detail),
+                                        'HTML_DATA' => $this->get_html_description_recent_post_date($date_detail, $this->conf['picture_ext'])
+                                    ];
                                 }
+                            }
 
-                                $tpl_params['SEND_AS_NAME'] = $this->env['send_as_name'];
+                            $tpl_params['SEND_AS_NAME'] = $this->env['send_as_name'];
 
-                                $ret = $this->sendMail(
+                            try {
+                                $this->sendMail(
                                     [
-                                        'name' => $nbm_user['username'],
-                                        'email' => $nbm_user['mail_address'],
+                                        'name' => $nbm_user->getUser()->getUsername(),
+                                        'email' => $nbm_user->getUser()->getMailAddress(),
                                     ],
                                     [
                                         'name' => $this->env['send_as_name'],
@@ -886,55 +786,43 @@ class Notification
                                     $subject,
                                     $tpl_params
                                 );
+                                $this->inc_mail_sent_success($nbm_user);
 
-                                if ($ret) {
-                                    $this->inc_mail_sent_success($nbm_user);
-
-                                    $datas[] = [
-                                        'user_id' => $nbm_user['user_id'],
-                                        'last_send' => $dbnow
-                                    ];
-                                } else {
-                                    $this->inc_mail_sent_failed($nbm_user);
-                                }
-                            }
-                        } else {
-                            if ($this->news_exists($nbm_user['last_send'], $dbnow)) {
-                                // Fill return list of "selected" users for 'list_to_send'
-                                $return_list[] = $nbm_user;
+                                $nbm_user->setLastSend($now);
+                                $this->userMailNotificationRepository->addOrUpdateUserMailNotification($nbm_user);
+                            } catch (\Exception $e) {
+                                $this->inc_mail_sent_failed($nbm_user);
                             }
                         }
-                    }
-
-                    if ($is_action_send) {
-                        (new UserMailNotificationRepository($this->conn))->massUpdates(
-                            [
-                                'primary' => ['user_id'],
-                                'update' => ['last_send']
-                            ],
-                            $datas
-                        );
-
-                        $this->display_counter_info();
-                    }
-                } else {
-                    if ($is_action_send) {
-                        $this->errors[] = $this->translator->trans('No user to send notifications by mail.');
+                    } else {
+                        if ($this->news_exists($nbm_user->getLastSend(), $now)) {
+                            // Fill return list of "selected" users for 'list_to_send'
+                            $return_list[] = $nbm_user;
+                        }
                     }
                 }
+
+                if ($is_action_send) {
+                    $this->display_counter_info();
+                }
             } else {
-                // Quick List, don't check news
-                // Fill return list of "selected" users for 'list_to_send'
-                $return_list = $data_users;
+                if ($is_action_send) {
+                    $this->errors[] = $this->translator->trans('No user to send notifications by mail.');
+                }
             }
+        } else {
+            // Quick List, don't check news
+            // Fill return list of "selected" users for 'list_to_send'
+            $return_list = $data_users;
         }
+
 
         // Return list of "selected" users for 'list_to_send'
         // Return list of "treated" check_key for 'send'
         return $return_list;
     }
 
-    protected function sendMail(array $to, array $from, string $subject, array $params)
+    protected function sendMail(array $to, array $from, string $subject, array $params): void
     {
         $tpl_params = [
             'MAIL_TITLE' => $subject,
@@ -942,22 +830,21 @@ class Notification
             'GALLERY_TITLE' => $this->conf['gallery_title'],
             'GALLERY_URL' => $this->router->generate('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'LEVEL_SEPARATOR' => $this->conf['level_separator'],
-            'CONTENT_ENCODING' => 'utf-8',
-            'PHYXO_VERSION' => $this->conf['show_version'] ? $this->phyxoVersion : '',
-            'PHYXO_URL' => $this->phyxoWebsite,
         ];
 
         $tpl_params = array_merge($tpl_params, $params);
 
-        $message = (new TemplatedEmail('[' . $this->conf['gallery_title'] . '] ' . $subject))
-            ->to($to['email'], $to['name'])
-            ->textTemplate('mail/text/notification.text.twig')
-            ->htmlTemplate('mail/html/notification.html.twig')
-            ->context($tpl_params);
+        $message = (new TemplatedEmail())
+                ->subject('[' . $this->conf['gallery_title'] . '] ' . $subject)
+                ->to(new Address($to['email'], $to['name']))
+                ->textTemplate('mail/text/notification.text.twig')
+                ->htmlTemplate('mail/html/notification.html.twig')
+                ->context($tpl_params);
 
-        $message->from($from['email'], $from['name']);
-        $message->replyTo($from['email'], $from['name']);
+        $message->from(new Address($from['email'], $from['name']));
+        $message->replyTo(new Address($from['email'], $from['name']));
 
-        return $this->mailer->send($message);
+
+        $this->mailer->send($message);
     }
 }

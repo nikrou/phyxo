@@ -144,7 +144,7 @@ class ConfigurationController extends AdminCommonController
     }
 
     public function index(Request $request, string $section, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager,
-                        ThemeRepository $themeRepository, LanguageRepository $languageRepository, ImageStandardParams $image_std_params)
+                        ThemeRepository $themeRepository, LanguageRepository $languageRepository, ImageStandardParams $image_std_params, UserInfosRepository $userInfosRepository)
     {
         $tpl_params = [];
 
@@ -186,7 +186,7 @@ class ConfigurationController extends AdminCommonController
                 break;
 
             case 'default':
-                $tpl_params = array_merge($tpl_params, $this->defaultConfiguration($conf, $em, $themeRepository, $languageRepository));
+                $tpl_params = array_merge($tpl_params, $this->defaultConfiguration($conf, $userInfosRepository, $themeRepository, $languageRepository));
                 break;
 
             default:
@@ -393,7 +393,7 @@ class ConfigurationController extends AdminCommonController
         return $tpl_params;
     }
 
-    protected function defaultConfiguration(Conf $conf, EntityManager $em, ThemeRepository $themeRepository, LanguageRepository $languageRepository)
+    protected function defaultConfiguration(Conf $conf, UserInfosRepository $userInfosRepository, ThemeRepository $themeRepository, LanguageRepository $languageRepository)
     {
         $tpl_params = [];
 
@@ -407,10 +407,7 @@ class ConfigurationController extends AdminCommonController
             $themes[$theme->getId()] = $theme->getName();
         }
 
-        $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
-        $guest_id = $em->getConnection()->result2array($result, null, 'user_id')[0];
-
-        $userdata = $this->userProvider->getUserData($guest_id, false);
+        $guestUserInfos = $userInfosRepository->findOneByStatus(User::STATUS_GUEST);
 
         $tpl_params['radio_options'] = [
             'true' => $this->translator->trans('Yes', [], 'admin'),
@@ -419,20 +416,17 @@ class ConfigurationController extends AdminCommonController
 
         $tpl_params = array_merge($tpl_params, [
             'GUEST_ACTIVATE_COMMENTS' => $conf['activate_comments'],
-            'GUEST_NB_IMAGE_PAGE' => $userdata['nb_image_page'],
-            'GUEST_RECENT_PERIOD' => $userdata['recent_period'],
-            'GUEST_EXPAND' => $userdata['expand'] ? 'true' : 'false',
-            'GUEST_NB_COMMENTS' => $userdata['show_nb_comments'] ? 'true' : 'false',
-            'GUEST_NB_HITS' => $userdata['show_nb_hits'] ? 'true' : 'false',
+            'GUEST_NB_IMAGE_PAGE' => $guestUserInfos->getNbImagePage(),
+            'GUEST_RECENT_PERIOD' => $guestUserInfos->getRecentPeriod(),
+            'GUEST_EXPAND' => $guestUserInfos->getExpand(),
+            'GUEST_NB_COMMENTS' => $guestUserInfos->getShowNbComments(),
+            'GUEST_NB_HITS' => $guestUserInfos->getShowNbHits(),
         ]);
 
         $tpl_params['GUEST_USERNAME'] = 'guest';
-        $tpl_params['THEME'] = $userdata['theme'];
+        $tpl_params['THEME'] = $guestUserInfos->getTheme();
         $tpl_params['themes'] = $themes;
-
-        if (isset($languages[$userdata['language']])) {
-            $tpl_params['LANGUAGE'] = $userdata['language'];
-        }
+        $tpl_params['LANGUAGE'] = $guestUserInfos->getLanguage();
 
         $tpl_params['languages'] = $languages;
 

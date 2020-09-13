@@ -59,7 +59,7 @@ class FeatureContext extends BaseContext
     }
 
     /**
-     * @Then /^I should not be allowed to go to a protected page$/
+     * @Then I should not be allowed to go to a protected page
      */
     public function iShouldNotBeAllowedToGoToAProtectedPage()
     {
@@ -243,7 +243,50 @@ class FeatureContext extends BaseContext
     }
 
     /**
-     * @When /^I restart my browser$/
+     * @Then the radio button :value from :name should be selected
+     */
+    public function theRadioButtonFromShouldBeSelected(string $value, string $name)
+    {
+        $radioButton = $this->getSession()->getPage()->find('css', sprintf('input[type="radio"][name="%s"][value="%s"]', $name, $value));
+
+        if (is_null($radioButton)) {
+            throw new \Exception(sprintf('Button radio "%" with value "%s" not found but should be', $name, $value));
+        }
+
+        if (!$radioButton->isChecked()) {
+            throw new \Exception(sprintf('Button radio "%" with value "%s" should be checked but is not', $name, $value));
+        }
+    }
+
+    /**
+     * @Then I should not see link to :href
+     */
+    public function iShouldNotSeeLinkTo(string $href)
+    {
+        $link = $this->findLink($href);
+        if (!is_null($link)) {
+            throw new \Exception(sprintf('Link with href "%s" was found but shoud not', $link->getAttribute('href')));
+        }
+    }
+
+    /**
+     * @Then the select :element should contain:
+     */
+    public function theSelectShouldContain(string $element, PyStringNode $expectedOtions)
+    {
+        $select = $this->findField($element);
+        if (is_null($select)) {
+            throw new \Exception(sprintf('Select "%s" not found but should be', $element));
+        }
+
+        $options = explode(' ', $select->getText());
+        if (implode('', $options) != implode('', $expectedOtions->getStrings())) {
+            throw new \Exception(sprintf('Element "%s" should contain "%s" but contains "%s".', $element, implode('|', $expectedOtions->getStrings()), implode('|', $options)));
+        }
+    }
+
+    /**
+     * @Then I restart my browser
      */
     public function iRestartMyBrowser()
     {

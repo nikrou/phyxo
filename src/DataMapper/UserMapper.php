@@ -64,7 +64,7 @@ class UserMapper
     public function getWebmaster(): User
     {
         if (!$this->webmaster_retrieved) {
-            $this->webmaster = $this->userInfosRepository->findOneByStatus(User::STATUS_WEBMASTER);
+            $this->webmaster = $this->userRepository->findOneByStatus(User::STATUS_WEBMASTER);
             $this->webmaster_retrieved = true;
         }
 

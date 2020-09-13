@@ -18,11 +18,23 @@
 	{% if unsubscribe_by_himself %}
 	    <p>{{'You have unsubscribed from receiving notifications by mail.'|trans}}</p>
 	{% endif %}
+
 	{% if content_new_elements_single %}
-	    <p>{{'New photos were added'|trans}} {{'on'|trans}} {{content_new_elements_single.DATE_SINGLE}}.</p>
+	    <p>
+		{{'New photos were added'|trans}}
+		{{'on'|trans}}
+		{{content_new_elements_single.DATE_SINGLE|date('Y-m-d H:m:i')}}.
+	    </p>
 	{% endif %}
+
 	{% if content_new_elements_between %}
-	    <p>{{'New photos were added'|trans}} {{'between'|trans}} {{content_new_elements_between.DATE_BETWEEN_1}} {{'and'|trans}} {{content_new_elements_between.DATE_BETWEEN_2}}.</p>
+	    <p>
+		{{'New photos were added'|trans}}
+		{{'between'|trans}}
+		{{content_new_elements_between.DATE_BETWEEN_1|date('Y-m-d H:m:i')}}
+		{{'and'|trans}}
+		{{content_new_elements_between.DATE_BETWEEN_2|date('Y-m-d H:m:i')}}.
+	    </p>
 	{% endif %}
 
 	{% if global_new_lines %}
@@ -38,18 +50,25 @@
 	{% endif %}
 
 	{% if GALLERY_TITLE %}
-	    <p>{{'Go to'|trans}} <a href="{{GALLERY_URL}}">{{GALLERY_TITLE}}</a>.</p>
+	    <p>{{'Go to'|trans}}
+		<a href="{{GALLERY_URL}}">{{GALLERY_TITLE}}</a>.
+	    </p>
 	{% endif %}
+
 	<p>{{'See you soon,'|trans}}</p>
 	<p style="text-align:center">{{SEND_AS_NAME}}</p>
 	<hr>
 	<p>
-	    {{'To unsubscribe'|trans}}{{', click on'|trans}} <a href="{{UNSUBSCRIBE_LINK}}">{{UNSUBSCRIBE_LINK}}</a><br>
-	    {{'To subscribe'|trans}}{{', click on'|trans}} <a href="{{SUBSCRIBE_LINK}}">{{SUBSCRIBE_LINK}}</a><br>
-	    {{'If you encounter problems or have any question, please send a message to'|trans}} <a href="mailto:{{CONTACT_EMAIL}}?subject={{'[NBM] Problems or questions'|trans}}">{{CONTACT_EMAIL}}</a><br>
+	    {{'To unsubscribe'|trans}}{{', click on'|trans}}
+	    <a href="{{UNSUBSCRIBE_LINK}}">{{UNSUBSCRIBE_LINK}}</a><br>
+	    {{'To subscribe'|trans}}{{', click on'|trans}}
+	    <a href="{{SUBSCRIBE_LINK}}">{{SUBSCRIBE_LINK}}</a><br>
+	    {{'If you encounter problems or have any question, please send a message to'|trans}}
+	    <a href="mailto:{{CONTACT_EMAIL}}?subject={{'[NBM] Problems or questions'|trans}}">{{CONTACT_EMAIL}}</a><br>
 	</p>
 	<hr>
     </div>
+
     {% if recent_posts %}
 	<div id="nbm_recent_post">
 	    {% for recent_post in recent_posts %}
@@ -58,4 +77,5 @@
 	    {% endfor %}
 	</div>
     {% endif %}
+    </div>
 {% endblock %}

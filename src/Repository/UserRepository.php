@@ -37,6 +37,16 @@ class UserRepository extends ServiceEntityRepository
         $this->_em->flush();
     }
 
+    public function findOneByStatus(string $status): ?User
+    {
+        $qb = $this->createQueryBuilder('u');
+        $qb->leftJoin('u.userInfos', 'ui');
+        $qb->where('ui.status = :status');
+        $qb->setParameter('status', $status);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
     public function getList(): array
     {
         $qb = $this->createQueryBuilder('u');

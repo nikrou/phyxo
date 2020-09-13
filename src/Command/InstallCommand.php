@@ -155,10 +155,11 @@ class InstallCommand extends Command
                 '--no-warmup' => true,
             ];
             $output = new NullOutput();
-            $returnCode = $command->run(new ArrayInput($arguments), $output);
+
+            return $command->run(new ArrayInput($arguments), $output);
         } catch (\Exception $e) {
             $io->error($e->getMessage());
-            return;
+            return 1;
         }
 
         $this->writeInfo($io, "What's next?");

@@ -15,6 +15,7 @@ use App\Entity\UserInfos;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\AbstractQuery;
+use Doctrine\ORM\QueryBuilder;
 
 class UserInfosRepository extends ServiceEntityRepository
 {
@@ -53,5 +54,37 @@ class UserInfosRepository extends ServiceEntityRepository
         $qb->where($qb->expr()->in('u.user_id', $user_ids));
 
         $qb->getQuery()->getResult();
+    }
+
+    public function getNewUsers(\DateTimeInterface $start = null, \DateTimeInterface $end = null)
+    {
+        $qb = $this->createQueryBuilder('u');
+        $this->addBetweenDateCondition($qb, $start, $end);
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function countNewUsers(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
+    {
+        $qb = $this->createQueryBuilder('u');
+        $qb->select('count(1)');
+        $this->addBetweenDateCondition($qb, $start, $end);
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
+
+    private function addBetweenDateCondition(QueryBuilder $qb, \DateTimeInterface $start = null, \DateTimeInterface $end = null)
+    {
+        if (!is_null($start)) {
+            $qb->andWhere('u.registration_date > :start');
+            $qb->setParameter('start', $start);
+        }
+
+        if (!is_null($end)) {
+            $qb->andWhere('u.registration_date <= :end');
+            $qb->setParameter('end', $end);
+        }
+
+        return $qb;
     }
 }

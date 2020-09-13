@@ -354,7 +354,7 @@ class SecurityController extends CommonController
 
         $message = (new TemplatedEmail())
             ->subject('[' . $this->conf['gallery_title'] . '] ' . $translator->trans('Password Reset'))
-            ->to($params['user']['mail_address'])
+            ->to($params['user']->getMailAddress())
             ->textTemplate('mail/text/reset_password.text.twig')
             ->htmlTemplate('mail/html/reset_password.html.twig')
             ->context($tpl_params);

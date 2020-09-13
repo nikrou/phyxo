@@ -23,6 +23,7 @@ use Phyxo\Upgrade;
 use Phyxo\EntityManager;
 use Phyxo\Functions\Utils;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class InstallController extends AbstractController
@@ -303,24 +304,72 @@ class InstallController extends AbstractController
             }
 
             if (empty($errors)) {
-                $conn = DBLayer::initFromConfigFile($this->databaseConfigFile . '.tmp');
-                $em = new EntityManager($conn);
+                $database_params = Yaml::parseFile($this->databaseYamlFile . '.tmp');
+                $config = new \Doctrine\DBAL\Configuration();
+                $connectionParams = [
+                    'dbname' => $database_params['parameters']['database_name'],
+                    'user' => $database_params['parameters']['database_user'],
+                    'password' => $database_params['parameters']['database_password'],
+                    'host' => $database_params['parameters']['database_host'],
+                    'driver' => $database_params['parameters']['database_driver'],
+                ];
+                $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
 
-                $webmaster = new User();
-                $webmaster->setUsername($db_params['username']);
-                $webmaster->setMailAddress($db_params['mail_address']);
-                $webmaster->setPassword($this->passwordEncoder->encodePassword($webmaster, $db_params['password']));
-                $webmaster->addRole(User::getRoleFromStatus(User::STATUS_WEBMASTER));
+                $now = new \DateTime();
+                $raw_query_user = 'INSERT INTO phyxo_users (username, mail_address, password) VALUES(:username, :mail_address, :password)';
+                $raw_query_user = str_replace($this->default_prefix, $database_params['parameters']['database_prefix'], $raw_query_user);
 
-                $guest = new User();
-                $guest->setUsername('guest');
-                $guest->addRole(User::getRoleFromStatus(User::STATUS_GUEST));
-                $user_manager = new UserManager($em, $this->userRepository, $this->userInfosRepository, $this->default_language, $this->default_theme);
+                $raw_query_user_infos = 'INSERT INTO phyxo_user_infos (user_id, status, nb_image_page, language, expand, show_nb_comments, show_nb_hits, recent_period,';
+                $raw_query_user_infos .= ' theme, enabled_high, level, registration_date)';
+                $raw_query_user_infos .= ' VALUES(:user_id, :status, :nb_image_page, :language, :expand, :show_nb_comments, :show_nb_hits, :recent_period,';
+                $raw_query_user_infos .= ' :theme, :enabled_high, :level, :registration_date)';
+                $raw_query_user_infos = str_replace($this->default_prefix, $database_params['parameters']['database_prefix'], $raw_query_user_infos);
+
+                $statement = $conn->prepare($raw_query_user);
+                $statement->bindValue('username', $db_params['username']);
+                $statement->bindValue('mail_address', $db_params['mail_address']);
+                $statement->bindValue('password', $this->passwordEncoder->encodePassword(new User(), $db_params['password']));
+                $statement->execute();
+                $user_id = $conn->lastInsertId();
+
+                $statement = $conn->prepare($raw_query_user_infos);
+                $statement->bindValue('user_id', $user_id);
+                $statement->bindValue('status', User::STATUS_WEBMASTER);
+                $statement->bindValue('nb_image_page', 15);
+                $statement->bindValue('language', $request->get('language'));
+                $statement->bindValue('expand', 0);
+                $statement->bindValue('show_nb_comments', 0);
+                $statement->bindValue('show_nb_hits', 0);
+                $statement->bindValue('recent_period', 7);
+                $statement->bindValue('theme', $this->default_theme);
+                $statement->bindValue('enabled_high', 1);
+                $statement->bindValue('level', 10); // @FIX: find a way to only inject that param instead of conf ; max($this->conf['available_permission_levels']);
+                $statement->bindValue('registration_date', $now->format('Y-m-d H:m:i'));
+                $statement->execute();
+
+                $statement = $conn->prepare($raw_query_user);
+                $statement->bindValue('username', 'guest');
+                $statement->bindValue('mail_address', null);
+                $statement->bindValue('password', null);
+                $statement->execute();
+                $user_id = $conn->lastInsertId();
+
+                $statement = $conn->prepare($raw_query_user_infos);
+                $statement->bindValue('user_id', $user_id);
+                $statement->bindValue('status', User::STATUS_GUEST);
+                $statement->bindValue('nb_image_page', 15);
+                $statement->bindValue('language', $request->get('language'));
+                $statement->bindValue('expand', 0);
+                $statement->bindValue('show_nb_comments', 0);
+                $statement->bindValue('show_nb_hits', 0);
+                $statement->bindValue('recent_period', 7);
+                $statement->bindValue('theme', $this->default_theme);
+                $statement->bindValue('enabled_high', 1);
+                $statement->bindValue('level', 0);
+                $statement->bindValue('registration_date', $now->format('Y-m-d H:m:i'));
+                $statement->execute();
 
                 try {
-                    $user_manager->register($webmaster);
-                    $user_manager->register($guest);
-
                     $env_file_content = 'APP_ENV=prod' . "\n";
                     $env_file_content .= 'APP_SECRET=' . hash('sha256', openssl_random_pseudo_bytes(50)) . "\n";
                     file_put_contents($this->rootProjectDir . '/.env.local', $env_file_content, FILE_APPEND);

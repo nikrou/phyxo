@@ -527,7 +527,7 @@ class ImageRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function getNewElements(UserInterface $user, array $filter = [], ? string $start = null, ? string $end = null, bool $count_only = false)
+    public function getNewElements(UserInterface $user, array $filter = [], \DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only = false)
     {
         if ($count_only) {
             $query = 'SELECT count(1) ';
@@ -539,14 +539,14 @@ class ImageRepository extends BaseRepository
         $query .= ' WHERE';
 
         if (!empty($start)) {
-            $query .= ' date_available > \'' . $this->conn->db_real_escape_string($start) . '\'';
+            $query .= ' date_available > \'' . $this->conn->db_real_escape_string($start->format('Y-m-d H:m:i')) . '\'';
         }
 
         if (!empty($end)) {
             if (!is_null($start)) {
                 $query .= ' AND';
             }
-            $query .= ' date_available <= \'' . $this->conn->db_real_escape_string($end) . '\'';
+            $query .= ' date_available <= \'' . $this->conn->db_real_escape_string($end->format('Y-m-d H:m:i')) . '\'';
         }
 
         $query .= ' ' . $this->getStandardSQLWhereRestrictFilter($user, $filter, ' AND ', 'id');
@@ -560,7 +560,7 @@ class ImageRepository extends BaseRepository
         }
     }
 
-    public function getUpdatedCategories(UserInterface $user, array $filter = [], ? string $start = null, ? string $end = null, bool $count_only = false)
+    public function getUpdatedCategories(UserInterface $user, array $filter = [], \DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only = false)
     {
         if ($count_only) {
             $query = 'SELECT count(1) ';
@@ -572,14 +572,14 @@ class ImageRepository extends BaseRepository
         $query .= ' WHERE';
 
         if (!empty($start)) {
-            $query .= ' date_available > \'' . $this->conn->db_real_escape_string($start) . '\'';
+            $query .= ' date_available > \'' . $this->conn->db_real_escape_string($start->format('Y-m-d H:m:i')) . '\'';
         }
 
         if (!empty($end)) {
             if (!is_null($start)) {
                 $query .= ' AND';
             }
-            $query .= ' date_available <= \'' . $this->conn->db_real_escape_string($end) . '\'';
+            $query .= ' date_available <= \'' . $this->conn->db_real_escape_string($end->format('Y-m-d H:m:i')) . '\'';
         }
 
         $query .= ' ' . $this->getStandardSQLWhereRestrictFilter($user, $filter, ' AND ', 'id');

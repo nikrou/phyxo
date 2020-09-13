@@ -1585,7 +1585,7 @@ class Image
         $derivative_image = new DerivativeImage($src_image, $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB), $service->getImageStandardParams());
 
         // force cache generation
-        $client = HttpClient::create(['http_errors' => false]);
+        $client = HttpClient::create(['headers' => ['http_errors' => false]]);
         $client->request('GET', $service->getRouter()->generate('media', $derivative_image->relativeThumbInfos(), RouterInterface::ABSOLUTE_URL));
 
         return $image_id;
