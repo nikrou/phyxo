@@ -798,15 +798,9 @@ class CategoryMapper
      *    - string status
      *    - string comment
      *    - boolean inherit
-     * @return array ('info', 'id') or ('error')
      */
-    public function createVirtualCategory(string $category_name, int $parent_id = null, int $user_id, array $options = []): array
+    public function createVirtualCategory(string $category_name, int $parent_id = null, int $user_id, array $admin_ids, array $options = []): int
     {
-        // is the given category name only containing blank spaces ?
-        if (preg_match('/^\s*$/', $category_name)) {
-            return ['error' => $this->translator->trans('The name of an album must not be empty')];
-        }
-
         $insert = $this->option2Entity($category_name, $parent_id, $options);
         unset($insert['uppercats_prefix']);
 
@@ -822,15 +816,12 @@ class CategoryMapper
 
             $result = $this->em->getRepository(UserAccessRepository::class)->findByCatId($insert['id_uppercat']);
             $granted_users = $this->em->getConnection()->result2array($result, null, 'user_id');
-            $this->addPermissionOnCategory([$inserted_id], array_unique(array_merge(\Phyxo\Functions\Utils::get_admins(), [$user_id], $granted_users)));
+            $this->addPermissionOnCategory([$inserted_id], array_unique(array_merge($admin_ids, [$user_id], $granted_users)));
         } elseif ($insert['status'] === 'private') {
-            $this->addPermissionOnCategory([$inserted_id], array_unique(array_merge(\Phyxo\Functions\Utils::get_admins(), [$user_id])));
+            $this->addPermissionOnCategory([$inserted_id], array_unique(array_merge($admin_ids, [$user_id])));
         }
 
-        return [
-            'info' => $this->translator->trans('Virtual album added'),
-            'id' => $inserted_id,
-        ];
+        return $inserted_id;
     }
 
     /**

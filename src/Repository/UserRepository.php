@@ -104,8 +104,8 @@ class UserRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('u');
         $qb->delete();
-        $qb->where('id = :id');
-        $qb->setParameters('id', $user_id);
+        $qb->where('u.id = :id');
+        $qb->setParameter('id', $user_id);
 
         $qb->getQuery()->getResult();
     }

@@ -40,7 +40,7 @@ class Notification
     private $infos = [], $errors = [];
 
     public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, CategoryMapper $categoryMapper, RouterInterface $router,
-                                string $phyxoVersion, string $phyxoWebsite, MailerInterface $mailer, TranslatorInterface $translator,
+                                MailerInterface $mailer, TranslatorInterface $translator,
                                 UserMailNotificationRepository $userMailNotificationRepository, UserInfosRepository $userInfosRepository)
     {
         $this->em = $em;
@@ -49,8 +49,6 @@ class Notification
         $this->userMapper = $userMapper;
         $this->categoryMapper = $categoryMapper;
         $this->router = $router;
-        $this->phyxoVersion = $phyxoVersion;
-        $this->phyxoWebsite = $phyxoWebsite;
         $this->mailer = $mailer;
         $this->translator = $translator;
         $this->userMailNotificationRepository = $userMailNotificationRepository;

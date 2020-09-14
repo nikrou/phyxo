@@ -320,12 +320,12 @@ class UserInfos
         $this->setLevel($data['level']);
     }
 
-    public function getLastmodified(): ?\DateTimeInterface
+    public function getLastModified(): ?\DateTimeInterface
     {
         return $this->lastmodified;
     }
 
-    public function setLastmodified(\DateTimeInterface $lastmodified): self
+    public function setLastModified(\DateTimeInterface $lastmodified): self
     {
         $this->lastmodified = $lastmodified;
 

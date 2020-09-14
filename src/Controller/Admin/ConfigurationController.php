@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use App\DataMapper\UserMapper;
 use App\Entity\User;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
@@ -393,7 +394,7 @@ class ConfigurationController extends AdminCommonController
         return $tpl_params;
     }
 
-    protected function defaultConfiguration(Conf $conf, UserInfosRepository $userInfosRepository, ThemeRepository $themeRepository, LanguageRepository $languageRepository)
+    protected function defaultConfiguration(Conf $conf, UserMapper $userMapper, ThemeRepository $themeRepository, LanguageRepository $languageRepository)
     {
         $tpl_params = [];
 
@@ -407,7 +408,7 @@ class ConfigurationController extends AdminCommonController
             $themes[$theme->getId()] = $theme->getName();
         }
 
-        $guestUserInfos = $userInfosRepository->findOneByStatus(User::STATUS_GUEST);
+        $guestUserInfos = $userMapper->getDefaultUser();
 
         $tpl_params['radio_options'] = [
             'true' => $this->translator->trans('Yes', [], 'admin'),
@@ -418,9 +419,9 @@ class ConfigurationController extends AdminCommonController
             'GUEST_ACTIVATE_COMMENTS' => $conf['activate_comments'],
             'GUEST_NB_IMAGE_PAGE' => $guestUserInfos->getNbImagePage(),
             'GUEST_RECENT_PERIOD' => $guestUserInfos->getRecentPeriod(),
-            'GUEST_EXPAND' => $guestUserInfos->getExpand(),
-            'GUEST_NB_COMMENTS' => $guestUserInfos->getShowNbComments(),
-            'GUEST_NB_HITS' => $guestUserInfos->getShowNbHits(),
+            'GUEST_EXPAND' => $guestUserInfos->getExpand() ? 'true' : 'false',
+            'GUEST_NB_COMMENTS' => $guestUserInfos->getShowNbComments() ? 'true' : 'false',
+            'GUEST_NB_HITS' => $guestUserInfos->getShowNbHits() ? 'true' : 'false',
         ]);
 
         $tpl_params['GUEST_USERNAME'] = 'guest';
@@ -433,7 +434,8 @@ class ConfigurationController extends AdminCommonController
         return $tpl_params;
     }
 
-    public function update(Request $request, string $section, Conf $conf, EntityManager $em, ThemeRepository $themeRepository, string $localDir, ImageStandardParams $image_std_params)
+    public function update(Request $request, string $section, Conf $conf, ThemeRepository $themeRepository, string $localDir, ImageStandardParams $image_std_params,
+                            UserMapper $userMapper, UserInfosRepository $userInfosRepository, LanguageRepository $languageRepository)
     {
         $conf_updated = false;
         $error = false;
@@ -517,52 +519,68 @@ class ConfigurationController extends AdminCommonController
                     }
                 }
             } elseif ($section === 'default') {
-                $languages = $em->getConnection()->result2array($em->getRepository(LanguageRepository::class)->findAll(), 'id', 'name');
+                $languages = [];
+                foreach ($languageRepository->findAll() as $language) {
+                    $languages[$language->getId()] = $language->getName();
+                }
+
                 $themes = [];
                 foreach ($themeRepository->findAll() as $theme) {
                     $themes[$theme->getId()] = $theme->getName();
                 }
 
-                $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
-                $guest_id = $em->getConnection()->result2array($result, null, 'user_id')[0];
+                $error = false;
+                $needFlush = false;
+                $guestUserInfos = $userMapper->getDefaultUser();
 
-                $userdata = $this->userProvider->getUserData($guest_id, false);
-                $fields = ['nb_image_page', 'language', 'expand', 'show_nb_hits', 'recent_period', 'theme'];
-
-                if ($conf['activate_comments']) {
-                    $fields[] = 'show_nb_comments';
-                }
-
-                $data = [];
-                $data['user_id'] = $userdata['id'];
-
-                foreach ($fields as $field) {
-                    $value = $request->request->get($field);
-                    if ($field === 'language') {
-                        if (!empty($value) && isset($languages[$value])) {
-                            $data[$field] = $value;
-                            $conf_updated = true;
-                        } else {
-                            $this->addFlash('error', $this->translator->trans('Incorrect language value', [], 'admin'));
-                            $error = true;
-                        }
-                    } elseif ($field === 'theme') {
-                        if (!empty($value) && isset($themes[$value])) {
-                            $data[$field] = $value;
-                            $conf_updated = true;
-                        } else {
-                            $this->addFlash('error', $this->translator->trans('Incorrect theme value', [], 'admin'));
-                            $error = true;
-                        }
+                if ($request->request->get('nb_image_page')) {
+                    if ((int) $request->request->get('nb_image_page') === 0) {
+                        $error = true;
+                        $this->addFlash('error', $this->translator->trans('The number of photos per page must be a not null scalar'));
                     } else {
-                        $data[$field] = $value;
-                        $conf_updated = true;
+                        $guestUserInfos->setNbImagePage((int) $request->request->get('nb_image_page'));
+                        $needFlush = true;
                     }
                 }
 
-                if ($conf_updated && !$error) {
-                    $em->getRepository(UserInfosRepository::class)->massUpdates(['primary' => ['user_id'], 'update' => $fields], [$data]);
+                // @TODO: check language is in existing language ; same in SecurityController::profile
+                if ($request->request->get('language')) {
+                    $request->getSession()->set('_locale', $request->request->get('language'));
+                    $guestUserInfos->setLanguage($request->request->get('language'));
+                    $needFlush = true;
                 }
+
+                if ($request->request->get('theme')) {
+                    $guestUserInfos->setTheme($request->request->get('theme'));
+                    $needFlush = true;
+                }
+
+                if ($request->request->get('expand')) {
+                    $guestUserInfos->setExpand($request->request->get('expand') === 'true');
+                    $needFlush = true;
+                }
+
+                if ($request->request->get('show_nb_comments')) {
+                    $guestUserInfos->setShowNbComments($request->request->get('show_nb_comments') === 'true');
+                    $needFlush = true;
+                }
+
+                if ($request->request->get('show_nb_hits')) {
+                    $guestUserInfos->setShowNbHits($request->request->get('show_nb_hits') === 'true');
+                    $needFlush = true;
+                }
+
+                if ($request->request->get('recent_period') && $this->getUser()->getUserInfos()->getRecentPeriod() != $request->request->get('recent_period')) {
+                    $guestUserInfos->setRecentPeriod((int) $request->request->get('recent_period'));
+                    $needFlush = true;
+                }
+
+                if (!$error && $needFlush) {
+                    $guestUserInfos->setLastModified(new \DateTime());
+                    $userInfosRepository->updateInfos($guestUserInfos->getUserInfos());
+                }
+
+                $this->addFlash('info', $this->translator->trans('Your configuration settings have been saved', [], 'admin'));
             } elseif ($section === 'comments') {
                 if ($request->request->get('nb_comment_page')) {
                     $nb_comments = (int) $request->request->get('nb_comment_page');

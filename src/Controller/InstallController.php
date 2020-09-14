@@ -272,6 +272,7 @@ class InstallController extends AbstractController
     protected function userStep(Request $request)
     {
         $errors = [];
+        $db_params = [];
         $tpl_params = [
             'INSTALL_ACTION' => $this->generateUrl('install', ['step' => 'user']),
         ];

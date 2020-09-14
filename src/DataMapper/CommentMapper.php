@@ -121,8 +121,7 @@ class CommentMapper
                 }
                 $comm['author'] = 'guest';
             }
-            $result = (new UserInfosRepository($this->conn))->findByStatuses([User::STATUS_GUEST]);
-            $comm['author_id'] = $this->conn->result2array($result, null, 'user_id')[0];
+            $comm['author_id'] = $this->userMapper->getDefaultUser()->getId();
 
             // if a guest try to use the name of an already existing user, he must be rejected
             if ($comm['author'] !== 'guest') {

@@ -46,7 +46,7 @@ class UserManager
         }
 
         $userInfos->setRegistrationDate(new \DateTime());
-        $userInfos->setLastmodified(new \DateTime());
+        $userInfos->setLastModified(new \DateTime());
         if (in_array('ROLE_WEBMASTER', $user->getRoles())) {
             $userInfos->setLevel(10); // @FIX: find a way to only inject that param instead of conf ; max($this->conf['available_permission_levels']);
         }

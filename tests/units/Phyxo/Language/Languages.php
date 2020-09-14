@@ -72,19 +72,12 @@ class Languages extends atoum\test
     public function testFsLanguages()
     {
         $prophet = new Prophet();
-        $em = $prophet->prophesize('\Phyxo\EntityManager');
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
-
-        $userMapper->getUser()->willReturn(new class {
-            function getLanguage()
-            {
-                return 'en_GB';
-            }
-        });
+        $userMapper->getDefaultLanguage()->willReturn('en_GB');
 
         $languageRepository = $prophet->prophesize('App\Repository\LanguageRepository');
 
-        $languages = new \Phyxo\Language\Languages($em->reveal(), $languageRepository->reveal(), $userMapper->reveal());
+        $languages = new \Phyxo\Language\Languages($languageRepository->reveal(), $userMapper->reveal()->getDefaultLanguage());
         $languages->setRootPath($this->languages_path);
 
         $this

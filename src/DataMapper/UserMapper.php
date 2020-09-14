@@ -32,18 +32,19 @@ use App\Security\UserProvider;
 
 class UserMapper
 {
-    private $em, $conf, $autorizationChecker, $tagMapper, $themeRepository, $userRepository, $userInfosRepository;
+    private $em, $conf, $autorizationChecker, $tagMapper, $themeRepository, $userRepository, $userInfosRepository, $userMailNotificationRepository;
     private $defaultLanguage, $defaultTheme, $themesDir, $userProvider, $default_user, $default_user_retrieved = false;
     private $webmaster, $webmaster_retrieved = false;
 
     public function __construct(EntityManager $em, Conf $conf, AuthorizationCheckerInterface $autorizationChecker, ThemeRepository $themeRepository,
                                 UserRepository $userRepository, UserInfosRepository $userInfosRepository, string $defaultTheme,
-                                TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider)
+                                TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider, UserMailNotificationRepository $userMailNotificationRepository)
     {
         $this->em = $em;
         $this->themeRepository = $themeRepository;
         $this->userRepository = $userRepository;
         $this->userInfosRepository = $userInfosRepository;
+        $this->userMailNotificationRepository = $userMailNotificationRepository;
         $this->conf = $conf;
         $this->autorizationChecker = $autorizationChecker;
         $this->tagMapper = $tagMapper;
@@ -71,14 +72,19 @@ class UserMapper
         return $this->webmaster;
     }
 
-    protected function getDefaultUser(): ?User
+    public function getDefaultUser(): ?User
     {
         if (!$this->default_user_retrieved) {
             $this->default_user = $this->userInfosRepository->findOneByStatus(User::STATUS_GUEST);
             $this->default_user_retrieved = true;
         }
 
-        return $this->default_user;
+        return $this->default_user->getUser();
+    }
+
+    public function setDefaultTheme(string $theme_id): void
+    {
+        $this->userInfosRepository->updateFieldForUsers('theme', $theme_id, [$this->getDefaultUser()->getId()]);
     }
 
     /**
@@ -218,11 +224,8 @@ class UserMapper
     {
         // destruction of the group links for this user
         $this->em->getRepository(UserGroupRepository::class)->deleteByUserId($user_id);
-        // destruction of the access linked to the user(new UserAccessRepository($conn))->deleteByUserId($user_id);
-        // deletion of phyxo specific informations
-        $this->em->getRepository(UserInfosRepository::class)->deleteByUserId($user_id);
-        // destruction of data notification by mail for this user
-        $this->em->getRepository(UserMailNotificationRepository::class)->deleteByUserId($user_id);
+        // destruction of the access linked to the user
+        //(new UserAccessRepository($conn))->deleteByUserId($user_id);
         // destruction of data RSS notification for this user
         $this->em->getRepository(UserFeedRepository::class)->deleteUserOnes($user_id);
         // deletion of calculated permissions linked to the user
@@ -240,5 +243,9 @@ class UserMapper
 
         // destruction of the user
         $this->userRepository->deleteById($user_id);
+        // // deletion of phyxo specific informations
+        $this->userInfosRepository->deleteByUserId($user_id);
+        // destruction of data notification by mail for this user
+        $this->userMailNotificationRepository->deleteByUserId($user_id);
     }
 }

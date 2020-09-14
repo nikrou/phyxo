@@ -250,11 +250,11 @@ class FeatureContext extends BaseContext
         $radioButton = $this->getSession()->getPage()->find('css', sprintf('input[type="radio"][name="%s"][value="%s"]', $name, $value));
 
         if (is_null($radioButton)) {
-            throw new \Exception(sprintf('Button radio "%" with value "%s" not found but should be', $name, $value));
+            throw new \Exception(sprintf('Button radio "%s" with value "%s" not found but should be', $name, $value));
         }
 
         if (!$radioButton->isChecked()) {
-            throw new \Exception(sprintf('Button radio "%" with value "%s" should be checked but is not', $name, $value));
+            throw new \Exception(sprintf('Button radio "%s" with value "%s" should be checked but is not', $name, $value));
         }
     }
 

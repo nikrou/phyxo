@@ -42,7 +42,7 @@ class UpdateController extends AdminCommonController
 
     public function core(Request $request, int $step = 0, string $version = null, Conf $conf, EntityManager $em, UserMapper $userMapper, string $defaultTheme,
                         ParameterBagInterface $params, TranslatorInterface $translator, PluginRepository $pluginRepository, ThemeRepository $themeRepository,
-                        UpgradeRepository $upgradeRepository)
+                        UpgradeRepository $upgradeRepository, UserInfosRepository $userInfosRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -167,16 +167,9 @@ class UpdateController extends AdminCommonController
                     }
                     $themeRepository->deleteByIds(array_keys($themes_deactivated));
 
-                    // what is the default theme?
-                    $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
-                    $user_infos = $em->getConnection()->db_fetch_assoc($result);
-
                     // if the default theme has just been deactivated, let's set another core theme as default
                     if (in_array($user_infos['theme'], array_keys($themes_deactivated))) {
-                        $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
-                        $guest_id = $em->getConnection()->result2array($result, null, 'user_id')[0];
-
-                        $em->getRepository(UserInfosRepository::class)->updateUserInfos(['theme' => $this->defaultTheme], $guest_id);
+                        $userInfosRepository->updateUserInfos(['theme' => $userMapper->getDefaultTheme()], $userMapper->getId());
                     }
 
                     $tables = $em->getConnection()->db_get_tables($em->getConnection()->getPrefix());

@@ -14,6 +14,7 @@ namespace App\Controller\Admin;
 use App\DataMapper\CategoryMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\UserMapper;
+use App\Entity\User;
 use App\Events\GroupEvent;
 use App\Repository\CategoryRepository;
 use App\Repository\GroupAccessRepository;
@@ -23,6 +24,7 @@ use App\Repository\ImageRepository;
 use App\Repository\UserAccessRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserGroupRepository;
+use App\Repository\UserInfosRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
@@ -654,18 +656,25 @@ class AlbumController extends AdminCommonController
         return $this->render('album_notification.html.twig', $tpl_params);
     }
 
-    public function create(Request $request, int $parent_id = null, CategoryMapper $categoryMapper, UserMapper $userMapper)
+    public function create(Request $request, int $parent_id = null, CategoryMapper $categoryMapper, UserMapper $userMapper, UserInfosRepository $userInfosRepository)
     {
         if ($request->isMethod('POST')) {
             $virtual_name = $request->request->get('virtual_name');
 
-            $output_create = $categoryMapper->createVirtualCategory($virtual_name, $parent_id, $this->getUser()->getId());
-
-            $userMapper->invalidateUserCache();
-            if (isset($output_create['error'])) {
-                $this->addFlash('error', $output_create['error']);
+            // is the given category name only containing blank spaces ?
+            if (preg_match('/^\s*$/', $virtual_name)) {
+                $this->addFlash('error', $this->translator->trans('The name of an album must not be empty', [], 'admin'));
             } else {
-                $this->addFlash('info', $output_create['info']);
+                $admin_ids = [];
+                foreach ($userInfosRepository->findBy(['status' => [User::STATUS_WEBMASTER, User::STATUS_ADMIN]]) as $userInfos) {
+                    $admin_ids[] = $userInfos->getUser()->getId();
+                }
+
+                $category_id = $categoryMapper->createVirtualCategory($virtual_name, $parent_id, $this->getUser()->getId(), $admin_ids);
+
+                $userMapper->invalidateUserCache();
+
+                $this->addFlash('info', $this->translator->trans('Virtual album added', [], 'admin'));
             }
         }
 

@@ -72,10 +72,9 @@ class UsersController extends AdminCommonController
         $tpl_params['ACTIVATE_COMMENTS'] = $conf['activate_comments'];
         $tpl_params['Double_Password'] = $conf['double_password_type_in_admin'];
 
-        $guestUserInfos = $userInfosRepository->findOneByStatus(User::STATUS_GUEST);
-
+        $guestUser = $userMapper->getDefaultUser();
         $protected_users = [$this->getUser()->getId()];
-        $protected_users[] = $guestUserInfos->getUser()->getId();
+        $protected_users[] = $guestUser->getId();
 
         // an admin can't delete other admin/webmaster
         if ($userMapper->isAdmin()) {
@@ -99,15 +98,15 @@ class UsersController extends AdminCommonController
             'F_ADD_ACTION' => $this->generateUrl('admin_users'),
             'F_USER_PERM' => $this->generateUrl('admin_user_perm', ['user_id' => $dummy_user]),
             'F_USER_PERM_DUMMY_USER' => $dummy_user,
-            'NB_IMAGE_PAGE' => $guestUserInfos->getNbImagePage(),
-            'RECENT_PERIOD' => $guestUserInfos->getRecentPeriod(),
+            'NB_IMAGE_PAGE' => $guestUser->getNbImagePage(),
+            'RECENT_PERIOD' => $guestUser->getRecentPeriod(),
             'theme_options' => $themes,
-            'theme_selected' => $guestUserInfos->getTheme(),
+            'theme_selected' => $guestUser->getTheme(),
             'language_options' => $languages,
-            'language_selected' => $guestUserInfos->getLanguage(),
+            'language_selected' => $guestUser->getLanguage(),
             'association_options' => $groups,
             'protected_users' => implode(',', array_unique($protected_users)),
-            'guest_user' => $guestUserInfos->getUser()->getId(),
+            'guest_user' => $guestUser->getUser()->getId(),
         ]);
 
         // Status options
@@ -131,11 +130,12 @@ class UsersController extends AdminCommonController
         $tpl_params['pref_status_selected'] = 'normal';
 
         // user level options
+        $level_options = [];
         foreach ($conf['available_permission_levels'] as $level) {
             $level_options[$level] = $translator->trans(sprintf('Level %d', $level), [], 'admin');
         }
         $tpl_params['level_options'] = $level_options;
-        $tpl_params['level_selected'] = $guestUserInfos->getLevel();
+        $tpl_params['level_selected'] = $guestUser->getLevel();
 
         $tpl_params['ws'] = $this->generateUrl('ws');
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
@@ -149,7 +149,7 @@ class UsersController extends AdminCommonController
         return $this->render('users_list.html.twig', $tpl_params);
     }
 
-    public function perm(Request $request, int $user_id, EntityManager $em, UserMapper $userMapper, CategoryMapper $categoryMapper, Conf $conf,
+    public function perm(Request $request, int $user_id, EntityManager $em, CategoryMapper $categoryMapper, Conf $conf,
                         ParameterBagInterface $params, TranslatorInterface $translator, UserRepository $userRepository)
     {
         $tpl_params = [];

@@ -205,36 +205,6 @@ $conf['ext_imagick_dir'] = '';
 $conf['comments_page_nb_comments'] = 10;
 
 // +-----------------------------------------------------------------------+
-// |                                 email                                 |
-// +-----------------------------------------------------------------------+
-
-// send_bcc_mail_webmaster: send bcc mail to webmaster. Set true for debug
-// or test.
-$conf['send_bcc_mail_webmaster'] = false;
-
-// define the name of sender mail: if value is empty, gallery title is used
-$conf['mail_sender_name'] = '';
-
-// define the email of sender mail: if valie is empty, webmaster email is used
-$conf['mail_sender_email'] = '';
-
-// set true to allow text/html emails
-$conf['mail_allow_html'] = true;
-
-// smtp configuration (work if fsockopen function is allowed for smtp port)
-// smtp_host: smtp server host
-//  if null, regular mail function is used
-//   format: hoststring[:port]
-//   exemple: smtp.pwg.net:21
-// smtp_user/smtp_password: user & password for smtp identication
-$conf['smtp_host'] = '';
-$conf['smtp_user'] = '';
-$conf['smtp_password'] = '';
-
-// 'ssl' or 'tls'
-$conf['smtp_secure'] = null;
-
-// +-----------------------------------------------------------------------+
 // |                               metadata                                |
 // +-----------------------------------------------------------------------+
 
@@ -313,12 +283,6 @@ $conf['allow_html_in_metadata'] = false;
 // |                            debug/performance                          |
 // +-----------------------------------------------------------------------+
 
-// show_queries : for debug purpose, show queries and execution times
-$conf['show_queries'] = false;
-
-// Registering process and guest members get language from the browser
-$conf['browser_language'] = true;
-
 // does the guest have access ?
 // (not a security feature, set your categories "private" too)
 // If false it'll be redirected from index.php to identification.php
@@ -339,29 +303,6 @@ $conf['nb_logs_page'] = 300;
 // gallery. This is for very specific use and you don't need to change this
 // setting when move your gallery to a new directory or a new domain name.
 $conf['gallery_url'] = null;
-
-// question_mark_in_urls : the generated urls contain a ? sign. This can be
-// changed to false only if the server translates PATH_INFO variable
-// (depends on the server AcceptPathInfo directive configuration)
-$conf['question_mark_in_urls'] = false;
-
-// php_extension_in_urls : if true, the urls generated for picture and
-// category will not contain the .php extension. This will work only if
-// .htaccess defines Options +MultiViews parameter or url rewriting rules
-// are active.
-$conf['php_extension_in_urls'] = true;
-
-// category_url_style : one of 'id' (default) or 'id-name'. 'id-name'
-// means that an simplified ascii represntation of the category name will
-// appear in the url
-$conf['category_url_style'] = 'id';
-
-// picture_url_style : one of 'id' (default), 'id-file' or 'file'. 'id-file'
-// or 'file' mean that the file name (without extension will appear in the
-// url). Note that one aditionnal sql query will occur if 'file' is choosen.
-// Note that you might experience navigation issues if you choose 'file'
-// and your file names are not unique
-$conf['picture_url_style'] = 'id';
 
 // tag_url_style : one of 'id-tag' (default), 'id' or 'tag'.
 // Note that if you choose 'tag' and the url (ascii) representation of your
@@ -427,20 +368,6 @@ $conf['rss_feed_author'] = 'Phyxo notifier';
 // +-----------------------------------------------------------------------+
 // | Set admin layout                                                      |
 // +-----------------------------------------------------------------------+
-
-$conf['admin_theme'] = 'clear';
-
-// should we load the active plugins ? true=Yes, false=No
-$conf['enable_plugins'] = true;
-
-// Web services are allowed (true) or completely forbidden (false)
-$conf['allow_web_services'] = true;
-
-// enable log for web services
-$conf['ws_enable_log'] = false;
-
-// web services log file path
-$conf['ws_log_filepath'] = '/tmp/phyxo_ws.log';
 
 // Maximum number of images to be returned foreach call to the web service
 $conf['ws_max_images_per_page'] = 500;

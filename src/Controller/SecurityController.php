@@ -19,7 +19,6 @@ use App\Utils\UserManager;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 use App\Security\LoginFormAuthenticator;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Phyxo\DBLayer\iDBLayer;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
@@ -31,7 +30,6 @@ use Phyxo\MenuBar;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -144,7 +142,7 @@ class SecurityController extends CommonController
         return $this->render('register.html.twig', $tpl_params);
     }
 
-    public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, MenuBar $menuBar, LanguageRepository $languageRepository,
+    public function profile(Request $request, UserPasswordEncoderInterface $passwordEncoder, MenuBar $menuBar, LanguageRepository $languageRepository,
                             UserProvider $userProvider, TranslatorInterface $translator, CsrfTokenManagerInterface $csrfTokenManager, ThemeRepository $themeRepository,
                             UserInfosRepository $userInfosRepository, UserRepository $userRepository)
     {
@@ -204,14 +202,11 @@ class SecurityController extends CommonController
                     }
                 }
 
+                // @TODO: check language is in existing language ; same in ConfigurationController::default
                 if ($request->request->get('language')) {
-                    // if (!isset($languages[$request->request->get('language')])) {
-                    //     $errors[] = $translator->trans('Incorrect language value');
-                    // } else {
                     $request->getSession()->set('_locale', $request->request->get('language'));
                     $this->getUser()->getUserInfos()->setLanguage($request->request->get('language'));
                     $needFlush = true;
-                    // }
                 }
 
                 if ($request->request->get('theme')) {
@@ -255,9 +250,9 @@ class SecurityController extends CommonController
             'EMAIL' => $this->getUser()->getMailAddress(),
             'NB_IMAGE_PAGE' => $this->getUser()->getNbImagePage(),
             'RECENT_PERIOD' => $this->getUser()->getRecentPeriod(),
-            'EXPAND' => $conn->boolean_to_string($this->getUser()->getExpand()),
-            'NB_COMMENTS' => $conn->boolean_to_string($this->getUser()->getShowNbComments()),
-            'NB_HITS' => $conn->boolean_to_string($this->getUser()->getShowNbHits()),
+            'EXPAND' => $this->getUser()->getExpand() ? 'true' : 'false',
+            'NB_COMMENTS' => $this->getUser()->getShowNbComments() ? 'true' : 'false',
+            'NB_HITS' => $this->getUser()->getShowNbHits() ? 'true': 'false',
             'THEME' => $this->getUser()->getTheme(),
             'LANGUAGE' => $this->getUser()->getLanguage(),
             'radio_options' => [

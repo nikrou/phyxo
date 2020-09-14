@@ -22,20 +22,18 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Twig\Environment;
 
 class GroupNotificationSubscriber implements EventSubscriberInterface
 {
-    private $mailer, $em, $conf, $router, $template, $userMapper, $translator;
+    private $mailer, $em, $conf, $router, $userMapper, $translator;
 
-    public function __construct(MailerInterface $mailer, EntityManager $em, Conf $conf, RouterInterface $router, Environment $template,
+    public function __construct(MailerInterface $mailer, EntityManager $em, Conf $conf, RouterInterface $router,
                                 UserMapper $userMapper, TranslatorInterface $translator)
     {
         $this->mailer = $mailer;
         $this->em = $em;
         $this->conf = $conf;
         $this->router = $router;
-        $this->template = $template;
         $this->userMapper = $userMapper;
         $this->translator = $translator;
     }

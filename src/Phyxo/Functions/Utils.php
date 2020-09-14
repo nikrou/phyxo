@@ -989,27 +989,6 @@ class Utils
     }
 
     /**
-     * Returns the list of admin users.
-     *
-     * @param boolean $include_webmaster
-     * @return int[]
-     */
-    public static function get_admins($include_webmaster = true)
-    {
-        global $conn;
-
-        $status_list = ['admin'];
-
-        if ($include_webmaster) {
-            $status_list[] = 'webmaster';
-        }
-
-        $result = (new UserInfosRepository($conn))->findByStatuses($status_list);
-
-        return $conn->result2array($result, null, 'user_id');
-    }
-
-    /**
      * Delete all derivative files for one or several types
      */
     public static function clear_derivative_cache(array $types, array $all_types)

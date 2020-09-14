@@ -16,7 +16,6 @@ use App\Entity\Theme;
 use Phyxo\Extension\Extensions;
 use Phyxo\Theme\DummyThemeMaintain;
 use App\Repository\ThemeRepository;
-use App\Repository\UserInfosRepository;
 use Phyxo\DBLayer\iDBLayer;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -63,7 +62,7 @@ class Themes extends Extensions
     /**
      * Perform requested actions
      */
-    public function performAction($action, $theme_id, array $user_ids = []): string
+    public function performAction($action, $theme_id): string
     {
         if (!$this->db_themes_retrieved) {
             $this->getDbThemes();
@@ -127,7 +126,7 @@ class Themes extends Extensions
                         $new_theme = $random_theme->getId();
                     }
 
-                    $this->setDefaultTheme($new_theme);
+                    $this->userMapper->setDefaultTheme($new_theme);
                 }
 
                 $theme_maintain->deactivate();
@@ -153,11 +152,6 @@ class Themes extends Extensions
                 $theme_maintain->delete();
                 $fs = new Filesystem();
                 $fs->remove([$this->themes_root_path . '/' . $theme_id, $this->themes_root_path . '/trash']);
-                break;
-
-            case 'set_default':
-                // first we need to know which users are using the current default theme
-                $this->setDefaultTheme($theme_id, $user_ids);
                 break;
         }
 
@@ -196,17 +190,6 @@ class Themes extends Extensions
         }
 
         return $children;
-    }
-
-    public function setDefaultTheme($theme_id, array $ids = [])
-    {
-        // first we need to know which users are using the current default theme
-        $default_theme = $this->userMapper->getDefaultTheme();
-        $result = (new UserInfosRepository($this->conn))->findByTheme($default_theme);
-        $user_ids = array_unique(array_merge($this->conn->result2array($result, null, 'user_id'), $ids));
-
-        // $user_ids can't be empty, at least the default user has the default theme
-        (new UserInfosRepository($this->conn))->updateFieldForUsers('theme', $theme_id, $user_ids);
     }
 
     public function getDbThemes()

@@ -11,40 +11,29 @@
 
 namespace Phyxo\Language;
 
-use App\DataMapper\UserMapper;
 use App\Entity\Language;
 use Phyxo\Extension\Extensions;
 use App\Repository\LanguageRepository;
 use App\Repository\UserInfosRepository;
 use PclZip;
-use Phyxo\EntityManager;
 use Symfony\Component\Filesystem\Filesystem;
 
 class Languages extends Extensions
 {
-    private $em, $languageRepository;
-    private $languages_root_path, $userMapper;
+    private $languageRepository;
+    private $languages_root_path, $defaultLanguage;
     private $fs_languages = [], $db_languages = [], $server_languages = [];
     private $fs_languages_retrieved = false, $db_languages_retrieved = false, $server_languages_retrieved = false;
 
-    public function __construct(EntityManager $em = null, LanguageRepository $languageRepository = null, UserMapper $userMapper = null)
+    public function __construct(LanguageRepository $languageRepository = null, string $defaultLanguage = '')
     {
-        if (!is_null($em)) {
-            $this->em = $em;
-        }
-
         $this->languageRepository = $languageRepository;
-        $this->userMapper = $userMapper;
+        $this->defaultLanguage = $defaultLanguage;
     }
 
     public function setRootPath(string $languages_root_path)
     {
         $this->languages_root_path = $languages_root_path;
-    }
-
-    public function setEnityManager(EntityManager $em)
-    {
-        $this->em = $em;
     }
 
     /**
@@ -53,7 +42,7 @@ class Languages extends Extensions
      * @param string - language id
      * @param array - errors
      */
-    function performAction(string $action, string $language_id, array $user_ids = [])
+    public function performAction(string $action, string $language_id)
     {
         if (!$this->db_languages_retrieved) {
             $this->getDbLanguages();
@@ -99,7 +88,7 @@ class Languages extends Extensions
                     break;
                 }
 
-                if ($language_id == $this->userMapper->getDefaultLanguage()) {
+                if ($language_id === $this->defaultLanguage) {
                     $error = 'CANNOT DEACTIVATE - LANGUAGE IS DEFAULT LANGUAGE';
                     break;
                 }
@@ -124,19 +113,15 @@ class Languages extends Extensions
                 $fs = new Filesystem();
                 $fs->remove($translation_files);
                 break;
-
-            case 'set_default':
-                $this->em->getRepository(UserInfosRepository::class)->updateFieldForUsers('language', $language_id, $user_ids);
-                break;
         }
 
         return $error;
     }
 
     // for Update/Updates
-    public function getFsExtensions($target_charset = null)
+    public function getFsExtensions()
     {
-        return $this->getFsLanguages($target_charset);
+        return $this->getFsLanguages();
     }
 
     /**
@@ -252,7 +237,7 @@ class Languages extends Extensions
             $get_data = array_merge($get_data, [
                 'last_revision_only' => 'true',
                 'version' => implode(',', $versions_to_check),
-                'lang' => $this->userMapper->getUser()->getLanguage(),
+                'lang' => 'en_GB', // @TODO: inject user language
                 'get_nb_downloads' => 'true',
             ]);
             if (!empty($languages_to_check)) {

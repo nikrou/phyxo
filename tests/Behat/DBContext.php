@@ -233,6 +233,8 @@ class DBContext implements Context
 
     protected function addTagsToImage(array $tags, int $image_id, int $user_id = null, bool $validated = true)
     {
+        $tag_ids = [];
+
         foreach ($tags as $tag) {
             if (($tag_id = $this->storage->get('tag_' . $tag)) === null) {
                 $this->addTag($tag);
@@ -246,6 +248,8 @@ class DBContext implements Context
 
     protected function removeTagsFromImage(array $tags, int $image_id, int $user_id = null, bool $validated = true)
     {
+        $tag_ids = [];
+
         foreach ($tags as $tag) {
             if (($tag_id = $this->storage->get('tag_' . $tag)) === null) {
                 $this->addTag($tag);

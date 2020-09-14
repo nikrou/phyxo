@@ -80,4 +80,14 @@ class UserMailNotificationRepository extends ServiceEntityRepository
 
         $qb->getQuery()->getResult();
     }
+
+    public function deleteByUserId(int $user_id): void
+    {
+        $qb = $this->createQueryBuilder('n');
+        $qb->delete();
+        $qb->where('n.user = :user_id');
+        $qb->setParameter('user_id', $user_id);
+
+        $qb->getQuery()->getResult();
+    }
 }

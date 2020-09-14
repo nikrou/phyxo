@@ -32,7 +32,7 @@ class RateMapper
      */
     public function ratePicture(int $image_id, float $rate): array
     {
-        if (!isset($rate) || !$this->conf['rate'] || !preg_match('/^[0-9]+$/', $rate) || !in_array($rate, $this->conf['rate_items'])) {
+        if (!$this->conf['rate'] || !preg_match('/^[0-9]+$/', $rate) || !in_array($rate, $this->conf['rate_items'])) {
             return [];
         }
 

@@ -12,6 +12,7 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\CategoryMapper;
+use App\DataMapper\UserMapper;
 use App\Entity\Search;
 use App\Entity\User;
 use App\Repository\CategoryRepository;
@@ -188,7 +189,7 @@ class HistoryController extends AdminCommonController
     }
 
     public function search(Request $request, SearchRepository $searchRepository, int $start, int $search_id = null, CategoryMapper $categoryMapper, Conf $conf,
-                            EntityManager $em, ParameterBagInterface $params, UserRepository $userRepository)
+                            EntityManager $em, ParameterBagInterface $params, UserRepository $userRepository, UserMapper $userMapper)
     {
         $tpl_params = [];
 
@@ -204,7 +205,7 @@ class HistoryController extends AdminCommonController
                 $rules = unserialize(base64_decode($search->getRules()));
             }
 
-            $tpl_params['search_results'] = $this->getElementFromSearchRules($rules, $start, $conf, $em, $categoryMapper, $userRepository);
+            $tpl_params['search_results'] = $this->getElementFromSearchRules($rules, $start, $conf, $em, $categoryMapper, $userMapper, $userRepository);
             $tpl_params['search_summary'] = $tpl_params['search_results']['search_summary'];
             $nb_lines = $tpl_params['search_results']['nb_lines'];
 
@@ -245,8 +246,8 @@ class HistoryController extends AdminCommonController
         return $this->render('history_search.html.twig', $tpl_params);
     }
 
-    protected function getElementFromSearchRules(array $rules, int $start, Conf $conf, EntityManager $em, CategoryMapper $categoryMapper,
-                    UserRepository $userRepository): array
+    protected function getElementFromSearchRules(array $rules, int $start, Conf $conf, EntityManager $em, CategoryMapper $categoryMapper, UserMapper $userMapper,
+                                            UserRepository $userRepository): array
     {
         $search_results = [];
 
@@ -330,8 +331,7 @@ class HistoryController extends AdminCommonController
         $summary['total_filesize'] = 0;
         $summary['guests_ip'] = [];
 
-        $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
-        $guest_id = $em->getConnection()->result2array($result, null, 'user_id')[0];
+        $guest_id = $userMapper->getDefaultUser()->getId();
 
         foreach ($history_lines as $line) {
             if (isset($line['image_type']) && $line['image_type'] === 'high') {

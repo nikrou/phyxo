@@ -24,6 +24,12 @@ class UserInfosRepository extends ServiceEntityRepository
         parent::__construct($registry, UserInfos::class);
     }
 
+    public function updateInfos(UserInfos $userInfos): void
+    {
+        $this->_em->persist($userInfos);
+        $this->_em->flush();
+    }
+
     public function getMaxLastModified()
     {
         $qb = $this->createQueryBuilder('u');
@@ -32,18 +38,12 @@ class UserInfosRepository extends ServiceEntityRepository
         return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_ARRAY);
     }
 
-    public function updateFieldForUsers(string $field, string $value, array $user_ids): void
+    public function updateFieldForUsers(string $field, string $value, array $user_ids = []): void
     {
-        $qb = $this->createQueryBuilder('u');
-        $qb->update();
-        $qb->set('u.' . $field, ':value');
-        $qb->setParameter('value', $value);
-        $qb->where($qb->expr()->in('u.user_id', $user_ids));
-
-        $qb->getQuery()->getResult();
+        $this->updateFieldsForUsers([$field => $value], $user_ids);
     }
 
-    public function updateFieldsForUsers(array $fields, array $user_ids)
+    public function updateFieldsForUsers(array $fields, array $user_ids = [])
     {
         $qb = $this->createQueryBuilder('u');
         $qb->update();
@@ -51,7 +51,20 @@ class UserInfosRepository extends ServiceEntityRepository
             $qb->set('u.' . $field, ':value');
             $qb->setParameter('value', $value);
         }
-        $qb->where($qb->expr()->in('u.user_id', $user_ids));
+        if (count($user_ids) > 0) {
+            $qb->where($qb->expr()->in('u.user', $user_ids));
+        }
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function updateLanguageForLanguages(string $language, array $languages)
+    {
+        $qb = $this->createQueryBuilder('u');
+        $qb->update();
+        $qb->set('u.language', ':language');
+        $qb->setParameter('language', $language);
+        $qb->where($qb->expr()->in('u.language', $languages));
 
         $qb->getQuery()->getResult();
     }
@@ -86,5 +99,15 @@ class UserInfosRepository extends ServiceEntityRepository
         }
 
         return $qb;
+    }
+
+    public function deleteByUserId(int $user_id): void
+    {
+        $qb = $this->createQueryBuilder('u');
+        $qb->delete();
+        $qb->where('u.user = :user_id');
+        $qb->setParameter('user_id', $user_id);
+
+        $qb->getQuery()->getResult();
     }
 }

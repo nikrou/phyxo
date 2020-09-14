@@ -12,7 +12,7 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\UserMapper;
-use App\Entity\User;
+use App\Repository\LanguageRepository;
 use App\Repository\UserInfosRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
@@ -38,7 +38,8 @@ class LanguagesController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function installed(Request $request, UserMapper $userMapper, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function installed(Request $request, UserMapper $userMapper, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
+                            LanguageRepository $languageRepository, UserInfosRepository $userInfosRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -49,14 +50,14 @@ class LanguagesController extends AdminCommonController
 
         $tpl_languages = [];
 
-        $languages = new Languages($em, $userMapper);
+        $languages = new Languages($languageRepository, $userMapper->getDefaultLanguage());
         $languages->setRootPath($params->get('translator.default_path'));
 
         foreach ($languages->getFsLanguages() as $language_id => $language) {
             if (in_array($language_id, array_keys($languages->getDbLanguages()))) {
                 $language['state'] = 'active';
                 $language['deactivable'] = true;
-                $language['CURRENT_VERSION'] = $languages->getDbLanguages()[$language_id]['version'];
+                $language['CURRENT_VERSION'] = $languages->getDbLanguages()[$language_id]->getVersion();
 
                 if (count($languages->getDbLanguages()) <= 1) {
                     $language['deactivable'] = false;
@@ -98,7 +99,7 @@ class LanguagesController extends AdminCommonController
         );
 
         if (count($missing_language_ids) > 0) {
-            $em->getRepository(UserInfosRepository::class)->updateLanguageForLanguages($userMapper->getDefaultLanguage(), $missing_language_ids);
+            $userInfosRepository->updateLanguageForLanguages($userMapper->getDefaultLanguage(), $missing_language_ids);
         }
 
         if ($this->get('session')->getFlashBag()->has('error')) {
@@ -119,15 +120,17 @@ class LanguagesController extends AdminCommonController
         return $this->render('languages_installed.html.twig', $tpl_params);
     }
 
-    public function action(string $language, string $action, EntityManager $em, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params)
+    public function action(string $language, string $action, UserMapper $userMapper, LanguageRepository $languageRepository,
+                        UserInfosRepository $userInfosRepository, ParameterBagInterface $params)
     {
-        $languages = new Languages($em, $userMapper);
+        $languages = new Languages($languageRepository, $userMapper->getDefaultLanguage());
         $languages->setRootPath($params->get('translator.default_path'));
 
-        $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
-        $guest_id = $em->getConnection()->result2array($result, null, 'user_id')[0];
-
-        $error = $languages->performAction($action, $language, [$guest_id]);
+        if ($action === 'set_default') {
+            $userInfosRepository->updateFieldForUsers('language', $language, [$userMapper->getDefaultUser()->getId()]);
+        } else {
+            $error = $languages->performAction($action, $language);
+        }
 
         if (!empty($error)) {
             $this->addFlash('error', $error);
@@ -136,14 +139,15 @@ class LanguagesController extends AdminCommonController
         return $this->redirectToRoute('admin_languages_installed');
     }
 
-    public function new(Request $request, UserMapper $userMapper, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function new(Request $request, UserMapper $userMapper, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
+                        LanguageRepository $languageRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $languages = new Languages($em, $userMapper);
+        $languages = new Languages($languageRepository, $userMapper->getDefaultLanguage());
         $languages->setRootPath($params->get('translator.default_path'));
         $languages->setExtensionsURL($params->get('pem_url'));
 
@@ -177,7 +181,8 @@ class LanguagesController extends AdminCommonController
         return $this->render('languages_new.html.twig', $tpl_params);
     }
 
-    public function install(int $revision, EntityManager $em, ParameterBagInterface $params, UserMapper $userMapper, TranslatorInterface $translator)
+    public function install(int $revision, ParameterBagInterface $params, UserMapper $userMapper, TranslatorInterface $translator,
+                            LanguageRepository $languageRepository)
     {
         if (!$userMapper->isWebmaster()) {
             $this->addFlash('error', $translator->trans('Webmaster status is required.', [], 'admin'));
@@ -185,7 +190,7 @@ class LanguagesController extends AdminCommonController
             return $this->redirectToRoute('admin_languages_new');
         }
 
-        $languages = new Languages($em, $userMapper);
+        $languages = new Languages($languageRepository, $userMapper->getDefaultLanguage());
         $languages->setRootPath($params->get('translator.default_path'));
         $languages->setExtensionsURL($params->get('pem_url'));
 
@@ -202,7 +207,7 @@ class LanguagesController extends AdminCommonController
     }
 
     public function update(Request $request, UserMapper $userMapper, EntityManager $em, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
-                            ParameterBagInterface $params, TranslatorInterface $translator)
+                            ParameterBagInterface $params, TranslatorInterface $translator, LanguageRepository $languageRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -222,7 +227,7 @@ class LanguagesController extends AdminCommonController
             $updates_ignored = ['plugins' => [], 'themes' => [], 'languages' => []];
         }
 
-        $languages = new Languages($em, $userMapper);
+        $languages = new Languages($languageRepository, $userMapper->getDefaultLanguage());
         $languages->setRootPath($params->get('translator.default_path'));
         $languages->setExtensionsURL($params->get('pem_url'));
 

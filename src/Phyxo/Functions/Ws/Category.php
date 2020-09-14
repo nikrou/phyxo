@@ -12,6 +12,7 @@
 namespace Phyxo\Functions\Ws;
 
 use App\Entity\User;
+use App\Entity\UserInfos;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedArray;
 use Phyxo\Ws\NamedStruct;
@@ -21,7 +22,6 @@ use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\ImageRepository;
 use Phyxo\Ws\Server;
 use App\Repository\BaseRepository;
-use App\Repository\UserInfosRepository;
 use Phyxo\Image\SrcImage;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
@@ -165,8 +165,7 @@ class Category
             $where[] = 'status = \'public\'';
             $where[] = 'visible = \'' . $service->getConnection()->boolean_to_db(true) . '\'';
 
-            $result = (new UserInfosRepository($service->getConnection()))->findByStatuses([User::STATUS_GUEST]);
-            $join_user = $service->getConnection()->result2array($result, null, 'user_id')[0];
+            $join_user = $service->getUserMapper()->getDefaultUser()->getId();
         } elseif ($service->getUserMapper()->isAdmin()) {
             /* in this very specific case, we don't want to hide empty
              * categories. Method calculatePermissions will only return
@@ -391,7 +390,7 @@ class Category
     public static function add($params, Server $service)
     {
         $options = [];
-        if (!empty($params['status']) and in_array($params['status'], ['private', 'public'])) {
+        if (!empty($params['status']) && in_array($params['status'], ['private', 'public'])) {
             $options['status'] = $params['status'];
         }
 
@@ -399,15 +398,22 @@ class Category
             $options['comment'] = $params['comment'];
         }
 
-        $creation_output = $service->getCategoryMapper()->createVirtualCategory($params['name'], $params['parent'], $service->getUserMapper()->getUser()->getId(), $options);
-
-        if (isset($creation_output['error'])) {
-            return new Error(500, $creation_output['error']);
+        if (preg_match('/^\s*$/', $params['name'])) {
+            return new Error(500, 'The name of an album must not be empty');
         }
+
+        $admin_ids = [];
+        if ($service->getUserMapper()->isAdmin()) {
+            foreach ($service->getManagerRegistry()->getRepository(UserInfos::class)->findBy(['status' => [User::STATUS_WEBMASTER, User::STATUS_ADMIN]]) as $userInfos) {
+                $admin_ids[] = $userInfos->getUser()->getId();
+            }
+        }
+
+        $category_id = $service->getCategoryMapper()->createVirtualCategory($params['name'], $params['parent'], $service->getUserMapper()->getUser()->getId(), $admin_ids, $options);
 
         $service->getUserMapper()->invalidateUserCache();
 
-        return $creation_output;
+        return ['info' => 'Virtual album added', 'id' => $category_id];
     }
 
     /**

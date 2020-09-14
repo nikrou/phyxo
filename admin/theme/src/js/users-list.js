@@ -38,7 +38,7 @@ $(function () {
           }
         },
         success: function (json) {
-          const data = $.parseJSON(json);
+          const data = JSON(json);
 
           if (data.stat == 'ok') {
             $(

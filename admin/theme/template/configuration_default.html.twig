@@ -47,7 +47,7 @@
 		    <span>{{'Expand all albums'|trans}}</span>
 		    {% for value, label in radio_options %}
 			<label>
-			    <input type="radio" name="expand" value="{{value}}" {% if value == GUEST_EXPAND %}checked="checked"{% endif %}>
+			    <input type="radio" name="expand" value="{{value}}" {% if GUEST_EXPAND == value %}checked="checked"{% endif %}>
 			    {{label}}
 			</label>
 		    {% endfor %}
@@ -57,7 +57,7 @@
 		    <span>{{'Show number of comments'|trans}}</span>
 		    {% for value, label in radio_options %}
 			<label>
-			    <input type="radio" name="show_nb_comments" value="{{value}}" {% if value == GUEST_NB_COMMNTS %}checked="checked"{% endif %}>
+			    <input type="radio" name="show_nb_comments" value="{{value}}" {% if GUEST_NB_COMMENTS == value %}checked="checked"{% endif %}>
 			    {{label}}
 			</label>
 		    {% endfor %}
@@ -68,7 +68,7 @@
 		    <span>{{'Show number of hits'|trans}}</span>
 		    {% for value, label in radio_options %}
 			<label>
-			    <input type="radio" name="show_nb_hits" value="{{value}}" {% if value == GUEST_NB_HITS %}checked="checked"{% endif %}>
+			    <input type="radio" name="show_nb_hits" value="{{value}}" {% if GUEST_NB_HITS == value %}checked="checked"{% endif %}>
 			    {{label}}
 			</label>
 		    {% endfor %}

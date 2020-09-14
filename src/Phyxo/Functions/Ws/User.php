@@ -16,13 +16,9 @@ use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedArray;
 use Phyxo\Ws\NamedStruct;
-use App\Repository\LanguageRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\GroupRepository;
-use App\Repository\ThemeRepository;
 use App\Repository\UserGroupRepository;
-use App\Repository\UserRepository;
-use App\Repository\UserInfosRepository;
 use App\Entity\User as EntityUser;
 use App\Entity\UserInfos;
 
@@ -211,6 +207,7 @@ class User
             $user->setUsername($params['username']);
             $user->setMailAddress($params['email']);
             $user->setPassword($service->getPasswordEncoder()->encodePassword($user, $params['password']));
+            $user->addRole('ROLE_NORMAL');
 
             $user_id = $service->getUserManager()->register($user);
 
@@ -238,14 +235,13 @@ class User
         }
 
         $protected_users = [$service->getUserMapper()->getUser()->getId()];
-        $result = (new UserInfosRepository($service->getConnection()))->findByStatuses([EntityUser::STATUS_GUEST]);
-        $guest_id = $service->getConnection()->result2array($result, null, 'user_id')[0];
-        $protected_users[] = $guest_id;
+        $protected_users[] = $service->getUserMapper()->getDefaultUser()->getId();
 
         // an admin can't delete other admin/webmaster
         if ($service->getUserMapper()->isAdmin()) {
-            $result = (new UserInfosRepository($service->getConnection()))->findByStatuses([EntityUser::STATUS_WEBMASTER, EntityUser::STATUS_ADMIN]);
-            $protected_users = array_merge($protected_users, $service->getConnection()->result2array($result, null, 'user_id'));
+            foreach ($service->getManagerRegistry()->getRepository(UserInfos::class)->findBy(['status' => [EntityUser::STATUS_WEBMASTER, EntityUser::STATUS_ADMIN]]) as $userInfos) {
+                $protected_users[] = $userInfos->getUser()->getId();
+            }
         }
 
         // protect some users
@@ -290,7 +286,7 @@ class User
 
         if (count($params['user_id']) === 1) {
             $needUpdate = false;
-            $user = $service->getEntityManager()->getRepository(EntityUser::class)->find($params['user_id'][0]);
+            $user = $service->getManagerRegistry()->getRepository(EntityUser::class)->find($params['user_id'][0]);
 
             if (is_null($user)) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'This user does not exist.');
@@ -341,8 +337,7 @@ class User
             }
 
             $protected_users = [$service->getUserMapper()->getUser()->getId()];
-            $guestUserInfos = $service->getManagerRegistry()->getRepository(UserInfos::class)->findOneByStatus(EntityUser::STATUS_GUEST);
-            $protected_users[] = $guestUserInfos->getUser()->getId();
+            $protected_users[] = $service->getUserMapper()->getDefaultUser()->getId();
 
             // an admin can't change status of other admin/webmaster
             if ($service->getUserMapper()->isAdmin() && !$service->getUserMapper()->isWebmaster()) {

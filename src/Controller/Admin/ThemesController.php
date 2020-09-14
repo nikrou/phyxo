@@ -12,7 +12,6 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\UserMapper;
-use App\Entity\User;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use Phyxo\Conf;
@@ -226,15 +225,22 @@ class ThemesController extends AdminCommonController
         return $this->render('themes_update.html.twig', $tpl_params);
     }
 
-    public function action(string $theme, string $action, EntityManager $em, UserMapper $userMapper, ThemeRepository $themeRepository, ParameterBagInterface $params)
+    public function action(string $theme, string $action, EntityManager $em, UserMapper $userMapper, ThemeRepository $themeRepository,
+                        UserInfosRepository $userInfosRepository, ParameterBagInterface $params)
     {
         $themes = new Themes($em->getConnection(), $themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
 
-        $result = $em->getRepository(UserInfosRepository::class)->findByStatuses([User::STATUS_GUEST]);
-        $guest_id = $em->getConnection()->result2array($result, null, 'user_id')[0];
-
-        $error = $themes->performAction($action, $theme, [$guest_id]);
+        if ($action === 'set_default') {
+            // first we need to know which users are using the current default theme
+            $user_ids = [];
+            foreach ($userInfosRepository->findByTheme($userMapper->getDefaultTheme()) as $user) {
+                $user_ids[] = $user->getUser()->getId();
+            }
+            $userInfosRepository->updateFieldForUsers('theme', $theme, $user_ids);
+        } else {
+            $error = $themes->performAction($action, $theme);
+        }
 
         if (!empty($error)) {
             $this->addFlash('error', $error);
