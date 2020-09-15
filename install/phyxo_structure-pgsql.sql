@@ -228,9 +228,6 @@ CREATE TABLE "phyxo_old_permalinks"
 -----------------------------------------------------------------------------
 
 DROP TABLE IF EXISTS "phyxo_plugins";
-DROP TYPE IF EXISTS PLUGINS_STATE;
-
-CREATE TYPE PLUGINS_STATE AS ENUM('active', 'inactive');
 CREATE TABLE "phyxo_plugins"
 (
   "id" VARCHAR(64) DEFAULT '' NOT NULL,
@@ -431,14 +428,11 @@ CREATE TABLE "phyxo_user_group"
 -----------------------------------------------------------------------------
 
 DROP TABLE IF EXISTS "phyxo_user_infos";
-DROP TYPE IF EXISTS USER_INFOS_STATUS;
-
-CREATE TYPE USER_INFOS_STATUS AS ENUM('webmaster','admin','normal','guest');
 CREATE TABLE "phyxo_user_infos"
 (
   "user_id" INTEGER DEFAULT 0 NOT NULL,
   "nb_image_page" INTEGER DEFAULT 15 NOT NULL,
-  "status" USER_INFOS_STATUS DEFAULT 'guest'::USER_INFOS_STATUS,
+  "status" VARCHAR(50) NOT NULL,
   "language" VARCHAR(50) DEFAULT 'en_GB' NOT NULL,
   "expand" BOOLEAN DEFAULT false,
   "show_nb_comments" BOOLEAN DEFAULT false,

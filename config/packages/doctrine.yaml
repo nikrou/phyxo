@@ -10,11 +10,12 @@ doctrine:
         server_version: '%database_version%'
 
         types:
+            uuid: Ramsey\Uuid\Doctrine\UuidType
+
             category_status: App\Type\CategoryStatusType
             history_section: App\Type\HistorySectionType
             history_image_type: App\Type\HistoryImageTypeType
             user_cache_image_access_type: App\Type\UserCacheImageAccessTypeType
-            user_infos_status: App\Type\UserInfosStatusType
 
         mapping_types:
             enum: string
@@ -22,7 +23,6 @@ doctrine:
             history_section: history_section
             history_image_type: history_image_type
             user_cache_image_access_type: user_cache_image_access_type
-            user_infos_status: user_infos_status
 
     orm:
         auto_generate_proxy_classes: true

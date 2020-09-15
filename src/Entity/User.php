@@ -46,7 +46,7 @@ class User implements UserInterface, EquatableInterface
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", unique=true, length=100)
      */
     private $username;
 

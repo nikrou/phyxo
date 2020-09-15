@@ -11,11 +11,10 @@
 
 namespace App\Controller;
 
+use App\Entity\UserFeed;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
-use Phyxo\EntityManager;
 use App\Repository\UserFeedRepository;
-use App\Repository\BaseRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use App\Notification;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +23,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FeedController extends CommonController
 {
-    public function notification(Request $request, Conf $conf, EntityManager $em, MenuBar $menuBar, TranslatorInterface $translator)
+    public function notification(Request $request, Conf $conf, MenuBar $menuBar, TranslatorInterface $translator, UserFeedRepository $userFeedRepository)
     {
         $tpl_params = [];
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -32,14 +31,19 @@ class FeedController extends CommonController
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params['PAGE_TITLE'] = $translator->trans('Notification');
 
-        $feed_id = md5(uniqid(true));
-        $em->getRepository(UserFeedRepository::class)->addUserFeed(['id' => $feed_id, 'user_id' => $this->getUser()->getId()]);
+        $feed = $userFeedRepository->findOneByUser($this->getUser());
+        if (is_null($feed)) {
+            $feed = new UserFeed();
+            $feed->setUser($this->getUser());
+            $userFeedRepository->addOrUpdateUserFeed($feed);
+        }
+
         if ($this->getUser()->isGuest()) {
-            $tpl_params['U_FEED'] = $this->generateUrl('feed', ['feed_id' => $feed_id]);
-            $tpl_params['U_FEED_IMAGE_ONLY'] = $this->generateUrl('feed', ['feed_id' => $feed_id]);
+            $tpl_params['U_FEED'] = $this->generateUrl('feed', ['feed_id' => $feed->getUuid()]);
+            $tpl_params['U_FEED_IMAGE_ONLY'] = $this->generateUrl('feed_image_only', ['feed_id' => $feed->getUuid()]);
         } else {
-            $tpl_params['U_FEED'] = $this->generateUrl('feed', ['feed_id' => $feed_id]);
-            $tpl_params['U_FEED_IMAGE_ONLY'] = $this->generateUrl('feed_image_only', ['feed_id' => $feed_id]);
+            $tpl_params['U_FEED'] = $this->generateUrl('feed', ['feed_id' => $feed->getUuid()]);
+            $tpl_params['U_FEED_IMAGE_ONLY'] = $this->generateUrl('feed_image_only', ['feed_id' => $feed->getUuid()]);
         }
 
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
@@ -58,15 +62,14 @@ class FeedController extends CommonController
         return new Response('Not yet');
     }
 
-    public function feed(string $feed_id, bool $image_only = false, Conf $conf, EntityManager $em, string $cacheDir, Notification $notification, TranslatorInterface $translator)
+    public function feed(string $feed_id, bool $image_only = false, Conf $conf, UserFeedRepository $userFeedRepository, string $cacheDir, Notification $notification, TranslatorInterface $translator)
     {
-        $result = $em->getRepository(UserFeedRepository::class)->findById($feed_id);
-        $feed_row = $em->getConnection()->db_fetch_assoc($result);
-        if (empty($feed_row)) {
+        $feed = $userFeedRepository->findOneByUuid($feed_id);
+        if (is_null($feed)) {
             throw $this->createNotFoundException($translator->trans('Unknown feed identifier'));
         }
 
-        $dbnow = $em->getRepository(BaseRepository::class)->getNow();
+        $now = new \DateTime();
 
         $rss = new \UniversalFeedCreator();
         $rss->title = $conf['gallery_title'];
@@ -76,10 +79,10 @@ class FeedController extends CommonController
 
         $news = [];
         if (!$image_only) {
-            $news = $notification->news($feed_row['last_check'], $dbnow, true, true);
+            $news = $notification->news($feed->getLastCheck(), $now, true, true);
             if (count($news) > 0) {
                 $item = new \FeedItem();
-                $item->title = $translator->trans('New on {date}', ['date' => \Phyxo\Functions\DateTime::format_date($dbnow)]);
+                $item->title = $translator->trans('New on {date}', ['date' => $now->format('Y-m-d H:m:i')]);
                 $item->link = $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
                 // content creation
@@ -90,20 +93,21 @@ class FeedController extends CommonController
                 $item->description .= '</ul>';
                 $item->descriptionHtmlSyndicated = true;
 
-                $item->date = $this->ts_to_iso8601(strtotime($dbnow));
+                $item->date = $now->format('c');
                 $item->author = $conf['rss_feed_author'];
-                $item->guid = sprintf('%s', $dbnow);
-                ;
+                $item->guid = sprintf('%s', $now->getTimestamp());
 
                 $rss->addItem($item);
 
-                $em->getRepository(UserFeedRepository::class)->updateUserFeed(['last_check' => $dbnow], $feed_id);
+                $feed->setLastCheck($now);
+                $userFeedRepository->addOrUpdateUserFeed($feed);
             }
         }
 
-        if (!empty($feed_id) and empty($news)) {// update the last check from time to time to avoid deletion by maintenance tasks
-            if (!isset($feed_row['last_check']) or time() - strtotime($feed_row['last_check']) > 30 * 24 * 3600) {
-                $em->getRepository(UserFeedRepository::class)->updateUserFeed(['last_check' => $em->getConnection()->db_get_recent_period_expression(-15, $dbnow)], $feed_id);
+        if (!is_null($feed) && empty($news)) { // update the last check from time to time to avoid deletion by maintenance tasks
+            if (is_null($feed->getLastCheck()) || $now->diff($feed->getLastCheck())->format('s') > (30 * 24 * 3600)) {
+                $feed->setLastCheck($now->add(new \DateInterval('P15D')));
+                $userFeedRepository->addOrUpdateUserFeed($feed);
             }
         }
 
@@ -121,40 +125,23 @@ class FeedController extends CommonController
                     'year' => substr($date, 0, 4),
                     'month' => substr($date, 5, 2),
                     'day' => substr($date, 8, 2)
-                ]
+                ],
+                UrlGeneratorInterface::ABSOLUTE_URL
             );
 
-            $item->description .= '<a href="' . $this->generateUrl('homepage') . '">' . $conf['gallery_title'] . '</a><br> ';
+            $item->description .= '<a href="' . $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL) . '">' . $conf['gallery_title'] . '</a><br> ';
             $item->description .= $notification->get_html_description_recent_post_date($date_detail, $conf['picture_ext']);
 
             $item->descriptionHtmlSyndicated = true;
 
-            $item->date = $this->ts_to_iso8601(strtotime($date));
+            $item->date = (new \DateTime($date))->format('c');
             $item->author = $conf['rss_feed_author'];
             $item->guid = sprintf('%s', 'pics-' . $date);
-            ;
 
             $rss->addItem($item);
         }
 
         $fileName = $cacheDir . '/feed.xml';
         echo $rss->saveFeed('RSS2.0', $fileName, true);
-    }
-
-    /**
-     * creates an ISO 8601 format date (2003-01-20T18:05:41+04:00) from Unix
-     * timestamp (number of seconds since 1970-01-01 00:00:00 GMT)
-     *
-     * function copied from Dotclear project http://dotclear.net
-     *
-     * @param int timestamp
-     * @return string ISO 8601 date format
-     */
-    protected function ts_to_iso8601($ts)
-    {
-        $tz = date('O', $ts);
-        $tz = substr($tz, 0, -2) . ':' . substr($tz, -2);
-
-        return date('Y-m-d\\TH:i:s', $ts) . $tz;
     }
 }

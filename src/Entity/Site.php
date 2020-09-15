@@ -28,7 +28,7 @@ class Site
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", unique=true, length=255)
      */
     private $galleries_url;
 

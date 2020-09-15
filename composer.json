@@ -19,6 +19,7 @@
         "openpsa/universalfeedcreator": "v1.8.3.2",
         "pclzip/pclzip": "^2.8",
         "pelago/emogrifier": "^4.0",
+        "ramsey/uuid-doctrine": "^1.6",
         "symfony/asset": "4.4.*",
         "symfony/console": "4.4.*",
         "symfony/dotenv": "4.4.*",

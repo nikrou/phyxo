@@ -11,28 +11,13 @@
 
 namespace Phyxo\Functions;
 
-use App\Entity\User;
 use App\Entity\UserInfos;
 use Phyxo\Block\RegisteredBlock;
-use App\Repository\CommentRepository;
 use App\Repository\ImageCategoryRepository;
-use App\Repository\UserCacheRepository;
-use App\Repository\UserCacheCategoriesRepository;
-use App\Repository\FavoriteRepository;
-use App\Repository\RateRepository;
-use App\Repository\ImageTagRepository;
-use App\Repository\CaddieRepository;
 use App\Repository\CategoryRepository;
-use App\Repository\ThemeRepository;
-use App\Repository\LanguageRepository;
-use App\Repository\UserFeedRepository;
 use App\Repository\ImageRepository;
-use App\Repository\UserMailNotificationRepository;
 use App\Repository\GroupRepository;
 use App\Repository\TagRepository;
-use App\Repository\UserRepository;
-use App\Repository\UserInfosRepository;
-use App\Repository\UserGroupRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\EntityManager;
 use Symfony\Component\Routing\RouterInterface;

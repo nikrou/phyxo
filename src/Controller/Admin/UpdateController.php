@@ -168,8 +168,8 @@ class UpdateController extends AdminCommonController
                     $themeRepository->deleteByIds(array_keys($themes_deactivated));
 
                     // if the default theme has just been deactivated, let's set another core theme as default
-                    if (in_array($user_infos['theme'], array_keys($themes_deactivated))) {
-                        $userInfosRepository->updateUserInfos(['theme' => $userMapper->getDefaultTheme()], $userMapper->getId());
+                    if (in_array($userMapper->getDefaultTheme(), array_keys($themes_deactivated))) {
+                        $userInfosRepository->updateFieldForUser('theme', $userMapper->getDefaultTheme(), $userMapper->getDefaultUser()->getId());
                     }
 
                     $tables = $em->getConnection()->db_get_tables($em->getConnection()->getPrefix());

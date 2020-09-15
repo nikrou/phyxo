@@ -34,17 +34,19 @@ class UserMapper
 {
     private $em, $conf, $autorizationChecker, $tagMapper, $themeRepository, $userRepository, $userInfosRepository, $userMailNotificationRepository;
     private $defaultLanguage, $defaultTheme, $themesDir, $userProvider, $default_user, $default_user_retrieved = false;
-    private $webmaster, $webmaster_retrieved = false;
+    private $webmaster, $webmaster_retrieved = false, $userFeedRepository;
 
     public function __construct(EntityManager $em, Conf $conf, AuthorizationCheckerInterface $autorizationChecker, ThemeRepository $themeRepository,
                                 UserRepository $userRepository, UserInfosRepository $userInfosRepository, string $defaultTheme,
-                                TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider, UserMailNotificationRepository $userMailNotificationRepository)
+                                TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider, UserMailNotificationRepository $userMailNotificationRepository,
+                                UserFeedRepository $userFeedRepository)
     {
         $this->em = $em;
         $this->themeRepository = $themeRepository;
         $this->userRepository = $userRepository;
         $this->userInfosRepository = $userInfosRepository;
         $this->userMailNotificationRepository = $userMailNotificationRepository;
+        $this->userFeedRepository = $userFeedRepository;
         $this->conf = $conf;
         $this->autorizationChecker = $autorizationChecker;
         $this->tagMapper = $tagMapper;
@@ -226,8 +228,6 @@ class UserMapper
         $this->em->getRepository(UserGroupRepository::class)->deleteByUserId($user_id);
         // destruction of the access linked to the user
         //(new UserAccessRepository($conn))->deleteByUserId($user_id);
-        // destruction of data RSS notification for this user
-        $this->em->getRepository(UserFeedRepository::class)->deleteUserOnes($user_id);
         // deletion of calculated permissions linked to the user
         $this->em->getRepository(UserCacheRepository::class)->deleteUserCache($user_id);
         // deletion of computed cache data linked to the user
@@ -241,11 +241,13 @@ class UserMapper
         // remove  created_by user in image_tag
         $this->em->getRepository(ImageTagRepository::class)->removeCreatedByKey($user_id);
 
-        // destruction of the user
-        $this->userRepository->deleteById($user_id);
+        // destruction of data RSS notification for this user
+        $this->userFeedRepository->deleteByUser($user_id);
         // // deletion of phyxo specific informations
         $this->userInfosRepository->deleteByUserId($user_id);
         // destruction of data notification by mail for this user
         $this->userMailNotificationRepository->deleteByUserId($user_id);
+        // destruction of the user
+        $this->userRepository->deleteById($user_id);
     }
 }

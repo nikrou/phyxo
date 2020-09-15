@@ -33,7 +33,7 @@ class MaintenanceController extends AdminCommonController
 {
     public function index(Request $request, ?string $action, Conf $conf, EntityManager $em, ParameterBagInterface $params, CategoryMapper $categoryMapper,
                           UserMapper $userMapper, RateMapper $rateMapper, TagMapper $tagMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator,
-                          SearchRepository $searchRepository)
+                          SearchRepository $searchRepository, UserFeedRepository $userFeedRepository)
     {
         $tpl_params = [];
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -100,8 +100,8 @@ class MaintenanceController extends AdminCommonController
               }
           case 'feeds':
               {
+                  $userFeedRepository->deleteUserFeedNotChecked();
                 return  $this->redirectToRoute('admin_maintenance');
-                $em->getRepository(UserFeedRepository::class)->deleteUserFeedNotChecked();
               }
           case 'database':
               {
