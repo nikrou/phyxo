@@ -42,12 +42,14 @@
 			<tr>
 			    <td><input class="group_selection" name="group_selection[]" type="checkbox" value="{{group.ID}}"></td>
 			    <td>{{group.NAME}}
-				<i><small>{{group.IS_DEFAULT}}</small></i>
+				{% if group.IS_DEFAULT %}
+				    <i><small>{{'default group'|trans}}</small></i>
+				{% endif %}
 			    </td>
 			    <td>
 				<ul>
 				    {% for member in group.MEMBERS %}
-					<li>{{member}}</li>
+					<li>{{member.username}}</li>
 				    {% endfor %}
 				</ul>
 			    </td>

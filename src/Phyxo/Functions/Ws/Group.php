@@ -11,6 +11,8 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Entity\Group as EntityGroup;
+use App\Entity\User;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedStruct;
@@ -30,14 +32,23 @@ class Group
      */
     public static function getList($params, Server $service)
     {
-        $result = (new GroupRepository($service->getConnection()))->searchByName(
+        $groups = [];
+        $all_groups = $service->getManagerRegistry()->getRepository(EntityGroup::class)->findByNameOrGroupIds(
             $params['name'] ?? null,
             $params['group_id'] ?? [],
             $params['order'],
             $params['per_page'],
             $params['per_page'] * $params['page']
         );
-        $groups = $service->getConnection()->result2array($result);
+        foreach ($all_groups as $group) {
+            $groups[] = [
+                'id' => $group->getId(),
+                'name' => $group->getName(),
+                'is_default' => $group->isDefault(),
+                'lastmodified' => $group->getLastModified(),
+                'nb_users' => count($group->getUsers()),
+            ];
+        }
 
         return [
             'paging' => new NamedStruct([
@@ -58,17 +69,15 @@ class Group
      */
     public static function add($params, Server $service)
     {
-        if ((new GroupRepository($service->getConnection()))->isGroupNameExists($params['name'])) {
+        if ($service->getManagerRegistry()->getRepository(EntityGroup::class)->isGroupNameExists($params['name'])) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'This name is already used by another group.');
         }
 
         // creating the group
-        $group_id = (new GroupRepository($service->getConnection()))->addGroup(
-            [
-                'name' => $params['name'],
-                'is_default' => $service->getConnection()->boolean_to_string($params['is_default']),
-            ]
-        );
+        $group = new EntityGroup();
+        $group->setName($params['name']);
+        $group->setIsDefault($params['is_default'] === true);
+        $group_id = $service->getManagerRegistry()->getRepository(EntityGroup::class)->addOrUpdateGroup($group);
 
         return $service->invoke('pwg.groups.getList', ['group_id' => $group_id]);
     }
@@ -89,15 +98,8 @@ class Group
         // destruction of the access linked to the group
         (new GroupAccessRepository($service->getConnection()))->deleteByGroupIds($params['group_id']);
 
-        // destruction of the users links for this group
-        (new UserGroupRepository($service->getConnection()))->deleteByGroupIds($params['group_id']);
-
-        $result = (new GroupRepository($service->getConnection()))->findByIds($params['group_id']);
-        $groupnames = $service->getConnection()->result2array($result, null, 'name');
-
-        // destruction of the group
-        (new GroupRepository($service->getConnection()))->deleteByIds($params['group_id']);
-
+        $groupnames = [];
+        $service->getManagerRegistry()->getRepository(EntityGroup::class)->deleteByGroupIds($params['group_id']);
         $service->getUserMapper()->invalidateUserCache();
 
         return new NamedArray($groupnames, 'group_deleted');
@@ -117,25 +119,24 @@ class Group
             return new Error(403, 'Invalid security token');
         }
 
-        $updates = [];
-
-        if (!(new GroupRepository($service->getConnection()))->isGroupIdExists($params['group_id'])) {
+        $group = $service->getManagerRegistry()->getRepository(EntityGroup::class)->find($params['group_id']);
+        if (is_null($group)) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'This group does not exist.');
         }
 
         if (!empty($params['name'])) {
-            if ((new GroupRepository($service->getConnection()))->isGroupNameExists($params['name'])) {
-                return new Error(Server::WS_ERR_INVALID_PARAM, 'This name is already used by another group.');
-            }
-
-            $updates['name'] = $params['name'];
+            $group->setName($params['name']);
         }
 
-        if (!empty($params['is_default'])) {
-            $updates['is_default'] = $params['is_default'];
+        if (isset($params['is_default'])) {
+            $group->setIsDefault($params['is_default'] === true);
         }
 
-        (new GroupRepository($service->getConnection()))->updateGroup($updates, $params['group_id']);
+        try {
+            $service->getManagerRegistry()->getRepository(EntityGroup::class)->addOrUpdateGroup($group);
+        } catch (\Exception $e) {
+            return new Error(Server::WS_ERR_INVALID_PARAM, 'This name is already used by another group.');
+        }
 
         return $service->invoke('pwg.groups.getList', ['group_id' => $params['group_id']]);
     }
@@ -153,19 +154,16 @@ class Group
             return new Error(403, 'Invalid security token');
         }
 
-        if (!(new GroupRepository($service->getConnection()))->isGroupIdExists($params['group_id'])) {
+        $group = $service->getManagerRegistry()->getRepository(EntityGroup::class)->find($params['group_id']);
+        if (is_null($group)) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'This group does not exist.');
         }
 
-        $inserts = [];
-        foreach ($params['user_id'] as $user_id) {
-            $inserts[] = [
-                'group_id' => $params['group_id'],
-                'user_id' => $user_id,
-            ];
+        foreach ($service->getManagerRegistry()->getRepository(User::class)->findById($params['user_id']) as $user) {
+            $group->addUser($user);
         }
 
-        (new UserGroupRepository($service->getConnection()))->massInserts(['group_id', 'user_id'], $inserts);
+        $service->getManagerRegistry()->getRepository(EntityGroup::class)->addOrUpdateGroup($group);
 
         $service->getUserMapper()->invalidateUserCache();
 
@@ -185,11 +183,16 @@ class Group
             return new Error(403, 'Invalid security token');
         }
 
-        if (!(new GroupRepository($service->getConnection()))->isGroupIdExists($params['group_id'])) {
+        $group = $service->getManagerRegistry()->getRepository(EntityGroup::class)->find($params['group_id']);
+        if (is_null($group)) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'This group does not exist.');
         }
 
-        (new UserGroupRepository($service->getConnection()))->delete($params['group_id'], $params['user_id']);
+        foreach ($service->getManagerRegistry()->getRepository(User::class)->findById($params['user_id']) as $user) {
+            $group->removeUser($user);
+        }
+
+        $service->getManagerRegistry()->getRepository(EntityGroup::class)->addOrUpdateGroup($group);
 
         $service->getUserMapper()->invalidateUserCache();
 

@@ -399,7 +399,7 @@ class AlbumController extends AdminCommonController
     }
 
     public function permissions(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                                CategoryMapper $categoryMapper, TranslatorInterface $translator, UserRepository $userRepository)
+                                CategoryMapper $categoryMapper, TranslatorInterface $translator, UserRepository $userRepository, GroupRepository $groupRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -493,8 +493,10 @@ class AlbumController extends AdminCommonController
             return $this->redirectToRoute('admin_album_permissions', ['album_id' => $album_id, 'parent_id' => $parent_id]);
         }
 
-        $result = $em->getRepository(GroupRepository::class)->findAll('ORDER BY name ASC');
-        $tpl_params['groups'] = $em->getConnection()->result2array($result, 'id', 'name');
+        $tpl_params['groups'] = [];
+        foreach ($groupRepository->findAll() as $group) {
+            $tpl_params['groups'][$group->getId()] = $group->getName();
+        }
 
         // groups granted to access the category
         $result = $em->getRepository(GroupAccessRepository::class)->findByCatId($album_id);
@@ -514,11 +516,12 @@ class AlbumController extends AdminCommonController
             $granted_groups = [];
 
             $result = $em->getRepository(UserGroupRepository::class)->findByGroupIds($tpl_params['groups_selected']);
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                if (!isset($granted_groups[$row['group_id']])) {
-                    $granted_groups[$row['group_id']] = [];
+            // while ($row = $em->getConnection()->db_fetch_assoc($result)) {
+            foreach ($groupRepository->findById($tpl_params['groups_selected']) as $group) {
+                if (!isset($granted_groups[$group->getId()])) {
+                    $granted_groups[$group->getId()] = [];
                 }
-                $granted_groups[$row['group_id']][] = $row['user_id'];
+                $granted_groups[$group->getId()][] = $group->getUsers()->getId();
             }
 
             $user_granted_by_group_ids = [];
@@ -572,7 +575,8 @@ class AlbumController extends AdminCommonController
     }
 
     public function notification(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                                CategoryMapper $categoryMapper, ImageStandardParams $image_std_params, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator)
+                                CategoryMapper $categoryMapper, ImageStandardParams $image_std_params, EventDispatcherInterface $eventDispatcher,
+                                GroupRepository $groupRepository, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -605,18 +609,19 @@ class AlbumController extends AdminCommonController
 
             $eventDispatcher->dispatch(new GroupEvent((int) $request->request->get('group'), ['id' => $category['id'], 'name' => $category['name']], $img_url, $request->request->get('mail_content')));
 
-            $result = $em->getRepository(GroupRepository::class)->findById($request->request->get('group'));
-            $row = $em->getConnection()->db_fetch_assoc($result);
+            $group = $groupRepository->find($request->request->get('group'));
 
-            $this->addFlash('info', $translator->trans('An information email was sent to group "{group}"', ['group' => $row['name']], 'admin'));
+            $this->addFlash('info', $translator->trans('An information email was sent to group "{group}"', ['group' => $group->getName()], 'admin'));
 
             return $this->redirectToRoute('admin_album_notification', ['album_id' => $album_id, 'parent_id' => $parent_id]);
         }
 
-        $result = $em->getRepository(GroupRepository::class)->findAll();
-        $all_group_ids = $em->getConnection()->result2array($result, null, 'id');
+        $all_groups = [];
+        foreach ($groupRepository->findAll() as $group) {
+            $all_groups[$group->getId()] = $group->getName();
+        }
 
-        if (count($all_group_ids) === 0) {
+        if (count($all_groups) === 0) {
             $tpl_params['no_group_in_gallery'] = true;
         } else {
             if ($category['status'] === 'private') {
@@ -627,12 +632,13 @@ class AlbumController extends AdminCommonController
                     $tpl_params['permission_url'] = $this->generateUrl('admin_album_permissions', ['album_id' => $album_id, 'parent_id' => $parent_id]);
                 }
             } else {
-                $group_ids = $all_group_ids;
+                $group_ids = array_keys($all_groups);
             }
 
             if (count($group_ids) > 0) {
-                $result = $em->getRepository(GroupRepository::class)->findByIds($group_ids, 'ORDER BY name ASC');
-                $tpl_params['group_mail_options'] = $em->getConnection()->result2array($result, 'id', 'name');
+                $tpl_params['group_mail_options'] = array_filter($all_groups, function($key) use ($group_ids) {
+                    return in_array($key, $group_ids);
+                });
             }
         }
 

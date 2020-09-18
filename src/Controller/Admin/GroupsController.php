@@ -13,10 +13,10 @@ namespace App\Controller\Admin;
 
 use App\DataMapper\CategoryMapper;
 use App\DataMapper\UserMapper;
+use App\Entity\Group;
 use App\Repository\CategoryRepository;
 use App\Repository\GroupAccessRepository;
 use App\Repository\GroupRepository;
-use App\Repository\UserGroupRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
@@ -38,7 +38,7 @@ class GroupsController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function list(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function list(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator, GroupRepository $groupRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -47,10 +47,13 @@ class GroupsController extends AdminCommonController
 
         if ($request->isMethod('POST')) {
             if ($groupname = $request->request->get('groupname')) {
-                if ($em->getRepository(GroupRepository::class)->isGroupNameExists($groupname)) {
+                if ($groupRepository->isGroupNameExists($groupname)) {
                     $this->addFlash('error', $translator->trans('This name is already used by another group.', [], 'admin'));
                 } else {
-                    $em->getRepository(GroupRepository::class)->addGroup(['name' => $groupname]);
+                    $group = new Group();
+                    $group->setName($groupname);
+                    $groupRepository->addOrUpdateGroup($group);
+
                     $this->addFlash('info', $translator->trans('group "{group}" added', ['group' => $groupname], 'admin'));
                 }
             } else {
@@ -60,25 +63,14 @@ class GroupsController extends AdminCommonController
         }
 
         $groups = [];
-        $result = $em->getRepository(GroupRepository::class)->findUsersInGroups();
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-            if (isset($groups[$row['id']])) {
-                if (!empty($row['username'])) {
-                    $groups[$row['id']]['MEMBERS'][] = $row['username'];
-                }
-            } else {
-                $group = [
-                    'MEMBERS' => [],
-                    'ID' => $row['id'],
-                    'NAME' => $row['name'],
-                    'IS_DEFAULT' => ($em->getConnection()->get_boolean($row['is_default']) ? ' [' . $translator->trans('default', [], 'admin') . ']' : ''),
-                    'U_PERM' => $this->generateUrl('admin_group_perm', ['group_id' => $row['id']]),
-                ];
-                if (!empty($row['username'])) {
-                    $group['MEMBERS'][] = $row['username'];
-                }
-                $groups[$row['id']] = $group;
-            }
+        foreach ($groupRepository->findUsersInGroups() as $group) {
+            $groups[$group->getId()] = [
+                'MEMBERS' => $group->getUsers(),
+                'ID' => $group->getId(),
+                'NAME' => $group->getName(),
+                'IS_DEFAULT' => $group->isDefault(),
+                'U_PERM' => $this->generateUrl('admin_group_perm', ['group_id' => $group->getId()]),
+            ];
         }
         $tpl_params['groups'] = $groups;
 
@@ -106,7 +98,7 @@ class GroupsController extends AdminCommonController
     }
 
     public function perm(Request $request, int $group_id, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                        CategoryMapper $categoryMapper, UserMapper $userMapper, TranslatorInterface $translator)
+                        CategoryMapper $categoryMapper, UserMapper $userMapper, TranslatorInterface $translator, GroupRepository $groupRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -149,13 +141,10 @@ class GroupsController extends AdminCommonController
             }
         }
 
-        $result = $em->getRepository(GroupRepository::class)->findById($group_id);
-        if ($em->getConnection()->db_num_rows($result) > 0) {
-            $row = $em->getConnection()->db_fetch_assoc($result);
-
-            $groupname = $row['name'];
-        } else {
-            $groupname = '';
+        $groupname = '';
+        $group = $groupRepository->find($group_id);
+        if (!is_null($group)) {
+            $groupname = $group->getName();
         }
 
         $tpl_params['TITLE'] = $translator->trans('Manage permissions for group "{group}"', ['group' => $groupname], 'admin');
@@ -191,56 +180,73 @@ class GroupsController extends AdminCommonController
         return $this->render('groups_perm.html.twig', $tpl_params);
     }
 
-    public function action(Request $request, string $action, EntityManager $em, TranslatorInterface $translator)
+    public function action(Request $request, string $action, EntityManager $em, GroupRepository $groupRepository, TranslatorInterface $translator)
     {
-        $groups = $request->request->get('group_selection');
-        if (count($groups) === 0) {
+        $group_selection = $request->request->get('group_selection');
+        if (count($group_selection) === 0) {
             $this->addFlash('error', $translator->trans('Select at least one group', [], 'admin'));
 
             return $this->redirectToRoute('admin_groups');
         }
 
         if ($action === 'rename') {
-            // is the group not already existing ?
-            $result = $em->getRepository(GroupRepository::class)->findAll();
-            $group_names = $em->getConnection()->result2array($result, null, 'name');
-            foreach ($groups as $group) {
-                if (in_array($request->request->get('rename_' . $group), $group_names)) {
-                    $this->addFlash('error', $request->request->get('rename_' . $group) . ' | ' . $translator->trans('This name is already used by another group.', [], 'admin'));
-                } elseif ($rename_group = $request->request->get('rename_' . $group)) {
-                    $em->getRepository(GroupRepository::class)->updateGroup(['name' => $rename_group], $group);
+            $groups = [];
+            $group_names = [];
+            foreach ($groupRepository->findAll() as $group) {
+                $groups[$group->getId()] = $group;
+                $group_names[] = $group->getName();
+            }
+
+            foreach ($group_selection as $group_id) {
+                if (in_array($request->request->get('rename_' . $group_id), $group_names)) {
+                    $this->addFlash('error', $request->request->get('rename_' . $group_id) . ' | ' . $translator->trans('This name is already used by another group.', [], 'admin'));
+                } elseif ($rename_group = $request->request->get('rename_' . $group_id)) {
+                    $group = $groups[$group_id];
+                    $group->setName($rename_group);
+                    $groupRepository->addOrUpdateGroup($group);
                 }
             }
 
             return $this->redirectToRoute('admin_groups');
         } elseif ($action === 'delete' && $request->request->get('confirm_deletion')) {
             // destruction of the access linked to the group
-            $em->getRepository(GroupAccessRepository::class)->deleteByGroupIds($groups);
+            $em->getRepository(GroupAccessRepository::class)->deleteByGroupIds($group_selection);
+
+            $group_names = [];
+            foreach ($groupRepository->findById($group_selection) as $group) {
+                $group_names[$group->getName()] = $group->getName();
+            }
 
             // destruction of the users links for this group
-            $em->getRepository(UserGroupRepository::class)->deleteByGroupIds($groups);
+            $groupRepository->deleteByGroupIds($group_selection);
 
-            $result = $em->getRepository(GroupRepository::class)->findByIds($groups);
-            $groupnames = $em->getConnection()->result2array($result, null, 'name');
-
-            // destruction of the group
-            $em->getRepository(GroupRepository::class)->deleteByIds($groups);
-
-            $this->addFlash('info', $translator->trans('groups "{groups}" deleted', ['groups' => implode(', ', $groupnames)], 'admin'));
+            $this->addFlash('info', $translator->trans('groups "{groups}" deleted', ['groups' => implode(', ', $group_names)], 'admin'));
 
             return $this->redirectToRoute('admin_groups');
-        } elseif ($action === 'merge' && count($groups) > 1) {
-            if ($em->getRepository(GroupRepository::class)->isGroupNameExists($request->request->get('merge'))) {
+        } elseif ($action === 'merge' && count($group_selection) > 1) {
+            if ($groupRepository->isGroupNameExists($request->request->get('merge'))) {
                 $this->addFlash('error', $translator->trans('This name is already used by another group.', [], 'admin'));
 
                 $this->redirectToRoute('admin_groups');
-            } else {
-                $group_id = $em->getRepository(GroupRepository::class)->addGroup(['name' => $request->request->get('merge')]);
             }
+
+            $group = new Group();
+            $group->setName($request->request->get('merge'));
+
+            foreach ($groupRepository->findById($group_selection) as $group_to_merge) {
+                if ($group_to_merge->getUsers()->count() > 0) {
+                    foreach ($group_to_merge->getUsers() as $user) {
+                        $group->addUser($user);
+                    }
+                }
+            }
+
+            $group_id = $groupRepository->addOrUpdateGroup($group);
+            $groupRepository->deleteByGroupIds($group_selection);
+
 
             $grp_access = [];
-            $usr_grp = [];
-            $result = $em->getRepository(GroupAccessRepository::class)->findByGroupIds($groups);
+            $result = $em->getRepository(GroupAccessRepository::class)->findByGroupIds($group_selection);
             $groups_infos = $em->getConnection()->result2array($result);
             foreach ($groups_infos as $group) {
                 $new_grp_access = [
@@ -252,7 +258,7 @@ class GroupsController extends AdminCommonController
                 }
             }
 
-            $result = $em->getRepository(GroupAccessRepository::class)->findByGroupIds($groups);
+            $result = $em->getRepository(GroupAccessRepository::class)->findByGroupIds($group_selection);
             $groups_infos = $em->getConnection()->result2array($result);
             foreach ($groups_infos as $group) {
                 $new_grp_access = [
@@ -264,27 +270,33 @@ class GroupsController extends AdminCommonController
                 }
             }
 
-            $em->getRepository(UserGroupRepository::class)->massInserts(['user_id', 'group_id'], $usr_grp);
             $em->getRepository(GroupAccessRepository::class)->massInserts(['group_id', 'cat_id'], $grp_access);
             $this->addFlash('info', $translator->trans('group "{group}" added', ['group' => $request->request->get('merge')], 'admin'));
 
             return $this->redirectToRoute('admin_groups');
         } elseif ($action === 'duplicate') {
             // @TODO: avoid query in loop
-            foreach ($groups as $group) {
+            foreach ($group_selection as $group) {
                 if (!$request->request->get('duplicate_' . $group)) {
                     break;
                 }
 
-                if ($em->getRepository(GroupRepository::class)->isGroupNameExists($request->request->get('duplicate_' . $group))) {
+                if ($groupRepository->isGroupNameExists($request->request->get('duplicate_' . $group))) {
                     $this->addFlash('error', $translator->trans('This name is already used by another group.', [], 'admin'));
                     break;
                 }
 
-                $group_id = $em->getRepository(GroupRepository::class)->addGroup(['name' => $request->request->get('duplicate_' . $group)]);
+                $group_to_duplicate = $groupRepository->find($group);
+                $new_group = new Group();
+                $new_group->setName($request->request->get('duplicate_' . $group));
+                $new_group->setIsDefault($group_to_duplicate->isDefault());
+                foreach ($group_to_duplicate->getUsers() as $user) {
+                    $new_group->addUser($user);
+                }
+                $group_id = $groupRepository->addOrUpdateGroup($new_group);
 
                 $grp_access = [];
-                $result = $em->getRepository(GroupAccessRepository::class)->findByGroupId($group);
+                $result = $em->getRepository(GroupAccessRepository::class)->findByGroupId($group_id);
                 while ($row = $em->getConnection()->db_fetch_assoc($result)) {
                     $grp_access[] = [
                         'cat_id' => $row['cat_id'],
@@ -293,24 +305,14 @@ class GroupsController extends AdminCommonController
                 }
                 $em->getRepository(GroupAccessRepository::class)->massInserts(['group_id', 'cat_id'], $grp_access);
 
-                $usr_grp = [];
-                $result = $em->getRepository(UserGroupRepository::class)->findByGroupId($group);
-                while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                    $usr_grp[] = [
-                        'user_id' => $row['user_id'],
-                        'group_id' => $group_id
-                    ];
-                }
-                $em->getRepository(UserGroupRepository::class)->massInserts(['user_id', 'group_id'], $usr_grp);
-
                 $this->addFlash('info', $translator->trans('group "{group}" added', ['group' => $request->request->get('duplicate_' . $group)], 'admin'));
 
                 return $this->redirectToRoute('admin_groups');
             }
         } elseif ($action === 'toggle_default') {
-            $em->getRepository(GroupRepository::class)->toggleIsDefault($groups);
+            $groupRepository->toggleIsDefault($group_selection);
 
-            $this->addFlash('info', $translator->trans('groups "{groups}" updated', ['groups' => implode(', ', $groups)], 'admin'));
+            $this->addFlash('info', $translator->trans('groups "{groups}" updated', ['groups' => implode(', ', $group_selection)], 'admin'));
 
             return $this->redirectToRoute('admin_groups');
         }

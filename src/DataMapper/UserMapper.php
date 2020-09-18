@@ -16,7 +16,6 @@ use Phyxo\Conf;
 use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\ImageCategoryRepository;
-use App\Repository\UserGroupRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\ThemeRepository;
@@ -224,8 +223,6 @@ class UserMapper
      */
     public function deleteUser(int $user_id)
     {
-        // destruction of the group links for this user
-        $this->em->getRepository(UserGroupRepository::class)->deleteByUserId($user_id);
         // destruction of the access linked to the user
         //(new UserAccessRepository($conn))->deleteByUserId($user_id);
         // deletion of calculated permissions linked to the user
@@ -247,6 +244,7 @@ class UserMapper
         $this->userInfosRepository->deleteByUserId($user_id);
         // destruction of data notification by mail for this user
         $this->userMailNotificationRepository->deleteByUserId($user_id);
+
         // destruction of the user
         $this->userRepository->deleteById($user_id);
     }

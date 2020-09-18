@@ -448,6 +448,7 @@ $lang['Group management'] = "Gestion des groupes";
 $lang['Rename'] = 'Renommer';
 $lang['Merge selected groups'] = 'Fusionner les groupes sélectionnés';
 $lang['Toggle "default group" property'] = 'Inverser la propriété "groupe par défaut"';
+$lang['default group'] = 'groupe par défaut';
 $lang['Please select at least two groups'] = 'Merci de sélectionner au moins deux groupes';
 $lang['Type here the name of the new group'] = 'Inscrivez ici le nom du nouveau groupe';
 $lang['This group will be set to default'] = "Ce groupe deviendra par défaut";

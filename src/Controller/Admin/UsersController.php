@@ -46,7 +46,7 @@ class UsersController extends AdminCommonController
 
     public function list(Request $request, EntityManager $em, Conf $conf, UserMapper $userMapper, ParameterBagInterface $params,
                         CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator, ThemeRepository $themeRepository, LanguageRepository $languageRepository,
-                        UserRepository $userRepository, UserInfosRepository $userInfosRepository)
+                        UserRepository $userRepository, UserInfosRepository $userInfosRepository, GroupRepository $groupRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -55,9 +55,9 @@ class UsersController extends AdminCommonController
 
         $groups = [];
 
-        $result = $em->getRepository(GroupRepository::class)->findAll('ORDER BY name ASC');
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-            $groups[$row['id']] = $row['name'];
+        $groups = [];
+        foreach ($groupRepository->findAll() as $group) {
+            $groups[$group->getId()] = $group->getName();
         }
 
         $users = [];

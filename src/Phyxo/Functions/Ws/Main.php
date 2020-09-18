@@ -20,8 +20,6 @@ use App\Repository\CategoryRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
-use App\Repository\GroupRepository;
-use App\Repository\UserRepository;
 
 class Main
 {
@@ -135,7 +133,7 @@ class Main
         $infos['nb_tags'] = (new TagRepository($service->getConnection()))->count();
         $infos['nb_image_tag'] = (new ImageTagRepository($service->getConnection()))->count();
         $infos['nb_users'] = $service->getManagerRegistry->getRepository(User::class)->count([]);
-        $infos['nb_groups'] = (new GroupRepository($service->getConnection()))->count();
+        $infos['nb_groups'] = $service->getManagerRegistry->getRepository(Group::class)->count([]);
         $infos['nb_comments'] = (new CommentRepository($service->getConnection()))->count();
 
         // first element

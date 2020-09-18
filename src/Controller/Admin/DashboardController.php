@@ -32,7 +32,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DashboardController extends AdminCommonController
 {
     public function index(Request $request, bool $check_upgrade = false, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
-                          UserRepository $userRepository, HttpClientInterface $client)
+                          UserRepository $userRepository, GroupRepository $groupRepository, HttpClientInterface $client)
     {
         $tpl_params = [];
 
@@ -70,7 +70,7 @@ class DashboardController extends AdminCommonController
         $nb_tags = $em->getRepository(TagRepository::class)->count();
         $nb_image_tag = $em->getRepository(ImageTagRepository::class)->count();
         $nb_users = $userRepository->count([]);
-        $nb_groups = $em->getRepository(GroupRepository::class)->count();
+        $nb_groups = $groupRepository->count([]);
         $nb_rates = $em->getRepository(RateRepository::class)->count();
 
         $tpl_params = array_merge($tpl_params,

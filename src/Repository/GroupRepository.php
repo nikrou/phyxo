@@ -11,162 +11,99 @@
 
 namespace App\Repository;
 
-class GroupRepository extends BaseRepository
+use App\Entity\Group;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\AbstractQuery;
+use Doctrine\Persistence\ManagerRegistry;
+class GroupRepository extends ServiceEntityRepository
 {
-    public function count() : int
+    public function __construct(ManagerRegistry $registry)
     {
-        $query = 'SELECT count(1) FROM ' . self::GROUPS_TABLE;
-        $result = $this->conn->db_query($query);
-        list($nb_groups) = $this->conn->db_fetch_row($result);
-
-        return $nb_groups;
+        parent::__construct($registry, Group::class);
     }
 
-    public function isGroupNameExists(string $name) : bool
+    public function addOrUpdateGroup(Group $group): int
     {
-        $query = 'SELECT count(1) as group_exists FROM ' . self::GROUPS_TABLE;
-        $query .= ' WHERE name = \'' . $this->conn->db_real_escape_string($name) . '\'';
+        $this->_em->persist($group);
+        $this->_em->flush();
 
-        $result = $this->conn->db_query($query);
-        $row = $this->conn->db_fetch_assoc($result);
-
-        return $row['group_exists'] == 1;
-    }
-
-    public function isGroupIdExists(int $id) : bool
-    {
-        $query = 'SELECT count(1) as group_exists FROM ' . self::GROUPS_TABLE;
-        $query .= ' WHERE id = ' . $id;
-
-        $result = $this->conn->db_query($query);
-        $row = $this->conn->db_fetch_assoc($result);
-
-        return $row['group_exists'] == 1;
-    }
-
-    public function findAll(? string $order_by = null)
-    {
-        $query = 'SELECT id, name, is_default, lastmodified FROM ' . self::GROUPS_TABLE;
-
-        if (!is_null($order_by)) {
-            $query .= ' ' . $order_by;
-        }
-
-        return $this->conn->db_query($query);
-    }
-
-    public function findById(int $id)
-    {
-        $query = 'SELECT id, name, is_default, lastmodified FROM ' . self::GROUPS_TABLE;
-        $query .= ' WHERE id = ' . $id;
-
-        return $this->conn->db_query($query);
-    }
-
-    public function findByIds(array $ids, ? string $order_by = null)
-    {
-        $query = 'SELECT id, name, is_default, lastmodified FROM ' . self::GROUPS_TABLE;
-        $query .= ' WHERE id ' . $this->conn->in($ids);
-
-        if (!is_null($order_by)) {
-            $query .= ' ' . $order_by;
-        }
-
-        return $this->conn->db_query($query);
-    }
-
-    public function findByField(string $field, $value, ? string $order_by = null)
-    {
-        $query = 'SELECT id, name, is_default, lastmodified FROM ' . self::GROUPS_TABLE;
-
-        if (is_bool($value)) {
-            $query .= ' WHERE ' . $field . ' = \'' . $this->conn->boolean_to_db($value) . '\'';
-        } elseif (!isset($value) or $value === '') {
-            $query .= ' WHERE ' . $field . ' IS null ';
-        } else {
-            $query .= ' WHERE ' . $field . ' = \'' . $this->conn->db_real_escape_string($value) . '\'';
-        }
-
-        if (!is_null($order_by)) {
-            $query .= ' ' . $order_by;
-        }
-
-        return $this->conn->db_query($query);
-    }
-
-    public function findUsersInGroups()
-    {
-        $query = 'SELECT g.id, g.name, g.is_default, username FROM ' . self::GROUPS_TABLE . ' AS g';
-        $query .= ' LEFT JOIN ' . self::USER_GROUP_TABLE . ' AS ug ON g.id = ug.group_id';
-        $query .= ' LEFT JOIN ' . self::USERS_TABLE . ' AS u ON ug.user_id = u.id';
-
-        return $this->conn->db_query($query);
-    }
-
-    public function searchByName(? string $name = null, ? array $group_ids = [], string $order, int $limit, int $offset = 0)
-    {
-        $query = 'SELECT g.id, g.name, g.is_default, g.lastmodified, COUNT(user_id) AS nb_users FROM ' . self::GROUPS_TABLE . ' AS g';
-        $query .= ' LEFT JOIN ' . self::USER_GROUP_TABLE . ' AS ug ON ug.group_id = g.id';
-
-        if (!is_null($name) || count($group_ids) > 0) {
-            $query .= ' WHERE';
-        }
-
-        if (!is_null($name)) {
-            $query .= ' LOWER(name) LIKE \'' . $this->conn->db_real_escape_string($name) . '\'';
-        }
-
-        if (count($group_ids) > 0) {
-            if (!is_null($name)) {
-                $query .= ' AND ';
-            }
-            $query .= ' id ' . $this->conn->in($group_ids);
-        }
-
-        $query .= ' GROUP BY id';
-        $query .= ' ORDER BY ' . $order;
-        $query .= ' LIMIT ' . $limit;
-        $query .= ' OFFSET ' . $offset;
-
-        return $this->conn->db_query($query);
-    }
-
-    public function addGroup(array $datas) : int
-    {
-        return $this->conn->single_insert(self::GROUPS_TABLE, $datas);
-    }
-
-    public function updateGroup(array $datas, int $id)
-    {
-        $this->conn->single_update(self::GROUPS_TABLE, $datas, ['id' => $id]);
-    }
-
-    public function toggleIsDefault(array $ids)
-    {
-        $query = 'UPDATE ' . self::GROUPS_TABLE;
-        $query .= ' SET is_default = NOT(is_default)';
-        $query .= ' WHERE id ' . $this->conn->in($ids);
-
-        return $this->conn->db_query($query);
-    }
-
-    public function massInserts(array $fields, array $datas)
-    {
-        $this->conn->mass_inserts(self::GROUPS_TABLE, $fields, $datas);
-    }
-
-    public function deleteByIds(array $ids)
-    {
-        $query = 'DELETE FROM ' . self::GROUPS_TABLE;
-        $query .= ' WHERE id ' . $this->conn->in($ids);
-        $this->conn->db_query($query);
+        return $group->getId();
     }
 
     public function getMaxLastModified()
     {
-        $query = 'SELECT ' . $this->conn->db_date_to_ts('MAX(lastmodified)') . ', COUNT(1)';
-        $query .= ' FROM ' . self::GROUPS_TABLE;
+        $qb = $this->createQueryBuilder('g');
+        $qb->select('MAX(g.last_modified) as max, COUNT(1) as count');
 
-        return $this->conn->db_query($query);
+        return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_ARRAY);
+    }
+
+    public function isGroupNameExists(string $name) : bool
+    {
+        $qb = $this->createQueryBuilder('g');
+        $qb->select('count(1)');
+        $qb->where('g.name = :name');
+        $qb->setParameter('name', $name);
+
+        return $qb->getQuery()->getSingleScalarResult() === 1;
+    }
+
+    public function findUsersInGroups()
+    {
+        $qb = $this->createQueryBuilder('g');
+        $qb->leftJoin('g.users', 'u');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findDefaultGroups()
+    {
+        $qb = $this->createQueryBuilder('g');
+        $qb->where('g.is_default = true');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function deleteByGroupIds(array $group_ids)
+    {
+        $qb = $this->createQueryBuilder('g');
+        $qb->delete();
+        $qb->where($qb->expr()->in('g.id', $group_ids));
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function toggleIsDefault(array $group_ids)
+    {
+        $qb = $this->createQueryBuilder('g');
+        $qb->update();
+        $qb->set('g.is_default', 'CASE WHEN g.is_default = true THEN false ELSE true END');
+        $qb->where($qb->expr()->in('g.id', $group_ids));
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function findByNameOrGroupIds(?string $name = null, array $group_ids = [], string $order, int $limit, int $offset = 0)
+    {
+        $qb = $this->createQueryBuilder('g');
+        $qb->leftJoin('g.users', 'u'); // @TODO : no lazy because of count
+
+        if (!is_null($name)) {
+            $qb->where($qb->expr()->lower('g.name'), ':name');
+            $qb->setParameter('name', $name);
+        }
+
+        if (count($group_ids) > 0) {
+            $qb->andWhere($qb->expr()->in('g.id', $group_ids));
+        }
+
+        if (!preg_match('`^g\.`', $order)) {
+            $order = 'g.' . $order;
+        }
+        $qb->orderBy($order);
+        $qb->setFirstResult($offset);
+        $qb->setMaxResults($limit);
+
+        return $qb->getQuery()->getResult();
     }
 }

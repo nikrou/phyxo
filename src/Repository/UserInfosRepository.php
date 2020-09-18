@@ -33,7 +33,7 @@ class UserInfosRepository extends ServiceEntityRepository
     public function getMaxLastModified()
     {
         $qb = $this->createQueryBuilder('u');
-        $qb->select('MAX(u.lastmodified) as max, COUNT(1) as count');
+        $qb->select('MAX(u.last_modified) as max, COUNT(1) as count');
 
         return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_ARRAY);
     }

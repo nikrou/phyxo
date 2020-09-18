@@ -21,14 +21,15 @@ use Phyxo\EntityManager;
 
 class UserManager
 {
-    private $em, $userRepository, $userInfosRepository, $defaultLanguage, $defautlTheme;
+    private $em, $userRepository, $userInfosRepository, $groupRepository, $defaultLanguage, $defautlTheme;
 
-    public function __construct(EntityManager $em, UserRepository $userRepository, UserInfosRepository $userInfosRepository,
+    public function __construct(EntityManager $em, UserRepository $userRepository, UserInfosRepository $userInfosRepository, GroupRepository $groupRepository,
                                 string $defaultLanguage, string $defaultTheme)
     {
         $this->em = $em;
         $this->userRepository = $userRepository;
         $this->userInfosRepository = $userInfosRepository;
+        $this->groupRepository = $groupRepository;
         $this->defaultLanguage = $defaultLanguage;
         $this->defautlTheme = $defaultTheme;
     }
@@ -52,21 +53,13 @@ class UserManager
         }
         $userInfos->setStatus($user->getStatusFromRoles());
         $user->setUserInfos($userInfos);
+
+        // find default groups
+        foreach ($this->groupRepository->findDefaultGroups() as $group) {
+            $user->addGroup($group);
+        }
+
         $user_id = $this->userRepository->addUser($user);
-
-        // Assign by default groups
-        $result = $this->em->getRepository(GroupRepository::class)->findByField('is_default', true, 'ORDER BY id ASC');
-        $inserts = [];
-        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $inserts[] = [
-                'user_id' => $user_id,
-                'group_id' => $row['id']
-            ];
-        }
-
-        if (count($inserts) !== 0) {
-            $this->em->getRepository(UserGroupRepository::class)->massInserts(['user_id', 'group_id'], $inserts);
-        }
 
         return $user_id;
     }

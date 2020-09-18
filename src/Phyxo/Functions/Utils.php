@@ -11,12 +11,12 @@
 
 namespace Phyxo\Functions;
 
+use App\Entity\Group;
 use App\Entity\UserInfos;
 use Phyxo\Block\RegisteredBlock;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
-use App\Repository\GroupRepository;
 use App\Repository\TagRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\EntityManager;
@@ -934,26 +934,6 @@ class Utils
     }
 
     /**
-     * Returns the groupname corresponding to the given group identifier if exists.
-     *
-     * @param int $group_id
-     * @return string|false
-     */
-    public static function get_groupname($group_id)
-    {
-        global $conn;
-
-        $result = (new GroupRepository($conn))->findById($group_id);
-        if ($conn->db_num_rows($result) > 0) {
-            $row = $conn->db_fetch_assoc($result);
-
-            return $row['name'];
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * Returns the argument_ids array with new sequenced keys based on related
      * names. Sequence is not case sensitive.
      * Warning: By definition, this function breaks original keys.
@@ -1092,13 +1072,13 @@ class Utils
     {
         $tables = [
             'categories' => CategoryRepository::class,
-            'groups' => GroupRepository::class,
             'images' => ImageRepository::class,
             'tags' => TagRepository::class,
         ];
 
         $otherTables = [
-            'users' => UserInfos::class
+            'users' => UserInfos::class,
+            'groups' => Group::class,
         ];
 
         if (empty($requested)) {

@@ -50,8 +50,9 @@ class UserRepository extends ServiceEntityRepository
     public function getList(): array
     {
         $qb = $this->createQueryBuilder('u');
-        $qb->select('u', 'ui');
+        $qb->select('u', 'ui', 'g');
         $qb->leftJoin('u.userInfos', 'ui');
+        $qb->leftJoin('u.groups', 'g');
 
         return $qb->getQuery()->getResult(AbstractQuery::HYDRATE_ARRAY);
     }

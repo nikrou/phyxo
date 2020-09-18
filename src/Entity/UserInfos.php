@@ -86,9 +86,9 @@ class UserInfos
     private $enabled_high = true;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(name="lastmodified", type="datetime")
      */
-    private $lastmodified;
+    private $last_modified;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -322,12 +322,12 @@ class UserInfos
 
     public function getLastModified(): ?\DateTimeInterface
     {
-        return $this->lastmodified;
+        return $this->last_modified;
     }
 
-    public function setLastModified(\DateTimeInterface $lastmodified): self
+    public function setLastModified(\DateTimeInterface $last_modified): self
     {
-        $this->lastmodified = $lastmodified;
+        $this->last_modified = $last_modified;
 
         return $this;
     }

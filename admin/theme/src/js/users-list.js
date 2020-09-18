@@ -138,11 +138,7 @@ $(function () {
           targets: 4,
           render: function (data, type, user, meta) {
             if (data) {
-              return data
-                .map(function (group) {
-                  return groups[group];
-                })
-                .join(', ');
+              return data.map((group) => group.name).join(', ');
             } else {
               return '';
             }

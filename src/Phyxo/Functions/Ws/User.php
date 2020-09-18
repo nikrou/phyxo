@@ -11,6 +11,7 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Entity\Group;
 use App\Entity\Language;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
@@ -118,8 +119,6 @@ class User
             $params['display'] = [];
         }
 
-        $booleanFields = ['expand', 'show_nb_comments', 'show_nb_hits', 'enabled_high'];
-
         $users = [];
         // $result = (new UserRepository($service->getConnection()))->getList($display, $where_clauses, $params['order'], $params['per_page'], $params['per_page'] * $params['page']);
         foreach ($service->getManagerRegistry()->getRepository(EntityUser::class)->getList() as $user) {
@@ -127,11 +126,8 @@ class User
         }
 
         if (count($users) > 0) {
-            if (isset($params['display']['groups'])) {
-                $result = (new UserGroupRepository($service->getConnection()))->findByUserIds(array_keys($users));
-                while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-                    $users[$row['user_id']]['groups'][] = intval($row['group_id']);
-                }
+            if (!isset($params['display']['groups'])) {
+                unset($user['groups']);
             }
 
             if (isset($params['display']['registration_date_string'])) {
@@ -408,23 +404,13 @@ class User
 
         // manage association to groups
         if (!empty($params['group_id'])) {
-            (new UserGroupRepository($service->getConnection()))->deleteByUserIds($params['user_id']);
+            $groups = [];
+            foreach ($service->getManagerRegistry()->getRepository(Group::class)->findById($params['group_id']) as $group) {
+                $groups[] = $group;
+            }
 
-            // we remove all provided groups that do not really exist
-            $result = (new GroupRepository($service->getConnection()))->findByIds($params['group_id']);
-            $group_ids = $service->getConnection()->result2array($result, null, 'id');
-
-            // if only -1 (a group id that can't exist) is in the list, then no group is associated
-            if (count($group_ids) > 0) {
-                $inserts = [];
-
-                foreach ($group_ids as $group_id) {
-                    foreach ($params['user_id'] as $user_id) {
-                        $inserts[] = ['user_id' => $user_id, 'group_id' => $group_id];
-                    }
-                }
-
-                (new UserGroupRepository($service->getConnection()))->massInserts(array_keys($inserts[0]), $inserts);
+            foreach ($service->getManagerRegistry()->getRepository(EntityUser::class)->findById($params['user_id']) as $user) {
+                $user->setGroups($groups);
             }
         }
 
