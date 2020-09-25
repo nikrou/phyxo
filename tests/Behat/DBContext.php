@@ -15,7 +15,6 @@ use App\DataMapper\CategoryMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
-use App\DataMapper\UserMapper;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -49,6 +48,7 @@ class DBContext implements Context
 
     protected function getContainer():  ContainerInterface
     {
+        /** @phpstan-ignore-next-line */
         return $this->getKernel()->getContainer()->get('test.service_container');
     }
 

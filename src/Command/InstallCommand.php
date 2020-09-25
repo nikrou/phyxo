@@ -60,7 +60,7 @@ class InstallCommand extends Command
             ->addOption('db_user', null, InputOption::VALUE_OPTIONAL, 'Database username')
             ->addOption('db_password', null, InputOption::VALUE_OPTIONAL, 'Database password')
             ->addOption('db_name', null, InputOption::VALUE_REQUIRED, 'Database name')
-            ->addOption('db_prefix', null, InputOption::VALUE_REQUIRED, 'Database prefix for tables', $this->default_prefix);
+            ->addOption('db_prefix', null, InputOption::VALUE_REQUIRED, 'Database prefix for tables', (string) $this->default_prefix);
     }
 
     public function interact(InputInterface $input, OutputInterface $output)

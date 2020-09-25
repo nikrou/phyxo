@@ -12,7 +12,7 @@ services:
 
   Phyxo\DBLayer\iDBLayer:
     factory: 'Phyxo\DBLayer\DBLayer::initFromDSN'
-    arguments: ["%env(DATABASE_URL)%"]
+    arguments: ['%env(DATABASE_URL)%']
 
   phyxo.user.manager:
     alias: 'App\Utils\UserManager'
