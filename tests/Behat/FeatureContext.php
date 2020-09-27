@@ -279,10 +279,48 @@ class FeatureContext extends BaseContext
             throw new \Exception(sprintf('Select "%s" not found but should be', $element));
         }
 
-        $options = explode(' ', $select->getText());
-        if (implode('', $options) != implode('', $expectedOtions->getStrings())) {
+        $options = [];
+        $fields = $select->findAll('css', 'option');
+        if (count($fields) > 0) {
+            foreach ($fields as $field) {
+                $options[] = $field->getText();
+            }
+        }
+
+        if (array_diff($options, $expectedOtions->getStrings()) !== array_diff($expectedOtions->getStrings(), $options)) {
             throw new \Exception(sprintf('Element "%s" should contain "%s" but contains "%s".', $element, implode('|', $expectedOtions->getStrings()), implode('|', $options)));
         }
+    }
+
+    /**
+     * @Then the group :group should have members :users
+     */
+    public function theGroupShouldHaveMembers(string $group, string $users)
+    {
+        $rowGroup = $this->getPage()->find('css', sprintf('table tr:contains("%s")', $group));
+        if (is_null($rowGroup)) {
+            throw new \Exception(sprintf('Cannot find a group "%s" on the page', $group));
+        }
+        $members = $rowGroup->find('css', 'td[class="members"]');
+        if (is_null($members)) {
+            throw new \Exception(sprintf('Cannot find members cell for group "%s" on the page', $group));
+        }
+        $foundMembers = implode(',', explode(' ', $members->getText()));
+        if ($foundMembers !== $users) {
+            throw new \Exception(sprintf('Members for group "%s" are "%s" but should be "%s".', $group, $foundMembers, $users));
+        }
+    }
+
+    /**
+     * @Given I follow group :group permissions
+     */
+    public function iFollowGroupPermissions(string $group)
+    {
+        $rowGroup = $this->getPage()->find('css', sprintf('table tr:contains("%s")', $group));
+        if (is_null($rowGroup)) {
+            throw new \Exception(sprintf('Cannot find a group "%s" on the page', $group));
+        }
+        $rowGroup->clickLink('Permissions');
     }
 
     /**

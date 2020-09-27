@@ -9,7 +9,7 @@ Feature: Album
       | user1    | pass1    | normal |
 
     And some albums:
-      | name      | parent  | comment               |status  |
+      | name      | parent  | comment               | status  |
       | album 1   |         | album 1 description   | public  |
       | album 1.1 | album 1 | album 1.1 description | public  |
       | album 2   |         | album 2 description   | public  |

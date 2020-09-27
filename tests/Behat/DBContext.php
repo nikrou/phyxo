@@ -15,11 +15,13 @@ use App\DataMapper\CategoryMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
+use App\Entity\Group;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use App\Entity\User;
+use App\Repository\GroupAccessRepository;
 use App\Repository\UserAccessRepository;
 use App\Utils\UserManager;
 use Behat\Behat\Tester\Exception\PendingException;
@@ -72,6 +74,34 @@ class DBContext implements Context
     }
 
     /**
+     * @Given a group:
+     * @Given some groups:
+     */
+    public function someGroups(TableNode $table)
+    {
+        $userRepository = $this->getContainer()->get(ManagerRegistry::class)->getRepository(User::class);
+        $groupRepository = $this->getContainer()->get(ManagerRegistry::class)->getRepository(Group::class);
+
+        foreach ($table->getHash() as $groupRow) {
+            $group = new Group();
+            $group->setName($groupRow['name']);
+            if (!empty($groupRow['users'])) {
+                foreach (explode(',', $groupRow['users']) as $user_name) {
+                    $user_id = $this->storage->get('user_' . trim($user_name));
+                    if ($user_id === null) {
+                        throw new \Exception(sprintf('User "%s" not found in database', $user_name));
+                    }
+                    $user = $userRepository->findOneById($user_id);
+                    $group->addUser($user);
+                }
+            }
+
+            $group_id = $groupRepository->addOrUpdateGroup($group);
+            $this->storage->set('group_' . $groupRow['name'], $group_id);
+        }
+    }
+
+    /**
      * @Given an album:
      * @Given some albums:
      */
@@ -109,6 +139,20 @@ class DBContext implements Context
                 $this->addTagsToImage($tags, $this->storage->get('image_' . $image['name']));
             }
         }
+    }
+
+    /**
+     * @Given group :group_name can access album :album_name
+     */
+    public function groupCanAccessAlbum(string $group_name, string $album_name)
+    {
+        $group = $this->getContainer()->get(ManagerRegistry::class)->getRepository(Group::class)->findOneByName($group_name);
+        if (is_null($group)) {
+            throw new \Exception(sprintf('Group with name "%s" do not exists', $group_name));
+        }
+        $album = $this->getContainer()->get(CategoryMapper::class)->findAlbumByName($album_name);
+
+        $this->getContainer()->get(EntityManager::class)->getRepository(GroupAccessRepository::class)->massInserts(['group_id', 'cat_id'], [['group_id' => $group->getId(), 'cat_id' => $album['id']]]);
     }
 
     /**

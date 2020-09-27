@@ -109,7 +109,7 @@ class GroupsController extends AdminCommonController
             if ($request->request->get('falsify') && $request->request->get('cat_true') && count($request->request->get('cat_true')) > 0) {
                 // if you forbid access to a category, all sub-categories become automatically forbidden
                 $subcats = $em->getRepository(CategoryRepository::class)->getSubcatIds($request->request->get('cat_true'));
-                $em->getRepository(GroupAccessRepository::class)->deleteByGroupIdsAndCatIds($group_id, $subcats);
+                $em->getRepository(GroupAccessRepository::class)->deleteByGroupIdsAndCatIds([$group_id], $subcats);
             } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && count($request->request->get('cat_false')) > 0) {
                 $uppercats = $categoryMapper->getUppercatIds($request->request->get('cat_false'));
                 $private_uppercats = [];
