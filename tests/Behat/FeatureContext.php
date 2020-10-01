@@ -272,7 +272,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then the select :element should contain:
      */
-    public function theSelectShouldContain(string $element, PyStringNode $expectedOtions)
+    public function theSelectShouldContain(string $element, PyStringNode $expectedString)
     {
         $select = $this->findField($element);
         if (is_null($select)) {
@@ -287,8 +287,12 @@ class FeatureContext extends BaseContext
             }
         }
 
-        if (array_diff($options, $expectedOtions->getStrings()) !== array_diff($expectedOtions->getStrings(), $options)) {
-            throw new \Exception(sprintf('Element "%s" should contain "%s" but contains "%s".', $element, implode('|', $expectedOtions->getStrings()), implode('|', $options)));
+        $expectedOptions = $expectedString->getStrings();
+        sort($options);
+        sort($expectedOptions);
+
+        if (array_diff($options, $expectedOptions) !== array_diff($expectedOptions, $options)) {
+            throw new \Exception(sprintf('Element "%s" should contain "%s" but contains "%s".', $element, implode('|', $expectedOptions), implode('|', $options)));
         }
     }
 

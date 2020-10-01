@@ -662,14 +662,14 @@ class AlbumController extends AdminCommonController
         return $this->render('album_notification.html.twig', $tpl_params);
     }
 
-    public function create(Request $request, int $parent_id = null, CategoryMapper $categoryMapper, UserMapper $userMapper, UserInfosRepository $userInfosRepository)
+    public function create(Request $request, int $parent_id = null, CategoryMapper $categoryMapper, UserMapper $userMapper, UserInfosRepository $userInfosRepository, TranslatorInterface $translator)
     {
         if ($request->isMethod('POST')) {
             $virtual_name = $request->request->get('virtual_name');
 
             // is the given category name only containing blank spaces ?
             if (preg_match('/^\s*$/', $virtual_name)) {
-                $this->addFlash('error', $this->translator->trans('The name of an album must not be empty', [], 'admin'));
+                $this->addFlash('error', $translator->trans('The name of an album must not be empty', [], 'admin'));
             } else {
                 $admin_ids = [];
                 foreach ($userInfosRepository->findBy(['status' => [User::STATUS_WEBMASTER, User::STATUS_ADMIN]]) as $userInfos) {
@@ -680,7 +680,7 @@ class AlbumController extends AdminCommonController
 
                 $userMapper->invalidateUserCache();
 
-                $this->addFlash('info', $this->translator->trans('Virtual album added', [], 'admin'));
+                $this->addFlash('info', $translator->trans('Virtual album added', [], 'admin'));
             }
         }
 

@@ -11,7 +11,7 @@
 
 use App\Kernel;
 use App\InstallKernel;
-use Symfony\Component\Debug\Debug;
+use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
 
 require __DIR__ . '/config/bootstrap.php';

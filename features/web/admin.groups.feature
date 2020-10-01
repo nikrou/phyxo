@@ -21,7 +21,7 @@ Feature: Tags
     And some albums:
       | name      | parent  | status  |
       | album 1   |         | private |
-      | album 1.1 | album 1 | public  |
+      | album 1.1 | album 1 | private |
       | album 2   |         | public  |
       | album 2.1 | album 2 | public  |
       | album 2.2 | album 2 | public  |
@@ -57,6 +57,24 @@ Feature: Tags
     """
 
   Scenario: Authorize album for group
+    Given I am logged in as "user1" with password "pass1"
+    And I am on "admin/groups"
+    And I follow group "group1" permissions
+    Then I select "album 1" from "cat-false"
+    And I press "trueify"
+    Then the select "cat-true" should contain:
+    """
+    album 1
+    """
+    And the select "cat-false" should contain:
+    """
+    album 1 / album 1.1
+    album 3
+    album 3 / album 3.1
+    album 3 / album 3.2
+    """
+
+  Scenario: Authorize sub-album for group
     Given I am logged in as "user1" with password "pass1"
     And I am on "admin/groups"
     And I follow group "group1" permissions
@@ -131,4 +149,3 @@ Feature: Tags
     album 3 / album 3.1
     album 3 / album 3.2
     """
-

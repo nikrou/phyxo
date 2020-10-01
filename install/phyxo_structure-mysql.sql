@@ -7,7 +7,7 @@ CREATE TABLE `phyxo_caddie` (
   `user_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   `element_id` MEDIUMINT(8) NOT NULL DEFAULT '0',
   PRIMARY KEY  (`user_id`,`element_id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_categories`
@@ -35,7 +35,7 @@ CREATE TABLE `phyxo_categories` (
   UNIQUE KEY `categories_i3` (`permalink`),
   KEY `categories_i2` (`id_uppercat`),
   KEY `lastmodified` (`lastmodified`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_comments`
@@ -57,7 +57,7 @@ CREATE TABLE `phyxo_comments` (
   PRIMARY KEY  (`id`),
   KEY `comments_i2` (`validation_date`),
   KEY `comments_i1` (`image_id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_config`
@@ -70,7 +70,7 @@ CREATE TABLE `phyxo_config` (
   `value` text,
   `comment` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY  (`param`)
-) ENGINE=MyISAM COMMENT='configuration table';
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_favorites`
@@ -81,7 +81,7 @@ CREATE TABLE `phyxo_favorites` (
   `user_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   `image_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY  (`user_id`,`image_id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_group_access`
@@ -92,7 +92,7 @@ CREATE TABLE `phyxo_group_access` (
   `group_id` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
   `cat_id` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY  (`group_id`,`cat_id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_groups`
@@ -102,12 +102,11 @@ DROP TABLE IF EXISTS `phyxo_groups`;
 CREATE TABLE `phyxo_groups` (
   `id` SMALLINT(5) UNSIGNED NOT NULL auto_increment,
   `name` VARCHAR(255) NOT NULL DEFAULT '',
-  `is_default` enum('true','false') NOT NULL DEFAULT 'false',
-  `lastmodified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_default` TINYINT(1) NOT NULL,
+  `lastmodified` DATETIME DEFAULT NULL,
   PRIMARY KEY  (`id`),
-  UNIQUE KEY `groups_ui1` (`name`),
-  KEY `lastmodified` (`lastmodified`)
-) ENGINE=MyISAM;
+  UNIQUE KEY `groups_ui1` (`name`)
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_history`
@@ -128,7 +127,7 @@ CREATE TABLE `phyxo_history` (
   `image_type` enum('picture','high','other') DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `history_i1` (`summarized`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_history_summary`
@@ -142,7 +141,7 @@ CREATE TABLE `phyxo_history_summary` (
   `hour` TINYINT(2) DEFAULT NULL,
   `nb_pages` int(11) DEFAULT NULL,
   UNIQUE KEY history_summary_ymdh (`year`,`month`,`day`,`hour`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_image_category`
@@ -155,7 +154,7 @@ CREATE TABLE `phyxo_image_category` (
   `rank` MEDIUMINT(8) UNSIGNED DEFAULT NULL,
   PRIMARY KEY  (`image_id`,`category_id`),
   KEY `image_category_i1` (`category_id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_image_tag`
@@ -170,7 +169,7 @@ CREATE TABLE `phyxo_image_tag` (
   `status` SMALLINT(3) DEFAULT 1,
   PRIMARY KEY  (`image_id`,`tag_id`),
   KEY `image_tag_i1` (`tag_id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_images`
@@ -210,7 +209,7 @@ CREATE TABLE `phyxo_images` (
   KEY `images_i1` (`storage_category_id`),
   KEY `images_i6` (`latitude`),
   KEY `lastmodified` (`lastmodified`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_languages`
@@ -222,7 +221,7 @@ CREATE TABLE `phyxo_languages` (
   `version` VARCHAR(64) NOT NULL DEFAULT '0',
   `name` VARCHAR(64) DEFAULT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_old_permalinks`
@@ -236,7 +235,7 @@ CREATE TABLE `phyxo_old_permalinks` (
   `last_hit` datetime DEFAULT NULL,
   `hit` int(10) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY  (`permalink`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_plugins`
@@ -248,7 +247,7 @@ CREATE TABLE `phyxo_plugins` (
   `state` VARCHAR(25) NOT NULL DEFAULT 'inactive',
   `version` VARCHAR(64) NOT NULL DEFAULT '0',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_rate`
@@ -262,7 +261,7 @@ CREATE TABLE `phyxo_rate` (
   `rate` TINYINT(2) UNSIGNED NOT NULL DEFAULT '0',
   `date` date DEFAULT NULL,
   PRIMARY KEY  (`element_id`,`user_id`,`anonymous_id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_search`
@@ -274,7 +273,7 @@ CREATE TABLE `phyxo_search` (
   `last_seen` date DEFAULT NULL,
   `rules` text,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_sessions`
@@ -286,7 +285,7 @@ CREATE TABLE `phyxo_sessions` (
   `sess_data` BLOB NOT NULL,
   `sess_time` INTEGER UNSIGNED NOT NULL,
   `sess_lifetime` INTEGER UNSIGNED NOT NULL
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_sites`
@@ -296,9 +295,8 @@ DROP TABLE IF EXISTS `phyxo_sites`;
 CREATE TABLE `phyxo_sites` (
   `id` TINYINT(4) NOT NULL auto_increment,
   `galleries_url` VARCHAR(255) NOT NULL DEFAULT '',
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `sites_ui1` (`galleries_url`)
-) ENGINE=MyISAM;
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_tags`
@@ -314,7 +312,7 @@ CREATE TABLE `phyxo_tags` (
   PRIMARY KEY  (`id`),
   KEY `tags_i1` (`url_name`),
   KEY `lastmodified` (`lastmodified`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_themes`
@@ -326,7 +324,7 @@ CREATE TABLE `phyxo_themes` (
   `version` VARCHAR(64) NOT NULL DEFAULT '0',
   `name` VARCHAR(64) DEFAULT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_upgrade`
@@ -338,7 +336,7 @@ CREATE TABLE `phyxo_upgrade` (
   `applied` datetime DEFAULT NULL,
   `description` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_user_access`
@@ -349,7 +347,7 @@ CREATE TABLE `phyxo_user_access` (
   `user_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   `cat_id` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY  (`user_id`,`cat_id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_user_cache`
@@ -368,7 +366,7 @@ CREATE TABLE `phyxo_user_cache` (
   `image_access_type` enum('NOT IN','IN') NOT NULL DEFAULT 'NOT IN',
   `image_access_list` mediumtext DEFAULT NULL,
   PRIMARY KEY  (`user_id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_user_cache_categories`
@@ -386,7 +384,7 @@ CREATE TABLE `phyxo_user_cache_categories` (
   `count_categories` MEDIUMINT(8) UNSIGNED DEFAULT '0',
   `user_representative_picture_id` MEDIUMINT(8) UNSIGNED DEFAULT NULL,
   PRIMARY KEY  (`user_id`,`cat_id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_user_feed`
@@ -398,7 +396,7 @@ CREATE TABLE `phyxo_user_feed` (
   `user_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   `last_check` datetime DEFAULT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_user_group`
@@ -409,7 +407,7 @@ CREATE TABLE `phyxo_user_group` (
   `user_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   `group_id` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY  (`group_id`,`user_id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_user_infos`
@@ -418,22 +416,22 @@ CREATE TABLE `phyxo_user_group` (
 DROP TABLE IF EXISTS `phyxo_user_infos`;
 CREATE TABLE `phyxo_user_infos` (
   `user_id` INTEGER NOT NULL,
-  `nb_image_page` SMALLINT(3) UNSIGNED NOT NULL,
+  `nb_image_page` SMALLINT(3) UNSIGNED NOT NULL DEFAULT 0,
   `status` VARCHAR(50) NOT NULL,
   `language` VARCHAR(50) NOT NULL,
-  `expand` TINYINT(1) NOT NULL,
-  `show_nb_comments` TINYINT(1) NOT NULL,
-  `show_nb_hits` TINYINT(1) NOT NULL,
+  `expand` TINYINT(1) NOT NULL DEFAULT 0,
+  `show_nb_comments` TINYINT(1) NOT NULL DEFAULT 0,
+  `show_nb_hits` TINYINT(1) NOT NULL DEFAULT 0,
   `recent_period` TINYINT(3) UNSIGNED NOT NULL,
   `theme` VARCHAR(255) NOT NULL,
   `registration_date` DATETIME DEFAULT NULL,
   `enabled_high` TINYINT(1) NOT NULL,
-  `level` TINYINT UNSIGNED NOT NULL DEFAULT '0',
+  `level` TINYINT UNSIGNED NOT NULL DEFAULT 0,
   `activation_key` VARCHAR(255) DEFAULT NULL,
   `activation_key_expire` DATETIME DEFAULT NULL,
   `lastmodified` DATETIME DEFAULT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_user_mail_notification`
@@ -447,7 +445,7 @@ CREATE TABLE `phyxo_user_mail_notification` (
   `last_send` datetime DEFAULT NULL,
   PRIMARY KEY  (`user_id`),
   UNIQUE KEY `user_mail_notification_ui1` (`check_key`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_users`
@@ -461,4 +459,4 @@ CREATE TABLE `phyxo_users` (
   `mail_address` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `users_ui1` (`username`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
