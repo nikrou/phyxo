@@ -87,5 +87,7 @@ $lang['URL or releative path to the image'] = "URL ou chemin relatif vers l'imag
 $lang['Span the full viewport height'] = "Utiliser toute la hauteur de la vue";
 $lang['Use 6 colums for viewports >= 1680px'] = "Utiliser les 6 colonnes pour les vues >= 1680px";
 $lang['Filter and display comments'] = "Filtrer les commentaires";
+$lang['Virtual album added'] = 'Album virtuel ajouté';
+$lang['Virtual album deleted'] = 'Album virtuel supprimé';
 
 return $lang;

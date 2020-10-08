@@ -11,11 +11,12 @@
 
 namespace App\Controller;
 
+use App\DataMapper\AlbumMapper;
+use App\DataMapper\CategoryMapper;
 use Symfony\Component\HttpFoundation\Response;
 use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\UserMapper;
-use App\DataMapper\CategoryMapper;
 use App\DataMapper\ImageMapper;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Protocols\RestRequestHandler;
@@ -39,10 +40,10 @@ class WsController extends AbstractController
 {
     private $service;
 
-    public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, CategoryMapper $categoryMapper, Conf $conf, iDBLayer $conn, EntityManager $em,
+    public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, Conf $conf, iDBLayer $conn, EntityManager $em,
                            UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, RateMapper $rateMapper, SearchMapper $searchMapper, RouterInterface $router,
                            string $phyxoVersion, ImageStandardParams $image_std_params, string $pemURL, Security $security, ParameterBagInterface $params,
-                           ImageMapper $imageMapper, Request $request, ManagerRegistry $managerRegistry)
+                           ImageMapper $imageMapper, Request $request, ManagerRegistry $managerRegistry, AlbumMapper $albumMapper, CategoryMapper $categoryMapper)
     {
         $this->service = new Server($params->get('upload_dir'));
         $this->service->setRequest($request);
@@ -50,6 +51,7 @@ class WsController extends AbstractController
         $this->service->addTagMapper($tagMapper);
         $this->service->addCommentMapper($commentMapper);
         $this->service->addCategoryMapper($categoryMapper);
+        $this->service->addAlbumMapper($albumMapper);
         $this->service->addRateMapper($rateMapper);
         $this->service->addSearchMapper($searchMapper);
         $this->service->addImageMapper($imageMapper);

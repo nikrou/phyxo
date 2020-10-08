@@ -25,6 +25,9 @@ services:
 
   App\Tests\Behat\Storage: ~
 
+  phyxo.album.mapper:
+    alias: 'App\DataMapper\AlbumMapper'
+
   phyxo.category.mapper:
     alias: 'App\DataMapper\CategoryMapper'
 

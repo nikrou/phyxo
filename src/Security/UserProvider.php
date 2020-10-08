@@ -11,6 +11,7 @@
 
 namespace App\Security;
 
+use App\DataMapper\AlbumMapper;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -19,6 +20,7 @@ use App\Repository\UserRepository;
 use App\Entity\User;
 use Phyxo\EntityManager;
 use App\DataMapper\CategoryMapper;
+use App\Entity\Album;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
@@ -37,14 +39,16 @@ use Symfony\Component\Security\Csrf\Exception\TokenNotFoundException;
 
 class UserProvider implements UserProviderInterface
 {
-    private $user, $em, $session, $categoryMapper, $tokenStorage, $conf, $userRepository;
+    private $user, $em, $session, $categoryMapper, $albumMapper, $tokenStorage, $conf, $userRepository;
 
-    public function __construct(EntityManager $em, UserRepository $userRepository, SessionInterface $session, CategoryMapper $categoryMapper, TokenStorageInterface $tokenStorage, Conf $conf)
+    public function __construct(EntityManager $em, UserRepository $userRepository, SessionInterface $session, CategoryMapper $categoryMapper, TokenStorageInterface $tokenStorage,
+                                Conf $conf, AlbumMapper $albumMapper)
     {
         $this->em = $em;
         $this->userRepository = $userRepository;
         $this->session = $session;
         $this->categoryMapper = $categoryMapper;
+        $this->albumMapper = $albumMapper;
         $this->tokenStorage = $tokenStorage;
         $this->conf = $conf;
     }
@@ -287,30 +291,34 @@ class UserProvider implements UserProviderInterface
      */
     public function calculatePermissions(int $user_id, bool $is_admin = false): array
     {
-        $result = $this->em->getRepository(CategoryRepository::class)->findByField('status', 'private');
-        $private_array = $this->em->getConnection()->result2array($result, null, 'id');
+        $private_albums = [];
+        foreach ($this->albumMapper->getRepository()->findByStatus(Album::STATUS_PRIVATE) as $album) {
+            $private_albums[] = $album->getId();
+        }
 
-        // retrieve category ids directly authorized to the user
+        // retrieve albums ids directly authorized to the user
         $result = $this->em->getRepository(UserAccessRepository::class)->findByUserId($user_id);
-        $authorized_array = $this->em->getConnection()->result2array($result, null, 'cat_id');
-
+        $authorized_albums = $this->em->getConnection()->result2array($result, null, 'cat_id');
 
         $result = $this->em->getRepository(UserGroupRepository::class)->findCategoryAuthorizedToTheGroupTheUserBelongs($user_id);
-        $authorized_array = array_merge($authorized_array, $this->em->getConnection()->result2array($result, null, 'cat_id'));
+        $authorized_albums = array_merge($authorized_albums, $this->em->getConnection()->result2array($result, null, 'cat_id'));
 
         // uniquify ids : some private categories might be authorized for the groups and for the user
-        $authorized_array = array_unique($authorized_array);
+        $authorized_albums = array_unique($authorized_albums);
 
         // only unauthorized private categories are forbidden
-        $forbidden_array = array_diff($private_array, $authorized_array);
+        $forbidden_albums = array_diff($private_albums, $authorized_albums);
 
         // if user is not an admin, locked categories are forbidden
         if (!$is_admin) {
-            $result = $this->em->getRepository(CategoryRepository::class)->findByField('visible', false);
-            $forbidden_array = array_merge($forbidden_array, $this->em->getConnection()->result2array($result, null, 'id'));
-            $forbidden_array = array_unique($forbidden_array);
+            $locked_albums = [];
+            foreach ($this->albumMapper->getRepository()->findByVisible(false) as $album) {
+                $locked_albums[] = $album->getId();
+            }
+            $forbidden_albums = array_merge($forbidden_albums, $locked_albums);
+            $forbidden_albums = array_unique($forbidden_albums);
         }
 
-        return $forbidden_array;
+        return $forbidden_albums;
     }
 }

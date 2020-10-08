@@ -11,6 +11,7 @@
 
 namespace App\Tests\Behat;
 
+use App\DataMapper\AlbumMapper;
 use App\DataMapper\CategoryMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
@@ -112,7 +113,7 @@ class DBContext implements Context
             if (isset($albumRow['parent']) && $albumRow['parent'] !== null) {
                 $parent = $this->storage->get('album_' . $albumRow['parent']);
             }
-            $album_id = $this->getContainer()->get(CategoryMapper::class)->createAlbum($albumRow['name'], $parent, $albumRow);
+            $album_id = $this->getContainer()->get(AlbumMapper::class)->createAlbum($albumRow['name'], $parent, 0, [], $albumRow);
             $this->storage->set('album_' . $albumRow['name'], $album_id);
         }
     }

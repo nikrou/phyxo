@@ -18,7 +18,6 @@ use Phyxo\Search\QDateRangeScope;
 use Phyxo\Search\QNumericRangeScope;
 use Phyxo\Search\QMultipleToken;
 use App\Repository\TagRepository;
-use App\Repository\CategoryRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\ImageRepository;
 use App\Repository\BaseRepository;
@@ -26,17 +25,17 @@ use Phyxo\EntityManager;
 use Phyxo\Conf;
 use Symfony\Component\Security\Core\User\UserInterface;
 use App\DataMapper\UserMapper;
-use App\Entity\Search;
 
 class SearchMapper
 {
-    private $em, $conf, $userMapper;
+    private $em, $conf, $userMapper, $albumMapper;
 
-    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper)
+    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, AlbumMapper $albumMapper)
     {
         $this->em = $em;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
+        $this->albumMapper = $albumMapper;
     }
 
     /**
@@ -121,14 +120,15 @@ class SearchMapper
         }
 
         if (isset($search['fields']['cat'])) {
+            $album_ids = [];
             if ($search['fields']['cat']['sub_inc']) {
                 // searching all the categories id of sub-categories
-                $cat_ids = $this->em->getRepository(CategoryRepository::class)->getSubcatIds($search['fields']['cat']['words']);
+                $album_ids = $this->albumMapper->getRepository()->getSubcatIds($search['fields']['cat']['words']);
             } else {
-                $cat_ids = $search['fields']['cat']['words'];
+                $album_ids = $search['fields']['cat']['words'];
             }
 
-            $local_clause = 'category_id ' . $this->em->getConnection()->in($cat_ids);
+            $local_clause = 'category_id ' . $this->em->getConnection()->in($album_ids);
             $clauses[] = $local_clause;
         }
 

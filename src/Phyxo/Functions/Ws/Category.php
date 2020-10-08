@@ -409,7 +409,12 @@ class Category
             }
         }
 
-        $category_id = $service->getCategoryMapper()->createVirtualCategory($params['name'], $params['parent'], $service->getUserMapper()->getUser()->getId(), $admin_ids, $options);
+        $parent = null;
+        if ((int) $params['parent'] !== 0) {
+            $parent = (int) $params['parent'];
+        }
+
+        $category_id = $service->getAlbumMapper()->createAlbum($params['name'], $parent, $service->getUserMapper()->getUser()->getId(), $admin_ids, $options);
 
         $service->getUserMapper()->invalidateUserCache();
 

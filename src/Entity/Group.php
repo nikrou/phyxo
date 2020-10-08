@@ -40,7 +40,7 @@ class Group
     private $is_default = false;
 
     /**
-     * @ORM\Column(name="lastmodified", type="datetime")
+     * @ORM\Column(name="lastmodified", type="datetime", nullable=true)
      */
     private $last_modified;
 

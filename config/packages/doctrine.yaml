@@ -12,14 +12,12 @@ doctrine:
         types:
             uuid: Ramsey\Uuid\Doctrine\UuidType
 
-            category_status: App\Type\CategoryStatusType
             history_section: App\Type\HistorySectionType
             history_image_type: App\Type\HistoryImageTypeType
             user_cache_image_access_type: App\Type\UserCacheImageAccessTypeType
 
         mapping_types:
             enum: string
-            categories_status: category_status
             history_section: history_section
             history_image_type: history_image_type
             user_cache_image_access_type: user_cache_image_access_type

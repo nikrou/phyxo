@@ -8,8 +8,6 @@ DELETE FROM phyxo_user_cache;
 DELETE FROM phyxo_user_cache_categories;
 DELETE FROM phyxo_tags;
 DELETE FROM phyxo_image_tag;
-DELETE FROM phyxo_users where username != 'guest';
-DELETE FROM phyxo_user_infos where status != 'guest';
 DELETE FROM phyxo_groups;
 DELETE FROM phyxo_user_group;
 DELETE FROM phyxo_categories;
@@ -19,6 +17,8 @@ DELETE FROM phyxo_images;
 DELETE FROM phyxo_image_category;
 DELETE FROM phyxo_sessions;
 DELETE FROM phyxo_user_mail_notification;
+DELETE FROM phyxo_user_infos where status != 'guest';
+DELETE FROM phyxo_users where username != 'guest';
 -- special keys for config
 DELETE FROM phyxo_config WHERE param in ('tags_permission_add', 'tags_permission_delete', 'publish_tags_immediately', 'delete_tags_immediately', 'show_pending_added_tags',
 'show_pending_deleted_tags', 'tags_existing_tags_only', 'guest_access');

@@ -17,8 +17,8 @@ use App\DataMapper\SearchMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
 use App\Metadata;
+use App\Repository\AlbumRepository;
 use App\Repository\CaddieRepository;
-use App\Repository\CategoryRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
@@ -66,7 +66,7 @@ class BatchManagerController extends AdminCommonController
 
     public function global(Request $request, string $filter = null, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params,
                           CategoryMapper $categoryMapper, ImageStandardParams $image_std_params, SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper,
-                          UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator)
+                          UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator, AlbumRepository $albumRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -203,7 +203,7 @@ class BatchManagerController extends AdminCommonController
         }
 
         $this->filterFromSession();
-        $filter_sets = $this->getFilterSetsFromFilter($em, $conf, $searchMapper);
+        $filter_sets = $this->getFilterSetsFromFilter($em, $conf, $searchMapper, $albumRepository);
 
         $current_set = array_shift($filter_sets);
         if (empty($current_set)) {
@@ -586,7 +586,7 @@ class BatchManagerController extends AdminCommonController
         }
     }
 
-    protected function getFilterSetsFromFilter(EntityManager $em, Conf $conf, SearchMapper $searchMapper)
+    protected function getFilterSetsFromFilter(EntityManager $em, Conf $conf, SearchMapper $searchMapper, AlbumRepository $albumRepository)
     {
         $filter_sets = [];
 
@@ -616,10 +616,13 @@ class BatchManagerController extends AdminCommonController
                     $result = $em->getRepository(ImageRepository::class)->findAll();
                     $all_elements = $em->getConnection()->result2array($result, null, 'id');
 
-                    $result = $em->getRepository(CategoryRepository::class)->findWithCondition(['dir IS NULL']);
-                    $virtual_categories = $em->getConnection()->result2array($result, null, 'id');
-                    if (!empty($virtual_categories)) {
-                        $result = $em->getRepository(ImageCategoryRepository::class)->getImageIdsLinked($virtual_categories);
+                    $virtual_album_ids = [];
+                    foreach ($albumRepository->findVirtualAlbums() as $album) {
+                        $virtual_album_ids[] = $album->getId();
+                    }
+
+                    if (count($virtual_album_ids) > 0) {
+                        $result = $em->getRepository(ImageCategoryRepository::class)->getImageIdsLinked($virtual_album_ids);
                         $linked_to_virtual = $em->getConnection()->result2array($result, null, 'image_id');
                     }
 
@@ -671,15 +674,15 @@ class BatchManagerController extends AdminCommonController
         }
 
         if (!empty($bulk_manager_filter['category'])) {
-            $categories = [];
+            $album_ids = [];
 
             if (isset($bulk_manager_filter['category_recursive'])) {
-                $categories = $em->getRepository(CategoryRepository::class)->getSubcatIds([$this->getFilter()['category']]);
+                $album_ids = $albumRepository->getSubcatIds([$this->getFilter()['category']]);
             } else {
                 $categories = [$bulk_manager_filter['category']];
             }
 
-            $result = $em->getRepository(ImageCategoryRepository::class)->getImageIdsLinked($categories);
+            $result = $em->getRepository(ImageCategoryRepository::class)->getImageIdsLinked($album_ids);
             $filter_sets[] = $em->getConnection()->result2array($result, null, 'image_id');
         }
 
@@ -883,7 +886,8 @@ class BatchManagerController extends AdminCommonController
     }
 
     public function unit(Request $request, string $filter = null, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, SearchMapper $searchMapper, TagMapper $tagMapper,
-                        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator)
+                        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator,
+                        AlbumRepository $albumRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -915,7 +919,7 @@ class BatchManagerController extends AdminCommonController
                 // tags management
                 $tag_ids = [];
                 if ($request->request->get('tags-' . $row['id'])) {
-                    $tag_ids = $tagMapper->getTagIds($request->request->get('tags-' . $row['id']));
+                    $tag_ids = $tagMapper->getTagsIds($request->request->get('tags-' . $row['id']));
                 }
                 $tagMapper->setTags($tag_ids, $row['id']);
             }
@@ -935,7 +939,7 @@ class BatchManagerController extends AdminCommonController
         }
 
         $this->filterFromSession();
-        $filter_sets = $this->getFilterSetsFromFilter($em, $conf, $searchMapper);
+        $filter_sets = $this->getFilterSetsFromFilter($em, $conf, $searchMapper, $albumRepository);
 
         $current_set = array_shift($filter_sets);
         if (empty($current_set)) {

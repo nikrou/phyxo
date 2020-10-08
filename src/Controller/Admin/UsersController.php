@@ -11,7 +11,7 @@
 
 namespace App\Controller\Admin;
 
-use App\DataMapper\CategoryMapper;
+use App\DataMapper\AlbumMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\User;
 use App\Repository\CategoryRepository;
@@ -149,7 +149,7 @@ class UsersController extends AdminCommonController
         return $this->render('users_list.html.twig', $tpl_params);
     }
 
-    public function perm(Request $request, int $user_id, EntityManager $em, CategoryMapper $categoryMapper, Conf $conf,
+    public function perm(Request $request, int $user_id, EntityManager $em, Conf $conf, AlbumMapper $albumMapper,
                         ParameterBagInterface $params, TranslatorInterface $translator, UserRepository $userRepository)
     {
         $tpl_params = [];
@@ -160,10 +160,10 @@ class UsersController extends AdminCommonController
         if ($request->isMethod('POST')) {
             if ($request->request->get('falsify') && $request->request->get('cat_true') && count($request->request->get('cat_true')) > 0) {
                 // if you forbid access to a category, all sub-categories become automatically forbidden
-                $subcats = $em->getRepository(CategoryRepository::class)->getSubcatIds($request->request->get('cat_true'));
+                $subcats = $albumMapper->getRepository()->getSubcatIds($request->request->get('cat_true'));
                 $em->getRepository(UserAccessRepository::class)->deleteByUserIdsAndCatIds([$user_id], $subcats);
             } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && count($request->request->get('cat_false')) > 0) {
-                $categoryMapper->addPermissionOnCategory($request->request->get('cat_false'), [$user_id]);
+                $albumMapper->addPermissionOnAlbum($request->request->get('cat_false'), [$user_id]);
             }
         }
 
@@ -186,23 +186,25 @@ class UsersController extends AdminCommonController
             usort($cats, '\Phyxo\Functions\Utils::global_rank_compare');
 
             foreach ($cats as $category) {
-                $tpl_params['categories_because_of_groups'][] = $categoryMapper->getCatDisplayNameCache($category['uppercats']);
+                $tpl_params['categories_because_of_groups'][] = $albumMapper->getAlbumsDisplayNameCache($category['uppercats']);
             }
         }
 
         // only private categories are listed
         $result = $em->getRepository(CategoryRepository::class)->findWithUserAccess($user_id, $group_authorized);
         $categories = $em->getConnection()->result2array($result);
-        // displaySelectCategoriesWrapper à adapter pour qu'il renvoie un tableau plutotu qu'il modifie le template direct
-        $tpl_params = array_merge($tpl_params, $categoryMapper->displaySelectCategoriesWrapper($categories, [], 'category_option_true'));
+
+        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectCategoriesWrapper($categories, [], 'category_option_true'));
         $authorized_ids = [];
         foreach ($categories as $category) {
             $authorized_ids[] = $category['id'];
         }
 
-        $result = $em->getRepository(CategoryRepository::class)->findUnauthorized(array_merge($authorized_ids, $group_authorized));
-        $categories = $em->getConnection()->result2array($result);
-        $tpl_params = array_merge($tpl_params, $categoryMapper->displaySelectCategoriesWrapper($categories, [], 'category_option_false'));
+        $albums = [];
+        foreach ($albumMapper->getRepository()->findUnauthorized(array_merge($authorized_ids, $group_authorized)) as $album) {
+            $albums[] = $album;
+        }
+        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_option_false'));
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_user_perm', ['user_id' => $user_id]);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_users');

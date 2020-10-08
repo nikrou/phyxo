@@ -11,8 +11,9 @@
 
 namespace App\Controller\Admin;
 
-use App\DataMapper\CategoryMapper;
-use App\Repository\CategoryRepository;
+use App\DataMapper\AlbumMapper;
+use App\Entity\Album;
+use App\Repository\AlbumRepository;
 use App\Repository\ImageCategoryRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
@@ -38,7 +39,7 @@ class AlbumsController extends AdminCommonController
     }
 
     public function list(Request $request, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                        CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator)
+                        AlbumRepository $albumRepository, CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -54,28 +55,30 @@ class AlbumsController extends AdminCommonController
             'date_available ASC' => $translator->trans('Date posted, old &rarr; new', [], 'admin'),
         ];
 
-        $categories = [];
         $sort_orders_checked = array_keys($sort_orders);
-
         $tpl_params['sort_orders'] = $sort_orders;
         $tpl_params['sort_order_checked'] = array_shift($sort_orders_checked);
 
-        $result = $em->getRepository(CategoryRepository::class)->findByField('id_uppercat', $parent_id);
-        $categories = $em->getConnection()->result2array($result, 'id');
+        $albums = [];
+        foreach ($albumRepository->findBy(['id_uppercat' => $parent_id]) as $album) {
+            $albums[$album->getId()] = $album;
+        }
 
-        // get the categories containing images directly
-        if (count($categories) > 0) {
+        // get the albums containing images directly
+        if (count($albums) > 0) {
             $result = $em->getRepository(ImageCategoryRepository::class)->findCategoriesWithImages();
             $nb_photos_in = $em->getConnection()->result2array($result, 'category_id', 'nb_photos');
 
-            $result = $em->getRepository(CategoryRepository::class)->findAll();
-            $all_categories = $em->getConnection()->result2array($result, 'id', 'uppercats');
+            $all_albums = [];
+            foreach ($albumRepository->findAll() as $album) {
+                $all_albums[$album->getId()] = $album->getUppercats();
+            }
             $subcats_of = [];
 
-            foreach (array_keys($categories) as $cat_id) {
-                foreach ($all_categories as $id => $uppercats) {
-                    if (preg_match('/(^|,)' . $cat_id . ',/', $uppercats)) {
-                        $subcats_of[$cat_id][] = $id;
+            foreach (array_keys($albums) as $album_id) {
+                foreach ($all_albums as $id => $uppercats) {
+                    if (preg_match('/(^|,)' . $album_id . ',/', $uppercats)) {
+                        $subcats_of[$album_id][] = $id;
                     }
                 }
             }
@@ -98,23 +101,23 @@ class AlbumsController extends AdminCommonController
         }
 
         $tpl_params['categories'] = [];
-        foreach ($categories as $category) {
+        foreach ($albums as $album) {
             $tpl_cat = [
-                'NAME' => $category['name'],
-                'NB_PHOTOS' => isset($nb_photos_in[$category['id']]) ? $nb_photos_in[$category['id']] : 0,
-                'NB_SUB_PHOTOS' => isset($nb_sub_photos[$category['id']]) ? $nb_sub_photos[$category['id']] : 0,
-                'NB_SUB_ALBUMS' => isset($subcats_of[$category['id']]) ? count($subcats_of[$category['id']]) : 0,
-                'ID' => $category['id'],
-                'RANK' => $category['rank'] * 10,
-                'U_JUMPTO' => $this->generateUrl('album', ['category_id' => $category['id']]),
-                'U_CHILDREN' => $this->generateUrl('admin_albums', ['parent_id' => $category['id']]),
-                'U_EDIT' => $this->generateUrl('admin_album', ['album_id' => $category['id'], 'parent_id' => $parent_id]),
-                'IS_VIRTUAL' => empty($category['dir']),
-                'IS_PRIVATE' => $category['status'] === 'private',
+                'NAME' => $album->getName(),
+                'NB_PHOTOS' => $nb_photos_in[$album->getId()] ?? 0,
+                'NB_SUB_PHOTOS' => $nb_sub_photos[$album->getId()] ?? 0,
+                'NB_SUB_ALBUMS' => $subcats_of[$album->getId()] ?? 0,
+                'ID' => $album->getId(),
+                'RANK' => $album->getRank() * 10,
+                'U_JUMPTO' => $this->generateUrl('album', ['category_id' => $album->getId()]),
+                'U_CHILDREN' => $this->generateUrl('admin_albums', ['parent_id' => $album->getId()]),
+                'U_EDIT' => $this->generateUrl('admin_album', ['album_id' => $album->getId(), 'parent_id' => $parent_id]),
+                'IS_VIRTUAL' => $album->isVirtual(),
+                'IS_PRIVATE' => $album->getStatus() === Album::STATUS_PRIVATE,
             ];
 
-            if (empty($category['dir'])) {
-                $tpl_cat['U_DELETE'] = $this->generateUrl('admin_album_delete', ['album_id' => $category['id'], 'parent_id' => $parent_id]);
+            if ($album->isVirtual()) {
+                $tpl_cat['U_DELETE'] = $this->generateUrl('admin_album_delete', ['album_id' => $album->getId(), 'parent_id' => $parent_id]);
             } else {
                 if ($conf['enable_synchronization']) {
                     $tpl_cat['U_SYNC'] = $this->generateUrl('admin_site_update');
@@ -145,21 +148,20 @@ class AlbumsController extends AdminCommonController
         return $this->render('albums_list.html.twig', $tpl_params);
     }
 
-    public function update(Request $request, int $parent_id = null, CategoryMapper $categoryMapper, EntityManager $em, TranslatorInterface $translator)
+    public function update(Request $request, int $parent_id = null, AlbumRepository $albumRepository, AlbumMapper $albumMapper, EntityManager $em, TranslatorInterface $translator)
     {
         if ($request->isMethod('POST')) {
             if ($request->request->get('submitManualOrder')) { // save manual category ordering
                 $categoriesOrder = $request->request->get('catOrd');
                 asort($categoriesOrder, SORT_NUMERIC);
-                $categoryMapper->saveCategoriesOrder(array_keys($categoriesOrder));
+                $albumMapper->saveAlbumsOrder(array_keys($categoriesOrder));
 
                 $this->addFlash('info', $translator->trans('Album manual order was saved', [], 'admin'));
             } elseif ($request->request->get('submitAutoOrder')) {
-                $result = $em->getRepository(CategoryRepository::class)->findByField('id_uppercat', $parent_id);
-                $category_ids = $em->getConnection()->result2array($result, null, 'id');
+                $category_ids = $albumMapper->getUppercatIds([$parent_id]);
 
                 if ($request->request->get('recursive')) {
-                    $category_ids = $em->getRepository(CategoryRepository::class)->getSubcatIds($category_ids);
+                    $category_ids = $albumRepository->getSubcatIds($category_ids);
                 }
 
                 $categories = [];
@@ -171,26 +173,26 @@ class AlbumsController extends AdminCommonController
                 if (strpos($order_by_field, 'date_') === 0) {
                     $order_by_date = true;
 
-                    $ref_dates = $categoryMapper->getCategoriesRefDate($category_ids, $order_by_field, 'ASC' == $order_by_asc ? 'min' : 'max');
+                    $ref_dates = $albumMapper->getAlbumsRefDate($category_ids, $order_by_field, 'ASC' == $order_by_asc ? 'min' : 'max');
                 }
 
-                $result = $em->getRepository(CategoryRepository::class)->findByIds($category_ids);
-                while ($row = $em->getConnection()->db_fetch_assoc($result)) {
+                $albums = [];
+                foreach ($albumRepository->findById($category_ids) as $album) {
                     if ($order_by_date) {
-                        $sort[] = $ref_dates[$row['id']];
+                        $sort[] = $ref_dates[$album->getId()];
                     } else {
-                        $sort[] = $row['name'];
+                        $sort[] = $album->getName();
                     }
 
                     $categories[] = [
-                        'id' => $row['id'],
-                        'id_uppercat' => $row['id_uppercat'],
+                        'id' => $album->getId(),
+                        'id_uppercat' => $album->getIdUppercat(),
                     ];
                 }
 
                 array_multisort($sort, SORT_REGULAR, 'ASC' == $order_by_asc ? SORT_ASC : SORT_DESC, $categories);
 
-                $categoryMapper->saveCategoriesOrder($categories);
+                $albumMapper->saveAlbumsOrder($categories);
                 $this->addFlash('info', $translator->trans('Albums automatically sorted', [], 'admin'));
             }
         }
@@ -199,7 +201,7 @@ class AlbumsController extends AdminCommonController
     }
 
     public function move(Request $request, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                        CategoryMapper $categoryMapper, TranslatorInterface $translator)
+                        AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -208,7 +210,7 @@ class AlbumsController extends AdminCommonController
 
         if ($request->isMethod('POST')) {
             if ($request->request->get('selection')) {
-                $categoryMapper->moveCategories($request->request->get('selection'), $request->request->get('parent'));
+                $albumMapper->moveAlbums($request->request->get('selection'), $request->request->get('parent'));
             } else {
                 $this->addFlash('error', $translator->trans('Select at least one album', [], 'admin'));
             }
@@ -216,13 +218,17 @@ class AlbumsController extends AdminCommonController
             return $this->redirectToRoute('admin_albums_move', ['parent_id' => $parent_id]);
         }
 
-        $result = $em->getRepository(CategoryRepository::class)->findWithCondition(['dir IS NULL']);
-        $categories = $em->getConnection()->result2array($result);
-        $tpl_params = array_merge($tpl_params, $categoryMapper->displaySelectCategoriesWrapper($categories, [], 'category_to_move_options'));
+        $physical_albums = [];
+        foreach ($albumRepository->findPhysicalAlbums() as $album) {
+            $physical_albums[] = $album;
+        }
+        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($physical_albums, [], 'category_to_move_options'));
 
-        $result = $em->getRepository(CategoryRepository::class)->findAll();
-        $categories = $em->getConnection()->result2array($result);
-        $tpl_params = array_merge($tpl_params, $categoryMapper->displaySelectCategoriesWrapper($categories, [], 'category_parent_options'));
+        $albums = [];
+        foreach ($albumRepository->findAll() as $album) {
+            $albums[] = $album;
+        }
+        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_parent_options'));
 
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_albums_move', ['parent_id' => $parent_id]);
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums_move');

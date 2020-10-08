@@ -11,10 +11,11 @@
 
 namespace Phyxo\Ws;
 
+use App\DataMapper\AlbumMapper;
+use App\DataMapper\CategoryMapper;
 use Phyxo\Ws\Error;
 use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
-use App\DataMapper\CategoryMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\UserMapper;
 use Phyxo\Conf;
@@ -34,7 +35,7 @@ use Symfony\Component\Security\Core\Security;
 
 class Server
 {
-    private $upload_dir, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $searchMapper, $imageMapper, $phyxoVersion, $conn,
+    private $upload_dir, $tagMapper, $commentMapper, $userMapper, $albumMapper, $categoryMapper, $rateMapper, $searchMapper, $imageMapper, $phyxoVersion, $conn,
             $em, $conf, $router, $image_std_params, $userManager, $passwordEncoder, $pem_url, $security, $params, $userProvider, $request, $managerRegistry;
 
     private $_requestHandler;
@@ -129,6 +130,16 @@ class Server
     public function getImageMapper()
     {
         return $this->imageMapper;
+    }
+
+    public function addAlbumMapper(AlbumMapper $albumMapper)
+    {
+        $this->albumMapper = $albumMapper;
+    }
+
+    public function getAlbumMapper()
+    {
+        return $this->albumMapper;
     }
 
     public function addCategoryMapper(CategoryMapper $categoryMapper)

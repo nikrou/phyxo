@@ -11,8 +11,9 @@
 
 namespace App\Controller\Admin;
 
-use App\DataMapper\CategoryMapper;
-use App\Repository\CategoryRepository;
+use App\DataMapper\AlbumMapper;
+use App\Entity\Album;
+use App\Repository\AlbumRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
@@ -40,7 +41,8 @@ class AlbumsOptionsController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function index(Request $request, string $section, EntityManager $em, Conf $conf, ParameterBagInterface $params, CategoryMapper $categoryMapper, TranslatorInterface $translator)
+    public function index(Request $request, string $section, EntityManager $em, Conf $conf, ParameterBagInterface $params, AlbumMapper $albumMapper,
+                        AlbumRepository $albumRepository, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -50,24 +52,24 @@ class AlbumsOptionsController extends AdminCommonController
         if ($request->isMethod('POST')) {
             if ($request->request->get('falsify') && $request->request->get('cat_true') && count($request->request->get('cat_true')) > 0) {
                 if ($section === 'comments') {
-                    $em->getRepository(CategoryRepository::class)->updateCategories(['commentable' => false], $request->request->get('cat_true'));
+                    $albumRepository->updateAlbums(['commentable' => false], $request->request->get('cat_true'));
                 } elseif ($section === 'lock') {
-                    $categoryMapper->setCatVisible($request->request->get('cat_true'), false);
+                    $albumMapper->setAlbumsVisibility($request->request->get('cat_true'), false);
                 } elseif ($section === 'status') {
-                    $categoryMapper->setCatStatus($request->request->get('cat_true'), 'private');
+                    $albumMapper->setAlbumsStatus($request->request->get('cat_true'), Album::STATUS_PRIVATE);
                 } elseif ($section === 'representative') {
-                    $em->getRepository(CategoryRepository::class)->updateCategories(['representative_picture_id' => null], $request->request->get('cat_true'));
+                    $albumRepository->updateAlbums(['representative_picture_id' => null], $request->request->get('cat_true'));
                 }
             } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && count($request->request->get('cat_false')) > 0) {
                 if ($section === 'comments') {
-                    $em->getRepository(CategoryRepository::class)->updateCategories(['commentable' => true], $request->request->get('cat_false'));
+                    $albumRepository->updateAlbums(['commentable' => true], $request->request->get('cat_false'));
                 } elseif ($section === 'lock') {
-                    $categoryMapper->setCatVisible($request->request->get('cat_false'), true);
+                    $albumMapper->setAlbumsVisibility($request->request->get('cat_false'), true);
                 } elseif ($section === 'status') {
-                    $categoryMapper->setCatStatus($request->request->get('cat_false'), 'public');
+                    $albumMapper->setAlbumsStatus($request->request->get('cat_false'), Album::STATUS_PUBLIC);
                 } elseif ($section === 'representative') {
                     // theoretically, all categories in $_POST['cat_false'] contain at least one element, so Phyxo can find a representant.
-                    $categoryMapper->setRandomRepresentant($request->request->get('cat_false'));
+                    $albumMapper->setRandomRepresentant($request->request->get('cat_false'));
                 }
             }
 
@@ -79,8 +81,8 @@ class AlbumsOptionsController extends AdminCommonController
         $tpl_params['L_CAT_OPTIONS_TRUE'] = $cats['L_CAT_OPTIONS_TRUE'];
         $tpl_params['L_CAT_OPTIONS_FALSE'] = $cats['L_CAT_OPTIONS_FALSE'];
 
-        $tpl_params = array_merge($tpl_params, $categoryMapper->displaySelectCategoriesWrapper($cats['cats_true'], [], 'category_option_true'));
-        $tpl_params = array_merge($tpl_params, $categoryMapper->displaySelectCategoriesWrapper($cats['cats_false'], [], 'category_option_false'));
+        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($cats['cats_true'], [], 'category_option_true'));
+        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($cats['cats_false'], [], 'category_option_false'));
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums_options', ['section' => $section]);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
@@ -91,7 +93,7 @@ class AlbumsOptionsController extends AdminCommonController
         return $this->render('albums_options.html.twig', $tpl_params);
     }
 
-    protected function getCatsBySection(string $section, EntityManager $em): array
+    protected function getCatsBySection(string $section, AlbumRepository $albumRepository): array
     {
         $cats_true = [];
         $cats_false = [];
@@ -99,34 +101,51 @@ class AlbumsOptionsController extends AdminCommonController
         $l_true = '';
         $l_false = '';
         if ($section === 'comments') {
-            $result = $em->getRepository(CategoryRepository::class)->findByField('commentable', true);
-            $cats_true = $em->getConnection()->result2array($result);
-            $result = $em->getRepository(CategoryRepository::class)->findByField('commentable', false);
-            $cats_false = $em->getConnection()->result2array($result);
+            $cats_true = $cats_false = [];
+            foreach ($albumRepository->findAll() as $album) {
+                if ($album->isCommentable()) {
+                    $cats_true[] = $album;
+                } else {
+                    $cats_false[] = $album;
+                }
+            }
+
             $l_section = $this->translator->trans('Authorize users to add comments on selected albums', [], 'admin');
             $l_true = $this->translator->trans('Authorized', [], 'admin');
             $l_false = $this->translator->trans('Forbidden', [], 'admin');
         } elseif ($section === 'lock') {
-            $result = $em->getRepository(CategoryRepository::class)->findByField('visible', true);
-            $cats_true = $em->getConnection()->result2array($result);
-            $result = $em->getRepository(CategoryRepository::class)->findByField('visible', false);
-            $cats_false = $em->getConnection()->result2array($result);
+            foreach ($albumRepository->findAll() as $album) {
+                if ($album->isVisible()) {
+                    $cats_true[] = $album;
+                } else {
+                    $cats_false[] = $album;
+                }
+            }
+
             $l_section = $this->translator->trans('Lock albums', [], 'admin');
             $l_true = $this->translator->trans('Unlocked', [], 'admin');
             $l_false = $this->translator->trans('Locked', [], 'admin');
         } elseif ($section === 'status') {
-            $result = $em->getRepository(CategoryRepository::class)->findByField('status', 'public');
-            $cats_true = $em->getConnection()->result2array($result);
-            $result = $em->getRepository(CategoryRepository::class)->findByField('status', 'private');
-            $cats_false = $em->getConnection()->result2array($result);
+            foreach ($albumRepository->findAll() as $album) {
+                if ($album->getStatus() === Album::STATUS_PUBLIC) {
+                    $cats_true[] = $album;
+                } else {
+                    $cats_false[] = $album;
+                }
+            }
+
             $l_section = $this->translator->trans('Manage authorizations for selected albums', [], 'admin');
             $l_true = $this->translator->trans('Public', [], 'admin');
             $l_false = $this->translator->trans('Private', [], 'admin');
         } elseif ($section === 'representative') {
-            $result = $em->getRepository(CategoryRepository::class)->findWithRepresentant();
-            $cats_true = $em->getConnection()->result2array($result);
-            $result = $em->getRepository(CategoryRepository::class)->findWithNoRepresentant();
-            $cats_false = $em->getConnection()->result2array($result);
+            foreach ($albumRepository->findAll() as $album) {
+                if ($album->getRepresentativePictureId()) {
+                    $cats_true[] = $album;
+                } else {
+                    $cats_false[] = $album;
+                }
+            }
+
             $l_section = $this->translator->trans('Representative', [], 'admin');
             $l_true = $this->translator->trans('singly represented', [], 'admin');
             $l_false = $this->translator->trans('randomly represented', [], 'admin');

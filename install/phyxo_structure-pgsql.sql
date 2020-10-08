@@ -16,9 +16,6 @@ CREATE TABLE "phyxo_caddie"
 -----------------------------------------------------------------------------
 
 DROP TABLE IF EXISTS "phyxo_categories";
-DROP TYPE IF EXISTS CATEGORIES_STATUS;
-
-CREATE TYPE CATEGORIES_STATUS AS ENUM('public', 'private');
 CREATE TABLE "phyxo_categories"
 (
   "id" serial  NOT NULL,
@@ -27,7 +24,7 @@ CREATE TABLE "phyxo_categories"
   "comment" TEXT,
   "dir" VARCHAR(255),
   "rank" INTEGER,
-  "status" CATEGORIES_STATUS DEFAULT 'public'::CATEGORIES_STATUS,
+  "status" VARCHAR(25) NOT NULL DEFAULT 'public',
   "site_id" INTEGER DEFAULT 1,
   "visible" BOOLEAN DEFAULT true,
   "representative_picture_id" INTEGER,

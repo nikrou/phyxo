@@ -86,7 +86,7 @@ class UserInfos
     private $enabled_high = true;
 
     /**
-     * @ORM\Column(name="lastmodified", type="datetime")
+     * @ORM\Column(name="lastmodified", type="datetime", nullable=true)
      */
     private $last_modified;
 

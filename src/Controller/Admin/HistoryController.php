@@ -11,17 +11,14 @@
 
 namespace App\Controller\Admin;
 
-use App\DataMapper\CategoryMapper;
+use App\DataMapper\AlbumMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\Search;
-use App\Entity\User;
-use App\Repository\CategoryRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\SearchRepository;
 use App\Repository\TagRepository;
-use App\Repository\UserInfosRepository;
 use App\Repository\UserRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
@@ -188,7 +185,7 @@ class HistoryController extends AdminCommonController
         return $this->render('history_stats.html.twig', $tpl_params);
     }
 
-    public function search(Request $request, SearchRepository $searchRepository, int $start, int $search_id = null, CategoryMapper $categoryMapper, Conf $conf,
+    public function search(Request $request, SearchRepository $searchRepository, int $start, int $search_id = null, AlbumMapper $albumMapper, Conf $conf,
                             EntityManager $em, ParameterBagInterface $params, UserRepository $userRepository, UserMapper $userMapper)
     {
         $tpl_params = [];
@@ -205,7 +202,7 @@ class HistoryController extends AdminCommonController
                 $rules = unserialize(base64_decode($search->getRules()));
             }
 
-            $tpl_params['search_results'] = $this->getElementFromSearchRules($rules, $start, $conf, $em, $categoryMapper, $userMapper, $userRepository);
+            $tpl_params['search_results'] = $this->getElementFromSearchRules($rules, $start, $conf, $em, $albumMapper, $userMapper, $userRepository);
             $tpl_params['search_summary'] = $tpl_params['search_results']['search_summary'];
             $nb_lines = $tpl_params['search_results']['nb_lines'];
 
@@ -246,7 +243,7 @@ class HistoryController extends AdminCommonController
         return $this->render('history_search.html.twig', $tpl_params);
     }
 
-    protected function getElementFromSearchRules(array $rules, int $start, Conf $conf, EntityManager $em, CategoryMapper $categoryMapper, UserMapper $userMapper,
+    protected function getElementFromSearchRules(array $rules, int $start, Conf $conf, EntityManager $em, AlbumMapper $albumMapper, UserMapper $userMapper,
                                             UserRepository $userRepository): array
     {
         $search_results = [];
@@ -297,13 +294,13 @@ class HistoryController extends AdminCommonController
         }
 
         if (count($category_ids) > 0) {
-            $result = $em->getRepository(CategoryRepository::class)->findByIds($category_ids);
+            $result = $albumMapper->getRepository()->findById($category_ids);
             $uppercats_of = $em->getConnection()->result2array($result, 'id', 'uppercats');
 
             $name_of_category = [];
 
             foreach ($uppercats_of as $category_id => $uppercats) {
-                $name_of_category[$category_id] = $categoryMapper->getCatDisplayNameCache($uppercats);
+                $name_of_category[$category_id] = $albumMapper->getAlbumsDisplayNameCache($uppercats);
             }
         }
 

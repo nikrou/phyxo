@@ -21,20 +21,19 @@ CREATE TABLE `phyxo_categories` (
   `comment` text,
   `dir` VARCHAR(255) DEFAULT NULL,
   `rank` SMALLINT(5) UNSIGNED DEFAULT NULL,
-  `status` enum('public','private') NOT NULL DEFAULT 'public',
+  `status` VARCHAR(25) NOT NULL DEFAULT 'public',
   `site_id` TINYINT(4) UNSIGNED DEFAULT NULL,
-  `visible` enum('true','false') NOT NULL DEFAULT 'true',
+  `visible` TINYINT(1) NOT NULL DEFAULT 1,
   `representative_picture_id` MEDIUMINT(8) UNSIGNED DEFAULT NULL,
   `uppercats` VARCHAR(255) NOT NULL DEFAULT '',
-  `commentable` enum('true','false') NOT NULL DEFAULT 'true',
+  `commentable` TINYINT(1) NOT NULL DEFAULT 1,
   `global_rank` VARCHAR(255) DEFAULT NULL,
   `image_order` VARCHAR(128) DEFAULT NULL,
   `permalink` VARCHAR(64) BINARY DEFAULT NULL,
-  `lastmodified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastmodified` DATETIME DEFAULT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `categories_i3` (`permalink`),
-  KEY `categories_i2` (`id_uppercat`),
-  KEY `lastmodified` (`lastmodified`)
+  KEY `categories_i2` (`id_uppercat`)
 ) ENGINE=InnoDB;
 
 --
@@ -65,9 +64,9 @@ CREATE TABLE `phyxo_comments` (
 
 DROP TABLE IF EXISTS `phyxo_config`;
 CREATE TABLE `phyxo_config` (
-  `param` VARCHAR(40) NOT NULL DEFAULT '',
-  `type` VARCHAR(15),
-  `value` text,
+  `param` VARCHAR(40) NOT NULL,
+  `value` LONGTEXT DEFAULT NULL,
+  `type` VARCHAR(15) DEFAULT 'string',
   `comment` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY  (`param`)
 ) ENGINE=InnoDB;
@@ -100,12 +99,12 @@ CREATE TABLE `phyxo_group_access` (
 
 DROP TABLE IF EXISTS `phyxo_groups`;
 CREATE TABLE `phyxo_groups` (
-  `id` SMALLINT(5) UNSIGNED NOT NULL auto_increment,
-  `name` VARCHAR(255) NOT NULL DEFAULT '',
+  `id` INT AUTO_INCREMENT NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
   `is_default` TINYINT(1) NOT NULL,
   `lastmodified` DATETIME DEFAULT NULL,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `groups_ui1` (`name`)
+  UNIQUE KEY `groups_ui1` (`name`),
+  PRIMARY KEY(`id`)
 ) ENGINE=InnoDB;
 
 --
@@ -217,10 +216,10 @@ CREATE TABLE `phyxo_images` (
 
 DROP TABLE IF EXISTS `phyxo_languages`;
 CREATE TABLE `phyxo_languages` (
-  `id` VARCHAR(64) NOT NULL DEFAULT '',
-  `version` VARCHAR(64) NOT NULL DEFAULT '0',
-  `name` VARCHAR(64) DEFAULT NULL,
-  PRIMARY KEY  (`id`)
+  `id` VARCHAR(40) NOT NULL,
+  `version` VARCHAR(64) DEFAULT NULL,
+  `name` VARCHAR(64) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 --
@@ -243,10 +242,10 @@ CREATE TABLE `phyxo_old_permalinks` (
 
 DROP TABLE IF EXISTS `phyxo_plugins`;
 CREATE TABLE `phyxo_plugins` (
-  `id` VARCHAR(64) BINARY NOT NULL DEFAULT '',
-  `state` VARCHAR(25) NOT NULL DEFAULT 'inactive',
-  `version` VARCHAR(64) NOT NULL DEFAULT '0',
-  PRIMARY KEY  (`id`)
+  `id` VARCHAR(40) NOT NULL,
+  `state` VARCHAR(25) NOT NULL,
+  `version` VARCHAR(64) DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 --
@@ -269,9 +268,9 @@ CREATE TABLE `phyxo_rate` (
 
 DROP TABLE IF EXISTS `phyxo_search`;
 CREATE TABLE `phyxo_search` (
-  `id` int(10) UNSIGNED NOT NULL auto_increment,
-  `last_seen` date DEFAULT NULL,
-  `rules` text,
+  `id` INT AUTO_INCREMENT NOT NULL,
+  `last_seen` DATE DEFAULT NULL,
+  `rules` LONGTEXT DEFAULT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 
@@ -293,8 +292,8 @@ CREATE TABLE `phyxo_sessions` (
 
 DROP TABLE IF EXISTS `phyxo_sites`;
 CREATE TABLE `phyxo_sites` (
-  `id` TINYINT(4) NOT NULL auto_increment,
-  `galleries_url` VARCHAR(255) NOT NULL DEFAULT '',
+  `id` INT AUTO_INCREMENT NOT NULL,
+  `galleries_url` VARCHAR(255) NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 
@@ -320,10 +319,10 @@ CREATE TABLE `phyxo_tags` (
 
 DROP TABLE IF EXISTS `phyxo_themes`;
 CREATE TABLE `phyxo_themes` (
-  `id` VARCHAR(64) NOT NULL DEFAULT '',
-  `version` VARCHAR(64) NOT NULL DEFAULT '0',
-  `name` VARCHAR(64) DEFAULT NULL,
-  PRIMARY KEY  (`id`)
+  `id` VARCHAR(40) NOT NULL,
+  `version` VARCHAR(64) DEFAULT NULL,
+  `name` VARCHAR(64) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 --
@@ -332,10 +331,10 @@ CREATE TABLE `phyxo_themes` (
 
 DROP TABLE IF EXISTS `phyxo_upgrade`;
 CREATE TABLE `phyxo_upgrade` (
-  `id` VARCHAR(20) NOT NULL DEFAULT '',
-  `applied` datetime DEFAULT NULL,
+  `id` VARCHAR(40) NOT NULL,
+  `applied` DATETIME NOT NULL,
   `description` VARCHAR(255) DEFAULT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 --
@@ -374,7 +373,7 @@ CREATE TABLE `phyxo_user_cache` (
 
 DROP TABLE IF EXISTS `phyxo_user_cache_categories`;
 CREATE TABLE `phyxo_user_cache_categories` (
-  `user_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  `user_id` INT NOT NULL,
   `cat_id` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
   `date_last` datetime DEFAULT NULL,
   `max_date_last` datetime DEFAULT NULL,
@@ -392,9 +391,11 @@ CREATE TABLE `phyxo_user_cache_categories` (
 
 DROP TABLE IF EXISTS `phyxo_user_feed`;
 CREATE TABLE `phyxo_user_feed` (
-  `id` VARCHAR(50) BINARY NOT NULL DEFAULT '',
-  `user_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
-  `last_check` datetime DEFAULT NULL,
+  `id` INT AUTO_INCREMENT NOT NULL,
+  `user_id` INT NOT NULL,
+  `last_check` DATETIME DEFAULT NULL,
+  `uuid` CHAR(36) NOT NULL,
+  UNIQUE KEY `feed_uuid` (`uuid`),
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 
@@ -404,9 +405,9 @@ CREATE TABLE `phyxo_user_feed` (
 
 DROP TABLE IF EXISTS `phyxo_user_group`;
 CREATE TABLE `phyxo_user_group` (
-  `user_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
-  `group_id` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
-  PRIMARY KEY  (`group_id`,`user_id`)
+  `user_id` INT NOT NULL,
+  `group_id` INT NOT NULL,
+  PRIMARY KEY (`group_id`, `user_id`)
 ) ENGINE=InnoDB;
 
 --
@@ -415,18 +416,18 @@ CREATE TABLE `phyxo_user_group` (
 
 DROP TABLE IF EXISTS `phyxo_user_infos`;
 CREATE TABLE `phyxo_user_infos` (
-  `user_id` INTEGER NOT NULL,
-  `nb_image_page` SMALLINT(3) UNSIGNED NOT NULL DEFAULT 0,
+  `user_id` INT NOT NULL,
+  `nb_image_page` INT NOT NULL DEFAULT 15,
   `status` VARCHAR(50) NOT NULL,
-  `language` VARCHAR(50) NOT NULL,
+  `language` VARCHAR(50) NOT NULL DEFAULT 'en_GB',
   `expand` TINYINT(1) NOT NULL DEFAULT 0,
   `show_nb_comments` TINYINT(1) NOT NULL DEFAULT 0,
   `show_nb_hits` TINYINT(1) NOT NULL DEFAULT 0,
-  `recent_period` TINYINT(3) UNSIGNED NOT NULL,
-  `theme` VARCHAR(255) NOT NULL,
+  `recent_period` INT NOT NULL DEFAULT 7,
+  `theme` VARCHAR(255) NOT NULL DEFAULT 'treflez',
   `registration_date` DATETIME DEFAULT NULL,
   `enabled_high` TINYINT(1) NOT NULL,
-  `level` TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  `level` INT DEFAULT 0,
   `activation_key` VARCHAR(255) DEFAULT NULL,
   `activation_key_expire` DATETIME DEFAULT NULL,
   `lastmodified` DATETIME DEFAULT NULL,
@@ -439,12 +440,12 @@ CREATE TABLE `phyxo_user_infos` (
 
 DROP TABLE IF EXISTS `phyxo_user_mail_notification`;
 CREATE TABLE `phyxo_user_mail_notification` (
-  `user_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
-  `check_key` VARCHAR(16) BINARY NOT NULL DEFAULT '',
-  `enabled` TINYINT(1) NOT NULL,
-  `last_send` datetime DEFAULT NULL,
-  PRIMARY KEY  (`user_id`),
-  UNIQUE KEY `user_mail_notification_ui1` (`check_key`)
+  `user_id` INT NOT NULL,
+  `check_key` VARCHAR(16) DEFAULT NULL,
+  `enabled` TINYINT(1) NOT NULL DEFAULT 0,
+  last_send DATETIME DEFAULT NULL,
+  UNIQUE KEY `user_mail_notification_ui1` (`check_key`),
+  PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB;
 
 --
@@ -453,10 +454,10 @@ CREATE TABLE `phyxo_user_mail_notification` (
 
 DROP TABLE IF EXISTS `phyxo_users`;
 CREATE TABLE `phyxo_users` (
-  `id` MEDIUMINT(8) UNSIGNED NOT NULL auto_increment,
-  `username` VARCHAR(100) BINARY NOT NULL DEFAULT '',
+  `id` INT AUTO_INCREMENT NOT NULL,
+  `username` VARCHAR(100) NOT NULL,
   `password` VARCHAR(255) DEFAULT NULL,
   `mail_address` VARCHAR(255) DEFAULT NULL,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `users_ui1` (`username`)
+  UNIQUE KEY `users_ui1` (`username`),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;

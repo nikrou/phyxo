@@ -11,14 +11,13 @@
 
 namespace App\Controller;
 
+use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\MenuBar;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use App\Repository\ImageRepository;
 use App\DataMapper\TagMapper;
-use App\Repository\BaseRepository;
-use App\Repository\CategoryRepository;
 use App\DataMapper\CategoryMapper;
 use App\Repository\SearchRepository;
 use App\DataMapper\SearchMapper;
@@ -65,7 +64,7 @@ class SearchController extends CommonController
         return $this->redirectToRoute('search_results', ['search_id' => $search_id]);
     }
 
-    public function search(Request $request, EntityManager $em, TagMapper $tagMapper, CategoryMapper $categoryMapper, Conf $conf,
+    public function search(Request $request, EntityManager $em, TagMapper $tagMapper, AlbumMapper $albumMapper, Conf $conf,
         SearchRepository $searchRepository, MenuBar $menuBar, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -113,19 +112,11 @@ class SearchController extends CommonController
         ksort($month_list);
         $tpl_params['month_list'] = $month_list;
 
-        $where = [];
-        $where[] = $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
-            $this->getUser(),
-            $filter,
-            [
-                'forbidden_categories' => 'id',
-                'visible_categories' => 'id'
-            ]
-        );
-
-        $result = $em->getRepository(CategoryRepository::class)->findWithCondition($where);
-        $categories = $em->getConnection()->result2array($result);
-        $tpl_params = array_merge($tpl_params, $categoryMapper->displaySelectCategoriesWrapper($categories, [], 'category_options', true));
+        $albums = [];
+        foreach ($albumMapper->getRepository()->findAllowedAlbums($this->getUser()->getForbiddenCategories()) as $album) {
+            $albums[] = $album;
+        }
+        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_options', true));
 
         $tpl_params['F_SEARCH_ACTION'] = $this->generateUrl('search');
         $tpl_params['month_list'] = $month_list;
@@ -349,7 +340,7 @@ class SearchController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function searchRules(Request $request, EntityManager $em, CategoryMapper $categoryMapper, SearchMapper $searchMapper, Conf $conf,
+    public function searchRules(Request $request, EntityManager $em, CategoryMapper $categoryMapper, AlbumMapper $albumMapper, Conf $conf,
                                 SearchRepository $searchRepository, int $search_id, MenuBar $menuBar, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -389,24 +380,22 @@ class SearchController extends CommonController
         }
 
         if (isset($rules['fields']['cat'])) {
+            $album_ids = [];
             if ($rules['fields']['cat']['sub_inc']) {
-                // searching all the categories id of sub-categories
-                $cat_ids = $em->getRepository(CategoryRepository::class)->getSubcatIds($rules['fields']['cat']['words']);
+                // searching all the albums id of sub-albums
+                $album_ids = $albumMapper->getRepository()->getSubcatIds($rules['fields']['cat']['words']);
             } else {
-                $cat_ids = $rules['fields']['cat']['words'];
+                $album_ids = $rules['fields']['cat']['words'];
             }
 
-            $result = $em->getRepository(CategoryRepository::class)->findByIds($cat_ids);
-            $categories = [];
-            if (!empty($result)) {
-                while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                    $categories[] = $row;
-                }
+            $albums = [];
+            foreach ($albumMapper->getRepository()->findById($album_ids) as $album) {
+                $albums[] = $album;
             }
-            usort($categories, '\Phyxo\Functions\Utils::global_rank_compare');
+            usort($albums, [AlbumMapper::class, 'globalRankCompare']);
 
-            foreach ($categories as $category) {
-                $tpl_params['search_categories'] = $categoryMapper->getCatDisplayNameCache($category['uppercats']);
+            foreach ($albums as $album) {
+                $tpl_params['search_categories'] = $albumMapper->getAlbumDisplayName($album->getUppercats());
             }
         }
 

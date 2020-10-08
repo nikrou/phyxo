@@ -11,7 +11,7 @@
 
 namespace App\Controller\Admin;
 
-use App\DataMapper\CategoryMapper;
+use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\Entity\Site;
 use App\Repository\CategoryRepository;
@@ -105,7 +105,7 @@ class SiteController extends AdminCommonController
         return $this->render('site_manager.html.twig', $tpl_params);
     }
 
-    public function delete(Request $request, EntityManager $em, ImageMapper $imageMapper, CategoryMapper $categoryMapper, TranslatorInterface $translator, SiteRepository $siteRepository)
+    public function delete(Request $request, EntityManager $em, ImageMapper $imageMapper, AlbumMapper $albumMapper, TranslatorInterface $translator, SiteRepository $siteRepository)
     {
         $site = $request->request->get('site');
 
@@ -113,12 +113,14 @@ class SiteController extends AdminCommonController
 
         if ($galleries_url) {
             // destruction of the categories of the site
-            $result = $em->getRepository(CategoryRepository::class)->findByField('site_id', $site);
-            $category_ids = $em->getConnection()->result2array($result, null, 'id');
-            $categoryMapper->deleteCategories($category_ids);
+            $album_ids = [];
+            foreach ($albumMapper->getRepository()->findBy(['site' => $site]) as $album) {
+                $album_ids[] = $album->getId();
+            }
+            $albumMapper->deleteAlbums($album_ids);
 
             // destruction of all photos physically linked to the category
-            $result = $em->getRepository(ImageRepository::class)->findByFields('storage_category_id', $category_ids);
+            $result = $em->getRepository(ImageRepository::class)->findByFields('storage_category_id', $album_ids);
             $element_ids = $em->getConnection()->result2array($result, null, 'id');
             $imageMapper->deleteElements($element_ids);
 

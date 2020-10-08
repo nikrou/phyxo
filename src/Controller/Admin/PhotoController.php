@@ -11,7 +11,7 @@
 
 namespace App\Controller\Admin;
 
-use App\DataMapper\CategoryMapper;
+use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
@@ -48,16 +48,18 @@ class PhotoController extends AdminCommonController
     }
 
     public function edit(Request $request, int $image_id, int $category_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper,
-                        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper, UserProvider $userProvider, TranslatorInterface $translator,
-                        UserRepository $userRepository)
+                        ImageStandardParams $image_std_params, UserMapper $userMapper, UserProvider $userProvider, TranslatorInterface $translator,
+                        UserRepository $userRepository, AlbumMapper $albumMapper)
     {
         $tpl_params = [];
         $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $result = $em->getRepository(CategoryRepository::class)->findByField('representative_picture_id', $image_id);
-        $represented_albums = $em->getConnection()->result2array($result, null, 'id');
+        $represented_albums = [];
+        foreach ($albumMapper->getRepository()->findBy(['representative_picture_id' => $image_id]) as $album) {
+            $represented_albums[] = $album->getId();
+        }
 
         if ($request->isMethod('POST')) {
             $data = [];
@@ -83,19 +85,19 @@ class PhotoController extends AdminCommonController
             $tagMapper->setTags($tag_ids, $image_id);
 
             // association to albums
-            $categoryMapper->moveImagesToCategories([$image_id], $request->request->get('associate') ?? []);
+            $albumMapper->moveImagesToAlbums([$image_id], $request->request->get('associate') ?? []);
 
             $userMapper->invalidateUserCache();
 
             // thumbnail for albums
             $no_longer_thumbnail_for = array_diff($represented_albums, $request->request->get('represent') ?? []);
             if (count($no_longer_thumbnail_for) > 0) {
-                $categoryMapper->setRandomRepresentant($no_longer_thumbnail_for);
+                $albumMapper->setRandomRepresentant($no_longer_thumbnail_for);
             }
 
             $new_thumbnail_for = array_diff($request->request->get('represent') ?? [], $represented_albums);
             if (count($new_thumbnail_for) > 0) {
-                $em->getRepository(CategoryRepository::class)->updateCategories(['representative_picture_id' => $image_id], $new_thumbnail_for);
+                $albumMapper->getRepository()->updateAlbums(['representative_picture_id' => $image_id], $new_thumbnail_for);
             }
 
             $represented_albums = $request->request->get('represent') ?? [];
@@ -168,14 +170,16 @@ class PhotoController extends AdminCommonController
         $tpl_params['level_options_selected'] = $selected_level;
 
         // associate to albums
-        $result = $em->getRepository(CategoryRepository::class)->findAll();
-        $cache_categories = $em->getConnection()->result2array($result, 'id');
+        $cache_albums = [];
+        foreach ($albumMapper->getRepository()->findAll() as $album) {
+            $cache_albums[$album->getId()] = $album;
+        }
 
         $result = $em->getRepository(CategoryRepository::class)->findCategoriesForImage($image_id);
         $associated_albums = $em->getConnection()->result2array($result, 'id');
 
         foreach ($associated_albums as $album) {
-            $name = $categoryMapper->getCatDisplayNameCache($album['uppercats']);
+            $name = $albumMapper->getAlbumsDisplayNameCache($album['uppercats']);
 
             if ($album['category_id'] === $storage_category_id) {
                 $tpl_params['STORAGE_CATEGORY'] = $name;
@@ -200,7 +204,7 @@ class PhotoController extends AdminCommonController
         if ($category_id && in_array($category_id, $authorizeds)) {
             $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'category', 'element_id' => $category_id]);
         } else {
-            $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'category', 'element_id' => $cache_categories[$authorizeds[0]]['id']]);
+            $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'category', 'element_id' => $cache_albums[$authorizeds[0]]->getId()]);
         }
 
         if (!empty($url_img)) {

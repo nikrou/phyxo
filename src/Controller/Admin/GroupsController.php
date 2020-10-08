@@ -11,9 +11,11 @@
 
 namespace App\Controller\Admin;
 
-use App\DataMapper\CategoryMapper;
+use App\DataMapper\AlbumMapper;
 use App\DataMapper\UserMapper;
+use App\Entity\Album;
 use App\Entity\Group;
+use App\Repository\AlbumRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\GroupAccessRepository;
 use App\Repository\GroupRepository;
@@ -97,8 +99,8 @@ class GroupsController extends AdminCommonController
         return $this->render('groups_list.html.twig', $tpl_params);
     }
 
-    public function perm(Request $request, int $group_id, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                        CategoryMapper $categoryMapper, UserMapper $userMapper, TranslatorInterface $translator, GroupRepository $groupRepository)
+    public function perm(Request $request, int $group_id, EntityManager $em, Conf $conf, ParameterBagInterface $params, AlbumRepository $albumRepository,
+                        AlbumMapper $albumMapper, UserMapper $userMapper, TranslatorInterface $translator, GroupRepository $groupRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -108,15 +110,13 @@ class GroupsController extends AdminCommonController
         if ($request->isMethod('POST')) {
             if ($request->request->get('falsify') && $request->request->get('cat_true') && count($request->request->get('cat_true')) > 0) {
                 // if you forbid access to a category, all sub-categories become automatically forbidden
-                $subcats = $em->getRepository(CategoryRepository::class)->getSubcatIds($request->request->get('cat_true'));
+                $subcats = $albumRepository->getSubcatIds($request->request->get('cat_true'));
                 $em->getRepository(GroupAccessRepository::class)->deleteByGroupIdsAndCatIds([$group_id], $subcats);
             } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && count($request->request->get('cat_false')) > 0) {
-                $uppercats = $categoryMapper->getUppercatIds($request->request->get('cat_false'));
+                $uppercats = $albumMapper->getUppercatIds($request->request->get('cat_false'));
                 $private_uppercats = [];
-
-                $result = $em->getRepository(CategoryRepository::class)->findByIds($uppercats, 'private');
-                while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                    $private_uppercats[] = $row['id'];
+                foreach ($albumRepository->findByIdsAndStatus($uppercats, Album::STATUS_PRIVATE) as $album) {
+                    $private_uppercats[] = $album->getId();
                 }
 
                 // retrying to authorize a category which is already authorized may cause
@@ -155,16 +155,18 @@ class GroupsController extends AdminCommonController
         // only private categories are listed
         $result = $em->getRepository(CategoryRepository::class)->findWithGroupAccess($group_id);
         $categories = $em->getConnection()->result2array($result);
-        $tpl_params = array_merge($tpl_params, $categoryMapper->displaySelectCategoriesWrapper($categories, [], 'category_option_true'));
+        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectCategoriesWrapper($categories, [], 'category_option_true'));
 
         $authorized_ids = [];
         foreach ($categories as $category) {
             $authorized_ids[] = $category['id'];
         }
 
-        $result = $em->getRepository(CategoryRepository::class)->findUnauthorized($authorized_ids);
-        $categories = $em->getConnection()->result2array($result);
-        $tpl_params = array_merge($tpl_params, $categoryMapper->displaySelectCategoriesWrapper($categories, [], 'category_option_false'));
+        $albums = [];
+        foreach ($albumRepository->findUnauthorized($authorized_ids) as $album) {
+            $albums[] = $album;
+        }
+        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_option_false'));
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_groups');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Groups', [], 'admin');

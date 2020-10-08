@@ -11,6 +11,7 @@
 
 namespace App\Controller;
 
+use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
@@ -18,20 +19,18 @@ use Phyxo\EntityManager;
 use App\Repository\CommentRepository;
 use App\Repository\BaseRepository;
 use App\Repository\ImageRepository;
-use App\Repository\CategoryRepository;
 use App\DataMapper\UserMapper;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use App\DataMapper\CommentMapper;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
-use App\DataMapper\CategoryMapper;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentController extends CommonController
 {
-    public function index(int $start = 0, int $comment_id = 0, Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar,
-                        UserMapper $userMapper, CsrfTokenManagerInterface $csrfTokenManager, CategoryMapper $categoryMapper, ImageStandardParams $image_std_params,
+    public function index(int $start = 0, int $comment_id = 0, Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar, AlbumMapper $albumMapper,
+                        UserMapper $userMapper, CsrfTokenManagerInterface $csrfTokenManager, ImageStandardParams $image_std_params,
                         TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -44,11 +43,10 @@ class CommentController extends CommonController
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('User comments');
 
-        $filter = [];
-        $result = $em->getRepository(CategoryRepository::class)->findWithCondition(
-            [$em->getRepository(BaseRepository::class)->getSQLConditionFandF($this->getUser(), $filter, ['forbidden_categories' => 'id', 'visible_categories' => 'id'])]
-        );
-        $categories = $em->getConnection()->result2array($result);
+        $albums = [];
+        foreach ($albumMapper->getRepository()->findAllowedAlbums($this->getUser()->getForbiddenCategories()) as $album) {
+            $albums[] = $album;
+        }
 
         // default values
         $tpl_params['items_number'] = $request->get('items_number') ? $request->get('items_number') : $conf['comments_page_nb_comments'];
@@ -80,7 +78,7 @@ class CommentController extends CommonController
         ];
         $tpl_params['since_options'] = array_combine(array_keys($since_options), array_column($since_options, 'label'));
 
-        $tpl_params = array_merge($tpl_params, $categoryMapper->displaySelectCategoriesWrapper($categories, [$tpl_params['category']], 'categories', true));
+        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [$tpl_params['category']], 'categories', true));
 
         $comments = [];
         $element_ids = [];
@@ -88,7 +86,7 @@ class CommentController extends CommonController
         // get params
         $where_clauses[] = $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
             $this->getUser(),
-            $filter,
+            [],
             [
                 'forbidden_categories' => 'category_id',
                 'visible_categories' => 'category_id',
@@ -97,9 +95,10 @@ class CommentController extends CommonController
             '',
             true
         );
-        $category_ids = $em->getRepository(CategoryRepository::class)->getSubcatIds([$tpl_params['category']]);
-        if (!empty($category_ids)) {
-            $where_clauses[] = 'category_id ' . $em->getConnection()->in($category_ids);
+
+        $album_ids = $albumMapper->getRepository()->getSubcatIds([$tpl_params['category']]);
+        if (count($album_ids) > 0) {
+            $where_clauses[] = 'category_id ' . $em->getConnection()->in($album_ids);
         }
 
         if (!empty($tpl_params['author'])) {
@@ -161,10 +160,6 @@ class CommentController extends CommonController
             // retrieving element informations
             $result = $em->getRepository(ImageRepository::class)->findByIds($element_ids);
             $elements = $em->getConnection()->result2array($result, 'id');
-
-            // retrieving category informations
-            $result = $em->getRepository(CategoryRepository::class)->findByIds($category_ids);
-            $categories = $em->getConnection()->result2array($result, 'id');
 
             foreach ($comments as $comment) {
                 if (!empty($elements[$comment['image_id']]['name'])) {

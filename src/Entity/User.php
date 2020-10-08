@@ -74,6 +74,11 @@ class User implements UserInterface, EquatableInterface
      */
     private $groups;
 
+    /**
+     * @ORM\OneToOne(targetEntity=UserCacheAlbum::class, mappedBy="user", cascade={"persist", "remove"})
+     */
+    private $userCacheAlbum;
+
     public function __construct()
     {
         $this->roles = ['ROLE_USER'];
@@ -265,6 +270,23 @@ class User implements UserInterface, EquatableInterface
         if ($this->groups->contains($group)) {
             $this->groups->removeElement($group);
             $group->removeUser($this);
+        }
+
+        return $this;
+    }
+
+    public function getUserCacheAlbum(): ?UserCacheAlbum
+    {
+        return $this->userCacheAlbum;
+    }
+
+    public function setUserCacheAlbum(UserCacheAlbum $userCacheAlbum): self
+    {
+        $this->userCacheAlbum = $userCacheAlbum;
+
+        // set the owning side of the relation if necessary
+        if ($userCacheAlbum->getUser() !== $this) {
+            $userCacheAlbum->setUser($this);
         }
 
         return $this;
