@@ -111,7 +111,7 @@ class AlbumController extends AdminCommonController
 
                 $parent = $request->request->get('parent');
                 // only move virtual albums
-                if (!$album->getDir() && $album->getIdUppercat() !== $parent) {
+                if (!$album->getDir() && $album->getParent() && $album->getParent()->getId() !== $parent) {
                     $albumMapper->moveAlbums([$album_id], $parent);
                 }
 
@@ -669,7 +669,11 @@ class AlbumController extends AdminCommonController
                 if ($request->request->get('apply_on_sub')) {
                     $params['apply_on_sub'] = true;
                 }
-                $album_id = $albumMapper->createAlbum($virtual_name, $parent_id, $this->getUser()->getId(), $admin_ids, $params);
+                $parent = null;
+                if (!is_null($parent_id)) {
+                    $parent = $albumMapper->getRepository()->find($parent_id);
+                }
+                $album_id = $albumMapper->createAlbum($virtual_name, $parent, $this->getUser()->getId(), $admin_ids, $params);
 
                 $userMapper->invalidateUserCache();
 

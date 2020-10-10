@@ -60,7 +60,7 @@ class AlbumsController extends AdminCommonController
         $tpl_params['sort_order_checked'] = array_shift($sort_orders_checked);
 
         $albums = [];
-        foreach ($albumRepository->findBy(['id_uppercat' => $parent_id]) as $album) {
+        foreach ($albumRepository->findBy(['parent' => $parent_id]) as $album) {
             $albums[$album->getId()] = $album;
         }
 
@@ -186,7 +186,7 @@ class AlbumsController extends AdminCommonController
 
                     $categories[] = [
                         'id' => $album->getId(),
-                        'id_uppercat' => $album->getIdUppercat(),
+                        'id_uppercat' => $album->getParent()->getId(),
                     ];
                 }
 

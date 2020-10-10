@@ -370,7 +370,7 @@ class AlbumMapper
         $albums = [];
         foreach ($ids as $id) {
             $albums[$id] = [
-                'parent' => $this->getCacheAlbums()[$id]->getIdUppercat(),
+                'parent' => $this->getCacheAlbums()[$id]->getParent(),
                 'status' => $this->getCacheAlbums()[$id]->getStatus(),
                 'uppercats' => $this->getCacheAlbums()[$id]->getUppercats(),
             ];
@@ -416,7 +416,7 @@ class AlbumMapper
             $uppercat = $id;
             while ($uppercat) {
                 $upper_list[] = $uppercat;
-                $uppercat = $this->getCacheAlbums()[$uppercat]->getIdUppercat();
+                $uppercat = $this->getCacheAlbums()[$uppercat]->getParent();
             }
 
             $new_uppercats = implode(',', array_reverse($upper_list));
@@ -488,7 +488,7 @@ class AlbumMapper
             foreach ($all_albums as $album) {
                 $is_top = true;
 
-                if ($album->getIdUppercat()) {
+                if ($album->getParent()) {
                     foreach (explode(',', $album->getUppercats()) as $id_uppercat) {
                         if (isset($top_albums[$id_uppercat])) {
                             $is_top = false;
@@ -500,8 +500,8 @@ class AlbumMapper
                 if ($is_top) {
                     $top_albums[$album->getId()] = $album;
 
-                    if ($album->getIdUppercat()) {
-                        $parent_ids[] = $album->getIdUppercat();
+                    if ($album->getParent()) {
+                        $parent_ids[] = $album->getParent()->getId();
                     }
                 }
             }
@@ -527,8 +527,8 @@ class AlbumMapper
                 // if it is private, else the album itself
                 $ref_album_id = $top_album->getId();
 
-                if ($top_album->getIdUppercat() && isset($parent_albums[$top_album->getIdUppercat()]) && $parent_albums[$top_album->getIdUppercat()]->getStatus() === Album::STATUS_PRIVATE) {
-                    $ref_album_id = $top_album->getIdUppercat();
+                if ($top_album->getParent() && isset($parent_albums[$top_album->getParent()->getId()]) && $parent_albums[$top_album->getParent()->getId()]->getStatus() === Album::STATUS_PRIVATE) {
+                    $ref_album_id = $top_album->getParent()->getId();
                 }
 
                 $subalbums = $this->albumRepository->getSubcatIds([$top_album->getId()]);
@@ -624,7 +624,7 @@ class AlbumMapper
      *    - string comment
      *    - boolean inherit
      */
-    public function createAlbum(string $name, int $parent_id = null, int $user_id, array $admin_ids = [], array $options = []): int
+    public function createAlbum(string $name, Album $parent = null, int $user_id, array $admin_ids = [], array $options = []): int
     {
         $album = new Album();
         $album->setName($name);
@@ -650,10 +650,8 @@ class AlbumMapper
             $album->setComment($this->conf['allow_html_descriptions'] ? $options['comment'] : strip_tags($options['comment']));
         }
 
-        if (!is_null($parent_id)) {
-            $parent = $this->albumRepository->find($parent_id);
-
-            $album->setIdUppercat($parent->getId()); // @TODO: update schema to map parent to Album (auto-join)
+        if (!is_null($parent)) {
+            $album->setParent($parent);
             $album->setGlobalRank($parent->getGlobalRank() . '.0');
 
             // at creation, must a category be visible or not ?
@@ -674,7 +672,7 @@ class AlbumMapper
         $album->setLastModified(new \DateTime());
 
         $album_id = $this->albumRepository->addOrUpdateAlbum($album);
-        if (!is_null($parent_id)) {
+        if (!is_null($parent)) {
             $album->setUppercats($parent->getUppercats() . ',' . $album_id);
         } else {
             $album->setUppercats($album_id);
@@ -683,8 +681,8 @@ class AlbumMapper
         $album_id = $this->albumRepository->addOrUpdateAlbum($album);
 
         if ($album->getStatus() === Album::STATUS_PRIVATE) {
-            if ($album->getIdUppercat() && (!empty($options['inherit']) || $this->conf['inheritance_by_default'])) {
-                $result = $this->em->getRepository(GroupAccessRepository::class)->findFieldByCatId($album->getIdUppercat(), 'group_id');
+            if ($album->getParent() && (!empty($options['inherit']) || $this->conf['inheritance_by_default'])) {
+                $result = $this->em->getRepository(GroupAccessRepository::class)->findFieldByCatId($album->getParent()->getId(), 'group_id');
                 $granted_grps = $this->em->getConnection()->result2array($result, null, 'group_id');
                 $inserts = [];
                 foreach ($granted_grps as $granted_grp) {
@@ -692,7 +690,7 @@ class AlbumMapper
                 }
                 $this->em->getRepository(GroupAccessRepository::class)->massInserts(['group_id', 'cat_id'], $inserts);
 
-                $result = $this->em->getRepository(UserAccessRepository::class)->findByCatId($album->getIdUppercat());
+                $result = $this->em->getRepository(UserAccessRepository::class)->findByCatId($album->getParent()->getId());
                 $granted_users = $this->em->getConnection()->result2array($result, null, 'user_id');
                 $this->addPermissionOnAlbum([$album_id], array_unique(array_merge($admin_ids, [$user_id], $granted_users), $options['apply_on_sub'] ?? false));
             } else {
@@ -749,12 +747,12 @@ class AlbumMapper
     {
         $albums = [];
         $current_rank = 0;
-        $current_uppercat = '';
+        $current_parent = null;
 
         foreach ($this->getCacheAlbums() as $id => $album) {
-            if ($album->getIdUppercat() !== $current_uppercat) {
+            if (!is_null($current_parent) && $album->getParent()->getId() !== $current_parent->getId()) {
                 $current_rank = 0;
-                $current_uppercat = $album->getIdUppercat();
+                $current_parent = $album->getParent();
             }
             $current_rank++;
             $albums[$id] = [

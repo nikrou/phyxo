@@ -12,6 +12,8 @@
 namespace App\Entity;
 
 use App\Repository\AlbumRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -36,9 +38,15 @@ class Album
     private $name;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\ManyToOne(targetEntity=Album::class, inversedBy="children")
+     * @ORM\JoinColumn(name="id_uppercat", nullable=true)
      */
-    private $id_uppercat = null;
+    private $parent;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Album::class, mappedBy="parent")
+     */
+    private $children;
 
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -110,6 +118,11 @@ class Album
      */
     private $site;
 
+    public function __construct()
+    {
+        $this->children = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -123,18 +136,6 @@ class Album
     public function setName(string $name): self
     {
         $this->name = $name;
-
-        return $this;
-    }
-
-    public function getIdUppercat(): ?int
-    {
-        return $this->id_uppercat;
-    }
-
-    public function setIdUppercat(?int $id_uppercat): self
-    {
-        $this->id_uppercat = $id_uppercat;
 
         return $this;
     }
@@ -315,5 +316,48 @@ class Album
     public function isVirtual(): bool
     {
         return !$this->dir;
+    }
+
+    public function getParent(): ?self
+    {
+        return $this->parent;
+    }
+
+    public function setParent(?self $parent): self
+    {
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|self[]
+     */
+    public function getChildren(): Collection
+    {
+        return $this->children;
+    }
+
+    public function addChild(self $child): self
+    {
+        if (!$this->children->contains($child)) {
+            $this->children[] = $child;
+            $child->setParent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChild(self $child): self
+    {
+        if ($this->children->contains($child)) {
+            $this->children->removeElement($child);
+            // set the owning side to null (unless already changed)
+            if ($child->getParent() === $this) {
+                $child->setParent(null);
+            }
+        }
+
+        return $this;
     }
 }
