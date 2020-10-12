@@ -76,7 +76,7 @@ class AlbumsOptionsController extends AdminCommonController
             return $this->redirectToRoute('admin_albums_options', ['section' => $section]);
         }
 
-        $cats = $this->getCatsBySection($section, $em);
+        $cats = $this->getCatsBySection($section, $albumRepository);
         $tpl_params['L_SECTION'] = $cats['L_SECTION'];
         $tpl_params['L_CAT_OPTIONS_TRUE'] = $cats['L_CAT_OPTIONS_TRUE'];
         $tpl_params['L_CAT_OPTIONS_FALSE'] = $cats['L_CAT_OPTIONS_FALSE'];

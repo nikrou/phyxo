@@ -100,12 +100,14 @@ class AlbumRepository extends ServiceEntityRepository
     }
 
     /**
-     * Returns all sub-album identifiers of given category ids
+     * Returns all sub-album of given album ids
      */
-    public function getSubcatIds(array $ids): array
+    public function getSubAlbums(array $ids, bool $only_id = false)
     {
         $qb = $this->createQueryBuilder('a');
-        $qb->select('DISTINCT(a.id) AS id');
+        if ($only_id) {
+            $qb->select('DISTINCT(a.id) AS id');
+        }
         foreach ($ids as $id) {
             $qb->orWhere($qb->expr()->like('a.uppercats', ':comma_before'));
             $qb->setParameter('comma_before', '%,' . $id);
@@ -120,8 +122,16 @@ class AlbumRepository extends ServiceEntityRepository
             $qb->setParameter('id', $id);
         }
 
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Returns all sub-album identifiers of given album ids
+     */
+    public function getSubcatIds(array $ids): array
+    {
         $subalbums = [];
-        foreach ($qb->getQuery()->getResult() as $album) {
+        foreach ($this->getSubAlbums($ids, $only_id = true) as $album) {
             $subalbums[] = $album['id'];
         }
 
@@ -220,5 +230,54 @@ class AlbumRepository extends ServiceEntityRepository
         $qb->where($qb->expr()->in('a.id', $ids));
 
         $qb->getQuery()->getResult();
+    }
+
+    public function findAuthorizedToUser(int $user_id)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->leftJoin('a.user_access', 'ua');
+        $qb->where('ua.id = :user_id');
+        $qb->setParameter('user_id', $user_id);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findPrivateWithUserAccessAndNotExclude(int $user_id, array $exclude_album_ids = [])
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->leftJoin('a.user_access', 'ua');
+        $qb->where('ua.id = :user_id');
+        $qb->setParameter('user_id', $user_id);
+        $qb->andWhere('a.status = :status');
+        $qb->setParameter('status', Album::STATUS_PRIVATE);
+
+        if (count($exclude_album_ids) > 0) {
+            $qb->andWhere($qb->expr()->notIn('a.id', $exclude_album_ids));
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findAuthorizedToTheGroupTheUserBelongs(int $user_id)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->leftJoin('a.group_access', 'ga');
+        $qb->leftJoin('ga.users', 'u');
+        $qb->where('u.id = :user_id');
+        $qb->setParameter('user_id', $user_id);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findPrivateWithGroupAccess(int $group_id)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->leftJoin('a.group_access', 'ga');
+        $qb->where('ga.id = :group_id');
+        $qb->setParameter('group_id', $group_id);
+        $qb->andWhere('a.status = :status');
+        $qb->setParameter('status', Album::STATUS_PRIVATE);
+
+        return $qb->getQuery()->getResult();
     }
 }

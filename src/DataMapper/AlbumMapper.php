@@ -19,8 +19,8 @@ use App\Repository\GroupAccessRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\OldPermalinkRepository;
-use App\Repository\UserAccessRepository;
 use App\Repository\UserCacheCategoriesRepository;
+use App\Repository\UserRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -29,15 +29,16 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class AlbumMapper
 {
-    private $conf, $albumRepository, $router, $cache = [], $albums_retrieved = false, $em, $translator;
+    private $conf, $albumRepository, $router, $cache = [], $albums_retrieved = false, $em, $translator, $userRepository;
 
-    public function __construct(Conf $conf, AlbumRepository $albumRepository, RouterInterface $router, TranslatorInterface $translator, EntityManager $em)
+    public function __construct(Conf $conf, AlbumRepository $albumRepository, RouterInterface $router, TranslatorInterface $translator, EntityManager $em, UserRepository $userRepository)
     {
         $this->conf = $conf;
         $this->albumRepository = $albumRepository;
         $this->router = $router;
         $this->translator = $translator;
         $this->em = $em;
+        $this->userRepository = $userRepository;
     }
 
     public function getRepository(): AlbumRepository
@@ -517,33 +518,30 @@ class AlbumMapper
                 }
             }
 
-            $repositories = [
-                UserAccessRepository::class => 'user_id',
-                GroupAccessRepository::class => 'group_id'
-            ];
-
             foreach ($top_albums as $top_album) {
-                // what is the "reference" for list of permissions? The parent album
-                // if it is private, else the album itself
-                $ref_album_id = $top_album->getId();
-
+                // what is the "reference" for list of permissions?
+                // The parent album if it is private, else the album itself
                 if ($top_album->getParent() && isset($parent_albums[$top_album->getParent()->getId()]) && $parent_albums[$top_album->getParent()->getId()]->getStatus() === Album::STATUS_PRIVATE) {
-                    $ref_album_id = $top_album->getParent()->getId();
+                    $ref_album = $top_album->getParent();
+                } else {
+                    $ref_album = $top_album;
                 }
 
-                $subalbums = $this->albumRepository->getSubcatIds([$top_album->getId()]);
+                // step 3, remove the inconsistant permissions from sub-albums
+                foreach ($this->getRepository()->getSubAlbums([$top_album->getId()]) as $subalbum) {
+                    $subalbum->clearAllGroupAccess();
+                    $subalbum->clearAllUserAccess();
 
-                foreach ($repositories as $repository => $field) {
-                    // what are the permissions user/group of the reference album
-                    $result = $this->em->getRepository($repository)->findFieldByCatId($ref_album_id, $field);
-                    $ref_access = $this->em->getConnection()->result2array($result, null, $field);
-
-                    if (count($ref_access) == 0) {
-                        $ref_access[] = -1;
+                    if (count($ref_album->getGroupAccess()) > 0) {
+                        foreach ($ref_album->getGroupAccess() as $group) {
+                            $subalbum->addGroupAccess($group);
+                        }
                     }
-
-                    // step 3, remove the inconsistant permissions from sub-albums
-                    $this->em->getRepository($repository)->deleteByCatIds($subalbums, $field . ' NOT ' . $this->em->getConnection()->in($ref_access));
+                    if (count($ref_album->getUserAccess()) > 0) {
+                        foreach ($ref_album->getUserAccess() as $user) {
+                            $subalbum->addUserAccess($user);
+                        }
+                    }
                 }
             }
         }
@@ -582,33 +580,14 @@ class AlbumMapper
             $cat_ids = array_merge($cat_ids, $this->albumRepository->getSubcatIds($album_ids));
         }
 
-        $private_albums = [];
         if (count($cat_ids) > 0) {
+            $users = $this->userRepository->findBy(['id' => $user_ids]);
+
             foreach ($this->albumRepository->findByIdsAndStatus($cat_ids, Album::STATUS_PRIVATE) as $album) {
-                $private_albums[] = $album->getId();
-            }
-        }
-
-        if (count($private_albums) === 0) {
-            return;
-        }
-
-        $inserts = [];
-        foreach ($private_albums as $cat_id) {
-            foreach ($user_ids as $user_id) {
-                if ($user_id > 0) {
-                    $inserts[] = [
-                        'user_id' => $user_id,
-                        'cat_id' => $cat_id
-                    ];
+                foreach ($users as $user) {
+                    $album->addUserAccess($user);
                 }
             }
-        }
-
-        try {
-            $this->em->getRepository(UserAccessRepository::class)->insertUserAccess(['user_id', 'cat_id'], $inserts);
-        } catch (\Exception $e) {
-            // catch possible duplicate entry for user_id/cat_id
         }
     }
 
@@ -682,19 +661,22 @@ class AlbumMapper
 
         if ($album->getStatus() === Album::STATUS_PRIVATE) {
             if ($album->getParent() && (!empty($options['inherit']) || $this->conf['inheritance_by_default'])) {
-                $result = $this->em->getRepository(GroupAccessRepository::class)->findFieldByCatId($album->getParent()->getId(), 'group_id');
-                $granted_grps = $this->em->getConnection()->result2array($result, null, 'group_id');
-                $inserts = [];
-                foreach ($granted_grps as $granted_grp) {
-                    $inserts[] = ['group_id' => $granted_grp, 'cat_id' => $album_id];
+                $parent = $this->albumRepository->find($album->getParent()->getId());
+                if (count($parent->getGroupAccess()) > 0) {
+                    foreach ($parent->getGroupAccess() as $group) {
+                        $album->addGroupAccess($group);
+                    }
                 }
-                $this->em->getRepository(GroupAccessRepository::class)->massInserts(['group_id', 'cat_id'], $inserts);
 
-                $result = $this->em->getRepository(UserAccessRepository::class)->findByCatId($album->getParent()->getId());
-                $granted_users = $this->em->getConnection()->result2array($result, null, 'user_id');
-                $this->addPermissionOnAlbum([$album_id], array_unique(array_merge($admin_ids, [$user_id], $granted_users), $options['apply_on_sub'] ?? false));
+                if (count($parent->getUserAccess()) > 0) {
+                    foreach ($parent->getUserAccess() as $user) {
+                        $album->addUserAccess($user);
+                    }
+                }
             } else {
-                $this->addPermissionOnAlbum([$album_id], array_unique(array_merge($admin_ids, [$user_id])), $options['apply_on_sub'] ?? false);
+                foreach ($this->userRepository->findBy(['id' => array_merge($admin_ids, [$user_id])]) as $user) {
+                    $album->addUserAccess($user);
+                }
             }
         }
         $this->updateGlobalRank();
@@ -962,23 +944,23 @@ class AlbumMapper
      */
     public function deleteAlbums(array $ids = [])
     {
-        if (count($ids) == 0) {
+        if (count($ids) === 0) {
             return;
         }
 
-        // add sub-category ids to the given ids : if a category is deleted, all
-        // sub-categories must be so
-        $ids = array_merge($ids, $this->em->getRepository(CategoryRepository::class)->getSubcatIds($ids));
+        // add sub-albums ids to the given ids : if an album is deleted, all sub-albums must be so
+        $ids = array_merge($ids, $this->getRepository()->getSubcatIds($ids));
+
+        foreach ($this->getRepository()->findBy(['id' => $ids]) as $album) {
+            $album->clearAllGroupAccess();
+            $album->clearAllUserAccess();
+        }
 
         // destruction of the links between images and this category
         $this->em->getRepository(ImageCategoryRepository::class)->deleteByCategory($ids);
 
-        // destruction of the access linked to the category
-        $this->em->getRepository(UserAccessRepository::class)->deleteByCatIds($ids);
-        $this->em->getRepository(GroupAccessRepository::class)->deleteByCatIds($ids);
-
-        // destruction of the category
-        $this->em->getRepository(CategoryRepository::class)->deleteByIds($ids);
+        // destruction of the album
+        $this->getRepository()->deleteByIds($ids);
 
         $this->em->getRepository(OldPermalinkRepository::class)->deleteByCatIds($ids);
         $this->em->getRepository(UserCacheCategoriesRepository::class)->deleteByUserCatIds($ids);

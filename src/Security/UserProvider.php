@@ -21,13 +21,10 @@ use App\Entity\User;
 use Phyxo\EntityManager;
 use App\DataMapper\CategoryMapper;
 use App\Entity\Album;
-use App\Repository\CategoryRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
-use App\Repository\UserAccessRepository;
 use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\UserCacheRepository;
-use App\Repository\UserGroupRepository;
 use Phyxo\Conf;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
@@ -297,11 +294,14 @@ class UserProvider implements UserProviderInterface
         }
 
         // retrieve albums ids directly authorized to the user
-        $result = $this->em->getRepository(UserAccessRepository::class)->findByUserId($user_id);
-        $authorized_albums = $this->em->getConnection()->result2array($result, null, 'cat_id');
+        $authorized_albums = [];
+        foreach ($this->albumMapper->getRepository()->findAuthorizedToUser($user_id) as $album) {
+            $authorized_albums[] = $album->getId();
+        }
 
-        $result = $this->em->getRepository(UserGroupRepository::class)->findCategoryAuthorizedToTheGroupTheUserBelongs($user_id);
-        $authorized_albums = array_merge($authorized_albums, $this->em->getConnection()->result2array($result, null, 'cat_id'));
+        foreach ($this->albumMapper->getRepository()->findAuthorizedToTheGroupTheUserBelongs($user_id) as $album) {
+            $authorized_albums[] = $album->getId();
+        }
 
         // uniquify ids : some private categories might be authorized for the groups and for the user
         $authorized_albums = array_unique($authorized_albums);

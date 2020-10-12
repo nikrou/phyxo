@@ -50,10 +50,20 @@ class Group
      */
     private $users;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Album::class, inversedBy="group_access", cascade={"persist", "remove"})
+     * @ORM\JoinTable(name="group_access",
+     *   joinColumns={@ORM\JoinColumn(name="group_id")},
+     *   inverseJoinColumns={@ORM\JoinColumn(name="cat_id")}
+     * )
+     */
+    private $group_access;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
         $this->setLastModified(new \DateTime());
+        $this->group_access = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -118,6 +128,32 @@ class Group
     {
         if ($this->users->contains($user)) {
             $this->users->removeElement($user);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Album[]
+     */
+    public function getGroupAccess(): Collection
+    {
+        return $this->group_access;
+    }
+
+    public function addGroupAccess(Album $album): self
+    {
+        if (!$this->group_access->contains($album)) {
+            $this->group_access[] = $album;
+        }
+
+        return $this;
+    }
+
+    public function removeGroupAccess(Album $album): self
+    {
+        if ($this->group_access->contains($album)) {
+            $this->group_access->removeElement($album);
         }
 
         return $this;

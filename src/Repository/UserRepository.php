@@ -110,4 +110,16 @@ class UserRepository extends ServiceEntityRepository
 
         $qb->getQuery()->getResult();
     }
+
+    public function findWithAlbumsAccess(array $album_ids = [])
+    {
+        $qb = $this->createQueryBuilder('u');
+        $qb->leftJoin('u.user_access', 'ua');
+
+        if (count($album_ids) > 0) {
+            $qb->where($qb->expr()->in('ua.cat_id', $album_ids));
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

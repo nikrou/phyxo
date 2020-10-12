@@ -17,14 +17,10 @@ use App\DataMapper\UserMapper;
 use App\Entity\Album;
 use App\Entity\User;
 use App\Events\GroupEvent;
-use App\Repository\AlbumRepository;
-use App\Repository\GroupAccessRepository;
 use App\Repository\GroupRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
-use App\Repository\UserAccessRepository;
 use App\Repository\UserCacheRepository;
-use App\Repository\UserGroupRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
@@ -57,12 +53,12 @@ class AlbumController extends AdminCommonController
     }
 
     public function properties(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                                AlbumRepository $albumRepository, ImageStandardParams $image_std_params, AlbumMapper $albumMapper, TranslatorInterface $translator)
+                                ImageStandardParams $image_std_params, AlbumMapper $albumMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
 
-        $album = $albumRepository->find($album_id);
+        $album = $albumMapper->getRepository()->find($album_id);
 
         $tpl_params['albums_options'] = [
             ['id' => 'true', 'label' => $translator->trans('Yes', [], 'admin')],
@@ -92,8 +88,8 @@ class AlbumController extends AdminCommonController
                 }
 
                 if ($request->request->get('apply_commentable_on_sub')) {
-                    $subcats = $albumRepository->getSubcatIds(['id' => $album_id]);
-                    $albumRepository->updateAlbums(['commentable' => $album->isCommentable()], $subcats);
+                    $subcats = $albumMapper->getRepository()->getSubcatIds(['id' => $album_id]);
+                    $albumMapper->getRepository()->updateAlbums(['commentable' => $album->isCommentable()], $subcats);
                 }
 
                 if ($request->request->get('visible')) {
@@ -105,7 +101,7 @@ class AlbumController extends AdminCommonController
                 }
 
                 if ($need_update) {
-                    $albumRepository->addOrUpdate($album);
+                    $albumMapper->getRepository()->addOrUpdate($album);
                 }
 
 
@@ -119,7 +115,7 @@ class AlbumController extends AdminCommonController
             } elseif ($request->request->get('set_random_representant')) {
                 $albumMapper->setRandomRepresentant([$album_id]);
             } elseif ($request->request->get('delete_representant')) {
-                $albumRepository->updateAlbums(['representative_picture_id' => null], [$album_id]);
+                $albumMapper->getRepository()->updateAlbums(['representative_picture_id' => null], [$album_id]);
             }
 
             return $this->redirectToRoute('admin_album', ['album_id' => $album_id, 'parent_id' => $parent_id]);
@@ -176,14 +172,14 @@ class AlbumController extends AdminCommonController
             $tpl_params['U_DELETE'] = $this->generateUrl('admin_album_delete', ['album_id' => $album_id, 'parent_id' => $parent_id]);
             $tpl_params['parent_category'] = $category['id_uppercat'] ?? [];
         } else {
-            $album = $albumRepository->findWithSite($album_id);
+            $album = $albumMapper->getRepository()->findWithSite($album_id);
 
             $uppercats = '';
             $local_dir = '';
             $uppercats = $album->getUppercats();
             $upper_array = explode(',', $uppercats);
             $database_dirs = [];
-            foreach ($albumRepository->findById($uppercats) as $uppercat_album) {
+            foreach ($albumMapper->getRepository()->findById($uppercats) as $uppercat_album) {
                 $database_dirs[$uppercat_album->getId()] = $uppercat_album->getDir();
             }
 
@@ -247,14 +243,14 @@ class AlbumController extends AdminCommonController
     }
 
     public function sort_order(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                                AlbumRepository $albumRepository, AlbumMapper $albumMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator)
+                                AlbumMapper $albumMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $album = $albumRepository->find($album_id);
+        $album = $albumMapper->getRepository()->find($album_id);
 
         $image_order_choices = ['default', 'rank', 'user_define'];
         $image_order_choice = 'default';
@@ -304,10 +300,10 @@ class AlbumController extends AdminCommonController
             } elseif ($image_order_choice === 'rank') {
                 $image_order = 'rank ASC';
             }
-            $albumRepository->updateAlbums(['image_order' => $image_order], [$album_id]);
+            $albumMapper->getRepository()->updateAlbums(['image_order' => $image_order], [$album_id]);
 
             if ($request->request->get('image_order_subcats')) {
-                $albumRepository->updateAlbums(['image_order' => $image_order], explode(',', $album->getUppercats()));
+                $albumMapper->getRepository()->updateAlbums(['image_order' => $image_order], explode(',', $album->getUppercats()));
             }
 
             $this->addFlash('info', $translator->trans('Your configuration settings have been saved', [], 'admin'));
@@ -396,14 +392,14 @@ class AlbumController extends AdminCommonController
     }
 
     public function permissions(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                                AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator, UserRepository $userRepository, GroupRepository $groupRepository)
+                                AlbumMapper $albumMapper, TranslatorInterface $translator, UserRepository $userRepository, GroupRepository $groupRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $album = $albumRepository->find($album_id);
+        $album = $albumMapper->getRepository()->find($album_id);
 
         if ($request->isMethod('POST')) {
             if ($album->getStatus() !== $request->request->get('status')) {
@@ -412,72 +408,48 @@ class AlbumController extends AdminCommonController
 
             if ($request->request->get('status') === Album::STATUS_PRIVATE) {
                 // manage groups
-                $result = $em->getRepository(GroupAccessRepository::class)->findByCatId($album_id);
-                $groups_granted = $em->getConnection()->result2array($result, null, 'group_id');
-
                 if (!$request->request->get('groups')) {
-                    $groups = [];
+                    $album->clearAllGroupAccess();
+
+                // need to clear group access for sub-albums
+                // $subcats = $albumRepository->getSubcatIds([$album_id]);
                 } else {
-                    $groups = $request->request->get('groups');
-                }
-
-                // remove permissions to groups
-                $deny_groups = array_diff($groups_granted, $groups);
-                if (count($deny_groups) > 0) {
-                    $subcats = $albumRepository->getSubcatIds([$album_id]);
-
-                    // if you forbid access to an album, all sub-albums become automatically forbidden
-                    $em->getRepository(GroupAccessRepository::class)->deleteByGroupIdsAndCatIds($deny_groups, $subcats);
-                }
-
-                // add permissions to groups
-                $grant_groups = $groups;
-                if (count($grant_groups) > 0) {
-                    $cat_ids = $albumMapper->getUppercatIds([$album_id]);
+                    $sub_albums = null;
                     if ($request->request->get('apply_on_sub')) {
-                        $cat_ids = array_merge($cat_ids, $albumRepository->getSubcatIds([$album_id]));
+                        $sub_albums = $albumMapper->getRepository()->getSubAlbums([$album_id]);
                     }
 
-                    $private_cats = [];
-                    foreach ($albumRepository->findByStatus(Album::STATUS_PRIVATE) as $album) {
-                        $private_cats[] = $album->getId();
-                    }
-
-                    $inserts = [];
-                    foreach ($private_cats as $cat_id) {
-                        foreach ($grant_groups as $group_id) {
-                            $inserts[] = [
-                                'group_id' => $group_id,
-                                'cat_id' => $cat_id
-                            ];
+                    foreach ($groupRepository->findBy(['id' => $request->request->get('groups')]) as $group) {
+                        $album->addGroupAccess($group);
+                        if (!is_null($sub_albums)) {
+                            foreach ($sub_albums as $sub_album) {
+                                $sub_album->addGroupAccess($group);
+                            }
                         }
                     }
-
-                    $em->getRepository(GroupAccessRepository::class)->massInserts(['group_id', 'cat_id'], $inserts, ['ignore' => true]);
                 }
 
                 // users
-                $result = $em->getRepository(UserAccessRepository::class)->findByCatId($album_id);
-                $users_granted = $em->getConnection()->result2array($result, null, 'user_id');
-
                 if (!$request->request->get('users')) {
-                    $users = [];
+                    $album->clearAllUserAccess();
+
+                // need to clear user access for sub albums
                 } else {
-                    $users = $request->request->get('users');
-                }
+                    $sub_albums = null;
+                    if ($request->request->get('apply_on_sub')) {
+                        $sub_albums = $albumMapper->getRepository()->getSubAlbums([$album_id]);
+                    }
 
-                // remove permissions to users
-                $deny_users = array_diff($users_granted, $users);
-                if (count($deny_users) > 0) {
-                    // if you forbid access to an album, all sub-album become automatically forbidden
-                    $em->getRepository(UserAccessRepository::class)->deleteByUserIdsAndCatIds($deny_users, $albumRepository->getSubcatIds([$album_id]));
+                    foreach ($userRepository->findBy(['id' => $request->request->get('users')]) as $user) {
+                        $album->addUserAccess($user);
+                        if (!is_null($sub_albums)) {
+                            foreach ($sub_albums as $sub_album) {
+                                $sub_album->addUserAccess($user);
+                            }
+                        }
+                    }
                 }
-
-                // add permissions to users
-                $grant_users = $users;
-                if (count($grant_users) > 0) {
-                    $albumMapper->addPermissionOnAlbum([$album_id], $grant_users);
-                }
+                $albumMapper->getRepository()->addOrUpdateAlbum($album);
 
                 $em->getRepository(UserCacheRepository::class)->deleteUserCache();
             }
@@ -493,8 +465,10 @@ class AlbumController extends AdminCommonController
         }
 
         // groups granted to access the category
-        $result = $em->getRepository(GroupAccessRepository::class)->findByCatId($album_id);
-        $tpl_params['groups_selected'] = $em->getConnection()->result2array($result, null, 'group_id');
+        $tpl_params['groups_selected'] = [];
+        foreach ($album->getGroupAccess() as $group) {
+            $tpl_params['groups_selected'][] = $group->getId();
+        }
 
         // users...
         $tpl_params['users'] = [];
@@ -502,20 +476,22 @@ class AlbumController extends AdminCommonController
             $tpl_params['users'][$user->getId()] = $user;
         }
 
-        $result = $em->getRepository(UserAccessRepository::class)->findByCatId($album_id);
-        $tpl_params['users_selected'] = $em->getConnection()->result2array($result, null, 'user_id');
+        $tpl_params['users_selected'] = [];
+        foreach ($album->getUserAccess() as $user) {
+            $tpl_params['users_selected'][] = $user->getId();
+        }
 
         $user_granted_indirect_ids = [];
         if (count($tpl_params['groups_selected']) > 0) {
             $granted_groups = [];
 
-            $result = $em->getRepository(UserGroupRepository::class)->findByGroupIds($tpl_params['groups_selected']);
-            // while ($row = $em->getConnection()->db_fetch_assoc($result)) {
             foreach ($groupRepository->findById($tpl_params['groups_selected']) as $group) {
                 if (!isset($granted_groups[$group->getId()])) {
                     $granted_groups[$group->getId()] = [];
                 }
-                $granted_groups[$group->getId()][] = $group->getUsers()->getId();
+                foreach ($group->getUsers() as $user) {
+                    $granted_groups[$group->getId()][] = $user->getId();
+                }
             }
 
             $user_granted_by_group_ids = [];
@@ -532,7 +508,7 @@ class AlbumController extends AdminCommonController
                 $group_usernames = [];
                 foreach ($group_users as $user_id) {
                     if (in_array($user_id, $user_granted_indirect_ids)) {
-                        $group_usernames[] = $tpl_params['users'][$user_id];
+                        $group_usernames[] = $tpl_params['users'][$user_id]->getUsername();
                     }
                 }
 
@@ -569,7 +545,7 @@ class AlbumController extends AdminCommonController
     }
 
     public function notification(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                                AlbumMapper $albumMapper, AlbumRepository $albumRepository, ImageStandardParams $image_std_params, EventDispatcherInterface $eventDispatcher,
+                                AlbumMapper $albumMapper, ImageStandardParams $image_std_params, EventDispatcherInterface $eventDispatcher,
                                 GroupRepository $groupRepository, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -577,7 +553,7 @@ class AlbumController extends AdminCommonController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $album = $albumRepository->find($album_id);
+        $album = $albumMapper->getRepository()->find($album_id);
 
         if ($request->isMethod('POST')) {
             // @TODO: if $category['representative_picture_id'] is empty find child representative_picture_id
@@ -614,8 +590,10 @@ class AlbumController extends AdminCommonController
             $tpl_params['no_group_in_gallery'] = true;
         } else {
             if ($album->getStatus() === Album::STATUS_PRIVATE) {
-                $result = $em->getRepository(GroupAccessRepository::class)->findByCatId($album_id);
-                $group_ids = $em->getConnection()->result2array($result, null, 'group_id');
+                $group_ids = [];
+                foreach ($album->getGroupAccess() as $group) {
+                    $group_ids[] = $group->getId();
+                }
 
                 if (count($group_ids) === 0) {
                     $tpl_params['permission_url'] = $this->generateUrl('admin_album_permissions', ['album_id' => $album_id, 'parent_id' => $parent_id]);

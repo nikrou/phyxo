@@ -38,7 +38,7 @@ class Album
     private $name;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Album::class, inversedBy="children")
+     * @ORM\ManyToOne(targetEntity=Album::class, inversedBy="children", cascade={"persist", "remove"})
      * @ORM\JoinColumn(name="id_uppercat", nullable=true)
      */
     private $parent;
@@ -118,9 +118,21 @@ class Album
      */
     private $site;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Group::class, mappedBy="group_access", cascade={"persist", "remove"})
+     */
+    private $group_access;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="user_access")
+     */
+    private $user_access;
+
     public function __construct()
     {
         $this->children = new ArrayCollection();
+        $this->group_access = new ArrayCollection();
+        $this->user_access = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -356,6 +368,82 @@ class Album
             if ($child->getParent() === $this) {
                 $child->setParent(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Group[]
+     */
+    public function getGroupAccess(): Collection
+    {
+        return $this->group_access;
+    }
+
+    public function addGroupAccess(Group $group): self
+    {
+        if (!$this->group_access->contains($group)) {
+            $this->group_access[] = $group;
+            $group->addGroupAccess($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGroupAccess(Group $group): self
+    {
+        if ($this->group_access->contains($group)) {
+            $this->group_access->removeElement($group);
+            $group->removeGroupAccess($this);
+        }
+
+        return $this;
+    }
+
+    public function clearAllGroupAccess(): self
+    {
+        foreach ($this->group_access as $group) {
+            $this->group_access->removeElement($group);
+            $group->removeGroupAccess($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getUserAccess(): Collection
+    {
+        return $this->user_access;
+    }
+
+    public function addUserAccess(User $user): self
+    {
+        if (!$this->user_access->contains($user)) {
+            $this->user_access[] = $user;
+            $user->addUserAccess($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserAccess(User $user): self
+    {
+        if ($this->user_access->contains($user)) {
+            $this->user_access->removeElement($user);
+            $user->removeUserAccess($this);
+        }
+
+        return $this;
+    }
+
+    public function clearAllUserAccess(): self
+    {
+        foreach ($this->user_access as $user) {
+            $this->user_access->removeElement($user);
+            $user->removeUserAccess($this);
         }
 
         return $this;

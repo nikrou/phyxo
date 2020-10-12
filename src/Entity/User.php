@@ -79,11 +79,21 @@ class User implements UserInterface, EquatableInterface
      */
     private $userCacheAlbum;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Album::class, inversedBy="user_access")
+     * @ORM\JoinTable(name="user_access",
+     *   joinColumns={@ORM\JoinColumn(name="user_id")},
+     *   inverseJoinColumns={@ORM\JoinColumn(name="cat_id")}
+     * )
+     */
+    private $user_access;
+
     public function __construct()
     {
         $this->roles = ['ROLE_USER'];
         $this->userInfos = new UserInfos();
         $this->groups = new ArrayCollection();
+        $this->user_access = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -287,6 +297,32 @@ class User implements UserInterface, EquatableInterface
         // set the owning side of the relation if necessary
         if ($userCacheAlbum->getUser() !== $this) {
             $userCacheAlbum->setUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Album[]
+     */
+    public function getUserAccess(): Collection
+    {
+        return $this->user_access;
+    }
+
+    public function addUserAccess(Album $album): self
+    {
+        if (!$this->user_access->contains($album)) {
+            $this->user_access[] = $album;
+        }
+
+        return $this;
+    }
+
+    public function removeUserAccess(Album $album): self
+    {
+        if ($this->user_access->contains($album)) {
+            $this->user_access->removeElement($album);
         }
 
         return $this;

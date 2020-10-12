@@ -67,10 +67,18 @@ class GroupRepository extends ServiceEntityRepository
     public function deleteByGroupIds(array $group_ids)
     {
         $qb = $this->createQueryBuilder('g');
-        $qb->delete();
         $qb->where($qb->expr()->in('g.id', $group_ids));
 
-        $qb->getQuery()->getResult();
+        foreach ($qb->getQuery()->getResult() as $group) {
+            foreach ($group->getGroupAccess() as $access) {
+                $group->removeGroupAccess($access);
+            }
+            foreach ($group->getUsers() as $user) {
+                $group->removeUser($user);
+            }
+            $this->_em->remove($group);
+        }
+        $this->_em->flush();
     }
 
     public function toggleIsDefault(array $group_ids)
@@ -103,6 +111,18 @@ class GroupRepository extends ServiceEntityRepository
         $qb->orderBy($order);
         $qb->setFirstResult($offset);
         $qb->setMaxResults($limit);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findWithAlbumsAccess(array $album_ids = [])
+    {
+        $qb = $this->createQueryBuilder('g');
+        $qb->leftJoin('g.group_access', 'ga');
+
+        if (count($album_ids) > 0) {
+            $qb->where($qb->expr()->in('ga.cat_id', $album_ids));
+        }
 
         return $qb->getQuery()->getResult();
     }

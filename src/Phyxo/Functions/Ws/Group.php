@@ -17,9 +17,7 @@ use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedStruct;
 use Phyxo\Ws\NamedArray;
-use App\Repository\GroupRepository;
 use App\Repository\GroupAccessRepository;
-use App\Repository\UserGroupRepository;
 
 class Group
 {
@@ -94,9 +92,6 @@ class Group
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
             return new Error(403, 'Invalid security token');
         }
-
-        // destruction of the access linked to the group
-        (new GroupAccessRepository($service->getConnection()))->deleteByGroupIds($params['group_id']);
 
         $groupnames = [];
         $service->getManagerRegistry()->getRepository(EntityGroup::class)->deleteByGroupIds($params['group_id']);

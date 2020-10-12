@@ -22,8 +22,6 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use App\Entity\User;
-use App\Repository\GroupAccessRepository;
-use App\Repository\UserAccessRepository;
 use App\Utils\UserManager;
 use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Symfony2Extension\Context\KernelDictionary;
@@ -31,7 +29,6 @@ use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\Conf;
 use Phyxo\DBLayer\DBLayer;
 use Phyxo\DBLayer\iDBLayer;
-use Phyxo\EntityManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class DBContext implements Context
@@ -152,9 +149,9 @@ class DBContext implements Context
         if (is_null($group)) {
             throw new \Exception(sprintf('Group with name "%s" do not exists', $group_name));
         }
-        $album = $this->getContainer()->get(CategoryMapper::class)->findAlbumByName($album_name);
-
-        $this->getContainer()->get(EntityManager::class)->getRepository(GroupAccessRepository::class)->massInserts(['group_id', 'cat_id'], [['group_id' => $group->getId(), 'cat_id' => $album['id']]]);
+        $album = $this->getContainer()->get(AlbumMapper::class)->getRepository()->findOneByName($album_name);
+        $album->addGroupAccess($group);
+        $this->getContainer()->get(AlbumMapper::class)->getRepository()->addOrUpdateAlbum($album);
     }
 
     /**
@@ -166,9 +163,9 @@ class DBContext implements Context
         if (is_null($user)) {
             throw new \Exception(sprintf('User with username "%s" do not exists', $username));
         }
-        $album = $this->getContainer()->get(CategoryMapper::class)->findAlbumByName($album_name);
-
-        $this->getContainer()->get(EntityManager::class)->getRepository(UserAccessRepository::class)->insertUserAccess(['user_id', 'cat_id'], [['user_id' => $user->getId(), 'cat_id' => $album['id']]]);
+        $album = $this->getContainer()->get(AlbumMapper::class)->getRepository()->findOneByName($album_name);
+        $album->addUserAccess($user);
+        $this->getContainer()->get(AlbumMapper::class)->getRepository()->addOrUpdateAlbum($album);
     }
 
     /**
@@ -180,9 +177,10 @@ class DBContext implements Context
         if (is_null($user)) {
             throw new \Exception(sprintf('User with username "%s" do not exists', $username));
         }
-        $album = $this->getContainer()->get(CategoryMapper::class)->findAlbumByName($album_name);
 
-        $this->getContainer()->get(EntityManager::class)->getRepository(UserAccessRepository::class)->deleteByUserIdsAndCatIds([$user->getId()], [$album['id']]);
+        $album = $this->getContainer()->get(AlbumMapper::class)->getRepository()->findOneByName($album_name);
+        $album->removeUserAccess($user);
+        $this->getContainer()->get(AlbumMapper::class)->getRepository()->addOrUpdateAlbum($album);
     }
 
     /**

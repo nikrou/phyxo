@@ -11,13 +11,13 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Entity\Album;
+use App\Entity\Group;
+use App\Entity\User;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedArray;
-use App\Repository\CategoryRepository;
 use App\Repository\GroupAccessRepository;
-use App\Repository\UserAccessRepository;
-use App\Repository\UserGroupRepository;
 
 class Permission
 {
@@ -36,75 +36,76 @@ class Permission
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Too many parameters, provide cat_id OR user_id OR group_id');
         }
 
-        $cat_filter = '';
+        $albums = [];
         if (!empty($params['cat_id'])) {
-            $cat_filter = 'WHERE cat_id ' . $service->getConnection()->in($params['cat_id']);
-        }
-
-        $filters = ['group_id' => '', 'user_id' => ''];
-        if (!empty($params['group_id'])) {
-            $filters['group_id'] = $params['group_id'];
-        }
-        if (!empty($params['user_id'])) {
-            $filters['user_id'] = $params['user_id'];
-        }
-
-        $perms = [];
-
-        // direct users
-        $result = (new UserAccessRepository($service->getConnection()))->findByCatId($params['cat_id'] ?? null);
-        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-            if (!isset($perms[$row['cat_id']])) {
-                $perms[$row['cat_id']]['id'] = intval($row['cat_id']);
-            }
-            $perms[$row['cat_id']]['users'][] = intval($row['user_id']);
-        }
-
-        // indirect users
-        $result = (new UserGroupRepository($service->getConnection()))->findIndirectUsersByCatIds($params['cat_id'] ?? []);
-        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-            if (!empty($row['cat_id'])) {
-                if (!isset($perms[$row['cat_id']])) {
-                    $perms[$row['cat_id']]['id'] = intval($row['cat_id']);
+            if (is_array($params['cat_id'])) {
+                foreach ($service->getAlbumMapper()->getRepository()->findBy(['id' => $params['cat_id']]) as $album) {
+                    $albums[] = $album;
                 }
-                $perms[$row['cat_id']]['users_indirect'][] = intval($row['user_id']);
+            } else {
+                $albums[] = $service->getAlbumMapper()->getRepository()->find($params['cat_id']);
+            }
+        } else {
+            foreach ($service->getAlbumMapper()->getRepository()->findAll() as $album) {
+                $albums[] = $album;
             }
         }
 
-        // groups
-        $result = (new GroupAccessRepository($service->getConnection()))->findByCatId($params['cat_id'] ?? null);
-        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-            if (!isset($perms[$row['cat_id']])) {
-                $perms[$row['cat_id']]['id'] = intval($row['cat_id']);
+        $permissions = [];
+
+        foreach ($albums as $album) {
+            if (!isset($permissions[$album->getId()])) {
+                $permissions[$album->getId()]['id'] = $album->getId();
             }
-            $perms[$row['cat_id']]['groups'][] = intval($row['group_id']);
+
+            // direct users
+            foreach ($album->getUserAccess() as $user) {
+                $permissions[$album->getId()]['users'][] = $user->getId();
+            }
+
+            // indirect users
+            $album_ids = [];
+            if (!empty($params['cat_id'])) {
+                if (is_array($params['cat_id'])) {
+                    $album_ids = $params['cat_id'];
+                } else {
+                    $album_ids = [$params['cat_id']];
+                }
+            }
+            foreach ($service->getUserMapper()->getRepository()->findWithAlbumsAccess($album_ids) as $user) {
+                $permissions[$album->getId()]['users_indirect'][] = $user->getId();
+            }
+
+            // groups
+            foreach ($album->getGroupAccess() as $group) {
+                $permissions[$album->getId()]['groups'][] = $group->getId();
+            }
         }
 
         // filter by group and user
-        foreach ($perms as $cat_id => &$cat) {
-            if (!empty($filters['group_id'])) {
-                if (empty($cat['groups']) or count(array_intersect($cat['groups'], $params['group_id'])) == 0) {
-                    unset($perms[$cat_id]);
+        foreach ($permissions as $album_id => &$album) {
+            if (!empty($params['group_id'])) {
+                if (empty($album['groups']) || count(array_intersect($album['groups'], $params['group_id'])) === 0) {
+                    unset($permissions[$album_id]);
                     continue;
                 }
             }
-            if (!empty($filters['user_id'])) {
-                if ((empty($cat['users_indirect']) or count(array_intersect($cat['users_indirect'], $params['user_id'])) == 0)
-                    and (empty($cat['users']) or count(array_intersect($cat['users'], $params['user_id'])) == 0)) {
-                    unset($perms[$cat_id]);
+            if (!empty($params['user_id'])) {
+                if ((empty($albul['users_indirect']) || count(array_intersect($album['users_indirect'], $params['user_id'])) === 0)
+                    && (empty($album['users']) || count(array_intersect($album['users'], $params['user_id'])) === 0)) {
+                    unset($permissions[$album_id]);
                     continue;
                 }
             }
 
-            $cat['groups'] = !empty($cat['groups']) ? array_values(array_unique($cat['groups'])) : [];
-            $cat['users'] = !empty($cat['users']) ? array_values(array_unique($cat['users'])) : [];
-            $cat['users_indirect'] = !empty($cat['users_indirect']) ? array_values(array_unique($cat['users_indirect'])) : [];
+            $album['groups'] = !empty($album['groups']) ? array_values(array_unique($album['groups'])) : [];
+            $album['users'] = !empty($album['users']) ? array_values(array_unique($album['users'])) : [];
+            $album['users_indirect'] = !empty($album['users_indirect']) ? array_values(array_unique($album['users_indirect'])) : [];
         }
-        unset($cat);
 
         return [
             'categories' => new NamedArray(
-                array_values($perms),
+                array_values($permissions),
                 'category',
                 ['id']
             )
@@ -126,33 +127,42 @@ class Permission
             return new Error(403, 'Invalid security token');
         }
 
-        if (!empty($params['group_id'])) {
-            $cat_ids = $service->getCategoryMapper()->getUppercatIds($params['cat_id']);
+        if (!empty($params['group_id']) || !empty($params['user_id'])) {
+            $album_ids = $service->getAlbumMapper()->getUppercatIds($params['cat_id']);
             if ($params['recursive']) {
-                $cat_ids = array_merge($cat_ids, (new CategoryRepository($service->getConnection()))->getSubcatIds($params['cat_id']));
+                $album_ids = array_merge($album_ids, $service->getAlbumMapper()->getRepository()->getSubcatIds($params['cat_id']));
             }
 
-            $result = (new CategoryRepository($service->getConnection()))->findByIdsAndStatus($cat_ids, 'private');
-            $private_cats = $service->getConnection()->result2array($result, null, 'id');
+            $groups = [];
+            foreach ($service->getManagerRegistry()->getRepository(Group::class)->findAll() as $group) {
+                $groups[] = $group;
+            }
 
-            $inserts = [];
-            foreach ($private_cats as $cat_id) {
-                foreach ($params['group_id'] as $group_id) {
-                    $inserts[] = [
-                        'group_id' => $group_id,
-                        'cat_id' => $cat_id
-                    ];
+            $users = [];
+            foreach ($service->getManagerRegistry()->getRepository(User::class)->findAll() as $user) {
+                $users[] = $user;
+            }
+
+            foreach ($service->getAlbumMapper()->findByIdsAndStatus($album_ids, Album::STATUS_PRIVATE) as $album) {
+                $need_update = false;
+                if (count($groups) > 0) {
+                    $need_update = true;
+                    foreach ($groups as $group) {
+                        $album->addGroupAccess($group);
+                    }
+                }
+
+                if (count($users) > 0) {
+                    $need_update = true;
+                    foreach ($users as $user) {
+                        $album->addUserAcccess($user);
+                    }
+                }
+
+                if ($need_update) {
+                    $service->getAlbumMapper()->getRepository()->addOrUpdateAlbum($album);
                 }
             }
-
-            (new GroupAccessRepository($service->getConnection()))->massInserts(['group_id', 'cat_id'], $inserts);
-        }
-
-        if (!empty($params['user_id'])) {
-            if ($params['recursive']) {
-                $_POST['apply_on_sub'] = true;
-            }
-            $service->getCategoryMapper()->addPermissionOnCategory($params['cat_id'], $params['user_id']);
         }
 
         return $service->invoke('pwg.permissions.getList', ['cat_id' => $params['cat_id']]);
@@ -172,15 +182,35 @@ class Permission
             return new Error(403, 'Invalid security token');
         }
 
-        $cat_ids = (new CategoryRepository($service->getConnection()))->getSubcatIds($params['cat_id']);
+        $album = $service->getAlbumMapper()->getRepository()->find($params['cat_id']);
 
         if (!empty($params['group_id'])) {
-            (new GroupAccessRepository($service->getConnection()))->deleteByGroupIdsAndCatIds($params['group_id'], $cat_ids);
+            if (is_array($params['group_id'])) {
+                foreach ($service->getManagerRegistry()->getRepository(Group::class)->findBy(['id' => $params['group_id']]) as $group) {
+                    $album->removeGroupAccess($group);
+                }
+            } else {
+                $group = $service->getManagerRegistry()->getRepository(Group::class)->find($params['group_id']);
+                $album->removeGroupAccess($group);
+            }
+        } else {
+            $album->removeAllGroupAccess();
         }
 
         if (!empty($params['user_id'])) {
-            (new UserAccessRepository($service->getConnection()))->deleteByUserIdsAndCatIds($params['user_id'], $cat_ids);
+            if (is_array($params['user_id'])) {
+                foreach ($service->getUserMapper()->getRepository()->findBy(['id' => $params['user_id']]) as $user) {
+                    $album->removeUserAccess($user);
+                }
+            } else {
+                $user = $service->getUserMapper()->getRepository()->find($params['user_id']);
+                $album->removeUserAccess($user);
+            }
+        } else {
+            $album->removeAllGroupAccess();
         }
+
+        $service->getAlbumMapper()->getRepository()->addOrUpdateAlbum($album);
 
         return $service->invoke('pwg.permissions.getList', ['cat_id' => $params['cat_id']]);
     }

@@ -14,12 +14,9 @@ namespace App\Controller\Admin;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\User;
-use App\Repository\CategoryRepository;
-use App\Repository\GroupAccessRepository;
 use App\Repository\GroupRepository;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
-use App\Repository\UserAccessRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
@@ -157,17 +154,20 @@ class UsersController extends AdminCommonController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
+        $user = $userRepository->find($user_id);
+
         if ($request->isMethod('POST')) {
             if ($request->request->get('falsify') && $request->request->get('cat_true') && count($request->request->get('cat_true')) > 0) {
                 // if you forbid access to a category, all sub-categories become automatically forbidden
-                $subcats = $albumMapper->getRepository()->getSubcatIds($request->request->get('cat_true'));
-                $em->getRepository(UserAccessRepository::class)->deleteByUserIdsAndCatIds([$user_id], $subcats);
+                foreach ($albumMapper->getRepository()->getSubAlbums($request->request->get('cat_true')) as $album) {
+                    $album->removeUserAccess($user);
+                }
+                $albumMapper->getRepository()->addOrUpdateAlbum($album);
             } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && count($request->request->get('cat_false')) > 0) {
                 $albumMapper->addPermissionOnAlbum($request->request->get('cat_false'), [$user_id]);
             }
         }
 
-        $user = $userRepository->find($user_id);
         $tpl_params['TITLE'] = $translator->trans('Manage permissions for user "{user}"', ['user' => $user->getUsername()], 'admin');
         $tpl_params['L_CAT_OPTIONS_TRUE'] = $translator->trans('Authorized', [], 'admin');
         $tpl_params['L_CAT_OPTIONS_FALSE'] = $translator->trans('Forbidden', [], 'admin');
@@ -175,30 +175,20 @@ class UsersController extends AdminCommonController
 
         // retrieve category ids authorized to the groups the user belongs to
         $group_authorized = [];
-
-        $result = $em->getRepository(GroupAccessRepository::class)->findCategoriesAuthorizedToUser($user_id);
-        if ($em->getConnection()->db_num_rows($result) > 0) {
-            $cats = [];
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                $cats[] = $row;
-                $group_authorized[] = $row['cat_id'];
-            }
-            usort($cats, '\Phyxo\Functions\Utils::global_rank_compare');
-
-            foreach ($cats as $category) {
-                $tpl_params['categories_because_of_groups'][] = $albumMapper->getAlbumsDisplayNameCache($category['uppercats']);
-            }
+        foreach ($user->getUserAccess() as $album) {
+            $tpl_params['categories_because_of_groups'][] = $albumMapper->getAlbumsDisplayNameCache($album->getUppercats());
+            $group_authorized[] = $album->getId();
         }
 
         // only private categories are listed
-        $result = $em->getRepository(CategoryRepository::class)->findWithUserAccess($user_id, $group_authorized);
-        $categories = $em->getConnection()->result2array($result);
-
-        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectCategoriesWrapper($categories, [], 'category_option_true'));
-        $authorized_ids = [];
-        foreach ($categories as $category) {
-            $authorized_ids[] = $category['id'];
+        $albums = [];
+        foreach ($albumMapper->getRepository()->findPrivateWithUserAccessAndNotExclude($user_id, $group_authorized) as $album) {
+            $albums[] = $album;
+            $authorized_ids[] = $album->getId();
         }
+
+        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_option_true'));
+
 
         $albums = [];
         foreach ($albumMapper->getRepository()->findUnauthorized(array_merge($authorized_ids, $group_authorized)) as $album) {

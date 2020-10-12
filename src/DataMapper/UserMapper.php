@@ -55,6 +55,11 @@ class UserMapper
         $this->userProvider = $userProvider;
     }
 
+    public function getRepository(): UserRepository
+    {
+        return $this->userRepository;
+    }
+
     public function getUser()//: ?User @TODO : modify tests or implementation
     {
         return $this->userProvider->getUser();

@@ -15,9 +15,6 @@ use App\DataMapper\AlbumMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\Album;
 use App\Entity\Group;
-use App\Repository\AlbumRepository;
-use App\Repository\CategoryRepository;
-use App\Repository\GroupAccessRepository;
 use App\Repository\GroupRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
@@ -99,7 +96,7 @@ class GroupsController extends AdminCommonController
         return $this->render('groups_list.html.twig', $tpl_params);
     }
 
-    public function perm(Request $request, int $group_id, EntityManager $em, Conf $conf, ParameterBagInterface $params, AlbumRepository $albumRepository,
+    public function perm(Request $request, int $group_id, EntityManager $em, Conf $conf, ParameterBagInterface $params,
                         AlbumMapper $albumMapper, UserMapper $userMapper, TranslatorInterface $translator, GroupRepository $groupRepository)
     {
         $tpl_params = [];
@@ -108,35 +105,21 @@ class GroupsController extends AdminCommonController
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->isMethod('POST')) {
+            $group = $groupRepository->find($group_id);
+
             if ($request->request->get('falsify') && $request->request->get('cat_true') && count($request->request->get('cat_true')) > 0) {
                 // if you forbid access to a category, all sub-categories become automatically forbidden
-                $subcats = $albumRepository->getSubcatIds($request->request->get('cat_true'));
-                $em->getRepository(GroupAccessRepository::class)->deleteByGroupIdsAndCatIds([$group_id], $subcats);
+                foreach ($albumMapper->getRepository()->getSubAlbums($request->request->get('cat_true')) as $album) {
+                    $album->removeGroupAccess($group);
+                    $albumMapper->getRepository()->addOrUpdateAlbum($album);
+                }
             } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && count($request->request->get('cat_false')) > 0) {
                 $uppercats = $albumMapper->getUppercatIds($request->request->get('cat_false'));
-                $private_uppercats = [];
-                foreach ($albumRepository->findByIdsAndStatus($uppercats, Album::STATUS_PRIVATE) as $album) {
-                    $private_uppercats[] = $album->getId();
-                }
 
-                // retrying to authorize a category which is already authorized may cause
-                // an error (in SQL statement), so we need to know which categories are accesible
-                $authorized_ids = [];
-                $result = $em->getRepository(GroupAccessRepository::class)->findByGroupId($group_id);
-                while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                    $authorized_ids[] = $row['cat_id'];
+                foreach ($albumMapper->getRepository()->findByIdsAndStatus($uppercats, Album::STATUS_PRIVATE) as $album) {
+                    $album->addGroupAccess($group);
+                    $albumMapper->getRepository()->addOrUpdateAlbum($album);
                 }
-
-                $inserts = [];
-                $to_autorize_ids = array_diff($private_uppercats, $authorized_ids);
-                foreach ($to_autorize_ids as $to_autorize_id) {
-                    $inserts[] = [
-                        'group_id' => $group_id,
-                        'cat_id' => $to_autorize_id
-                    ];
-                }
-
-                $em->getRepository(GroupAccessRepository::class)->massInserts(['group_id', 'cat_id'], $inserts);
                 $userMapper->invalidateUserCache();
             }
         }
@@ -153,17 +136,16 @@ class GroupsController extends AdminCommonController
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_group_perm', ['group_id' => $group_id]);
 
         // only private categories are listed
-        $result = $em->getRepository(CategoryRepository::class)->findWithGroupAccess($group_id);
-        $categories = $em->getConnection()->result2array($result);
-        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectCategoriesWrapper($categories, [], 'category_option_true'));
-
+        $albums = [];
         $authorized_ids = [];
-        foreach ($categories as $category) {
-            $authorized_ids[] = $category['id'];
+        foreach ($albumMapper->getRepository()->findPrivateWithGroupAccess($group_id) as $album) {
+            $albums[] = $album;
+            $authorized_ids[] = $album->getId();
         }
+        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_option_true'));
 
         $albums = [];
-        foreach ($albumRepository->findUnauthorized($authorized_ids) as $album) {
+        foreach ($albumMapper->getRepository()->findUnauthorized($authorized_ids) as $album) {
             $albums[] = $album;
         }
         $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_option_false'));
@@ -211,18 +193,9 @@ class GroupsController extends AdminCommonController
 
             return $this->redirectToRoute('admin_groups');
         } elseif ($action === 'delete' && $request->request->get('confirm_deletion')) {
-            // destruction of the access linked to the group
-            $em->getRepository(GroupAccessRepository::class)->deleteByGroupIds($group_selection);
-
-            $group_names = [];
-            foreach ($groupRepository->findById($group_selection) as $group) {
-                $group_names[$group->getName()] = $group->getName();
-            }
-
-            // destruction of the users links for this group
             $groupRepository->deleteByGroupIds($group_selection);
 
-            $this->addFlash('info', $translator->trans('groups "{groups}" deleted', ['groups' => implode(', ', $group_names)], 'admin'));
+            $this->addFlash('info', $translator->trans('group(s) deleted', [], 'admin'));
 
             return $this->redirectToRoute('admin_groups');
         } elseif ($action === 'merge' && count($group_selection) > 1) {
@@ -241,38 +214,17 @@ class GroupsController extends AdminCommonController
                         $group->addUser($user);
                     }
                 }
+
+                if ($group_to_merge->getGroupAccess() > 0) {
+                    foreach ($group_to_merge->getGroupAccess() as $album) {
+                        $group->addGroupAccess($album);
+                    }
+                }
             }
 
             $group_id = $groupRepository->addOrUpdateGroup($group);
             $groupRepository->deleteByGroupIds($group_selection);
 
-
-            $grp_access = [];
-            $result = $em->getRepository(GroupAccessRepository::class)->findByGroupIds($group_selection);
-            $groups_infos = $em->getConnection()->result2array($result);
-            foreach ($groups_infos as $group) {
-                $new_grp_access = [
-                    'cat_id' => $group['cat_id'],
-                    'group_id' => $group_id
-                ];
-                if (!in_array($new_grp_access, $grp_access)) {
-                    $grp_access[] = $new_grp_access;
-                }
-            }
-
-            $result = $em->getRepository(GroupAccessRepository::class)->findByGroupIds($group_selection);
-            $groups_infos = $em->getConnection()->result2array($result);
-            foreach ($groups_infos as $group) {
-                $new_grp_access = [
-                    'cat_id' => $group['cat_id'],
-                    'group_id' => $group_id
-                ];
-                if (!in_array($new_grp_access, $grp_access)) {
-                    $grp_access[] = $new_grp_access;
-                }
-            }
-
-            $em->getRepository(GroupAccessRepository::class)->massInserts(['group_id', 'cat_id'], $grp_access);
             $this->addFlash('info', $translator->trans('group "{group}" added', ['group' => $request->request->get('merge')], 'admin'));
 
             return $this->redirectToRoute('admin_groups');
@@ -295,17 +247,10 @@ class GroupsController extends AdminCommonController
                 foreach ($group_to_duplicate->getUsers() as $user) {
                     $new_group->addUser($user);
                 }
-                $group_id = $groupRepository->addOrUpdateGroup($new_group);
-
-                $grp_access = [];
-                $result = $em->getRepository(GroupAccessRepository::class)->findByGroupId($group_id);
-                while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                    $grp_access[] = [
-                        'cat_id' => $row['cat_id'],
-                        'group_id' => $group_id
-                    ];
+                foreach ($group_to_duplicate->getGroupAccess() as $album) {
+                    $new_group->addGroupAccess($album);
                 }
-                $em->getRepository(GroupAccessRepository::class)->massInserts(['group_id', 'cat_id'], $grp_access);
+                $group_id = $groupRepository->addOrUpdateGroup($new_group);
 
                 $this->addFlash('info', $translator->trans('group "{group}" added', ['group' => $request->request->get('duplicate_' . $group)], 'admin'));
 
