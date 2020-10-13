@@ -13,20 +13,17 @@ namespace App\Utils;
 
 use App\Repository\UserRepository;
 use App\Repository\GroupRepository;
-use App\Repository\UserGroupRepository;
 use App\Entity\User;
 use App\Entity\UserInfos;
 use App\Repository\UserInfosRepository;
-use Phyxo\EntityManager;
 
 class UserManager
 {
-    private $em, $userRepository, $userInfosRepository, $groupRepository, $defaultLanguage, $defautlTheme;
+    private $userRepository, $userInfosRepository, $groupRepository, $defaultLanguage, $defautlTheme;
 
-    public function __construct(EntityManager $em, UserRepository $userRepository, UserInfosRepository $userInfosRepository, GroupRepository $groupRepository,
+    public function __construct(UserRepository $userRepository, UserInfosRepository $userInfosRepository, GroupRepository $groupRepository,
                                 string $defaultLanguage, string $defaultTheme)
     {
-        $this->em = $em;
         $this->userRepository = $userRepository;
         $this->userInfosRepository = $userInfosRepository;
         $this->groupRepository = $groupRepository;

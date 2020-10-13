@@ -25,7 +25,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
         $this->db_username = $user;
         $this->db_password = $password;
 
-        $this->dsn = sprintf('sqlite:%s/db/%s.db', __DIR__ . '/../../..', $database);
+        $this->dsn = sprintf('sqlite:%s/%s', __DIR__ . '/../../../', $database);
 
         try {
             $this->db_link = new \PDO($this->dsn, null, null, [\PDO::ATTR_PERSISTENT => true]);

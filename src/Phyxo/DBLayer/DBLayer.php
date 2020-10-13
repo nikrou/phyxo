@@ -49,7 +49,7 @@ class DBLayer
             isset($db_params['host']) ? $db_params['host'] : '',
             isset($db_params['user']) ? $db_params['user'] : '',
             isset($db_params['pass']) ? $db_params['pass'] : '',
-            substr($db_params['path'], 1)
+            $db_params['path'][0] === '/' ? substr($db_params['path'], 1) : $db_params['path']
         );
     }
 
