@@ -222,19 +222,6 @@ CREATE TABLE `phyxo_languages` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
---
--- Table structure for table `phyxo_old_permalinks`
---
-
-DROP TABLE IF EXISTS `phyxo_old_permalinks`;
-CREATE TABLE `phyxo_old_permalinks` (
-  `cat_id` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
-  `permalink` VARCHAR(64) BINARY NOT NULL DEFAULT '',
-  `date_deleted` datetime DEFAULT NULL,
-  `last_hit` datetime DEFAULT NULL,
-  `hit` int(10) UNSIGNED NOT NULL DEFAULT '0',
-  PRIMARY KEY  (`permalink`)
-) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_plugins`

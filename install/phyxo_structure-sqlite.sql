@@ -214,21 +214,6 @@ CREATE TABLE "phyxo_languages"
 );
 
 
------------------------------------------------------------------------------
--- phyxo_old_permalinks
------------------------------------------------------------------------------
-
-DROP TABLE IF EXISTS "phyxo_old_permalinks";
-CREATE TABLE "phyxo_old_permalinks"
-(
-  "cat_id" INTEGER default 0 NOT NULL,
-  "permalink" VARCHAR(64) default '' NOT NULL,
-  "date_deleted" TIMESTAMP NOT NULL,
-  "last_hit" TIMESTAMP,
-  "hit" INTEGER default 0 NOT NULL,
-  PRIMARY KEY ("permalink")
-);
-
 
 -----------------------------------------------------------------------------
 -- phyxo_plugins

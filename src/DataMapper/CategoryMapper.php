@@ -22,7 +22,6 @@ use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\UserAccessRepository;
 use App\Repository\GroupAccessRepository;
-use App\Repository\OldPermalinkRepository;
 use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\SiteRepository;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -107,9 +106,6 @@ class CategoryMapper
             $cats[$row['id']] = $row;
         }
         uasort($cats, '\Phyxo\Functions\Utils::global_rank_compare');
-
-        // Update filtered data
-        Category::update_cats_with_filtered_data($cats);
 
         return $cats;
     }
@@ -424,7 +420,6 @@ class CategoryMapper
         // destruction of the category
         $this->em->getRepository(CategoryRepository::class)->deleteByIds($ids);
 
-        $this->em->getRepository(OldPermalinkRepository::class)->deleteByCatIds($ids);
         $this->em->getRepository(UserCacheCategoriesRepository::class)->deleteByUserCatIds($ids);
     }
 

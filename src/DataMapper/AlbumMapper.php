@@ -15,10 +15,8 @@ use App\Entity\Album;
 use App\Repository\AlbumRepository;
 use App\Repository\BaseRepository;
 use App\Repository\CategoryRepository;
-use App\Repository\GroupAccessRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
-use App\Repository\OldPermalinkRepository;
 use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
@@ -962,7 +960,6 @@ class AlbumMapper
         // destruction of the album
         $this->getRepository()->deleteByIds($ids);
 
-        $this->em->getRepository(OldPermalinkRepository::class)->deleteByCatIds($ids);
         $this->em->getRepository(UserCacheCategoriesRepository::class)->deleteByUserCatIds($ids);
     }
 

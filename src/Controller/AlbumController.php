@@ -204,9 +204,6 @@ class AlbumController extends CommonController
         }
 
         if (count($categories) > 0) {
-            // Update filtered data
-            \Phyxo\Functions\Category::update_cats_with_filtered_data($categories);
-
             $tpl_thumbnails_var = [];
             foreach ($categories as $category) {
                 if ($category['count_images'] === 0) {
@@ -580,9 +577,6 @@ class AlbumController extends CommonController
         }
 
         if (count($categories) > 0) {
-            // Update filtered data
-            \Phyxo\Functions\Category::update_cats_with_filtered_data($categories);
-
             $tpl_thumbnails_var = [];
             foreach ($categories as $category) {
                 if ($category['count_images'] === 0) {
@@ -796,9 +790,6 @@ class AlbumController extends CommonController
         }
 
         if (count($categories) > 0) {
-            // Update filtered data
-            \Phyxo\Functions\Category::update_cats_with_filtered_data($categories);
-
             $tpl_thumbnails_var = [];
             foreach ($categories as $category) {
                 if ($category['count_images'] === 0) {

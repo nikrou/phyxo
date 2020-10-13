@@ -521,14 +521,7 @@ class Category
             return;
         }
 
-        $result = (new CategoryRepository($service->getConnection()))->findByIds($category_ids);
-        $category_ids = $service->getConnection()->result2array($result, null, 'id');
-
-        if (count($category_ids) == 0) {
-            return;
-        }
-
-        $service->getCategoryMapper()->deleteCategories($category_ids);
+        $service->getAlbumMapper()->deleteAlbums($category_ids);
 
         // now, should we delete photos that are virtually linked to the category?
         if ($params['photo_deletion_mode'] === 'delete_orphans' || $params['photo_deletion_mode'] === 'force_delete') {

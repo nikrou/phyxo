@@ -17,7 +17,6 @@ use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedStruct;
 use Phyxo\Ws\NamedArray;
-use App\Repository\GroupAccessRepository;
 
 class Group
 {

@@ -17,7 +17,6 @@ use App\Entity\User;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedArray;
-use App\Repository\GroupAccessRepository;
 
 class Permission
 {
