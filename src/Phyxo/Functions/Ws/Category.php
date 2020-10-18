@@ -14,8 +14,6 @@ namespace Phyxo\Functions\Ws;
 use App\Entity\User;
 use App\Entity\UserInfos;
 use Phyxo\Ws\Error;
-use Phyxo\Ws\NamedArray;
-use Phyxo\Ws\NamedStruct;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\UserCacheCategoriesRepository;
@@ -102,8 +100,8 @@ class Category
 
                 $image_cats = [];
                 foreach (explode(',', $row['cat_ids']) as $cat_id) {
-                    $url = $service->getRouter()->generate('album', ['category_id' => $cats[$cat_id]]);
-                    $page_url = $service->getRouter()->generate('picture', ['image_id' => $row['id'], 'type' => 'category', 'element_id' => $cats[$cat_id]]);
+                    $url = $service->getRouter()->generate('album', ['category_id' => $cat_id]);
+                    $page_url = $service->getRouter()->generate('picture', ['image_id' => $row['id'], 'type' => 'category', 'element_id' => $cat_id]);
                     $image_cats[] = [
                         'id' => (int)$cat_id,
                         'url' => $url,
@@ -111,28 +109,18 @@ class Category
                     ];
                 }
 
-                $image['categories'] = new NamedArray(
-                    $image_cats,
-                    'category',
-                    ['id', 'url', 'page_url']
-                );
+                $image['categories'] = $image_cats;
                 $images[] = $image;
             }
         }
 
         return [
-            'paging' => new NamedStruct(
-                [
-                    'page' => $params['page'],
-                    'per_page' => $params['per_page'],
-                    'count' => count($images)
-                ]
-            ),
-            'images' => new NamedArray(
-                $images,
-                'image',
-                \Phyxo\Functions\Ws\Main::stdGetImageXmlAttributes()
-            )
+            'paging' => [
+                'page' => $params['page'],
+                'per_page' => $params['per_page'],
+                'count' => count($images)
+            ],
+            'images' => $images,
         ];
     }
 
@@ -333,13 +321,7 @@ class Category
             return self::categoriesFlatlistToTree($cats);
         }
 
-        return [
-            'categories' => new NamedArray(
-                $cats,
-                'category',
-                \Phyxo\Functions\Ws\Main::stdGetCategoryXmlAttributes()
-            )
-        ];
+        return ['categories' => $cats];
     }
 
     /**
@@ -367,13 +349,8 @@ class Category
         }
 
         usort($cats, '\Phyxo\Functions\Utils::global_rank_compare');
-        return [
-            'categories' => new NamedArray(
-                $cats,
-                'category',
-                ['id', 'nb_images', 'name', 'uppercats', 'global_rank']
-            )
-        ];
+
+        return ['categories' => $cats];
     }
 
     /**
@@ -652,10 +629,10 @@ class Category
                 $tree[] = &$node;
             } else {
                 if (!isset($categories[$key_of_cat[$node['id_uppercat']]]['sub_categories'])) {
-                    $categories[$key_of_cat[$node['id_uppercat']]]['sub_categories'] = new NamedArray([], 'category', \Phyxo\Functions\Ws\Main::stdGetCategoryXmlAttributes());
+                    $categories[$key_of_cat[$node['id_uppercat']]]['sub_categories'] = [];
                 }
 
-                $categories[$key_of_cat[$node['id_uppercat']]]['sub_categories']->_content[] = &$node;
+                $categories[$key_of_cat[$node['id_uppercat']]]['sub_categories'][] = &$node;
             }
         }
 

@@ -280,7 +280,7 @@ class UserInfos
         return $this;
     }
 
-    public function getEnabledHigh(): ?bool
+    public function hasEnabledHigh(): ?bool
     {
         return $this->enabled_high;
     }
@@ -302,7 +302,7 @@ class UserInfos
             'show_nb_hits' => $this->getShowNbHits(),
             'recent_period' => $this->getRecentPeriod(),
             'theme' => $this->getTheme(),
-            'enabled_high' => $this->getEnabledHigh(),
+            'enabled_high' => $this->hasEnabledHigh(),
             'level' => $this->getLevel(),
         ];
     }

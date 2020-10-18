@@ -12,8 +12,6 @@
 namespace Phyxo\Functions\Ws;
 
 use Phyxo\Ws\Error;
-use Phyxo\Ws\NamedArray;
-use Phyxo\Ws\NamedStruct;
 use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\ImageRepository;
@@ -56,13 +54,7 @@ class Tag
      */
     public static function getAdminList($params, Server $service)
     {
-        return [
-            'tags' => new NamedArray(
-                $service->getTagMapper()->getAllTags(),
-                'tag',
-                \Phyxo\Functions\Ws\Main::stdGetTagXmlAttributes()
-            )
-        ];
+        return ['tags' => $service->getTagMapper()->getAllTags()];
     }
 
     /**
@@ -157,7 +149,7 @@ class Tag
                     ];
                 }
 
-                $image['tags'] = new NamedArray($image_tags, 'tag', \Phyxo\Functions\Ws\Main::stdGetTagXmlAttributes());
+                $image['tags'] = $image_tags;
                 $images[$image['id']] = $image;
             }
             // postgresql does not understand order by field(field_name, id1, id2, id3,...)
@@ -173,19 +165,13 @@ class Tag
         }
 
         return [
-            'paging' => new NamedStruct(
-                [
-                    'page' => $params['page'],
-                    'per_page' => $params['per_page'],
-                    'count' => count($images),
-                    'total_count' => $count_set,
-                ]
-            ),
-            'images' => new NamedArray(
-                $images,
-                'image',
-                \Phyxo\Functions\Ws\Main::stdGetImageXmlAttributes()
-            )
+            'paging' => [
+                'page' => $params['page'],
+                'per_page' => $params['per_page'],
+                'count' => count($images),
+                'total_count' => $count_set,
+            ],
+            'images' => $images,
         ];
     }
 
@@ -229,12 +215,6 @@ class Tag
             $tags[$i]['url'] = $service->getRouter()->generate('images_by_tags', ['tag_ids' => URL::tagToUrl($tags[$i])]);
         }
 
-        return [
-            'tags' => new NamedArray(
-                $tags,
-                'tag',
-                \Phyxo\Functions\Ws\Main::stdGetTagXmlAttributes()
-            )
-        ];
+        return ['tags' => $tags];
     }
 }

@@ -28,6 +28,7 @@ use App\DataMapper\RateMapper;
 use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
+use App\Security\UserProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Utils\UserManager;
 use Doctrine\Persistence\ManagerRegistry;
@@ -40,7 +41,7 @@ class WsController extends AbstractController
 {
     private $service;
 
-    public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, Conf $conf, iDBLayer $conn, EntityManager $em,
+    public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, Conf $conf, iDBLayer $conn, EntityManager $em, UserProvider $userProvider,
                            UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, RateMapper $rateMapper, SearchMapper $searchMapper, RouterInterface $router,
                            string $phyxoVersion, ImageStandardParams $image_std_params, string $pemURL, Security $security, ParameterBagInterface $params,
                            ImageMapper $imageMapper, Request $request, ManagerRegistry $managerRegistry, AlbumMapper $albumMapper, CategoryMapper $categoryMapper)
@@ -69,6 +70,7 @@ class WsController extends AbstractController
         $this->service->setExtensionsURL($pemURL);
         $this->service->setSecurity($security);
         $this->service->setManagerRegistry($managerRegistry);
+        $this->service->setUserProvider($userProvider);
         $this->service->setParams($params);
 
         $this->addDefaultMethods();

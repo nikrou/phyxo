@@ -32,10 +32,11 @@ abstract class ResponseEncoder
      * returns true if the parameter is a 'struct' (php array type whose keys are
      * NOT consecutive integers starting with 0)
      */
-    public static function is_struct(&$data) {
+    public static function is_struct(&$data)
+    {
         if (is_array($data)) {
             if (range(0, count($data) - 1) !== array_keys($data)) {
-                # string keys, unordered, non-incremental keys, .. - whatever, make object
+                // string keys, unordered, non-incremental keys, .. - whatever, make object
                 return true;
             }
         }
@@ -47,21 +48,13 @@ abstract class ResponseEncoder
      * removes all XML formatting from $response (named array, named structs, etc)
      * usually called by every response encoder, except rest xml.
      */
-    public static function flattenResponse(&$value) {
+    public static function flattenResponse(&$value)
+    {
         self::flatten($value);
     }
 
-    private static function flatten(&$value) {
-        if (is_object($value)) {
-            $class = @get_class($value);
-            if ($class == 'Phyxo\Ws\NamedArray') {
-                $value = $value->_content;
-            }
-            if ($class == 'Phyxo\Ws\NamedStruct') {
-                $value = $value->_content;
-            }
-        }
-
+    private static function flatten(&$value)
+    {
         if (!is_array($value)) {
             return;
         }
@@ -69,7 +62,7 @@ abstract class ResponseEncoder
         if (self::is_struct($value)) {
             if (isset($value[Server::WS_XML_ATTRIBUTES])) {
                 $value = array_merge($value, $value[Server::WS_XML_ATTRIBUTES]);
-                unset( $value[Server::WS_XML_ATTRIBUTES] );
+                unset($value[Server::WS_XML_ATTRIBUTES]);
             }
         }
 

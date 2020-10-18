@@ -618,7 +618,7 @@ class Server
                 return empty($m['options']['hidden']) || !$m['options']['hidden'];
             }
         );
-        return ['methods' => new NamedArray(array_keys($methods), 'method')];
+        return ['methods' => array_keys($methods)];
     }
 
     /**

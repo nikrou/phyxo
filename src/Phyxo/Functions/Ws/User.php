@@ -15,11 +15,7 @@ use App\Entity\Group;
 use App\Entity\Language;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
-use Phyxo\Ws\NamedArray;
-use Phyxo\Ws\NamedStruct;
 use App\Repository\HistoryRepository;
-use App\Repository\GroupRepository;
-use App\Repository\UserGroupRepository;
 use App\Entity\User as EntityUser;
 use App\Entity\UserInfos;
 
@@ -167,14 +163,12 @@ class User
         }
 
         return [
-            'paging' => new NamedStruct(
-                [
-                    'page' => $params['page'],
-                    'per_page' => $params['per_page'],
-                    'count' => count($users)
-                ]
-            ),
-            'users' => new NamedArray(array_values($users), 'user')
+            'paging' => [
+                'page' => $params['page'],
+                'per_page' => $params['per_page'],
+                'count' => count($users)
+            ],
+            'users' => array_values($users),
         ];
     }
 

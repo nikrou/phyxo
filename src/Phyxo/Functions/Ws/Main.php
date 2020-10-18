@@ -13,7 +13,6 @@ namespace Phyxo\Functions\Ws;
 
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
-use Phyxo\Ws\NamedArray;
 use App\Repository\CommentRepository;
 use App\Repository\TagRepository;
 use App\Repository\CategoryRepository;
@@ -153,7 +152,7 @@ class Main
             ];
         }
 
-        return ['infos' => new NamedArray($output, 'item')];
+        return ['infos' => $output];
     }
 
     /**
@@ -254,7 +253,7 @@ class Main
         $src_image = new \Phyxo\Image\SrcImage($image_row, $service->getConf()['picture_ext']);
 
         if ($src_image->is_original()) { // we have a photo
-            if ($service->getUserMapper()->getUser()->hasEnableHigh()) {
+            if ($service->getUserMapper()->getUser()->hasEnabledHigh()) {
                 $ret['element_url'] = $src_image->getUrl();
             }
         } else {

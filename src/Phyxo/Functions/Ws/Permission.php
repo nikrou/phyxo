@@ -16,7 +16,6 @@ use App\Entity\Group;
 use App\Entity\User;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
-use Phyxo\Ws\NamedArray;
 
 class Permission
 {
@@ -102,13 +101,7 @@ class Permission
             $album['users_indirect'] = !empty($album['users_indirect']) ? array_values(array_unique($album['users_indirect'])) : [];
         }
 
-        return [
-            'categories' => new NamedArray(
-                array_values($permissions),
-                'category',
-                ['id']
-            )
-        ];
+        return ['categories' => array_values($permissions)];
     }
 
     /**

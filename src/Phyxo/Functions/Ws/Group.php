@@ -15,8 +15,6 @@ use App\Entity\Group as EntityGroup;
 use App\Entity\User;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
-use Phyxo\Ws\NamedStruct;
-use Phyxo\Ws\NamedArray;
 
 class Group
 {
@@ -48,12 +46,12 @@ class Group
         }
 
         return [
-            'paging' => new NamedStruct([
+            'paging' => [
                 'page' => $params['page'],
                 'per_page' => $params['per_page'],
                 'count' => count($groups)
-            ]),
-            'groups' => new NamedArray($groups, 'group')
+            ],
+            'groups' => $groups,
         ];
     }
 
@@ -96,7 +94,7 @@ class Group
         $service->getManagerRegistry()->getRepository(EntityGroup::class)->deleteByGroupIds($params['group_id']);
         $service->getUserMapper()->invalidateUserCache();
 
-        return new NamedArray($groupnames, 'group_deleted');
+        return $groupnames;
     }
 
     /**

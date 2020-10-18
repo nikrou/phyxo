@@ -14,8 +14,6 @@ namespace Phyxo\Functions\Ws;
 use App\Entity\Image as EntityImage;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
-use Phyxo\Ws\NamedStruct;
-use Phyxo\Ws\NamedArray;
 use App\Repository\TagRepository;
 use App\Repository\CommentRepository;
 use App\Repository\RateRepository;
@@ -74,7 +72,7 @@ class Image
                     'id' => $comm['id'],
                     'validation' => $comment_action == 'validate',
                 ];
-                return ['comment' => new NamedStruct($ret)];
+                return ['comment' => $ret];
             default:
                 return new Error(500, "Unknown comment action " . $comment_action);
         }
@@ -178,41 +176,27 @@ class Image
             unset($ret[$k]);
         }
 
-        $ret['rates'] = [
-            Server::WS_XML_ATTRIBUTES => $rating
-        ];
-        $ret['categories'] = new NamedArray(
-            $related_categories,
-            'category',
-            ['id', 'url', 'page_url']
-        );
-        $ret['tags'] = new NamedArray(
-            $related_tags,
-            'tag',
-            \Phyxo\Functions\Ws\Main::stdGetTagXmlAttributes()
-        );
+        $ret['rates'] = $rating;
+
+        $ret['categories'] = $related_categories;
+
+        $ret['tags'] = $related_tags;
+
         if (isset($comment_post_data)) {
             $ret['comment_post'] = [
                 Server::WS_XML_ATTRIBUTES => $comment_post_data
             ];
         }
-        $ret['comments_paging'] = new NamedStruct(
-            [
-                'page' => $params['comments_page'],
-                'per_page' => $params['comments_per_page'],
-                'count' => count($related_comments),
-                'total_count' => $nb_comments,
-            ]
-        );
-        $ret['comments'] = new NamedArray(
-            $related_comments,
-            'comment',
-            ['id', 'date']
-        );
-
-        return [
-            'image' => new NamedStruct($ret, null, ['name', 'comment'])
+        $ret['comments_paging'] = [
+            'page' => $params['comments_page'],
+            'per_page' => $params['comments_per_page'],
+            'count' => count($related_comments),
+            'total_count' => $nb_comments,
         ];
+
+        $ret['comments'] = $related_comments;
+
+        return ['image' => $ret];
     }
 
     /**
@@ -293,19 +277,13 @@ class Image
         }
 
         return [
-            'paging' => new NamedStruct(
-                [
-                    'page' => $params['page'],
-                    'per_page' => $params['per_page'],
-                    'count' => count($images),
-                    'total_count' => count($search_result['items']),
-                ]
-            ),
-            'images' => new NamedArray(
-                $images,
-                'image',
-                \Phyxo\Functions\Ws\Main::stdGetImageXmlAttributes()
-            )
+            'paging' => [
+                'page' => $params['page'],
+                'per_page' => $params['per_page'],
+                'count' => count($images),
+                'total_count' => count($search_result['items']),
+            ],
+            'images' => $images,
         ];
     }
 
