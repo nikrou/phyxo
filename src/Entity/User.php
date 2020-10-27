@@ -88,6 +88,11 @@ class User implements UserInterface, EquatableInterface
      */
     private $user_access;
 
+    /**
+     * @ORM\OneToOne(targetEntity=UserCache::class, mappedBy="user", cascade={"persist", "remove"})
+     */
+    private $userCache;
+
     public function __construct()
     {
         $this->roles = ['ROLE_USER'];
@@ -323,6 +328,24 @@ class User implements UserInterface, EquatableInterface
     {
         if ($this->user_access->contains($album)) {
             $this->user_access->removeElement($album);
+        }
+
+        return $this;
+    }
+
+    public function getUserCache(): ?UserCache
+    {
+        return $this->userCache;
+    }
+
+    public function setUserCache(?UserCache $userCache): self
+    {
+        $this->userCache = $userCache;
+
+        // set (or unset) the owning side of the relation if necessary
+        $newUser = null === $userCache ? null : $this;
+        if ($userCache->getUser() !== $newUser) {
+            $userCache->setUser($newUser);
         }
 
         return $this;

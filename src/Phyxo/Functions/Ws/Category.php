@@ -12,11 +12,11 @@
 namespace Phyxo\Functions\Ws;
 
 use App\Entity\User;
+use App\Entity\UserCacheAlbum;
 use App\Entity\UserInfos;
 use Phyxo\Ws\Error;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageCategoryRepository;
-use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\ImageRepository;
 use Phyxo\Ws\Server;
 use App\Repository\BaseRepository;
@@ -286,23 +286,9 @@ class Category
          * or else the real guest may see thumbnail that he should not
          */
         if (!$params['public'] and count($user_representative_updates_for)) {
-            $updates = [];
-
             foreach ($user_representative_updates_for as $cat_id => $image_id) {
-                $updates[] = [
-                    'user_id' => $service->getUserMapper()->getUser()->getId(),
-                    'cat_id' => $cat_id,
-                    'user_representative_picture_id' => $image_id,
-                ];
+                $service->getManagerRegistry()->getRepository(UserCacheAlbum::class)->updateUserRepresentativePicture($service->getUserMapper()->getUser()->getId(), $cat_id, $image_id);
             }
-
-            (new UserCacheCategoriesRepository($service->getConnection()))->massUpdatesUserCacheCategories(
-                [
-                    'primary' => ['user_id', 'cat_id'],
-                    'update' => ['user_representative_picture_id']
-                ],
-                $updates
-            );
         }
 
         foreach ($cats as &$cat) {
@@ -450,7 +436,8 @@ class Category
 
         // apply change
         (new CategoryRepository($service->getConnection()))->updateCategory(['representative_picture_id' => $params['image_id']], $params['category_id']);
-        (new UserCacheCategoriesRepository($service->getConnection()))->updateUserCacheCategory(['user_representative_picture_id' => null], ['cat_id' => $params['category_id']]);
+
+        $service->getManagerRegistry()->getRepository(UserCacheAlbum::class)->unsetUserRepresentativePictureForAlbum($params['category_id']);
     }
 
     /**

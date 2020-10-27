@@ -11,23 +11,21 @@
 
 namespace App\DataMapper;
 
-use App\Entity\User;
 use App\Events\CommentEvent;
 use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Conf;
 use App\Repository\CommentRepository;
 use App\Repository\UserCacheRepository;
-use App\Repository\UserInfosRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentMapper
 {
-    private $conn, $conf, $userMapper, $eventDispatcher, $translator, $userRepository;
+    private $conn, $conf, $userMapper, $eventDispatcher, $translator, $userRepository, $userCacheRepository;
 
     public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator,
-                                UserRepository $userRepository)
+                                UserRepository $userRepository, UserCacheRepository $userCacheRepository)
     {
         $this->conn = $conn;
         $this->conf = $conf;
@@ -35,6 +33,7 @@ class CommentMapper
         $this->eventDispatcher = $eventDispatcher;
         $this->translator = $translator;
         $this->userRepository = $userRepository;
+        $this->userCacheRepository = $userCacheRepository;
     }
 
     public function getUser()
@@ -284,6 +283,6 @@ class CommentMapper
      */
     private function invalidateUserCacheNbComments()
     {
-        (new UserCacheRepository($this->conn))->invalidateUserCache('nb_available_comments');
+        $this->userCacheRepository->invalidateNumberAvailableComments();
     }
 }

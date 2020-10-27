@@ -21,9 +21,11 @@ use App\Entity\User;
 use Phyxo\EntityManager;
 use App\DataMapper\CategoryMapper;
 use App\Entity\Album;
+use App\Entity\UserCache;
+use App\Entity\UserCacheAlbum;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
-use App\Repository\UserCacheCategoriesRepository;
+use App\Repository\UserCacheAlbumRepository;
 use App\Repository\UserCacheRepository;
 use Phyxo\Conf;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -36,10 +38,10 @@ use Symfony\Component\Security\Csrf\Exception\TokenNotFoundException;
 
 class UserProvider implements UserProviderInterface
 {
-    private $user, $em, $session, $categoryMapper, $albumMapper, $tokenStorage, $conf, $userRepository;
+    private $user, $em, $session, $categoryMapper, $albumMapper, $tokenStorage, $conf, $userRepository, $userCacheRepository, $userCacheAlbumRepository;
 
     public function __construct(EntityManager $em, UserRepository $userRepository, SessionInterface $session, CategoryMapper $categoryMapper, TokenStorageInterface $tokenStorage,
-                                Conf $conf, AlbumMapper $albumMapper)
+                                Conf $conf, AlbumMapper $albumMapper, UserCacheRepository $userCacheRepository, UserCacheAlbumRepository $userCacheAlbumRepository)
     {
         $this->em = $em;
         $this->userRepository = $userRepository;
@@ -48,6 +50,8 @@ class UserProvider implements UserProviderInterface
         $this->albumMapper = $albumMapper;
         $this->tokenStorage = $tokenStorage;
         $this->conf = $conf;
+        $this->userCacheRepository = $userCacheRepository;
+        $this->userCacheAlbumRepository = $userCacheAlbumRepository;
     }
 
     protected function populateSession(User $user)
@@ -148,11 +152,11 @@ class UserProvider implements UserProviderInterface
             return null;
         }
 
-        $extra_infos = $this->getExtraUserInfos($user);
-        $user->getUserInfos()->setForbiddenCategories(empty($extra_infos['forbidden_categories']) ? [] : explode(',', $extra_infos['forbidden_categories']));
-        $user->getUserInfos()->setImageAccessList(empty($extra_infos['image_access_list']) ? [] : explode(',', $extra_infos['image_access_list']));
-        $user->getUserInfos()->setImageAccessType($extra_infos['image_access_type']);
-        $user->getUserInfos()->setNbTotalImages($extra_infos['nb_total_images']);
+        $userCache = $this->getUserCacheInfos($user);
+        $user->getUserInfos()->setForbiddenCategories($userCache->getForbiddenCategories());
+        $user->getUserInfos()->setImageAccessList($userCache->getImageAccessList());
+        $user->getUserInfos()->setImageAccessType($userCache->getImageAccessType());
+        $user->getUserInfos()->setNbTotalImages($userCache->getNbTotalImages());
 
         return $user;
     }
@@ -166,53 +170,38 @@ class UserProvider implements UserProviderInterface
             return null;
         }
 
-        $extra_infos = $this->getExtraUserInfos($user);
-        $user->getUserInfos()->setForbiddenCategories(empty($extra_infos['forbidden_categories']) ? [] : explode(',', $extra_infos['forbidden_categories']));
-        $user->getUserInfos()->setImageAccessList(empty($extra_infos['image_access_list']) ? [] : explode(',', $extra_infos['image_access_list']));
-        $user->getUserInfos()->setImageAccessType($extra_infos['image_access_type']);
-        $user->getUserInfos()->setNbTotalImages($extra_infos['nb_total_images']);
+        $userCache = $this->getUserCacheInfos($user);
+        $user->getUserInfos()->setForbiddenCategories($userCache->getForbiddenCategories());
+        $user->getUserInfos()->setImageAccessList($userCache->getImageAccessList());
+        $user->getUserInfos()->setImageAccessType($userCache->getImageAccessType());
+        $user->getUserInfos()->setNbTotalImages($userCache->getNbTotalImages());
 
         return $user;
     }
 
-    private function getExtraUserInfos(User $user): array
+    private function getUserCacheInfos(User $user): UserCache
     {
         $is_admin = in_array('ROLE_ADMIN', $user->getRoles());
 
-        $extra_infos = ['need_update' => true, 'last_photo_date' => null];
+        $userCache = $user->getUserCache();
 
-        $result = $this->em->getRepository(UserCacheRepository::class)->getUserCacheData($user->getId());
-        $user_cache_data = $this->em->getConnection()->result2array($result);
+        if (is_null($userCache) || $userCache->isNeedUpdate()) {
+            $userCache = new UserCache();
+            $userCache->setCacheUpdateTime(time());
+            $userCache->setNeedUpdate(false);
 
-        if (!empty($user_cache_data)) {
-            $extra_infos = $user_cache_data[0];
-            $extra_infos['need_update'] = $extra_infos['need_update'] === 'f' || $extra_infos['need_update'] === 'false';
-            unset($user_cache_data);
-        }
-
-        if ($extra_infos['need_update']) {
-            $extra_infos['cache_update_time'] = time();
-            $extra_infos['need_update'] = false;
-            $extra_infos['forbidden_categories'] = $this->calculatePermissions($user->getId(), $is_admin);
+            $forbidden_categories = $this->calculatePermissions($user->getId(), $is_admin);
 
             /* now we build the list of forbidden images (this list does not contain
              * images that are not in at least an authorized category)
              */
-            $forbidden_categories = [];
-            if (!empty($extra_infos['forbidden_categories'])) {
-                $forbidden_categories = $extra_infos['forbidden_categories'];
-            }
 
             $result = $this->em->getRepository(ImageRepository::class)->getForbiddenImages($forbidden_categories, $user->getUserInfos()->getLevel());
             $forbidden_image_ids = $this->em->getConnection()->result2array($result, null, 'id');
 
-            if (empty($forbidden_image_ids)) {
-                $forbidden_image_ids[] = 0;
-            }
-
-            $extra_infos['image_access_type'] = 'NOT IN';
-            $extra_infos['image_access_list'] = implode(',', $forbidden_image_ids);
-            $extra_infos['nb_total_images'] = $this->em->getRepository(ImageCategoryRepository::class)->countTotalImages($forbidden_categories, $extra_infos['image_access_type'], $forbidden_image_ids);
+            $userCache->setImageAccessType(UserCache::ACCESS_NOT_IN);
+            $userCache->setImageAccessList($forbidden_image_ids);
+            $userCache->setNbTotalImages($this->em->getRepository(ImageCategoryRepository::class)->countTotalImages($forbidden_categories, UserCache::ACCESS_NOT_IN, $forbidden_image_ids));
 
             // now we update user cache categories
             $user_cache_cats = $this->categoryMapper->getComputedCategories(
@@ -227,56 +216,34 @@ class UserProvider implements UserProviderInterface
                         $this->categoryMapper->removeComputedCategory($user_cache_cats, $cat);
                     }
                 }
-                if (!empty($forbidden_ids)) {
-                    if (empty($extra_infos['forbidden_categories'])) {
-                        $extra_infos['forbidden_categories'] = $forbidden_ids;
-                    } else {
-                        $extra_infos['forbidden_categories'] = array_merge($extra_infos['forbidden_categories'], $forbidden_ids);
-                    }
+                if (count($forbidden_ids) > 0) {
+                    $forbidden_categories = array_merge($forbidden_categories, $forbidden_ids);
                 }
-            }
-            foreach ($user_cache_cats as $cat_id => &$cat) {
-                $cat['user_id'] = $user->getId();
             }
 
             // delete user cache
-            $this->em->getConnection()->db_write_lock(\App\Repository\BaseRepository::USER_CACHE_CATEGORIES_TABLE);
-            $this->em->getRepository(UserCacheCategoriesRepository::class)->deleteByUserIds([$user->getId()]);
+            $this->userCacheAlbumRepository->deleteForUser($user->getId());
 
-            $this->em->getRepository(UserCacheCategoriesRepository::class)->insertUserCacheCategories(
-                ['user_id', 'cat_id', 'date_last', 'max_date_last', 'nb_images', 'count_images', 'nb_categories', 'count_categories'],
-                $user_cache_cats
-            );
-            $this->em->getConnection()->db_unlock();
+            foreach ($this->albumMapper->getRepository()->findBy(['id' => array_keys($user_cache_cats)]) as $album) {
+                $userCacheAlbum = new UserCacheAlbum();
+                $userCacheAlbum->setUser($user);
+                $userCacheAlbum->setAlbum($album);
+                $userCacheAlbum->setDateLast(new \DateTime($user_cache_cats[$album->getId()]['date_last']));
+                $userCacheAlbum->setMaxDateLast(new \DateTime($user_cache_cats[$album->getId()]['max_date_last']));
+                $userCacheAlbum->setNbImages($user_cache_cats[$album->getId()]['nb_images']);
+                $userCacheAlbum->setCountImages($user_cache_cats[$album->getId()]['count_images']);
+                $userCacheAlbum->setNbAlbums($user_cache_cats[$album->getId()]['nb_categories']);
+                $userCacheAlbum->setCountAlbums($user_cache_cats[$album->getId()]['count_categories']);
+                $this->userCacheAlbumRepository->addOrUpdateUserCacheAlbum($userCacheAlbum);
+            }
 
-            $extra_infos['forbidden_categories'] = implode(',', $extra_infos['forbidden_categories']);
             // update user cache
-            $this->em->getConnection()->db_start_transaction();
-
-            $user_cache_data = [
-                'user_id' => $user->getId(),
-                'need_update' => $extra_infos['need_update'],
-                'cache_update_time' => $extra_infos['cache_update_time'],
-                'forbidden_categories' => $extra_infos['forbidden_categories'],
-                'nb_total_images' => $extra_infos['nb_total_images'],
-                'image_access_type' => $extra_infos['image_access_type'],
-                'image_access_list' => $extra_infos['image_access_list']
-            ];
-            if (isset($extra_infos['last_photo_date'])) {
-                $user_cache_data['last_photo_date'] = $extra_infos['last_photo_date'];
-            }
-
-            try {
-                $this->em->getRepository(UserCacheRepository::class)->deleteUserCache($user->getId());
-                $this->em->getRepository(UserCacheRepository::class)->insertUserCache($user_cache_data);
-
-                $this->em->getConnection()->db_commit();
-            } catch (\Exception $e) {
-                $this->em->getConnection()->db_rollback();
-            }
+            $userCache->setUser($user);
+            $userCache->setForbiddenCategories($forbidden_categories);
+            $this->userCacheRepository->addOrUpdateUserCache($userCache);
         }
 
-        return $extra_infos;
+        return $userCache;
     }
 
     /**

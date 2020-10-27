@@ -13,7 +13,6 @@ namespace App\DataMapper;
 
 use App\Entity\User;
 use Phyxo\Conf;
-use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\UserRepository;
@@ -27,18 +26,19 @@ use App\Repository\FavoriteRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\CommentRepository;
 use App\Repository\ImageTagRepository;
+use App\Repository\UserCacheAlbumRepository;
 use App\Security\UserProvider;
 
 class UserMapper
 {
     private $em, $conf, $autorizationChecker, $tagMapper, $themeRepository, $userRepository, $userInfosRepository, $userMailNotificationRepository;
     private $defaultLanguage, $defaultTheme, $themesDir, $userProvider, $default_user, $default_user_retrieved = false;
-    private $webmaster, $webmaster_retrieved = false, $userFeedRepository;
+    private $webmaster, $webmaster_retrieved = false, $userFeedRepository, $userCacheRepository, $userCacheAlbumRepository;
 
     public function __construct(EntityManager $em, Conf $conf, AuthorizationCheckerInterface $autorizationChecker, ThemeRepository $themeRepository,
                                 UserRepository $userRepository, UserInfosRepository $userInfosRepository, string $defaultTheme,
                                 TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider, UserMailNotificationRepository $userMailNotificationRepository,
-                                UserFeedRepository $userFeedRepository)
+                                UserFeedRepository $userFeedRepository, UserCacheRepository $userCacheRepository, UserCacheAlbumRepository $userCacheAlbumRepository)
     {
         $this->em = $em;
         $this->themeRepository = $themeRepository;
@@ -53,6 +53,8 @@ class UserMapper
         $this->defaultTheme = $defaultTheme;
         $this->themesDir = $themesDir;
         $this->userProvider = $userProvider;
+        $this->userCacheRepository = $userCacheRepository;
+        $this->userCacheAlbumRepository = $userCacheAlbumRepository;
     }
 
     public function getRepository(): UserRepository
@@ -184,10 +186,7 @@ class UserMapper
         $filter = [];
         $number_of_available_tags = count($this->tagMapper->getAvailableTags($this->getUser(), $filter));
 
-        $this->em->getRepository(UserCacheRepository::class)->updateUserCache(
-            ['nb_available_tags' => $number_of_available_tags],
-            ['user_id' => $this->getUser()->getId()]
-        );
+        $this->userCacheRepository->invalidateNumberbAvailableTags($this->getUser()->getId());
 
         return $number_of_available_tags;
     }
@@ -200,10 +199,7 @@ class UserMapper
         $filter = [];
         $number_of_available_comments = $this->em->getRepository(ImageCategoryRepository::class)->countAvailableComments($this->getUser(), $filter, $this->isAdmin());
 
-        $this->em->getRepository(UserCacheRepository::class)->updateUserCache(
-            ['nb_available_comments' => $number_of_available_comments],
-            ['user_id' => $this->getUser()->getId()]
-        );
+        $this->userCacheRepository->invalidateNumberAvailableComments($this->getUser()->getId());
 
         return $number_of_available_comments;
     }
@@ -214,10 +210,10 @@ class UserMapper
     public function invalidateUserCache(bool $full = true)
     {
         if ($full) {
-            $this->em->getRepository(UserCacheRepository::class)->deleteUserCache();
-            $this->em->getRepository(UserCacheCategoriesRepository::class)->deleteUserCacheCategories();
+            $this->userCacheAlbumRepository->deleteAll();
+            $this->userCacheRepository->deleteAll();
         } else {
-            $this->em->getRepository(UserCacheRepository::class)->updateUserCache(['need_update' => true]);
+            $this->userCacheRepository->forceRefresh();
         }
     }
 
@@ -231,9 +227,9 @@ class UserMapper
         // destruction of the access linked to the user
         //(new UserAccessRepository($conn))->deleteByUserId($user_id);
         // deletion of calculated permissions linked to the user
-        $this->em->getRepository(UserCacheRepository::class)->deleteUserCache($user_id);
-        // deletion of computed cache data linked to the user
-        $this->em->getRepository(UserCacheCategoriesRepository::class)->deleteUserCacheCategories($user_id);
+        $this->userCacheAlbumRepository->deleteForUser($user_id);
+        $this->userCacheRepository->deleteForUser($user_id);
+
         // destruction of the favorites associated with the user
         $this->em->getRepository(FavoriteRepository::class)->removeAllFavorites($user_id);
         // destruction of the caddie associated with the user

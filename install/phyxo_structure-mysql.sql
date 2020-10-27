@@ -15,10 +15,10 @@ CREATE TABLE `phyxo_caddie` (
 
 DROP TABLE IF EXISTS `phyxo_categories`;
 CREATE TABLE `phyxo_categories` (
-  `id` SMALLINT(5) UNSIGNED NOT NULL auto_increment,
+  `id` SMALLINT(5) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL DEFAULT '',
   `id_uppercat` SMALLINT(5) UNSIGNED DEFAULT NULL,
-  `comment` text,
+  `comment` TEXT,
   `dir` VARCHAR(255) DEFAULT NULL,
   `rank` SMALLINT(5) UNSIGNED DEFAULT NULL,
   `status` VARCHAR(25) NOT NULL DEFAULT 'public',
@@ -42,7 +42,7 @@ CREATE TABLE `phyxo_categories` (
 
 DROP TABLE IF EXISTS `phyxo_comments`;
 CREATE TABLE `phyxo_comments` (
-  `id` int(11) UNSIGNED NOT NULL auto_increment,
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `image_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   `date` datetime DEFAULT NULL,
   `author` VARCHAR(255) DEFAULT NULL,
@@ -50,9 +50,9 @@ CREATE TABLE `phyxo_comments` (
   `author_id` MEDIUMINT(8) UNSIGNED DEFAULT NULL,
   `anonymous_id` VARCHAR(45) NOT NULL,
   `website_url` VARCHAR(255) DEFAULT NULL,
-  `content` longtext,
-  `validated` enum('true','false') NOT NULL DEFAULT 'false',
-  `validation_date` datetime DEFAULT NULL,
+  `content` LONGTEXT,
+  `validated` ENUM('true','false') NOT NULL DEFAULT 'false',
+  `validation_date` DATETIME DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `comments_i2` (`validation_date`),
   KEY `comments_i1` (`image_id`)
@@ -113,7 +113,7 @@ CREATE TABLE `phyxo_groups` (
 
 DROP TABLE IF EXISTS `phyxo_history`;
 CREATE TABLE `phyxo_history` (
-  `id` int(10) UNSIGNED NOT NULL auto_increment,
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `date` date DEFAULT NULL,
   `time` time DEFAULT NULL,
   `user_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
@@ -122,8 +122,8 @@ CREATE TABLE `phyxo_history` (
   `category_id` SMALLINT(5) DEFAULT NULL,
   `tag_ids` VARCHAR(50) DEFAULT NULL,
   `image_id` MEDIUMINT(8) DEFAULT NULL,
-  `summarized` enum('true','false') DEFAULT 'false',
-  `image_type` enum('picture','high','other') DEFAULT NULL,
+  `summarized` ENUM('true','false') DEFAULT 'false',
+  `image_type` ENUM('picture','high','other') DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `history_i1` (`summarized`)
 ) ENGINE=InnoDB;
@@ -176,29 +176,29 @@ CREATE TABLE `phyxo_image_tag` (
 
 DROP TABLE IF EXISTS `phyxo_images`;
 CREATE TABLE `phyxo_images` (
-  `id` MEDIUMINT(8) UNSIGNED NOT NULL auto_increment,
+  `id` MEDIUMINT(8) UNSIGNED NOT NULL AUTO_INCREMENT,
   `file` VARCHAR(255) BINARY NOT NULL DEFAULT '',
-  `date_available` datetime DEFAULT NULL,
-  `date_creation` datetime DEFAULT NULL,
+  `date_available` DATETIME DEFAULT NULL,
+  `date_creation` DATETIME DEFAULT NULL,
   `name` VARCHAR(255) DEFAULT NULL,
   `comment` text,
   `author` VARCHAR(255) DEFAULT NULL,
-  `hit` int(10) UNSIGNED NOT NULL DEFAULT '0',
+  `hit` INT(10) UNSIGNED NOT NULL DEFAULT '0',
   `filesize` MEDIUMINT(9) UNSIGNED DEFAULT NULL,
   `width` SMALLINT(9) UNSIGNED DEFAULT NULL,
   `height` SMALLINT(9) UNSIGNED DEFAULT NULL,
-  `coi` char(4) DEFAULT NULL COMMENT 'center of interest',
+  `coi` VARCHAR(4) DEFAULT NULL COMMENT 'center of interest',
   `representative_ext` VARCHAR(4) DEFAULT NULL,
-  `date_metadata_update` date DEFAULT NULL,
-  `rating_score` float(5,2) UNSIGNED DEFAULT NULL,
+  `date_metadata_update` DATE DEFAULT NULL,
+  `rating_score` FLOAT(5,2) UNSIGNED DEFAULT NULL,
   `path` VARCHAR(255) NOT NULL DEFAULT '',
   `storage_category_id` SMALLINT(5) UNSIGNED DEFAULT NULL,
   `level` TINYINT UNSIGNED NOT NULL DEFAULT '0',
-  `md5sum` char(32) DEFAULT NULL,
+  `md5sum` VARCHAR(32) DEFAULT NULL,
   `added_by` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   `rotation` TINYINT UNSIGNED DEFAULT NULL,
-  `latitude` double(8, 6) DEFAULT NULL,
-  `longitude` double(9, 6) DEFAULT NULL,
+  `latitude` DOUBLE(8, 6) DEFAULT NULL,
+  `longitude` DOUBLE(9, 6) DEFAULT NULL,
   `lastmodified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY  (`id`),
   KEY `images_i2` (`date_available`),
@@ -290,7 +290,7 @@ CREATE TABLE `phyxo_sites` (
 
 DROP TABLE IF EXISTS `phyxo_tags`;
 CREATE TABLE `phyxo_tags` (
-  `id` SMALLINT(5) UNSIGNED NOT NULL auto_increment,
+  `id` SMALLINT(5) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL DEFAULT '',
   `url_name` VARCHAR(255) BINARY NOT NULL DEFAULT '',
   `lastmodified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -342,15 +342,15 @@ CREATE TABLE `phyxo_user_access` (
 DROP TABLE IF EXISTS `phyxo_user_cache`;
 CREATE TABLE `phyxo_user_cache` (
   `user_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
-  `need_update` enum('true','false') NOT NULL DEFAULT 'true',
-  `cache_update_time` integer UNSIGNED NOT NULL DEFAULT 0,
-  `forbidden_categories` mediumtext,
+  `need_update` TINYINT(1) NOT NULL DEFAULT 1,
+  `cache_update_time` INTEGER UNSIGNED NOT NULL DEFAULT 0,
+  `forbidden_categories` MEDIUMTEXT,
   `nb_total_images` MEDIUMINT(8) UNSIGNED DEFAULT NULL,
-  `last_photo_date` datetime DEFAULT NULL,
+  `last_photo_date` DATETIME DEFAULT NULL,
   `nb_available_tags` INT(5) DEFAULT NULL,
   `nb_available_comments` INT(5) DEFAULT NULL,
-  `image_access_type` enum('NOT IN','IN') NOT NULL DEFAULT 'NOT IN',
-  `image_access_list` mediumtext DEFAULT NULL,
+  `image_access_type` VARCHAR(255) NOT NULL DEFAULT 'NOT IN',
+  `image_access_list` MEDIUMTEXT DEFAULT NULL,
   PRIMARY KEY  (`user_id`)
 ) ENGINE=InnoDB;
 
@@ -362,7 +362,7 @@ DROP TABLE IF EXISTS `phyxo_user_cache_categories`;
 CREATE TABLE `phyxo_user_cache_categories` (
   `user_id` INT NOT NULL,
   `cat_id` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
-  `date_last` datetime DEFAULT NULL,
+  `date_last` DATETIME DEFAULT NULL,
   `max_date_last` datetime DEFAULT NULL,
   `nb_images` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   `count_images` MEDIUMINT(8) UNSIGNED DEFAULT '0',

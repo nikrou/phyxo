@@ -338,9 +338,6 @@ CREATE TABLE "phyxo_user_access"
 -----------------------------------------------------------------------------
 
 DROP TABLE IF EXISTS "phyxo_user_cache";
-DROP TYPE IF EXISTS USER_CACHE_IMAGE_ACCESS_TYPE;
-
-CREATE TYPE USER_CACHE_IMAGE_ACCESS_TYPE AS ENUM('NOT IN','IN');
 CREATE TABLE "phyxo_user_cache"
 (
   "user_id" INTEGER DEFAULT 0 NOT NULL,
@@ -348,10 +345,10 @@ CREATE TABLE "phyxo_user_cache"
   "cache_update_time" INTEGER DEFAULT 0 NOT NULL,
   "forbidden_categories" TEXT,
   "nb_total_images" INTEGER,
-  "last_photo_date" date DEFAULT NULL,
+  "last_photo_date" TIMESTAMP DEFAULT NULL,
   "nb_available_tags" INTEGER DEFAULT NULL,
   "nb_available_comments" INTEGER DEFAULT NULL,
-  "image_access_type" USER_CACHE_IMAGE_ACCESS_TYPE DEFAULT 'NOT IN'::USER_CACHE_IMAGE_ACCESS_TYPE,
+  "image_access_type" VARCHAR(255) DEFAULT 'NOT IN',
   "image_access_list" TEXT,
   PRIMARY KEY ("user_id")
 );

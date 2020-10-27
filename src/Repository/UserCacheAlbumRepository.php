@@ -21,4 +21,61 @@ class UserCacheAlbumRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, UserCacheAlbum::class);
     }
+
+    public function addOrUpdateUserCacheAlbum(UserCacheAlbum $userCacheAlbum)
+    {
+        $this->_em->persist($userCacheAlbum);
+        $this->_em->flush();
+    }
+
+    public function deleteAll()
+    {
+        $qb = $this->createQueryBuilder('ucc');
+        $qb->delete();
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function deleteForUser(int $user_id)
+    {
+        $qb = $this->createQueryBuilder('ucc');
+        $qb->delete();
+        $qb->where('ucc.user = :user_id');
+        $qb->setParameter('user_id', $user_id);
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function deleteForAlbums(array $album_ids)
+    {
+        $qb = $this->createQueryBuilder('ucc');
+        $qb->delete();
+        $qb->where($qb->expr()->in('ucc.album', $album_ids));
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function updateUserRepresentativePicture(int $user_id, int $album_id, int $image_id)
+    {
+        $qb = $this->createQueryBuilder('ucc');
+        $qb->update();
+        $qb->set('ucc.user_representative_picture', $image_id);
+        $qb->where('ucc.user = :user_id');
+        $qb->setParameter('user_id', $user_id);
+        $qb->andWhere('ucc.album = :album_id');
+        $qb->setParameter('album_id', $album_id);
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function unsetUserRepresentativePictureForAlbum(int $album_id)
+    {
+        $qb = $this->createQueryBuilder('ucc');
+        $qb->update();
+        $qb->set('ucc.user_representative_picture', null);
+        $qb->where('ucc.album = :album_id');
+        $qb->setParameter('album_id', $album_id);
+
+        $qb->getQuery()->getResult();
+    }
 }

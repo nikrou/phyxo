@@ -53,6 +53,8 @@ Feature: User albums
     Then I should see "album 3"
     But I should not see "album 1"
     And I should not see "album 2"
+    When I follow "album 3"
+    Then I should see photo "photo 3"
 
   Scenario: Guest can see public albums if guest access is forbidden
     When config for "guest_access" of type "boolean" equals to "false"

@@ -258,7 +258,23 @@ class DBContext implements Context
             throw new \Exception('Album with name ' . $album_name . ' does not exist');
         }
 
-        $image['date_available'] = (new \DateTime())->format('Y-m-d H:i:s');
+        if (empty($image['file'])) {
+            $image['file'] = sprintf('%s/features/media/sample.jpg', $this->getContainer()->getParameter('root_project_dir'));
+        }
+        list($image['width'], $image['height']) = getimagesize($image['file']);
+        $image['md5sum'] = md5($image['file']);
+        $now = new \DateTime('now');
+        $upload_dir = sprintf('%s/%s', $this->getContainer()->getParameter('upload_dir'), $now->format('Y/m/d'));
+        $image['path'] = sprintf('%s/%s-%s.jpg', $upload_dir, $now->format('YmdHis'), substr($image['md5sum'], 0, 8));
+        $image['date_available'] = $now->format('Y-m-d H:i:s');
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+        copy($image['file'], $image['path']);
+
+        $image['file'] = basename($image['file']);
+        $image['path'] = substr($image['path'], strlen($this->getContainer()->getParameter('root_project_dir')) + 1);
+
         $image_id = $this->getContainer()->get(ImageMapper::class)->addImage($image);
         $this->storage->set('image_' . $image['name'], $image_id);
 

@@ -15,11 +15,11 @@ Feature: Tag
       | album 2 |
     And some images:
       | file                     | name    | album   | tags    |
-      | features/media/img_1.png | photo 1 | album 1 | tag 1      |
-      | features/media/img_2.png | photo 2 | album 1 | tag 2      |
-      | features/media/img_3.png | photo 3 | album 2 | [tag 1,tag 2] |
-      | features/media/img_4.png | photo 4 | album 2 | [tag 1,tag 3] |
-      | features/media/img_5.png | photo 5 | album 2 | tag 5      |
+      | features/media/img_1.jpg | photo 1 | album 1 | tag 1      |
+      | features/media/img_2.jpg | photo 2 | album 1 | tag 2      |
+      | features/media/img_3.jpg | photo 3 | album 2 | [tag 1,tag 2] |
+      | features/media/img_4.jpg | photo 4 | album 2 | [tag 1,tag 3] |
+      | features/media/img_5.jpg | photo 5 | album 2 | tag 5      |
     And user "user1" can access album "album 1"
     And user "user1" can access album "album 2"
     And user "user2" can access album "album 1"

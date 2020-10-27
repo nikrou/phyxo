@@ -14,13 +14,11 @@ doctrine:
 
             history_section: App\Type\HistorySectionType
             history_image_type: App\Type\HistoryImageTypeType
-            user_cache_image_access_type: App\Type\UserCacheImageAccessTypeType
 
         mapping_types:
             enum: string
             history_section: history_section
             history_image_type: history_image_type
-            user_cache_image_access_type: user_cache_image_access_type
 
     orm:
         auto_generate_proxy_classes: true

@@ -17,7 +17,7 @@ use App\Repository\BaseRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
-use App\Repository\UserCacheCategoriesRepository;
+use App\Repository\UserCacheAlbumRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
@@ -27,9 +27,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class AlbumMapper
 {
-    private $conf, $albumRepository, $router, $cache = [], $albums_retrieved = false, $em, $translator, $userRepository;
+    private $conf, $albumRepository, $router, $cache = [], $albums_retrieved = false, $em, $translator, $userRepository, $userCacheAlbumRepository;
 
-    public function __construct(Conf $conf, AlbumRepository $albumRepository, RouterInterface $router, TranslatorInterface $translator, EntityManager $em, UserRepository $userRepository)
+    public function __construct(Conf $conf, AlbumRepository $albumRepository, RouterInterface $router, TranslatorInterface $translator, EntityManager $em, UserRepository $userRepository,
+                                UserCacheAlbumRepository $userCacheAlbumRepository)
     {
         $this->conf = $conf;
         $this->albumRepository = $albumRepository;
@@ -37,6 +38,7 @@ class AlbumMapper
         $this->translator = $translator;
         $this->em = $em;
         $this->userRepository = $userRepository;
+        $this->userCacheAlbumRepository = $userCacheAlbumRepository;
     }
 
     public function getRepository(): AlbumRepository
@@ -960,7 +962,7 @@ class AlbumMapper
         // destruction of the album
         $this->getRepository()->deleteByIds($ids);
 
-        $this->em->getRepository(UserCacheCategoriesRepository::class)->deleteByUserCatIds($ids);
+        $this->userCacheAlbumRepository->deleteForAlbums($ids);
     }
 
     /**

@@ -391,7 +391,7 @@ class AlbumController extends AdminCommonController
         return $this->render('album_sort_order.html.twig', $tpl_params);
     }
 
-    public function permissions(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
+    public function permissions(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params, UserCacheRepository $userCacheRepository,
                                 AlbumMapper $albumMapper, TranslatorInterface $translator, UserRepository $userRepository, GroupRepository $groupRepository)
     {
         $tpl_params = [];
@@ -451,7 +451,7 @@ class AlbumController extends AdminCommonController
                 }
                 $albumMapper->getRepository()->addOrUpdateAlbum($album);
 
-                $em->getRepository(UserCacheRepository::class)->deleteUserCache();
+                $userCacheRepository->deleteAll();
             }
 
             $this->addFlash('info', $translator->trans('Album updated successfully', [], 'admin'));

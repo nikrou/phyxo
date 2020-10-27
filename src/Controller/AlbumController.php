@@ -20,17 +20,17 @@ use App\Repository\CategoryRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
 use Phyxo\Image\SrcImage;
-use App\Repository\UserCacheCategoriesRepository;
 use App\DataMapper\CategoryMapper;
 use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
+use App\Repository\UserCacheAlbumRepository;
 use Phyxo\Functions\Utils;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AlbumController extends CommonController
 {
-    public function album(Request $request, Conf $conf, ImageStandardParams $image_std_params, MenuBar $menuBar,
+    public function album(Request $request, Conf $conf, ImageStandardParams $image_std_params, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
                             EntityManager $em, ImageMapper $imageMapper, CategoryMapper $categoryMapper, int $start = 0, int $category_id = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -184,23 +184,9 @@ class AlbumController extends CommonController
         }
 
         if (count($user_representative_updates_for) > 0) {
-            $updates = [];
-
             foreach ($user_representative_updates_for as $cat_id => $image_id) {
-                $updates[] = [
-                    'user_id' => $this->getUser()->getId(),
-                    'cat_id' => $cat_id,
-                    'user_representative_picture_id' => $image_id,
-                ];
+                $userCacheAlbumRepository->updateUserRepresentativePicture($this->getUser()->getId(), $cat_id, $image_id);
             }
-
-            $em->getRepository(UserCacheCategoriesRepository::class)->massUpdatesUserCacheCategories(
-                [
-                    'primary' => ['user_id', 'cat_id'],
-                    'update' => ['user_representative_picture_id']
-                ],
-                $updates
-            );
         }
 
         if (count($categories) > 0) {
@@ -442,7 +428,7 @@ class AlbumController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function albums(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar,
+    public function albums(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
                             ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -556,24 +542,10 @@ class AlbumController extends CommonController
             unset($info);
         }
 
-        if (count($user_representative_updates_for)) {
-            $updates = [];
-
+        if (count($user_representative_updates_for) > 0) {
             foreach ($user_representative_updates_for as $cat_id => $image_id) {
-                $updates[] = [
-                    'user_id' => $this->getUser()->getId(),
-                    'cat_id' => $cat_id,
-                    'user_representative_picture_id' => $image_id,
-                ];
+                $userCacheAlbumRepository->updateUserRepresentativePicture($this->getUser()->getId(), $cat_id, $image_id);
             }
-
-            $em->getRepository(UserCacheCategoriesRepository::class)->massUpdatesUserCacheCategories(
-                [
-                    'primary' => ['user_id', 'cat_id'],
-                    'update' => ['user_representative_picture_id']
-                ],
-                $updates
-            );
         }
 
         if (count($categories) > 0) {
@@ -655,7 +627,7 @@ class AlbumController extends CommonController
         return $this->render('mainpage_categories.html.twig', $tpl_params);
     }
 
-    public function recentCats(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar,
+    public function recentCats(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
                                 ImageStandardParams $image_std_params, ImageMapper $imageMapper, CategoryMapper $categoryMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -770,23 +742,9 @@ class AlbumController extends CommonController
         }
 
         if (count($user_representative_updates_for)) {
-            $updates = [];
-
             foreach ($user_representative_updates_for as $cat_id => $image_id) {
-                $updates[] = [
-                    'user_id' => $this->getUser()->getId(),
-                    'cat_id' => $cat_id,
-                    'user_representative_picture_id' => $image_id,
-                ];
+                $userCacheAlbumRepository->updateUserRepresentativePicture($this->getUser()->getId(), $cat_id, $image_id);
             }
-
-            $em->getRepository(UserCacheCategoriesRepository::class)->massUpdatesUserCacheCategories(
-                [
-                    'primary' => ['user_id', 'cat_id'],
-                    'update' => ['user_representative_picture_id']
-                ],
-                $updates
-            );
         }
 
         if (count($categories) > 0) {

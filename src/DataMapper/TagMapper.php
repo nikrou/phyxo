@@ -28,9 +28,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TagMapper
 {
-    private $em, $conf, $image_std_params, $router, $metadata, $translator;
+    private $em, $conf, $image_std_params, $router, $metadata, $translator, $userCacheRepository;
 
-    public function __construct(EntityManager $em, Conf $conf, ImageStandardParams $image_std_params, RouterInterface $router, Metadata $metadata, TranslatorInterface $translator)
+    public function __construct(EntityManager $em, Conf $conf, ImageStandardParams $image_std_params, RouterInterface $router, Metadata $metadata, TranslatorInterface $translator,
+                                UserCacheRepository $userCacheRepository)
     {
         $this->em = $em;
         $this->conf = $conf;
@@ -38,6 +39,7 @@ class TagMapper
         $this->router = $router;
         $this->metadata = $metadata;
         $this->translator = $translator;
+        $this->userCacheRepository = $userCacheRepository;
     }
 
     /**
@@ -545,6 +547,6 @@ class TagMapper
      */
     public function invalidateUserCacheNbTags()
     {
-        $this->em->getRepository(UserCacheRepository::class)->updateUserCache(['nb_available_tags' => null]);
+        $this->userCacheRepository->invalidateNumberbAvailableTags();
     }
 }

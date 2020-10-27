@@ -11,53 +11,75 @@
 
 namespace App\Repository;
 
-class UserCacheRepository extends BaseRepository
-{
-    public function getUserCacheData(int $user_id)
-    {
-        $query = 'SELECT user_id, need_update, cache_update_time, forbidden_categories, nb_total_images,';
-        $query .= ' last_photo_date, nb_available_tags, nb_available_comments, image_access_type, image_access_list FROM ' . self::USER_CACHE_TABLE;
-        $query .= ' WHERE user_id  = ' . $this->conn->db_real_escape_string($user_id);
+use App\Entity\UserCache;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 
-        return $this->conn->db_query($query);
+class UserCacheRepository extends ServiceEntityRepository
+{
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, UserCache::class);
     }
 
-    public function deleteUserCache(? int $user_id = null)
+    public function addOrUpdateUserCache(UserCache $userCache)
     {
-        $query = 'DELETE FROM ' . self::USER_CACHE_TABLE;
+        $this->_em->persist($userCache);
+        $this->_em->flush();
+    }
+
+    public function deleteAll()
+    {
+        $qb = $this->createQueryBuilder('uc');
+        $qb->delete();
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function forceRefresh()
+    {
+        $qb = $this->createQueryBuilder('uc');
+        $qb->update();
+        $qb->set('uc.need_update', true);
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function deleteForUser(int $user_id)
+    {
+        $qb = $this->createQueryBuilder('uc');
+        $qb->delete();
+        $qb->where('uc.user = :user_id');
+        $qb->setParameter('user_id', $user_id);
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function invalidateNumberAvailableComments(?int $user_id = null)
+    {
+        $qb = $this->createQueryBuilder('uc');
+        $qb->update();
+        $qb->set('uc.nb_available_comments', 0);
+
         if (!is_null($user_id)) {
-            $query .= ' WHERE user_id = ' . $user_id;
+            $qb->where('uc.user = :user_id');
+            $qb->setParameter('user_id', $user_id);
         }
 
-        $this->conn->db_query($query);
+        $qb->getQuery()->getResult();
     }
 
-    public function invalidateUserCache(string $field)
+    public function invalidateNumberbAvailableTags(?int $user_id = null)
     {
-        $this->conn->single_update(self::USER_CACHE_TABLE, [$field => null], []);
-    }
+        $qb = $this->createQueryBuilder('uc');
+        $qb->update();
+        $qb->set('uc.nb_available_tags', 0);
 
-    public function updateUserCache(array $datas, array $where = [])
-    {
-        $this->conn->single_update(self::USER_CACHE_TABLE, $datas, $where);
-    }
+        if (!is_null($user_id)) {
+            $qb->where('uc.user = :user_id');
+            $qb->setParameter('user_id', $user_id);
+        }
 
-    public function getDistinctUsers()
-    {
-        $query = 'SELECT DISTINCT user_id FROM ' . self::USER_CACHE_TABLE;
-
-        return $this->conn->db_query($query);
-    }
-
-    public function deleteByUserIds(array $ids)
-    {
-        $query = 'DELETE FROM ' . self::USER_CACHE_TABLE;
-        $query .= ' WHERE user_id ' . $this->conn->in($ids);
-        $this->conn->db_query($query);
-    }
-
-    public function insertUserCache(array $params)
-    {
-        return $this->conn->single_insert(self::USER_CACHE_TABLE, $params, $auto_increment_for_table = false);
+        $qb->getQuery()->getResult();
     }
 }

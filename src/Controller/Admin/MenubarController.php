@@ -11,7 +11,6 @@
 
 namespace App\Controller\Admin;
 
-use App\Repository\ConfigRepository;
 use Phyxo\Block\BlockManager;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
@@ -57,7 +56,7 @@ class MenubarController extends AdminCommonController
         return $this->render('menubar.html.twig', $tpl_params);
     }
 
-    public function update(Request $request, ConfigRepository $configRepository, Conf $conf, TranslatorInterface $translator)
+    public function update(Request $request, Conf $conf, TranslatorInterface $translator)
     {
         if ($request->isMethod('POST')) {
             $menu = new BlockManager('menubar');
@@ -75,7 +74,7 @@ class MenubarController extends AdminCommonController
                 }
             }
             $mb_conf = $this->makeConsecutive($reg_blocks, $mb_conf);
-            $configRepository->addOrUpdateParam('blk_' . $menu->getId(), $mb_conf);
+            $conf->addOrUpdateParam('blk_' . $menu->getId(), $mb_conf, 'json');
 
             $this->addFlash('info', $translator->trans('Order of menubar items has been updated successfully.', [], 'admin'));
         }
