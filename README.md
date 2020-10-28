@@ -6,9 +6,9 @@ Simply share your images.
 
 ## Requirements
 
-This project use severals librairies that need at least PHP 7.1.0
+This project use severals librairies that need at least PHP 7.2.0
 
-[![Build Status](https://travis-ci.org/nikrou/phyxo.svg?branch=master)](https://travis-ci.org/nikrou/phyxo)
+[![Build Status](https://travis-ci.com/nikrou/phyxo.svg?branch=master)](https://travis-ci.com/nikrou/phyxo)
 ![PHPSTan level](https://img.shields.io/badge/PHPStan-level%200-brightgreen.svg?style=flat)
 
 This project uses a database and support Mysql, PostgreSQL and SQLite engines.
