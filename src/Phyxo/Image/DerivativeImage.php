@@ -12,7 +12,6 @@
 namespace Phyxo\Image;
 
 use Phyxo\Image\SrcImage;
-use Phyxo\Functions\Plugin;
 use Phyxo\Functions\Utils;
 
 /**
@@ -107,8 +106,6 @@ class DerivativeImage
      */
     private function build($src, &$params, &$rel_path, &$rel_url, &$is_cached = null)
     {
-        global $conf;
-
         if ($src->has_size() && $params->is_identity($src->get_size())) {
             // the source image is smaller than what we should do - we do not upsample
             if (!$params->will_watermark($src->get_size(), $this->image_std_params) && !$src->rotation) {
@@ -147,40 +144,7 @@ class DerivativeImage
             $loc = substr($loc, 3);
         }
         $loc = substr_replace($loc, '-' . implode('_', $tokens), strrpos($loc, '.'), 0);
-
-        $rel_path = $conf['data_location'] . 'i/' . $loc;
-
-        $url_style = $conf['derivative_url_style'];
-        if (!$url_style) {
-            if (is_readable(__DIR__ . '/../../../' . $rel_path)) {
-                if (filemtime(__DIR__ . '/../../../' . $rel_path) < $params->last_mod_time) {
-                    $is_cached = false;
-                    $url_style = 2;
-                } else {
-                    $url_style = 1;
-                }
-            } else {
-                $is_cached = false;
-                $url_style = 2;
-            }
-
-            // $mtime = @filemtime(__DIR__ . '/../../../' . $rel_path);
-            // if ($mtime === false or $mtime < $params->last_mod_time) {
-            //     $is_cached = false;
-            //     $url_style = 2;
-            // } else {
-            //     $url_style = 1;
-            // }
-        }
-
-        if ($url_style == 2) {
-            $rel_url = 'media';
-            // if ($conf['php_extension_in_urls']) $rel_url .= '.php';
-            // if ($conf['question_mark_in_urls']) $rel_url .= '?';
-            $rel_url .= '/' . $loc;
-        } else {
-            $rel_url = $rel_path;
-        }
+        $rel_url = 'media' . '/' . $loc;
     }
 
     public function get_path(): string

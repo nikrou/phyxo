@@ -48,7 +48,7 @@ before_script:
 
 script:
   - php ./bin/atoum
-  - php ./bin/behat -c behat.yml.dist --suite=web
+  - php ./bin/behat -c behat.yml.dist --suite=web -vv
 
 cache:
   directories:
