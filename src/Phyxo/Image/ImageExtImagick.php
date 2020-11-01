@@ -97,7 +97,7 @@ class ImageExtImagick implements ImageInterface
 
     public function sharpen($amount)
     {
-        $m = \Phyxo\Image\Image::get_sharpen_matrix($amount);
+        $m = \Phyxo\Image\Image::getSharpenMatrix($amount);
 
         $param = 'convolve "' . count($m) . ':';
         foreach ($m as $line) {

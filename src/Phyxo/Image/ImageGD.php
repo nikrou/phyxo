@@ -22,7 +22,7 @@ class ImageGD implements ImageInterface
         $gd_info = gd_info();
         $extension = strtolower(\Phyxo\Functions\Utils::get_extension($source_filepath));
 
-        if (in_array($extension, array('jpg', 'jpeg'))) {
+        if (in_array($extension, ['jpg', 'jpeg'])) {
             $this->image = imagecreatefromjpeg($source_filepath);
         } elseif ($extension == 'png') {
             $this->image = imagecreatefrompng($source_filepath);
@@ -106,7 +106,7 @@ class ImageGD implements ImageInterface
 
     public function sharpen($amount)
     {
-        $m = \Phyxo\Image\Image::get_sharpen_matrix($amount);
+        $m = \Phyxo\Image\Image::getSharpenMatrix($amount);
         return imageconvolution($this->image, $m, 1, 0);
     }
 
@@ -119,13 +119,13 @@ class ImageGD implements ImageInterface
         $ow = imagesx($ioverlay);
         $oh = imagesy($ioverlay);
 
-		// Create a new blank image the site of our source image
+        // Create a new blank image the site of our source image
         $cut = imagecreatetruecolor($ow, $oh);
 
-		// Copy the blank image into the destination image where the source goes
+        // Copy the blank image into the destination image where the source goes
         imagecopy($cut, $this->image, 0, 0, $x, $y, $ow, $oh);
 
-		// Place the source image in the destination image
+        // Place the source image in the destination image
         imagecopy($cut, $ioverlay, 0, 0, 0, 0, $ow, $oh);
         imagecopymerge($this->image, $cut, $x, $y, 0, 0, $ow, $oh, $opacity);
         imagedestroy($cut);

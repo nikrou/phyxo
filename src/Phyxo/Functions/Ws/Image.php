@@ -1385,7 +1385,7 @@ class Image
         }
         @chmod($file_path, 0644);
 
-        if ($is_tiff && \Phyxo\Image\Image::get_library() === 'ExtImagick') {
+        if ($is_tiff && \Phyxo\Image\Image::getLibrary(null, null, $service->getConf()['ext_image_dir']) === 'ExtImagick') {
             // move the uploaded file to pwg_representative sub-directory
             $representative_file_path = dirname($file_path) . '/pwg_representative/';
             $representative_file_path .= \Phyxo\Functions\Utils::get_filename_wo_extension(basename($file_path)) . '.';
@@ -1454,7 +1454,7 @@ class Image
             }
         }
 
-        if (isset($original_extension) && 'pdf' == $original_extension && \Phyxo\Image\Image::get_library() === 'ExtImagick') {
+        if (isset($original_extension) && 'pdf' == $original_extension && \Phyxo\Image\Image::getLibrary(null, null, $service->getConf()['ext_image_dir']) === 'ExtImagick') {
             $representative_file_path = dirname($file_path) . '/pwg_representative/';
             $representative_file_path .= \Phyxo\Functions\Utils::get_filename_wo_extension(basename($file_path)) . '.';
 
@@ -1473,12 +1473,12 @@ class Image
             @exec($exec, $returnarray);
         }
 
-        if (\Phyxo\Image\Image::get_library() !== 'GD') {
+        if (\Phyxo\Image\Image::getLibrary(null, null, $service->getConf()['ext_image_dir']) !== 'GD') {
             if ($service->getConf()['original_resize']) {
                 if (Utils::need_resize($file_path, $service->getConf()['original_resize_maxwidth'], $service->getConf()['original_resize_maxheight'])) {
                     $img = new \Phyxo\Image\Image($file_path);
 
-                    $img->pwg_resize(
+                    $img->resize(
                         $file_path,
                         $service->getConf()['original_resize_maxwidth'],
                         $service->getConf()['original_resize_maxheight'],
@@ -1494,8 +1494,8 @@ class Image
 
         // we need to save the rotation angle in the database to compute
         // width/height of "multisizes"
-        $rotation_angle = \Phyxo\Image\Image::get_rotation_angle($file_path);
-        $rotation = \Phyxo\Image\Image::get_rotation_code_from_angle($rotation_angle);
+        $rotation_angle = \Phyxo\Image\Image::getRotationAngle($file_path);
+        $rotation = \Phyxo\Image\Image::getRotationCodeFromAngle($rotation_angle);
 
         $file_infos = Utils::image_infos($file_path);
 

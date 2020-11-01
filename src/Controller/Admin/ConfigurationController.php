@@ -276,7 +276,7 @@ class ConfigurationController extends AdminCommonController
     {
         $tpl_params = [];
 
-        $tpl_params['is_gd'] = Image::get_library() === 'GD';
+        $tpl_params['is_gd'] = Image::getLibrary(null, null, $conf['ext_imagick_dir']) === 'GD';
         $tpl_params['sizes'] = [
             'original_resize_maxwidth' => $conf['original_resize_maxwidth'],
             'original_resize_maxheight' => $conf['original_resize_maxheight'],

@@ -68,7 +68,7 @@ class ImageImagick implements ImageInterface
 
     public function sharpen($amount)
     {
-        $m = \Phyxo\Image\Image::get_sharpen_matrix($amount);
+        $m = \Phyxo\Image\Image::getSharpenMatrix($amount);
 
         return $this->image->convolveImage($m);
     }
@@ -95,7 +95,7 @@ class ImageImagick implements ImageInterface
     public function write($destination_filepath)
     {
         // use 4:2:2 chroma subsampling (reduce file size by 20-30% with "almost" no human perception)
-        $this->image->setSamplingFactors(array(2, 1));
+        $this->image->setSamplingFactors([2, 1]);
 
         return $this->image->writeImage($destination_filepath);
     }

@@ -110,13 +110,13 @@ class MediaController
                 }
                 $coi = $row['coi'];
                 if (!isset($row['rotation'])) {
-                    $this->page['rotation_angle'] = Image::get_rotation_angle($image_path);
+                    $this->page['rotation_angle'] = Image::getRotationAngle($image_path);
                     $em->getRepository(ImageRepository::class)->updateImage(
-                        ['rotation' => Image::get_rotation_code_from_angle($this->page['rotation_angle'])],
+                        ['rotation' => Image::getRotationCodeFromAngle($this->page['rotation_angle'])],
                         $row['id']
                     );
                 } else {
-                    $this->page['rotation_angle'] = Image::get_rotation_angle_from_code($row['rotation']);
+                    $this->page['rotation_angle'] = Image::getRotationAngleFromCode($row['rotation']);
                 }
             }
             if (!$row) {

@@ -11,17 +11,13 @@
 
 namespace Phyxo\Image;
 
-// +-----------------------------------------------------------------------+
-// |                          Main Image Class                             |
-// +-----------------------------------------------------------------------+
-
 class Image
 {
     public $image;
     private $library = '', $source_filepath = '';
     public static $ext_imagick_version = '';
 
-    public function __construct($source_filepath, $library = null)
+    public function __construct($source_filepath, $library = null, string $ext_imagick_dir = '')
     {
         $this->source_filepath = $source_filepath;
 
@@ -35,7 +31,7 @@ class Image
             die('[Image] unsupported file extension');
         }
 
-        if (!($this->library = self::get_library($library, $extension))) {
+        if (!($this->library = self::getLibrary($library, $extension, $ext_imagick_dir))) {
             die('No image library available on your server.');
         }
 
@@ -51,7 +47,7 @@ class Image
     }
 
     // resize function
-    public function pwg_resize($destination_filepath, $max_width, $max_height, $quality, $automatic_rotation = true, $strip_metadata = false, $crop = false, $follow_orientation = true)
+    public function resize($destination_filepath, $max_width, $max_height, $quality, $automatic_rotation = true, $strip_metadata = false, $crop = false, $follow_orientation = true)
     {
         $starttime = microtime(true);
 
@@ -61,16 +57,16 @@ class Image
 
         $rotation = null;
         if ($automatic_rotation) {
-            $rotation = self::get_rotation_angle($this->source_filepath);
+            $rotation = self::getRotationAngle($this->source_filepath);
         }
-        $resize_dimensions = self::get_resize_dimensions($source_width, $source_height, $max_width, $max_height, $rotation, $crop, $follow_orientation);
+        $resize_dimensions = self::getResizeDimensions($source_width, $source_height, $max_width, $max_height, $rotation, $crop, $follow_orientation);
 
         // testing on height is useless in theory: if width is unchanged, there
         // should be no resize, because width/height ratio is not modified.
         if ($resize_dimensions['width'] == $source_width and $resize_dimensions['height'] == $source_height) {
             // the image doesn't need any resize! We just copy it to the destination
             copy($this->source_filepath, $destination_filepath);
-            return $this->get_resize_result($destination_filepath, $resize_dimensions['width'], $resize_dimensions['height'], $starttime);
+            return $this->getResizeResult($destination_filepath, $resize_dimensions['width'], $resize_dimensions['height'], $starttime);
         }
 
         $this->image->set_compression_quality($quality);
@@ -93,18 +89,11 @@ class Image
         $this->image->write($destination_filepath);
 
         // everything should be OK if we are here!
-        return $this->get_resize_result($destination_filepath, $resize_dimensions['width'], $resize_dimensions['height'], $starttime);
+        return $this->getResizeResult($destination_filepath, $resize_dimensions['width'], $resize_dimensions['height'], $starttime);
     }
 
-    public static function get_resize_dimensions(
-        $width,
-        $height,
-        $max_width,
-        $max_height,
-        $rotation = null,
-        $crop = false,
-        $follow_orientation = true
-    ) {
+    public static function getResizeDimensions($width, $height, $max_width, $max_height, $rotation = null, $crop = false, $follow_orientation = true)
+    {
         $rotate_for_dimensions = false;
         if (isset($rotation) and in_array(abs($rotation), [90, 270])) {
             $rotate_for_dimensions = true;
@@ -173,7 +162,7 @@ class Image
         return $result;
     }
 
-    public static function get_rotation_angle($source_filepath)
+    public static function getRotationAngle($source_filepath)
     {
         list($width, $height, $type) = getimagesize($source_filepath);
         if (IMAGETYPE_JPEG != $type) {
@@ -202,7 +191,7 @@ class Image
         return $rotation;
     }
 
-    public static function get_rotation_code_from_angle($rotation_angle)
+    public static function getRotationCodeFromAngle($rotation_angle)
     {
         switch ($rotation_angle) {
             case 0:
@@ -216,7 +205,7 @@ class Image
         }
     }
 
-    public static function get_rotation_angle_from_code($rotation_code)
+    public static function getRotationAngleFromCode($rotation_code)
     {
         switch ($rotation_code % 4) {
             case 0:
@@ -231,7 +220,7 @@ class Image
     }
 
     /** Returns a normalized convolution kernel for sharpening*/
-    public static function get_sharpen_matrix($amount)
+    public static function getSharpenMatrix($amount)
     {
         // Amount should be in the range of 48-10
         $amount = round(abs(-48 + ($amount * 0.38)), 2);
@@ -254,7 +243,7 @@ class Image
         return $matrix;
     }
 
-    private function get_resize_result($destination_filepath, $width, $height, $time = null)
+    private function getResizeResult($destination_filepath, $width, $height, $time = null)
     {
         return [
             'source' => $this->source_filepath,
@@ -267,60 +256,58 @@ class Image
         ];
     }
 
-    public static function is_imagick()
+    public static function isImagick()
     {
         return (extension_loaded('imagick') && class_exists('Imagick'));
     }
 
-    public static function is_ext_imagick()
+    public static function isExtImagick(string $ext_imagick_dir = '')
     {
-        global $conf;
-
         if (!function_exists('exec')) {
             return false;
         }
-        @exec($conf['ext_imagick_dir'] . 'convert -version', $returnarray);
+
+        @exec($ext_imagick_dir . 'convert -version', $returnarray);
         if (is_array($returnarray) and !empty($returnarray[0]) and preg_match('/ImageMagick/i', $returnarray[0])) {
             if (preg_match('/Version: ImageMagick (\d+\.\d+\.\d+-?\d*)/', $returnarray[0], $match)) {
                 self::$ext_imagick_version = $match[1];
             }
             return true;
         }
+
         return false;
     }
 
-    public static function is_gd()
+    public static function isGD()
     {
         return function_exists('gd_info');
     }
 
-    public static function get_library($library = null, $extension = null)
+    public static function getLibrary(string $library = null, string $extension = null, $ext_imagick_dir = '')
     {
-        global $conf;
-
         if (is_null($library)) {
-            $library = $conf['graphics_library'];
+            return false;
         }
 
         // Choose image library
         switch (strtolower($library)) {
             case 'auto':
             case 'imagick':
-                if ($extension != 'gif' && self::is_imagick()) {
+                if ($extension !== 'gif' && self::isImagick()) {
                     return 'Imagick';
                 }
             case 'ext_imagick':
-                if ($extension != 'gif' && self::is_ext_imagick()) {
+                if ($extension !== 'gif' && self::isExtImagick($ext_imagick_dir)) {
                     return 'ExtImagick';
                 }
             case 'gd':
-                if (self::is_gd()) {
+                if (self::isGD()) {
                     return 'GD';
                 }
             default:
-                if ($library != 'auto') {
+                if ($library !== 'auto') {
                     // Requested library not available. Try another library
-                    return self::get_library('auto', $extension);
+                    return self::getLibrary('auto', $extension, $ext_imagick_dir);
                 }
         }
 

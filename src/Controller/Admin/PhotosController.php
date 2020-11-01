@@ -61,7 +61,7 @@ class PhotosController extends AdminCommonController
         $tpl_params['upload_max_filesize_shorthand'] = $upload_max_filesize_shorthand;
 
         // what is the maximum number of pixels permitted by the memory_limit?
-        if (\Phyxo\Image\Image::get_library() === 'GD') {
+        if (\Phyxo\Image\Image::getLibrary(null, null, $conf['ext_imagick_dir']) === 'GD') {
             $fudge_factor = 1.7;
             $available_memory = \Phyxo\Functions\Utils::get_ini_size('memory_limit') - memory_get_usage();
             $max_upload_width = round(sqrt($available_memory / (2 * $fudge_factor)));
