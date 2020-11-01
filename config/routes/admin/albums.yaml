@@ -23,14 +23,6 @@ admin_albums_move:
   requirements:
     parent_id: \d+
 
-admin_albums_permalinks:
-  path: /albums/permalinks/{parent_id}
-  controller: App\Controller\Admin\AlbumsController:permalinks
-  defaults:
-    parent_id: null
-  requirements:
-    parent_id: \d+
-
 admin_albums_options:
   path: /albums/options/{section}
   controller: App\Controller\Admin\AlbumsOptionsController:index

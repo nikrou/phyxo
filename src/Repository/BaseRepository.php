@@ -44,7 +44,6 @@ class BaseRepository
     const TAGS_TABLE = 'phyxo_tags';
     const IMAGE_TAG_TABLE = 'phyxo_image_tag';
     const PLUGINS_TABLE = 'phyxo_plugins';
-    const OLD_PERMALINKS_TABLE = 'phyxo_old_permalinks';
     const THEMES_TABLE = 'phyxo_themes';
     const LANGUAGES_TABLE = 'phyxo_languages';
 

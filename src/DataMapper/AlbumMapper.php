@@ -206,7 +206,7 @@ class AlbumMapper
      * Generates breadcrumb from categories list.
      * Categories string returned contains categories as given in the input
      * array $cat_informations. $cat_informations array must be an array
-     * of array( id=>?, name=>?, permalink=>?). If url input parameter is null,
+     * of array( id=>?, name=>?). If url input parameter is null,
      * returns only the categories name without links.
      */
     public function getAlbumDisplayName(array $cat_informations, string $url = ''): string

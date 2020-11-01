@@ -300,7 +300,6 @@ $lang["manage sub-albums"] = "manage sub-albums";
 $lang["jump to album"] = "jump to album";
 $lang["delete album"] = "delete album";
 $lang["Move"] = "Move";
-$lang["Permalinks"] = "Permalinks";
 $lang["Apply automatic sort order"] = "Apply automatic sort order";
 $lang["Date created, new &rarr; old"] = "Date created, new &rarr; old";
 $lang["Date created, old &rarr; new"] = "Date created, old &rarr; new";

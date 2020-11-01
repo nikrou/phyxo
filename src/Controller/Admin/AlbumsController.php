@@ -32,7 +32,6 @@ class AlbumsController extends AdminCommonController
         $tabsheet = new TabSheet();
         $tabsheet->add('list', $this->translator->trans('List', [], 'admin'), $this->generateUrl('admin_albums'), 'fa-bars');
         $tabsheet->add('move', $this->translator->trans('Move', [], 'admin'), $this->generateUrl('admin_albums_move'), 'fa-move');
-        $tabsheet->add('permalinks', $this->translator->trans('Permalinks', [], 'admin'), $this->generateUrl('admin_albums_permalinks'), 'fa-link');
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
@@ -238,23 +237,5 @@ class AlbumsController extends AdminCommonController
         $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('albums_move.html.twig', $tpl_params);
-    }
-
-    public function permalinks(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
-    {
-        $tpl_params = [];
-        $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
-        // @TODO: use symfony routing for permalinks. So remove for now
-
-        $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums_permalinks');
-        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums');
-        $tpl_params['PAGE_TITLE'] = $translator->trans('Albums', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('permalinks'), $tpl_params);
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
-
-        return $this->render('albums_permalinks.html.twig', $tpl_params);
     }
 }

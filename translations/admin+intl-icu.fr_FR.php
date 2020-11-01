@@ -307,7 +307,6 @@ $lang['manage sub-albums'] = 'Gérer les sous-albums';
 $lang['jump to album'] = "Se rendre dans l'album";
 $lang['delete album'] = "supprimer l'album";
 $lang['Move'] = "Déplacer";
-$lang['Permalinks'] = "Liens permanents";
 $lang['Apply automatic sort order'] = 'Appliquer un ordre de tri automatique';
 $lang['Date created, new &rarr; old'] = 'Date de création, récent &rarr; ancien';
 $lang['Date created, old &rarr; new'] = 'Date de création, ancien &rarr; récent';
