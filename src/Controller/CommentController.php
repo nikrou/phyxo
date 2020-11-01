@@ -212,7 +212,7 @@ class CommentController extends CommonController
 
                     if ($comment['comment_id'] == $comment_id) {
                         $tpl_comment['IN_EDIT'] = true;
-                        $key = \Phyxo\Functions\Utils::get_ephemeral_key($conf['key_comment_valid_time'], $comment['image_id']);
+                        $key = \Phyxo\Functions\Utils::get_ephemeral_key($conf['key_comment_valid_time'], $comment['image_id'], $conf['secret_key']);
                         $tpl_comment['KEY'] = $key;
                         $tpl_comment['IMAGE_ID'] = $comment['image_id'];
                         $tpl_comment['CONTENT'] = $comment['content'];

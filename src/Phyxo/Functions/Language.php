@@ -226,8 +226,8 @@ class Language
      */
     public static function transliterate($term)
     {
-        if (function_exists('mb_strtolower') && defined('PWG_CHARSET')) {
-            return self::remove_accents(mb_strtolower($term, PWG_CHARSET));
+        if (function_exists('mb_strtolower')) {
+            return self::remove_accents(mb_strtolower($term, 'utf-8'));
         } else {
             return self::remove_accents(strtolower($term));
         }

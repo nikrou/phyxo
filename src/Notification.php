@@ -345,13 +345,13 @@ class Notification
      */
     public function get_title_recent_post_date($date_detail)
     {
-        global $lang;
+        $english_months = [1 => "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
         $date = $date_detail['date_available'];
         $exploded_date = strptime($date, '%Y-%m-%d %H:%M:%S');
 
         $title = $this->translator->trans('number_of_new_photos', ['count' => $date_detail['nb_elements']]);
-        $title .= ' (' . $lang['month'][1 + $exploded_date['tm_mon']] . ' ' . $exploded_date['tm_mday'] . ')';
+        $title .= ' (' . $this->translator->trans($english_months[1 + $exploded_date['tm_mon']]) . ' ' . $exploded_date['tm_mday'] . ')';
 
         return $title;
     }
@@ -400,10 +400,8 @@ class Notification
      */
     public function begin_users_env_nbm($is_to_send_mail = false)
     {
-        global $user;
-
         // Save $user, $lang_info and $lang arrays
-        $this->env['save_user'] = $user;
+        $this->env['save_user'] = $this->userMapper->getUser();
         // Save current language to stack, necessary because $user change during NBM
         //\Phyxo\Functions\Mail::switch_lang_to($user['language']);
 

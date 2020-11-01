@@ -37,7 +37,7 @@ class Image
 
         $class = '\Phyxo\Image\Image' . $this->library;
 
-        $this->image = new $class($source_filepath);
+        $this->image = new $class($source_filepath, $ext_imagick_dir);
     }
 
     // Unknow methods will be redirected to image object

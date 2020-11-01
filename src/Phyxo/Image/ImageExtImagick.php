@@ -18,15 +18,10 @@ class ImageExtImagick implements ImageInterface
     private $imagickdir = '', $source_filepath = '',
         $width = '', $height = '', $commands = [];
 
-    public function __construct($source_filepath)
+    public function __construct($source_filepath, string $ext_imagick_dir = '')
     {
-        global $conf;
         $this->source_filepath = $source_filepath;
-        $this->imagickdir = $conf['ext_imagick_dir'];
-
-        if (strpos(@$_SERVER['SCRIPT_FILENAME'], '/kunden/') === 0) { // 1and1 ???
-            @putenv('MAGICK_THREAD_LIMIT=1');
-        }
+        $this->imagickdir = $ext_imagick_dir;
 
         $command = $this->imagickdir . 'identify -format "%wx%h" "' . realpath($source_filepath) . '"';
         @exec($command, $returnarray);

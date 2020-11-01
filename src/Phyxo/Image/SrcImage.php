@@ -126,8 +126,6 @@ class SrcImage
      */
     public function get_size()
     {
-        global $conn;
-
         if ($this->size == null) {
             if ($this->flags & self::DIM_NOT_GIVEN) {
                 throw new \Exception('SrcImage dimensions required but not provided');
@@ -135,10 +133,10 @@ class SrcImage
 
             // @TODO : move that query elsewhere
             // probably not metadata synced
-            if (is_readable($this->get_path()) && ($size = getimagesize($this->get_path())) !== false) {
-                $this->size = [$size[0], $size[1]];
-                (new ImageRepository($conn))->updateImage(['width' => $size[0], 'height' => $size[1]], $this->id);
-            }
+            // if (is_readable($this->get_path()) && ($size = getimagesize($this->get_path())) !== false) {
+            //     $this->size = [$size[0], $size[1]];
+            //     (new ImageRepository($conn))->updateImage(['width' => $size[0], 'height' => $size[1]], $this->id);
+            // }
         }
 
         return $this->size;

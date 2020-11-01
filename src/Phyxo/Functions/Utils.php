@@ -154,27 +154,6 @@ class Utils
     }
 
     /**
-     * Return $conf['filter_pages'] value for the current page
-     *
-     * @param string $value_name
-     * @return mixed
-     */
-    public static function get_filter_page_value($value_name)
-    {
-        global $conf;
-
-        $page_name = self::script_basename();
-
-        if (isset($conf['filter_pages'][$page_name][$value_name])) {
-            return $conf['filter_pages'][$page_name][$value_name];
-        } elseif (isset($conf['filter_pages']['default'][$value_name])) {
-            return $conf['filter_pages']['default'][$value_name];
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Transforms an original path to its pwg representative
      *
      * @param string $path
@@ -267,48 +246,20 @@ class Utils
     }
 
     /**
-     * Return the basename of the current script.
-     * The lowercase case filename of the current script without extension
-     *
-     * @return string
-     */
-    public static function script_basename()
-    {
-        global $conf;
-
-        foreach (['SCRIPT_NAME', 'SCRIPT_FILENAME', 'PHP_SELF'] as $value) {
-            if (!empty($_SERVER[$value])) {
-                $filename = strtolower($_SERVER[$value]);
-                if ($conf['php_extension_in_urls'] and self::get_extension($filename) !== 'php') {
-                    continue;
-                }
-                $basename = basename($filename, '.php');
-                if (!empty($basename)) {
-                    return $basename;
-                }
-            }
-        }
-
-        return '';
-    }
-
-    /**
      * returns a "secret key" that is to be sent back when a user posts a form
      *
      * @param int $valid_after_seconds - key validity start time from now
      * @param string $aditionnal_data_to_hash
      * @return string
      */
-    public static function get_ephemeral_key($valid_after_seconds, $aditionnal_data_to_hash = '')
+    public static function get_ephemeral_key($valid_after_seconds, $aditionnal_data_to_hash = '', $secret_key)
     {
-        global $conf;
-
         $time = round(microtime(true), 1);
         return $time . ':' . $valid_after_seconds . ':'
             . hash_hmac(
                 'md5',
                 $time . substr($_SERVER['REMOTE_ADDR'], 0, 5) . $valid_after_seconds . $aditionnal_data_to_hash,
-                $conf['secret_key']
+                $secret_key
             );
     }
 
@@ -319,10 +270,9 @@ class Utils
      * @param string $aditionnal_data_to_hash
      * @return bool
      */
-    public static function verify_ephemeral_key($key, $aditionnal_data_to_hash = '')
+    public static function verify_ephemeral_key($key, $aditionnal_data_to_hash = '', $secret_key)
     {
-        global $conf;
-
+        // @FIX : find another way to check key
         return true;
 
         $time = microtime(true);
@@ -334,7 +284,7 @@ class Utils
             or hash_hmac(
                 'md5',
                 $key[0] . substr($_SERVER['REMOTE_ADDR'], 0, 5) . $key[1] . $aditionnal_data_to_hash,
-                $conf['secret_key']
+                $secret_key
             ) != $key[2]
         ) {
             return false;
@@ -560,15 +510,7 @@ class Utils
      */
     public static function tag_alpha_compare($a, $b)
     {
-        global $cache;
-
-        foreach ([$a, $b] as $tag) {
-            if (!isset($cache[__FUNCTION__][$tag['name']])) {
-                $cache[__FUNCTION__][$tag['name']] = \Phyxo\Functions\Language::transliterate($tag['name']);
-            }
-        }
-
-        return strcmp($cache[__FUNCTION__][$a['name']], $cache[__FUNCTION__][$b['name']]);
+        return strcmp(Language::transliterate($a['name']), Language::transliterate($b['name']));
     }
 
     public static function counter_compare($a, $b)
@@ -677,120 +619,6 @@ class Utils
     }
 
     /**
-     * Sends to the template all messages stored in $page and in the session.
-     */
-    public static function flush_page_messages()
-    {
-        global $template, $page;
-
-        if ($template->get_template_vars('page_refresh') === null) {
-            foreach (['errors', 'infos', 'warnings'] as $mode) {
-                if (isset($_SESSION['page_' . $mode])) {
-                    $page[$mode] = array_merge($page[$mode], $_SESSION['page_' . $mode]);
-                    unset($_SESSION['page_' . $mode]);
-                }
-
-                if (count($page[$mode]) != 0) {
-                    $template->assign($mode, $page[$mode]);
-                }
-            }
-        }
-    }
-
-    /**
-     * Returns slideshow default params.
-     * - period
-     * - repeat
-     * - play
-     *
-     * @return array
-     */
-    public static function get_default_slideshow_params()
-    {
-        global $conf;
-
-        return [
-            'period' => $conf['slideshow_period'],
-            'repeat' => $conf['slideshow_repeat'],
-            'play' => true,
-        ];
-    }
-
-    /**
-     * Checks and corrects slideshow params
-     *
-     * @param array $params
-     * @return array
-     */
-    public static function correct_slideshow_params($params = [])
-    {
-        global $conf;
-
-        if ($params['period'] < $conf['slideshow_period_min']) {
-            $params['period'] = $conf['slideshow_period_min'];
-        } elseif ($params['period'] > $conf['slideshow_period_max']) {
-            $params['period'] = $conf['slideshow_period_max'];
-        }
-
-        return $params;
-    }
-
-    /**
-     * Decodes slideshow string params into array
-     *
-     * @param string $encode_params
-     * @return array
-     */
-    public static function decode_slideshow_params($encode_params = null)
-    {
-        global $conn;
-
-        $result = self::get_default_slideshow_params();
-
-        if (is_numeric($encode_params)) {
-            $result['period'] = $encode_params;
-        } else {
-            $matches = [];
-            if (preg_match_all('/([a-z]+)-(\d+)/', $encode_params, $matches)) {
-                $matchcount = count($matches[1]);
-                for ($i = 0; $i < $matchcount; $i++) {
-                    $result[$matches[1][$i]] = $matches[2][$i];
-                }
-            }
-
-            if (preg_match_all('/([a-z]+)-(true|false)/', $encode_params, $matches)) {
-                $matchcount = count($matches[1]);
-                for ($i = 0; $i < $matchcount; $i++) {
-                    $result[$matches[1][$i]] = $conn->get_boolean($matches[2][$i]);
-                }
-            }
-        }
-
-        return self::correct_slideshow_params($result);
-    }
-
-    /**
-     * Encodes slideshow array params into a string
-     *
-     * @param array $decode_params
-     * @return string
-     */
-    public static function encode_slideshow_params($decode_params = [])
-    {
-        global $conn;
-
-        $params = array_diff_assoc(self::correct_slideshow_params($decode_params), self::get_default_slideshow_params());
-        $result = '';
-
-        foreach ($params as $name => $value) {
-            // boolean_to_string return $value, if it's not a bool
-            $result .= '+' . $name . '-' . $conn->boolean_to_string($value);
-        }
-
-        return $result;
-    }
-
-    /**
      * Generates a pseudo random string.
      * Characters used are a-z A-Z and numerical values.
      *
@@ -833,23 +661,13 @@ class Utils
      * @param string $basedir (eg: ./galleries)
      * @return string[]
      */
-    public static function get_fs_directories($path, $recursive = true)
+    public static function get_fs_directories($path, $recursive = true, $sync_exclude_folders = [])
     {
-        global $conf;
-
         $dirs = [];
         $path = rtrim($path, '/');
 
-        $exclude_folders = array_merge(
-            $conf['sync_exclude_folders'],
-            [
-                '.', '..', '.svn',
-                'thumbnail', 'pwg_high',
-                'pwg_representative',
-            ]
-        );
+        $exclude_folders = array_merge($sync_exclude_folders, ['.', '..', '.svn', 'thumbnail', 'pwg_high', 'pwg_representative']);
         $exclude_folders = array_flip($exclude_folders);
-
 
         // @TODO: use glob !!!
         if (is_dir($path)) {
@@ -858,7 +676,7 @@ class Utils
                     if (is_dir($path . '/' . $node) and !isset($exclude_folders[$node])) {
                         $dirs[] = $path . '/' . $node;
                         if ($recursive) {
-                            $dirs = array_merge($dirs, self::get_fs_directories($path . '/' . $node));
+                            $dirs = array_merge($dirs, self::get_fs_directories($path . '/' . $node, $recursive, $sync_exclude_folders));
                         }
                     }
                 }
@@ -867,70 +685,6 @@ class Utils
         }
 
         return $dirs;
-    }
-
-    /**
-     * Returns an array with all file system files according to $conf['file_ext']
-     *
-     * @param string $path
-     * @param bool $recursive
-     * @return array
-     */
-    public static function get_fs($path, $recursive = true)
-    {
-        global $conf;
-
-        // because isset is faster than in_array...
-        if (!isset($conf['flip_picture_ext'])) {
-            $conf['flip_picture_ext'] = array_flip($conf['picture_ext']);
-        }
-        if (!isset($conf['flip_file_ext'])) {
-            $conf['flip_file_ext'] = array_flip($conf['file_ext']);
-        }
-
-        $fs['elements'] = [];
-        $fs['thumbnails'] = [];
-        $fs['representatives'] = [];
-        $subdirs = [];
-
-        // @TODO: use glob
-        if (is_dir($path)) {
-            if ($contents = opendir($path)) {
-                while (($node = readdir($contents)) !== false) {
-                    if ($node == '.' or $node == '..') {
-                        continue;
-                    }
-
-                    if (is_file($path . '/' . $node)) {
-                        $extension = \Phyxo\Functions\Utils::get_extension($node);
-
-                        if (isset($conf['flip_picture_ext'][$extension])) {
-                            if (basename($path) == 'thumbnail') {
-                                $fs['thumbnails'][] = $path . '/' . $node;
-                            } elseif (basename($path) == 'pwg_representative') {
-                                $fs['representatives'][] = $path . '/' . $node;
-                            } else {
-                                $fs['elements'][] = $path . '/' . $node;
-                            }
-                        } elseif (isset($conf['flip_file_ext'][$extension])) {
-                            $fs['elements'][] = $path . '/' . $node;
-                        }
-                    } elseif (is_dir($path . '/' . $node) and $node != 'pwg_high' and $recursive) {
-                        $subdirs[] = $node;
-                    }
-                }
-            }
-            closedir($contents);
-
-            foreach ($subdirs as $subdir) {
-                $tmp_fs = self::get_fs($path . '/' . $subdir);
-                $fs['elements'] = array_merge($fs['elements'], $tmp_fs['elements']);
-                $fs['thumbnails'] = array_merge($fs['thumbnails'], $tmp_fs['thumbnails']);
-                $fs['representatives'] = array_merge($fs['representatives'], $tmp_fs['representatives']);
-            }
-        }
-
-        return $fs;
     }
 
     /**
@@ -1165,12 +919,10 @@ class Utils
         ];
     }
 
-    public static function ready_for_upload_message()
+    public static function ready_for_upload_message(string $upload_dir = '')
     {
-        global $conf;
-
-        $relative_dir = preg_replace('#^' . realpath(__DIR__ . '/../../../') . '#', '', $conf['upload_dir']);
-        $absolute_dir = realpath(__DIR__ . '/../../../') . '/' . $conf['upload_dir'];
+        $relative_dir = preg_replace('#^' . realpath(__DIR__ . '/../../../') . '#', '', $upload_dir);
+        $absolute_dir = realpath(__DIR__ . '/../../../') . '/' . $upload_dir;
 
         if (!is_dir($absolute_dir)) {
             if (!is_writable(dirname($absolute_dir))) {

@@ -163,7 +163,7 @@ class Image
         $comment_post_data = null;
         if ($is_commentable && (!$service->getUserMapper()->isGuest() || ($service->getUserMapper()->isGuest() && $service->getConf()['comments_forall']))) {
             $comment_post_data['author'] = $service->getUserMapper()->getUser()->getUsername();
-            $comment_post_data['key'] = \Phyxo\Functions\Utils::get_ephemeral_key(2, $params['image_id']);
+            $comment_post_data['key'] = \Phyxo\Functions\Utils::get_ephemeral_key(2, $params['image_id'], $service->getConf()['secret_key']);
         }
 
         $ret = $image_row;
@@ -1109,7 +1109,7 @@ class Image
      */
     public static function checkUpload($params, Server $service)
     {
-        $ret['message'] = \Phyxo\Functions\Utils::ready_for_upload_message();
+        $ret['message'] = \Phyxo\Functions\Utils::ready_for_upload_message($service->getConf()['upload_dir']);
         $ret['ready_for_upload'] = true;
         if (!empty($ret['message'])) {
             $ret['ready_for_upload'] = false;

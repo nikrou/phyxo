@@ -17,7 +17,7 @@ class ImageGD implements ImageInterface
 {
     private $image, $quality = 95;
 
-    public function __construct($source_filepath)
+    public function __construct($source_filepath, $not_used = '')
     {
         $gd_info = gd_info();
         $extension = strtolower(\Phyxo\Functions\Utils::get_extension($source_filepath));
