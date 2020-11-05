@@ -28,7 +28,7 @@ config: clean ## prepare environment for building archive
 
 	cp -p composer.* symfony.lock $(DIST)/$(APP_NAME)/
 	cp -p bin/console $(DIST)/$(APP_NAME)/bin/
-	$(COMPOSER) install --no-dev -o -a -d $(DIST)/$(APP_NAME)
+	$(COMPOSER) install --no-dev -o -a -d $(DIST)/$(APP_NAME) --no-scripts
 
 	rm -f $(DIST)/$(APP_NAME)/bin/phpunit $(DIST)/$(APP_NAME)/bin/simple-phpunit $(DIST)/$(APP_NAME)/phpunit.xml.dist
 	rm -fr $(DIST)/$(APP_NAME)/config/packages/dev $(DIST)/$(APP_NAME)/config/packages/test $(DIST)/$(APP_NAME)/config/routes/dev $(DIST)/$(APP_NAME)/config/database.yaml
