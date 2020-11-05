@@ -23,7 +23,7 @@ use App\DataMapper\CategoryMapper;
 use App\Entity\Album;
 use App\Entity\UserCache;
 use App\Entity\UserCacheAlbum;
-use App\Repository\ImageCategoryRepository;
+use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageRepository;
 use App\Repository\UserCacheAlbumRepository;
 use App\Repository\UserCacheRepository;
@@ -38,10 +38,11 @@ use Symfony\Component\Security\Csrf\Exception\TokenNotFoundException;
 
 class UserProvider implements UserProviderInterface
 {
-    private $user, $em, $session, $categoryMapper, $albumMapper, $tokenStorage, $conf, $userRepository, $userCacheRepository, $userCacheAlbumRepository;
+    private $user, $em, $session, $categoryMapper, $albumMapper, $tokenStorage, $conf, $userRepository, $userCacheRepository, $userCacheAlbumRepository, $imageAlbumRepository;
 
     public function __construct(EntityManager $em, UserRepository $userRepository, SessionInterface $session, CategoryMapper $categoryMapper, TokenStorageInterface $tokenStorage,
-                                Conf $conf, AlbumMapper $albumMapper, UserCacheRepository $userCacheRepository, UserCacheAlbumRepository $userCacheAlbumRepository)
+                                Conf $conf, AlbumMapper $albumMapper, UserCacheRepository $userCacheRepository, UserCacheAlbumRepository $userCacheAlbumRepository,
+                                ImageAlbumRepository $imageAlbumRepository)
     {
         $this->em = $em;
         $this->userRepository = $userRepository;
@@ -52,6 +53,7 @@ class UserProvider implements UserProviderInterface
         $this->conf = $conf;
         $this->userCacheRepository = $userCacheRepository;
         $this->userCacheAlbumRepository = $userCacheAlbumRepository;
+        $this->imageAlbumRepository = $imageAlbumRepository;
     }
 
     protected function populateSession(User $user)
@@ -201,7 +203,7 @@ class UserProvider implements UserProviderInterface
 
             $userCache->setImageAccessType(UserCache::ACCESS_NOT_IN);
             $userCache->setImageAccessList($forbidden_image_ids);
-            $userCache->setNbTotalImages($this->em->getRepository(ImageCategoryRepository::class)->countTotalImages($forbidden_categories, UserCache::ACCESS_NOT_IN, $forbidden_image_ids));
+            $userCache->setNbTotalImages($this->imageAlbumRepository->countTotalImages($forbidden_categories, UserCache::ACCESS_NOT_IN, $forbidden_image_ids));
 
             // now we update user cache categories
             $user_cache_cats = $this->categoryMapper->getComputedCategories(

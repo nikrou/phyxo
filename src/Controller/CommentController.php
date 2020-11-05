@@ -78,7 +78,7 @@ class CommentController extends CommonController
         ];
         $tpl_params['since_options'] = array_combine(array_keys($since_options), array_column($since_options, 'label'));
 
-        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [$tpl_params['category']], 'categories', true));
+        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, $tpl_params['category'] !== null ? [$tpl_params['category']]:[], 'categories', true));
 
         $comments = [];
         $element_ids = [];
@@ -96,7 +96,10 @@ class CommentController extends CommonController
             true
         );
 
-        $album_ids = $albumMapper->getRepository()->getSubcatIds([$tpl_params['category']]);
+        $album_ids = [];
+        if ($tpl_params['category'] !== null) {
+            $album_ids = $albumMapper->getRepository()->getSubcatIds([$tpl_params['category']]);
+        }
         if (count($album_ids) > 0) {
             $where_clauses[] = 'category_id ' . $em->getConnection()->in($album_ids);
         }

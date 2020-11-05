@@ -11,6 +11,7 @@
 
 namespace App\Controller;
 
+use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\EntityManager;
 use Phyxo\Conf;
@@ -23,6 +24,8 @@ use Phyxo\Image\SrcImage;
 use App\DataMapper\CategoryMapper;
 use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
+use App\Entity\Album;
+use App\Repository\ImageAlbumRepository;
 use App\Repository\UserCacheAlbumRepository;
 use Phyxo\Functions\Utils;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -31,7 +34,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AlbumController extends CommonController
 {
     public function album(Request $request, Conf $conf, ImageStandardParams $image_std_params, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
-                            EntityManager $em, ImageMapper $imageMapper, CategoryMapper $categoryMapper, int $start = 0, int $category_id = 0, TranslatorInterface $translator)
+                            EntityManager $em, ImageMapper $imageMapper, CategoryMapper $categoryMapper, int $start = 0, int $category_id = 0, TranslatorInterface $translator,
+                            AlbumMapper $albumMapper)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -42,13 +46,13 @@ class AlbumController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
+        $album = $albumMapper->getRepository()->find($category_id);
+
         if (in_array($category_id, $this->getUser()->getForbiddenCategories())) {
             throw new AccessDeniedHttpException("Access denied to that album");
         }
 
-        $category = $categoryMapper->getCatInfo($category_id);
-
-        $tpl_params['TITLE'] = $categoryMapper->getBreadcrumb($category['upper_names']);
+        $tpl_params['TITLE'] = $albumMapper->getBreadcrumb($album);
         $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
 
         $preferred_image_orders = [
@@ -80,7 +84,7 @@ class AlbumController extends CommonController
             if ($order[2] === true) {
                 $tpl_params['image_orders'][] = [
                     'DISPLAY' => $order[0],
-                    'URL' => $this->generateUrl('album', ['category_id' => $category['id'], 'start' => $start, 'order' => $order_id]),
+                    'URL' => $this->generateUrl('album', ['category_id' => $album->getId(), 'start' => $start, 'order' => $order_id]),
                     'SELECTED' => false
                 ];
             }
@@ -90,97 +94,14 @@ class AlbumController extends CommonController
             $order_by = str_replace('ORDER BY ', 'ORDER BY ' . $preferred_image_orders[$order_index][1] . ',', $order_by);
         }
 
-        $order = 'rank';
-        $filter = [];
-        $where[] = 'id_uppercat = ' . $category_id;
-        $where[] = $em->getRepository(BaseRepository::class)->getSQLConditionFandF($this->getUser(), $filter, ['visible_categories' => 'id'], '', $force_on_condition = true);
-
-        $result = $em->getRepository(CategoryRepository::class)->findWithUserAndCondition($this->getUser()->getId(), $where, $order);
-        $categories = [];
-        $category_ids = [];
+        $albums = [];
         $image_ids = [];
         $user_representative_updates_for = [];
 
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-            // TODO remove arobases ; need tests ?
-            $row['is_child_date_last'] = @$row['max_date_last'] > @$row['date_last'];
+        list($is_child_date_last, $albums, $image_ids) = $albumMapper->getAlbumThumbnails($this->getUser(), $albumMapper->getRepository()->findByParentId($category_id, $this->getUser()->getId()));
 
-            if (!empty($row['user_representative_picture_id'])) {
-                $image_id = $row['user_representative_picture_id'];
-            } elseif (!empty($row['representative_picture_id'])) { // if a representative picture is set, it has priority
-                $image_id = $row['representative_picture_id'];
-            } elseif ($conf['allow_random_representative']) { // searching a random representant among elements in sub-categories
-                $image_id = $em->getRepository(CategoryRepository::class)->getRandomImageInCategory($this->getUser(), $filter, $row);
-            } elseif ($row['count_categories'] > 0 and $row['count_images'] > 0) { // searching a random representant among representant of sub-categories
-                $result = $em->getRepository(CategoryRepository::class)->findRandomRepresentantAmongSubCategories($this->getUser(), $filter, $row['uppercats']);
-                if ($em->getConnection()->db_num_rows($result) > 0) {
-                    list($image_id) = $em->getConnection()->db_fetch_row($result);
-                }
-            }
-
-            if (isset($image_id)) {
-                if ($conf['representative_cache_on_subcats'] && $row['user_representative_picture_id'] != $image_id) {
-                    $user_representative_updates_for[$row['id']] = $image_id;
-                }
-
-                $row['representative_picture_id'] = $image_id;
-                $image_ids[] = $image_id;
-                $categories[] = $row;
-                $category_ids[] = $row['id'];
-            }
-            unset($image_id);
-        }
-
-        usort($categories, '\Phyxo\Functions\Utils::global_rank_compare');
-
-        if (count($categories) > 0) {
-            $infos_of_image = [];
-            $new_image_ids = [];
-
-            $result = $em->getRepository(ImageRepository::class)->findByIds($image_ids);
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                if ($row['level'] <= $this->getUser()->getLevel()) {
-                    $infos_of_image[$row['id']] = $row;
-                } else {
-                    // problem: we must not display the thumbnail of a photo which has a
-                    // higher privacy level than user privacy level
-                    //
-                    // * what is the represented category?
-                    // * find a random photo matching user permissions
-                    // * register it at user_representative_picture_id
-                    // * set it as the representative_picture_id for the category
-
-                    foreach ($categories as &$category) {
-                        if ($row['id'] == $category['representative_picture_id']) {
-                            // searching a random representant among elements in sub-categories
-                            $image_id = $em->getRepository(CategoryRepository::class)->getRandomImageInCategory($this->getUser(), $filter, $category);
-
-                            if (isset($image_id) and !in_array($image_id, $image_ids)) {
-                                $new_image_ids[] = $image_id;
-                            }
-
-                            if ($conf['representative_cache_on_level']) {
-                                $user_representative_updates_for[$category['id']] = $image_id;
-                            }
-
-                            $category['representative_picture_id'] = $image_id;
-                        }
-                    }
-                    unset($category);
-                }
-            }
-
-            if (count($new_image_ids) > 0) {
-                $result = $em->getRepository(ImageRepository::class)->findByIds($new_image_ids);
-                while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                    $infos_of_image[$row['id']] = $row;
-                }
-            }
-
-            foreach ($infos_of_image as &$info) {
-                $info['src_image'] = new SrcImage($info, $conf['picture_ext']);
-            }
-            unset($info);
+        if (count($albums) > 0) {
+            $infos_of_images = $albumMapper->getInfosOfImages($this->getUser(), $albums, $image_ids, $imageMapper);
         }
 
         if (count($user_representative_updates_for) > 0) {
@@ -189,36 +110,45 @@ class AlbumController extends CommonController
             }
         }
 
-        if (count($categories) > 0) {
+        if (count($albums) > 0) {
             $tpl_thumbnails_var = [];
-            foreach ($categories as $category) {
-                if ($category['count_images'] === 0) {
+
+            foreach ($albums as $album) {
+                if ($album->getUserCacheAlbum()->getCountImages() === 0) {
                     continue;
                 }
 
-                $name = $categoryMapper->getCatDisplayNameCache($category['uppercats']);
+                $name = $albumMapper->getAlbumsDisplayNameCache($album->getUppercats());
 
-                $representative_infos = $infos_of_image[$category['representative_picture_id']];
+                $representative_infos = $infos_of_images[$album->getRepresentativePictureId()];
 
-                $tpl_var = array_merge($category, [
-                    'ID' => $category['id'] /*obsolete*/,
+                $tpl_var = [
+                    'id' => $album->getId(),
                     'representative' => $representative_infos,
-                    'TN_ALT' => strip_tags($category['name']),
-                    'TN_TITLE' => $imageMapper->getThumbnailTitle($category, $category['name'], $category['comment']),
-                    'URL' => $this->generateUrl('album', ['category_id' => $category['id'], 'start' => $start]),
-                    'CAPTION_NB_IMAGES' => $categoryMapper->getDisplayImagesCount($category['nb_images'], $category['count_images'], $category['count_categories'], true, '<br>'),
-                    'DESCRIPTION' => isset($category['comment']) ? $category['comment'] : '',
+                    'TN_ALT' => $album->getName(),
+                    'TN_TITLE' => $imageMapper->getThumbnailTitle(['rating_score' => '', 'nb_comments' => ''], $album->getName(), $album->getComment()),
+                    'URL' => $this->generateUrl('album', ['category_id' => $album->getId(), 'start' => $start]),
+                    'CAPTION_NB_IMAGES' => $albumMapper->getDisplayImagesCount(
+                        $album->getUserCacheAlbum()->getNbImages(), $album->getUserCacheAlbum()->getCountImages(),
+                        $album->getUserCacheAlbum()->getCountAlbums(), true, '<br>'
+                    ),
+                    'DESCRIPTION' => $album->getComment() ?? '',
                     'NAME' => $name,
-                ]);
+                    'name' => $album->getName(),
+                ];
 
                 if ($conf['index_new_icon']) {
-                    $tpl_var['icon_ts'] = $em->getRepository(BaseRepository::class)->getIcon($category['max_date_last'], $this->getUser(), $category['is_child_date_last']);
+                    $tpl_var['icon_ts'] = $em->getRepository(BaseRepository::class)->getIcon(
+                        $album->getUserCacheAlbum()->getMaxDateLast()->format('Y-m-d H:m:i'),
+                        $this->getUser(),
+                        $is_child_date_last
+                    );
                 }
 
                 if ($conf['display_fromto']) {
-                    if (isset($dates_of_category[$category['id']])) {
-                        $from = $dates_of_category[$category['id']]['_from'];
-                        $to = $dates_of_category[$category['id']]['_to'];
+                    if (isset($dates_of_category[$album->getId()])) {
+                        $from = $dates_of_category[$album->getId()]['_from'];
+                        $to = $dates_of_category[$album->getId()]['_to'];
 
                         if (!empty($from)) {
                             $tpl_var['INFO_DATES'] = \Phyxo\Functions\DateTime::format_fromto($from, $to);
@@ -230,7 +160,7 @@ class AlbumController extends CommonController
             }
 
             // pagination
-            $total_categories = count($tpl_thumbnails_var);
+            $total_albums = count($tpl_thumbnails_var);
 
             // @TODO : a category can contain more than $conf['nb_categories_page']
             $tpl_thumbnails_var_selection = array_slice($tpl_thumbnails_var, 0, $conf['nb_categories_page']);
@@ -244,12 +174,12 @@ class AlbumController extends CommonController
             $tpl_params['image_std_params'] = $image_std_params;
 
             // navigation bar
-            if ($total_categories > $conf['nb_categories_page']) {
+            if ($total_albums > $conf['nb_categories_page']) {
                 $tpl_params['cats_navbar'] = Utils::createNavigationBar(
                     $this->get('router'),
                     'albums',
                     [],
-                    $total_categories,
+                    $total_albums,
                     $start,
                     $conf['nb_categories_page'],
                     $conf['paginate_pages_around']
@@ -259,7 +189,7 @@ class AlbumController extends CommonController
 
         $forbidden = $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
             $this->getUser(),
-            $filter,
+            [],
             [
                 'forbidden_categories' => 'category_id',
                 'visible_categories' => 'category_id',
@@ -284,6 +214,7 @@ class AlbumController extends CommonController
                 $nb_image_page,
                 $conf['paginate_pages_around']
             );
+
 
             $tpl_params = array_merge(
                 $tpl_params,
@@ -429,7 +360,8 @@ class AlbumController extends CommonController
     }
 
     public function albums(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
-                            ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
+                            ImageStandardParams $image_std_params, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator,
+                            AlbumMapper $albumMapper, ImageAlbumRepository $imageAlbumRepository)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -442,104 +374,26 @@ class AlbumController extends CommonController
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
 
-        $order = 'rank';
-        $filter = [];
-        $where[] = $em->getRepository(BaseRepository::class)->getSQLConditionFandF($this->getUser(), $filter, ['visible_categories' => 'id'], '', $force_on_condition = true);
-        $where[] = 'id_uppercat IS NULL';
-
-        $result = $em->getRepository(CategoryRepository::class)->findWithUserAndCondition($this->getUser()->getId(), $where, $order);
-        $categories = [];
-        $category_ids = [];
+        $albums = [];
         $image_ids = [];
         $user_representative_updates_for = [];
 
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-            // TODO remove arobases ; need tests ?
-            $row['is_child_date_last'] = @$row['max_date_last'] > @$row['date_last'];
-
-            if (!empty($row['user_representative_picture_id'])) {
-                $image_id = $row['user_representative_picture_id'];
-            } elseif (!empty($row['representative_picture_id'])) { // if a representative picture is set, it has priority
-                $image_id = $row['representative_picture_id'];
-            } elseif ($conf['allow_random_representative']) { // searching a random representant among elements in sub-categories
-                $image_id = $em->getRepository(CategoryRepository::class)->getRandomImageInCategory($this->getUser(), $filter, $row);
-            } elseif ($row['count_categories'] > 0 and $row['count_images'] > 0) { // searching a random representant among representant of sub-categories
-                $result = $em->getRepository(CategoryRepository::class)->findRandomRepresentantAmongSubCategories($this->getUser(), $filter, $row['uppercats']);
-                if ($em->getConnection()->db_num_rows($result) > 0) {
-                    list($image_id) = $em->getConnection()->db_fetch_row($result);
-                }
-            }
-
-            if (isset($image_id)) {
-                if ($conf['representative_cache_on_subcats'] && $row['user_representative_picture_id'] != $image_id) {
-                    $user_representative_updates_for[$row['id']] = $image_id;
-                }
-
-                $row['representative_picture_id'] = $image_id;
-                $image_ids[] = $image_id;
-                $categories[] = $row;
-                $category_ids[] = $row['id'];
-            }
-            unset($image_id);
-        }
+        list($is_child_date_last, $albums, $image_ids) = $albumMapper->getAlbumThumbnails(
+            $this->getUser(),
+            $albumMapper->getRepository()->findParentAlbums($this->getUser()->getId())
+        );
 
         if ($conf['display_fromto']) {
-            if (count($category_ids) > 0) {
-                $result = $em->getRepository(ImageCategoryRepository::class)->dateOfCategories($this->getUser(), $filter, $category_ids);
-                $dates_of_category = $em->getConnection()->result2array($result, 'category_id');
+            if (count($albums) > 0) {
+                $dates_of_category = [];
+                foreach ($imageAlbumRepository->dateOfAlbums(array_keys($albums)) as $image) {
+                    $dates_of_category[] = $image;
+                }
             }
         }
 
-        usort($categories, '\Phyxo\Functions\Utils::global_rank_compare');
-
-        if (count($categories) > 0) {
-            $infos_of_image = [];
-            $new_image_ids = [];
-
-            $result = $em->getRepository(ImageRepository::class)->findByIds($image_ids);
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                if ($row['level'] <= $this->getUser()->getLevel()) {
-                    $infos_of_image[$row['id']] = $row;
-                } else {
-                    // problem: we must not display the thumbnail of a photo which has a
-                    // higher privacy level than user privacy level
-                    //
-                    // * what is the represented category?
-                    // * find a random photo matching user permissions
-                    // * register it at user_representative_picture_id
-                    // * set it as the representative_picture_id for the category
-
-                    foreach ($categories as &$category) {
-                        if ($row['id'] == $category['representative_picture_id']) {
-                            // searching a random representant among elements in sub-categories
-                            $image_id = $em->getRepository(CategoryRepository::class)->getRandomImageInCategory($this->getUser(), $filter, $category);
-
-                            if (isset($image_id) and !in_array($image_id, $image_ids)) {
-                                $new_image_ids[] = $image_id;
-                            }
-
-                            if ($conf['representative_cache_on_level']) {
-                                $user_representative_updates_for[$category['id']] = $image_id;
-                            }
-
-                            $category['representative_picture_id'] = $image_id;
-                        }
-                    }
-                    unset($category);
-                }
-            }
-
-            if (count($new_image_ids) > 0) {
-                $result = $em->getRepository(ImageRepository::class)->findByIds($new_image_ids);
-                while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                    $infos_of_image[$row['id']] = $row;
-                }
-            }
-
-            foreach ($infos_of_image as &$info) {
-                $info['src_image'] = new SrcImage($info, $conf['picture_ext']);
-            }
-            unset($info);
+        if (count($albums) > 0) {
+            $infos_of_images = $albumMapper->getInfosOfImages($this->getUser(), $albums, $image_ids, $imageMapper);
         }
 
         if (count($user_representative_updates_for) > 0) {
@@ -548,36 +402,45 @@ class AlbumController extends CommonController
             }
         }
 
-        if (count($categories) > 0) {
+        if (count($albums) > 0) {
             $tpl_thumbnails_var = [];
-            foreach ($categories as $category) {
-                if ($category['count_images'] === 0) {
+            foreach ($albums as $album) {
+                if (!$album->getUserCacheAlbum() || $album->getUserCacheAlbum()->getCountImages() === 0) {
                     continue;
                 }
 
-                $name = $categoryMapper->getCatDisplayNameCache($category['uppercats']);
+                $name = $albumMapper->getAlbumsDisplayNameCache($album->getUppercats());
+                $representative_infos = null;
+                if (isset($infos_of_images[$album->getRepresentativePictureId()])) {
+                    $representative_infos = $infos_of_images[$album->getRepresentativePictureId()];
+                }
 
-                $representative_infos = isset($infos_of_image[$category['representative_picture_id']]) ? $infos_of_image[$category['representative_picture_id']] : [];
-
-                $tpl_var = array_merge($category, [
-                    'ID' => $category['id'] /*obsolete*/,
+                $tpl_var = [
+                    'id' => $album->getId(),
                     'representative' => $representative_infos,
-                    'TN_ALT' => strip_tags($category['name']),
-                    'TN_TITLE' => $imageMapper->getThumbnailTitle($category, $category['name'], $category['comment']),
-                    'URL' => $this->generateUrl($start > 0 ? 'album__start' : 'album', ['category_id' => $category['id'], 'start' => $start]),
-                    'CAPTION_NB_IMAGES' => $categoryMapper->getDisplayImagesCount($category['nb_images'], $category['count_images'], $category['count_categories'], true, '<br>'),
-                    'DESCRIPTION' => isset($category['comment']) ? $category['comment'] : '',
+                    'TN_ALT' => $album->getName(),
+                    'TN_TITLE' => $imageMapper->getThumbnailTitle(['rating_score' => '', 'nb_comments' => ''], $album->getName(), $album->getComment()),
+                    'URL' => $this->generateUrl('album', ['category_id' => $album->getId(), 'start' => $start]),
+                    'CAPTION_NB_IMAGES' => $albumMapper->getDisplayImagesCount(
+                        $album->getUserCacheAlbum()->getNbImages(), $album->getUserCacheAlbum()->getCountImages(),
+                        $album->getUserCacheAlbum()->getCountAlbums(), true, '<br>'
+                    ),
+                    'DESCRIPTION' => $album->getComment() ?? '',
                     'NAME' => $name,
-                ]);
+                    'name' => $album->getName(),
+                ];
 
-                if ($conf['index_new_icon'] && !empty($category['max_date_last'])) { // @FIX : cf BUGS
-                    $tpl_var['icon_ts'] = $em->getRepository(BaseRepository::class)->getIcon($category['max_date_last'], $this->getUser(), $category['is_child_date_last']);
+                if ($conf['index_new_icon']) {
+                    $tpl_var['icon_ts'] = $em->getRepository(BaseRepository::class)->getIcon(
+                        $album->getUserCacheAlbum()->getMaxDateLast()->format('Y-m-d H:m:i'),
+                        $this->getUser(), $is_child_date_last
+                    );
                 }
 
                 if ($conf['display_fromto']) {
-                    if (isset($dates_of_category[$category['id']])) {
-                        $from = $dates_of_category[$category['id']]['_from'];
-                        $to = $dates_of_category[$category['id']]['_to'];
+                    if (isset($dates_of_category[$album->getId()])) {
+                        $from = $dates_of_category[$album->getId()]['_from'];
+                        $to = $dates_of_category[$album->getId()]['_to'];
 
                         if (!empty($from)) {
                             $tpl_var['INFO_DATES'] = \Phyxo\Functions\DateTime::format_fromto($from, $to);
@@ -589,7 +452,7 @@ class AlbumController extends CommonController
             }
 
             // pagination
-            $total_categories = count($tpl_thumbnails_var);
+            $total_albums = count($tpl_thumbnails_var);
 
             $tpl_thumbnails_var_selection = array_slice(
                 $tpl_thumbnails_var,
@@ -606,12 +469,12 @@ class AlbumController extends CommonController
             $tpl_params['image_std_params'] = $image_std_params;
 
             // navigation bar
-            if ($total_categories > $conf['nb_categories_page']) {
+            if ($total_albums > $conf['nb_categories_page']) {
                 $tpl_params['cats_navbar'] = Utils::createNavigationBar(
                     $this->get('router'),
                     'albums',
                     [],
-                    $total_categories,
+                    $total_albums,
                     $start,
                     $conf['nb_categories_page'],
                     $conf['paginate_pages_around']
@@ -628,7 +491,8 @@ class AlbumController extends CommonController
     }
 
     public function recentCats(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
-                                ImageStandardParams $image_std_params, ImageMapper $imageMapper, CategoryMapper $categoryMapper, int $start = 0, TranslatorInterface $translator)
+                                ImageStandardParams $image_std_params, ImageMapper $imageMapper, CategoryMapper $categoryMapper, int $start = 0, TranslatorInterface $translator,
+                                AlbumMapper $albumMapper)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -641,142 +505,71 @@ class AlbumController extends CommonController
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Recent albums');
 
-        $order = '';
-        $filter = [];
-        $where[] = $em->getRepository(BaseRepository::class)->getRecentPhotos($this->getUser(), 'date_last');
-        $where[] = $em->getRepository(BaseRepository::class)->getSQLConditionFandF($this->getUser(), $filter, ['visible_categories' => 'id'], '', $force_on_condition = true);
-
-        $result = $em->getRepository(CategoryRepository::class)->findWithUserAndCondition($this->getUser()->getId(), $where, $order);
-        $categories = [];
-        $category_ids = [];
+        $albums = [];
         $image_ids = [];
         $user_representative_updates_for = [];
 
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-            // TODO remove arobases ; need tests ?
-            $row['is_child_date_last'] = @$row['max_date_last'] > @$row['date_last'];
+        $recent_date = new \DateTime();
+        $recent_date->sub(new \DateInterval(sprintf('P%dD', $this->getUser()->getRecentPeriod())));
 
-            if (!empty($row['user_representative_picture_id'])) {
-                $image_id = $row['user_representative_picture_id'];
-            } elseif (!empty($row['representative_picture_id'])) { // if a representative picture is set, it has priority
-                $image_id = $row['representative_picture_id'];
-            } elseif ($conf['allow_random_representative']) { // searching a random representant among elements in sub-categories
-                $image_id = $em->getRepository(CategoryRepository::class)->getRandomImageInCategory($this->getUser(), $filter, $row);
-            } elseif ($row['count_categories'] > 0 and $row['count_images'] > 0) { // searching a random representant among representant of sub-categories
-                $result = $em->getRepository(CategoryRepository::class)->findRandomRepresentantAmongSubCategories($this->getUser(), $filter, $row['uppercats']);
-                if ($em->getConnection()->db_num_rows($result) > 0) {
-                    list($image_id) = $em->getConnection()->db_fetch_row($result);
-                }
-            }
-
-            if (isset($image_id)) {
-                if ($conf['representative_cache_on_subcats'] && $row['user_representative_picture_id'] != $image_id) {
-                    $user_representative_updates_for[$row['id']] = $image_id;
-                }
-
-                $row['representative_picture_id'] = $image_id;
-                $image_ids[] = $image_id;
-                $categories[] = $row;
-                $category_ids[] = $row['id'];
-            }
-            unset($image_id);
-        }
+        list($is_child_date_last, $albums, $image_ids) = $albumMapper->getAlbumThumbnails($this->getUser(), $albumMapper->getRepository()->findRecentAlbums($recent_date));
 
         if ($conf['display_fromto']) {
-            if (count($category_ids) > 0) {
-                $result = $em->getRepository(ImageCategoryRepository::class)->dateOfCategories($this->getUser(), $filter, $category_ids);
-                $dates_of_category = $em->getConnection()->result2array($result, 'category_id');
+            if (count($albums) > 0) {
+                $dates_of_category = [];
+                foreach ($imageMapper->getRepository()->dateOfCategories(array_keys($albums)) as $image) {
+                    $dates_of_category[] = $image;
+                }
             }
         }
 
-        usort($categories, '\Phyxo\Functions\Utils::global_rank_compare');
-
-        if (count($categories) > 0) {
-            $infos_of_image = [];
-            $new_image_ids = [];
-
-            $result = $em->getRepository(ImageRepository::class)->findByIds($image_ids);
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                if ($row['level'] <= $this->getUser()->getLevel()) {
-                    $infos_of_image[$row['id']] = $row;
-                } else {
-                    // problem: we must not display the thumbnail of a photo which has a
-                    // higher privacy level than user privacy level
-                    //
-                    // * what is the represented category?
-                    // * find a random photo matching user permissions
-                    // * register it at user_representative_picture_id
-                    // * set it as the representative_picture_id for the category
-
-                    foreach ($categories as &$category) {
-                        if ($row['id'] == $category['representative_picture_id']) {
-                            // searching a random representant among elements in sub-categories
-                            $image_id = $em->getRepository(CategoryRepository::class)->getRandomImageInCategory($this->getUser(), $filter, $category);
-
-                            if (isset($image_id) and !in_array($image_id, $image_ids)) {
-                                $new_image_ids[] = $image_id;
-                            }
-
-                            if ($conf['representative_cache_on_level']) {
-                                $user_representative_updates_for[$category['id']] = $image_id;
-                            }
-
-                            $category['representative_picture_id'] = $image_id;
-                        }
-                    }
-                    unset($category);
-                }
-            }
-
-            if (count($new_image_ids) > 0) {
-                $result = $em->getRepository(ImageRepository::class)->findByIds($new_image_ids);
-                while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                    $infos_of_image[$row['id']] = $row;
-                }
-            }
-
-            foreach ($infos_of_image as &$info) {
-                $info['src_image'] = new SrcImage($info, $conf['picture_ext']);
-            }
-            unset($info);
+        if (count($albums) > 0) {
+            $infos_of_images = $albumMapper->getInfosOfImages($this->getUser, $albums, $image_ids, $imageMapper);
         }
 
-        if (count($user_representative_updates_for)) {
+        if (count($user_representative_updates_for) > 0) {
             foreach ($user_representative_updates_for as $cat_id => $image_id) {
                 $userCacheAlbumRepository->updateUserRepresentativePicture($this->getUser()->getId(), $cat_id, $image_id);
             }
         }
 
-        if (count($categories) > 0) {
+        if (count($albums) > 0) {
             $tpl_thumbnails_var = [];
-            foreach ($categories as $category) {
-                if ($category['count_images'] === 0) {
+            foreach ($albums as $album) {
+                if (!$album->getUserCacheAlbum() || $album->getUserCacheAlbum()->getCountImages() === 0) {
                     continue;
                 }
 
-                $name = $categoryMapper->getCatDisplayNameCache($category['uppercats']);
+                $name = $albumMapper->getAlbumsDisplayNameCache($album->getUppercats());
 
-                $representative_infos = $infos_of_image[$category['representative_picture_id']];
+                $representative_infos = $infos_of_images[$album->getRepresentativePictureId()];
 
-                $tpl_var = array_merge($category, [
-                    'ID' => $category['id'] /*obsolete*/,
+                $tpl_var = [
+                    'id' => $album->getId(),
                     'representative' => $representative_infos,
-                    'TN_ALT' => strip_tags($category['name']),
-                    'TN_TITLE' => $imageMapper->getThumbnailTitle($category, $category['name'], $category['comment']),
-                    'URL' => $this->generateUrl('album', ['category_id' => $category['id'], 'start' => $start]),
-                    'CAPTION_NB_IMAGES' => $categoryMapper->getDisplayImagesCount($category['nb_images'], $category['count_images'], $category['count_categories'], true, '<br>'),
-                    'DESCRIPTION' => isset($category['comment']) ? $category['comment'] : '',
+                    'TN_ALT' => $album->getName(),
+                    'TN_TITLE' => $imageMapper->getThumbnailTitle(['rating_score' => '', 'nb_comments' => ''], $album->getName(), $album->getComment()),
+                    'URL' => $this->generateUrl('album', ['category_id' => $album->getId(), 'start' => $start]),
+                    'CAPTION_NB_IMAGES' => $albumMapper->getDisplayImagesCount(
+                        $album->getUserCacheAlbum()->getNbImages(), $album->getUserCacheAlbum()->getCountImages(),
+                        $album->getUserCacheAlbum()->getCountAlbums(), true, '<br>'
+                    ),
+                    'DESCRIPTION' => $album->getComment() ?? '',
                     'NAME' => $name,
-                ]);
+                    'name' => $album->getName(),
+                ];
 
                 if ($conf['index_new_icon']) {
-                    $tpl_var['icon_ts'] = $em->getRepository(BaseRepository::class)->getIcon($category['max_date_last'], $this->getUser(), $category['is_child_date_last']);
+                    $tpl_var['icon_ts'] = $em->getRepository(BaseRepository::class)->getIcon(
+                        $album->getUserCacheAlbum()->getMaxDateLast()->format('Y-m-d H:m:i'),
+                        $this->getUser(), $is_child_date_last
+                    );
                 }
 
                 if ($conf['display_fromto']) {
-                    if (isset($dates_of_category[$category['id']])) {
-                        $from = $dates_of_category[$category['id']]['_from'];
-                        $to = $dates_of_category[$category['id']]['_to'];
+                    if (isset($dates_of_category[$album->getId()])) {
+                        $from = $dates_of_category[$album->getId()]['_from'];
+                        $to = $dates_of_category[$album->getId()]['_to'];
 
                         if (!empty($from)) {
                             $tpl_var['INFO_DATES'] = \Phyxo\Functions\DateTime::format_fromto($from, $to);
@@ -788,7 +581,7 @@ class AlbumController extends CommonController
             }
 
             // pagination
-            $total_categories = count($tpl_thumbnails_var);
+            $total_albums = count($tpl_thumbnails_var);
 
             $tpl_thumbnails_var_selection = array_slice(
                 $tpl_thumbnails_var,
@@ -805,12 +598,12 @@ class AlbumController extends CommonController
             $tpl_params['image_std_params'] = $image_std_params;
 
             // navigation bar
-            if ($total_categories > $conf['nb_categories_page']) {
+            if ($total_albums > $conf['nb_categories_page']) {
                 $tpl_params['cats_navbar'] = Utils::createNavigationBar(
                     $this->get('router'),
                     'recent_cats',
                     [],
-                    $total_categories,
+                    $total_albums,
                     $start,
                     $conf['nb_categories_page'],
                     $conf['paginate_pages_around']

@@ -120,7 +120,7 @@
 	   <p>
 	       {% for option in albums_options %}
 		   <label>
-		       <input type="radio" name="visible" value="{{option.id}}" {% if option.id == CAT_VISIBLE %}checked="checked"{% endif %} />
+		       <input type="radio" name="visible" value="{{option.id}}" {% if option.id == CAT_LOCK %}checked="checked"{% endif %} />
 		       {{option.label}}
 		   </label>
 	       {% endfor %}

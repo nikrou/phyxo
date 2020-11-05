@@ -47,7 +47,7 @@ class Image
     }
 
     // resize function
-    public function resize($destination_filepath, $max_width, $max_height, $quality, $automatic_rotation = true, $strip_metadata = false, $crop = false, $follow_orientation = true)
+    public function mainResize($destination_filepath, $max_width, $max_height, $quality, $automatic_rotation = true, $strip_metadata = false, $crop = false, $follow_orientation = true)
     {
         $starttime = microtime(true);
 
@@ -261,7 +261,7 @@ class Image
         return (extension_loaded('imagick') && class_exists('Imagick'));
     }
 
-    public static function isExtImagick(string $ext_imagick_dir = '')
+    public static function isExtImagick(string $ext_imagick_dir = null)
     {
         if (!function_exists('exec')) {
             return false;
@@ -286,7 +286,7 @@ class Image
     public static function getLibrary(string $library = null, string $extension = null, $ext_imagick_dir = '')
     {
         if (is_null($library)) {
-            return false;
+            $library = 'auto';
         }
 
         // Choose image library

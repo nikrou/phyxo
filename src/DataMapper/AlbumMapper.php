@@ -12,25 +12,28 @@
 namespace App\DataMapper;
 
 use App\Entity\Album;
+use App\Entity\User;
 use App\Repository\AlbumRepository;
 use App\Repository\BaseRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\UserCacheAlbumRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
+use Phyxo\Image\SrcImage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class AlbumMapper
 {
-    private $conf, $albumRepository, $router, $cache = [], $albums_retrieved = false, $em, $translator, $userRepository, $userCacheAlbumRepository;
+    private $conf, $albumRepository, $router, $cache = [], $albums_retrieved = false, $em, $translator, $userRepository, $userCacheAlbumRepository, $imageAlbumRepository;
 
     public function __construct(Conf $conf, AlbumRepository $albumRepository, RouterInterface $router, TranslatorInterface $translator, EntityManager $em, UserRepository $userRepository,
-                                UserCacheAlbumRepository $userCacheAlbumRepository)
+                                UserCacheAlbumRepository $userCacheAlbumRepository, ImageAlbumRepository $imageAlbumRepository)
     {
         $this->conf = $conf;
         $this->albumRepository = $albumRepository;
@@ -39,6 +42,7 @@ class AlbumMapper
         $this->em = $em;
         $this->userRepository = $userRepository;
         $this->userCacheAlbumRepository = $userCacheAlbumRepository;
+        $this->imageAlbumRepository = $imageAlbumRepository;
     }
 
     public function getRepository(): AlbumRepository
@@ -364,7 +368,7 @@ class AlbumMapper
      */
     public function moveAlbums(array $ids, int $new_parent = null)
     {
-        if (count($ids) == 0) {
+        if (count($ids) === 0) {
             return;
         }
 
@@ -384,13 +388,17 @@ class AlbumMapper
             foreach ($albums as $album) {
                 // technically, you can't move a category with uppercats 12,125,13,14
                 // into a new parent category with uppercats 12,125,13,14,24
-                if (preg_match('/^' . $album->getUppercats() . '(,|$)/', $new_parent_uppercats)) {
+                if (preg_match('/^' . $album['uppercats'] . '(,|$)/', $new_parent_uppercats)) {
                     throw new \Exception($this->translator->trans('You cannot move an album in its own sub album'));
                 }
             }
         }
 
-        $this->albumRepository->updateAlbums(['id_uppercat' => $new_parent], $ids);
+        if ($new_parent != null) {
+            foreach ($ids as $id) {
+                $this->getCacheAlbums()[$id]->setParent($this->getCacheAlbums()[$new_parent]);
+            }
+        }
         $this->updateUppercats();
         $this->updateGlobalRank();
 
@@ -414,14 +422,15 @@ class AlbumMapper
         foreach ($this->getCacheAlbums() as $id => $album) {
             $upper_list = [];
 
-            $uppercat = $id;
-            while ($uppercat) {
-                $upper_list[] = $uppercat;
-                $uppercat = $this->getCacheAlbums()[$uppercat]->getParent();
+            $uppercat = $album;
+            while ($uppercat !== null) {
+                $upper_list[] = $uppercat->getId();
+                $uppercat = $this->getCacheAlbums()[$uppercat->getId()]->getParent();
             }
 
             $new_uppercats = implode(',', array_reverse($upper_list));
             if ($new_uppercats !== $album->getUppercats()) {
+                $album->setUppercats($new_uppercats);
                 $this->albumRepository->addOrUpdateAlbum($album);
             }
         }
@@ -717,7 +726,7 @@ class AlbumMapper
 
             $this->albumRepository->updateAlbums(['visible' => true], $album_ids);
         } else { // locking a category   => all its child categories become locked
-            $this->albumRepository->updateCategories(['visible' => false], $this->albumRepository->getSubcatIds($ids));
+            $this->albumRepository->updateAlbums(['visible' => false], $this->albumRepository->getSubcatIds($ids));
         }
     }
 
@@ -848,8 +857,7 @@ class AlbumMapper
     public function setRandomRepresentant(array $album_ids)
     {
         foreach ($album_ids as $album_id) {
-            $result = $this->em->getRepository(ImageCategoryRepository::class)->findRandomRepresentant($album_id);
-            list($representative) = $this->em->getConnection()->db_fetch_row($result);
+            $representative = $this->imageAlbumRepository->findRandomRepresentant($album_id);
 
             // @TODO: find a way to do massive update
             $this->albumRepository->updateAlbumRepresentative($album_id, $representative);
@@ -1174,5 +1182,99 @@ class AlbumMapper
         }
 
         return $breadcumb;
+    }
+
+    /**
+     * @param $albums resource (array or null) return by method repository
+     */
+    public function getAlbumThumbnails(User $user, $albums)
+    {
+        $album_thumbnails = [];
+        $image_ids = [];
+        $is_child_date_last = false;
+
+        foreach ($albums as $album) {
+            if (is_null($album->getUserCacheAlbum())) {
+                continue;
+            }
+            $is_child_date_last = $album->getUserCacheAlbum()->getMaxDateLast() > $album->getUserCacheAlbum()->getDateLast();
+
+            if ($album->getUserCacheAlbum()->getUserRepresentativePicture()) {
+                $image_id = $album->getUserCacheAlbum()->getUserRepresentativePicture();
+            } elseif ($album->getRepresentativePictureId()) { // if a representative picture is set, it has priority
+                $image_id = $album->getRepresentativePictureId();
+            } elseif ($this->conf['allow_random_representative']) { // searching a random representant among elements in sub-categories
+                $image_id = $this->getRepository()->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getForbiddenCategories());
+            } elseif ($album->getUserCacheAlbum()->getCountAlbums() > 0 && $album->getUserCacheAlbum()->getCountImages() > 0) { // searching a random representant among representant of sub-categories
+                $image_id = $this->getRepository()->findRandomRepresentantAmongSubAlbums($album->getUppercats());
+            }
+
+            if (isset($image_id)) {
+                if ($this->conf['representative_cache_on_subcats'] && $album->getUserCacheAlbum()->getUserRepresentativePicture() !== $image_id) {
+                    $user_representative_updates_for[$album->getId()] = $image_id;
+                }
+
+                $album->setRepresentativePictureId($image_id);
+                $album_thumbnails[$album->getId()] = $album;
+                $image_ids[] = $image_id;
+            }
+            unset($image_id);
+        }
+
+        usort($album_thumbnails, [$this, 'globalRankCompare']);
+
+        return [$is_child_date_last, $album_thumbnails, $image_ids];
+    }
+
+    public function getInfosOfImages(User $user, array $albums, array $image_ids, ImageMapper $imageMapper)
+    {
+        $infos_of_images = [];
+        $new_image_ids = [];
+
+        foreach ($imageMapper->getRepository()->findBy(['id' => $image_ids]) as $image) {
+            if ($image->getLevel() <= $user->getLevel()) {
+                $infos_of_images[$image->getId()] = $image->toArray();
+            } else {
+                // problem: we must not display the thumbnail of a photo which has a
+                // higher privacy level than user privacy level
+                //
+                // * what is the represented album?
+                // * find a random photo matching user permissions
+                // * register it at user_representative_picture_id
+                // * set it as the representative_picture_id for the album
+
+                foreach ($albums as $album) {
+                    if ($image->getId() === $album->getRepresentativePictureId()) {
+                        // searching a random representant among elements in sub-categories
+                        $image_id = $this->getRepository()->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getForbiddenCategories());
+
+                        if (isset($image_id) && !in_array($image_id, $image_ids)) {
+                            $new_image_ids[] = $image_id;
+                        }
+
+                        if ($this->conf['representative_cache_on_level']) {
+                            $user_representative_updates_for[$album->getId()] = $image_id;
+                        }
+
+                        $album->setRepresentativePictureId($image_id);
+                        $this->getRepository()->addOrUpdateAlbum($album);
+                    }
+                }
+            }
+        }
+
+        if (count($new_image_ids) > 0) {
+            foreach ($imageMapper->getRepository()->findBy(['id' => $new_image_ids]) as $image) {
+                $infos_of_images[$image->getId()] = $image->toArray();
+            }
+        }
+
+
+        foreach ($infos_of_images as &$info) {
+            $info['src_image'] = new SrcImage($info, $this->conf['picture_ext']);
+        }
+        unset($info);
+
+        return $infos_of_images;
     }
 }

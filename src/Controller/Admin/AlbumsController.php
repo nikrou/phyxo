@@ -217,11 +217,11 @@ class AlbumsController extends AdminCommonController
             return $this->redirectToRoute('admin_albums_move', ['parent_id' => $parent_id]);
         }
 
-        $physical_albums = [];
-        foreach ($albumRepository->findPhysicalAlbums() as $album) {
-            $physical_albums[] = $album;
+        $virtual_albums = [];
+        foreach ($albumRepository->findVirtualAlbums() as $album) {
+            $virtual_albums[] = $album;
         }
-        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($physical_albums, [], 'category_to_move_options'));
+        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($virtual_albums, [], 'category_to_move_options'));
 
         $albums = [];
         foreach ($albumRepository->findAll() as $album) {

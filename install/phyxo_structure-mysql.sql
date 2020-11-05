@@ -151,8 +151,7 @@ CREATE TABLE `phyxo_image_category` (
   `image_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   `category_id` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
   `rank` MEDIUMINT(8) UNSIGNED DEFAULT NULL,
-  PRIMARY KEY  (`image_id`,`category_id`),
-  KEY `image_category_i1` (`category_id`)
+  PRIMARY KEY  (`image_id`,`category_id`)
 ) ENGINE=InnoDB;
 
 --

@@ -11,12 +11,476 @@
 
 namespace App\Entity;
 
+use App\Repository\NewImageRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity(repositoryClass=NewImageRepository::class)
+ * @ORM\Table(name="images")
+ */
 class Image
 {
-    protected $id;
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
+     */
+    private $id;
 
-    public function __construct(int $id)
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $file;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $date_available;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $date_creation;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $name;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $comment;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $author = '';
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $hit = 0;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $filesize;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $width;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $height;
+
+    /**
+     * @ORM\Column(type="string", length=4, nullable=true)
+     */
+    private $coi;
+
+    /**
+     * @ORM\Column(type="string", length=4, nullable=true)
+     */
+    private $representative_ext;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $date_metadata_update;
+
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $rating_score;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $path;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $storage_category_id;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $level = 0;
+
+    /**
+     * @ORM\Column(type="string", length=32)
+     */
+    private $md5sum;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $added_by;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $rotation;
+
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $latitude;
+
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $longitude;
+
+    /**
+     * @ORM\Column(name="lastmodified", type="datetime", nullable=true)
+     */
+    private $last_modified;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ImageAlbum::class, mappedBy="image")
+     */
+    private $imageAlbums;
+
+    public function __construct()
     {
-        $this->id = $id;
+        $this->imageAlbums = new ArrayCollection();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getFile(): ?string
+    {
+        return $this->file;
+    }
+
+    public function setFile(string $file): self
+    {
+        $this->file = $file;
+
+        return $this;
+    }
+
+    public function getDateAvailable(): ?\DateTimeInterface
+    {
+        return $this->date_available;
+    }
+
+    public function setDateAvailable(\DateTimeInterface $date_available): self
+    {
+        $this->date_available = $date_available;
+
+        return $this;
+    }
+
+    public function getDateCreation(): ?\DateTimeInterface
+    {
+        return $this->date_creation;
+    }
+
+    public function setDateCreation(?\DateTimeInterface $date_creation): self
+    {
+        $this->date_creation = $date_creation;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(?string $comment): self
+    {
+        $this->comment = $comment;
+
+        return $this;
+    }
+
+    public function getAuthor(): ?string
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(string $author): self
+    {
+        $this->author = $author;
+
+        return $this;
+    }
+
+    public function getHit(): ?int
+    {
+        return $this->hit;
+    }
+
+    public function setHit(int $hit): self
+    {
+        $this->hit = $hit;
+
+        return $this;
+    }
+
+    public function getFilesize(): ?int
+    {
+        return $this->filesize;
+    }
+
+    public function setFilesize(int $filesize): self
+    {
+        $this->filesize = $filesize;
+
+        return $this;
+    }
+
+    public function getWidth(): ?int
+    {
+        return $this->width;
+    }
+
+    public function setWidth(int $width): self
+    {
+        $this->width = $width;
+
+        return $this;
+    }
+
+    public function getHeight(): ?int
+    {
+        return $this->height;
+    }
+
+    public function setHeight(int $height): self
+    {
+        $this->height = $height;
+
+        return $this;
+    }
+
+    public function getCoi(): ?string
+    {
+        return $this->coi;
+    }
+
+    public function setCoi(string $coi): self
+    {
+        $this->coi = $coi;
+
+        return $this;
+    }
+
+    public function getRepresentativeExt(): ?string
+    {
+        return $this->representative_ext;
+    }
+
+    public function setRepresentativeExt(string $representative_ext): self
+    {
+        $this->representative_ext = $representative_ext;
+
+        return $this;
+    }
+
+    public function getDateMetadataUpdate(): ?\DateTimeInterface
+    {
+        return $this->date_metadata_update;
+    }
+
+    public function setDateMetadataUpdate(\DateTimeInterface $date_metadata_update): self
+    {
+        $this->date_metadata_update = $date_metadata_update;
+
+        return $this;
+    }
+
+    public function getRatingScore(): ?float
+    {
+        return $this->rating_score;
+    }
+
+    public function setRatingScore(float $rating_score): self
+    {
+        $this->rating_score = $rating_score;
+
+        return $this;
+    }
+
+    public function getPath(): ?string
+    {
+        return $this->path;
+    }
+
+    public function setPath(string $path): self
+    {
+        $this->path = $path;
+
+        return $this;
+    }
+
+    public function getStorageCategoryId(): ?int
+    {
+        return $this->storage_category_id;
+    }
+
+    public function setStorageCategoryId(int $storage_category_id): self
+    {
+        $this->storage_category_id = $storage_category_id;
+
+        return $this;
+    }
+
+    public function getLevel(): ?int
+    {
+        return $this->level;
+    }
+
+    public function setLevel(int $level): self
+    {
+        $this->level = $level;
+
+        return $this;
+    }
+
+    public function getMd5sum(): ?string
+    {
+        return $this->md5sum;
+    }
+
+    public function setMd5sum(string $md5sum): self
+    {
+        $this->md5sum = $md5sum;
+
+        return $this;
+    }
+
+    public function getAddedBy(): ?int
+    {
+        return $this->added_by;
+    }
+
+    public function setAddedBy(int $added_by): self
+    {
+        $this->added_by = $added_by;
+
+        return $this;
+    }
+
+    public function getRotation(): ?int
+    {
+        return $this->rotation;
+    }
+
+    public function setRotation(int $rotation): self
+    {
+        $this->rotation = $rotation;
+
+        return $this;
+    }
+
+    public function getLatitude(): ?float
+    {
+        return $this->latitude;
+    }
+
+    public function setLatitude(float $latitude): self
+    {
+        $this->latitude = $latitude;
+
+        return $this;
+    }
+
+    public function getLongitude(): ?float
+    {
+        return $this->longitude;
+    }
+
+    public function setLongitude(float $longitude): self
+    {
+        $this->longitude = $longitude;
+
+        return $this;
+    }
+
+    public function getLastModified(): ?\DateTimeInterface
+    {
+        return $this->last_modified;
+    }
+
+    public function setLastModified(\DateTimeInterface $last_modified): self
+    {
+        $this->last_modified = $last_modified;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ImageAlbum[]
+     */
+    public function getImageAlbums(): Collection
+    {
+        return $this->imageAlbums;
+    }
+
+    public function addImageAlbum(ImageAlbum $imageAlbum): self
+    {
+        if (!$this->imageAlbums->contains($imageAlbum)) {
+            $this->imageAlbums[] = $imageAlbum;
+            $imageAlbum->setImage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImageAlbum(ImageAlbum $imageAlbum): self
+    {
+        if ($this->imageAlbums->contains($imageAlbum)) {
+            $this->imageAlbums->removeElement($imageAlbum);
+            // set the owning side to null (unless already changed)
+            if ($imageAlbum->getImage() === $this) {
+                $imageAlbum->setImage(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'path' => $this->getPath(),
+            'representative_ext' => $this->getRepresentativeExt(),
+            'width' => $this->getWidth(),
+            'height' => $this->getHeight(),
+            'rotation' => $this->getRotation(),
+            'hit' => $this->getHit(),
+            'file' => $this->getFile(),
+            'name' => $this->getName(),
+            'comment' => $this->getComment(),
+            'date_creation' => $this->getDateCreation(),
+            'date_available' => $this->getDateAvailable(),
+        ];
     }
 }

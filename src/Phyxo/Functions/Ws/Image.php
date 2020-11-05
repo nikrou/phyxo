@@ -1478,7 +1478,7 @@ class Image
                 if (Utils::need_resize($file_path, $service->getConf()['original_resize_maxwidth'], $service->getConf()['original_resize_maxheight'])) {
                     $img = new \Phyxo\Image\Image($file_path);
 
-                    $img->resize(
+                    $img->mainResize(
                         $file_path,
                         $service->getConf()['original_resize_maxwidth'],
                         $service->getConf()['original_resize_maxheight'],

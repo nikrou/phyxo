@@ -12,7 +12,10 @@
 namespace App\Repository;
 
 use App\Entity\Album;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\Expr;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 class AlbumRepository extends ServiceEntityRepository
@@ -99,6 +102,23 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getSingleScalarResult();
     }
 
+    protected function addCriteriaSubAlbum(QueryBuilder $qb, int $id): QueryBuilder
+    {
+        $qb->orWhere($qb->expr()->like('a.uppercats', ':comma_before'));
+        $qb->setParameter('comma_before', '%,' . $id);
+
+        $qb->orWhere($qb->expr()->like('a.uppercats', ':two_comma'));
+        $qb->setParameter('two_comma', '%,' . $id . ',%');
+
+        $qb->orWhere($qb->expr()->like('a.uppercats', ':comma_after'));
+        $qb->setParameter('comma_after', $id . ',%');
+
+        $qb->orWhere('a.uppercats = :id');
+        $qb->setParameter('id', $id);
+
+        return $qb;
+    }
+
     /**
      * Returns all sub-album of given album ids
      */
@@ -108,18 +128,9 @@ class AlbumRepository extends ServiceEntityRepository
         if ($only_id) {
             $qb->select('DISTINCT(a.id) AS id');
         }
+
         foreach ($ids as $id) {
-            $qb->orWhere($qb->expr()->like('a.uppercats', ':comma_before'));
-            $qb->setParameter('comma_before', '%,' . $id);
-
-            $qb->orWhere($qb->expr()->like('a.uppercats', ':two_comma'));
-            $qb->setParameter('two_comma', '%,' . $id . ',%');
-
-            $qb->orWhere($qb->expr()->like('a.uppercats', ':comma_after'));
-            $qb->setParameter('comma_after', $id . ',%');
-
-            $qb->orWhere('a.uppercats = :id');
-            $qb->setParameter('id', $id);
+            $this->addCriteriaSubAlbum($qb, $id);
         }
 
         return $qb->getQuery()->getResult();
@@ -190,14 +201,14 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findParentAlbumsByUser(int $user_id, string $order_by)
+    public function findByParentId(int $parent_id, int $user_id)
     {
         $qb = $this->createQueryBuilder('a');
-        $qb->leftJoin('a.userCacheAlbum', 'uc');
-        $qb->where('uc.user = :id');
-        $qb->setParameter('id', $user_id);
-        $qb->andWhere($qb->expr()->isNotNull('a.id_uppercat'));
-        $qb->orderBy('a.' . $order_by);
+        $qb->leftJoin('a.userCacheAlbum', 'ia', Expr\Join::WITH, 'ia.user = :user');
+        $qb->setParameter('user', $user_id);
+
+        $qb->where('a.parent = :parent');
+        $qb->setParameter('parent', $parent_id);
 
         return $qb->getQuery()->getResult();
     }
@@ -221,6 +232,54 @@ class AlbumRepository extends ServiceEntityRepository
         $qb->setMaxResults(1);
 
         return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * Find a random photo among all photos inside an album (including sub-albums)
+     */
+    public function getRandomImageInAlbum(int $album_id, string $uppercats = '', array $forbidden_categories, bool $recursive = true)
+    {
+        // avoid rand() in sql query
+        $qb = $this->createQueryBuilder('a');
+        $qb->select('count(1)');
+        $qb->leftJoin('a.imageAlbums', 'ia');
+        $qb->leftJoin('ia.image', 'i');
+        $qb->where('a.id = :album_id');
+        $qb->setParameter('album_id', $album_id);
+
+        if ($recursive) {
+            $qb->orWhere($qb->expr()->like('a.uppercats', ':uppercats'));
+            $qb->setParameter('uppercats', $uppercats . ',%');
+        }
+
+        if (count($forbidden_categories) > 0) {
+            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
+        }
+        $nb_images = $qb->getQuery()->getSingleScalarResult();
+
+        if ($nb_images > 0) {
+            $qb = $this->createQueryBuilder('a');
+            $qb->select('count(1)');
+            $qb->leftJoin('a.imageAlbums', 'ia');
+            $qb->leftJoin('ia.image', 'i');
+            $qb->where('a.id = :album_id');
+            $qb->setParameter('album_id', $album_id);
+
+            if ($recursive) {
+                $qb->orWhere($qb->expr()->like('a.uppercats', ':uppercats'));
+                $qb->setParameter('uppercats', $uppercats . ',%');
+            }
+
+            if (count($forbidden_categories) > 0) {
+                $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
+            }
+            $qb->setFirstResult(random_int(0, $nb_images - 1));
+            $qb->setMaxResults(1);
+
+            return $qb->getQuery()->getOneOrNullResult();
+        }
+
+        return null;
     }
 
     public function deleteAlbums(array $ids)
@@ -277,6 +336,114 @@ class AlbumRepository extends ServiceEntityRepository
         $qb->setParameter('group_id', $group_id);
         $qb->andWhere('a.status = :status');
         $qb->setParameter('status', Album::STATUS_PRIVATE);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findParentAlbums(int $user_id)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->leftJoin('a.userCacheAlbum', 'uca', Expr\Join::WITH, 'uca.user = :user');
+        $qb->setParameter('user', $user_id);
+        $qb->where($qb->expr()->isNull('a.parent'));
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findRecentAlbums(?DateTimeInterface $recent_date, ?DateTimeInterface $last_photo_date = null)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->leftJoin('a.userCacheAlbum', 'ia');
+        $qb->where('ia.date_last >= :recent_date');
+        $qb->setParameter('recent_date', $recent_date);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findNoParentsAuthorizedAlbums(int $user_id, array $forbidden_categories = [], bool $public_and_visible = false)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->leftJoin('a.userCacheAlbum', 'uca', Expr\Join::WITH, 'uca.user = :user');
+        $qb->setParameter('user', $user_id);
+
+        if ($public_and_visible) {
+            $qb->where('a.status = :status');
+            $qb->setParameter('status', Album::STATUS_PUBLIC);
+            $qb->andWhere('a.visible = :visible');
+            $qb->setParameter('visible', true);
+        }
+
+        if (count($forbidden_categories) > 0) {
+            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
+        }
+
+        $qb->andWhere($qb->expr()->isNull('a.parent'));
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findAuthorizedAlbumsAndParents(int $user_id, int $album_id, array $forbidden_categories = [], bool $public_and_visible = false)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->leftJoin('a.userCacheAlbum', 'uca', Expr\Join::WITH, 'uca.user = :user');
+        $qb->setParameter('user', $user_id);
+
+        if ($public_and_visible) {
+            $qb->where('a.status = :status');
+            $qb->setParameter('status', Album::STATUS_PUBLIC);
+            $qb->andWhere('a.visible = :visible');
+            $qb->setParameter('visible', true);
+        }
+
+        if (count($forbidden_categories) > 0) {
+            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
+        }
+
+        $qb->andWhere('a.parent = :album_id');
+        $qb->orWhere('a.id = :album_id');
+        $qb->setParameter('album_id', $album_id);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findAuthorizedAlbumsInSubAlbums(int $user_id, int $album_id, array $forbidden_categories = [], bool $public_and_visible = false)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->leftJoin('a.userCacheAlbum', 'uca', Expr\Join::WITH, 'uca.user = :user');
+        $qb->setParameter('user', $user_id);
+
+        if ($public_and_visible) {
+            $qb->where('a.status = :status');
+            $qb->setParameter('status', Album::STATUS_PUBLIC);
+            $qb->andWhere('a.visible = :visible');
+            $qb->setParameter('visible', true);
+        }
+
+        if (count($forbidden_categories) > 0) {
+            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
+        }
+
+        $this->addCriteriaSubAlbum($qb, $album_id);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findAuthorizedAlbums(int $user_id, array $forbidden_categories = [], bool $public_and_visible = false)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->leftJoin('a.userCacheAlbum', 'uca', Expr\Join::WITH, 'uca.user = :user');
+        $qb->setParameter('user', $user_id);
+
+        if ($public_and_visible) {
+            $qb->where('a.status = :status');
+            $qb->setParameter('status', Album::STATUS_PUBLIC);
+            $qb->andWhere('a.visible = :visible');
+            $qb->setParameter('visible', true);
+        }
+
+        if (count($forbidden_categories) > 0) {
+            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
+        }
 
         return $qb->getQuery()->getResult();
     }

@@ -11,6 +11,8 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Entity\Album;
+use App\Entity\ImageAlbum;
 use App\Entity\User;
 use App\Entity\UserCacheAlbum;
 use App\Entity\UserInfos;
@@ -20,7 +22,6 @@ use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
 use Phyxo\Ws\Server;
 use App\Repository\BaseRepository;
-use Phyxo\Image\SrcImage;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 
@@ -136,178 +137,100 @@ class Category
      */
     public static function getList($params, Server $service)
     {
-        $where = ['1=1'];
-        $join_user = $service->getUserMapper()->getUser()->getId();
-
-        if (!$params['recursive']) {
-            if ($params['cat_id'] > 0) {
-                $where[] = '(id_uppercat = ' . (int)($params['cat_id']) . ' OR id=' . (int)($params['cat_id']) . ')';
-            } else {
-                $where[] = 'id_uppercat IS NULL';
-            }
-        } elseif ($params['cat_id'] > 0) {
-            $where[] = 'uppercats ' . $service->getConnection()::REGEX_OPERATOR . ' \'(^|,)' . (int)($params['cat_id']) . '(,|$)\'';
-        }
+        $public_and_visible = false;
+        $forbidden_categories = [];
 
         if ($params['public']) {
-            $where[] = 'status = \'public\'';
-            $where[] = 'visible = \'' . $service->getConnection()->boolean_to_db(true) . '\'';
-
-            $join_user = $service->getUserMapper()->getDefaultUser()->getId();
+            $public_and_visible = true;
         } elseif ($service->getUserMapper()->isAdmin()) {
-            /* in this very specific case, we don't want to hide empty
-             * categories. Method calculatePermissions will only return
-             * categories that are either locked or private and not permitted
-             *
-             * calculatePermissions does not consider empty categories as forbidden
+            /**  in this very specific case, we don't want to hide empty
+             * albums. Method calculatePermissions will only return
+             * albums that are either locked or private and not permitted
              */
-            $forbidden_categories = $service->getUserProvider()->calculatePermissions($service->getUserMapper()->getUser()->getId(), $service->getUserMapper()->isAdmin());
-            if (!empty($forbidden_categories)) {
-                $where[] = 'id NOT IN (' . $forbidden_categories . ')';
-            }
+            $forbidden_categories = $service->getUserMapper()->getUser()->getForbiddenCategories();
         }
 
-        $result = (new CategoryRepository($service->getConnection()))->findWithUserAndCondition($join_user, $where);
-
-        // management of the album thumbnail -- starts here
-        $image_ids = [];
-        $categories = [];
-        $user_representative_updates_for = [];
-        // management of the album thumbnail -- stops here
-
-        $cats = [];
-        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-            $row['url'] = $service->getRouter()->generate('album', ['category_id' => $row['id']]);
-            foreach (['id', 'nb_images', 'total_nb_images', 'nb_categories'] as $key) {
-                $row[$key] = (int)$row[$key];
-            }
-
-            if ($params['fullname']) {
-                $row['name'] = strip_tags($service->getCategoryMapper()->getCatDisplayNameCache($row['uppercats']));
+        $albumsList = null;
+        if (!$params['recursive']) {
+            if ($params['cat_id'] > 0) {
+                $albumsList = $service->getAlbumMapper()->getRepository()->findAuthorizedAlbumsAndParents(
+                    $service->getUserMapper()->getUser()->getId(), $params['cat_id'], $forbidden_categories, $public_and_visible
+                );
             } else {
-                $row['name'] = strip_tags($row['name']);
+                $albumsList = $service->getAlbumMapper()->getRepository()->findNoParentsAuthorizedAlbums(
+                    $service->getUserMapper()->getUser()->getId(), $forbidden_categories, $public_and_visible
+                );
             }
-
-            $row['comment'] = strip_tags($row['comment']);
-
-            /* management of the album thumbnail -- starts here
-             *
-             * on branch 2.3, the algorithm is duplicated from
-             * include/category_cats, but we should use a common code for Piwigo 2.4
-             *
-             * warning : if the API method is called with $params['public'], the
-             * album thumbnail may be not accurate. The thumbnail can be viewed by
-             * the connected user, but maybe not by the guest. Changing the
-             * filtering method would be too complicated for now. We will simply
-             * avoid to persist the user_representative_picture_id in the database
-             * if $params['public']
-             */
-            if (!empty($row['user_representative_picture_id'])) {
-                $image_id = $row['user_representative_picture_id'];
-            } elseif (!empty($row['representative_picture_id'])) { // if a representative picture is set, it has priority
-                $image_id = $row['representative_picture_id'];
-            } elseif ($service->getConf()['allow_random_representative']) {
-                // searching a random representant among elements in sub-categories
-                $image_id = (new CategoryRepository($service->getConnection()))->getRandomImageInCategory($service->getUserMapper()->getUser(), [], $row);
-            } else { // searching a random representant among representant of sub-categories
-                if ($row['count_categories'] > 0 and $row['count_images'] > 0) {
-                    $result = (new CategoryRepository($service->getConnection()))->findRandomRepresentantAmongSubCategories($service->getUserMapper()->getUser(), [], $row['uppercats']);
-                    if ($service->getConnection()->db_num_rows($result) > 0) {
-                        list($image_id) = $service->getConnection()->db_fetch_row($result);
-                    }
-                }
-            }
-
-            if (isset($image_id)) {
-                if ($service->getConf()['representative_cache_on_subcats'] and $row['user_representative_picture_id'] != $image_id) {
-                    $user_representative_updates_for[$row['id']] = $image_id;
-                }
-
-                $row['representative_picture_id'] = $image_id;
-                $image_ids[] = $image_id;
-                $categories[] = $row;
-            }
-            unset($image_id);
-            // management of the album thumbnail -- stops here
-
-            $cats[] = $row;
+        } elseif ($params['cat_id'] > 0) {
+            $albumsList = $service->getAlbumMapper()->getRepository()->findAuthorizedAlbumsInSubAlbums(
+                $service->getUserMapper()->getUser()->getId(), $params['cat_id'], $forbidden_categories, $public_and_visible
+            );
+        } else {
+            $albumsList = $service->getAlbumMapper()->getRepository()->findUnauthorizedAlbums(
+                $service->getUserMapper()->getUser()->getId(), $forbidden_categories, $public_and_visible
+            );
         }
-        usort($cats, '\Phyxo\Functions\Utils::global_rank_compare');
+
+        $albums = [];
+        $image_ids = [];
+        $user_representative_updates_for = [];
+
+        list($is_child_date_last, $albums, $image_ids) = $service->getAlbumMapper()->getAlbumThumbnails($service->getUserMapper()->getUser(), $albumsList);
 
         // management of the album thumbnail -- starts here
-        if (count($categories) > 0) {
-            $thumbnail_src_of = [];
-            $new_image_ids = [];
-
-            $result = (new ImageRepository($service->getConnection()))->findByIds($image_ids);
-            while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-                if ($row['level'] <= $service->getUserMapper()->getUser()->getLevel()) {
-                    $src_image = new SrcImage($row, $service->getConf()['picture_ext']);
-                    $thumbnail_src_of[$row['id']] = (new DerivativeImage($src_image, $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB), $service->getImageStandardParams()))->getUrl();
-                } else {
-                    /* problem: we must not display the thumbnail of a photo which has a
-                     * higher privacy level than user privacy level
-                     *
-                     * what is the represented category?
-                     * find a random photo matching user permissions
-                     * register it at user_representative_picture_id
-                     * set it as the representative_picture_id for the category
-                     */
-                    foreach ($categories as &$category) {
-                        if ($row['id'] == $category['representative_picture_id']) {
-                            // searching a random representant among elements in sub-categories
-                            $image_id = (new CategoryRepository($service->getConnection()))->getRandomImageInCategory($service->getUserMapper()->getUser(), [], $category);
-
-                            if (isset($image_id) and !in_array($image_id, $image_ids)) {
-                                $new_image_ids[] = $image_id;
-                            }
-                            if ($service->getConf()['representative_cache_on_level']) {
-                                $user_representative_updates_for[$category['id']] = $image_id;
-                            }
-
-                            $category['representative_picture_id'] = $image_id;
-                        }
-                    }
-                    unset($category);
-                }
-            }
-
-            if (count($new_image_ids) > 0) {
-                $result = (new ImageRepository($service->getConnection()))->findByIds($new_image_ids);
-                while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-                    $src_image = new SrcImage($row, $service->getConf()['picture_ext']);
-                    $thumbnail_src_of[$row['id']] = (new DerivativeImage($src_image, $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB), $service->getImageStandardParams()))->getUrl();
-                }
-            }
+        if (count($albums) > 0) {
+            $infos_of_images = $service->getAlbumMapper()->getInfosOfImages($service->getUserMapper()->getUser(), $albums, $image_ids, $service->getImageMapper());
         }
+
 
         /* compared to code in include/category_cats, we only persist the new
          * user_representative if we have used $user['id'] and not the guest id,
          * or else the real guest may see thumbnail that he should not
          */
-        if (!$params['public'] and count($user_representative_updates_for)) {
-            foreach ($user_representative_updates_for as $cat_id => $image_id) {
-                $service->getManagerRegistry()->getRepository(UserCacheAlbum::class)->updateUserRepresentativePicture($service->getUserMapper()->getUser()->getId(), $cat_id, $image_id);
+        if (!$params['public'] && count($user_representative_updates_for)) {
+            foreach ($user_representative_updates_for as $album_id => $image_id) {
+                $service->getManagerRegistry()->getRepository(UserCacheAlbum::class)->updateUserRepresentativePicture($service->getUserMapper()->getUser()->getId(), $album_id, $image_id);
             }
         }
 
-        foreach ($cats as &$cat) {
-            foreach ($categories as $category) {
-                if ($category['id'] == $cat['id'] and isset($category['representative_picture_id'])) {
-                    $cat['tn_url'] = $thumbnail_src_of[$category['representative_picture_id']];
+        $result = [];
+        if (count($albums) > 0) {
+            foreach ($albums as $album) {
+                $thumbnail_url = '';
+                if (isset($infos_of_images[$album->getRepresentativePictureId()])) {
+                    $image_infos = $infos_of_images[$album->getRepresentativePictureId()];
+                    $derivative_image = new DerivativeImage(
+                        $image_infos['src_image'],
+                        $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB),
+                        $service->getImageStandardParams()
+                    );
+                    $thumbnail_url = $derivative_image->getUrl();
                 }
+
+                $result[] = [
+                    'id' => $album->getId(),
+                    'name' => $album->getName(),
+                    'comment' => $album->getComment(),
+                    'uppercats' => $album->getUppercats(),
+                    'id_uppercat' => $album->getParent() !== null  ? $album->getParent()->getId() : null,
+                    'global_rank' => $album->getGlobalRank(),
+                    'nb_images' => $album->getUserCacheAlbum()->getNbImages(),
+                    'nb_total_images' => $album->getUserCacheAlbum()->getCountImages(),
+                    'representatitve_picture_id' => '',
+                    'date_last' => $album->getUserCacheAlbum()->getDateLast()->format('c'),
+                    'max_date_last' => $album->getUserCacheAlbum()->getMaxDateLast()->format('c'),
+                    'nb_categories' => $album->getUserCacheAlbum()->getNbAlbums(),
+                    'url' => $service->getRouter()->generate('album', ['category_id' => $album->getId()]),
+                    'tn_url' => $thumbnail_url,
+                ];
             }
-            // we don't want them in the output
-            unset($cat['user_representative_picture_id'], $cat['count_images'], $cat['count_categories']);
         }
-        unset($cat);
-        // management of the album thumbnail -- stops here
 
         if ($params['tree_output']) {
-            return self::categoriesFlatlistToTree($cats);
+            return self::categoriesFlatlistToTree($result);
         }
 
-        return ['categories' => $cats];
+        return ['categories' => $result];
     }
 
     /**
@@ -320,23 +243,34 @@ class Category
      */
     public static function getAdminList($params, Server $service)
     {
-        $nb_images_of = $service->getConnection()->result2array((new ImageCategoryRepository($service->getConnection()))->countByCategory(), 'category_id', 'counter');
-        $result = (new CategoryRepository($service->getConnection()))->findAll();
-        $cats = [];
-        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-            $id = $row['id'];
-            $row['nb_images'] = isset($nb_images_of[$id]) ? $nb_images_of[$id] : 0;
+        $nb_images_of = $service->getManagerRegistry()->getRepository(ImageAlbum::class)->countImagesByAlbum();
 
-            $row['name'] = strip_tags($row['name']);
-            $row['fullname'] = strip_tags($service->getCategoryMapper()->getCatDisplayNameCache($row['uppercats']));
-            $row['comment'] = strip_tags($row['comment']);
-
-            $cats[] = $row;
+        $albums = [];
+        foreach ($service->getManagerRegistry()->getRepository(Album::class)->findAll() as $album) {
+            $albums[] = [
+                'id' => $album->getId(),
+                'name' => $album->getName(),
+                'id_uppercat' => $album->getParent() ? $album->getParent()->getId() : null,
+                'comment' => $album->getComment(),
+                'dir' => $album->getDir(),
+                'rank' => $album->getRank(),
+                'status' => $album->getStatus(),
+                'site_id' => $album->getSite() ? $album->getSite()->getId() : null,
+                'visible' => $album->isVisible(),
+                'representative_picture_id' => $album->getRepresentativePictureId(),
+                'uppercats' => $album->getUppercats(),
+                'commentable' => $album->isCommentable(),
+                'global_rank' => $album->getGlobalRank(),
+                'image_order' => $album->getImageOrder(),
+                'lastmodified' => $album->getLastModified(),
+                'nb_images' => $nb_images_of[$album->getId()] ?? '',
+                'fullname' => strip_tags($service->getAlbumMapper()->getAlbumsDisplayNameCache($album->getUppercats())),
+            ];
         }
 
-        usort($cats, '\Phyxo\Functions\Utils::global_rank_compare');
+        // usort($albums, [$service->getAlbumMapper(), 'globalRankCompare']); // Cannot use because globalRankCompare expect Album as params
 
-        return ['categories' => $cats];
+        return ['categories' => $albums];
     }
 
     /**

@@ -95,15 +95,14 @@ class AlbumController extends AdminCommonController
                 if ($request->request->get('visible')) {
                     if ($request->request->get('visible') === 'true_sub') {
                         $albumMapper->setAlbumsVisibility([$album_id], $visible = true, $unlock_child = true);
-                    } elseif ($album->isVisible() != ($request->request->get('visible') === 'true')) {
-                        $albumMapper->setAlbumsVisibility([$album_id], $request->request->get('visible') === 'true');
+                    } else {
+                        $albumMapper->setAlbumsVisibility([$album_id], $request->request->get('visible') !== 'true');
                     }
                 }
 
                 if ($need_update) {
-                    $albumMapper->getRepository()->addOrUpdate($album);
+                    $albumMapper->getRepository()->addOrUpdateAlbum($album);
                 }
-
 
                 $parent = $request->request->get('parent');
                 // only move virtual albums
@@ -128,14 +127,14 @@ class AlbumController extends AdminCommonController
         $tpl_params['CAT_ID'] = $album_id;
         $tpl_params['CAT_NAME'] = $album->getName();
         $tpl_params['CAT_COMMENT'] = $album->getComment();
-        $tpl_params['CAT_VISIBLE'] = $album->isVisible();
+        $tpl_params['CAT_LOCK'] = $album->isVisible() ? 'false': 'true';
         $tpl_params['U_JUMPTO'] = $this->generateUrl('album', ['category_id' => $album_id]);
         $tpl_params['U_ADD_PHOTOS_ALBUM'] = $this->generateUrl('admin_photos_add', ['album_id' => $album_id]);
         $tpl_params['U_CHILDREN'] = $this->generateUrl('admin_albums', ['parent_id' => $album_id]);
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         if ($conf['activate_comments']) {
-            $tpl_params['CAT_COMMENTABLE'] = $album->isCommentable();
+            $tpl_params['CAT_COMMENTABLE'] = $album->isCommentable() ? 'true': 'false';
         }
 
         if ($album_has_images) {

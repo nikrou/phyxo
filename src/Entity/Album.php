@@ -128,11 +128,17 @@ class Album
      */
     private $user_access;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ImageAlbum::class, mappedBy="album")
+     */
+    private $imageAlbums;
+
     public function __construct()
     {
         $this->children = new ArrayCollection();
         $this->group_access = new ArrayCollection();
         $this->user_access = new ArrayCollection();
+        $this->imageAlbums = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -444,6 +450,37 @@ class Album
         foreach ($this->user_access as $user) {
             $this->user_access->removeElement($user);
             $user->removeUserAccess($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ImageAlbum[]
+     */
+    public function getImageAlbums(): Collection
+    {
+        return $this->imageAlbums;
+    }
+
+    public function addImageAlbum(ImageAlbum $imageAlbum): self
+    {
+        if (!$this->imageAlbums->contains($imageAlbum)) {
+            $this->imageAlbums[] = $imageAlbum;
+            $imageAlbum->setAlbum($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImageAlbum(ImageAlbum $imageAlbum): self
+    {
+        if ($this->imageAlbums->contains($imageAlbum)) {
+            $this->imageAlbums->removeElement($imageAlbum);
+            // set the owning side to null (unless already changed)
+            if ($imageAlbum->getAlbum() === $this) {
+                $imageAlbum->setAlbum(null);
+            }
         }
 
         return $this;

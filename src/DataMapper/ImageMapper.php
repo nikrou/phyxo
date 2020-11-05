@@ -22,6 +22,7 @@ use App\Repository\CommentRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageTagRepository;
+use App\Repository\NewImageRepository;
 use App\Repository\RateRepository;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\SrcImage;
@@ -31,11 +32,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ImageMapper
 {
-    private $em, $router, $conf, $userMapper, $image_std_params, $categoryMapper;
+    private $em, $router, $conf, $userMapper, $image_std_params, $categoryMapper, $imageRepository;
     private $translator;
 
     public function __construct(EntityManager $em, RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, CategoryMapper $categoryMapper,
-                                TranslatorInterface $translator)
+                                TranslatorInterface $translator, NewImageRepository $imageRepository)
     {
         $this->em = $em;
         $this->router = $router;
@@ -44,6 +45,12 @@ class ImageMapper
         $this->image_std_params = $image_std_params;
         $this->categoryMapper = $categoryMapper;
         $this->translator = $translator;
+        $this->imageRepository = $imageRepository;
+    }
+
+    public function getRepository(): NewImageRepository
+    {
+        return $this->imageRepository;
     }
 
     public function getPicturesFromSelection(array $selection = [], $element_id, string $section = '', int $start_id = 0): array
