@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use App\DataMapper\AlbumMapper;
 use App\DataMapper\CategoryMapper;
 use App\DataMapper\RateMapper;
 use App\DataMapper\TagMapper;
@@ -31,9 +32,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MaintenanceController extends AdminCommonController
 {
-    public function index(Request $request, ?string $action, Conf $conf, EntityManager $em, ParameterBagInterface $params, CategoryMapper $categoryMapper,
+    public function index(Request $request, ?string $action, Conf $conf, EntityManager $em, ParameterBagInterface $params,
                           UserMapper $userMapper, RateMapper $rateMapper, TagMapper $tagMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator,
-                          SearchRepository $searchRepository, UserFeedRepository $userFeedRepository)
+                          SearchRepository $searchRepository, UserFeedRepository $userFeedRepository, AlbumMapper $albumMapper)
     {
         $tpl_params = [];
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -51,21 +52,18 @@ class MaintenanceController extends AdminCommonController
               }
           case 'categories':
               {
-                  Utils::imagesIntegrity($em);
-                  $categoryMapper->updateUppercats();
-                  $categoryMapper->updateCategory('all');
-                  $categoryMapper->updateGlobalRank();
+                  $albumMapper->updateUppercats();
+                  $albumMapper->updateAlbums();
+                  $albumMapper->updateGlobalRank();
                   $userMapper->invalidateUserCache(true);
 
                   return  $this->redirectToRoute('admin_maintenance');
               }
           case 'images':
               {
-                  Utils::imagesIntegrity($em);
-
                   $result = $em->getRepository(ImageRepository::class)->findDistinctStorageId();
                   $cat_ids = $em->getConnection()->result2array($result, null, 'storage_category_id');
-                  $fulldirs = $categoryMapper->getFulldirs($cat_ids);
+                  $fulldirs = $albumMapper->getFulldirs($cat_ids);
 
                   foreach ($cat_ids as $cat_id) { // @TODO : use mass_updates ?
                       $em->getRepository(ImageRepository::class)->updatePathByStorageId($fulldirs[$cat_id], $cat_id);

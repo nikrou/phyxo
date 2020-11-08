@@ -278,7 +278,7 @@ class DBContext implements Context
         $image_id = $this->getContainer()->get(ImageMapper::class)->addImage($image);
         $this->storage->set('image_' . $image['name'], $image_id);
 
-        $this->getContainer()->get(CategoryMapper::class)->associateImagesToCategories([$image_id], [$album['id']]);
+        $this->getContainer()->get(AlbumMapper::class)->associateImagesToAlbums([$image_id], [$album['id']]);
     }
 
     protected function addTag(string $tag_name)

@@ -22,6 +22,12 @@ class ImageAlbumRepository extends ServiceEntityRepository
         parent::__construct($registry, ImageAlbum::class);
     }
 
+    public function addOrUpdateImageAlbum(ImageAlbum $image_album)
+    {
+        $this->_em->persist($image_album);
+        $this->_em->flush();
+    }
+
     public function countTotalImages(array $forbidden_categories = [], string $access_type, array $image_ids = []) : int
     {
         $qb = $this->createQueryBuilder('ia');
@@ -89,5 +95,122 @@ class ImageAlbumRepository extends ServiceEntityRepository
         }
 
         return $results;
+    }
+
+    public function isImageAssociatedToAlbum(int $image_id, int $album_id): bool
+    {
+        $qb = $this->createQueryBuilder('ia');
+        $qb->select('COUNT(1)');
+        $qb->where('ia.image = :image_id');
+        $qb->setParameter('image_id', $image_id);
+        $qb->andWhere('ia.album = :album_id');
+        $qb->setParameter('album_id', $album_id);
+
+        return $qb->getQuery()->getSingleScalarResult() === 1;
+    }
+
+    public function maxRankForAlbum(int $album_id) : int
+    {
+        $qb = $this->createQueryBuilder('ia');
+        $qb->select('MAX(ia.rank)');
+        $qb->where('ia.album = :album_id');
+        $qb->setParameter('album_id', $album_id);
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function findMaxRankForEachAlbums(array $ids): array
+    {
+        $qb = $this->createQueryBuilder('ia');
+        $qb->select('IDENTITY(ia.album) as album, MAX(ia.rank) as max');
+        $qb->where($qb->expr()->isNotNull('ia.rank'));
+        $qb->andWhere($qb->expr()->in('ia.album', $ids));
+        $qb->groupBy('ia.album');
+
+        $results = [];
+        foreach ($qb->getQuery()->getResult() as $row) {
+            $results[$row['album']] = $row['max'];
+        }
+
+        return $results;
+    }
+
+    public function updateRankForAlbum(int $rank, int $album_id)
+    {
+        $qb = $this->createQueryBuilder('ia');
+        $qb->update();
+        $qb->set('ia.rank', 'ia.rank + 1');
+        $qb->where('ia.album = :album_id');
+        $qb->setParameter('album_id', $album_id);
+        $qb->andWhere($qb->expr()->isNotNull('ia.rank'));
+        $qb->andWhere('ia.rank >= :rank');
+        $qb->setParameter('rank', $rank);
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function updateRankForImage(int $rank, int $image_id, int $album_id)
+    {
+        $qb = $this->createQueryBuilder('ia');
+        $qb->update();
+        $qb->set('ia.rank', ':rank');
+        $qb->setParameter('rank', $rank);
+        $qb->where('ia.album = :album_id');
+        $qb->setParameter('album_id', $album_id);
+        $qb->andWhere('ia.image = :image');
+        $qb->setParameter('image', $image_id);
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function deleteByAlbum(array $ids = [], array $image_ids = [])
+    {
+        if (count($ids) === 0 && count($image_ids) === 0) {
+            return;
+        }
+
+        $qb = $this->createQueryBuilder('ia');
+        $qb->delete();
+
+        if (count($ids) > 0) {
+            $qb->where($qb->expr()->in('ia.album', $ids));
+        }
+
+        if (count($image_ids) > 0) {
+            $qb->andWhere($qb->expr()->in('ia.image', $image_ids));
+        }
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function deleteByImages(array $ids = [])
+    {
+        $qb = $this->createQueryBuilder('ia');
+        $qb->delete();
+
+        if (count($ids) > 0) {
+            $qb->where($qb->expr()->in('ia.image', $ids));
+        }
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function getAlbumWithLastPhotoAdded()
+    {
+        $qb = $this->createQueryBuilder('ia');
+        $qb->orderBy('ia.image', 'DESC');
+        $qb->setMaxResults(1);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getRelatedAlbum(int $image_id, array $forbidden_categories = [])
+    {
+        $qb = $this->createQueryBuilder('ia');
+        $qb->where('ia.image = :image_id');
+        $qb->setParameter('image_id', $image_id);
+        $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
+
+        return $qb->getQuery()->getResult();
     }
 }

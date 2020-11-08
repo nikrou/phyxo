@@ -18,7 +18,7 @@ use App\Entity\Album;
 use App\Entity\User;
 use App\Events\GroupEvent;
 use App\Repository\GroupRepository;
-use App\Repository\ImageCategoryRepository;
+use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserInfosRepository;
@@ -53,7 +53,8 @@ class AlbumController extends AdminCommonController
     }
 
     public function properties(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                                ImageStandardParams $image_std_params, AlbumMapper $albumMapper, TranslatorInterface $translator)
+                                ImageStandardParams $image_std_params, AlbumMapper $albumMapper, TranslatorInterface $translator,
+                                ImageAlbumRepository $imageAlbumRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -120,8 +121,7 @@ class AlbumController extends AdminCommonController
             return $this->redirectToRoute('admin_album', ['album_id' => $album_id, 'parent_id' => $parent_id]);
         }
 
-        $result = $em->getRepository(ImageCategoryRepository::class)->findDistinctCategoryId($album_id);
-        $album_has_images = $em->getConnection()->db_num_rows($result) > 0 ? true : false;
+        $album_has_images = $imageAlbumRepository->count(['album' => $album_id]) > 0;
 
         $tpl_params['CATEGORIES_NAV'] = $albumMapper->getAlbumsDisplayName($album->getUppercats(), 'admin_album', ['parent_id' => $parent_id]);
         $tpl_params['CAT_ID'] = $album_id;
@@ -255,27 +255,14 @@ class AlbumController extends AdminCommonController
         $image_order_choice = 'default';
 
         if ($request->isMethod('POST')) {
-            if ($request->request->get('rank_of_image') && $request->request->get('image_order_choice') === 'manual') {
+            if ($request->request->get('rank_of_image')) {
                 $rank_of_image = $request->request->get('rank_of_image');
                 asort($rank_of_image, SORT_NUMERIC);
 
-                $current_rank = 0;
-                $datas = [];
-                print_r($rank_of_image);
-                foreach (array_keys($rank_of_image) as $id) {
-                    $datas[] = [
-                        'category_id' => $album_id,
-                        'image_id' => $id,
-                        'rank' => ++$current_rank,
-                    ];
+                foreach ($album->getImageAlbums() as $image_album) {
+                    $image_album->setRank($rank_of_image[$image_album->getImage()->getId()]);
                 }
-
-                $fields = [
-                    'primary' => ['image_id', 'category_id'],
-                    'update' => ['rank']
-                ];
-
-                $em->getRepository(ImageCategoryRepository::class)->massUpdates($fields, $datas);
+                $albumMapper->getRepository()->addOrUpdateAlbum($album);
 
                 $this->addFlash('info', $translator->trans('Images manual order was saved', [], 'admin'));
 

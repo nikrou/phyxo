@@ -12,6 +12,7 @@
 namespace Phyxo\Functions\Ws;
 
 use App\Entity\Image as EntityImage;
+use App\Entity\ImageAlbum;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use App\Repository\TagRepository;
@@ -20,7 +21,6 @@ use App\Repository\RateRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
-use App\Repository\ImageCategoryRepository;
 use App\Repository\BaseRepository;
 use App\Security\TagVoter;
 use Phyxo\Functions\Utils;
@@ -318,18 +318,20 @@ class Image
      */
     public static function setRank($params, Server $service)
     {
+        $imageAlbumRepository = $service->getManagerRegistry()->getRepository(ImageAlbum::class);
+
         // does the image really exist?
         if (!(new ImageRepository($service->getConnection()))->isImageExists($params['image_id'])) {
             return new Error(404, 'image_id not found');
         }
 
         // is the image associated to this category?
-        if (!(new ImageCategoryRepository($service->getConnection()))->isImageAssociatedToCategory($params['image_id'], $params['category_id'])) {
-            return new Error(404, 'This image is not associated to this category');
+        if (!$imageAlbumRepository->isImageAssociatedToAlbum($params['image_id'], $params['category_id'])) {
+            return new Error(404, 'This image is not associated to that album');
         }
 
         // what is the current higher rank for this category?
-        if ($max_rank = (new ImageCategoryRepository($service->getConnection()))->maxRankForCategory($params['category_id'])) {
+        if ($max_rank = $imageAlbumRepository->maxRankForAlbum($params['category_id'])) {
             if ($params['rank'] > $max_rank) {
                 $params['rank'] = $max_rank + 1;
             }
@@ -338,10 +340,10 @@ class Image
         }
 
         // update rank for all other photos in the same category
-        (new ImageCategoryRepository($service->getConnection()))->updateRankForCategory($params['rank'], $params['category_id']);
+        $imageAlbumRepository->updateRankForAlbum($params['rank'], $params['category_id']);
 
         // set the new rank for the photo
-        (new ImageCategoryRepository($service->getConnection()))->updateRankForImage($params['rank'], $params['image_id'], $params['category_id']);
+        $imageAlbumRepository->updateRankForImage($params['rank'], $params['image_id'], $params['category_id']);
 
         // return data for client
         return [
@@ -547,7 +549,7 @@ class Image
 
         // let's add links between the image and the categories
         if (isset($params['categories'])) {
-            self::addImageCategoryRelations($image_id, $params['categories'], $replace_mode = false, $service);
+            self::addImageAlbumRelations($service, $image_id, $params['categories'], $replace_mode = false);
 
             if (preg_match('/^\d+/', $params['categories'], $matches)) {
                 $category_id = $matches[0];
@@ -743,8 +745,7 @@ class Image
             $image_infos = $service->getConnection()->db_fetch_assoc($result);
             $src_image = new SrcImage($image_infos, $service->getConf()['picture_ext']);
 
-            $result = (new ImageCategoryRepository($service->getConnection()))->countByCategory($params['category'][0]);
-            list(, $nb_photos) = $service->getConnection()->db_fetch_row($result);
+            list(, $nb_photos) = $service->getManagerRegistry()->getRepository(ImageAlbum::class)->countImagesByAlbum();
             $category_name = $service->getCategoryMapper()->getCatDisplayNameFromId($params['category'][0]);
             $derivative_image = new DerivativeImage(
                 $src_image,
@@ -1028,11 +1029,11 @@ class Image
         }
 
         if (isset($params['categories'])) {
-            self::addImageCategoryRelations(
+            self::addImageAlbumRelations(
+                $service,
                 $params['image_id'],
                 $params['categories'],
-                ('replace' == $params['multiple_value_mode'] ? true : false),
-                $service
+                ('replace' == $params['multiple_value_mode'] ? true : false)
             );
         }
 
@@ -1126,107 +1127,76 @@ class Image
      * @param string $categories_string - "cat_id[,rank];cat_id[,rank]"
      * @param bool $replace_mode - removes old associations
      */
-    protected static function addImageCategoryRelations($image_id, $categories_string, $replace_mode = false, Server $service)
+    protected static function addImageAlbumRelations(Server $service, int $image_id, $categories_string, $replace_mode = false)
     {
-        /* let's add links between the image and the categories
+        /* let's add links between the image and the albums
          *
          * $params['categories'] should look like 123,12;456,auto;789 which means:
          *
-         * 1. associate with category 123 on rank 12
-         * 2. associate with category 456 on automatic rank
-         * 3. associate with category 789 on automatic rank
+         * 1. associate with album 123 on rank 12
+         * 2. associate with album 456 on automatic rank
+         * 3. associate with album 789 on automatic rank
          */
-        $cat_ids = [];
-        $rank_on_category = [];
+        $album_ids = [];
+        $rank_on_album = [];
         $search_current_ranks = false;
 
         $tokens = explode(';', $categories_string);
         foreach ($tokens as $token) {
-            @list($cat_id, $rank) = explode(',', $token);
+            list($album_id, $rank) = explode(',', $token);
 
-            if (!preg_match('/^\d+$/', $cat_id)) {
+            if (!preg_match('/^\d+$/', $album_id)) {
                 continue;
             }
 
-            $cat_ids[] = $cat_id;
+            $album_ids[] = $album_id;
 
             if (!isset($rank)) {
                 $rank = 'auto';
             }
-            $rank_on_category[$cat_id] = $rank;
+            $rank_on_album[$album_id] = $rank;
 
-            if ($rank == 'auto') {
+            if ($rank === 'auto') {
                 $search_current_ranks = true;
             }
         }
 
-        $cat_ids = array_unique($cat_ids);
+        $album_ids = array_unique($album_ids);
 
-        if (count($cat_ids) == 0) {
+        if (count($album_ids) === 0) {
             return new Error(
                 500,
-                '[\Phyxo\Functions\Ws\Images::addImageCategoryRelations] there is no category defined in "' . $categories_string . '"'
+                '[\Phyxo\Functions\Ws\Images::addImageAlbumRelations] there is no category defined in "' . $categories_string . '"'
             );
         }
 
-        $result = (new CategoryRepository($service->getConnection()))->findByIds($cat_ids);
-        $db_cat_ids = $service->getConnection()->result2array($result, null, 'id');
 
-        $unknown_cat_ids = array_diff($cat_ids, $db_cat_ids);
-        if (count($unknown_cat_ids) != 0) {
-            return new Error(
-                500,
-                '[\Phyxo\Functions\Ws\Images::addImageCategoryRelations] the following categories are unknown: ' . implode(', ', $unknown_cat_ids)
-            );
-        }
-
-        $to_update_cat_ids = [];
+        $image = $service->getImageMapper()->getRepository()->find($image_id);
 
         // in case of replace mode, we first check the existing associations
-        $result = (new ImageCategoryRepository($service->getConnection()))->findByImageId($image_id);
-        $existing_cat_ids = $service->getConnection()->result2array($result, null, 'category_id');
-
         if ($replace_mode) {
-            $to_remove_cat_ids = array_diff($existing_cat_ids, $cat_ids);
-            if (count($to_remove_cat_ids) > 0) {
-                (new ImageCategoryRepository($service->getConnection()))->deleteByCategory($to_remove_cat_ids, [$image_id]);
-                $service->getCategoryMapper()->updateCategory($to_remove_cat_ids);
+            $image->getImageAlbums()->clear();
+        }
+
+        $album_ids = [];
+        foreach ($service->getAlbumMapper()->getRepository()->findBy(['id' => $album_ids]) as $album) {
+            $album_ids[] = $album->getId();
+            if (!isset($current_rank_of[$album->getId()])) {
+                $current_rank_of[$album->getId()] = 0;
             }
-        }
 
-        $new_cat_ids = array_diff($cat_ids, $existing_cat_ids);
-        if (count($new_cat_ids) == 0) {
-            return true;
-        }
-
-        if ($search_current_ranks) {
-            $result = (new ImageCategoryRepository($service->getConnection()))->findMaxRankForEachCategories($new_cat_ids);
-            $current_rank_of = $service->getConnection()->result2array($result, 'category_id', 'max_rank');
-
-            foreach ($new_cat_ids as $cat_id) {
-                if (!isset($current_rank_of[$cat_id])) {
-                    $current_rank_of[$cat_id] = 0;
-                }
-
-                if ('auto' == $rank_on_category[$cat_id]) {
-                    $rank_on_category[$cat_id] = $current_rank_of[$cat_id] + 1;
-                }
+            if ($rank_on_album[$album->getId()] === 'auto') {
+                $rank_on_album[$album->getId()] = $current_rank_of[$album->getId()] + 1;
             }
+
+            $image_album = new ImageAlbum();
+            $image_album->setImage($image);
+            $image_album->setAlbum($album);
+            $image_album->setRank($rank_on_album[$album->getId()]);
+            $album->addImageAlbum($image_album);
         }
 
-        $inserts = [];
-
-        foreach ($new_cat_ids as $cat_id) {
-            $inserts[] = [
-                'image_id' => $image_id,
-                'category_id' => $cat_id,
-                'rank' => $rank_on_category[$cat_id],
-            ];
-        }
-
-        (new ImageCategoryRepository($service->getConnection()))->insertImageCategories(array_keys($inserts[0]), $inserts);
-
-        $service->getCategoryMapper()->updateCategory($new_cat_ids);
+        $service->getAlbumMapper()->updateAlbums($album_ids);
     }
 
     /**
@@ -1542,10 +1512,7 @@ class Image
         }
 
         if (isset($categories) && count($categories) > 0) {
-            $service->getCategoryMapper()->associateImagesToCategories(
-                [$image_id],
-                $categories
-            );
+            $service->getAlbumMapper()->associateImagesToAlbums([$image_id], $categories);
         }
 
         // update metadata from the uploaded file (exif/iptc)

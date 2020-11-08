@@ -16,7 +16,7 @@ use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
 use App\Repository\CategoryRepository;
-use App\Repository\ImageCategoryRepository;
+use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageRepository;
 use App\Repository\RateRepository;
 use App\Repository\TagRepository;
@@ -48,8 +48,8 @@ class PhotoController extends AdminCommonController
     }
 
     public function edit(Request $request, int $image_id, int $category_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper,
-                        ImageStandardParams $image_std_params, UserMapper $userMapper, UserProvider $userProvider, TranslatorInterface $translator,
-                        UserRepository $userRepository, AlbumMapper $albumMapper)
+                        ImageStandardParams $image_std_params, UserMapper $userMapper, TranslatorInterface $translator,
+                        UserRepository $userRepository, AlbumMapper $albumMapper, ImageAlbumRepository $imageAlbumRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -189,16 +189,17 @@ class PhotoController extends AdminCommonController
         }
 
         // jump to link
-        // 1. find all linked categories that are reachable for the current user.
-        // 2. if a category is available in the URL, use it if reachable
-        // 3. if URL category not available or reachable, use the first reachable linked category
-        // 4. if no category reachable, no jumpto link
+        // 1. find all linked albums that are reachable for the current user.
+        // 2. if an album is available in the URL, use it if reachable
+        // 3. if URL album not available or reachable, use the first reachable linked album
+        // 4. if no album reachable, no jumpto link
 
-        $result = $em->getRepository(ImageCategoryRepository::class)->findByImageId($image_id);
-        $authorizeds = array_diff(
-            $em->getConnection()->result2array($result, null, 'category_id'),
-            $userProvider->calculatePermissions($this->getUser()->getId(), $this->getUser()->getStatus())
-        );
+        $image_albums = [];
+        foreach ($imageAlbumRepository->findBy(['image' => $image_id]) as $image_album) {
+            $image_albums[] = $image_album->getAlbum()->getId();
+        }
+
+        $authorizeds = array_diff($image_albums, $this->getUser()->getForbiddenCategories());
 
         $url_img = '';
         if ($category_id && in_array($category_id, $authorizeds)) {
@@ -235,27 +236,29 @@ class PhotoController extends AdminCommonController
         return $this->render('photo_properties.html.twig', $tpl_params);
     }
 
-    public function delete(int $image_id, int $category_id = null, EntityManager $em, UserMapper $userMapper, ImageMapper $imageMapper, UserProvider $userProvider)
+    public function delete(int $image_id, int $category_id = null, EntityManager $em, UserMapper $userMapper, ImageMapper $imageMapper, UserProvider $userProvider,
+                            ImageAlbumRepository $imageAlbumRepository)
     {
         $imageMapper->deleteElements([$image_id], true);
         $userMapper->invalidateUserCache();
 
         // where to redirect the user now?
-        // 1. if a category is available in the URL, use it
-        // 2. else use the first reachable linked category
+        // 1. if an album is available in the URL, use it
+        // 2. else use the first reachable linked album
         // 3. redirect to gallery root
 
         if (!is_null($category_id)) {
             return $this->redirectToRoute('admin_album', ['album_id' => $category_id]);
         }
 
-        $result = $em->getRepository(ImageCategoryRepository::class)->findByImageId($image_id);
-        $authorizeds = array_diff(
-            $em->getConnection()->result2array($result, null, 'category_id'),
-            $userProvider->calculatePermissions($this->getUser()->getId(), $this->getUser()->getStatus())
-        );
+        $image_albums = [];
+        foreach ($imageAlbumRepository->findBy(['image' => $image_id]) as $image_album) {
+            $image_albums[] = $image_album->getAlbum()->getId();
+        }
 
-        if (!empty($authorizeds)) {
+        $authorizeds = array_diff($image_albums, $this->getUser()->getForbiddenCategories());
+
+        if (count($authorizeds) > 0) {
             return $this->redirectToRoute('admin_album', ['album_id' => $authorizeds[0]]);
         }
 

@@ -11,13 +11,11 @@
 
 namespace App\Controller\Admin;
 
-use App\DataMapper\AlbumMapper;
 use App\Repository\AlbumRepository;
 use App\Repository\BaseRepository;
-use App\Repository\CategoryRepository;
 use App\Repository\CommentRepository;
 use App\Repository\GroupRepository;
-use App\Repository\ImageCategoryRepository;
+use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\RateRepository;
@@ -34,7 +32,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DashboardController extends AdminCommonController
 {
     public function index(Request $request, bool $check_upgrade = false, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
-                          UserRepository $userRepository, GroupRepository $groupRepository, HttpClientInterface $client, AlbumMapper $albumMapper, AlbumRepository $albumRepository)
+                          UserRepository $userRepository, GroupRepository $groupRepository, HttpClientInterface $client, AlbumRepository $albumRepository,
+                          ImageAlbumRepository $imageAlbumRepository)
     {
         $tpl_params = [];
 
@@ -68,7 +67,7 @@ class DashboardController extends AdminCommonController
         $nb_categories = $albumRepository->count([]);
         $nb_virtual = $albumRepository->countByType($virtual = true);
         $nb_physical = $albumRepository->countByType($virtual = false);
-        $nb_image_category = $em->getRepository(ImageCategoryRepository::class)->count();
+        $nb_image_category = $imageAlbumRepository->count([]);
         $nb_tags = $em->getRepository(TagRepository::class)->count();
         $nb_image_tag = $em->getRepository(ImageTagRepository::class)->count();
         $nb_users = $userRepository->count([]);

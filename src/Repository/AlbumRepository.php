@@ -259,7 +259,6 @@ class AlbumRepository extends ServiceEntityRepository
 
         if ($nb_images > 0) {
             $qb = $this->createQueryBuilder('a');
-            $qb->select('count(1)');
             $qb->leftJoin('a.imageAlbums', 'ia');
             $qb->leftJoin('ia.image', 'i');
             $qb->where('a.id = :album_id');
@@ -446,5 +445,44 @@ class AlbumRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function findWrongRepresentant(array $album_ids = []): array
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->select('DISTINCT(a.id)');
+        $qb->leftJoin('a.imageAlbums', 'ia');
+        $qb->leftJoin('ia.image', 'i', Expr\Join::WITH, 'a.representative_picture_id = i.id');
+        $qb->where($qb->expr()->isNotNull('a.representative_picture_id'));
+        if (count($album_ids) > 0) {
+            $qb->andWhere($qb->expr()->in('a.id', $album_ids));
+        }
+        $qb->andWhere($qb->expr()->isNotNull('i.id'));
+
+        $results = [];
+        foreach ($qb->getQuery()->getResult() as $row) {
+            $results[] = $row[1];
+        }
+
+        return $results;
+    }
+
+    public function findNeedeedRandomRepresentant(array $album_ids = []): array
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->select('DISTINCT(a.id)');
+        $qb->leftJoin('a.imageAlbums', 'ia');
+        $qb->where($qb->expr()->isNull('a.representative_picture_id'));
+        if (count($album_ids) > 0) {
+            $qb->andWhere($qb->expr()->in('a.id', $album_ids));
+        }
+        $qb->andWhere($qb->expr()->isNotNull('ia.image'));
+
+        $results = [];
+        foreach ($qb->getQuery()->getResult() as $row) {
+            $results[] = $row[1];
+        }
+
+        return $results;
     }
 }

@@ -13,16 +13,13 @@ namespace App\DataMapper;
 
 use App\Repository\BaseRepository;
 use App\Repository\CategoryRepository;
-use Phyxo\Functions\Category;
 use Phyxo\EntityManager;
 use Phyxo\Conf;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use App\Repository\ImageRepository;
-use App\Repository\ImageCategoryRepository;
 use App\Repository\UserAccessRepository;
 use App\Repository\GroupAccessRepository;
-use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\SiteRepository;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -391,36 +388,6 @@ class CategoryMapper
         usort($categories, '\Phyxo\Functions\Utils::global_rank_compare');
 
         return $this->displaySelectCategories($categories, $selecteds, $blockname, $fullname);
-    }
-
-    /**
-     * Recursively deletes one or more categories.
-     * It also deletes :
-     *    - all the elements physically linked to the category (with ImageMapper::deleteElements)
-     *    - all the links between elements and this category
-     *    - all the restrictions linked to the category
-     */
-    public function deleteCategories(array $ids = [])
-    {
-        if (count($ids) == 0) {
-            return;
-        }
-
-        // add sub-category ids to the given ids : if a category is deleted, all
-        // sub-categories must be so
-        $ids = array_merge($ids, $this->em->getRepository(CategoryRepository::class)->getSubcatIds($ids));
-
-        // destruction of the links between images and this category
-        $this->em->getRepository(ImageCategoryRepository::class)->deleteByCategory($ids);
-
-        // destruction of the access linked to the category
-        $this->em->getRepository(UserAccessRepository::class)->deleteByCatIds($ids);
-        $this->em->getRepository(GroupAccessRepository::class)->deleteByCatIds($ids);
-
-        // destruction of the category
-        $this->em->getRepository(CategoryRepository::class)->deleteByIds($ids);
-
-        $this->em->getRepository(UserCacheCategoriesRepository::class)->deleteByUserCatIds($ids);
     }
 
     /**
@@ -820,148 +787,6 @@ class CategoryMapper
     }
 
     /**
-     * Verifies that the representative picture really exists in the db and
-     * picks up a random representative if possible and based on config.
-     *
-     * @param 'all'|int|int[] $ids
-     */
-    public function updateCategory($ids = 'all')
-    {
-        if ($ids === 'all') {
-            $where_cats = '1 = 1';
-        } elseif (!is_array($ids)) {
-            $where_cats = '%s=' . $ids;
-        } else {
-            if (count($ids) === 0) {
-                return false;
-            }
-            $where_cats = '%s ' . $this->em->getConnection()->in($ids);
-        }
-
-        // find all categories where the setted representative is not possible : the picture does not exist
-        $result = $this->em->getRepository(CategoryRepository::class)->findWrongRepresentant($where_cats);
-        $wrong_representant = $this->em->getConnection()->result2array($result, null, 'id');
-
-        if (count($wrong_representant) > 0) {
-            $this->em->getRepository(CategoryRepository::class)->updateCategories(['representative_picture_id' => null], $wrong_representant);
-        }
-
-        if (!$this->conf['allow_random_representative']) {
-            // If the random representant is not allowed, we need to find
-            // categories with elements and with no representant. Those categories
-            // must be added to the list of categories to set to a random
-            // representant.
-            $result = $this->em->getRepository(CategoryRepository::class)->findRandomRepresentant($where_cats);
-            $to_rand = $this->em->getConnection()->result2array($result, null, 'id');
-            if (count($to_rand) > 0) {
-                $this->setRandomRepresentant($to_rand);
-            }
-        }
-    }
-
-    /**
-     * Associate a list of images to a list of categories.
-     * The function will not duplicate links and will preserve ranks.
-     *
-     * @param int[] $images
-     * @param int[] $categories
-     */
-    public function associateImagesToCategories($images, $categories)
-    {
-        if (count($images) === 0 || count($categories) === 0) {
-            return false;
-        }
-
-        // get existing associations
-        $result = $this->em->getRepository(ImageCategoryRepository::class)->findAll($images, $categories);
-
-        $existing = [];
-        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $existing[$row['category_id']][] = $row['image_id'];
-        }
-
-        // get max rank of each categories
-        $result = $this->em->getRepository(ImageCategoryRepository::class)->findMaxRankForEachCategories($categories);
-        $current_rank_of = $this->em->getConnection()->result2array($result, 'category_id', 'max_rank');
-
-        // associate only not already associated images
-        $inserts = [];
-        foreach ($categories as $category_id) {
-            if (!isset($current_rank_of[$category_id])) {
-                $current_rank_of[$category_id] = 0;
-            }
-            if (!isset($existing[$category_id])) {
-                $existing[$category_id] = [];
-            }
-
-            foreach ($images as $image_id) {
-                if (!in_array($image_id, $existing[$category_id])) {
-                    $rank = ++$current_rank_of[$category_id];
-
-                    $inserts[] = [
-                        'image_id' => $image_id,
-                        'category_id' => $category_id,
-                        'rank' => $rank,
-                    ];
-                }
-            }
-        }
-
-        if (count($inserts)) {
-            $this->em->getRepository(ImageCategoryRepository::class)->insertImageCategories(
-                array_keys($inserts[0]),
-                $inserts
-            );
-
-            $this->updateCategory($categories);
-        }
-    }
-
-    /**
-     * Dissociate images from all old categories except their storage category and
-     * associate to new categories.
-     * This function will preserve ranks.
-     *
-     * @param int[] $images
-     * @param int[] $categories
-     */
-    public function moveImagesToCategories(array $images, array $categories)
-    {
-        if (count($images) === 0) {
-            return false;
-        }
-
-        $result = $this->em->getRepository(ImageRepository::class)->findWithNoStorageOrStorageCategoryId($categories);
-        $cat_ids = $this->em->getConnection()->result2array($result, null, 'id');
-
-        // let's first break links with all old albums but their "storage album"
-        $this->em->getRepository(ImageCategoryRepository::class)->deleteByCategory($cat_ids, $images);
-
-        if (is_array($categories) && count($categories) > 0) {
-            $this->associateImagesToCategories($images, $categories);
-        }
-    }
-
-    /**
-     * Associate images associated to a list of source categories to a list of
-     * destination categories.
-     *
-     * @param int[] $sources
-     * @param int[] $destinations
-     */
-    public function associateCategoriesToCategories(array $sources, array $destinations)
-    {
-        if (count($sources) === 0) {
-            return false;
-        }
-
-        $result = $this->em->getRepository(ImageCategoryRepository::class)->findAll($sources);
-        $images = $this->em->getConnection()->result2array($result, null, 'image_id');
-
-        $this->associateImagesToCategories($images, $destinations);
-    }
-
-    /**
      * Change the **visible** property on a set of categories.
      *
      * @param int[] $categories
@@ -1170,31 +995,6 @@ class CategoryMapper
         }
 
         return $return;
-    }
-
-    /**
-     * Set a new random representant to the categories.
-     */
-    public function setRandomRepresentant(array $categories)
-    {
-        $datas = [];
-        foreach ($categories as $category_id) {
-            $result = $this->em->getRepository(ImageCategoryRepository::class)->findRandomRepresentant($category_id);
-            list($representative) = $this->em->getConnection()->db_fetch_row($result);
-
-            $datas[] = [
-                'id' => $category_id,
-                'representative_picture_id' => $representative,
-            ];
-        }
-
-        $this->em->getRepository(CategoryRepository::class)->massUpdatesCategories(
-            [
-                'primary' => ['id'],
-                'update' => ['representative_picture_id']
-            ],
-            $datas
-        );
     }
 
     /**

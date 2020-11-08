@@ -11,6 +11,7 @@
 
 namespace App\Controller;
 
+use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Phyxo\Conf;
@@ -23,9 +24,6 @@ use Phyxo\Functions\DateTime;
 use App\Repository\FavoriteRepository;
 use App\DataMapper\TagMapper;
 use Phyxo\Functions\URL;
-use App\Repository\ImageCategoryRepository;
-use App\DataMapper\CategoryMapper;
-use App\Repository\CategoryRepository;
 use App\Repository\RateRepository;
 use Phyxo\Functions\Utils;
 use App\DataMapper\UserMapper;
@@ -35,6 +33,7 @@ use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
 use App\Entity\Image;
 use App\Metadata;
+use App\Repository\ImageAlbumRepository;
 use App\Security\TagVoter;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -43,10 +42,10 @@ class PictureController extends CommonController
     private $em, $userMapper, $translator;
     private const VALID_COMMENT = 'valid_comment';
 
-    public function picture(Request $request, int $image_id, string $type, string $element_id, Conf $conf,
+    public function picture(Request $request, int $image_id, string $type, string $element_id, Conf $conf, AlbumMapper $albumMapper,
                             MenuBar $menuBar, EntityManager $em, ImageStandardParams $image_std_params, TagMapper $tagMapper,
-                            CategoryMapper $categoryMapper, UserMapper $userMapper, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager,
-                            ImageMapper $imageMapper, Metadata $metadata, TranslatorInterface $translator)
+                            UserMapper $userMapper, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager,
+                            ImageMapper $imageMapper, Metadata $metadata, TranslatorInterface $translator, ImageAlbumRepository $imageAlbumRepository)
     {
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $this->translator = $translator;
@@ -259,31 +258,9 @@ class PictureController extends CommonController
         $tpl_params['USER_TAGS_WS_GETLIST'] = $this->generateUrl('ws', ['method' => 'pwg.tags.getFilteredList']);
         $tpl_params['USER_TAGS_UPDATE_SCRIPT'] = $this->generateUrl('ws', ['method' => 'pwg.images.setRelatedTags']);
 
-        $result = $em->getRepository(ImageCategoryRepository::class)->getRelatedCategory($this->getUser(), $filter, $image_id);
-        $related_categories = $em->getConnection()->result2array($result);
-        usort($related_categories, '\Phyxo\Functions\Utils::global_rank_compare');
-
-        if (!empty($related_categories)) {
-            // related categories
-            if (count($related_categories) === 1 && !empty($category['id']) && $related_categories[0]['id'] === $category['id']) {
-                // no need to go to db, we have all the info
-                $tpl_params['related_categories'] = $categoryMapper->getBreadcrumb($category);
-            } else { // use only 1 sql query to get names for all related categories
-                $ids = [];
-                foreach ($related_categories as $_category) { // add all uppercats to $ids
-                    $ids = array_merge($ids, explode(',', $_category['uppercats']));
-                }
-                $ids = array_unique($ids);
-                $result = $em->getRepository(CategoryRepository::class)->findByIds($ids);
-                $cat_map = $em->getConnection()->result2array($result, 'id');
-                foreach ($related_categories as $_category) {
-                    $cats = [];
-                    foreach (explode(',', $_category['uppercats']) as $id) {
-                        $cats[] = $cat_map[$id];
-                    }
-                    $tpl_params['related_categories'] = $categoryMapper->getBreadcrumb($cats);
-                }
-            }
+        $tpl_params['related_categories'] = [];
+        foreach ($imageAlbumRepository->findBy(['image' => $image_id]) as $image_album) {
+            $tpl_params['related_categories'][] = $albumMapper->getBreadcrumb($image_album->getAlbum())[0];
         }
 
         if ($conf['rate']) {
@@ -296,7 +273,6 @@ class PictureController extends CommonController
 
         if ($conf['activate_comments']) {
             // the picture is commentable if it belongs at least to one category which is commentable
-            $show_comments = false;
             $errors = [];
 
             if ($request->isMethod('POST')) {
@@ -336,13 +312,6 @@ class PictureController extends CommonController
                 }
 
                 return $this->redirectToRoute($request->get('_route'), ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id]);
-            }
-
-            foreach ($related_categories as $_category) {
-                if ($em->getConnection()->get_boolean($_category['commentable'])) {
-                    $show_comments = true;
-                    break;
-                }
             }
 
             $tpl_params['COMMENT_COUNT'] = $em->getRepository(CommentRepository::class)->countByImage($image_id, $userMapper->isAdmin());
@@ -489,7 +458,12 @@ class PictureController extends CommonController
                 'label' => $translator->trans('Random photos'),
             ]];
         } else {
-            $tpl_params['TITLE'] = $tpl_params['related_categories'];
+            // @TODO: assign TITLE another way
+            if (count($tpl_params['related_categories']) > 1) {
+                $tpl_params['TITLE'] = [$tpl_params['related_categories'][0]];
+            } else {
+                $tpl_params['TITLE'] = $tpl_params['related_categories'];
+            }
         }
 
         $tpl_params['TITLE'][] = ['label' => $picture['name']];

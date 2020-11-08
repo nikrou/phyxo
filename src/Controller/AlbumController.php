@@ -18,13 +18,10 @@ use Phyxo\Conf;
 use Phyxo\MenuBar;
 use Phyxo\Image\ImageStandardParams;
 use App\Repository\CategoryRepository;
-use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
-use Phyxo\Image\SrcImage;
 use App\DataMapper\CategoryMapper;
 use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
-use App\Entity\Album;
 use App\Repository\ImageAlbumRepository;
 use App\Repository\UserCacheAlbumRepository;
 use Phyxo\Functions\Utils;
@@ -34,7 +31,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AlbumController extends CommonController
 {
     public function album(Request $request, Conf $conf, ImageStandardParams $image_std_params, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
-                            EntityManager $em, ImageMapper $imageMapper, CategoryMapper $categoryMapper, int $start = 0, int $category_id = 0, TranslatorInterface $translator,
+                            EntityManager $em, ImageMapper $imageMapper, int $start = 0, int $category_id = 0, TranslatorInterface $translator,
                             AlbumMapper $albumMapper)
     {
         $tpl_params = [];
@@ -491,8 +488,8 @@ class AlbumController extends CommonController
     }
 
     public function recentCats(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
-                                ImageStandardParams $image_std_params, ImageMapper $imageMapper, CategoryMapper $categoryMapper, int $start = 0, TranslatorInterface $translator,
-                                AlbumMapper $albumMapper)
+                                ImageStandardParams $image_std_params, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator,
+                                AlbumMapper $albumMapper, ImageAlbumRepository $imageAlbumRepository)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -517,14 +514,14 @@ class AlbumController extends CommonController
         if ($conf['display_fromto']) {
             if (count($albums) > 0) {
                 $dates_of_category = [];
-                foreach ($imageMapper->getRepository()->dateOfCategories(array_keys($albums)) as $image) {
+                foreach ($imageAlbumRepository->dateOfAlbums(array_keys($albums)) as $image) {
                     $dates_of_category[] = $image;
                 }
             }
         }
 
         if (count($albums) > 0) {
-            $infos_of_images = $albumMapper->getInfosOfImages($this->getUser, $albums, $image_ids, $imageMapper);
+            $infos_of_images = $albumMapper->getInfosOfImages($this->getUser(), $albums, $image_ids, $imageMapper);
         }
 
         if (count($user_representative_updates_for) > 0) {

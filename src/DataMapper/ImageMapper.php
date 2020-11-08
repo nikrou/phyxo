@@ -20,7 +20,7 @@ use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
 use App\Repository\CommentRepository;
 use App\Repository\FavoriteRepository;
-use App\Repository\ImageCategoryRepository;
+use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\NewImageRepository;
 use App\Repository\RateRepository;
@@ -33,10 +33,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ImageMapper
 {
     private $em, $router, $conf, $userMapper, $image_std_params, $categoryMapper, $imageRepository;
-    private $translator;
+    private $translator, $imageAlbumRepository;
 
     public function __construct(EntityManager $em, RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, CategoryMapper $categoryMapper,
-                                TranslatorInterface $translator, NewImageRepository $imageRepository)
+                                TranslatorInterface $translator, NewImageRepository $imageRepository, ImageAlbumRepository $imageAlbumRepository)
     {
         $this->em = $em;
         $this->router = $router;
@@ -46,6 +46,7 @@ class ImageMapper
         $this->categoryMapper = $categoryMapper;
         $this->translator = $translator;
         $this->imageRepository = $imageRepository;
+        $this->imageAlbumRepository = $imageAlbumRepository;
     }
 
     public function getRepository(): NewImageRepository
@@ -237,7 +238,7 @@ class ImageMapper
         $this->em->getRepository(CommentRepository::class)->deleteByImage($ids);
 
         // destruction of the links between images and categories
-        $this->em->getRepository(ImageCategoryRepository::class)->deleteBy('image_id', $ids);
+        $this->imageAlbumRepository->deleteByImages($ids);
 
         // destruction of the links between images and tags
         $this->em->getRepository(ImageTagRepository::class)->deleteBy('image_id', $ids);

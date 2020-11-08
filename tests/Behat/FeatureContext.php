@@ -161,10 +161,16 @@ class FeatureContext extends BaseContext
 
     /**
      * @When I should see link :link_label
+     * @Then I should see link :arg1 in :parent
      */
-    public function iShouldSeeLink(string $link_label)
+    public function iShouldSeeLink(string $link_label, string $parent = '')
     {
-        $link = $this->getSession()->getPage()->findLink($link_label);
+        if (!empty($parent)) {
+            $parentNode = $this->getSession()->getPage()->find('css', $parent);
+        } else {
+            $parentNode = $this->getSession()->getPage();
+        }
+        $link = $parentNode->findLink($link_label);
 
         if ($link === null) {
             throw new \Exception(sprintf('Link "%s" not found on the page but should be', $link_label));

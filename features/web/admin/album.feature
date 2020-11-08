@@ -20,8 +20,8 @@ Feature: Tags
 
   Scenario: Move album in sub-album
     Given I am logged in as "user1" with password "pass1"
-    And I should see link "album 1"
-    And I should see link "album 2"
+    And I should see link "album 1" in ".main-content"
+    And I should see link "album 2" in ".main-content"
 
     When I go to "admin/albums/move"
     Then the select "Virtual albums to move" should contain:
@@ -33,7 +33,7 @@ Feature: Tags
     And I select "album 1" from "New parent album"
     And I press "Submit"
     When I go to the homepage
-    And I should see link "album 1"
+    And I should see link "album 1" in ".main-content"
     And I should not see link "album 2"
     When I follow "album 1"
     And I should see link "album 2"

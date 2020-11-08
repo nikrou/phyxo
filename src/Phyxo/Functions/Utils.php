@@ -14,7 +14,6 @@ namespace Phyxo\Functions;
 use App\Entity\Group;
 use App\Entity\UserInfos;
 use Phyxo\Block\RegisteredBlock;
-use App\Repository\ImageCategoryRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\TagRepository;
@@ -636,20 +635,6 @@ class Utils
             0,
             $size
         );
-    }
-
-    /**
-     * Checks and repairs IMAGE_CATEGORY_TABLE integrity.
-     * Removes all entries from the table which correspond to a deleted image.
-     */
-    public static function imagesIntegrity(EntityManager $em)
-    {
-        $result = $em->getRepository(ImageRepository::class)->findOrphanImages();
-        $orphan_image_ids = $em->getConnection()->result2array($result, null, 'image_id');
-
-        if (count($orphan_image_ids) > 0) {
-            $em->getRepository(ImageCategoryRepository::class)->deleteByCategory([], $orphan_image_ids);
-        }
     }
 
     /**

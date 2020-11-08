@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use App\DataMapper\AlbumMapper;
 use App\DataMapper\CategoryMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\SearchMapper;
@@ -20,7 +21,7 @@ use App\Metadata;
 use App\Repository\AlbumRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\FavoriteRepository;
-use App\Repository\ImageCategoryRepository;
+use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\TagRepository;
@@ -64,9 +65,9 @@ class BatchManagerController extends AdminCommonController
         return $this->get('session')->get('bulk_manager_filter');
     }
 
-    public function global(Request $request, string $filter = null, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params,
+    public function global(Request $request, string $filter = null, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, AlbumMapper $albumMapper,
                           CategoryMapper $categoryMapper, ImageStandardParams $image_std_params, SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper,
-                          UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator, AlbumRepository $albumRepository)
+                          UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator, AlbumRepository $albumRepository, ImageAlbumRepository $imageAlbumRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -241,7 +242,7 @@ class BatchManagerController extends AdminCommonController
             $selected_category[] = $this->getFilter()['category'];
         } else {
             // we need to know the category in which the last photo was added
-            $selected_category[] = $em->getRepository(ImageCategoryRepository::class)->getCategoryWithLastPhotoAdded();
+            $selected_category[] = $imageAlbumRepository->getAlbumWithLastPhotoAdded()[0]->getAlbum()->getId();
         }
         $tpl_params['filter_category_selected'] = $selected_category;
 
@@ -353,7 +354,7 @@ class BatchManagerController extends AdminCommonController
                 $collection = $request->request->get('selection');
             }
 
-            $this->actionOnCollection($request, $collection, $em, $tagMapper, $imageMapper, $categoryMapper, $userMapper);
+            $this->actionOnCollection($request, $collection, $em, $tagMapper, $imageMapper, $categoryMapper, $userMapper, $imageAlbumRepository, $albumMapper);
         }
 
         $tpl_params['IN_CADDIE'] = isset($this->getFilter()['prefilter']) && $this->getFilter()['prefilter'] === 'caddie';
@@ -393,7 +394,7 @@ class BatchManagerController extends AdminCommonController
     }
 
     protected function actionOnCollection(Request $request, array $collection = [], EntityManager $em, TagMapper $tagMapper, ImageMapper $imageMapper, CategoryMapper $categoryMapper,
-                                        UserMapper $userMapper)
+                                        UserMapper $userMapper, ImageAlbumRepository $imageAlbumRepository, AlbumMapper $albumMapper)
     {
         // if the user tries to apply an action, it means that there is at least 1 photo in the selection
         if (count($collection) === 0 && !$request->request->get('submitFilter')) {
@@ -431,7 +432,7 @@ class BatchManagerController extends AdminCommonController
         }
 
         if ($action === 'associate') {
-            $categoryMapper->associateImagesToCategories($collection, [$request->request->get('associate')]);
+            $albumMapper->associateImagesToAlbums($collection, [$request->request->get('associate')]);
 
             $this->addFlash('info', $this->translator->trans('Information data registered in database', [], 'admin'));
 
@@ -445,7 +446,7 @@ class BatchManagerController extends AdminCommonController
                 }
             }
         } elseif ($action === 'move') {
-            $categoryMapper->moveImagesToCategories($collection, [$request->request->get('move')]);
+            $albumMapper->moveImagesToAlbums($collection, [$request->request->get('move')]);
 
             $this->addFlash('info', $this->translator->trans('Information data registered in database', [], 'admin'));
 
@@ -467,7 +468,7 @@ class BatchManagerController extends AdminCommonController
             $dissociables = $em->getConnection()->result2array($result, null, 'id');
 
             if (!empty($dissociables)) {
-                $em->getRepository(ImageCategoryRepository::class)->deleteByCategory([$request->request->get('dissociate')], $dissociables);
+                $imageAlbumRepository->deleteByAlbum([$request->request->get('dissociate')], $dissociables);
                 $this->addFlash('info', $this->translator->trans('Information data registered in database', [], 'admin'));
 
                 // let's refresh the page because the current set might be modified
@@ -616,14 +617,11 @@ class BatchManagerController extends AdminCommonController
                     $result = $em->getRepository(ImageRepository::class)->findAll();
                     $all_elements = $em->getConnection()->result2array($result, null, 'id');
 
-                    $virtual_album_ids = [];
+                    $linked_to_virtual = [];
                     foreach ($albumRepository->findVirtualAlbums() as $album) {
-                        $virtual_album_ids[] = $album->getId();
-                    }
-
-                    if (count($virtual_album_ids) > 0) {
-                        $result = $em->getRepository(ImageCategoryRepository::class)->getImageIdsLinked($virtual_album_ids);
-                        $linked_to_virtual = $em->getConnection()->result2array($result, null, 'image_id');
+                        foreach ($album->getImageAlbums() as $image_album) {
+                            $linked_to_virtual[] = $image_album->getImage()->getId();
+                        }
                     }
 
                     $filter_sets[] = array_diff($all_elements, $linked_to_virtual);
@@ -674,16 +672,22 @@ class BatchManagerController extends AdminCommonController
         }
 
         if (!empty($bulk_manager_filter['category'])) {
-            $album_ids = [];
+            $image_ids = [];
+            $albums = null;
 
             if (isset($bulk_manager_filter['category_recursive'])) {
-                $album_ids = $albumRepository->getSubcatIds([$this->getFilter()['category']]);
+                $albums = $albumRepository->getSubAlbums($this->getFilter()['category']);
             } else {
-                $categories = [$bulk_manager_filter['category']];
+                $albums = $albumRepository->find($bulk_manager_filter['category']);
             }
 
-            $result = $em->getRepository(ImageCategoryRepository::class)->getImageIdsLinked($album_ids);
-            $filter_sets[] = $em->getConnection()->result2array($result, null, 'image_id');
+            foreach ($albums as $album) {
+                foreach ($album->getImageAlbums() as $image_album) {
+                    $image_ids[] = $image_album->getImage()->getId();
+                }
+            }
+
+            $filter_sets[] = $image_ids;
         }
 
         if (!empty($bulk_manager_filter['level'])) {
@@ -887,7 +891,7 @@ class BatchManagerController extends AdminCommonController
 
     public function unit(Request $request, string $filter = null, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, SearchMapper $searchMapper, TagMapper $tagMapper,
                         ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator,
-                        AlbumRepository $albumRepository)
+                        AlbumRepository $albumRepository, ImageAlbumRepository $imageAlbumRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -977,7 +981,7 @@ class BatchManagerController extends AdminCommonController
             $selected_category[] = $this->getFilter()['category'];
         } else {
             // we need to know the category in which the last photo was added
-            $selected_category[] = $em->getRepository(ImageCategoryRepository::class)->getCategoryWithLastPhotoAdded();
+            $selected_category[] = $imageAlbumRepository->getAlbumWithLastPhotoAdded()[0]->getAlbum()->getId();
         }
         $tpl_params['filter_category_selected'] = $selected_category;
 

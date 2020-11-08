@@ -3,7 +3,7 @@ APP_NAME=phyxo
 APP_VERSION=$(shell grep "core_version:" ./config/parameters.yaml| sed -e 's/.*: //')
 SOURCE=./*
 TARGET=../target
-COMPOSER=php7.2 ~/scripts/composer
+COMPOSER=composer
 
 DEV_PATH=$(DIST)/$(APP_NAME)
 ADMIN_THEME_PATH=admin/theme

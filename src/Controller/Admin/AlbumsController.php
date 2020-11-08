@@ -14,7 +14,7 @@ namespace App\Controller\Admin;
 use App\DataMapper\AlbumMapper;
 use App\Entity\Album;
 use App\Repository\AlbumRepository;
-use App\Repository\ImageCategoryRepository;
+use App\Repository\ImageAlbumRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
@@ -38,7 +38,8 @@ class AlbumsController extends AdminCommonController
     }
 
     public function list(Request $request, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                        AlbumRepository $albumRepository, CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator)
+                        AlbumRepository $albumRepository, CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator,
+                        ImageAlbumRepository $imageAlbumRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -65,8 +66,7 @@ class AlbumsController extends AdminCommonController
 
         // get the albums containing images directly
         if (count($albums) > 0) {
-            $result = $em->getRepository(ImageCategoryRepository::class)->findCategoriesWithImages();
-            $nb_photos_in = $em->getConnection()->result2array($result, 'category_id', 'nb_photos');
+            $nb_photos_in = $imageAlbumRepository->countImagesByAlbum();
 
             $all_albums = [];
             foreach ($albumRepository->findAll() as $album) {
@@ -147,7 +147,7 @@ class AlbumsController extends AdminCommonController
         return $this->render('albums_list.html.twig', $tpl_params);
     }
 
-    public function update(Request $request, int $parent_id = null, AlbumRepository $albumRepository, AlbumMapper $albumMapper, EntityManager $em, TranslatorInterface $translator)
+    public function update(Request $request, int $parent_id = null, AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator)
     {
         if ($request->isMethod('POST')) {
             if ($request->request->get('submitManualOrder')) { // save manual category ordering

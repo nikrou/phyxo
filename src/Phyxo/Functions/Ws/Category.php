@@ -18,7 +18,6 @@ use App\Entity\UserCacheAlbum;
 use App\Entity\UserInfos;
 use Phyxo\Ws\Error;
 use App\Repository\CategoryRepository;
-use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
 use Phyxo\Ws\Server;
 use App\Repository\BaseRepository;
@@ -408,46 +407,42 @@ class Category
         }
         $params['category_id'] = array_map('intval', $params['category_id']);
 
-        $category_ids = [];
-        foreach ($params['category_id'] as $category_id) {
-            if ($category_id > 0) {
-                $category_ids[] = $category_id;
+        $album_ids = [];
+        foreach ($params['category_id'] as $album_id) {
+            if ($album_id > 0) {
+                $album_ids[] = $album_id;
             }
         }
 
-        if (count($category_ids) == 0) {
+        if (count($album_ids) == 0) {
             return;
         }
 
-        $service->getAlbumMapper()->deleteAlbums($category_ids);
-
-        // now, should we delete photos that are virtually linked to the category?
-        if ($params['photo_deletion_mode'] === 'delete_orphans' || $params['photo_deletion_mode'] === 'force_delete') {
-            $result = $service->getEntityManager()->getRepository(ImageCategoryRepository::class)->getImageIdsLinked($category_ids);
-            $image_ids_linked = $service->getEntityManager()->getConnection()->result2array($result, null, 'image_id');
-
-            if (count($image_ids_linked) > 0) {
-                if ($params['photo_deletion_mode'] === 'delete_orphans') {
-                    $result = $$service->getEntityManager->getRepository(ImageCategoryRepository::class)->getImageIdsNotOrphans($image_ids_linked, $category_ids);
-
-                    $image_ids_not_orphans = $service->getEntityManager()->getConnection()->result2array($result, null, 'image_id');
-                    $image_ids_to_delete = array_diff($image_ids_linked, $image_ids_not_orphans);
+        foreach ($service->getAlbumMapper()->getRepository()->findBy(['id' => $album_ids]) as $album) {
+            // now, should we delete photos that are virtually linked to the category?
+            if ($params['photo_deletion_mode'] === 'delete_orphans' || $params['photo_deletion_mode'] === 'force_delete') {
+                $image_ids_to_delete = [];
+                foreach ($album->getImageAlbums() as $image_album) {
+                    $image_ids_to_delete[] = $image_album->getImage()->getId();
                 }
-
-                if ($params['photo_deletion_mode'] === 'force_delete') {
-                    $image_ids_to_delete = $image_ids_linked;
+                $album->getImageAlbums()->clear();
+                if (count($image_ids_to_delete) > 0) {
+                    $service->getImageMapper()->deleteElements($image_ids_to_delete, true);
                 }
+            }
 
-                $service->getImageMapper()->deleteElements($image_ids_to_delete, true);
+            // destruction of all photos physically linked to the category
+            $image_ids = [];
+            foreach ($service->getImageMapper()->getRepository()->findBy(['storage_category_id' => $album_ids]) as $image) {
+                $image_ids[] = $image->getId();
+            }
+            if (count($image_ids) > 0) {
+                $service->getImageMapper()->deleteElements($image_ids);
             }
         }
 
-        // destruction of all photos physically linked to the category
-        $result = $service->getEntityManager()->getRepository(ImageRepository::class)->findByFields('storage_category_id', $category_ids);
-        $element_ids = $service->getEntityManager()->getConnection()->result2array($result, null, 'id');
-        $service->getImageMapper()->deleteElements($element_ids);
-
-        $service->getCategoryMapper()->updateGlobalRank();
+        $service->getAlbumMapper()->deleteAlbums($album_ids);
+        $service->getAlbumMapper()->updateGlobalRank();
     }
 
     /**

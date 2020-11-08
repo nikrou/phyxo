@@ -12,13 +12,14 @@
 namespace App\DataMapper;
 
 use App\Entity\Album;
+use App\Entity\ImageAlbum;
 use App\Entity\User;
 use App\Repository\AlbumRepository;
 use App\Repository\BaseRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageAlbumRepository;
-use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
+use App\Repository\NewImageRepository;
 use App\Repository\UserCacheAlbumRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
@@ -30,10 +31,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class AlbumMapper
 {
-    private $conf, $albumRepository, $router, $cache = [], $albums_retrieved = false, $em, $translator, $userRepository, $userCacheAlbumRepository, $imageAlbumRepository;
+    private $conf, $albumRepository, $router, $cache = [], $albums_retrieved = false, $em, $translator, $userRepository, $userCacheAlbumRepository, $imageAlbumRepository, $imageRepository;
 
     public function __construct(Conf $conf, AlbumRepository $albumRepository, RouterInterface $router, TranslatorInterface $translator, EntityManager $em, UserRepository $userRepository,
-                                UserCacheAlbumRepository $userCacheAlbumRepository, ImageAlbumRepository $imageAlbumRepository)
+                                UserCacheAlbumRepository $userCacheAlbumRepository, ImageAlbumRepository $imageAlbumRepository, NewImageRepository $imageRepository)
     {
         $this->conf = $conf;
         $this->albumRepository = $albumRepository;
@@ -43,6 +44,7 @@ class AlbumMapper
         $this->userRepository = $userRepository;
         $this->userCacheAlbumRepository = $userCacheAlbumRepository;
         $this->imageAlbumRepository = $imageAlbumRepository;
+        $this->imageRepository = $imageRepository;
     }
 
     public function getRepository(): AlbumRepository
@@ -906,37 +908,22 @@ class AlbumMapper
     /**
      * Verifies that the representative picture really exists in the db and
      * picks up a random representative if possible and based on config.
-     *
-     * @param 'all'|int|int[] $ids
      */
-    public function updateAlbum($ids = 'all')
+    public function updateAlbums(array $ids = [])
     {
-        if ($ids === 'all') {
-            $where_cats = '1 = 1';
-        } elseif (!is_array($ids)) {
-            $where_cats = '%s=' . $ids;
-        } else {
-            if (count($ids) === 0) {
-                return false;
-            }
-            $where_cats = '%s ' . $this->em->getConnection()->in($ids);
-        }
+        // find all albums where the setted representative is not possible : the picture does not exist
+        $wrong_representants = $this->getRepository()->findWrongRepresentant($ids);
 
-        // find all categories where the setted representative is not possible : the picture does not exist
-        $result = $this->em->getRepository(CategoryRepository::class)->findWrongRepresentant($where_cats);
-        $wrong_representant = $this->em->getConnection()->result2array($result, null, 'id');
-
-        if (count($wrong_representant) > 0) {
-            $this->albumRepository->updateAlbums(['representative_picture_id' => null], $wrong_representant);
+        if (count($wrong_representants) > 0) {
+            $this->getRepository()->updateAlbums(['representative_picture_id' => null], $wrong_representants);
         }
 
         if (!$this->conf['allow_random_representative']) {
             // If the random representant is not allowed, we need to find
-            // categories with elements and with no representant. Those categories
-            // must be added to the list of categories to set to a random
-            // representant.
-            $result = $this->em->getRepository(CategoryRepository::class)->findRandomRepresentant($where_cats);
-            $to_rand = $this->em->getConnection()->result2array($result, null, 'id');
+            // albums with elements and with no representant. Those albums
+            // must be added to the list of albums to set to a random representant.
+            $to_rand = $this->getRepository()->findNeedeedRandomRepresentant($ids);
+
             if (count($to_rand) > 0) {
                 $this->setRandomRepresentant($to_rand);
             }
@@ -964,10 +951,10 @@ class AlbumMapper
             $album->clearAllUserAccess();
         }
 
-        // destruction of the links between images and this category
-        $this->em->getRepository(ImageCategoryRepository::class)->deleteByCategory($ids);
+        // destruction of the links between images and that album
+        $this->imageAlbumRepository->deleteByAlbum($ids);
 
-        // destruction of the album
+        // destruction of the albums
         $this->getRepository()->deleteByIds($ids);
 
         $this->userCacheAlbumRepository->deleteForAlbums($ids);
@@ -977,76 +964,49 @@ class AlbumMapper
      * Associate a list of images to a list of albums.
      * The function will not duplicate links and will preserve ranks.
      */
-    public function associateImagesToAlbums(array $images, array $categories)
+    public function associateImagesToAlbums(array $image_ids, array $album_ids)
     {
-        if (count($images) === 0 || count($categories) === 0) {
-            return false;
-        }
+        // get max rank of each albums
+        $current_rank_of = $this->imageAlbumRepository->findMaxRankForEachAlbums($album_ids);
 
-        // get existing associations
-        $result = $this->em->getRepository(ImageCategoryRepository::class)->findAll($images, $categories);
+        $albums = $this->getRepository()->findBy(['id' => $album_ids]);
+        $images = $this->imageRepository->findBy(['id' => $image_ids]);
 
-        $existing = [];
-        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $existing[$row['category_id']][] = $row['image_id'];
-        }
+        foreach ($albums as $album) {
+            $imageAlbum = new ImageAlbum();
+            $imageAlbum->setAlbum($album);
 
-        // get max rank of each categories
-        $result = $this->em->getRepository(ImageCategoryRepository::class)->findMaxRankForEachCategories($categories);
-        $current_rank_of = $this->em->getConnection()->result2array($result, 'category_id', 'max_rank');
-
-        // associate only not already associated images
-        $inserts = [];
-        foreach ($categories as $category_id) {
-            if (!isset($current_rank_of[$category_id])) {
-                $current_rank_of[$category_id] = 0;
-            }
-            if (!isset($existing[$category_id])) {
-                $existing[$category_id] = [];
-            }
-
-            foreach ($images as $image_id) {
-                if (!in_array($image_id, $existing[$category_id])) {
-                    $rank = ++$current_rank_of[$category_id];
-
-                    $inserts[] = [
-                        'image_id' => $image_id,
-                        'category_id' => $category_id,
-                        'rank' => $rank,
-                    ];
-                }
+            foreach ($images as $i => $image) {
+                $imageAlbum->setImage($image);
+                $imageAlbum->setRank($current_rank_of[$album->getId()] ?? $i);
+                $this->imageAlbumRepository->addOrUpdateImageAlbum($imageAlbum);
             }
         }
 
-        if (count($inserts)) {
-            $this->em->getRepository(ImageCategoryRepository::class)->insertImageCategories(
-                array_keys($inserts[0]),
-                $inserts
-            );
-
-            $this->updateAlbum($categories);
-        }
+        $this->updateAlbums($album_ids);
     }
 
     /**
      * Dissociate images from all old albums except their storage album and
      * associate to new albums.
-     * This function will preserve ranks.
+     * This methods will preserve ranks.
      */
-    public function moveImagesToAlbums(array $images, array $categories)
+    public function moveImagesToAlbums(array $image_ids = [], array $album_ids = [])
     {
-        if (count($images) === 0) {
+        if (count($image_ids) === 0) {
             return false;
         }
 
-        $result = $this->em->getRepository(ImageRepository::class)->findWithNoStorageOrStorageCategoryId($categories);
-        $cat_ids = $this->em->getConnection()->result2array($result, null, 'id');
+        $new_album_ids = [];
+        foreach ($this->imageRepository->findWithNoStorageOrStorageForAlbums($album_ids) as $image) {
+            $new_album_ids[] = $image->getStorageCategoryId();
+        }
 
         // let's first break links with all old albums but their "storage album"
-        $this->em->getRepository(ImageCategoryRepository::class)->deleteByCategory($cat_ids, $images);
+        $this->imageAlbumRepository->deleteByAlbum($album_ids, $image_ids);
 
-        if (is_array($categories) && count($categories) > 0) {
-            $this->associateImagesToAlbums($images, $categories);
+        if (count($new_album_ids) > 0) {
+            $this->associateImagesToAlbums($image_ids, $new_album_ids);
         }
     }
 
@@ -1204,9 +1164,13 @@ class AlbumMapper
             } elseif ($album->getRepresentativePictureId()) { // if a representative picture is set, it has priority
                 $image_id = $album->getRepresentativePictureId();
             } elseif ($this->conf['allow_random_representative']) { // searching a random representant among elements in sub-categories
-                $image_id = $this->getRepository()->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getForbiddenCategories());
+                if ($random_image = $this->getRepository()->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getForbiddenCategories())) {
+                    $image_id = $random_image->getId();
+                }
             } elseif ($album->getUserCacheAlbum()->getCountAlbums() > 0 && $album->getUserCacheAlbum()->getCountImages() > 0) { // searching a random representant among representant of sub-categories
-                $image_id = $this->getRepository()->findRandomRepresentantAmongSubAlbums($album->getUppercats());
+                if ($random_image = $this->getRepository()->findRandomRepresentantAmongSubAlbums($album->getUppercats())) {
+                    $image_id = $random_image->getId();
+                }
             }
 
             if (isset($image_id)) {
@@ -1246,7 +1210,9 @@ class AlbumMapper
                 foreach ($albums as $album) {
                     if ($image->getId() === $album->getRepresentativePictureId()) {
                         // searching a random representant among elements in sub-categories
-                        $image_id = $this->getRepository()->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getForbiddenCategories());
+                        if ($random_image = $this->getRepository()->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getForbiddenCategories())) {
+                            $image_id = $random_image->getId();
+                        }
 
                         if (isset($image_id) && !in_array($image_id, $image_ids)) {
                             $new_image_ids[] = $image_id;

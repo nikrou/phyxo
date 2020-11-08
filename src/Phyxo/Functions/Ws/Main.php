@@ -11,13 +11,12 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Entity\ImageAlbum;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use App\Repository\CommentRepository;
 use App\Repository\TagRepository;
-use App\Repository\CategoryRepository;
 use App\Repository\ImageTagRepository;
-use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
 
 class Main
@@ -125,10 +124,10 @@ class Main
     {
         $infos['version'] = $service->getCoreVersion();
         $infos['nb_elements'] = (new ImageRepository($service->getConnection()))->count();
-        $infos['nb_categories'] = (new CategoryRepository($service->getConnection()))->count();
-        $infos['nb_virtual'] = (new CategoryRepository($service->getConnection()))->count('dir IS NULL');
-        $infos['nb_physical'] = (new CategoryRepository($service->getConnection()))->count('dir IS NOT NULL');
-        $infos['nb_image_category'] = (new ImageCategoryRepository($service->getConnection()))->count();
+        $infos['nb_categories'] = $service->getAlbumMapper()->getRepository()->count([]);
+        $infos['nb_virtual'] = $service->getAlbumMapper()->getRepository()->countByType($virtual = true);
+        $infos['nb_physical'] = $service->getAlbumMapper()->getRepository()->countByType($virtual = false);
+        $infos['nb_image_category'] = $service->getManagerRegistry()->getRepository(ImageAlbum::class)->count([]);
         $infos['nb_tags'] = (new TagRepository($service->getConnection()))->count();
         $infos['nb_image_tag'] = (new ImageTagRepository($service->getConnection()))->count();
         $infos['nb_users'] = $service->getManagerRegistry->getRepository(User::class)->count([]);

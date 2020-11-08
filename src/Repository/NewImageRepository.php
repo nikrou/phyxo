@@ -12,8 +12,6 @@
 namespace App\Repository;
 
 use App\Entity\Image;
-use DateTime;
-use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -30,5 +28,17 @@ class NewImageRepository extends ServiceEntityRepository
         $this->_em->flush();
 
         return $image->getId();
+    }
+
+    public function findWithNoStorageOrStorageForAlbums(array $album_ids = [])
+    {
+        $qb = $this->createQueryBuilder('i');
+        $qb->where($qb->expr()->isNull('i.storage_category'));
+
+        if (count($album_ids) > 0) {
+            $qb->orWhere($qb->expr()->notIn('i.storage_category', $album_ids));
+        }
+
+        return $qb->getQuery()->getResult();
     }
 }
