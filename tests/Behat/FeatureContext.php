@@ -72,7 +72,7 @@ class FeatureContext extends BaseContext
      */
     public function iShouldNotBeAllowedToGoToAlbum(string $album_name)
     {
-        $this->visit($this->getContainer()->get('router')->generate('album', ['category_id' => $this->storage->get('album_' . $album_name)]));
+        $this->visit($this->getContainer()->get('router')->generate('album', ['category_id' => $this->storage->get('album_' . $album_name)->getId()]));
         $this->getMink()->assertSession()->statusCodeEquals(403);
         $this->getMink()->assertSession()->pageTextContains('The server returned a "403 Forbidden".');
     }
@@ -87,7 +87,7 @@ class FeatureContext extends BaseContext
      */
     public function iShouldSeePhoto(string $photo_name)
     {
-        $image_id = $this->storage->get('image_' . $photo_name);
+        $image_id = $this->storage->get('image_' . $photo_name)->getId();
         if (!$this->isPhotoInPage($image_id)) {
             throw new \Exception(sprintf('Photo "%s" not found in the page', $photo_name));
         }
@@ -98,7 +98,7 @@ class FeatureContext extends BaseContext
      */
     public function iShouldNotSeePhoto(string $photo_name)
     {
-        $image_id = $this->storage->get('image_' . $photo_name);
+        $image_id = $this->storage->get('image_' . $photo_name)->getId();
         if ($this->isPhotoInPage($image_id)) {
             throw new \Exception(sprintf('Photo "%s" was found in the page but should not', $photo_name));
         }
@@ -194,7 +194,7 @@ class FeatureContext extends BaseContext
      */
     public function iShouldSeeForDescription(string $description, string $album_name)
     {
-        $album = $this->getPage()->find('css', sprintf('*[data-id="%d"]', $this->storage->get('album_' . $album_name)));
+        $album = $this->getPage()->find('css', sprintf('*[data-id="%d"]', $this->storage->get('album_' . $album_name)->getId()));
         $this->assert
             ->string($description)
             ->isEqualTo($this->findByDataTestid('album-description', $album)->getText());
@@ -205,7 +205,7 @@ class FeatureContext extends BaseContext
      */
     public function iShouldSeeForNumberOfImages(string $nb_images, string $album_name)
     {
-        $album = $this->getPage()->find('css', sprintf('*[data-id="%d"]', $this->storage->get('album_' . $album_name)));
+        $album = $this->getPage()->find('css', sprintf('*[data-id="%d"]', $this->storage->get('album_' . $album_name)->getId()));
         $element = $this->findByDataTestid('album-nb-images', $album);
 
         // @FIX:  Element visibility check is not supported by Behat\Symfony2Extension\Driver\KernelDriver

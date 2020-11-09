@@ -614,7 +614,7 @@ class AlbumMapper
      *    - string comment
      *    - boolean inherit
      */
-    public function createAlbum(string $name, Album $parent = null, int $user_id, array $admin_ids = [], array $options = []): int
+    public function createAlbum(string $name, Album $parent = null, int $user_id, array $admin_ids = [], array $options = []): Album
     {
         $album = new Album();
         $album->setName($name);
@@ -692,7 +692,7 @@ class AlbumMapper
         }
         $this->updateGlobalRank();
 
-        return $album_id;
+        return $album;
     }
 
     /**

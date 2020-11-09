@@ -199,7 +199,7 @@ class User
             $user->setPassword($service->getPasswordEncoder()->encodePassword($user, $params['password']));
             $user->addRole('ROLE_NORMAL');
 
-            $user_id = $service->getUserManager()->register($user);
+            $user = $service->getUserManager()->register($user);
 
             if ($params['send_password_by_mail']) {
                 // send password by mail
@@ -208,7 +208,7 @@ class User
             return new Error(Server::WS_ERR_INVALID_PARAM, $e->getMessage());
         }
 
-        return $service->invoke('pwg.users.getList', ['user_id' => $user_id]);
+        return $service->invoke('pwg.users.getList', ['user_id' => $user->getId()]);
     }
 
     /**

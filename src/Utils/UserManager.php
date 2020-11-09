@@ -31,7 +31,7 @@ class UserManager
         $this->defautlTheme = $defaultTheme;
     }
 
-    public function register(User $user): int
+    public function register(User $user): User
     {
         $userInfos = new UserInfos();
 
@@ -56,9 +56,9 @@ class UserManager
             $user->addGroup($group);
         }
 
-        $user_id = $this->userRepository->addUser($user);
+        $this->userRepository->addUser($user);
 
-        return $user_id;
+        return $user;
     }
 
     public function generateActivationKey(int $size = 50)

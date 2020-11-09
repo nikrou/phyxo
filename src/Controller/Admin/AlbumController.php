@@ -637,8 +637,7 @@ class AlbumController extends AdminCommonController
                 if (!is_null($parent_id)) {
                     $parent = $albumMapper->getRepository()->find($parent_id);
                 }
-                $album_id = $albumMapper->createAlbum($virtual_name, $parent, $this->getUser()->getId(), $admin_ids, $params);
-
+                $albumMapper->createAlbum($virtual_name, $parent, $this->getUser()->getId(), $admin_ids, $params);
                 $userMapper->invalidateUserCache();
 
                 $this->addFlash('info', $translator->trans('Virtual album added', [], 'admin'));

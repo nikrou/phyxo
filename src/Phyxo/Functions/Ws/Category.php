@@ -310,11 +310,11 @@ class Category
             $parent = (int) $params['parent'];
         }
 
-        $category_id = $service->getAlbumMapper()->createAlbum($params['name'], $parent, $service->getUserMapper()->getUser()->getId(), $admin_ids, $options);
+        $album = $service->getAlbumMapper()->createAlbum($params['name'], $parent, $service->getUserMapper()->getUser()->getId(), $admin_ids, $options);
 
         $service->getUserMapper()->invalidateUserCache();
 
-        return ['info' => 'Virtual album added', 'id' => $category_id];
+        return ['info' => 'Virtual album added', 'id' => $album->getId()];
     }
 
     /**
