@@ -39,7 +39,7 @@ class CommentsController  extends AdminCommonController
     }
 
     public function index(Request $request, string $section = 'all', int $start = 0, ImageStandardParams $image_std_params, Conf $conf, EntityManager $em,
-                        ParameterBagInterface $params, TranslatorInterface $translator)
+                        ParameterBagInterface $params, TranslatorInterface $translator, CommentRepository $commentRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -49,37 +49,31 @@ class CommentsController  extends AdminCommonController
         $nb_total = 0;
         $nb_pending = 0;
 
-        $result = $em->getRepository(CommentRepository::class)->countGroupByValidated();
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
+        foreach ($commentRepository->countGroupByValidated() as $row) {
             $nb_total += $row['counter'];
 
-            if ($em->getConnection()->get_boolean($row['validated']) == false) {
+            if ($row['validated'] === false) {
                 $nb_pending = $row['counter'];
             }
         }
 
-        $result = $em->getRepository(CommentRepository::class)->getCommentOnImages(
-          $conf['comments_page_nb_comments'],
-          $start,
-          $validated = $section === 'pending' ? false : true
-        );
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-            $thumb = (new DerivativeImage(new SrcImage($row, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
-            if (empty($row['author_id'])) {
-                $author_name = $row['author'];
+        foreach ($commentRepository->getCommentsOnImages($conf['comments_page_nb_comments'], $start, $validated = $section === 'pending' ? false : true) as $comment) {
+            $thumb = (new DerivativeImage(new SrcImage($comment->getImage()->toArray(), $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
+            if (!is_null($comment->getUser())) {
+                $author_name = $comment->getUser()->getUsername();
             } else {
-                $author_name = stripslashes($row['username']);
+                $author_name = $comment->getAuthor();
             }
 
             $tpl_params['comments'][] = [
-                'U_PICTURE' => $this->generateUrl('admin_photo', ['image_id' => $row['image_id']]),
-                'ID' => $row['id'],
+                'U_PICTURE' => $this->generateUrl('admin_photo', ['image_id' => $comment->getImage()->getId()]),
+                'ID' => $comment->getId(),
                 'TN_SRC' => $thumb,
                 'AUTHOR' => $author_name,
-                'DATE' => \Phyxo\Functions\DateTime::format_date($row['date'], ['day_name', 'day', 'month', 'year', 'time']),
-                'CONTENT' => $row['content'],
-                'IS_PENDING' => $em->getConnection()->get_boolean($row['validated']) === false,
-                'IP' => $row['anonymous_id'],
+                'DATE' => $comment->getDate()->format('c'), // ['day_name', 'day', 'month', 'year', 'time']),
+                'CONTENT' => $comment->getContent(),
+                'IS_PENDING' => $comment->isPending(),
+                'IP' => $comment->getAnonymousId(),
             ];
         }
 

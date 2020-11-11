@@ -32,21 +32,22 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ImageMapper
 {
-    private $em, $router, $conf, $userMapper, $image_std_params, $categoryMapper, $imageRepository;
-    private $translator, $imageAlbumRepository;
+    private $em, $router, $conf, $userMapper, $image_std_params, $albumMapper, $imageRepository;
+    private $translator, $imageAlbumRepository, $commentRepository;
 
-    public function __construct(EntityManager $em, RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, CategoryMapper $categoryMapper,
-                                TranslatorInterface $translator, NewImageRepository $imageRepository, ImageAlbumRepository $imageAlbumRepository)
+    public function __construct(EntityManager $em, RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, AlbumMapper $albumMapper,
+                                TranslatorInterface $translator, NewImageRepository $imageRepository, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository)
     {
         $this->em = $em;
         $this->router = $router;
         $this->userMapper = $userMapper;
         $this->conf = $conf;
         $this->image_std_params = $image_std_params;
-        $this->categoryMapper = $categoryMapper;
+        $this->albumMapper = $albumMapper;
         $this->translator = $translator;
         $this->imageRepository = $imageRepository;
         $this->imageAlbumRepository = $imageAlbumRepository;
+        $this->commentRepository = $commentRepository;
     }
 
     public function getRepository(): NewImageRepository
@@ -123,7 +124,7 @@ class ImageMapper
                 );
             }
             if ($this->conf['activate_comments'] && $this->userMapper->getUser()->getShowNbComments()) {
-                $result = $this->em->getRepository(CommentRepository::class)->countGroupByImage($selection);
+                $result = $this->commentRepository->countGroupByImage($selection);
                 $nb_comments_of = $this->em->getConnection()->result2array($result, 'image_id', 'nb_comments');
             }
         }
@@ -235,7 +236,7 @@ class ImageMapper
         }
 
         // destruction of the comments on the image
-        $this->em->getRepository(CommentRepository::class)->deleteByImage($ids);
+        $this->commentRepository->deleteByImage($ids);
 
         // destruction of the links between images and categories
         $this->imageAlbumRepository->deleteByImages($ids);
@@ -259,7 +260,7 @@ class ImageMapper
         $result = $this->em->getRepository(CategoryRepository::class)->findRepresentants($ids);
         $category_ids = $this->em->getConnection()->result2array($result, null, 'id');
         if (count($category_ids) > 0) {
-            $this->categoryMapper->updateCategory($category_ids);
+            $this->albumMapper->updateAlbums($category_ids);
         }
 
         return count($ids);

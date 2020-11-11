@@ -11,10 +11,12 @@
 
 namespace App\DataMapper;
 
+use App\Entity\Comment;
 use App\Events\CommentEvent;
 use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Conf;
 use App\Repository\CommentRepository;
+use App\Repository\NewImageRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -22,10 +24,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentMapper
 {
-    private $conn, $conf, $userMapper, $eventDispatcher, $translator, $userRepository, $userCacheRepository;
+    private $conn, $conf, $userMapper, $eventDispatcher, $translator, $userRepository, $userCacheRepository, $commentRepository, $imageRepository;
 
     public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator,
-                                UserRepository $userRepository, UserCacheRepository $userCacheRepository)
+                                UserRepository $userRepository, UserCacheRepository $userCacheRepository, CommentRepository $commentRepository, NewImageRepository $imageRepository)
     {
         $this->conn = $conn;
         $this->conf = $conf;
@@ -34,6 +36,13 @@ class CommentMapper
         $this->translator = $translator;
         $this->userRepository = $userRepository;
         $this->userCacheRepository = $userCacheRepository;
+        $this->commentRepository = $commentRepository;
+        $this->imageRepository = $imageRepository;
+    }
+
+    public function getRepository(): CommentRepository
+    {
+        return $this->commentRepository;
     }
 
     public function getUser()
@@ -78,21 +87,26 @@ class CommentMapper
         return $action;
     }
 
-    public function createComment(string $comment, int $image_id, string $author, int $author_id, array $params = [])
+    public function createComment(string $content, int $image_id, string $author, int $user_id, array $params = [])
     {
-        $comment_params = [
-            'author' => $author,
-            'author_id' => $author_id,
-            'content' => $comment,
-            'date' => isset($params['date']) ? $params['date'] : 'now()',
-            'anonymous_id' => isset($params['anonymous_id']) ? md5($params['anonymous_id']) : md5('::1'),
-            'validated' => isset($params['validated']) ? $params['validated'] : true,
-            'website_url' => isset($params['website_url']) ? $params['website_url'] : '',
-            'email' => isset($params['email']) ? $params['email'] : '',
-            'image_id' => $image_id
-        ];
+        $image = $this->imageRepository->find($image_id);
+        $user = $this->userMapper->getRepository()->find($user_id);
+        $comment = new Comment();
+        $comment->setContent($content);
+        $comment->setAuthor($author);
+        $comment->setUser($user);
+        if (isset($params['date'])) {
+            $comment->setDate($params['date']);
+        } else {
+            $comment->setDate(new \DateTime());
+        }
+        $comment->setAnonymousId(isset($params['anonymous_id']) ? md5($params['anonymous_id']) : md5('::1'));
+        $comment->setValidated(isset($params['validated']) ? $params['validated'] : true);
+        $comment->setWebsiteUrl(isset($params['website_url'])?$params['website_url']:'');
+        $comment->setEmail(isset($params['email']) ? $params['email'] : '');
+        $comment->setImage($image);
 
-        return (new CommentRepository($this->conn))->addComment($comment_params);
+        $this->getRepository()->addOrUpdateComment($comment);
     }
 
     /**
@@ -168,17 +182,19 @@ class CommentMapper
         }
 
         $anonymous_id = $comm['ip'];
-        if ($comment_action != 'reject' && $this->conf['anti-flood_time'] > 0 && !$this->userMapper->isAdmin()) { // anti-flood system
-            $counter = (new CommentRepository($this->conn))->countAuthorMessageNewerThan($comm['author_id'], $this->conf['anti-flood_time'], !$this->userMapper->isGuest() ? $anonymous_id : md5('::1'));
-            if ($counter > 0) {
+        if ($comment_action !== 'reject' && $this->conf['anti-flood_time'] > 0 && !$this->userMapper->isAdmin()) { // anti-flood system
+            $anti_flood_date = new \DateTime();
+            $anti_flood_date->sub(new \DateInterval(sprintf('PT%dS', $this->conf['anti-flood-time'])));
+
+            if ($this->getRepository()->doestAuthorPostMessageAfterThan($comm['author_id'], $anti_flood_date, !$this->userMapper->isGuest() ? $anonymous_id : md5('::1'))) {
                 $infos[] = $this->translator->trans('Anti-flood system : please wait for a moment before trying to post another comment');
                 $comment_action = 'reject';
             }
         }
 
-        if ($comment_action != 'reject') {
+        if ($comment_action !== 'reject') {
             $comm['id'] = $this->createComment($comm['content'], $comm['image_id'], $comm['author'], $comm['author_id'], array_merge($comm, [
-                'date' => 'now()',
+                'date' => new \DateTime(),
                 'validated' => $comment_action === 'validate',
 
             ]));
@@ -198,17 +214,12 @@ class CommentMapper
      *    only admin can delete all comments
      *    other users can delete their own comments
      */
-    public function deleteUserComment(array $comment_ids): bool
+    public function deleteUserComment(array $comment_ids)
     {
-        if ((new CommentRepository($this->conn))->deleteByIds($comment_ids, !$this->userMapper->isAdmin() ? $this->getUser()->getId() : null)) {
-            $this->invalidateUserCacheNbComments();
+        $this->getRepository()->deleteByIds($comment_ids, !$this->userMapper->isAdmin() ? $this->getUser()->getId() : null);
+        $this->invalidateUserCacheNbComments();
 
-            $this->eventDispatcher->dispatch(new CommentEvent(['ids' => $comment_ids, 'author' => $this->getUser()->getUsername()], 'delete'));
-
-            return true;
-        }
-
-        return false;
+        // $this->eventDispatcher->dispatch(new CommentEvent(['ids' => $comment_ids, 'author' => $this->getUser()->getUsername()], 'delete'));
     }
 
     /**
@@ -220,11 +231,11 @@ class CommentMapper
      * @param string $post_key secret key sent back to the browser
      * @return string validate, moderate, reject
      */
-    public function updateUserComment($comment, $post_key)
+    public function updateUserComment(array $comment_infos, $post_key)
     {
         $comment_action = 'validate';
 
-        if (!\Phyxo\Functions\Utils::verify_ephemeral_key($post_key, $comment['image_id'], $this->conf['secret_key'])) {
+        if (!\Phyxo\Functions\Utils::verify_ephemeral_key($post_key, $comment_infos['image_id'], $this->conf['secret_key'])) {
             $comment_action = 'reject';
         } elseif (!$this->conf['comments_validation'] || $this->userMapper->isAdmin()) { // should the updated comment must be validated
             $comment_action = 'validate'; //one of validate, moderate, reject
@@ -233,33 +244,30 @@ class CommentMapper
         }
 
         // website
-        if (!empty($comment['website_url'])) {
-            $comment['website_url'] = strip_tags($comment['website_url']);
-            if (!preg_match('/^https?/i', $comment['website_url'])) {
-                $comment['website_url'] = 'http://' . $comment['website_url'];
+        if (!empty($comment_infos['website_url'])) {
+            $comment_infos['website_url'] = strip_tags($comment_infos['website_url']);
+            if (!preg_match('/^https?/i', $comment_infos['website_url'])) {
+                $comment['website_url'] = 'http://' . $comment_infos['website_url'];
             }
-            if (!\Phyxo\Functions\Utils::url_check_format($comment['website_url'])) {
+            if (!\Phyxo\Functions\Utils::url_check_format($comment_infos['website_url'])) {
                 //$page['errors'][] = $this->translator->trans('Your website URL is invalid');
                 $comment_action = 'reject';
             }
         }
 
         if ($comment_action !== 'reject') {
-            $user_where_clause = '';
-            if (!$this->userMapper->isAdmin()) {
-                $user_where_clause = ' AND author_id = \'' . $this->conn->db_real_escape_string($this->getUser()->getId()) . '\'';
-            }
-
-            $comment['website_url'] = !empty($comment['website_url']) ? $comment['website_url'] : '';
-            $comment['validated'] = $comment_action === 'validate';
-
-            $result = (new CommentRepository($this->conn))->updateComment($comment, $user_where_clause);
+            $comment = $this->getRepository()->find($comment_infos['id']);
+            $comment->setContent($comment_infos['content']);
+            $comment->setValidated($comment_action === 'validate');
+            $comment->setWebsiteUrl(!empty($comment_infos['website_url']) ? $comment_infos['website_url'] : '');
+            $comment->setDate(new \DateTime());
+            $this->getRepository()->addOrUpdateComment($comment);
 
             // mail admin and ask to validate the comment
-            if ($result && $this->conf['email_admin_on_comment_validation'] && $comment_action === 'moderate') {
-                $this->eventDispatcher->dispatch(new CommentEvent($comment, $comment_action));
-            } elseif ($result) {
-                $this->eventDispatcher->dispatch(new CommentEvent(['author' => $this->getUser()->getUsername(), 'content' => $comment['content']], 'edit'));
+            if ($this->conf['email_admin_on_comment_validation'] && $comment_action === 'moderate') {
+                $this->eventDispatcher->dispatch(new CommentEvent($comment_infos, $comment_action));
+            } else {
+                $this->eventDispatcher->dispatch(new CommentEvent(['author' => $this->getUser()->getUsername(), 'content' => $comment_infos['content']], 'edit'));
             }
         }
 
@@ -268,13 +276,10 @@ class CommentMapper
 
     /**
      * Tries to validate a user comment.
-     *
-     * @param int|int[] $comment_id
      */
-    public function validateUserComment($comment_id)
+    public function validateUserComment(array $comment_ids)
     {
-        (new CommentRepository($this->conn))->validateUserComment($comment_id);
-
+        $this->getRepository()->validateUserComment($comment_ids);
         $this->invalidateUserCacheNbComments();
     }
 

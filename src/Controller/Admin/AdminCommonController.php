@@ -22,11 +22,12 @@ use Symfony\Component\Routing\RouterInterface;
 
 abstract class AdminCommonController extends AbstractController
 {
-    protected $conf, $userProvider;
+    protected $conf, $userProvider, $commentRepository;
 
-    public function __construct(UserProvider $userProvider)
+    public function __construct(UserProvider $userProvider, CommentRepository $commentRepository)
     {
         $this->userProvider = $userProvider;
+        $this->commentRepository = $commentRepository;
     }
 
     public function getUser()
@@ -77,10 +78,7 @@ abstract class AdminCommonController extends AbstractController
             $tpl_params['U_COMMENTS'] = $router->generate('admin_comments');
 
             // pending comments
-            $nb_comments = $em->getRepository(CommentRepository::class)->count($validated = false);
-            if ($nb_comments > 0) {
-                $tpl_params['NB_PENDING_COMMENTS'] = $nb_comments;
-            }
+            $tpl_params['NB_PENDING_COMMENTS'] = $this->commentRepository->count(['validated' => false]);
         }
 
         // any photo in the caddie?

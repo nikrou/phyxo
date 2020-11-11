@@ -43,7 +43,7 @@ CREATE TABLE `phyxo_categories` (
 DROP TABLE IF EXISTS `phyxo_comments`;
 CREATE TABLE `phyxo_comments` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `image_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  `image_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
   `date` datetime DEFAULT NULL,
   `author` VARCHAR(255) DEFAULT NULL,
   `email` VARCHAR(255) DEFAULT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE `phyxo_comments` (
   `anonymous_id` VARCHAR(45) NOT NULL,
   `website_url` VARCHAR(255) DEFAULT NULL,
   `content` LONGTEXT,
-  `validated` ENUM('true','false') NOT NULL DEFAULT 'false',
+  `validated` TINYINT(1) NOT NULL DEFAULT 0,
   `validation_date` DATETIME DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `comments_i2` (`validation_date`),

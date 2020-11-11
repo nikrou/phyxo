@@ -14,7 +14,6 @@ namespace App\DataMapper;
 use App\Entity\User;
 use Phyxo\Conf;
 use App\Repository\UserCacheRepository;
-use App\Repository\ImageCategoryRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\ThemeRepository;
@@ -32,11 +31,11 @@ use App\Security\UserProvider;
 class UserMapper
 {
     private $em, $conf, $autorizationChecker, $tagMapper, $themeRepository, $userRepository, $userInfosRepository, $userMailNotificationRepository;
-    private $defaultLanguage, $defaultTheme, $themesDir, $userProvider, $default_user, $default_user_retrieved = false;
+    private $defaultLanguage, $defaultTheme, $themesDir, $userProvider, $default_user, $default_user_retrieved = false, $commentRepository;
     private $webmaster, $webmaster_retrieved = false, $userFeedRepository, $userCacheRepository, $userCacheAlbumRepository;
 
     public function __construct(EntityManager $em, Conf $conf, AuthorizationCheckerInterface $autorizationChecker, ThemeRepository $themeRepository,
-                                UserRepository $userRepository, UserInfosRepository $userInfosRepository, string $defaultTheme,
+                                UserRepository $userRepository, UserInfosRepository $userInfosRepository, string $defaultTheme, CommentRepository $commentRepository,
                                 TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider, UserMailNotificationRepository $userMailNotificationRepository,
                                 UserFeedRepository $userFeedRepository, UserCacheRepository $userCacheRepository, UserCacheAlbumRepository $userCacheAlbumRepository)
     {
@@ -55,6 +54,7 @@ class UserMapper
         $this->userProvider = $userProvider;
         $this->userCacheRepository = $userCacheRepository;
         $this->userCacheAlbumRepository = $userCacheAlbumRepository;
+        $this->commentRepository = $commentRepository;
     }
 
     public function getRepository(): UserRepository
@@ -196,8 +196,7 @@ class UserMapper
      */
     public function getNumberAvailableComments(): int
     {
-        $filter = [];
-        $number_of_available_comments = $this->em->getRepository(ImageCategoryRepository::class)->countAvailableComments($this->getUser(), $filter, $this->isAdmin());
+        $number_of_available_comments = $this->commentRepository->countAvailableComments($this->getUser()->getForbiddenCategories(), $this->isAdmin());
 
         $this->userCacheRepository->invalidateNumberAvailableComments($this->getUser()->getId());
 
@@ -235,7 +234,7 @@ class UserMapper
         // destruction of the caddie associated with the user
         $this->em->getRepository(CaddieRepository::class)->emptyCaddie($user_id);
 
-        $this->em->getRepository(CommentRepository::class)->deleteByUserId($user_id);
+        $this->commentRepository->deleteByUserId($user_id);
         // remove  created_by user in image_tag
         $this->em->getRepository(ImageTagRepository::class)->removeCreatedByKey($user_id);
 

@@ -33,7 +33,7 @@ class DashboardController extends AdminCommonController
 {
     public function index(Request $request, bool $check_upgrade = false, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
                           UserRepository $userRepository, GroupRepository $groupRepository, HttpClientInterface $client, AlbumRepository $albumRepository,
-                          ImageAlbumRepository $imageAlbumRepository)
+                          ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository)
     {
         $tpl_params = [];
 
@@ -99,7 +99,7 @@ class DashboardController extends AdminCommonController
         );
 
         if ($conf['activate_comments']) {
-            $nb_comments = $em->getRepository(CommentRepository::class)->count();
+            $nb_comments = $commentRepository->count([]);
             $tpl_params['U_PENDING_COMMENTS'] = $this->generateUrl('admin_comments', ['section' => 'pending']);
             $tpl_params['DB_COMMENTS'] = $translator->trans('number_of_comments', ['count' => $nb_comments], 'admin');
         }

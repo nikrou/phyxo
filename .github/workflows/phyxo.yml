@@ -33,8 +33,8 @@ jobs:
       - name: Build archive
         run: make dist-zip
 
-      -name: Archive nightly build
-       uses: actions/upload-artifact@v2
-       with:
-         name: phyxo-dist
-         path: target
+      - name: Archive nightly build
+        uses: actions/upload-artifact@v2
+        with:
+          name: phyxo-dist
+          path: target

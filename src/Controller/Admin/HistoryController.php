@@ -14,6 +14,7 @@ namespace App\Controller\Admin;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\Search;
+use App\Repository\CommentRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
 use App\Repository\ImageRepository;
@@ -37,9 +38,9 @@ class HistoryController extends AdminCommonController
 {
     private $image_std_params, $types, $display_thumbnails, $translator;
 
-    public function __construct(ImageStandardParams $image_std_params, UserProvider $userProvider, TranslatorInterface $translator)
+    public function __construct(ImageStandardParams $image_std_params, CommentRepository $commentRepository, UserProvider $userProvider, TranslatorInterface $translator)
     {
-        parent::__construct($userProvider);
+        parent::__construct($userProvider, $commentRepository);
 
         $this->image_std_params = $image_std_params;
         $this->translator = $translator;

@@ -11,12 +11,12 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Entity\Comment;
 use App\Entity\Image as EntityImage;
 use App\Entity\ImageAlbum;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use App\Repository\TagRepository;
-use App\Repository\CommentRepository;
 use App\Repository\RateRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\CategoryRepository;
@@ -146,17 +146,19 @@ class Image
         //---------------------------------------------------------- related comments
         $related_comments = [];
 
-        $nb_comments = (new CommentRepository($service->getConnection()))->countByImage($image_row['id'], $service->getUserMapper()->isAdmin());
-
+        $nb_comments = $service->getManagerRegistry()->getRepository(Comment::class)->countForImage($image_row['id'], $service->getUserMapper()->isAdmin());
         if ($nb_comments > 0 && $params['comments_per_page'] > 0) {
-            $result = (new CommentRepository($service->getConnection()))->getCommentsByImagePerPage(
-                $image_row['id'],
-                $params['comments_per_page'],
-                $params['comments_per_page'] * $params['comments_page']
-            );
-            while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-                $row['id'] = (int)$row['id'];
-                $related_comments[] = $row;
+            foreach ($service->getManagerRegistry()->getRepository(Comment::class)->getCommentsByImagePerPage(
+                $image_row['id'], $params['comments_per_page'], $params['comments_per_page'] * $params['comments_page']) as $comment) {
+                $related_comments[] = [
+                    'id' => $comment->getId(),
+                    'content' => $comment->getContent(),
+                    'author' => $comment->getAuthor(),
+                    'website_url' => $comment->getWebsiteUrl(),
+                    'author_id' => $comment->getUser()->getId(),
+                    'image_id' => $comment->getImage()->getId(),
+                    'validated' => $comment->isValidated(),
+                ];
             }
         }
 

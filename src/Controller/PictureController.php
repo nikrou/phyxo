@@ -314,7 +314,7 @@ class PictureController extends CommonController
                 return $this->redirectToRoute($request->get('_route'), ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id]);
             }
 
-            $tpl_params['COMMENT_COUNT'] = $em->getRepository(CommentRepository::class)->countByImage($image_id, $userMapper->isAdmin());
+            $tpl_params['COMMENT_COUNT'] = $commentMapper->getRepository()->countForImage($image_id, $userMapper->isAdmin());
             if ($tpl_params['COMMENT_COUNT'] > 0) {
                 // comments order (get, session, conf)
                 if ($request->get('comments_order') && in_array(strtoupper($request->get('comments_order')), ['ASC', 'DESC'])) {
@@ -333,36 +333,30 @@ class PictureController extends CommonController
                 );
                 $tpl_params['COMMENTS_ORDER_TITLE'] = $comments_order == 'ASC' ? $translator->trans('Show latest comments first') : $translator->trans('Show oldest comments first');
 
-                $result = $em->getRepository(CommentRepository::class)->getCommentsOnImage(
-                    $image_id,
-                    $comments_order,
-                    $conf['nb_comment_page'],
-                    0, // start
-                    $userMapper->isAdmin()
-                );
-
-                while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                    if ($row['author'] == 'guest') {
-                        $row['author'] = $translator->trans('guest');
+                foreach ($commentMapper->getRepository()->getCommentsOnImage($image_id, $comments_order, $conf['nb_comment_page'], 0, $userMapper->isAdmin()) as $comment) {
+                    if ($comment->getAuthor() === 'guest') {
+                        $author = $translator->trans('guest');
+                    } else {
+                        $author = $comment->getAuthor();
                     }
 
                     $email = null;
-                    if (!empty($row['user_email'])) {
-                        $email = $row['user_email'];
-                    } elseif (!empty($row['email'])) {
-                        $email = $row['email'];
+                    if ($comment->getUser()->getMailAddress()) {
+                        $email = $comment->getUser()->getMailAddress();
+                    } elseif ($comment->getEmail()) {
+                        $email = $comment->getEmail();
                     }
 
                     $tpl_comment =
                         [
-                            'ID' => $row['id'],
-                            'AUTHOR' => $row['author'],
-                            'DATE' => \Phyxo\Functions\DateTime::format_date($row['date'], ['day_name', 'day', 'month', 'year', 'time']),
-                            'CONTENT' => $row['content'],
-                            'WEBSITE_URL' => $row['website_url'],
+                            'ID' => $comment->getId(),
+                            'AUTHOR' => $author,
+                            'DATE' => $comment->getDate()->format('c'), // ['day_name', 'day', 'month', 'year', 'time']),
+                            'CONTENT' => $comment->getContent(),
+                            'WEBSITE_URL' => $comment->getWebsiteUrl(),
                         ];
 
-                    if ($userMapper->canManageComment('delete', $row['author_id'])) {
+                    if ($userMapper->canManageComment('delete', $comment->getUser()->getId())) {
                         $tpl_comment['U_DELETE'] = $this->generateUrl(
                             'picture',
                             [
@@ -370,11 +364,11 @@ class PictureController extends CommonController
                                 'type' => $type,
                                 'element_id' => $element_id,
                                 'action' => 'delete_comment',
-                                'comment_to_delete' => $row['id'],
+                                'comment_to_delete' => $comment->getId(),
                             ]
                         );
                     }
-                    if ($userMapper->canManageComment('edit', $row['author_id'])) {
+                    if ($userMapper->canManageComment('edit', $comment->getUser()->getId())) {
                         $tpl_comment['U_EDIT'] = $this->generateUrl(
                             'picture',
                             [
@@ -382,13 +376,13 @@ class PictureController extends CommonController
                                 'type' => $type,
                                 'element_id' => $element_id,
                                 'action' => 'edit_comment',
-                                'comment_to_edit' => $row['id'],
+                                'comment_to_edit' => $comment->getId(),
                             ]
                         );
 
-                        if (isset($edit_comment) && ($row['id'] === $edit_comment)) {
+                        if (isset($edit_comment) && ($comment->getId() === $edit_comment)) {
                             $tpl_comment['IN_EDIT'] = true;
-                            $tpl_comment['CONTENT'] = $row['content'];
+                            $tpl_comment['CONTENT'] = $comment->getContent();
                             $tpl_comment['U_CANCEL'] = $this->generateUrl(
                                 'picture',
                                 [
@@ -403,7 +397,7 @@ class PictureController extends CommonController
                     if ($userMapper->isAdmin()) {
                         $tpl_comment['EMAIL'] = $email;
 
-                        if ($em->getConnection()->get_boolean($row['validated']) !== true) {
+                        if ($comment->isPending()) {
                             $tpl_comment['U_VALIDATE'] = $this->generateUrl(
                                 'picture',
                                 [
@@ -411,7 +405,7 @@ class PictureController extends CommonController
                                     'type' => $type,
                                     'element_id' => $element_id,
                                     'action' => 'validate_comment',
-                                    'comment_to_validate' => $row['id'],
+                                    'comment_to_validate' => $comment->getId(),
                                 ]
                             );
                         }
@@ -436,14 +430,14 @@ class PictureController extends CommonController
                     'AUTHOR_MANDATORY' => $conf['comments_author_mandatory'],
                     'AUTHOR' => '',
                     'WEBSITE_URL' => '',
-                    'SHOW_EMAIL' => !$userMapper->isClassicUser() or empty($this->getUser()->getMailAddress()),
+                    'SHOW_EMAIL' => !$userMapper->isClassicUser() || empty($this->getUser()->getMailAddress()),
                     'EMAIL_MANDATORY' => $conf['comments_email_mandatory'],
                     'EMAIL' => '',
                     'SHOW_WEBSITE' => $conf['comments_enable_website'],
                     'KEY' => $csrfTokenManager->getToken(self::VALID_COMMENT),
                 ];
 
-                if (!empty($comment_action) && $comment_action == 'reject') {
+                if (!empty($comment_action) && $comment_action === 'reject') {
                     foreach (['content', 'author', 'website_url', 'email'] as $k) {
                         $tpl_var[strtoupper($k)] = htmlspecialchars(stripslashes($request->request->get($k)));
                     }

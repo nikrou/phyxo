@@ -11,314 +11,291 @@
 
 namespace App\Repository;
 
-use Symfony\Component\Security\Core\User\UserInterface;
+use App\Entity\Comment;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 
-
-class CommentRepository extends BaseRepository
+class CommentRepository extends ServiceEntityRepository
 {
-    public function count(? bool $validated = null) : int
+    public function __construct(ManagerRegistry $registry)
     {
-        $query = 'SELECT COUNT(1) FROM ' . self::COMMENTS_TABLE;
-        if (!is_null($validated)) {
-            $query .= ' WHERE validated = \'' . $this->conn->boolean_to_db($validated) . '\'';
-        }
-        list($nb_comments) = $this->conn->db_fetch_row($this->conn->db_query($query));
-
-        return $nb_comments;
+        parent::__construct($registry, Comment::class);
     }
 
-    public function countByImage(int $image_id, bool $isAdmin = false) : int
+    public function addOrUpdateComment(Comment $comment): int
     {
-        $query = 'SELECT COUNT(1) FROM ' . self::COMMENTS_TABLE;
-        $query .= ' WHERE image_id = ' . $this->conn->db_real_escape_string($image_id);
-        if (!$isAdmin) {
-            $query .= ' AND validated = \'' . $this->conn->boolean_to_db(true) . '\'';
-        }
-        list($nb_comments) = $this->conn->db_fetch_row($this->conn->db_query($query));
+        $this->_em->persist($comment);
+        $this->_em->flush();
 
-        return $nb_comments;
+        return $comment->getId();
     }
 
-    public function countGroupByImage(array $images, bool $validated = true)
+    public function doestAuthorPostMessageAfterThan(int $user_id, \DateTimeInterface $anti_flood_time, ?string $anonymous_id = null)
     {
-        $query = 'SELECT image_id, COUNT(1) AS nb_comments FROM ' . self::COMMENTS_TABLE;
-        $query .= ' WHERE validated = \'' . $this->conn->boolean_to_db($validated) . '\'';
-        $query .= ' AND image_id ' . $this->conn->in($images);
-        $query .= ' GROUP BY image_id';
+        $qb = $this->createQueryBuilder('c');
+        $qb->select('COUNT(1)');
+        $qb->where('c.date > :flood_time');
+        $qb->setParameter('flood_time', $anti_flood_time);
+        $qb->andWhere('c.user = :user_id');
+        $qb->setParameter('user_id', $user_id);
 
-        return $this->conn->db_query($query);
+        if (!is_null($anonymous_id)) {
+            $qb->andWhere($qb->expr()->like('c.anonymous_id', ':anonymous_id'));
+            $qb->setParameter('anonymous_id', $anonymous_id . '%');
+        }
+
+        return $qb->getQuery()->getSingleScalarResult() === 1;
+    }
+
+    public function deleteByIds(array $comment_ids, ?int $user_id = null)
+    {
+        $qb = $this->createQueryBuilder('c');
+        $qb->where($qb->expr()->in('c.id', $comment_ids));
+
+        if (!is_null($user_id)) {
+            $qb->andWhere('c.user = :user_id');
+            $qb->setParameter('user_id', $user_id);
+        }
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function deleteByUserId(int $user_id)
+    {
+        $qb = $this->createQueryBuilder('c');
+        $qb->delete();
+        $qb->where('c.user = :user_id');
+        $qb->setParameter('user_id', $user_id);
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function deleteByImage(array $image_ids)
+    {
+        $qb = $this->createQueryBuilder('c');
+        $qb->delete();
+        $qb->where($qb->expr()->in('c.image', $image_ids));
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function validateUserComment(array $comment_ids)
+    {
+        $qb = $this->createQueryBuilder('c');
+        $qb->update();
+        $qb->set('c.validated', ':validated');
+        $qb->setParameter('validated', true);
+        $qb->set('c.validation_date', new \DateTime());
+        $qb->where($qb->expr()->in('c.id', $comment_ids));
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function getCommentsOnImages(int $limit, int $offset = 0, bool $validated)
+    {
+        $qb = $this->createQueryBuilder('c');
+        $qb->leftJoin('c.user', 'u');
+        $qb->leftJoin('c.image', 'i');
+        $qb->andWhere('c.validated = :validated');
+        $qb->setParameter('validated', $validated);
+        $qb->orderBy('c.date', 'ASC');
+        $qb->setFirstResult($offset);
+        $qb->setMaxResults($limit);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function countGroupByImage(array $image_ids, bool $validated = true)
+    {
+        $qb = $this->createQueryBuilder('c');
+        $qb->select('COUNT(1)');
+        $qb->where('c.validated = :validated');
+        $qb->setParameter('validated', $validated);
+        $qb->andWhere($qb->expr()->in('c.image', $image_ids));
+        $qb->groupBy('c.image');
+
+        return $qb->getQuery()->getSingleScalarResult();
     }
 
     public function countGroupByValidated()
     {
-        $query = 'SELECT COUNT(1) AS counter, validated FROM ' . self::COMMENTS_TABLE . ' GROUP BY validated;';
+        $qb = $this->createQueryBuilder('c');
+        $qb->select('COUNT(1) AS counter, c.validated');
+        $qb->groupBy('c.validated');
 
-        return $this->conn->db_query($query);
+        return $qb->getQuery()->getResult();
     }
 
-    public function getLastComments(array $params = [], bool $count_only = false)
+    public function getLastComments(array $filter_params = [], int $offset = 0, int $limit, bool $count_only = false)
     {
+        $qb = $this->createQueryBuilder('c');
+
         if ($count_only) {
-            $query = 'SELECT count(1)';
-        } else {
-            $query = 'SELECT com.id AS comment_id, com.image_id, ic.category_id, com.author,';
-            $query .= 'com.author_id, u.mail_address AS user_email, com.email,';
-            $query .= 'com.date,com.website_url,com.content,com.validated';
+            $qb->select('COUNT(1)');
         }
-        $query .= ' FROM ' . self::COMMENTS_TABLE . ' AS com';
-        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON ic.image_id = com.image_id';
-        $query .= ' LEFT JOIN ' . self::USERS_TABLE . ' As u ON u.id = com.author_id';
-        $query .= ' WHERE ' . implode(' AND ', $params['where_clauses']);
+        $qb->leftJoin('c.image', 'i');
+        $qb->leftJoin('i.imageAlbums', 'ia');
+        $qb->leftJoin('c.user', 'u');
 
         if (!$count_only) {
-            $query .= ' GROUP BY com.id, ic.category_id, u.mail_address';
-            $query .= ' ORDER BY ' . $params['order_by'];
+            $qb->groupBy('c.id, ia.album, u.mail_address');
+            $qb->setFirstResult($offset);
+            $qb->setMaxResults($limit);
+        }
 
-            if (!empty($params['limit'])) {
-                $query .= ' LIMIT ' . $params['limit'] . ' OFFSET ' . $params['offset'];
+        if (isset($filter_params['forbidden_categories']) && count($filter_params['forbidden_categories']) > 0) {
+            $qb->where($qb->expr()->notIn('ia.album', $filter_params['forbidden_categories']));
+        }
+
+
+        if (isset($filter_params['album_ids'])) {
+            $qb->where($qb->expr()->in('ia.album', $filter_params['album_ids']));
+        }
+
+        if (isset($filter_params['since'])) {
+            $qb->andWhere('c.date >= :since');
+            $qb->setParameter('since', $filter_params['since']);
+        }
+
+        if (isset($filter_params['author'])) {
+            $qb->andWhere('c.author = :author');
+            $qb->setParameter('author', $filter_params['author']);
+        }
+
+        if (isset($filter_params['keywords'])) {
+            foreach ($filter_params['keywords'] as $i => $keyword) {
+                $qb->andWhere($qb->expr()->like('c.content', ':content' . $i));
+                $qb->setParameter('content' . $i, '%' . $keyword . '%');
             }
         }
 
+        $qb->orderBy('c.' . $filter_params['sort_by'], $filter_params['sort_order']);
         if ($count_only) {
-            list($nb_comments) = $this->conn->db_fetch_row($this->conn->db_query($query));
-
-            return $nb_comments;
+            return $qb->getQuery()->getSingleScalarResult();
         } else {
-            return $this->conn->db_query($query);
+            return $qb->getQuery()->getResult();
         }
+    }
+
+    public function countForImage(int $image_id, bool $isAdmin = false) : int
+    {
+        $qb = $this->createQueryBuilder('c');
+        $qb->select('COUNT(1)');
+        $qb->where('c.image = :image_id');
+        $qb->setParameter('image_id', $image_id);
+        if (!$isAdmin) {
+            $qb->andWhere('c.validated = :validated');
+            $qb->setParameter('validated', true);
+        }
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function getCommentsForImagePerPage(int $image_id, int $limit, int $offset = 0)
+    {
+        $qb = $this->createQueryBuilder('c');
+        $qb->where('c.image = :image_id');
+        $qb->setParameter('image_id', $image_id);
+        $qb->orderBy('c.date');
+        $qb->setFirstResult($offset);
+        $qb->setMaxResults($limit);
+
+        return $qb->getQuery()->getResult();
     }
 
     public function getCommentsOnImage(int $image_id, string $order, int $limit, int $offset = 0, bool $isAdmin = false)
     {
-        $query = 'SELECT com.id, author, author_id,u.mail_address AS user_email,';
-        $query .= 'date,image_id,website_url,com.email,content, validated FROM ' . self::COMMENTS_TABLE . ' AS com';
-        $query .= ' LEFT JOIN ' . self::USERS_TABLE . ' AS u ON u.id = author_id';
-        $query .= ' WHERE image_id = ' . $image_id;
+        $qb = $this->createQueryBuilder('c');
+        $qb->leftJoin('c.user', 'u');
+        $qb->where('c.image = :image_id');
+        $qb->setParameter('image_id', $image_id);
         if (!$isAdmin) {
-            $query .= ' AND validated = \'' . $this->conn->boolean_to_db(true) . '\'';
+            $qb->andWhere('c.validated = :validated');
+            $qb->setParameter('validated', true);
         }
-        $query .= ' ORDER BY date ' . $order;
-        $query .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
+        $qb->orderBy('c.date', $order);
+        $qb->setFirstResult($offset);
+        $qb->setMaxResults($limit);
 
-        return $this->conn->db_query($query);
+        return $qb->getQuery()->getResult();
     }
 
-    public function getCommentOnImages(int $limit, int $offset = 0, ? bool $validated)
+    public function getNewComments(array $forbidden_categories = [], \DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only = false)
     {
-        $query = 'SELECT c.id,c.image_id,c.date,c.author,u.username,c.content,i.path,';
-        $query .= 'i.representative_ext,validated,c.anonymous_id FROM ' . self::COMMENTS_TABLE . ' AS c';
-        $query .= ' LEFT JOIN ' . self::IMAGES_TABLE . ' AS i ON i.id = c.image_id';
-        $query .= ' LEFT JOIN ' . self::USERS_TABLE . ' AS u ON u.id = c.author_id';
-        if (is_bool($validated)) {
-            $query .= ' WHERE validated = \'' . $this->conn->boolean_to_db($validated) . '\'';
-        }
-        $query .= ' ORDER BY c.date DESC';
-        $query .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
+        $qb = $this->createQueryBuilder('c');
 
-        return $this->conn->db_query($query);
-    }
-
-    public function countAuthorMessageNewerThan(int $author_id, string $anti_flood_time, string $anonymous_id = null)
-    {
-        $reference_date = $this->conn->db_get_flood_period_expression($anti_flood_time);
-
-        $query = 'SELECT count(1) FROM ' . self::COMMENTS_TABLE;
-        $query .= ' WHERE date > ' . $reference_date . ' AND author_id = ' . $this->conn->db_real_escape_string($author_id);
-        if ($anonymous_id) {
-            $query .= ' AND anonymous_id LIKE \'' . $anonymous_id . '.%\'';
-        }
-
-        list($counter) = $this->conn->db_fetch_row($this->conn->db_query($query));
-
-        return $counter;
-    }
-
-    public function addComment(array $values)
-    {
-        $fields = ['author', 'author_id', 'anonymous_id', 'content', 'date', 'validated', 'image_id', 'website_url', 'email'];
-        if (!empty($values['validated'])) {
-            $fields[] = 'validation_date';
-        }
-
-        $query = 'INSERT INTO ' . self::COMMENTS_TABLE;
-        $query .= ' (' . implode(',', $fields) . ')';
-        $query .= ' VALUES(';
-        $query .= "'" . $this->conn->db_real_escape_string($values['author']) . "',";
-        $query .= $this->conn->db_real_escape_string($values['author_id']) . ",";
-        $query .= "'" . $this->conn->db_real_escape_string($values['anonymous_id']) . "',";
-        $query .= "'" . $this->conn->db_real_escape_string($values['content']) . "',";
-        $query .= $values['date'] . ",";
-        $query .= "'" . $this->conn->boolean_to_db($values['validated']) . "',";
-        $query .= $values['image_id'] . ",";
-        $query .= "'" . $this->conn->db_real_escape_string($values['website_url']) . "',";
-        $query .= "'" . $this->conn->db_real_escape_string($values['email']) . "'";
-        if (!empty($values['validated'])) {
-            $query .= ', now()';
-        }
-        $query .= ')';
-        $this->conn->db_query($query);
-
-        return $this->conn->db_insert_id(self::COMMENTS_TABLE);
-    }
-
-    // @comments can be an array of comment id or a comment id
-    public function deleteByIds($comments, int $author_id = null)
-    {
-        $query = 'DELETE FROM ' . self::COMMENTS_TABLE;
-        if (is_array($comments)) {
-            $query .= ' WHERE id ' . $this->conn->in($comments);
-        } else {
-            $query .= ' WHERE id = ' . $comments;
-        }
-
-        if ($author_id) {
-            $query .= ' AND author_id = ' . $author_id;
-        }
-        $result = $this->conn->db_query($query);
-
-        return $this->conn->db_changes($result);
-    }
-
-    public function deleteByUserId(int $author_id)
-    {
-        $query = 'DELETE FROM ' . self::COMMENTS_TABLE;
-        $query .= ' WHERE author_id = ' . $author_id;
-        $result = $this->conn->db_query($query);
-
-        return $this->conn->db_changes($result);
-    }
-
-    public function deleteByImage($images)
-    {
-        $query = 'DELETE FROM ' . self::COMMENTS_TABLE;
-        if (is_array($images)) {
-            $query .= ' WHERE image_id ' . $this->conn->in($images);
-        } else {
-            $query .= ' WHERE image_id = ' . $images;
-        }
-        $result = $this->conn->db_query($query);
-
-        return $this->conn->db_changes($result);
-    }
-
-    /**
-     * Returns the author id of a comment
-     */
-    public function getCommentAuthorId(int $comment_id) : ? int
-    {
-        $query = 'SELECT author_id FROM ' . self::COMMENTS_TABLE;
-        $query .= ' WHERE id = ' . $this->conn->db_real_escape_string($comment_id);
-        $result = $this->conn->db_query($query);
-        if ($this->conn->db_num_rows($result) === 0) {
-            return null;
-        }
-
-        list($author_id) = $this->conn->db_fetch_row($result);
-
-        return $author_id;
-    }
-
-    public function updateComment(array $comment, string $user_where_clause = '')
-    {
-        $query = 'UPDATE ' . self::COMMENTS_TABLE;
-        $query .= ' SET content = \'' . $this->conn->db_real_escape_string($comment['content']) . '\',';
-        $query .= ' website_url = \'' . $this->conn->db_real_escape_string($comment['website_url']) . '\',';
-        $query .= ' validated = \'' . $this->conn->boolean_to_db($comment['validated']) . '\'';
-        if (!empty($comment['validated'])) {
-            $query .= ', validation_date = now()';
-        }
-        $query .= ' WHERE id = ' . $this->conn->db_real_escape_string($comment['comment_id']);
-        $query .= $user_where_clause;
-
-        return $this->conn->db_query($query);
-    }
-
-    public function validateUserComment($comment_ids)
-    {
-        $query = 'UPDATE ' . self::COMMENTS_TABLE;
-        $query .= ' SET validated = \'' . $this->conn->boolean_to_db(true) . '\', validation_date = NOW()';
-        if (is_array($comment_ids)) {
-            $query .= ' WHERE id ' . $this->conn->in($comment_ids);
-        } else {
-            $query .= ' WHERE id = ' . $comment_ids;
-        }
-
-        return $this->conn->db_query($query);
-    }
-
-    public function getCommentsByImagePerPage(int $image_id, int $limit, int $offset = 0)
-    {
-        $query = 'SELECT id, date, author, content FROM ' . self::COMMENTS_TABLE;
-        $query .= ' WHERE image_id = ' . $this->conn->db_real_escape_string($image_id);
-        $query .= ' ORDER BY date';
-        $query .= ' LIMIT ' . $limit;
-        $query .= ' OFFSET ' . $offset;
-
-        return $this->conn->db_query($query);
-    }
-
-    public function getNewComments(UserInterface $user, array $filter = [], \DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only = false)
-    {
         if ($count_only) {
-            $query = 'SELECT count(1)';
-        } else {
-            $query = 'SELECT c.id';
+            $qb->select('COUNT(1)');
         }
-        $query .= ' FROM ' . self::COMMENTS_TABLE . ' AS c';
-        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON c.image_id = ic.image_id';
-        $query .= ' WHERE';
+
+        $qb->leftJoin('c.image', 'i');
+        $qb->leftJoin('i.imageAlbums', 'ia');
+
+        if (count($forbidden_categories)) {
+            $qb->where($qb->expr()->notIn('c.album', $forbidden_categories));
+        }
 
         if (!is_null($start)) {
-            $query .= ' c.validation_date > \'' . $this->conn->db_real_escape_string($start->format('Y-m-d H:m:i')) . '\'';
+            $qb->andWhere('c.validation_date > :start');
+            $qb->setParameter('start', $start);
         }
 
         if (!is_null($end)) {
-            if (!is_null($start)) {
-                $query .= ' AND';
-            }
-            $query .= ' c.validation_date <= \'' . $this->conn->db_real_escape_string($end->format('Y-m-d H:m:i')) . '\'';
+            $qb->andWhere('c.validation_date <= :end');
+            $qb->setParameter('end', $end);
         }
 
-        $query .= ' ' . $this->getStandardSQLWhereRestrictFilter($user, $filter, ' AND ');
-
         if ($count_only) {
-            list($nb_comments) = $this->conn->db_fetch_row($this->conn->db_query($query));
-
-            return $nb_comments;
+            return $qb->getQuery()->getSingleScalarResult();
         } else {
-            return $this->conn->db_query($query);
+            return $qb->getQuery()->getResult();
         }
     }
 
     public function getUnvalidatedComments(\DateTimeInterface $start = null, \DateTimeInterface $end, bool $count_only)
     {
+        $qb = $this->createQueryBuilder('c');
+
         if ($count_only) {
-            $query = 'SELECT count(1)';
-        } else {
-            $query = 'SELECT id';
+            $qb->select('COUNT(1)');
         }
-        $query .= ' FROM ' . self::COMMENTS_TABLE;
-        $query .= ' WHERE';
+
+        $qb->where('c.validated = :validated');
+        $qb->setParameter('validated', false);
 
         if (!is_null($start)) {
-            $query .= ' date > \'' . $this->conn->db_real_escape_string($start->format('Y-m-d H:m:i')) . '\'';
+            $qb->andWhere('c.validation_date > :start');
+            $qb->setParameter('start', $start);
         }
 
         if (!is_null($end)) {
-            if (!is_null($start)) {
-                $query .= ' AND';
-            }
-            $query .= ' date <= \'' . $this->conn->db_real_escape_string($end->format('Y-m-d H:m:i')) . '\'';
+            $qb->andWhere('c.validation_date <= :end');
+            $qb->setParameter('end', $end);
         }
-
-        $query .= ' AND validated = \'' . $this->conn->boolean_to_db(false) . '\'';
 
         if ($count_only) {
-            list($nb_comments) = $this->conn->db_fetch_row($this->conn->db_query($query));
-
-            return $nb_comments;
+            return $qb->getQuery()->getSingleScalarResult();
         } else {
-            return $this->conn->db_query($query);
+            return $qb->getQuery()->getResult();
         }
+    }
+
+    public function countAvailableComments(array $forbidden_categories = [], bool $isAdmin = false): int
+    {
+        $qb = $this->createQueryBuilder('c');
+        $qb->select('COUNT(DISTINCT(c.id))');
+        $qb->leftJoin('c.image', 'i');
+        $qb->leftJoin('i.imageAlbums', 'ia');
+
+        if (count($forbidden_categories) > 0) {
+            $qb->where($qb->expr()->notIn('ia.album', $forbidden_categories));
+        }
+
+        if (!$isAdmin) {
+            $qb->andWhere('c.validated = :validated');
+            $qb->setParameter('validated', true);
+        }
+
+        return $qb->getQuery()->getSingleScalarResult();
     }
 }

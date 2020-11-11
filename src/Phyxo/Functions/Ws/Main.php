@@ -11,10 +11,10 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Entity\Comment;
 use App\Entity\ImageAlbum;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
-use App\Repository\CommentRepository;
 use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\ImageRepository;
@@ -132,7 +132,7 @@ class Main
         $infos['nb_image_tag'] = (new ImageTagRepository($service->getConnection()))->count();
         $infos['nb_users'] = $service->getManagerRegistry->getRepository(User::class)->count([]);
         $infos['nb_groups'] = $service->getManagerRegistry->getRepository(Group::class)->count([]);
-        $infos['nb_comments'] = (new CommentRepository($service->getConnection()))->count();
+        $infos['nb_comments'] = $service->getManagerRegistry()->getRepository(Comment::class)->count([]);
 
         // first element
         if ($infos['nb_elements'] > 0) {
@@ -141,7 +141,7 @@ class Main
 
         // unvalidated comments
         if ($infos['nb_comments'] > 0) {
-            $infos['nb_unvalidated_comments'] = (new CommentRepository($service->getConnection()))->count($validated = false);
+            $infos['nb_unvalidated_comments'] = $service->getManagerRegistry()->getRepository(Comment::class)->count(['validated' => false]);
         }
 
         foreach ($infos as $name => $value) {

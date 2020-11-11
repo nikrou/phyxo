@@ -12,6 +12,7 @@
 namespace App\Controller\Admin;
 
 use App\Notification;
+use App\Repository\CommentRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
@@ -32,9 +33,9 @@ class NotificationController extends AdminCommonController
         'nbm_send_recent_post_dates' => 'boolean',
     ];
 
-    public function __construct(AuthorizationCheckerInterface $authorizationChecker, UserProvider $userProvider)
+    public function __construct(AuthorizationCheckerInterface $authorizationChecker, CommentRepository $commentRepository, UserProvider $userProvider)
     {
-        parent::__construct($userProvider);
+        parent::__construct($userProvider, $commentRepository);
         $this->authorizationChecker = $authorizationChecker;
     }
 

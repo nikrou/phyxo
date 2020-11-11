@@ -12,11 +12,14 @@ Feature: Comment
       | name    | status  |
       | album 1 | private |
       | album 2 | private |
+      | album 3 | private |
     And some images:
       | name    | album   |
       | photo 1 | album 1 |
       | photo 2 | album 2 |
+      | photo 3 | album 3 |
     And user "user1" can access album "album 1"
+    And user "user1" can access album "album 3"
     And user "user2" can access album "album 2"
     And user "user1" cannot access album "album 2"
     And user "user2" cannot access album "album 1"
@@ -68,6 +71,23 @@ Feature: Comment
     Then I should not be allowed to go to album "album 2"
     When I am on homepage
     And I follow "Comments"
-    And I fill in "Author" with "user2"
-    And I press "Filter and display"
+    # And I fill in "Author" with "user2"
+    # And I press "Filter and display"
     Then I should not see "a good comment"
+
+  Scenario: I search comments in album with no comments
+    Given I am logged in as "user1" with password "pass1"
+    Given I am on homepage
+    And I follow "comments"
+    When I select "album 3" from "Album"
+    And I press "Filter and display"
+    Then I should see "No comments for that search"
+
+  Scenario: I search comments in album with some comments
+    Given I am logged in as "user2" with password "pass2"
+    Given I am on homepage
+    And I follow "comments"
+    When I select "album 2" from "Album"
+    And I press "Filter and display"
+    Then I should see "a good comment"
+

@@ -63,7 +63,6 @@ config: clean ## prepare environment for building archive
 	find $(DIST) -name '.env.local*' -o -name '.env.*.local' -exec rm \{\} \;
 	echo 'APP_ENV=prod' > $(DIST)/$(APP_NAME)/.env.local
 
-	rm -fr $(DIST)/$(APP_NAME)/public
 	rm -fr $(DIST)/$(APP_NAME)/vendor/atoum
 	rm -fr $(DIST)/$(APP_NAME)/vendor/symfony/phpunit-bridge
 	find ./$(DIST)/ -type d -name '.git' | xargs -r rm -rf

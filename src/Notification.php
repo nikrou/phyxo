@@ -34,13 +34,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Notification
 {
-    private $em, $conn, $conf, $userMapper, $categoryMapper, $router;
+    private $em, $conn, $conf, $userMapper, $categoryMapper, $router, $commentRepository;
     private $env, $mailer, $translator, $userMailNotificationRepository, $userInfosRepository;
 
     private $infos = [], $errors = [];
 
     public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, CategoryMapper $categoryMapper, RouterInterface $router,
-                                MailerInterface $mailer, TranslatorInterface $translator,
+                                MailerInterface $mailer, TranslatorInterface $translator, CommentRepository $commentRepository,
                                 UserMailNotificationRepository $userMailNotificationRepository, UserInfosRepository $userInfosRepository)
     {
         $this->em = $em;
@@ -53,6 +53,7 @@ class Notification
         $this->translator = $translator;
         $this->userMailNotificationRepository = $userMailNotificationRepository;
         $this->userInfosRepository = $userInfosRepository;
+        $this->commentRepository = $commentRepository;
 
         $this->env = [
             'start_time' => microtime(true),
@@ -70,7 +71,7 @@ class Notification
      */
     public function nb_new_comments(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
     {
-        return $this->em->getRepository(CommentRepository::class)->getNewComments($this->userMapper->getUser(), [], $start, $end, $count_only = true);
+        return $this->commentRepository->getNewComments($this->userMapper->getUser()->getForbiddenCategories(), $start, $end, $count_only = true);
     }
 
     /**
@@ -78,7 +79,7 @@ class Notification
      */
     public function new_comments(\DateTimeInterface $start = null, \DateTimeInterface $end = null): array
     {
-        return $this->em->getRepository(CommentRepository::class)->getNewComments($this->userMapper->getUser(), [], $start, $end);
+        return $this->commentRepository->getNewComments($this->userMapper->getUser()->getForbiddenCategories(), $start, $end);
     }
 
     /**
@@ -86,7 +87,7 @@ class Notification
      */
     public function nb_unvalidated_comments(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
     {
-        return $this->em->getRepository(CommentRepository::class)->getUnvalidatedComments($start, $end, $count_only = true);
+        return $this->commentRepository->getUnvalidatedComments($start, $end, $count_only = true);
     }
 
     /**
@@ -94,7 +95,7 @@ class Notification
      */
     public function nb_new_elements(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
     {
-        return $this->em->getRepository(ImageRepository::class)->getNewElements($this->userMapper->getUser(), [], $start, $end, $count_only = true);
+        return $this->commentRepository->getNewElements($this->userMapper->getUser(), [], $start, $end, $count_only = true);
     }
 
     /**

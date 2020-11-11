@@ -93,12 +93,18 @@ class User implements UserInterface, EquatableInterface
      */
     private $userCache;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="user")
+     */
+    private $comments;
+
     public function __construct()
     {
         $this->roles = ['ROLE_USER'];
         $this->userInfos = new UserInfos();
         $this->groups = new ArrayCollection();
         $this->user_access = new ArrayCollection();
+        $this->comments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -346,6 +352,37 @@ class User implements UserInterface, EquatableInterface
         $newUser = null === $userCache ? null : $this;
         if ($userCache->getUser() !== $newUser) {
             $userCache->setUser($newUser);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Comment[]
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comment $comment): self
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments[] = $comment;
+            $comment->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(Comment $comment): self
+    {
+        if ($this->comments->contains($comment)) {
+            $this->comments->removeElement($comment);
+            // set the owning side to null (unless already changed)
+            if ($comment->getUser() === $this) {
+                $comment->setUser(null);
+            }
         }
 
         return $this;

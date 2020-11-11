@@ -12,7 +12,7 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\UserMapper;
-use App\Entity\User;
+use App\Repository\CommentRepository;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
@@ -35,9 +35,9 @@ class ConfigurationController extends AdminCommonController
     private $main_checkboxes, $sizes_checkboxes, $comments_checkboxes, $display_checkboxes, $display_info_checkboxes, $sort_fields, $comments_order, $mail_themes;
     private $translator;
 
-    public function __construct(UserProvider $userProvider, TranslatorInterface $translator)
+    public function __construct(UserProvider $userProvider, CommentRepository $commentRepository, TranslatorInterface $translator)
     {
-        parent::__construct($userProvider);
+        parent::__construct($userProvider, $commentRepository);
         $this->translator = $translator;
 
         $this->main_checkboxes = [
@@ -145,7 +145,7 @@ class ConfigurationController extends AdminCommonController
     }
 
     public function index(Request $request, string $section, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager,
-                        ThemeRepository $themeRepository, LanguageRepository $languageRepository, ImageStandardParams $image_std_params, UserInfosRepository $userInfosRepository)
+                        ThemeRepository $themeRepository, LanguageRepository $languageRepository, ImageStandardParams $image_std_params, UserMapper $userMapper)
     {
         $tpl_params = [];
 
@@ -187,7 +187,7 @@ class ConfigurationController extends AdminCommonController
                 break;
 
             case 'default':
-                $tpl_params = array_merge($tpl_params, $this->defaultConfiguration($conf, $userInfosRepository, $themeRepository, $languageRepository));
+                $tpl_params = array_merge($tpl_params, $this->defaultConfiguration($conf, $userMapper, $themeRepository, $languageRepository));
                 break;
 
             default:
