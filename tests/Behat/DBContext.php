@@ -12,7 +12,6 @@
 namespace App\Tests\Behat;
 
 use App\DataMapper\AlbumMapper;
-use App\DataMapper\CategoryMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
@@ -255,7 +254,7 @@ class DBContext implements Context
     protected function addImageToAlbum(array $image_infos, string $album_name)
     {
         try {
-            $album = $this->getContainer()->get(CategoryMapper::class)->findAlbumByName($album_name);
+            $album = $this->getContainer()->get(AlbumMapper::class)->getRepository()->findOneByName($album_name);
         } catch (\Exception $e) {
             throw new \Exception('Album with name ' . $album_name . ' does not exist');
         }
@@ -282,7 +281,7 @@ class DBContext implements Context
         $image = $this->getContainer()->get(ImageMapper::class)->getRepository()->find($image_id);
         $this->storage->set('image_' . $image_infos['name'], $image);
 
-        $this->getContainer()->get(AlbumMapper::class)->associateImagesToAlbums([$image_id], [$album['id']]);
+        $this->getContainer()->get(AlbumMapper::class)->associateImagesToAlbums([$image_id], [$album->getId()]);
     }
 
     protected function addTag(string $tag_name)

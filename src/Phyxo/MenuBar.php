@@ -11,10 +11,10 @@
 
 namespace Phyxo;
 
+use App\DataMapper\AlbumMapper;
 use Phyxo\Conf;
 use Phyxo\Block\BlockManager;
 use Symfony\Component\Routing\RouterInterface;
-use App\DataMapper\CategoryMapper;
 use App\DataMapper\UserMapper;
 use App\DataMapper\TagMapper;
 use Phyxo\Functions\Tag;
@@ -23,14 +23,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MenuBar
 {
-    private $conf, $menu, $router, $categoryMapper, $userMapper, $tagMapper, $translator;
+    private $conf, $menu, $router, $albumMapper, $userMapper, $tagMapper, $translator;
     private $route = null, $items = [], $tags = [];
 
-    public function __construct(Conf $conf, RouterInterface $router, CategoryMapper $categoryMapper, UserMapper $userMapper, TagMapper $tagMapper, TranslatorInterface $translator)
+    public function __construct(Conf $conf, RouterInterface $router, AlbumMapper $albumMapper, UserMapper $userMapper, TagMapper $tagMapper, TranslatorInterface $translator)
     {
         $this->conf = $conf;
         $this->router = $router;
-        $this->categoryMapper = $categoryMapper;
+        $this->albumMapper = $albumMapper;
         $this->userMapper = $userMapper;
         $this->tagMapper = $tagMapper;
         $this->translator = $translator;
@@ -111,7 +111,7 @@ class MenuBar
         if (($block = $this->menu->getBlock('mbCategories')) != null) {
             $block->data = [
                 'NB_PICTURE' => $this->userMapper->getUser()->getNbTotalImages(),
-                'MENU_CATEGORIES' => $this->categoryMapper->getRecursiveCategoriesMenu($this->userMapper->getUser(), []),
+                'MENU_CATEGORIES' => $this->albumMapper->getRecursiveAlbumsMenu($this->userMapper->getUser(), []),
                 'U_CATEGORIES' => $this->router->generate('albums_flat'),
             ];
             $block->template = 'menubar_categories';

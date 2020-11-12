@@ -482,24 +482,20 @@ class Category
 
         // we can't move physical categories
         $categories_in_db = [];
-
-        $result = (new CategoryRepository($service->getConnection()))->findByIds($category_ids);
-        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-            $categories_in_db[$row['id']] = $row;
-
-            // we break on error at first physical category detected
-            if (!empty($row['dir'])) {
-                $row['name'] = strip_tags($row['name']);
-
+        foreach ($service->getAlbumMapper()->getRepository()->findBy(['id' => $category_ids]) as $album) {
+            // we break on error at first physical album detected
+            if (!$album->isVirtual()) {
                 return new Error(
                     403,
                     sprintf(
-                        'Category %s (%u) is not a virtual category, you cannot move it',
-                        $row['name'],
-                        $row['id']
+                        'Album %s (%u) is not a virtual album, you cannot move it',
+                        $album->getName(),
+                        $album->getId()
                     )
                 );
             }
+
+            $categories_in_db[$album->getId()] = $album;
         }
 
         if (count($categories_in_db) != count($category_ids)) {
@@ -509,11 +505,11 @@ class Category
         }
 
         /* does this parent exists? This check should be made in the
-         * CategoryMapper::moveCategories function, not here
+         * AlbumMapper::moveCategories function, not here
          * 0 as parent means "move categories at gallery root"
          */
-        if (0 != $params['parent']) {
-            $subcat_ids = (new CategoryRepository($service->getConnection()))->getSubcatIds([$params['parent']]);
+        if ($params['parent'] !== 0) {
+            $subcat_ids = $service->getAlbumMapper()->getRepository()->getSubcatIds([$params['parent']]);
             if (count($subcat_ids) == 0) {
                 return new Error(403, 'Unknown parent category id');
             }
@@ -522,7 +518,7 @@ class Category
         $page['infos'] = [];
         $page['errors'] = [];
 
-        $service->getCategoryMapper()->moveCategories($category_ids, $params['parent']);
+        $service->getAlbumMapper()->moveAlbums($category_ids, $params['parent']);
         $service->getUserMapper()->invalidateUserCache();
 
         if (count($page['errors']) != 0) {

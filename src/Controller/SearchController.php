@@ -18,7 +18,6 @@ use Phyxo\Conf;
 use Phyxo\EntityManager;
 use App\Repository\ImageRepository;
 use App\DataMapper\TagMapper;
-use App\DataMapper\CategoryMapper;
 use App\Repository\SearchRepository;
 use App\DataMapper\SearchMapper;
 use Phyxo\Image\ImageStandardParams;
@@ -245,7 +244,7 @@ class SearchController extends CommonController
         return $this->render('search.html.twig', $tpl_params);
     }
 
-    public function searchResults(Request $request, SearchMapper $searchMapper, CategoryMapper $categoryMapper, ImageMapper $imageMapper, Conf $conf,
+    public function searchResults(Request $request, SearchMapper $searchMapper, AlbumMapper $albumMapper, ImageMapper $imageMapper, Conf $conf,
                         SearchRepository $searchRepository, ImageStandardParams $image_std_params, MenuBar $menuBar, $search_id, int $start = 0, TranslatorInterface $translator
     ) {
         $tpl_params = [];
@@ -285,7 +284,7 @@ class SearchController extends CommonController
                 usort($cats, '\Phyxo\Functions\Utils::name_compare');
                 $hints = [];
                 foreach ($cats as $cat) {
-                    $hints[] = $categoryMapper->getCatDisplayName([$cat]);
+                    $hints[] = $albumMapper->getAlbumDisplayName([$cat]);
                 }
                 $tpl_params['category_search_results'] = $hints;
             }
@@ -340,7 +339,7 @@ class SearchController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function searchRules(Request $request, EntityManager $em, CategoryMapper $categoryMapper, AlbumMapper $albumMapper, Conf $conf,
+    public function searchRules(Request $request, EntityManager $em, AlbumMapper $albumMapper, Conf $conf,
                                 SearchRepository $searchRepository, int $search_id, MenuBar $menuBar, TranslatorInterface $translator)
     {
         $tpl_params = [];

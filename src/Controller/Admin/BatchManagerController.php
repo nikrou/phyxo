@@ -12,7 +12,6 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\AlbumMapper;
-use App\DataMapper\CategoryMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\SearchMapper;
 use App\DataMapper\TagMapper;
@@ -66,7 +65,7 @@ class BatchManagerController extends AdminCommonController
     }
 
     public function global(Request $request, string $filter = null, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, AlbumMapper $albumMapper,
-                          CategoryMapper $categoryMapper, ImageStandardParams $image_std_params, SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper,
+                          ImageStandardParams $image_std_params, SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper,
                           UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator, AlbumRepository $albumRepository, ImageAlbumRepository $imageAlbumRepository)
     {
         $tpl_params = [];
@@ -307,11 +306,11 @@ class BatchManagerController extends AdminCommonController
             }
 
             if ($is_category) {
-                $category_info = $categoryMapper->getCatInfo($this->getFilter()['category']);
+                $album = $albumMapper->getRepository()->find($this->getFilter()['category']);
 
                 $conf['order_by'] = $conf['order_by_inside_category'];
-                if (!empty($category_info['image_order'])) {
-                    $conf['order_by'] = ' ORDER BY ' . $em->getConnection()->db_real_escape_string($category_info['image_order']);
+                if ($album->getImageOrder()) {
+                    $conf['order_by'] = ' ORDER BY ' . $em->getConnection()->db_real_escape_string($album->getImageOrder());
                 }
             }
             $result = $em->getRepository(ImageRepository::class)->findByImageIdsAndCategoryId(
@@ -354,7 +353,7 @@ class BatchManagerController extends AdminCommonController
                 $collection = $request->request->get('selection');
             }
 
-            $this->actionOnCollection($request, $collection, $em, $tagMapper, $imageMapper, $categoryMapper, $userMapper, $imageAlbumRepository, $albumMapper);
+            $this->actionOnCollection($request, $collection, $em, $tagMapper, $imageMapper, $userMapper, $imageAlbumRepository, $albumMapper);
         }
 
         $tpl_params['IN_CADDIE'] = isset($this->getFilter()['prefilter']) && $this->getFilter()['prefilter'] === 'caddie';
@@ -393,7 +392,7 @@ class BatchManagerController extends AdminCommonController
         return $this->redirectToRoute('admin_batch_manager_global', ['start' => $request->get('start')]);
     }
 
-    protected function actionOnCollection(Request $request, array $collection = [], EntityManager $em, TagMapper $tagMapper, ImageMapper $imageMapper, CategoryMapper $categoryMapper,
+    protected function actionOnCollection(Request $request, array $collection = [], EntityManager $em, TagMapper $tagMapper, ImageMapper $imageMapper,
                                         UserMapper $userMapper, ImageAlbumRepository $imageAlbumRepository, AlbumMapper $albumMapper)
     {
         // if the user tries to apply an action, it means that there is at least 1 photo in the selection
@@ -440,8 +439,8 @@ class BatchManagerController extends AdminCommonController
             if ($this->getFilter()['prefilter'] === 'no_album') {
                 $redirect = true;
             } elseif ($this->getFilter()['prefilter'] === 'no_virtual_album') {
-                $category_info = $categoryMapper->getCatInfo($request->request->get('associate'));
-                if (empty($category_info['dir'])) {
+                $album = $albumMapper->getRepository()->find($request->request->get('associate'));
+                if ($album->isVirtual()) {
                     $redirect = true;
                 }
             }
@@ -454,8 +453,8 @@ class BatchManagerController extends AdminCommonController
             if ($this->getFilter()['prefilter'] === 'no_album') {
                 $redirect = true;
             } elseif ($this->getFilter()['prefilter'] === 'no_virtual_album') {
-                $category_info = $categoryMapper->getCatInfo($request->request->get('move'));
-                if (empty($category_info['dir'])) {
+                $album = $albumMapper->getRepository()->find($request->request->get('move'));
+                if ($album->isVirtual()) {
                     $redirect = true;
                 }
             } elseif (isset($this->getFilter()['category']) && $this->getFilter()['category'] !== $request->request->get('move')) {
@@ -890,7 +889,7 @@ class BatchManagerController extends AdminCommonController
     }
 
     public function unit(Request $request, string $filter = null, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, SearchMapper $searchMapper, TagMapper $tagMapper,
-                        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator,
+                        ImageStandardParams $image_std_params, AlbumMapper $albumMapper, UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator,
                         AlbumRepository $albumRepository, ImageAlbumRepository $imageAlbumRepository)
     {
         $tpl_params = [];
@@ -1042,11 +1041,11 @@ class BatchManagerController extends AdminCommonController
             }
 
             if ($is_category) {
-                $category_info = $categoryMapper->getCatInfo($this->getFilter()['category']);
+                $album = $albumMapper->getRepository()->find($this->getFilter()['category']);
 
                 $conf['order_by'] = $conf['order_by_inside_category'];
-                if (!empty($category_info['image_order'])) {
-                    $conf['order_by'] = ' ORDER BY ' . $em->getConnection()->db_real_escape_string($category_info['image_order']);
+                if ($album->getImageOrder()) {
+                    $conf['order_by'] = ' ORDER BY ' . $em->getConnection()->db_real_escape_string($album->getImageOrder());
                 }
             }
             $result = $em->getRepository(ImageRepository::class)->findByImageIdsAndCategoryId(

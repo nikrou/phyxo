@@ -17,9 +17,7 @@ use Phyxo\EntityManager;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
 use Phyxo\Image\ImageStandardParams;
-use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
-use App\DataMapper\CategoryMapper;
 use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
 use App\Repository\ImageAlbumRepository;
@@ -237,8 +235,8 @@ class AlbumController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function albumFlat(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar,
-                        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, ImageMapper $imageMapper, int $category_id, int $start = 0, TranslatorInterface $translator)
+    public function albumFlat(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar, ImageStandardParams $image_std_params,
+                                AlbumMapper $albumMapper, ImageMapper $imageMapper, int $category_id, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -249,12 +247,13 @@ class AlbumController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        $category = $categoryMapper->getCatInfo($category_id);
-
         $filter = [];
-        $result = $em->getRepository(CategoryRepository::class)->findAllowedSubCategories($this->getUser(), $filter, $category['uppercats']);
-        $subcat_ids = $em->getConnection()->result2array($result, null, 'id');
-        $subcat_ids[] = $category['id'];
+        $album = $albumMapper->getRepository()->find($category_id);
+        $subcat_ids[] = $album->getId();
+        foreach ($albumMapper->getRepository()->findAllowedSubAlbums($album->getUppercats(), $this->getUser()->getForbiddenCategories()) as $sub_album) {
+            $subcat_ids[] = $sub_album->getId();
+        }
+
         $where_sql = 'category_id ' . $em->getConnection()->in($subcat_ids);
         // remove categories from forbidden because just checked above
         $forbidden = $em->getRepository(BaseRepository::class)->getSQLConditionFandF($this->getUser(), $filter, ['visible_images' => 'id'], 'AND');

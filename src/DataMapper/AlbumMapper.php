@@ -127,85 +127,77 @@ class AlbumMapper
      * Get computed array of albums, that means cache data of all albums
      * available for the current user (count_categories, count_images, etc.).
      */
-    public function getComputedAlbums($userdata, $filter_days = null)
+    public function getComputedAlbums(int $level, array $forbidden_categories = [])
     {
-        $result = $this->em->getRepository(CategoryRepository::class)->getComputedCategories($userdata, $filter_days);
-        $userdata['last_photo_date'] = null;
-        $cats = [];
-        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $row['nb_categories'] = 0;
-            $row['count_categories'] = 0;
-            $row['count_images'] = (int)$row['nb_images'];
-            $row['max_date_last'] = $row['date_last'];
-            if ($row['date_last'] > $userdata['last_photo_date']) {
-                $userdata['last_photo_date'] = $row['date_last'];
+        $albums = [];
+        $last_photo_date = null;
+        foreach ($this->getRepository()->getComputedAlbums($level, $forbidden_categories) as $album) {
+            $album['nb_categories'] = 0;
+            $album['count_categories'] = 0;
+            $album['count_images'] = $album['nb_images'];
+            $album['max_date_last'] = $album['date_last'];
+
+            if ($album['date_last'] > $last_photo_date) {
+                $last_photo_date = $album['date_last'];
             }
 
-            $cats[$row['cat_id']] = $row;
+            $albums[$album['cat_id']] = $album;
         }
 
-        foreach ($cats as $cat) {
-            if (!isset($cat['id_uppercat'])) {
+        foreach ($albums as $album) {
+            if (empty($album['id_uppercat'])) {
                 continue;
             }
 
-            if (!isset($cats[ $cat['id_uppercat'] ])) {
+            if (empty($albums[$album['id_uppercat']])) {
                 continue;
             }
 
-            $parent = &$cats[$cat['id_uppercat']];
+            $parent = &$albums[$album['id_uppercat']];
             $parent['nb_categories']++;
 
             do {
-                $parent['count_images'] += $cat['nb_images'];
+                $parent['count_images'] += $album['nb_images'];
                 $parent['count_categories']++;
 
-                if ((empty($parent['max_date_last'])) or ($parent['max_date_last'] < $cat['date_last'])) {
-                    $parent['max_date_last'] = $cat['date_last'];
+                if ((empty($parent['max_date_last'])) || ($parent['max_date_last'] < $album['date_last'])) {
+                    $parent['max_date_last'] = $album['date_last'];
                 }
 
                 if (!isset($parent['id_uppercat'])) {
                     break;
                 }
-                $parent = &$cats[$parent['id_uppercat']];
+                $parent = &$albums[$parent['id_uppercat']];
             } while (true);
             unset($parent);
         }
 
-        if (isset($filter_days)) {
-            foreach ($cats as $category) {
-                if (empty($category['max_date_last'])) {
-                    $this->removeComputedAlbum($cats, $category);
-                }
-            }
-        }
-
-        return $cats;
+        return $albums;
     }
 
     /**
      * Removes an album from computed array of albums and updates counters.
      */
-    public function removeComputedAlbum(array $cats, $cat): array
+    public function removeComputedAlbum(array $albums, $album): array
     {
-        if (isset($cats[$cat['id_uppercat']])) {
-            $parent = $cats[$cat['id_uppercat']];
+        if (isset($albums[$album['id_uppercat']])) {
+            $parent = $albums[$album['id_uppercat']];
             $parent['nb_categories']--;
 
             do {
-                $parent['count_images'] -= $cat['nb_images'];
-                $parent['count_categories'] -= 1 + $cat['count_categories'];
+                $parent['count_images'] -= $album['nb_images'];
+                $parent['count_categories'] -= 1 + $album['count_categories'];
 
-                if (!isset($cats[$parent['id_uppercat']])) {
+                if (!isset($albums[$parent['id_uppercat']])) {
                     break;
                 }
-                $parent = $cats[$parent['id_uppercat']];
+                $parent = $albums[$parent['id_uppercat']];
             } while (true);
         }
 
-        unset($cats[$cat['cat_id']]);
+        unset($albums[$album['cat_id']]);
 
-        return $cats;
+        return $albums;
     }
 
     /**
@@ -955,7 +947,7 @@ class AlbumMapper
         $this->imageAlbumRepository->deleteByAlbum($ids);
 
         // destruction of the albums
-        $this->getRepository()->deleteByIds($ids);
+        $this->getRepository()->deleteAlbums($ids);
 
         $this->userCacheAlbumRepository->deleteForAlbums($ids);
     }
@@ -1041,107 +1033,6 @@ class AlbumMapper
         $this->em->getRepository(CategoryRepository::class)->massUpdatesCategories($fields, $datas);
 
         $this->updateGlobalRank();
-    }
-
-    // temporary because GroupAccess is not managed by doctrine
-
-    /**
-     * Same as displaySelectCategories but categories are ordered by rank
-     * @see displaySelectCategories()
-     */
-    public function displaySelectCategoriesWrapper(array $categories, array $selecteds, string $blockname, bool $fullname = true): array
-    {
-        usort($categories, '\Phyxo\Functions\Utils::global_rank_compare');
-
-        return $this->displaySelectCategories($categories, $selecteds, $blockname, $fullname);
-    }
-
-    /**
-     * @param array[] $categories (at least id,name,global_rank,uppercats for each)
-     * @param int[] $selected ids of selected items
-     * @param string $blockname variable name in template
-     * @param bool $fullname full breadcrumb or not
-     */
-    public function displaySelectCategories(array $categories, array $selecteds, string $blockname, bool $fullname = true)
-    {
-        $tpl_cats = [];
-        foreach ($categories as $category) {
-            if ($fullname) {
-                $option = strip_tags($this->getCatDisplayNameCache($category['uppercats']));
-            } else {
-                $option = str_repeat('&nbsp;', (3 * substr_count($category['global_rank'], '.')));
-                $option .= '- ';
-                $option .= strip_tags($category['name']);
-            }
-            $tpl_cats[$category['id']] = $option;
-        }
-
-        return [
-            $blockname => $tpl_cats,
-            $blockname . '_selected' => $selecteds
-        ];
-    }
-
-    /**
-     * Generates breadcrumb from categories list using a cache.
-     * @see getCatDisplayName()
-     */
-    public function getCatDisplayNameCache(string $uppercats, string $url = '', bool $single_link = false, string $link_class = ''): string
-    {
-        $cache = [];
-
-        if (!isset($cache['cat_names'])) {
-            $result = $this->em->getRepository(CategoryRepository::class)->findAll();
-            $cache['cat_names'] = $this->em->getConnection()->result2array($result, 'id');
-        }
-
-        $output = '';
-        if ($single_link) {
-            $single_url = $this->router->generate('album', ['category_id' => array_pop(explode(',', $uppercats)) ]);
-            $output .= '<a href="' . $single_url . '"';
-            if (isset($link_class)) {
-                $output .= ' class="' . $link_class . '"';
-            }
-            $output .= '>';
-        }
-
-        // @TODO: refactoring with getCatDisplayName
-        $is_first = true;
-        foreach (explode(',', $uppercats) as $category_id) {
-            $cat = $cache['cat_names'][$category_id];
-
-            if ($is_first) {
-                $is_first = false;
-            } else {
-                $output .= $this->conf['level_separator'];
-            }
-
-            if (!isset($url) || $single_link) {
-                $output .= $cat['name'];
-            } else {
-                $output .= '<a href="' . $this->router->generate('album', ['category_id' => $cat['id']]) . '">' . $cat['name'] . '</a>';
-            }
-        }
-
-        if ($single_link && isset($single_url)) {
-            $output .= '</a>';
-        }
-
-        return $output;
-    }
-
-    public function getUppernamesBreadcrumb(array $upper_names = []): array
-    {
-        $breadcumb = [];
-
-        foreach ($upper_names as $category) {
-            $breadcumb[] = [
-                'url' => $this->router->generate('album', ['category_id' => $category['id']]),
-                'label' => $category['name']
-            ];
-        }
-
-        return $breadcumb;
     }
 
     /**

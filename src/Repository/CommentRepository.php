@@ -13,6 +13,7 @@ namespace App\Repository;
 
 use App\Entity\Comment;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\Persistence\ManagerRegistry;
 
 class CommentRepository extends ServiceEntityRepository
@@ -126,7 +127,7 @@ class CommentRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function getLastComments(array $filter_params = [], int $offset = 0, int $limit, bool $count_only = false)
+    public function getLastComments(array $filter_params = [], int $offset = 0, int $limit = 0, bool $count_only = false)
     {
         $qb = $this->createQueryBuilder('c');
 
@@ -138,7 +139,6 @@ class CommentRepository extends ServiceEntityRepository
         $qb->leftJoin('c.user', 'u');
 
         if (!$count_only) {
-            $qb->groupBy('c.id, ia.album, u.mail_address');
             $qb->setFirstResult($offset);
             $qb->setMaxResults($limit);
         }
@@ -169,9 +169,10 @@ class CommentRepository extends ServiceEntityRepository
             }
         }
 
+        $qb->groupBy('c.id, ia.album, u.mail_address, c.date');
         $qb->orderBy('c.' . $filter_params['sort_by'], $filter_params['sort_order']);
         if ($count_only) {
-            return $qb->getQuery()->getSingleScalarResult();
+            return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR) ?? 0;
         } else {
             return $qb->getQuery()->getResult();
         }

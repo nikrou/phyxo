@@ -747,8 +747,8 @@ class Image
             $image_infos = $service->getConnection()->db_fetch_assoc($result);
             $src_image = new SrcImage($image_infos, $service->getConf()['picture_ext']);
 
-            list(, $nb_photos) = $service->getManagerRegistry()->getRepository(ImageAlbum::class)->countImagesByAlbum();
-            $category_name = $service->getCategoryMapper()->getCatDisplayNameFromId($params['category'][0]);
+            $nb_photos_in = $service->getManagerRegistry()->getRepository(ImageAlbum::class)->countImagesByAlbum();
+            $category_name = $service->getAlbumMapper()->getRepository()->find($params['category'][0])->getName();
             $derivative_image = new DerivativeImage(
                 $src_image,
                 $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB),
@@ -761,7 +761,7 @@ class Image
                 'name' => $image_infos['name'],
                 'category' => [
                     'id' => $params['category'][0],
-                    'nb_photos' => $nb_photos,
+                    'nb_photos' => $nb_photos_in[$params['category'][0]],
                     'label' => $category_name,
                 ]
             ];

@@ -11,13 +11,13 @@
 
 namespace App;
 
+use App\DataMapper\AlbumMapper;
 use App\Repository\ImageRepository;
 use App\Repository\CommentRepository;
 use App\Repository\UserMailNotificationRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\BaseRepository;
 use App\DataMapper\UserMapper;
-use App\DataMapper\CategoryMapper;
 use App\Entity\UserMailNotification;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\SrcImage;
@@ -34,12 +34,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Notification
 {
-    private $em, $conn, $conf, $userMapper, $categoryMapper, $router, $commentRepository;
+    private $em, $conn, $conf, $userMapper, $albumMapper, $router, $commentRepository;
     private $env, $mailer, $translator, $userMailNotificationRepository, $userInfosRepository;
 
     private $infos = [], $errors = [];
 
-    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, CategoryMapper $categoryMapper, RouterInterface $router,
+    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, AlbumMapper $albumMapper, RouterInterface $router,
                                 MailerInterface $mailer, TranslatorInterface $translator, CommentRepository $commentRepository,
                                 UserMailNotificationRepository $userMailNotificationRepository, UserInfosRepository $userInfosRepository)
     {
@@ -47,7 +47,7 @@ class Notification
         $this->conn = $em->getConnection();
         $this->conf = $conf;
         $this->userMapper = $userMapper;
-        $this->categoryMapper = $categoryMapper;
+        $this->albumMapper = $albumMapper;
         $this->router = $router;
         $this->mailer = $mailer;
         $this->translator = $translator;
@@ -327,7 +327,7 @@ class Notification
         foreach ($date_detail['categories'] as $cat) {
             $description .=
                 '<li>'
-                . $this->categoryMapper->getCatDisplayNameCache($cat['uppercats'])
+                . $this->albumMapper->getAlbumsDisplayNameCache($cat['uppercats'])
                 . ' (' . $this->translator->trans('number_of_new_photos', ['count' => $cat['img_count']]) . ')'
                 . '</li>';
         }

@@ -339,6 +339,23 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    public function getComputedAlbums(int $level, array $forbidden_categories = [])
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->select('a.id AS cat_id, IDENTITY(a.parent) AS id_uppercat, MAX(i.date_available) as date_last, COUNT(i.id) AS nb_images');
+        $qb->leftJoin('a.imageAlbums', 'ia');
+        $qb->leftJoin('ia.image', 'i', Expr\Join::WITH, 'i.level <= :level');
+        $qb->setParameter('level', $level);
+
+        if (count($forbidden_categories) > 0) {
+            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
+        }
+
+        $qb->groupBy('a.id');
+
+        return $qb->getQuery()->getResult();
+    }
+
     public function findParentAlbums(int $user_id)
     {
         $qb = $this->createQueryBuilder('a');

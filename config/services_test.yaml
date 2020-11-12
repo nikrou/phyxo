@@ -28,9 +28,6 @@ services:
   phyxo.album.mapper:
     alias: 'App\DataMapper\AlbumMapper'
 
-  phyxo.category.mapper:
-    alias: 'App\DataMapper\CategoryMapper'
-
   phyxo.image.mapper:
     alias: 'App\DataMapper\ImageMapper'
 

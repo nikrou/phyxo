@@ -87,12 +87,13 @@ class ImageAlbumRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('ia');
         $qb->addSelect('IDENTITY(ia.album) AS album, COUNT(1) AS counter');
-        $qb->groupBy('ia.album');
+        $qb->groupBy('ia.album, ia.image, ia.rank');
 
         $results = [];
         foreach ($qb->getQuery()->getResult() as $row) {
             $results[$row['album']] = $row['counter'];
         }
+
 
         return $results;
     }

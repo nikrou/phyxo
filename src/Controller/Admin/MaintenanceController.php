@@ -12,7 +12,6 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\AlbumMapper;
-use App\DataMapper\CategoryMapper;
 use App\DataMapper\RateMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;

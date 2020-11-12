@@ -19,7 +19,6 @@ use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use App\Repository\UserRepository;
 use App\Entity\User;
 use Phyxo\EntityManager;
-use App\DataMapper\CategoryMapper;
 use App\Entity\Album;
 use App\Entity\UserCache;
 use App\Entity\UserCacheAlbum;
@@ -38,16 +37,15 @@ use Symfony\Component\Security\Csrf\Exception\TokenNotFoundException;
 
 class UserProvider implements UserProviderInterface
 {
-    private $user, $em, $session, $categoryMapper, $albumMapper, $tokenStorage, $conf, $userRepository, $userCacheRepository, $userCacheAlbumRepository, $imageAlbumRepository;
+    private $user, $em, $session, $albumMapper, $tokenStorage, $conf, $userRepository, $userCacheRepository, $userCacheAlbumRepository, $imageAlbumRepository;
 
-    public function __construct(EntityManager $em, UserRepository $userRepository, SessionInterface $session, CategoryMapper $categoryMapper, TokenStorageInterface $tokenStorage,
+    public function __construct(EntityManager $em, UserRepository $userRepository, SessionInterface $session, TokenStorageInterface $tokenStorage,
                                 Conf $conf, AlbumMapper $albumMapper, UserCacheRepository $userCacheRepository, UserCacheAlbumRepository $userCacheAlbumRepository,
                                 ImageAlbumRepository $imageAlbumRepository)
     {
         $this->em = $em;
         $this->userRepository = $userRepository;
         $this->session = $session;
-        $this->categoryMapper = $categoryMapper;
         $this->albumMapper = $albumMapper;
         $this->tokenStorage = $tokenStorage;
         $this->conf = $conf;
@@ -206,16 +204,14 @@ class UserProvider implements UserProviderInterface
             $userCache->setNbTotalImages($this->imageAlbumRepository->countTotalImages($forbidden_categories, UserCache::ACCESS_NOT_IN, $forbidden_image_ids));
 
             // now we update user cache categories
-            $user_cache_cats = $this->categoryMapper->getComputedCategories(
-                ['level' => $user->getUserInfos()->getLevel(), 'forbidden_categories' => $forbidden_categories]
-            );
+            $user_cache_cats = $this->albumMapper->getComputedAlbums($user->getUserInfos()->getLevel(), $forbidden_categories);
 
             if (!$is_admin) { // for non admins we forbid categories with no image (feature 1053)
                 $forbidden_ids = [];
                 foreach ($user_cache_cats as $cat_id => $cat) {
                     if ($cat['count_images'] === 0) {
                         $forbidden_ids[] = $cat_id;
-                        $this->categoryMapper->removeComputedCategory($user_cache_cats, $cat);
+                        $this->albumMapper->removeComputedAlbum($user_cache_cats, $cat);
                     }
                 }
                 if (count($forbidden_ids) > 0) {
