@@ -1,10 +1,10 @@
-name: Phyxo tests
+name: Phyxo
 
 on: [push]
 
 jobs:
-  phyxo:
-    name: Phyxo
+  tests:
+    name: Phyxo tests
     runs-on: ubuntu-18.04
     strategy:
       fail-fast: true
@@ -30,11 +30,37 @@ jobs:
       - name: Unit tests
         run: ./bin/atoum
 
+  release:
+    name: Phyxo release
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP, extensions and composer with shivammathur/setup-php
+        uses: shivammathur/setup-php@v2
+        with:
+          tools: composer:v1
+          php-version: '7.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+        env:
+          update: true
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Setup Phyxo version
+        run: |
+          echo "PHYXO_VERSION=$(make version)" >> $GITHUB_ENV
+
       - name: Build archive
-        run: make dist-zip
+        run: make build
 
       - name: Archive nightly build
         uses: actions/upload-artifact@v2
         with:
-          name: phyxo-dist
-          path: target
+          name: phyxo-${{ env.PHYXO_VERSION }}
+          path: .dist

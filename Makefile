@@ -1,6 +1,11 @@
 DIST=.dist
 APP_NAME=phyxo
-APP_VERSION=$(shell grep "core_version:" ./config/parameters.yaml| sed -e 's/.*: //')
+CORE_VERSION=$(shell grep "core_version:" ./config/parameters.yaml| sed -e 's/.*: //')
+ifeq (, $(findstring "-dev",$(CORE_VERSION)))
+  APP_VERSION=$(CORE_VERSION)'-'$$(date +%Y%m%d%H%M%S)
+else
+  APP_VERSION=$(CORE_VERSION)
+endif
 SOURCE=./*
 TARGET=../target
 COMPOSER=composer
@@ -22,7 +27,7 @@ PUBLIC_MANIFEST=$(PUBLIC_THEME_PATH)/build/manifest.json
 
 config: clean ## prepare environment for building archive
 	mkdir -p $(DIST)/$(APP_NAME)/bin
-	cp -pr .env *.php admin include install languages templates translations config imgs src \
+	cp -pr .env *.php include install languages templates translations config imgs src \
 	CHANGELOG.md LICENSE README.md $(DIST)/$(APP_NAME)/
 	cp -p tools/.htaccess $(DIST)/$(APP_NAME)/
 
@@ -46,18 +51,13 @@ config: clean ## prepare environment for building archive
 	mkdir -p $(DIST)/$(APP_NAME)/_data $(DIST)/$(APP_NAME)/upload	\
 	$(DIST)/$(APP_NAME)/galleries $(DIST)/$(APP_NAME)/local/config	\
 	$(DIST)/$(APP_NAME)/themes $(DIST)/$(APP_NAME)/plugins		\
-	$(DIST)/$(APP_NAME)/var/cache/prod $(DIST)/$(APP_NAME)/var/log
+	$(DIST)/$(APP_NAME)/var/cache/prod $(DIST)/$(APP_NAME)/var/cache/install $(DIST)/$(APP_NAME)/var/log
 
-	# copy only distrib plugins and themes
-	cp -pr themes/treflez $(DIST)/$(APP_NAME)/themes/
-
-	# remove node_modules and other stuff for dev
-	rm -fr $(DIST)/$(APP_NAME)/themes/treflez/src $(DIST)/$(APP_NAME)/themes/treflez/node_modules \
-	 	$(DIST)/$(APP_NAME)/themes/treflez/webpack.config.js $(DIST)/$(APP_NAME)/themes/treflez/package.json \
-	 	$(DIST)/$(APP_NAME)/themes/treflez/package-lock.json $(DIST)/$(APP_NAME)/themes/treflez/postcss.config.js \
-	 	$(DIST)/$(APP_NAME)/admin/theme/src $(DIST)/$(APP_NAME)/admin/theme/node_modules \
-	 	$(DIST)/$(APP_NAME)/admin/theme/webpack.config.js $(DIST)/$(APP_NAME)/admin/theme/package.json \
-	 	$(DIST)/$(APP_NAME)/admin/theme/package-lock.json $(DIST)/$(APP_NAME)/admin/theme/postcss.config.js
+	# add empty files in emty dirs
+	touch $(DIST)/$(APP_NAME)/_data/.gitkeep $(DIST)/$(APP_NAME)/upload/.gitkeep							\
+	$(DIST)/$(APP_NAME)/galleries/.gitkeep $(DIST)/$(APP_NAME)/local/config/.gitkeep						\
+	$(DIST)/$(APP_NAME)/themes/.gitkeep $(DIST)/$(APP_NAME)/plugins/.gitkeep							\
+	$(DIST)/$(APP_NAME)/var/cache/prod/.gitkeep $(DIST)/$(APP_NAME)/var/cache/install/.gitkeep $(DIST)/$(APP_NAME)/var/log/.gitkeep
 
 	find $(DIST) -name '*~' -exec rm \{\} \;
 	find $(DIST) -name '.env.local*' -o -name '.env.*.local' -exec rm \{\} \;
@@ -68,20 +68,41 @@ config: clean ## prepare environment for building archive
 	find ./$(DIST)/ -type d -name '.git' | xargs -r rm -rf
 	find ./$(DIST)/ -type f -name '.*ignore' | xargs -r rm -rf
 
-dist: config $(ADMIN_MANIFEST) $(PUBLIC_MANIFEST) dist-tgz dist-zip ## build archives (zip and tgz) for Phyxo
+config_assets:
+	# copy only distrib plugins and themes
+	cp -pr themes/treflez $(DIST)/$(APP_NAME)/themes/
 
-dist-tgz: config $(ADMIN_MANIFEST) $(PUBLIC_MANIFEST) ## build tgz archive for Phyxo
+	# copy admin theme
+	cp -pr admin $(DIST)/$(APP_NAME)/
+
+	# remove node_modules and other stuff for dev
+	rm -fr $(DIST)/$(APP_NAME)/themes/treflez/src $(DIST)/$(APP_NAME)/themes/treflez/node_modules \
+	 	$(DIST)/$(APP_NAME)/themes/treflez/webpack.config.js $(DIST)/$(APP_NAME)/themes/treflez/package.json \
+	 	$(DIST)/$(APP_NAME)/themes/treflez/package-lock.json $(DIST)/$(APP_NAME)/themes/treflez/postcss.config.js \
+	 	$(DIST)/$(APP_NAME)/admin/theme/src $(DIST)/$(APP_NAME)/admin/theme/node_modules \
+	 	$(DIST)/$(APP_NAME)/admin/theme/webpack.config.js $(DIST)/$(APP_NAME)/admin/theme/package.json \
+	 	$(DIST)/$(APP_NAME)/admin/theme/package-lock.json $(DIST)/$(APP_NAME)/admin/theme/postcss.config.js
+
+
+build: config $(ADMIN_MANIFEST) $(PUBLIC_MANIFEST) config_assets ## build/prepare archives for Phyxo
+
+dist: build dist-tgz dist-zip ## create compressed archives (zip and tgz) for Phyxo
+
+dist-tgz: config $(ADMIN_MANIFEST) $(PUBLIC_MANIFEST) config_assets ## build tgz archive for Phyxo
 	cd $(DIST); \
 	mkdir -p $(TARGET); \
 	tar zcvf $(TARGET)/$(APP_NAME)-$(APP_VERSION).tgz $(APP_NAME) ; \
 	cd ..
 
-dist-zip: config $(ADMIN_MANIFEST) $(PUBLIC_MANIFEST) ## build zip archive for Phyxo
+dist-zip: config $(ADMIN_MANIFEST) $(PUBLIC_MANIFEST) config_assets ## build zip archive for Phyxo
 	cd $(DIST); \
 	mkdir -p $(TARGET); \
-	rm $(TARGET)/$(APP_NAME)-$(APP_VERSION).zip ; \
+	rm -f $(TARGET)/$(APP_NAME)-$(APP_VERSION).zip ; \
 	zip -v -r9 $(TARGET)/$(APP_NAME)-$(APP_VERSION).zip $(APP_NAME) ; \
 	cd ..
+
+version:
+	@echo $(APP_VERSION)
 
 ##
 ## Assets
