@@ -16,7 +16,6 @@ use App\Entity\ImageAlbum;
 use App\Entity\User;
 use App\Entity\UserCacheAlbum;
 use App\Repository\AlbumRepository;
-use App\Repository\CategoryRepository;
 use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageRepository;
 use App\Repository\UserCacheAlbumRepository;
@@ -26,7 +25,6 @@ use Phyxo\EntityManager;
 use Phyxo\Image\SrcImage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class AlbumMapper
 {
@@ -55,13 +53,13 @@ class AlbumMapper
      * Returns template vars for main albums menu.
      *
      */
-    public function getRecursiveAlbumsMenu(UserInterface $user, array $filter = [], array $selected_category = []): array
+    public function getRecursiveAlbumsMenu(User $user, array $selected_category = []): array
     {
-        $flat_categories = $this->getAlbumsMenu($user, $filter, $selected_category);
+        $flat_categories = $this->getAlbumsMenu($user, $selected_category);
 
         $categories = [];
         foreach ($flat_categories as $category) {
-            if ($category['uppercats'] === $category['id']) {
+            if ($category['uppercats'] == $category['id']) {
                 $categories[$category['id']] = $category;
             } else {
                 $this->insertAlbumInTree($categories, $category, $category['uppercats']);
@@ -89,37 +87,31 @@ class AlbumMapper
      * Returns template vars for main albums menu.
      *
      */
-    protected function getAlbumsMenu(UserInterface $user, array $filter = [], array $selected_category = []): array
+    protected function getAlbumsMenu(User $user, array $selected_category = []): array
     {
-        $result = $this->em->getRepository(CategoryRepository::class)->getCategoriesForMenu(
-            $user,
-            $filter,
-            isset($selected_category['uppercats']) ? explode(',', $selected_category['uppercats']) : []
-        );
-
-        $cats = [];
-        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $child_date_last = (isset($row['max_date_last'], $row['date_last']) && ($row['max_date_last'] > $row['date_last']));
-
-            $row = array_merge(
-                $row,
+        $albums = [];
+        foreach ($this->getRepository()->getAlbumsForMenu($user->getId(), $user->getForbiddenCategories()) as $album) {
+            $album_infos = array_merge(
+                $album->toArray(),
                 [
-                    'NAME' => $row['name'],
-                    'TITLE' => $this->getDisplayImagesCount($row['nb_images'], $row['count_images'], $row['count_categories'], false, ' / '),
-                    'URL' => $this->router->generate('album', ['category_id' => $row['id']]),
-                    'LEVEL' => substr_count($row['global_rank'], '.') + 1,
-                    'SELECTED' => isset($selected_category['id']) && $selected_category['id'] === $row['id'] ? true : false,
-                    'IS_UPPERCAT' => isset($selected_category['id_uppercat']) && $selected_category['id_uppercat'] === $row['id'] ? true : false,
+                    'NAME' => $album->getName(),
+                    'TITLE' => $this->getDisplayImagesCount($album->getUserCacheAlbums()->first()->getNbImages(), $album->getUserCacheAlbums()->first()->getCountImages(),
+                                    $album->getUserCacheAlbums()->first()->getCountAlbums(), false, ' / '
+                                ),
+                    'URL' => $this->router->generate('album', ['category_id' => $album->getId()]),
+                    'LEVEL' => substr_count($album->getGlobalRank(), '.') + 1,
+                    'SELECTED' => isset($selected_category['id']) && $selected_category['id'] === $album->getId() ? true : false,
+                    'IS_UPPERCAT' => isset($selected_category['id_uppercat']) && $selected_category['id_uppercat'] === $album->getId() ? true : false,
                 ]
             );
             if ($this->conf['index_new_icon'] && !empty($row['max_date_last'])) { // @FIX : cf BUGS
                 // $row['icon_ts'] = $this->em->getRepository(BaseRepository::class)->getIcon($row['max_date_last'], $user, $child_date_last);
             }
-            $cats[$row['id']] = $row;
+            $albums[$album->getId()] = $album_infos;
         }
-        uasort($cats, '\Phyxo\Functions\Utils::global_rank_compare');
+        uasort($albums, '\Phyxo\Functions\Utils::global_rank_compare');
 
-        return $cats;
+        return $albums;
     }
 
     /**
@@ -1028,10 +1020,9 @@ class AlbumMapper
                 $current_rank++;
             }
 
-            $datas[] = ['id' => $id, 'rank' => $current_rank];
+            $this->getCacheAlbums()[$id]->setRank($current_rank);
+            $this->getRepository()->addOrUpdateAlbum($this->getCacheAlbums()[$id]);
         }
-        $fields = ['primary' => ['id'], 'update' => ['rank']];
-        $this->em->getRepository(CategoryRepository::class)->massUpdatesCategories($fields, $datas);
 
         $this->updateGlobalRank();
     }

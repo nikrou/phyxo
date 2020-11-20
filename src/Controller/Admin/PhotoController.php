@@ -15,7 +15,6 @@ use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
-use App\Repository\CategoryRepository;
 use App\Repository\ImageAlbumRepository;
 use App\Repository\RateRepository;
 use App\Repository\TagRepository;
@@ -173,8 +172,10 @@ class PhotoController extends AdminCommonController
             $cache_albums[$album->getId()] = $album;
         }
 
-        $result = $em->getRepository(CategoryRepository::class)->findCategoriesForImage($image_id);
-        $associated_albums = $em->getConnection()->result2array($result, 'id');
+        $associated_albums = [];
+        foreach ($albumMapper->getRepository()->findAlbumsForImage($image_id) as $album) {
+            $associated_albums[] = $album->getId();
+        }
 
         foreach ($associated_albums as $album) {
             $name = $albumMapper->getAlbumsDisplayNameCache($album['uppercats']);

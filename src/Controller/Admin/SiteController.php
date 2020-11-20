@@ -14,7 +14,6 @@ namespace App\Controller\Admin;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\Entity\Site;
-use App\Repository\CategoryRepository;
 use App\Repository\SiteRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
@@ -27,7 +26,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class SiteController extends AdminCommonController
 {
     public function index(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, KernelInterface $kernel, CsrfTokenManagerInterface $csrfTokenManager,
-                        TranslatorInterface $translator, SiteRepository $siteRepository)
+                        AlbumMapper $albumMapper, TranslatorInterface $translator, SiteRepository $siteRepository)
     {
         $tpl_params = [];
 
@@ -63,8 +62,10 @@ class SiteController extends AdminCommonController
             return $this->redirectToRoute('admin_site');
         }
 
-        $result = $em->getRepository(CategoryRepository::class)->findSitesDetail();
-        $sites_detail = $em->getConnection()->result2array($result, 'site_id');
+        $sites_detail = [];
+        foreach ($albumMapper->getRepository()->findSitesDetail() as $site_detail) {
+            $sites_detail['site_id'] = $site_detail;
+        }
 
         foreach ($siteRepository->findAll() as $site) {
             $is_remote = \Phyxo\Functions\URL::url_is_remote($site->getGalleryUrl());
@@ -73,7 +74,7 @@ class SiteController extends AdminCommonController
                 'ID' => $site->getId(),
                 'NAME' => $site->getGalleryUrl(),
                 'TYPE' => $translator->trans($is_remote ? 'Remote' : 'Local', [], 'admin'),
-                'CATEGORIES' => isset($sites_detail[$site->getId()]['nb_categories']) ?? null,
+                'CATEGORIES' => isset($sites_detail[$site->getId()]['nb_albums']) ?? null,
                 'IMAGES' => isset($sites_detail[$site->getId()]['nb_images']) ?? null,
                 'U_SYNCHRONIZE' => $this->generateUrl('admin_synchronize', ['site' => $site->getId()]),
             ];

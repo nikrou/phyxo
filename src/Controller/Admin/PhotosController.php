@@ -11,9 +11,9 @@
 
 namespace App\Controller\Admin;
 
+use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\Repository\CaddieRepository;
-use App\Repository\CategoryRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Functions\Utils;
@@ -40,7 +40,7 @@ class PhotosController extends AdminCommonController
     }
 
     public function direct(Request $request, int $album_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $tokenManager,
-                            TranslatorInterface $translator, ImageMapper $imageMapper)
+                            AlbumMapper $albumMapper, TranslatorInterface $translator, ImageMapper $imageMapper)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -99,8 +99,8 @@ class PhotosController extends AdminCommonController
         $selected_category = [];
         if ($album_id) {
             // test if album really exists
-            $album = $em->getRepository(CategoryRepository::class)->findById($album_id);
-            if (!empty($album)) {
+            $album = $albumMapper->getRepository()->find($album_id);
+            if (!is_null($album)) {
                 $selected_category = [$album_id];
                 $this->addFlash('selected_category', json_encode($selected_category));
             }

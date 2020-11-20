@@ -17,7 +17,6 @@ use App\Entity\User;
 use App\Entity\UserCacheAlbum;
 use App\Entity\UserInfos;
 use Phyxo\Ws\Error;
-use App\Repository\CategoryRepository;
 use Phyxo\Ws\Server;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
@@ -270,22 +269,25 @@ class Category
      */
     public static function setInfo($params, Server $service)
     {
-        $update = [
-            'id' => $params['category_id'],
-        ];
-
-        $info_columns = ['name', 'comment', ];
+        $album = $service->getAlbumMapper()->getRepository()->find($params['category_id']);
+        if (is_null($album)) {
+            return new Error(404, 'category_id not found');
+        }
 
         $perform_update = false;
-        foreach ($info_columns as $key) {
-            if (isset($params[$key])) {
-                $perform_update = true;
-                $update[$key] = $params[$key];
-            }
+
+        if (isset($params['name'])) {
+            $album->setName($params['name']);
+            $perform_update = true;
+        }
+
+        if (isset($params['comment'])) {
+            $album->setComment($params['comment']);
+            $perform_update = true;
         }
 
         if ($perform_update) {
-            (new CategoryRepository($service->getConnection()))->updateCategory($update, $update['id']);
+            $service->getAlbumMapper()->getRepository()->addOrUpdateAlbum($album);
         }
     }
 

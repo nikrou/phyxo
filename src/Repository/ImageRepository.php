@@ -873,4 +873,19 @@ class ImageRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getSingleScalarResult();
     }
+
+    public function isCommentable(array $forbidden_categories = [], int $image_id)
+    {
+        $qb = $this->createQueryBuilder('i');
+        $qb->select('COUNT(1)');
+        $qb->leftJoin('i.imageAlbums', 'ia');
+        $qb->where('i.id = :image_id');
+        $qb->setParameter('image_id', $image_id);
+
+        if (count($forbidden_categories) > 0) {
+            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
+        }
+
+        return $qb->getQuery()->getSingleScalarResult() > 0;
+    }
 }

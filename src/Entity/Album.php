@@ -500,4 +500,21 @@ class Album
 
         return $this;
     }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'global_rank' => $this->getGlobalRank(),
+            'uppercats' => $this->getUppercats(),
+            'comment' => $this->getComment(),
+            'commentable' => $this->isCommentable(),
+            'status' => $this->getStatus(),
+            'rank' => $this->getRank(),
+            'visible' => $this->isVisible(),
+            'representative_picture_id' => $this->getRepresentativePictureId(),
+            'image_order' => $this->getImageOrder()
+        ];
+    }
 }

@@ -11,9 +11,7 @@
 
 namespace App\DataMapper;
 
-use App\Repository\BaseRepository;
 use App\Repository\CaddieRepository;
-use App\Repository\CategoryRepository;
 use Phyxo\EntityManager;
 use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
@@ -256,11 +254,13 @@ class ImageMapper
         // destruction of the image
         $this->imageRepository->deleteByIds($ids);
 
-        // are the photo used as category representant?
-        $result = $this->em->getRepository(CategoryRepository::class)->findRepresentants($ids);
-        $category_ids = $this->em->getConnection()->result2array($result, null, 'id');
-        if (count($category_ids) > 0) {
-            $this->albumMapper->updateAlbums($category_ids);
+        // are the photo used as album representant?
+        $album_ids = [];
+        foreach ($this->albumMapper->getRepository()->findRepresentants($ids) as $album) {
+            $album_ids[] = $album->getId();
+        }
+        if (count($album_ids) > 0) {
+            $this->albumMapper->updateAlbums($album_ids);
         }
 
         return count($ids);

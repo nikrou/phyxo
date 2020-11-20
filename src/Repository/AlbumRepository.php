@@ -60,6 +60,19 @@ class AlbumRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
+    public function getAlbumsForMenu(int $user_id, array $forbidden_categories = [])
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->leftJoin('a.userCacheAlbums', 'ia', Expr\Join::WITH, 'ia.user = :user_id');
+        $qb->setParameter('user_id', $user_id);
+
+        if (count($forbidden_categories) > 0) {
+            $qb->where($qb->expr()->notIn('a.id', $forbidden_categories));
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
     public function findWithSite(int $id)
     {
         $qb = $this->createQueryBuilder('a');
@@ -156,6 +169,16 @@ class AlbumRepository extends ServiceEntityRepository
         $qb->where('a.status = :status');
         $qb->setParameter('status', $status);
         $qb->andWhere($qb->expr()->in('a.id', $ids));
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findAlbumsForImage(int $image_id)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->leftJoin('a.imageAlbums', 'ia');
+        $qb->where('ia.image = :image_id');
+        $qb->setParameter('image_id', $image_id);
 
         return $qb->getQuery()->getResult();
     }
@@ -367,6 +390,28 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    public function findRepresentants(array $ids)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->where($qb->expr()->in('a.representative_picture_id', $ids));
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findRelative(array $forbidden_categories = [], int $image_id)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->leftJoin('a.imageAlbums', 'ia');
+        $qb->where('ia.id = :image_id');
+        $qb->setParameter('image_id', $image_id);
+
+        if (count($forbidden_categories) > 0) {
+            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
     public function findRecentAlbums(?DateTimeInterface $recent_date, ?DateTimeInterface $last_photo_date = null)
     {
         $qb = $this->createQueryBuilder('a');
@@ -553,5 +598,16 @@ class AlbumRepository extends ServiceEntityRepository
         $qb->select('MAX(a.last_modified) as max, COUNT(1) as count');
 
         return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_ARRAY);
+    }
+
+    public function findSitesDetail()
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->select('a.site_id, COUNT(DISTINCT(a.id)) AS nb_albums, COUNT(ia.id) AS nb_images');
+        $qb->leftJoin('ia.imageAlbums', 'ia', Expr\Join::WITH, 'a.id = ia.storage_category_id');
+        $qb->where($qb->expr()->isNotNull('a.site_id'));
+        $qb->groupBy('a.site_id');
+
+        return $qb->getQuery()->getResult();
     }
 }

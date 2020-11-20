@@ -19,7 +19,6 @@ use Phyxo\Ws\Error;
 use App\Repository\TagRepository;
 use App\Repository\RateRepository;
 use App\Repository\ImageTagRepository;
-use App\Repository\CategoryRepository;
 use App\Security\TagVoter;
 use Phyxo\Functions\Utils;
 use Phyxo\Functions\URL;
@@ -44,8 +43,7 @@ class Image
      */
     public static function addComment($params, Server $service)
     {
-        $result = (new CategoryRepository($service->getConnection()))->findCommentable($service->getUserMapper()->getUser(), [], $params['image_id']);
-        if (!$service->getConnection()->db_num_rows($result)) {
+        if (!$service->getImageMapper()->getRepository()->isCommentable($service->getUserMapper()->getUser()->getForbiddenCategories(), $params['image_id'])) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid image_id');
         }
 
@@ -92,23 +90,23 @@ class Image
         }
 
         //-------------------------------------------------------- related categories
-        $result = (new CategoryRepository($service->getConnection()))->findRelative($service->getUserMapper()->getUser(), [], $image->getId());
-
         $is_commentable = false;
         $related_categories = [];
-        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-            $is_commentable = $service->getConnection()->get_boolean($row['commentable']);
-            unset($row['commentable']);
+        foreach ($service->getAlbumMapper()->getRepository()->findRelative($service->getUserMapper()->getUser()->getForbiddenCategories(), [], $image->getId()) as $album) {
+            $is_commentable = $album->isCommentable();
+            $album_infos = array_merge(
+                $album->toArray(),
+                [
+                    'url' => $service->getRouter()->generate('album', ['category_id' => $album->getId()]),
+                    'page_url' => $service->getRouter()->generate('picture', ['image_id' => $params['image_id'], 'type' => 'category', 'element_id' => $album->getId()])
+                ]
+            );
 
-            $row['url'] = $service->getRouter()->generate('album', ['category_id' => $row['id']]);
-            $row['page_url'] = $service->getRouter()->generate('picture', ['image_id' => $params['image_id'], 'type' => 'category', 'element_id' => $row['id']]);
-
-            $row['id'] = (int)$row['id'];
-            $related_categories[] = $row;
+            $related_categories[] = $album_infos;
         }
         usort($related_categories, '\Phyxo\Functions\Utils::global_rank_compare');
 
-        if (empty($related_categories)) {
+        if (count($related_categories) === 0) {
             return new Error(401, 'Access denied');
         }
 
@@ -527,10 +525,9 @@ class Image
             if (preg_match('/^\d+/', $params['categories'], $matches)) {
                 $category_id = $matches[0];
 
-                $result = (new CategoryRepository($service->getConnection()))->findById($service->getUserMapper()->getUser(), [], $category_id);
-                $category = $service->getConnection()->db_fetch_assoc($result);
+                $album = $service->getAlbumMapper()->getRepository()->find($category_id);
                 $url_params['type'] = 'category';
-                $url_params['element_id'] = $category['id'];
+                $url_params['element_id'] = $album->getId();
             }
         }
 
@@ -623,10 +620,9 @@ class Image
         $url_params = ['image_id' => $image_id];
 
         if (!empty($params['category'])) {
-            $result = (new CategoryRepository($service->getConnection()))->findById($params['category'][0]);
-            $category = $service->getConnection()->db_fetch_assoc($result);
+            $album = $service->getAlbumMapper()->getRepository()->fin($params['category'][0]);
             $url_params['type'] = 'category';
-            $url_params['element_id'] = $category['id'];
+            $url_params['element_id'] = $album->getId();
         }
 
         return [
