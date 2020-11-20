@@ -12,6 +12,7 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\UserMapper;
+use App\Repository\CaddieRepository;
 use App\Repository\CommentRepository;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
@@ -35,9 +36,9 @@ class ConfigurationController extends AdminCommonController
     private $main_checkboxes, $sizes_checkboxes, $comments_checkboxes, $display_checkboxes, $display_info_checkboxes, $sort_fields, $comments_order, $mail_themes;
     private $translator;
 
-    public function __construct(UserProvider $userProvider, CommentRepository $commentRepository, TranslatorInterface $translator)
+    public function __construct(UserProvider $userProvider, CommentRepository $commentRepository, CaddieRepository $caddieRepository, TranslatorInterface $translator)
     {
-        parent::__construct($userProvider, $commentRepository);
+        parent::__construct($userProvider, $commentRepository, $caddieRepository);
         $this->translator = $translator;
 
         $this->main_checkboxes = [

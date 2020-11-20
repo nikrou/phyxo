@@ -22,12 +22,13 @@ use Symfony\Component\Routing\RouterInterface;
 
 abstract class AdminCommonController extends AbstractController
 {
-    protected $conf, $userProvider, $commentRepository;
+    protected $conf, $userProvider, $commentRepository, $caddieRepository;
 
-    public function __construct(UserProvider $userProvider, CommentRepository $commentRepository)
+    public function __construct(UserProvider $userProvider, CommentRepository $commentRepository, CaddieRepository $caddieRepository)
     {
         $this->userProvider = $userProvider;
         $this->commentRepository = $commentRepository;
+        $this->caddieRepository = $caddieRepository;
     }
 
     public function getUser()
@@ -82,7 +83,7 @@ abstract class AdminCommonController extends AbstractController
         }
 
         // any photo in the caddie?
-        $nb_photos_in_caddie = (int) $em->getRepository(CaddieRepository::class)->count($user->getId());
+        $nb_photos_in_caddie = $this->caddieRepository->count(['user' => $user->getId()]);
 
         if ($nb_photos_in_caddie > 0) {
             $tpl_params['NB_PHOTOS_IN_CADDIE'] = $nb_photos_in_caddie;

@@ -98,6 +98,11 @@ class User implements UserInterface, EquatableInterface
      */
     private $comments;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Caddie::class, mappedBy="user", orphanRemoval=true)
+     */
+    private $caddies;
+
     public function __construct()
     {
         $this->roles = ['ROLE_USER'];
@@ -106,6 +111,7 @@ class User implements UserInterface, EquatableInterface
         $this->user_access = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->userCacheAlbums = new ArrayCollection();
+        $this->caddies = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -397,6 +403,37 @@ class User implements UserInterface, EquatableInterface
             // set the owning side to null (unless already changed)
             if ($userCacheAlbum->getUser() === $this) {
                 $userCacheAlbum->setUser($this);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Caddie[]
+     */
+    public function getCaddies(): Collection
+    {
+        return $this->caddies;
+    }
+
+    public function addCaddie(Caddie $caddie): self
+    {
+        if (!$this->caddies->contains($caddie)) {
+            $this->caddies[] = $caddie;
+            $caddie->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCaddie(Caddie $caddie): self
+    {
+        if ($this->caddies->contains($caddie)) {
+            $this->caddies->removeElement($caddie);
+            // set the owning side to null (unless already changed)
+            if ($caddie->getUser() === $this) {
+                $caddie->setUser(null);
             }
         }
 

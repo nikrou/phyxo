@@ -12,6 +12,7 @@
 namespace App\Controller\Admin;
 
 use App\Notification;
+use App\Repository\CaddieRepository;
 use App\Repository\CommentRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
@@ -33,9 +34,9 @@ class NotificationController extends AdminCommonController
         'nbm_send_recent_post_dates' => 'boolean',
     ];
 
-    public function __construct(AuthorizationCheckerInterface $authorizationChecker, CommentRepository $commentRepository, UserProvider $userProvider)
+    public function __construct(AuthorizationCheckerInterface $authorizationChecker, CommentRepository $commentRepository, UserProvider $userProvider, CaddieRepository $caddieRepository)
     {
-        parent::__construct($userProvider, $commentRepository);
+        parent::__construct($userProvider, $commentRepository, $caddieRepository);
         $this->authorizationChecker = $authorizationChecker;
     }
 

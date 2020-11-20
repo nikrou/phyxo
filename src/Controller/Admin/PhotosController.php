@@ -13,7 +13,9 @@ namespace App\Controller\Admin;
 
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
+use App\Entity\Caddie;
 use App\Repository\CaddieRepository;
+use App\Repository\ImageRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Functions\Utils;
@@ -164,19 +166,15 @@ class PhotosController extends AdminCommonController
         return $this->render('photos_add_direct.html.twig', $tpl_params);
     }
 
-    public function batch(Request $request, EntityManager $em)
+    public function batch(Request $request, ImageRepository $imageRepository, CaddieRepository $caddieRepository)
     {
-        $em->getRepository(CaddieRepository::class)->emptyCaddie($this->getUser()->getId());
-
-        $inserts = [];
-        foreach (explode(',', $request->request->get('batch')) as $image_id) {
-            $inserts[] = [
-                'user_id' => $this->getUser()->getId(),
-                'element_id' => $image_id,
-            ];
+        $caddieRepository->emptyCaddies($this->getUser()->getId());
+        foreach ($imageRepository->findBy(['id' => explode(',', $request->request->get('batch'))]) as $image) {
+            $caddie = new Caddie();
+            $caddie->setImage($image);
+            $caddie->setUser($this->getUser());
+            $caddieRepository->addOrUpdateCaddie($caddie);
         }
-
-        $em->getRepository(CaddieRepository::class)->addElements(array_keys($inserts[0]), $inserts);
 
         return $this->redirectToRoute('admin_batch_manager_global', ['filter' => 'caddie']);
     }

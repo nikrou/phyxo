@@ -11,76 +11,39 @@
 
 namespace App\Repository;
 
-class CaddieRepository extends BaseRepository
+use App\Entity\Caddie;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+
+class CaddieRepository extends ServiceEntityRepository
 {
-    public function count(int $user_id) : int
+    public function __construct(ManagerRegistry $registry)
     {
-        $query = 'SELECT COUNT(1) FROM ' . self::CADDIE_TABLE;
-        $query .= ' WHERE user_id = ' . $user_id;
-        list($nb_photos_in_caddie) = $this->conn->db_fetch_row($this->conn->db_query($query));
-
-        return $nb_photos_in_caddie;
+        parent::__construct($registry, Caddie::class);
     }
 
-    public function getImagesFromCaddie(array $image_ids, int $user_id)
+    public function addOrUpdateCaddie(Caddie $caddie)
     {
-        $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
-        $query .= ' LEFT JOIN ' . self::CADDIE_TABLE;
-        $query .= ' ON id = element_id AND user_id=' . $user_id;
-        $query .= ' WHERE id ' . $this->conn->in($image_ids);
-        $query .= ' AND element_id IS NULL';
-
-        return $this->conn->db_query($query);
+        $this->_em->persist($caddie);
+        $this->_em->flush();
     }
 
-    public function emptyCaddie(int $user_id)
+    public function emptyCaddies(int $user_id)
     {
-        $query = 'DELETE FROM ' . self::CADDIE_TABLE;
-        $query .= ' WHERE user_id = ' . $user_id;
-        $this->conn->db_query($query);
+        $qb = $this->createQueryBuilder('c');
+        $qb->delete();
+        $qb->where('c.user = :user_id');
+        $qb->setParameter('user_id', $user_id);
+
+        $qb->getQuery()->getResult();
     }
 
-    public function fillCaddie(int $user_id, array $elements_id)
+    public function deleteElements(array $image_ids)
     {
-        $result = $this->getElements($user_id);
-        $in_caddie = $this->conn->result2array($result, null, 'element_id');
+        $qb = $this->createQueryBuilder('c');
+        $qb->delete();
+        $qb->where($qb->expr()->in('c.image', $image_ids));
 
-        $caddiables = array_diff($elements_id, $in_caddie);
-        $datas = [];
-
-        foreach ($caddiables as $caddiable) {
-            $datas[] = [
-                'element_id' => $caddiable,
-                'user_id' => $user_id,
-            ];
-        }
-
-        if (count($caddiables) > 0) {
-            $this->addElements(['element_id', 'user_id'], $datas);
-        }
-    }
-
-    public function deleteElements(array $elements, ? int $user_id = null)
-    {
-        $query = 'DELETE FROM ' . self::CADDIE_TABLE;
-        $query .= ' WHERE element_id ' . $this->conn->in($elements);
-
-        if (!is_null($user_id)) {
-            $query .= ' AND user_id = ' . $user_id;
-        }
-        $this->conn->db_query($query);
-    }
-
-    public function addElements(array $fields, array $datas)
-    {
-        $this->conn->mass_inserts(self::CADDIE_TABLE, $fields, $datas);
-    }
-
-    public function getElements(int $user_id)
-    {
-        $query = 'SELECT element_id FROM ' . self::CADDIE_TABLE;
-        $query .= ' WHERE user_id = ' . $user_id;
-
-        return $this->conn->db_query($query);
+        $qb->getQuery()->getResult();
     }
 }

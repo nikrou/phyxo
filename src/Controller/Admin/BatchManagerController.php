@@ -16,6 +16,7 @@ use App\DataMapper\ImageMapper;
 use App\DataMapper\SearchMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
+use App\Entity\Caddie;
 use App\Metadata;
 use App\Repository\AlbumRepository;
 use App\Repository\CaddieRepository;
@@ -65,7 +66,7 @@ class BatchManagerController extends AdminCommonController
     }
 
     public function global(Request $request, string $filter = null, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, AlbumMapper $albumMapper,
-                          ImageStandardParams $image_std_params, SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper,
+                          ImageStandardParams $image_std_params, SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper, CaddieRepository $caddieRepository,
                           UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator, AlbumRepository $albumRepository, ImageAlbumRepository $imageAlbumRepository)
     {
         $tpl_params = [];
@@ -354,7 +355,7 @@ class BatchManagerController extends AdminCommonController
                 $collection = $request->request->get('selection');
             }
 
-            $this->actionOnCollection($request, $collection, $em, $tagMapper, $imageMapper, $userMapper, $imageAlbumRepository, $albumMapper);
+            $this->actionOnCollection($request, $collection, $em, $tagMapper, $imageMapper, $userMapper, $imageAlbumRepository, $albumMapper, $caddieRepository);
         }
 
         $tpl_params['IN_CADDIE'] = isset($this->getFilter()['prefilter']) && $this->getFilter()['prefilter'] === 'caddie';
@@ -385,16 +386,17 @@ class BatchManagerController extends AdminCommonController
         return $this->render('batch_manager_global.html.twig', $tpl_params);
     }
 
-    public function emptyCaddie(Request $request, EntityManager $em, TranslatorInterface $translator)
+    public function emptyCaddie(Request $request, CaddieRepository $caddieRepository, TranslatorInterface $translator)
     {
-        $em->getRepository(CaddieRepository::class)->emptyCaddie($this->getUser()->getId());
+        $caddieRepository->emptyCaddies($this->getUser()->getId());
         $this->addFlash('info', $translator->trans('Caddie has been emptied', [], 'admin'));
 
         return $this->redirectToRoute('admin_batch_manager_global', ['start' => $request->get('start')]);
     }
 
     protected function actionOnCollection(Request $request, array $collection = [], EntityManager $em, TagMapper $tagMapper, ImageMapper $imageMapper,
-                                        UserMapper $userMapper, ImageAlbumRepository $imageAlbumRepository, AlbumMapper $albumMapper)
+                                        UserMapper $userMapper, ImageAlbumRepository $imageAlbumRepository, AlbumMapper $albumMapper,
+                                        CaddieRepository $caddieRepository)
     {
         // if the user tries to apply an action, it means that there is at least 1 photo in the selection
         if (count($collection) === 0 && !$request->request->get('submitFilter')) {
@@ -406,7 +408,7 @@ class BatchManagerController extends AdminCommonController
         $action = $request->request->get('selectAction');
 
         if ($action === 'remove_from_caddie') {
-            $em->getRepository(CaddieRepository::class)->deleteElements($collection, $this->getUser()->getId());
+            $caddieRepository->deleteElements($collection, $this->getUser()->getId());
             $redirect = true;
         } elseif ($action === 'add_tags') {
             if (!$request->request->get('add_tags')) {
@@ -509,7 +511,14 @@ class BatchManagerController extends AdminCommonController
                 }
             }
         } elseif ($action === 'add_to_caddie') {
-            $em->getRepository(CaddieRepository::class)->fillCaddie($this->getUser()->getId(), $collection);
+            $userCaddies = $this->getUser()->getCaddies();
+
+            foreach ($imageMapper->getRepository()->findBy(['id' => $collection]) as $image) {
+                $caddie = new Caddie();
+                $caddie->setUser($this->getUser());
+                $caddie->setImage($image);
+                $userCaddies->add($caddie);
+            }
         } elseif ($action === 'delete') {
             if ($request->request->get('confirm_deletion') == 1) {
                 $deleted_count = $imageMapper->deleteElements($collection, true);
@@ -565,8 +574,11 @@ class BatchManagerController extends AdminCommonController
         if (!empty($bulk_manager_filter['prefilter'])) {
             switch ($bulk_manager_filter['prefilter']) {
                 case 'caddie':
-                    $result = $em->getRepository(CaddieRepository::class)->getElements($this->getUser()->getId());
-                    $filter_sets[] = $em->getConnection()->result2array($result, null, 'element_id');
+
+                    $filter_sets[] = $this->getUser()->getCaddies()->map(function(Caddie $caddie) {
+                        return $caddie->getImage()->getId();
+                    })->toArray();
+
                     break;
 
                 case 'favorites':
