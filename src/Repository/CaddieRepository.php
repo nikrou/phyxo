@@ -22,6 +22,17 @@ class CaddieRepository extends BaseRepository
         return $nb_photos_in_caddie;
     }
 
+    public function getImagesFromCaddie(array $image_ids, int $user_id)
+    {
+        $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::CADDIE_TABLE;
+        $query .= ' ON id = element_id AND user_id=' . $user_id;
+        $query .= ' WHERE id ' . $this->conn->in($image_ids);
+        $query .= ' AND element_id IS NULL';
+
+        return $this->conn->db_query($query);
+    }
+
     public function emptyCaddie(int $user_id)
     {
         $query = 'DELETE FROM ' . self::CADDIE_TABLE;

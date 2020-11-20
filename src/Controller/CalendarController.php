@@ -19,15 +19,16 @@ use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
-use App\Repository\CalendarRepository;
+use App\Repository\AlbumRepository;
+use App\Repository\ImageRepository;
 use Phyxo\Calendar\CalendarWeekly;
 use Phyxo\Functions\Utils;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CalendarController extends CommonController
 {
-    public function categoriesMonthly(Request $request, string $date_type, string $view_type, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite,
-                                    EntityManager $em, MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0, TranslatorInterface $translator)
+    public function categoriesMonthly(Request $request, string $date_type, string $view_type, Conf $conf, ImageRepository $imageRepository, AlbumRepository $albumRepository,
+                                    MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $tpl_params['START_ID'] = $start;
@@ -60,8 +61,7 @@ class CalendarController extends CommonController
             ],
         ];
 
-        $filter = [];
-        $calendar = new CalendarMonthly($em->getConnection(), new CalendarRepository($em->getConnection()), $date_type);
+        $calendar = new CalendarMonthly($imageRepository, $albumRepository, $date_type);
         $chronology_date = [];
         if ($year = $request->get('year')) {
             $chronology_date[] = $year;
@@ -80,20 +80,7 @@ class CalendarController extends CommonController
         $calendar->setConf($conf);
         $calendar->setViewType($view_type);
         $calendar->setImageStandardParams($image_std_params);
-        $calendar->findByCondition(
-            $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
-                $this->getUser(),
-                $filter,
-                [
-
-                    'forbidden_categories' => 'category_id',
-                    'visible_categories' => 'category_id',
-                    'visible_images' => 'id'
-                ],
-                '',
-                true
-            )
-        );
+        $calendar->findByCondition($this->getUser()->getForbiddenCategories());
 
         $category_content = $calendar->generateCategoryContent();
         if (!empty($category_content)) {
@@ -151,7 +138,7 @@ class CalendarController extends CommonController
         return $this->render('month_calendar.html.twig', $tpl_params);
     }
 
-    public function categoriesWeekly(Request $request, string $date_type, int $week = 0, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+    public function categoriesWeekly(Request $request, string $date_type, int $week = 0, Conf $conf, MenuBar $menuBar, ImageRepository $imageRepository, AlbumRepository $albumRepository,
                                     ImageStandardParams $image_std_params, EntityManager $em, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -184,7 +171,7 @@ class CalendarController extends CommonController
         ];
 
         $filter = [];
-        $calendar = new CalendarWeekly($em->getConnection(), new CalendarRepository($em->getConnection()), $date_type);
+        $calendar = new CalendarWeekly($imageRepository, $albumRepository, $date_type);
         $chronology_date = [];
         if ($year = $request->get('year')) {
             $chronology_date[] = $year;
@@ -266,8 +253,8 @@ class CalendarController extends CommonController
         return $this->render('month_calendar.html.twig', $tpl_params);
     }
 
-    public function categoryMonthly(Request $request, int $category_id, string $date_type, string $view_type, Conf $conf, string $themesDir, string $phyxoVersion,
-                            string $phyxoWebsite, MenuBar $menuBar, ImageStandardParams $image_std_params, EntityManager $em, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
+    public function categoryMonthly(Request $request, int $category_id, string $date_type, string $view_type, Conf $conf, MenuBar $menuBar, ImageRepository $imageRepository,
+                            AlbumRepository $albumRepository, ImageStandardParams $image_std_params, EntityManager $em, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $tpl_params['START_ID'] = $start;
@@ -297,7 +284,7 @@ class CalendarController extends CommonController
         ];
 
         $filter = [];
-        $calendar = new CalendarMonthly($em->getConnection(), new CalendarRepository($em->getConnection()), $date_type);
+        $calendar = new CalendarMonthly($imageRepository, $albumRepository, $date_type);
         $chronology_date = [];
         if ($year = $request->get('year')) {
             $chronology_date[] = $year;
@@ -372,7 +359,7 @@ class CalendarController extends CommonController
         return $this->render('month_calendar.html.twig', $tpl_params);
     }
 
-    public function categoryWeekly(Request $request, int $category_id, string $date_type, int $week, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite,
+    public function categoryWeekly(Request $request, int $category_id, string $date_type, int $week, Conf $conf, ImageRepository $imageRepository, AlbumRepository $albumRepository,
                                     MenuBar $menuBar, ImageStandardParams $image_std_params, ImageMapper $imageMapper, EntityManager $em, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -424,7 +411,7 @@ class CalendarController extends CommonController
         ];
 
         $filter = [];
-        $calendar = new CalendarWeekly($em->getConnection(), new CalendarRepository($em->getConnection()), $date_type);
+        $calendar = new CalendarWeekly($imageRepository, $albumRepository, $date_type);
         $chronology_date = [];
         if ($year = $request->get('year')) {
             $chronology_date[] = $year;

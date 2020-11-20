@@ -23,14 +23,14 @@ class UserCacheAlbum
 {
     /**
      * @ORM\Id
-     * @ORM\OneToOne(targetEntity=User::class, inversedBy="userCacheAlbum", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="userCacheAlbums", cascade={"persist", "remove"})
      * @ORM\JoinColumn(name="user_id", nullable=false)
      */
     private $user;
 
     /**
      * @ORM\Id
-     * @ORM\OneToOne(targetEntity=Album::class, inversedBy="userCacheAlbum", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity=Album::class, inversedBy="userCacheAlbums", cascade={"persist", "remove"})
      * @ORM\JoinColumn(name="cat_id", nullable=false)
      */
     private $album;
@@ -68,7 +68,7 @@ class UserCacheAlbum
     /**
      * @ORM\Column(name="user_representative_picture_id", type="integer", nullable=true)
      */
-    private $user_representative_picture; // will be a relation to Image entity
+    private $user_representative_picture;
 
     public function getUser(): ?User
     {
@@ -176,5 +176,19 @@ class UserCacheAlbum
         $this->user_representative_picture = $user_representative_picture;
 
         return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'album_id' => $this->getAlbum()->getId(),
+            'max_date_last' => $this->getMaxDateLast(),
+            'date_last' => $this->getDateLast(),
+            'nb_images' => $this->getNbImages(),
+            'count_images' => $this->getCountImages(),
+            'nb_albums' => $this->getNbAlbums(),
+            'count_albums' => $this->getCountAlbums(),
+            'user_representative_picture' => $this->getUserRepresentativePicture(),
+        ];
     }
 }

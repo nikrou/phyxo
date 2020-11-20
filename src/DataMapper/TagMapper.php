@@ -20,7 +20,6 @@ use App\Repository\UserCacheRepository;
 use App\Repository\ImageRepository;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Phyxo\EntityManager;
-use Phyxo\DBLayer\DBLayer;
 use Phyxo\Image\SrcImage;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Routing\RouterInterface;
@@ -28,10 +27,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TagMapper
 {
-    private $em, $conf, $image_std_params, $router, $metadata, $translator, $userCacheRepository;
+    private $em, $conf, $image_std_params, $router, $metadata, $translator, $userCacheRepository, $imageRepository;
 
     public function __construct(EntityManager $em, Conf $conf, ImageStandardParams $image_std_params, RouterInterface $router, Metadata $metadata, TranslatorInterface $translator,
-                                UserCacheRepository $userCacheRepository)
+                                UserCacheRepository $userCacheRepository, ImageRepository $imageRepository)
     {
         $this->em = $em;
         $this->conf = $conf;
@@ -40,6 +39,7 @@ class TagMapper
         $this->metadata = $metadata;
         $this->translator = $translator;
         $this->userCacheRepository = $userCacheRepository;
+        $this->imageRepository = $imageRepository;
     }
 
     /**
@@ -490,53 +490,36 @@ class TagMapper
      */
     public function sync_metadata(array $ids)
     {
-        $now = date('Y-m-d');
+        $now = new \DateTime();
 
-        $datas = [];
         $tags_of = [];
-        $result = $this->em->getRepository(ImageRepository::class)->findByIds($ids);
-        while ($data = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $data = $this->metadata->getSyncMetadata($data);
+        foreach ($this->imageRepository->findBy(['id' => $ids]) as $image) {
+            $metadata = $this->metadata->getSyncMetadata($image->toArray());
 
-            if ($data === false) {
+            if ($metadata === false) {
                 continue;
             }
 
-            $id = $data['id'];
+            $id = $image->getId();
             foreach (['keywords', 'tags'] as $key) {
-                if (isset($data[$key])) {
+                if (isset($metadata[$key])) {
                     if (!isset($tags_of[$id])) {
                         $tags_of[$id] = [];
                     }
 
-                    foreach (explode(',', $data[$key]) as $tag_name) {
+                    foreach (explode(',', $metadata[$key]) as $tag_name) {
                         $tags_of[$id][] = $this->tagIdFromTagName($tag_name);
                     }
                 }
             }
 
-            $data['date_metadata_update'] = $now;
-
-            $datas[] = $data;
-        }
-
-        if (count($datas) > 0) {
+            $image->setDateMetadataUpdate($now);
             $update_fields = $this->metadata->getSyncMetadataAttributes();
-            $update_fields[] = 'date_metadata_update';
+            $image->setWidth($update_fields['width']);
+            $image->setHeight($update_fields['height']);
+            $image->setFilesize($update_fields['filesize']);
 
-            $update_fields = array_diff(
-                $update_fields,
-                ['tags', 'keywords']
-            );
-
-            $this->em->getRepository(ImageRepository::class)->massUpdates(
-                [
-                    'primary' => ['id'],
-                    'update' => $update_fields
-                ],
-                $datas,
-                DBLayer::MASS_UPDATES_SKIP_EMPTY
-            );
+            $this->imageRepository->addOrUpdateImage($image);
         }
 
         $this->setTagsOf($tags_of);

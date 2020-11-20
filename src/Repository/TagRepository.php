@@ -147,6 +147,15 @@ class TagRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    public function findImageWithNoTag()
+    {
+        $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_TAG_TABLE . ' ON id = image_id';
+        $query .= ' WHERE tag_id is null';
+
+        return $this->conn->db_query($query);
+    }
+
     public function getTagsByImage(int $image_id, ? bool $validated = null)
     {
         $query = 'SELECT id,name,url_name FROM ' . self::TAGS_TABLE . ' AS t';

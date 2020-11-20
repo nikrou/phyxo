@@ -11,13 +11,13 @@
 
 namespace App\Entity;
 
-use App\Repository\NewImageRepository;
+use App\Repository\ImageRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=NewImageRepository::class)
+ * @ORM\Entity(repositoryClass=ImageRepository::class)
  * @ORM\Table(name="images")
  */
 class Image
@@ -67,17 +67,17 @@ class Image
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $filesize;
+    private $filesize = 0;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $width;
+    private $width = 0;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $height;
+    private $height = 0;
 
     /**
      * @ORM\Column(type="string", length=4, nullable=true)
@@ -472,24 +472,6 @@ class Image
         return $this;
     }
 
-    public function toArray(): array
-    {
-        return [
-            'id' => $this->getId(),
-            'path' => $this->getPath(),
-            'representative_ext' => $this->getRepresentativeExt(),
-            'width' => $this->getWidth(),
-            'height' => $this->getHeight(),
-            'rotation' => $this->getRotation(),
-            'hit' => $this->getHit(),
-            'file' => $this->getFile(),
-            'name' => $this->getName(),
-            'comment' => $this->getComment(),
-            'date_creation' => $this->getDateCreation(),
-            'date_available' => $this->getDateAvailable(),
-        ];
-    }
-
     /**
      * @return Collection|Comment[]
      */
@@ -519,5 +501,24 @@ class Image
         }
 
         return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'path' => $this->getPath(),
+            'representative_ext' => $this->getRepresentativeExt(),
+            'width' => $this->getWidth(),
+            'height' => $this->getHeight(),
+            'rotation' => $this->getRotation(),
+            'hit' => $this->getHit(),
+            'file' => $this->getFile(),
+            'name' => $this->getName(),
+            'comment' => $this->getComment(),
+            'rating_score' => $this->getRatingScore(),
+            'date_creation' => $this->getDateCreation(),
+            'date_available' => $this->getDateAvailable(),
+        ];
     }
 }

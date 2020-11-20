@@ -11,7 +11,6 @@
 
 namespace Phyxo\Functions\Ws;
 
-use App\Repository\ImageRepository;
 use App\Repository\CaddieRepository;
 use Phyxo\Ws\Server;
 
@@ -25,7 +24,7 @@ class Caddie
      */
     public static function add($params, Server $service)
     {
-        $result = (new ImageRepository($service->getConnection()))->getImagesFromCaddie($params['image_id'], $service->getUserMapper()->getUser()->getId());
+        $result = (new CaddieRepository($service->getConnection()))->getImagesFromCaddie($params['image_id'], $service->getUserMapper()->getUser()->getId());
         $ids = $service->getConnection()->result2array($result, null, 'id');
         $datas = [];
         foreach ($ids as $id) {

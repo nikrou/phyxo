@@ -14,17 +14,17 @@ namespace App\DataMapper;
 use Phyxo\EntityManager;
 use Phyxo\Conf;
 use App\Repository\RateRepository;
-use App\Repository\ImageRepository;
 
 class RateMapper
 {
-    private $em, $conf, $userMapper;
+    private $em, $conf, $userMapper, $imageMapper;
 
-    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper)
+    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, ImageMapper $imageMapper)
     {
         $this->em = $em;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
+        $this->imageMapper = $imageMapper;
     }
 
     /**
@@ -80,10 +80,10 @@ class RateMapper
      *  C = average number of rates per item
      *  m = global average rate (all rates)
      *
-     * @param int|false $element_id if false applies to all
+     * @param ?int $element_id if null applies to all
      * @return array (score, average, count) values are null if $element_id is false
      */
-    public function updateRatingScore($element_id = false)
+    public function updateRatingScore(?int $element_id = null)
     {
         $all_rates_count = 0;
         $all_rates_avg = 0;
@@ -102,26 +102,19 @@ class RateMapper
             $item_ratecount_avg = $all_rates_count / count($by_item);
         }
 
-        $updates = [];
         foreach ($by_item as $id => $rate_summary) {
             $score = ($item_ratecount_avg * $all_rates_avg + $rate_summary['rsum']) / ($item_ratecount_avg + $rate_summary['rcount']);
             $score = round($score, 2);
-            if ($id == $element_id) {
+            if ($id === $element_id) {
                 $return = [
                     'score' => $score,
                     'average' => round($rate_summary['rsum'] / $rate_summary['rcount'], 2),
                     'count' => $rate_summary['rcount'],
                 ];
             }
-            $updates[] = ['id' => $id, 'rating_score' => $score];
+
+            $this->imageMapper->getRepository()->updateRatingScore($id, $score);
         }
-        $this->em->getRepository(ImageRepository::class)->massUpdates(
-            [
-                'primary' => ['id'],
-                'update' => ['rating_score']
-            ],
-            $updates
-        );
 
         return isset($return) ? $return : ['score' => null, 'average' => null, 'count' => 0];
     }

@@ -18,9 +18,7 @@ use App\Entity\UserCacheAlbum;
 use App\Entity\UserInfos;
 use Phyxo\Ws\Error;
 use App\Repository\CategoryRepository;
-use App\Repository\ImageRepository;
 use Phyxo\Ws\Server;
-use App\Repository\BaseRepository;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 
@@ -41,76 +39,25 @@ class Category
         $images = [];
 
         //------------------------------------------------- get the related categories
-        $where_clauses = [];
-        foreach ($params['cat_id'] as $cat_id) {
-            if ($params['recursive']) {
-                $where_clauses[] = 'uppercats ' . $service->getConnection()::REGEX_OPERATOR . ' \'(^|,)' . $service->getConnection()->db_real_escape_string($cat_id) . '(,|$)\'';
-            } else {
-                $where_clauses[] = 'id=' . $service->getConnection()->db_real_escape_string($cat_id);
-            }
-        }
-        if (!empty($where_clauses)) {
-            $where_clauses = ['(' . implode(' OR ', $where_clauses) . ')'];
-        }
-        $where_clauses[] = (new BaseRepository($service->getConnection()))->getSQLConditionFandF(
-            $service->getUserMapper()->getUser(),
-            [],
-            ['forbidden_categories' => 'id'],
-            null,
-            true
-        );
+        $album_ids = [];
 
-        $result = (new CategoryRepository($service->getConnection()))->findWithCondition($where_clauses);
-        $cats = [];
-        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-            $row['id'] = (int)$row['id'];
-            $cats[$row['id']] = $row;
+        $forbidden_categories = $service->getUserMapper()->getUser()->getForbiddenCategories();
+        $albumsList = null;
+
+        if ($params['recursive']) {
+            $albumsList = $service->getAlbumMapper()->getRepository()->findAuthorizedAlbumsInSubAlbumsForAlbums($params['cat_id'], $forbidden_categories);
+        } else {
+            $albumsList = $service->getAlbumMapper()->getRepository()->findAuthorizedAlbumsForAlbums($params['cat_id'], $forbidden_categories);
+        }
+
+        foreach ($albumsList as $album) {
+            $album_ids[] = $album->getId();
         }
 
         //-------------------------------------------------------- get the images
-        if (!empty($cats)) {
-            $where_clauses = \Phyxo\Functions\Ws\Main::stdImageSqlFilter($params, 'i.');
-            $where_clauses[] = 'category_id ' . $service->getConnection()->in(array_keys($cats));
-            $where_clauses[] = (new BaseRepository($service->getConnection()))->getSQLConditionFandF(
-                $service->getUserMapper()->getUser(),
-                [],
-                ['visible_images' => 'i.id'],
-                null,
-                true
-            );
-
-            $order_by = \Phyxo\Functions\Ws\Main::stdImageSqlOrder($params, 'i.', $service);
-            if (empty($order_by) and count($params['cat_id']) == 1 and isset($cats[$params['cat_id'][0]]['image_order'])) {
-                $order_by = $cats[$params['cat_id'][0]]['image_order'];
-            }
-            $order_by = empty($order_by) ? $service->getConf()['order_by'] : 'ORDER BY ' . $order_by;
-            $result = (new ImageRepository($service->getConnection()))->getImagesFromCategories($where_clauses, $order_by, $params['per_page'], $params['per_page'] * $params['page']);
-
-            while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-                $image = [];
-                foreach (['id', 'width', 'height', 'hit'] as $k) {
-                    if (isset($row[$k])) {
-                        $image[$k] = (int)$row[$k];
-                    }
-                }
-                foreach (['file', 'name', 'comment', 'date_creation', 'date_available'] as $k) {
-                    $image[$k] = $row[$k];
-                }
-                $image = array_merge($image, \Phyxo\Functions\Ws\Main::stdGetUrls($row, $service));
-
-                $image_cats = [];
-                foreach (explode(',', $row['cat_ids']) as $cat_id) {
-                    $url = $service->getRouter()->generate('album', ['category_id' => $cat_id]);
-                    $page_url = $service->getRouter()->generate('picture', ['image_id' => $row['id'], 'type' => 'category', 'element_id' => $cat_id]);
-                    $image_cats[] = [
-                        'id' => (int)$cat_id,
-                        'url' => $url,
-                        'page_url' => $page_url,
-                    ];
-                }
-
-                $image['categories'] = $image_cats;
-                $images[] = $image;
+        if (count($album_ids) > 0) {
+            foreach ($service->getImageMapper()->getRepository()->getImagesFromAlbums($album_ids, $params['per_page'], $params['per_page'] * $params['page']) as $image) {
+                $images[] = $image->toArray();
             }
         }
 
@@ -142,10 +89,6 @@ class Category
         if ($params['public']) {
             $public_and_visible = true;
         } elseif ($service->getUserMapper()->isAdmin()) {
-            /**  in this very specific case, we don't want to hide empty
-             * albums. Method calculatePermissions will only return
-             * albums that are either locked or private and not permitted
-             */
             $forbidden_categories = $service->getUserMapper()->getUser()->getForbiddenCategories();
         }
 
@@ -356,20 +299,21 @@ class Category
     public static function setRepresentative($params, Server $service)
     {
         // does the category really exist?
-        $result = (new CategoryRepository($service->getConnection()))->findById($params['category_id']);
-        list($count) = $service->getConnection()->db_fetch_row($result);
-        if ($count == 0) {
+        $album = $service->getAlbumMapper()->getRepository()->find($params['category_id']);
+
+        if (is_null($album)) {
             return new Error(404, 'category_id not found');
         }
 
         // does the image really exist?
-        if (!(new ImageRepository($service->getConnection()))->isImageExists($params['image_id'])) {
+        $image = $service->getImageMapper()->getRepository()->find($params['image_id']);
+        if (is_null($image)) {
             return new Error(404, 'image_id not found');
         }
 
-        // apply change
-        (new CategoryRepository($service->getConnection()))->updateCategory(['representative_picture_id' => $params['image_id']], $params['category_id']);
+        $album->setRepresentativePictureId($image->getId());
 
+        $service->getAlbumMapper()->getRepository()->addOrUpdateAlbum($album);
         $service->getManagerRegistry()->getRepository(UserCacheAlbum::class)->unsetUserRepresentativePictureForAlbum($params['category_id']);
     }
 

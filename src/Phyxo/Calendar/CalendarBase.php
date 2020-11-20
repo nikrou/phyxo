@@ -11,8 +11,8 @@
 
 namespace Phyxo\Calendar;
 
-use App\Repository\CalendarRepository;
-use Phyxo\DBLayer\iDBLayer;
+use App\Repository\AlbumRepository;
+use App\Repository\ImageRepository;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Conf;
 use Symfony\Component\Routing\RouterInterface;
@@ -30,22 +30,20 @@ abstract class CalendarBase
     /** db column on which this calendar works */
     public $date_field;
     protected $find_by_items = false;
-    protected $condition = '';
-    protected $category_id = null;
     protected $forbidden_categories = [];
+    protected $category_id = null;
     protected $items = [];
 
-    protected $conn;
-    protected $calendar_repository;
+    protected $imageRepository, $albumRepository;
     protected $parts, $months, $days;
     protected $image_std_params;
     protected $lang = [];
     protected $conf, $date_type, $view_type, $chronology_date = [], $router;
 
-    public function __construct(iDBLayer $conn, CalendarRepository $calendar_repository, string $date_type = 'posted')
+    public function __construct(ImageRepository $imageRepository, AlbumRepository $albumRepository, string $date_type = 'posted')
     {
-        $this->conn = $conn;
-        $this->calendar_repository = $calendar_repository;
+        $this->imageRepository = $imageRepository;
+        $this->albumRepository = $albumRepository;
 
         $this->months = [1 => "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         $this->days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -88,18 +86,17 @@ abstract class CalendarBase
         $this->lang = $lang;
     }
 
-    public function findByConditionAndCategory(string $condition, int $category_id = null, array $forbidden_categories = [])
+    public function findByConditionAndCategory(int $category_id = null, array $forbidden_categories = [])
     {
         $this->find_by_items = false;
-        $this->condition = $condition;
         $this->category_id = $category_id;
         $this->forbidden_categories = $forbidden_categories;
     }
 
-    public function findByCondition(string $condition)
+    public function findByCondition(array $forbidden_categories = [])
     {
         $this->find_by_items = false;
-        $this->condition = $condition;
+        $this->forbidden_categories = $forbidden_categories;
     }
 
     public function findByItems(array $items)
@@ -274,20 +271,23 @@ abstract class CalendarBase
     protected function buildNavigationBar(int $level, $labels = []): array
     {
         if ($this->find_by_items) {
-            $result = $this->calendar_repository->findImagesInPeriodsByIds($this->getCalendarLevels()[$level]['sql'], $this->items, $this->getDateWhere($level));
+            $rowImages = $this->imageRepository->findImagesInPeriodsByIds($this->getCalendarLevels()[$level]['sql'], $this->items, $this->getDateWhere($level));
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
-                    $this->calendar_repository->getSubcatIds([$this->category_id]),
+                    $this->albumRepository->getSubcatIds([$this->category_id]),
                     $this->forbidden_categories
                 );
             } else {
                 $sub_ids = [];
             }
-            $result = $this->calendar_repository->findImagesInPeriods($this->getCalendarLevels()[$level]['sql'], $this->getDateWhere($level), $this->condition, $sub_ids);
+            $rowImages = $this->imageRepository->findImagesInPeriods($this->getCalendarLevels()[$level]['sql'], $this->getDateWhere($level), $this->forbidden_categories, $sub_ids);
         }
 
-        $level_items = $this->conn->result2array($result, 'period', 'nb_images');
+        $level_items = [];
+        foreach ($rowImages as $image) {
+            $level_items[$image['period']] = $image['nb_images'];
+        }
 
         if (count($level_items) == 1 && count($this->chronology_date) < count($this->getCalendarLevels()) - 1) {
             if (!isset($this->chronology_date[$level])) {
@@ -327,20 +327,23 @@ abstract class CalendarBase
         }
 
         if ($this->find_by_items) {
-            $result = $this->calendar_repository->findNextPrevPeriodByIds($this->items, $this->chronology_date, $this->getCalendarLevels(), $this->date_field);
+            $rowImages = $this->imageRepository->findNextPrevPeriodByIds($this->items, $this->chronology_date, $this->getCalendarLevels(), $this->date_field);
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
-                    $this->calendar_repository->getSubcatIds([$this->category_id]),
+                    $this->albumRepository->getSubcatIds([$this->category_id]),
                     $this->forbidden_categories
                 );
             } else {
                 $sub_ids = [];
             }
-            $result = $this->calendar_repository->findNextPrevPeriod($this->chronology_date, $this->getCalendarLevels(), $this->date_field, $this->condition, $sub_ids);
+            $rowImages = $this->imageRepository->findNextPrevPeriod($this->chronology_date, $this->getCalendarLevels(), $this->date_field, $this->forbidden_categories, $sub_ids);
         }
 
-        $upper_items = $this->conn->result2array($result, null, 'period');
+        $upper_items = [];
+        foreach ($rowImages as $image) {
+            $upper_items[] = $image['period'];
+        }
         $current = implode('-', $this->chronology_date);
 
         usort($upper_items, 'version_compare');
@@ -387,16 +390,19 @@ abstract class CalendarBase
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
-                    $this->calendar_repository->getSubcatIds([$this->category_id]),
+                    $this->albumRepository->getSubcatIds([$this->category_id]),
                     $this->forbidden_categories
                 );
             } else {
                 $sub_ids = [];
             }
 
-            $result = $this->calendar_repository->findDistincIds($this->condition, $sub_ids, $order_by);
+            $results = [];
+            foreach ($this->imageRepository->findDistincIds($this->forbidden_categories, $sub_ids, $order_by) as $image) {
+                $results[] = $image->getId();
+            }
 
-            return $this->conn->result2array($result, null, 'id');
+            return $results;
         }
     }
 

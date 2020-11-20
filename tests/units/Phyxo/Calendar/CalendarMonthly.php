@@ -21,34 +21,24 @@ class CalendarMonthly extends atoum\test
     {
         $calendarLevels = [
             [
-                'sql' => 'EXTRACT(YEAR FROM date_creation)',
+                'sql' => 'date_creation',
                 'labels' => []
             ],
             [
-                'sql' => 'EXTRACT(MONTH FROM date_creation)',
+                'sql' => 'date_creation',
                 'labels' => [1 => "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
             ],
             [
-                'sql' => 'EXTRACT(DAY FROM date_creation)',
+                'sql' => 'date_creation',
                 'labels' => []
             ]
         ];
 
         $prophet = new Prophet();
-        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
-        $conn->db_get_year(Argument::type('string'))->will(function($args) {
-            return 'EXTRACT(YEAR FROM ' . $args[0] . ')';
-        });
-        $conn->db_get_month(Argument::type('string'))->will(function($args) {
-            return 'EXTRACT(MONTH FROM ' . $args[0] . ')';
-        });
-        $conn->db_get_dayofmonth(Argument::type('string'))->will(function($args) {
-            return 'EXTRACT(DAY FROM ' . $args[0] . ')';
-        });
+        $image_repository = $prophet->prophesize('App\Repository\ImageRepository');
+        $album_repository = $prophet->prophesize('App\Repository\AlbumRepository');
 
-        $calendar_repository = $prophet->prophesize('App\Repository\CalendarRepository');
-
-        $calendar = new \Phyxo\Calendar\CalendarMonthly($conn->reveal(), $calendar_repository->reveal(), 'created');
+        $calendar = new \Phyxo\Calendar\CalendarMonthly($image_repository->reveal(), $album_repository->reveal(), 'created');
         $calendar->setViewType('list'); // or calendar
         $chronology_date[] = 2019;
         $chronology_date[] = 10;

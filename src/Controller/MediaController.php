@@ -11,12 +11,11 @@
 
 namespace App\Controller;
 
+use App\DataMapper\ImageMapper;
 use Symfony\Component\HttpFoundation\Response;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Phyxo\Image\DerivativeParams;
 use Phyxo\Image\Image;
-use App\Repository\ImageRepository;
 use Phyxo\Image\SizingParams;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -30,7 +29,7 @@ class MediaController
     private $page, $image_std_params;
 
     public function index(Request $request, string $path, string $derivative, string $sizes, string $image_extension, string $mediaCacheDir, string $rootProjectDir, Conf $conf,
-                        EntityManager $em, LoggerInterface $logger, ImageStandardParams $image_std_params)
+                        LoggerInterface $logger, ImageStandardParams $image_std_params, ImageMapper $imageMapper)
     {
         $this->page = [];
 
@@ -103,24 +102,21 @@ class MediaController
 
         $coi = null;
         try {
-            $result = $em->getRepository(ImageRepository::class)->findByField('path', $image_path);
-            if (($row = $em->getConnection()->db_fetch_assoc($result))) {
-                if (isset($row['width'])) {
-                    $this->page['original_size'] = [$row['width'], $row['height']];
-                }
-                $coi = $row['coi'];
-                if (!isset($row['rotation'])) {
-                    $this->page['rotation_angle'] = Image::getRotationAngle($image_path);
-                    $em->getRepository(ImageRepository::class)->updateImage(
-                        ['rotation' => Image::getRotationCodeFromAngle($this->page['rotation_angle'])],
-                        $row['id']
-                    );
-                } else {
-                    $this->page['rotation_angle'] = Image::getRotationAngleFromCode($row['rotation']);
-                }
-            }
-            if (!$row) {
+            $image = $imageMapper->getRepository()->findOneBy(['path' => $image_path]);
+            if (is_null($image)) {
                 return new Response('Db file path not found', 404);
+            }
+
+            if ($image->getWidth() > 0 && $image->getHeight()) {
+                $this->page['original_size'] = [$image->getWidth(), $image->getHeight()];
+            }
+            $coi = $image->getCoi();
+            if (!$image->getRotation()) {
+                $this->page['rotation_angle'] = Image::getRotationAngle($image_path);
+                $image->setRotation(Image::getRotationCodeFromAngle($this->page['rotation_angle']));
+                $imageMapper->getRepository()->addOrUpdateImage($image);
+            } else {
+                $this->page['rotation_angle'] = Image::getRotationAngleFromCode($image->getRotation());
             }
         } catch (\Exception $e) {
             return new Response($e->getMessage());

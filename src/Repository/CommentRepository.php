@@ -169,8 +169,11 @@ class CommentRepository extends ServiceEntityRepository
             }
         }
 
-        $qb->groupBy('c.id, ia.album, u.mail_address, c.date');
-        $qb->orderBy('c.' . $filter_params['sort_by'], $filter_params['sort_order']);
+        if (!$count_only) {
+            $qb->groupBy('c.id, ia.album, u.mail_address, c.date');
+            $qb->orderBy('c.' . $filter_params['sort_by'], $filter_params['sort_order']);
+        }
+
         if ($count_only) {
             return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR) ?? 0;
         } else {

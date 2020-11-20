@@ -77,17 +77,6 @@ class CategoryRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function hasAccessToImage(UserInterface $user, array $filter = [], int $image_id) : bool
-    {
-        $query = 'SELECT id FROM ' . self::CATEGORIES_TABLE;
-        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON category_id = id';
-        $query .= ' WHERE image_id = ' . $image_id;
-        $query .= ' ' . $this->getSQLConditionFandF($user, $filter, ['forbidden_categories' => 'category_id', 'forbidden_images' => 'image_id'], ' AND ');
-        $query .= ' LIMIT 1';
-
-        return ($this->conn->db_num_rows($this->conn->db_query($query)) >= 1);
-    }
-
     public function findCommentable(UserInterface $user, array $filter = [], int $image_id)
     {
         $query = 'SELECT DISTINCT image_id  FROM ' . self::CATEGORIES_TABLE;

@@ -18,7 +18,6 @@ use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use App\Repository\UserRepository;
 use App\Entity\User;
-use Phyxo\EntityManager;
 use App\Entity\Album;
 use App\Entity\UserCache;
 use App\Entity\UserCacheAlbum;
@@ -37,13 +36,13 @@ use Symfony\Component\Security\Csrf\Exception\TokenNotFoundException;
 
 class UserProvider implements UserProviderInterface
 {
-    private $user, $em, $session, $albumMapper, $tokenStorage, $conf, $userRepository, $userCacheRepository, $userCacheAlbumRepository, $imageAlbumRepository;
+    private $user, $session, $albumMapper, $tokenStorage, $conf, $userRepository, $userCacheRepository, $userCacheAlbumRepository, $imageAlbumRepository;
+    private $imageRepository;
 
-    public function __construct(EntityManager $em, UserRepository $userRepository, SessionInterface $session, TokenStorageInterface $tokenStorage,
+    public function __construct(UserRepository $userRepository, SessionInterface $session, TokenStorageInterface $tokenStorage,
                                 Conf $conf, AlbumMapper $albumMapper, UserCacheRepository $userCacheRepository, UserCacheAlbumRepository $userCacheAlbumRepository,
-                                ImageAlbumRepository $imageAlbumRepository)
+                                ImageAlbumRepository $imageAlbumRepository, ImageRepository $imageRepository)
     {
-        $this->em = $em;
         $this->userRepository = $userRepository;
         $this->session = $session;
         $this->albumMapper = $albumMapper;
@@ -52,6 +51,7 @@ class UserProvider implements UserProviderInterface
         $this->userCacheRepository = $userCacheRepository;
         $this->userCacheAlbumRepository = $userCacheAlbumRepository;
         $this->imageAlbumRepository = $imageAlbumRepository;
+        $this->imageRepository = $imageRepository;
     }
 
     protected function populateSession(User $user)
@@ -196,22 +196,23 @@ class UserProvider implements UserProviderInterface
              * images that are not in at least an authorized category)
              */
 
-            $result = $this->em->getRepository(ImageRepository::class)->getForbiddenImages($forbidden_categories, $user->getUserInfos()->getLevel());
-            $forbidden_image_ids = $this->em->getConnection()->result2array($result, null, 'id');
-
+            $forbidden_image_ids = [];
+            foreach ($this->imageRepository->getForbiddenImages($forbidden_categories, $user->getUserInfos()->getLevel()) as $image) {
+                $forbidden_image_ids[] = $image->getId();
+            }
             $userCache->setImageAccessType(UserCache::ACCESS_NOT_IN);
             $userCache->setImageAccessList($forbidden_image_ids);
             $userCache->setNbTotalImages($this->imageAlbumRepository->countTotalImages($forbidden_categories, UserCache::ACCESS_NOT_IN, $forbidden_image_ids));
 
-            // now we update user cache categories
-            $user_cache_cats = $this->albumMapper->getComputedAlbums($user->getUserInfos()->getLevel(), $forbidden_categories);
+            // now we update user cache albums
+            $user_cache_albums = $this->albumMapper->getComputedAlbums($user->getUserInfos()->getLevel(), $forbidden_categories);
 
-            if (!$is_admin) { // for non admins we forbid categories with no image (feature 1053)
+            if (!$is_admin) { // for non admins we forbid albums with no image (feature 1053)
                 $forbidden_ids = [];
-                foreach ($user_cache_cats as $cat_id => $cat) {
-                    if ($cat['count_images'] === 0) {
-                        $forbidden_ids[] = $cat_id;
-                        $this->albumMapper->removeComputedAlbum($user_cache_cats, $cat);
+                foreach ($user_cache_albums as $album_infos) {
+                    if ($album_infos['count_images'] === 0) {
+                        $forbidden_ids[] = $album_infos['album_id'];
+                        $this->albumMapper->removeComputedAlbum($user_cache_albums, $album_infos);
                     }
                 }
                 if (count($forbidden_ids) > 0) {
@@ -222,16 +223,16 @@ class UserProvider implements UserProviderInterface
             // delete user cache
             $this->userCacheAlbumRepository->deleteForUser($user->getId());
 
-            foreach ($this->albumMapper->getRepository()->findBy(['id' => array_keys($user_cache_cats)]) as $album) {
+            foreach ($this->albumMapper->getRepository()->findBy(['id' => array_keys($user_cache_albums)]) as $album) {
                 $userCacheAlbum = new UserCacheAlbum();
                 $userCacheAlbum->setUser($user);
                 $userCacheAlbum->setAlbum($album);
-                $userCacheAlbum->setDateLast(new \DateTime($user_cache_cats[$album->getId()]['date_last']));
-                $userCacheAlbum->setMaxDateLast(new \DateTime($user_cache_cats[$album->getId()]['max_date_last']));
-                $userCacheAlbum->setNbImages($user_cache_cats[$album->getId()]['nb_images']);
-                $userCacheAlbum->setCountImages($user_cache_cats[$album->getId()]['count_images']);
-                $userCacheAlbum->setNbAlbums($user_cache_cats[$album->getId()]['nb_categories']);
-                $userCacheAlbum->setCountAlbums($user_cache_cats[$album->getId()]['count_categories']);
+                $userCacheAlbum->setDateLast(new \DateTime($user_cache_albums[$album->getId()]['date_last']));
+                $userCacheAlbum->setMaxDateLast(new \DateTime($user_cache_albums[$album->getId()]['max_date_last']));
+                $userCacheAlbum->setNbImages($user_cache_albums[$album->getId()]['nb_images']);
+                $userCacheAlbum->setCountImages($user_cache_albums[$album->getId()]['count_images']);
+                $userCacheAlbum->setNbAlbums($user_cache_albums[$album->getId()]['nb_categories']);
+                $userCacheAlbum->setCountAlbums($user_cache_albums[$album->getId()]['count_categories']);
                 $this->userCacheAlbumRepository->addOrUpdateUserCacheAlbum($userCacheAlbum);
             }
 
@@ -245,13 +246,13 @@ class UserProvider implements UserProviderInterface
     }
 
     /**
-     * Calculates the list of forbidden categories for a given user.
+     * Calculates the list of forbidden albums for a given user.
      *
-     * Calculation is based on private categories minus categories authorized to
-     * the groups the user belongs to minus the categories directly authorized
+     * Calculation is based on private albums minus albums authorized to
+     * the groups the user belongs to minus the albums directly authorized
      * to the user.
      */
-    public function calculatePermissions(int $user_id, bool $is_admin = false): array
+    protected function calculatePermissions(int $user_id, bool $is_admin = false): array
     {
         $private_albums = [];
         foreach ($this->albumMapper->getRepository()->findByStatus(Album::STATUS_PRIVATE) as $album) {
@@ -268,13 +269,13 @@ class UserProvider implements UserProviderInterface
             $authorized_albums[] = $album->getId();
         }
 
-        // uniquify ids : some private categories might be authorized for the groups and for the user
+        // uniquify ids : some private albums might be authorized for the groups and for the user
         $authorized_albums = array_unique($authorized_albums);
 
-        // only unauthorized private categories are forbidden
+        // only unauthorized private albums are forbidden
         $forbidden_albums = array_diff($private_albums, $authorized_albums);
 
-        // if user is not an admin, locked categories are forbidden
+        // if user is not an admin, locked albums are forbidden
         if (!$is_admin) {
             $locked_albums = [];
             foreach ($this->albumMapper->getRepository()->findByVisible(false) as $album) {

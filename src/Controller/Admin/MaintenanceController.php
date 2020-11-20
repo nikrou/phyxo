@@ -17,7 +17,6 @@ use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
 use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
-use App\Repository\ImageRepository;
 use App\Repository\SearchRepository;
 use App\Repository\UserFeedRepository;
 use Phyxo\Conf;
@@ -60,14 +59,6 @@ class MaintenanceController extends AdminCommonController
               }
           case 'images':
               {
-                  $result = $em->getRepository(ImageRepository::class)->findDistinctStorageId();
-                  $cat_ids = $em->getConnection()->result2array($result, null, 'storage_category_id');
-                  $fulldirs = $albumMapper->getFulldirs($cat_ids);
-
-                  foreach ($cat_ids as $cat_id) { // @TODO : use mass_updates ?
-                      $em->getRepository(ImageRepository::class)->updatePathByStorageId($fulldirs[$cat_id], $cat_id);
-                  }
-
                   $rateMapper->updateRatingScore();
                   $userMapper->invalidateUserCache();
                   return  $this->redirectToRoute('admin_maintenance');

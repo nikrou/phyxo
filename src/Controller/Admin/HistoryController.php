@@ -12,12 +12,12 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\AlbumMapper;
+use App\DataMapper\ImageMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\Search;
 use App\Repository\CommentRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
-use App\Repository\ImageRepository;
 use App\Repository\SearchRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
@@ -187,7 +187,7 @@ class HistoryController extends AdminCommonController
     }
 
     public function search(Request $request, SearchRepository $searchRepository, int $start, int $search_id = null, AlbumMapper $albumMapper, Conf $conf,
-                            EntityManager $em, ParameterBagInterface $params, UserRepository $userRepository, UserMapper $userMapper)
+                            EntityManager $em, ParameterBagInterface $params, UserRepository $userRepository, UserMapper $userMapper, ImageMapper $imageMapper)
     {
         $tpl_params = [];
 
@@ -203,7 +203,7 @@ class HistoryController extends AdminCommonController
                 $rules = unserialize(base64_decode($search->getRules()));
             }
 
-            $tpl_params['search_results'] = $this->getElementFromSearchRules($rules, $start, $conf, $em, $albumMapper, $userMapper, $userRepository);
+            $tpl_params['search_results'] = $this->getElementFromSearchRules($rules, $start, $conf, $em, $albumMapper, $userMapper, $imageMapper, $userRepository);
             $tpl_params['search_summary'] = $tpl_params['search_results']['search_summary'];
             $nb_lines = $tpl_params['search_results']['nb_lines'];
 
@@ -245,13 +245,15 @@ class HistoryController extends AdminCommonController
     }
 
     protected function getElementFromSearchRules(array $rules, int $start, Conf $conf, EntityManager $em, AlbumMapper $albumMapper, UserMapper $userMapper,
-                                            UserRepository $userRepository): array
+                                            ImageMapper $imageMapper, UserRepository $userRepository): array
     {
         $search_results = [];
 
         if (isset($rules['fields']['filename'])) {
-            $result = $em->getRepository(ImageRepository::class)->findByFields('file', $rules['fields']['filename']);
-            $rules['image_ids'] = $em->getConnection()->result2array($result, null, 'id');
+            $rules['image_ids'] = [];
+            foreach ($imageMapper->getRepository()->findBy(['file' => $rules['fields']['filename']]) as $image) {
+                $rules['image_ids'][] = $image->getId();
+            }
         }
 
         $nb_lines = $em->getRepository(HistoryRepository::class)->getHistory($rules, $this->types, 0, 0, $count_only = true);
@@ -295,19 +297,22 @@ class HistoryController extends AdminCommonController
         }
 
         if (count($category_ids) > 0) {
-            $result = $albumMapper->getRepository()->findById($category_ids);
-            $uppercats_of = $em->getConnection()->result2array($result, 'id', 'uppercats');
+            $uppercats_of = [];
+            foreach ($albumMapper->getRepository()->findById($category_ids) as $album) {
+                $uppercats_of[$album->getId()] = $album->getUppercats();
+            }
 
             $name_of_category = [];
-
             foreach ($uppercats_of as $category_id => $uppercats) {
                 $name_of_category[$category_id] = $albumMapper->getAlbumsDisplayNameCache($uppercats);
             }
         }
 
         if (count($image_ids) > 0) {
-            $result = $em->getRepository(ImageRepository::class)->findByIds(array_keys($image_ids));
-            $image_infos = $em->getConnection()->result2array($result, 'id');
+            $image_infos = [];
+            foreach ($imageMapper->getRepository()->findBy(['id' => array_keys($image_ids)]) as $image) {
+                $image_infos[$image->getId()] = $image;
+            }
         }
 
         if ($has_tags > 0) {
@@ -334,7 +339,7 @@ class HistoryController extends AdminCommonController
         foreach ($history_lines as $line) {
             if (isset($line['image_type']) && $line['image_type'] === 'high') {
                 if (isset($image_infos[$line['image_id']]['filesize'])) {
-                    $summary['total_filesize'] += intval($image_infos[$line['image_id']]['filesize']);
+                    $summary['total_filesize'] += $image_infos[$line['image_id']]->getFilesize();
                 }
             }
 
@@ -373,7 +378,7 @@ class HistoryController extends AdminCommonController
                 );
             }
 
-            $image_string = $this->getImageString($line, $image_infos, $rules, $conf, $this->image_std_params);
+            $image_string = $this->getImageString($line, $image_infos->toArray(), $rules, $conf, $this->image_std_params);
 
             $search_results[] = [
                 'DATE' => $line['date'],
@@ -431,9 +436,9 @@ class HistoryController extends AdminCommonController
             if (isset($image_infos[$line['image_id']])) {
                 $element = [
                     'id' => $line['image_id'],
-                    'file' => $image_infos[$line['image_id']]['file'],
-                    'path' => $image_infos[$line['image_id']]['path'],
-                    'representative_ext' => $image_infos[$line['image_id']]['representative_ext'],
+                    'file' => $image_infos[$line['image_id']]->getFile(),
+                    'path' => $image_infos[$line['image_id']]->getPath(),
+                    'representative_ext' => $image_infos[$line['image_id']]->getRepresentativeExt(),
                 ];
                 $thumbnail_display = $search['fields']['display_thumbnail'];
             } else {

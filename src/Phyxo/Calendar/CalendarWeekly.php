@@ -40,15 +40,15 @@ class CalendarWeekly extends CalendarBase
 
         $calendar_levels = [
             [
-                'sql' => $this->conn->db_get_year($this->date_field),
+                'sql' => $this->date_field, // year
                 'labels' => []
             ],
             [
-                'sql' => $this->conn->db_get_week($this->date_field) . '+1',
+                'sql' => $this->date_field, // . '+1', // week
                 'labels' => $week_no_labels,
             ],
             [
-                'sql' => $this->conn->db_get_dayofweek($this->date_field) . '-1',
+                'sql' => $this->date_field, // ) . '-1', // dayofweekk
                 'labels' => $this->days
             ],
         ];
@@ -56,8 +56,11 @@ class CalendarWeekly extends CalendarBase
         //Comment next lines for week starting on Sunday or if MySQL version<4.0.17
         //WEEK(date,5) = "0-53 - Week 1=the first week with a Monday in this year"
         if ($this->conf['week_starts_on'] === 'monday') {
-            $calendar_levels[self::CWEEK]['sql'] = $this->conn->db_get_week($this->date_field, 5) . '+1';
-            $calendar_levels[self::CDAY]['sql'] = $this->conn->db_get_weekday($this->date_field);
+            // $calendar_levels[self::CWEEK]['sql'] = $this->conn->db_get_week($this->date_field, 5) . '+1';
+            // $calendar_levels[self::CDAY]['sql'] = $this->conn->db_get_weekday($this->date_field);
+            // $calendar_levels[self::CDAY]['labels'][] = array_shift($calendar_levels[self::CDAY]['labels']);
+            $calendar_levels[self::CWEEK]['sql'] = $this->date_field;
+            $calendar_levels[self::CDAY]['sql'] = $this->date_field;
             $calendar_levels[self::CDAY]['labels'][] = array_shift($calendar_levels[self::CDAY]['labels']);
         }
 

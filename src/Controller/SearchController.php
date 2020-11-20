@@ -16,7 +16,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Phyxo\MenuBar;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use App\Repository\ImageRepository;
 use App\DataMapper\TagMapper;
 use App\Repository\SearchRepository;
 use App\DataMapper\SearchMapper;
@@ -64,7 +63,7 @@ class SearchController extends CommonController
     }
 
     public function search(Request $request, EntityManager $em, TagMapper $tagMapper, AlbumMapper $albumMapper, Conf $conf,
-        SearchRepository $searchRepository, MenuBar $menuBar, TranslatorInterface $translator)
+        SearchRepository $searchRepository, MenuBar $menuBar, TranslatorInterface $translator, ImageMapper $imageMapper)
     {
         $tpl_params = [];
 
@@ -86,13 +85,12 @@ class SearchController extends CommonController
         // authors
         $authors = [];
         $author_counts = [];
-        $result = $em->getRepository(ImageRepository::class)->findGroupByAuthor($this->getUser(), $filter);
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-            if (!isset($author_counts[$row['author']])) {
-                $author_counts[$row['author']] = 0;
+        foreach ($imageMapper->getRepository()->findGroupByAuthor($this->getUser()->getForbiddenCategories()) as $image) {
+            if (!isset($author_counts[$image->getAuthor()])) {
+                $author_counts[$image->getAuthor()] = 0;
             }
 
-            $author_counts[$row['author']]++;
+            $author_counts[$image->getAuthor()]++;
         }
 
         foreach ($author_counts as $author => $counter) {

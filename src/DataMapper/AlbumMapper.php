@@ -14,12 +14,11 @@ namespace App\DataMapper;
 use App\Entity\Album;
 use App\Entity\ImageAlbum;
 use App\Entity\User;
+use App\Entity\UserCacheAlbum;
 use App\Repository\AlbumRepository;
-use App\Repository\BaseRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageRepository;
-use App\Repository\NewImageRepository;
 use App\Repository\UserCacheAlbumRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
@@ -34,7 +33,7 @@ class AlbumMapper
     private $conf, $albumRepository, $router, $cache = [], $albums_retrieved = false, $em, $translator, $userRepository, $userCacheAlbumRepository, $imageAlbumRepository, $imageRepository;
 
     public function __construct(Conf $conf, AlbumRepository $albumRepository, RouterInterface $router, TranslatorInterface $translator, EntityManager $em, UserRepository $userRepository,
-                                UserCacheAlbumRepository $userCacheAlbumRepository, ImageAlbumRepository $imageAlbumRepository, NewImageRepository $imageRepository)
+                                UserCacheAlbumRepository $userCacheAlbumRepository, ImageAlbumRepository $imageAlbumRepository, ImageRepository $imageRepository)
     {
         $this->conf = $conf;
         $this->albumRepository = $albumRepository;
@@ -114,7 +113,7 @@ class AlbumMapper
                 ]
             );
             if ($this->conf['index_new_icon'] && !empty($row['max_date_last'])) { // @FIX : cf BUGS
-                $row['icon_ts'] = $this->em->getRepository(BaseRepository::class)->getIcon($row['max_date_last'], $user, $child_date_last);
+                // $row['icon_ts'] = $this->em->getRepository(BaseRepository::class)->getIcon($row['max_date_last'], $user, $child_date_last);
             }
             $cats[$row['id']] = $row;
         }
@@ -141,7 +140,7 @@ class AlbumMapper
                 $last_photo_date = $album['date_last'];
             }
 
-            $albums[$album['cat_id']] = $album;
+            $albums[$album['album_id']] = $album;
         }
 
         foreach ($albums as $album) {
@@ -195,7 +194,7 @@ class AlbumMapper
             } while (true);
         }
 
-        unset($albums[$album['cat_id']]);
+        unset($albums[$album['album_id']]);
 
         return $albums;
     }
@@ -776,8 +775,10 @@ class AlbumMapper
         $album_ids = $this->albumRepository->getSubcatIds($ids);
 
         // search for the reference date of each album
-        $result = $this->em->getRepository(ImageRepository::class)->getReferenceDateForCategories($field, $minmax, $album_ids);
-        $ref_dates = $this->em->getConnection()->result2array($result, 'category_id', 'ref_date');
+        $ref_dates = [];
+        foreach ($this->imageRepository->getReferenceDateForAlbums($field, $minmax, $album_ids) as $image) {
+            $ref_dates[$image['album_id']] = new \DateTime($image['ref_date']);
+        }
 
         // then iterate on all albums (having a ref_date or not) to find the reference_date, with a search on sub-albums
         $uppercats_of = [];
@@ -1045,27 +1046,32 @@ class AlbumMapper
         $is_child_date_last = false;
 
         foreach ($albums as $album) {
-            if (is_null($album->getUserCacheAlbum())) {
+            $userCacheAlbum = $user->getUserCacheAlbums()->filter(function(UserCacheAlbum $uca) use ($album) {
+                return $uca->getAlbum()->getId() === $album->getId();
+            })->first();
+
+            if (!$userCacheAlbum) {
                 continue;
             }
-            $is_child_date_last = $album->getUserCacheAlbum()->getMaxDateLast() > $album->getUserCacheAlbum()->getDateLast();
 
-            if ($album->getUserCacheAlbum()->getUserRepresentativePicture()) {
-                $image_id = $album->getUserCacheAlbum()->getUserRepresentativePicture();
+            $is_child_date_last = $userCacheAlbum->getMaxDateLast() > $userCacheAlbum->getDateLast();
+
+            if ($userCacheAlbum->getUserRepresentativePicture()) {
+                $image_id = $userCacheAlbum->getUserRepresentativePicture();
             } elseif ($album->getRepresentativePictureId()) { // if a representative picture is set, it has priority
                 $image_id = $album->getRepresentativePictureId();
             } elseif ($this->conf['allow_random_representative']) { // searching a random representant among elements in sub-categories
                 if ($random_image = $this->getRepository()->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getForbiddenCategories())) {
                     $image_id = $random_image->getId();
                 }
-            } elseif ($album->getUserCacheAlbum()->getCountAlbums() > 0 && $album->getUserCacheAlbum()->getCountImages() > 0) { // searching a random representant among representant of sub-categories
+            } elseif ($userCacheAlbum->getCountAlbums() > 0 && $userCacheAlbum->getCountImages() > 0) { // searching a random representant among representant of sub-categories
                 if ($random_image = $this->getRepository()->findRandomRepresentantAmongSubAlbums($album->getUppercats())) {
                     $image_id = $random_image->getId();
                 }
             }
 
             if (isset($image_id)) {
-                if ($this->conf['representative_cache_on_subcats'] && $album->getUserCacheAlbum()->getUserRepresentativePicture() !== $image_id) {
+                if ($this->conf['representative_cache_on_subcats'] && $userCacheAlbum->getUserRepresentativePicture() !== $image_id) {
                     $user_representative_updates_for[$album->getId()] = $image_id;
                 }
 

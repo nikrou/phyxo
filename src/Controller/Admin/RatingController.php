@@ -11,8 +11,8 @@
 
 namespace App\Controller\Admin;
 
+use App\DataMapper\ImageMapper;
 use App\DataMapper\UserMapper;
-use App\Repository\ImageRepository;
 use App\Repository\RateRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
@@ -179,7 +179,7 @@ class RatingController extends AdminCommonController
     }
 
     public function users(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, UserMapper $userMapper, ImageStandardParams $image_std_params,
-                            TranslatorInterface $translator, UserRepository $userRepository)
+                            TranslatorInterface $translator, UserRepository $userRepository, ImageMapper $imageMapper)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -246,12 +246,11 @@ class RatingController extends AdminCommonController
         // get image tn urls
         $image_urls = [];
         if (count($image_ids) > 0) {
-            $result = $em->getRepository(ImageRepository::class)->findByIds(array_keys($image_ids));
             $d_params = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                $image_urls[$row['id']] = [
-                    'tn' => (new DerivativeImage(new SrcImage($row, $conf['picture_ext']), $d_params, $image_std_params))->getUrl(),
-                    'page' => $this->generateUrl('picture', ['image_id' => $row['id'], 'type' => 'file', 'element_id' => $row['file']]),
+            foreach ($imageMapper->getRepository()->findBy(['id' => array_keys($image_ids)]) as $image) {
+                $image_urls[$image->getId()] = [
+                    'tn' => (new DerivativeImage(new SrcImage($image->toArray(), $conf['picture_ext']), $d_params, $image_std_params))->getUrl(),
+                    'page' => $this->generateUrl('picture', ['image_id' => $image->getId(), 'type' => 'file', 'element_id' => $image->getFile()]),
                 ];
             }
         }
@@ -263,8 +262,10 @@ class RatingController extends AdminCommonController
             $all_img_sum[(int)$row['element_id']] = ['avg' => (float)$row['avg']];
         }
 
-        $result = $em->getRepository(ImageRepository::class)->findBestRated($consensus_top_number);
-        $best_rated = array_flip($em->getConnection()->result2array($result, null, 'id'));
+        $best_rated = [];
+        foreach ($imageMapper->getRepository()->findBestRated($consensus_top_number) as $image) {
+            $best_rated[] = $image->getId();
+        }
 
         // by user stats
         foreach ($by_user_ratings as $id => &$rating) {

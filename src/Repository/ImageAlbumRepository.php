@@ -86,14 +86,13 @@ class ImageAlbumRepository extends ServiceEntityRepository
     public function countImagesByAlbum(): array
     {
         $qb = $this->createQueryBuilder('ia');
-        $qb->addSelect('IDENTITY(ia.album) AS album, COUNT(1) AS counter');
-        $qb->groupBy('ia.album, ia.image, ia.rank');
+        $qb->select('IDENTITY(ia.album) AS album, COUNT(1) AS counter');
+        $qb->groupBy('ia.album');
 
         $results = [];
         foreach ($qb->getQuery()->getResult() as $row) {
             $results[$row['album']] = $row['counter'];
         }
-
 
         return $results;
     }

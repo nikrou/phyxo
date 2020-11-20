@@ -75,9 +75,9 @@ class User implements UserInterface, EquatableInterface
     private $groups;
 
     /**
-     * @ORM\OneToOne(targetEntity=UserCacheAlbum::class, mappedBy="user", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity=UserCacheAlbum::class, mappedBy="user", cascade={"persist", "remove"})
      */
-    private $userCacheAlbum;
+    private $userCacheAlbums;
 
     /**
      * @ORM\ManyToMany(targetEntity=Album::class, inversedBy="user_access")
@@ -105,6 +105,7 @@ class User implements UserInterface, EquatableInterface
         $this->groups = new ArrayCollection();
         $this->user_access = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        $this->userCacheAlbums = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -296,23 +297,6 @@ class User implements UserInterface, EquatableInterface
         return $this;
     }
 
-    public function getUserCacheAlbum(): ?UserCacheAlbum
-    {
-        return $this->userCacheAlbum;
-    }
-
-    public function setUserCacheAlbum(UserCacheAlbum $userCacheAlbum): self
-    {
-        $this->userCacheAlbum = $userCacheAlbum;
-
-        // set the owning side of the relation if necessary
-        if ($userCacheAlbum->getUser() !== $this) {
-            $userCacheAlbum->setUser($this);
-        }
-
-        return $this;
-    }
-
     /**
      * @return Collection|Album[]
      */
@@ -382,6 +366,37 @@ class User implements UserInterface, EquatableInterface
             // set the owning side to null (unless already changed)
             if ($comment->getUser() === $this) {
                 $comment->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|UserCacheAlbum[]
+     */
+    public function getUserCacheAlbums(): Collection
+    {
+        return $this->userCacheAlbums;
+    }
+
+    public function addUserCacheAlbum(UserCacheAlbum $userCacheAlbum): self
+    {
+        if (!$this->userCacheAlbums->contains($userCacheAlbum)) {
+            $this->userCacheAlbums[] = $userCacheAlbum;
+            $userCacheAlbum->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserCacheAlbum(UserCacheAlbum $userCacheAlbum): self
+    {
+        if ($this->userCacheAlbums->contains($userCacheAlbum)) {
+            $this->userCacheAlbums->removeElement($userCacheAlbum);
+            // set the owning side to null (unless already changed)
+            if ($userCacheAlbum->getUser() === $this) {
+                $userCacheAlbum->setUser($this);
             }
         }
 

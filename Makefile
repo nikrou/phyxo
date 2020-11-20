@@ -51,13 +51,13 @@ config: clean ## prepare environment for building archive
 	mkdir -p $(DIST)/$(APP_NAME)/_data $(DIST)/$(APP_NAME)/upload	\
 	$(DIST)/$(APP_NAME)/galleries $(DIST)/$(APP_NAME)/local/config	\
 	$(DIST)/$(APP_NAME)/themes $(DIST)/$(APP_NAME)/plugins		\
-	$(DIST)/$(APP_NAME)/var/cache/prod $(DIST)/$(APP_NAME)/var/cache/install $(DIST)/$(APP_NAME)/var/log
+	$(DIST)/$(APP_NAME)/var/cache/prod $(DIST)/$(APP_NAME)/var/cache/install/prod $(DIST)/$(APP_NAME)/var/log
 
 	# add empty files in emty dirs
 	touch $(DIST)/$(APP_NAME)/_data/.gitkeep $(DIST)/$(APP_NAME)/upload/.gitkeep							\
 	$(DIST)/$(APP_NAME)/galleries/.gitkeep $(DIST)/$(APP_NAME)/local/config/.gitkeep						\
 	$(DIST)/$(APP_NAME)/themes/.gitkeep $(DIST)/$(APP_NAME)/plugins/.gitkeep							\
-	$(DIST)/$(APP_NAME)/var/cache/prod/.gitkeep $(DIST)/$(APP_NAME)/var/cache/install/.gitkeep $(DIST)/$(APP_NAME)/var/log/.gitkeep
+	$(DIST)/$(APP_NAME)/var/cache/prod/.gitkeep $(DIST)/$(APP_NAME)/var/cache/install/prod/.gitkeep $(DIST)/$(APP_NAME)/var/log/.gitkeep
 
 	find $(DIST) -name '*~' -exec rm \{\} \;
 	find $(DIST) -name '.env.local*' -o -name '.env.*.local' -exec rm \{\} \;

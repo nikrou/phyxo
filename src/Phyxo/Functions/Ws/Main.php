@@ -12,12 +12,15 @@
 namespace Phyxo\Functions\Ws;
 
 use App\Entity\Comment;
+use App\Entity\Group;
 use App\Entity\ImageAlbum;
+use App\Entity\User;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;
-use App\Repository\ImageRepository;
+use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\SrcImage;
 
 class Main
 {
@@ -42,10 +45,9 @@ class Main
         }
 
         $max_urls = $params['max_urls'];
-        $result = (new ImageRepository($service->getConnection()))->findMaxIdAndCount();
-        list($max_id, $image_count) = $service->getConnection()->db_fetch_row($result);
+        list($max_id, $image_count) = $service->getImageMapper->getRepository()->findMaxIdAndCount();
 
-        if (0 == $image_count) {
+        if ($image_count === 0) {
             return [];
         }
 
@@ -60,7 +62,7 @@ class Main
         $conf['derivative_url_style'] = 2; //script
 
         $qlimit = min(5000, ceil(max($image_count / 500, $max_urls / count($types))));
-        $where_clauses[] = \Phyxo\Functions\Ws\Main::stdImageSqlFilter($params, '');
+        $where_clauses[] = self::stdImageSqlFilter($params, '');
 
         if (!empty($params['ids'])) {
             $where_clauses[] = 'id ' . $service->getConnection()->in($params['ids']);
@@ -68,18 +70,15 @@ class Main
 
         $urls = [];
         do {
-            $result = (new ImageRepository($service->getConnection()))->findWithConditions($where_clauses, $start_id, $qlimit);
-            $is_last = $service->getConnection()->db_num_rows($result) < $qlimit;
-
-            while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-                $start_id = $row['id'];
-                $src_image = new \Phyxo\Image\SrcImage($row, $service->getConf()['picture_ext']);
+            foreach ($service->getImageMapper()->getRepository()->findBy(['id' => $params['ids']], null, $start_id, $qlimit) as $image) {
+                $start_id = $image->getId();
+                $src_image = new SrcImage($image->toArray(), $service->getConf()['picture_ext']);
                 if ($src_image->is_mimetype()) {
                     continue;
                 }
 
                 foreach ($types as $type) {
-                    $derivative = new \Phyxo\Image\DerivativeImage($src_image, $type, $service->getImageStandardParams());
+                    $derivative = new DerivativeImage($src_image, $type, $service->getImageStandardParams());
                     if ($type != $derivative->get_type()) {
                         continue;
                     }
@@ -88,12 +87,9 @@ class Main
                     }
                 }
 
-                if (count($urls) >= $max_urls && !$is_last) {
+                if (count($urls) >= $max_urls) {
                     break;
                 }
-            }
-            if ($is_last) {
-                $start_id = 0;
             }
         } while (count($urls) < $max_urls && $start_id);
 
@@ -123,20 +119,20 @@ class Main
     public static function getInfos($params, Server $service)
     {
         $infos['version'] = $service->getCoreVersion();
-        $infos['nb_elements'] = (new ImageRepository($service->getConnection()))->count();
+        $infos['nb_elements'] = $service->getImageMapper()->getRepository()->count([]);
         $infos['nb_categories'] = $service->getAlbumMapper()->getRepository()->count([]);
         $infos['nb_virtual'] = $service->getAlbumMapper()->getRepository()->countByType($virtual = true);
         $infos['nb_physical'] = $service->getAlbumMapper()->getRepository()->countByType($virtual = false);
         $infos['nb_image_category'] = $service->getManagerRegistry()->getRepository(ImageAlbum::class)->count([]);
         $infos['nb_tags'] = (new TagRepository($service->getConnection()))->count();
         $infos['nb_image_tag'] = (new ImageTagRepository($service->getConnection()))->count();
-        $infos['nb_users'] = $service->getManagerRegistry->getRepository(User::class)->count([]);
-        $infos['nb_groups'] = $service->getManagerRegistry->getRepository(Group::class)->count([]);
+        $infos['nb_users'] = $service->getManagerRegistry()->getRepository(User::class)->count([]);
+        $infos['nb_groups'] = $service->getManagerRegistry()->getRepository(Group::class)->count([]);
         $infos['nb_comments'] = $service->getManagerRegistry()->getRepository(Comment::class)->count([]);
 
         // first element
         if ($infos['nb_elements'] > 0) {
-            $infos['first_date'] = (new ImageRepository($service->getConnection()))->findFirstDate();
+            $infos['first_date'] = $service->getImageMapper()->getRepository()->findFirstDate();
         }
 
         // unvalidated comments
@@ -269,24 +265,5 @@ class Main
         $ret['derivatives'] = $derivatives_arr;
 
         return $ret;
-    }
-
-    /**
-     * returns an array of image attributes that are to be encoded as xml attributes
-     * instead of xml elements
-     */
-    public static function stdGetImageXmlAttributes()
-    {
-        return ['id', 'element_url', 'page_url', 'file', 'width', 'height', 'hit', 'date_available', 'date_creation'];
-    }
-
-    public static function stdGetCategoryXmlAttributes()
-    {
-        return ['id', 'url', 'nb_images', 'total_nb_images', 'nb_categories', 'date_last', 'max_date_last'];
-    }
-
-    public static function stdGetTagXmlAttributes()
-    {
-        return ['id', 'name', 'url_name', 'counter', 'url', 'page_url'];
     }
 }

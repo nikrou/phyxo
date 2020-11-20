@@ -19,7 +19,6 @@ use App\Entity\User;
 use App\Events\GroupEvent;
 use App\Repository\GroupRepository;
 use App\Repository\ImageAlbumRepository;
-use App\Repository\ImageRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\UserRepository;
@@ -54,7 +53,7 @@ class AlbumController extends AdminCommonController
 
     public function properties(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
                                 ImageStandardParams $image_std_params, AlbumMapper $albumMapper, TranslatorInterface $translator,
-                                ImageAlbumRepository $imageAlbumRepository)
+                                ImageAlbumRepository $imageAlbumRepository, ImageMapper $imageMapper)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -140,15 +139,14 @@ class AlbumController extends AdminCommonController
         if ($album_has_images) {
             $tpl_params['U_MANAGE_ELEMENTS'] = $this->generateUrl('admin_batch_manager_global', ['filter' => 'album', 'value' => $album_id]);
 
-            $result = $em->getRepository(ImageRepository::class)->getImagesInfosInCategory($album_id);
-            list($image_count, $min_date, $max_date) = $em->getConnection()->db_fetch_row($result);
+            list($image_count, $min_date, $max_date) = $imageMapper->getRepository()->getImagesInfosInAlbum($album_id);
 
-            if ($min_date === $max_date) {
+            if ($min_date->format('Y-m-d') === $max_date->format('Y-m-d')) {
                 $tpl_params['INTRO'] = $translator->trans(
                     'This album contains {count} photos, added on {date}.',
                     [
                         'count' => $image_count,
-                        'date' => (new \DateTime($min_date))->format('l d M Y')
+                        'date' => $min_date->format('l d M Y')
                     ],
                     'admin'
                 );
@@ -157,8 +155,8 @@ class AlbumController extends AdminCommonController
                     'This album contains {count} photos, added between {min_date} and {max_date}.',
                     [
                         'count' => $image_count,
-                        'min_date' => (new \DateTime($min_date))->format('l d M Y'),
-                        'max_date' => (new \DateTime($max_date))->format('l d M Y')
+                        'min_date' => $min_date->format('l d M Y'),
+                        'max_date' => $max_date->format('l d M Y')
                     ],
                     'admin'
                     );
@@ -199,9 +197,8 @@ class AlbumController extends AdminCommonController
 
             // picture to display : the identified representant or the generic random representant ?
             if ($album->getRepresentativePictureId()) {
-                $result = $em->getRepository(ImageRepository::class)->findById($this->getUser(), [], $album->getRepresentativePictureId());
-                $row = $em->getConnection()->db_fetch_assoc($result);
-                $src = (new DerivativeImage(new SrcImage($row, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
+                $src = $imageMapper->getRepository()->find($album->getRepresentativePictureId())->toArray();
+                $src = (new DerivativeImage(new SrcImage($src, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
                 $url = $this->generateUrl('admin_photo', ['image_id' => $album->getRepresentativePictureId()]);
 
                 $tpl_params['representant']['picture'] =
@@ -242,7 +239,7 @@ class AlbumController extends AdminCommonController
     }
 
     public function sort_order(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                                AlbumMapper $albumMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator)
+                                ImageMapper $imageMapper, AlbumMapper $albumMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -305,29 +302,26 @@ class AlbumController extends AdminCommonController
 
         $tpl_params['CATEGORIES_NAV'] = $albumMapper->getAlbumsDisplayName($album->getUppercats(), 'admin_album', ['parent_id' => $parent_id]);
 
-        $result = $em->getRepository(ImageRepository::class)->findImagesInCategory($album_id, 'ORDER BY RANK');
-        if ($em->getConnection()->db_num_rows($result) > 0) {
-            // template thumbnail initialization
-            $current_rank = 1;
-            $derivativeParams = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                $derivative = new DerivativeImage(new SrcImage($row, $conf['picture_ext']), $derivativeParams, $image_std_params);
+        // template thumbnail initialization
+        $current_rank = 1;
+        $derivativeParams = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
+        foreach ($imageMapper->getRepository()->findImagesInAlbum($album_id, 'ORDER BY RANK') as $image) {
+            $derivative = new DerivativeImage(new SrcImage($image->toArray(), $conf['picture_ext']), $derivativeParams, $image_std_params);
 
-                if (!empty($row['name'])) {
-                    $thumbnail_name = $row['name'];
-                } else {
-                    $file_wo_ext = \Phyxo\Functions\Utils::get_filename_wo_extension($row['file']);
-                    $thumbnail_name = str_replace('_', ' ', $file_wo_ext);
-                }
-                $current_rank++;
-                $tpl_params['thumbnails'][] = [
-                    'ID' => $row['id'],
-                    'NAME' => $thumbnail_name,
-                    'TN_SRC' => $derivative->getUrl(),
-                    'RANK' => $current_rank * 10,
-                    'SIZE' => $derivative->get_size(),
-                ];
+            if ($image->getName()) {
+                $thumbnail_name = $image->getName();
+            } else {
+                $file_wo_ext = \Phyxo\Functions\Utils::get_filename_wo_extension($image->getFile());
+                $thumbnail_name = str_replace('_', ' ', $file_wo_ext);
             }
+            $current_rank++;
+            $tpl_params['thumbnails'][] = [
+                'ID' => $image->getId(),
+                'NAME' => $thumbnail_name,
+                'TN_SRC' => $derivative->getUrl(),
+                'RANK' => $current_rank * 10,
+                'SIZE' => $derivative->get_size(),
+            ];
         }
 
         $tpl_params['image_order_options'] = [
@@ -532,7 +526,7 @@ class AlbumController extends AdminCommonController
 
     public function notification(Request $request, int $album_id, int $parent_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params,
                                 AlbumMapper $albumMapper, ImageStandardParams $image_std_params, EventDispatcherInterface $eventDispatcher,
-                                GroupRepository $groupRepository, TranslatorInterface $translator)
+                                GroupRepository $groupRepository, ImageMapper $imageMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -544,10 +538,9 @@ class AlbumController extends AdminCommonController
         if ($request->isMethod('POST')) {
             // @TODO: if $category['representative_picture_id'] is empty find child representative_picture_id
             if ($album->getRepresentativePictureId()) {
-                $result = $em->getRepository(ImageRepository::class)->findById($this->getUser(), [], $album->getRepresentativePictureId());
-                if ($em->getConnection()->db_num_rows($result) > 0) {
-                    $element = $em->getConnection()->db_fetch_assoc($result);
-                    $src_image = new SrcImage($element, $conf['picture_ext']);
+                $element = $imageMapper->getRepository()->find($album->getRepresentativePictureId());
+                if (!is_null($element)) {
+                    $src_image = new SrcImage($element->toArray(), $conf['picture_ext']);
 
                     $img_url = '<a href="' . $this->generateUrl('picture', ['image_id' => $element['id'], 'type' => 'category', 'element_id' => $album_id], UrlGeneratorInterface::ABSOLUTE_URL);
                     $img_url .= '"><img src="' . (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl() . '" alt="X"></a>';
@@ -647,13 +640,15 @@ class AlbumController extends AdminCommonController
         return  $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
     }
 
-    public function delete(int $album_id, int $parent_id = null, EntityManager $em, AlbumMapper $albumMapper, ImageMapper $imageMapper, UserMapper $userMapper, TranslatorInterface $translator)
+    public function delete(int $album_id, int $parent_id = null, AlbumMapper $albumMapper, ImageMapper $imageMapper, UserMapper $userMapper, TranslatorInterface $translator)
     {
         $albumMapper->deleteAlbums([$album_id]);
 
         // destruction of all photos physically linked to the category
-        $result = $em->getRepository(ImageRepository::class)->findByFields('storage_category_id', [$album_id]);
-        $element_ids = $em->getConnection()->result2array($result, null, 'id');
+        $element_ids = [];
+        foreach ($imageMapper->getRepository()->findBy(['storage_category_id' => $album_id]) as $image) {
+            $element_ids[] = $image->getId();
+        }
         $imageMapper->deleteElements($element_ids);
 
         $this->addFlash('info', $translator->trans('Virtual album deleted', [], 'admin'));

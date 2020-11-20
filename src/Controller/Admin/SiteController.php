@@ -15,7 +15,6 @@ use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\Entity\Site;
 use App\Repository\CategoryRepository;
-use App\Repository\ImageRepository;
 use App\Repository\SiteRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
@@ -120,8 +119,10 @@ class SiteController extends AdminCommonController
             $albumMapper->deleteAlbums($album_ids);
 
             // destruction of all photos physically linked to the category
-            $result = $em->getRepository(ImageRepository::class)->findByFields('storage_category_id', $album_ids);
-            $element_ids = $em->getConnection()->result2array($result, null, 'id');
+            $element_ids = [];
+            foreach ($imageMapper->getRepository()->findBy(['storage_category_id' => $album_ids]) as $image) {
+                $element_ids[] = $image->getId();
+            }
             $imageMapper->deleteElements($element_ids);
 
             $siteRepository->deleteById($site);

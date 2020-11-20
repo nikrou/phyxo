@@ -11,7 +11,6 @@
 
 namespace Phyxo\Calendar;
 
-use App\Repository\CalendarRepository;
 use Phyxo\Calendar\CalendarBase;
 use Phyxo\Image\SrcImage;
 use Phyxo\Image\DerivativeImage;
@@ -108,15 +107,15 @@ class CalendarMonthly extends CalendarBase
     {
         return  [
             [
-                'sql' => $this->conn->db_get_year($this->date_field),
+                'sql' => $this->date_field, // year
                 'labels' => []
             ],
             [
-                'sql' => $this->conn->db_get_month($this->date_field),
+                'sql' => $this->date_field, // month
                 'labels' => $this->months
             ],
             [
-                'sql' => $this->conn->db_get_dayofmonth($this->date_field),
+                'sql' => $this->date_field, // dayofmonth
                 'labels' => []
             ],
         ];
@@ -268,28 +267,28 @@ class CalendarMonthly extends CalendarBase
         }
 
         if ($this->find_by_items) {
-            $result = $this->calendar_repository->findYYYYMMPeriodAndImagesCountByIds($this->date_field, $this->getDateWhere(), $this->items);
+            $rowImages = $this->imageRepository->findYYYYMMPeriodAndImagesCountByIds($this->date_field, $this->getDateWhere(), $this->items);
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
-                    $this->calendar_repository->getSubcatIds([$this->category_id]),
+                    $this->albumRepository->getSubcatIds([$this->category_id]),
                     $this->forbidden_categories
                 );
             } else {
                 $sub_ids = [];
             }
-            $result = $this->calendar_repository->findYYYYMMPeriodAndImagesCount($this->date_field, $this->getDateWhere(), $this->condition, $sub_ids);
+            $rowImages = $this->imageRepository->findYYYYMMPeriodAndImagesCount($this->date_field, $this->getDateWhere(), $this->forbidden_categories, $sub_ids);
         }
 
         $items = [];
-        while ($row = $this->conn->db_fetch_assoc($result)) {
-            $y = substr($row['period'], 0, 4);
-            $m = (int)substr($row['period'], 4, 2);
+        foreach ($rowImages as $image) {
+            $y = substr($image['period'], 0, 4);
+            $m = (int)substr($image['period'], 4, 2);
             if (!isset($items[$y])) {
                 $items[$y] = ['nb_images' => 0, 'children' => []];
             }
-            $items[$y]['children'][$m] = $row['count'];
-            $items[$y]['nb_images'] += $row['count'];
+            $items[$y]['children'][$m] = $image['count'];
+            $items[$y]['nb_images'] += $image['count'];
         }
 
         if (count($items) == 1) { // only one year exists so bail out to year view
@@ -347,28 +346,28 @@ class CalendarMonthly extends CalendarBase
         }
 
         if ($this->find_by_items) {
-            $result = $this->calendar_repository->findMMDDPeriodAndImagesCountByIds($this->date_field, $this->getDateWhere(), $this->items);
+            $rowIamges = $this->imageRepository->findMMDDPeriodAndImagesCountByIds($this->date_field, $this->getDateWhere(), $this->items);
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
-                    $this->calendar_repository->getSubcatIds([$this->category_id]),
+                    $this->albumRepository->getSubcatIds([$this->category_id]),
                     $this->forbidden_categories
                 );
             } else {
                 $sub_ids = [];
             }
-            $result = $this->calendar_repository->findMMDDPeriodAndImagesCount($this->date_field, $this->getDateWhere(), $this->condition, $sub_ids);
+            $rowIamges = $this->imageRepository->findMMDDPeriodAndImagesCount($this->date_field, $this->getDateWhere(), $this->forbidden_categories, $sub_ids);
         }
 
         $items = [];
-        while ($row = $this->conn->db_fetch_assoc($result)) {
-            $m = (int)substr($row['period'], 0, 2);
-            $d = substr($row['period'], 2, 2);
+        foreach ($rowIamges as $image) {
+            $m = (int)substr($image['period'], 0, 2);
+            $d = substr($image['period'], 2, 2);
             if (!isset($items[$m])) {
                 $items[$m] = ['nb_images' => 0, 'children' => []];
             }
-            $items[$m]['children'][$d] = $row['count'];
-            $items[$m]['nb_images'] += $row['count'];
+            $items[$m]['children'][$d] = $image['count'];
+            $items[$m]['nb_images'] += $image['count'];
         }
         if (count($items) == 1) { // only one month exists so bail out to month view
             list($m) = array_keys($items);
@@ -419,49 +418,48 @@ class CalendarMonthly extends CalendarBase
     {
         $tpl_params = [];
         if ($this->find_by_items) {
-            $result = $this->calendar_repository->findDayOfMonthPeriodAndImagesCountByIds($this->date_field, $this->getDateWhere(), $this->items);
+            $rowImages = $this->imageRepository->findDayOfMonthPeriodAndImagesCountByIds($this->date_field, $this->getDateWhere(), $this->items);
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
-                    $this->calendar_repository->getSubcatIds([$this->category_id]),
+                    $this->albumRepository->getSubcatIds([$this->category_id]),
                     $this->forbidden_categories
                 );
             } else {
                 $sub_ids = [];
             }
-            $result = $this->calendar_repository->findDayOfMonthPeriodAndImagesCount($this->date_field, $this->getDateWhere(), $this->condition, $sub_ids);
+            $rowImages = $this->imageRepository->findDayOfMonthPeriodAndImagesCount($this->date_field, $this->getDateWhere(), $this->forbidden_categories, $sub_ids);
         }
 
         $items = [];
-        while ($row = $this->conn->db_fetch_assoc($result)) {
-            $d = (int)$row['period'];
-            $items[$d] = ['nb_images' => $row['count']];
+        foreach ($rowImages as $image) {
+            $d = (int)$image['period'];
+            $items[$d] = ['nb_images' => $image['count']];
         }
 
         foreach ($items as $day => $data) {
             $this->chronology_date[self::CDAY] = $day;
 
             if ($this->find_by_items) {
-                $result = $this->calendar_repository->findOneRandomInWeekByIds($this->date_field, $this->getDateWhere(), $this->items);
+                $image = $this->imageRepository->findOneRandomInWeekByIds($this->getDateWhere(), $this->items);
             } else {
                 if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                     $sub_ids = array_diff(
-                        $this->calendar_repository->getSubcatIds([$this->category_id]),
+                        $this->albumRepository->getSubcatIds([$this->category_id]),
                         $this->forbidden_categories
                     );
                 } else {
                     $sub_ids = [];
                 }
-                $result = $this->calendar_repository->findOneRandomInWeek($this->date_field, $this->getDateWhere(), $this->condition, $sub_ids);
+                $image = $this->imageRepository->findOneRandomInWeek($this->getDateWhere(), $this->forbidden_categories, $sub_ids);
             }
 
             unset($this->chronology_date[self::CDAY]);
 
-            $row = $this->conn->db_fetch_assoc($result);
-            $derivative = new DerivativeImage(new SrcImage($row, $this->conf['picture_ext']), $this->image_std_params->getByType(ImageStandardParams::IMG_SQUARE), $this->image_std_params);
+            $derivative = new DerivativeImage(new SrcImage($image->toArray(), $this->conf['picture_ext']), $this->image_std_params->getByType(ImageStandardParams::IMG_SQUARE), $this->image_std_params);
             $items[$day]['derivative'] = $derivative;
-            $items[$day]['file'] = $row['file'];
-            $items[$day]['dow'] = $row['dow'];
+            $items[$day]['file'] = $image->getFile();
+            $items[$day]['dow'] = $image->getDateAvailable()->format('N');
         }
 
         if (!empty($items)) {

@@ -14,7 +14,6 @@ namespace App\DataMapper;
 use App\Repository\BaseRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\CategoryRepository;
-use App\Repository\ImageRepository;
 use Phyxo\EntityManager;
 use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
@@ -22,8 +21,9 @@ use App\Repository\CommentRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageTagRepository;
-use App\Repository\NewImageRepository;
+use App\Repository\ImageRepository;
 use App\Repository\RateRepository;
+use Phyxo\Functions\URL;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\SrcImage;
 use Symfony\Component\Routing\RouterInterface;
@@ -36,7 +36,7 @@ class ImageMapper
     private $translator, $imageAlbumRepository, $commentRepository;
 
     public function __construct(EntityManager $em, RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, AlbumMapper $albumMapper,
-                                TranslatorInterface $translator, NewImageRepository $imageRepository, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository)
+                                TranslatorInterface $translator, ImageRepository $imageRepository, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository)
     {
         $this->em = $em;
         $this->router = $router;
@@ -50,7 +50,7 @@ class ImageMapper
         $this->commentRepository = $commentRepository;
     }
 
-    public function getRepository(): NewImageRepository
+    public function getRepository(): ImageRepository
     {
         return $this->imageRepository;
     }
@@ -65,10 +65,10 @@ class ImageMapper
 
         $rank_of = array_flip($selection);
 
-        $result = $this->em->getRepository(ImageRepository::class)->findByIds($selection);
-        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $row['rank'] = $rank_of[$row['id']];
-            $pictures[] = $row;
+        foreach ($this->imageRepository->findBy(['id' => $selection]) as $image) {
+            $image_infos = $image->toArray();
+            $image_infos['rank'] = $rank_of[$image->getId()];
+            $pictures[] = $image_infos;
         }
 
         usort($pictures, '\Phyxo\Functions\Utils::rank_compare');
@@ -185,7 +185,7 @@ class ImageMapper
             ]);
 
             if ($this->conf['index_new_icon']) {
-                $tpl_var['icon_ts'] = $this->em->getRepository(BaseRepository::class)->getIcon($row['date_available'], $this->userMapper->getUser());
+                //$tpl_var['icon_ts'] = $this->em->getRepository(BaseRepository::class)->getIcon($row['date_available'], $this->userMapper->getUser());
             }
 
             if ($this->userMapper->getUser()->getShowNbHits()) {
@@ -254,7 +254,7 @@ class ImageMapper
         $this->em->getRepository(CaddieRepository::class)->deleteElements($ids);
 
         // destruction of the image
-        $this->em->getRepository(ImageRepository::class)->deleteByElementIds($ids);
+        $this->imageRepository->deleteByIds($ids);
 
         // are the photo used as category representant?
         $result = $this->em->getRepository(CategoryRepository::class)->findRepresentants($ids);
@@ -279,14 +279,13 @@ class ImageMapper
         }
 
         $new_ids = [];
-        $result = $this->em->getRepository(ImageRepository::class)->findByIds($ids);
-        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            if (\Phyxo\Functions\URL::url_is_remote($row['path'])) {
+        foreach ($this->imageRepository->findBy(['id' => $ids]) as $image) {
+            if (URL::url_is_remote($image->getPat())) {
                 continue;
             }
 
             $files = [];
-            $files[] = \Phyxo\Functions\Utils::get_element_path($row);
+            $files[] = Utils::get_element_path($image->toArray());
 
             if (!empty($row['representative_ext'])) {
                 $files[] = \Phyxo\Functions\Utils::original_to_representative($files[0], $row['representative_ext']);
@@ -305,8 +304,8 @@ class ImageMapper
             }
 
             if ($ok) {
-                Utils::delete_element_derivatives($row);
-                $new_ids[] = $row['id'];
+                Utils::delete_element_derivatives($image->toArray());
+                $new_ids[] = $image->getId();
             } else {
                 break;
             }
@@ -351,15 +350,5 @@ class ImageMapper
         $title = htmlspecialchars(strip_tags($title));
 
         return $title;
-    }
-
-    public function addImage(array $params = []): int
-    {
-        return $this->em->getRepository(ImageRepository::class)->addImage($params);
-    }
-
-    public function updateImage(array $params = []): int
-    {
-        return $this->em->getRepository(ImageRepository::class)->updateImage();
     }
 }

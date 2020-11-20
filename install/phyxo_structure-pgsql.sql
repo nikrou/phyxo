@@ -33,7 +33,7 @@ CREATE TABLE "phyxo_categories"
   "global_rank" VARCHAR(255),
   "image_order" VARCHAR(128),
   "permalink" VARCHAR(64),
-  "lastmodified" TIMESTAMP NOT NULL DEFAULT now(),
+  "lastmodified" TIMESTAMP NULL DEFAULT now(),
   PRIMARY KEY ("id"),
   CONSTRAINT "categories_i3" UNIQUE ("permalink")
 );
@@ -87,7 +87,7 @@ CREATE TABLE "phyxo_groups"
   "id" serial  NOT NULL,
   "name" VARCHAR(255) DEFAULT '' NOT NULL,
   "is_default" BOOLEAN DEFAULT false,
-  "lastmodified" TIMESTAMP NOT NULL DEFAULT now(),
+  "lastmodified" TIMESTAMP NULL DEFAULT now(),
   PRIMARY KEY ("id"),
   CONSTRAINT "groups_ui1" UNIQUE ("name")
 );
@@ -184,7 +184,7 @@ CREATE TABLE "phyxo_images"
   "rotation" INTEGER DEFAULT NULL,
   "latitude" FLOAT DEFAULT NULL,
   "longitude" FLOAT DEFAULT NULL,
-  "lastmodified" TIMESTAMP NOT NULL DEFAULT now(),
+  "lastmodified" TIMESTAMP NULL DEFAULT now(),
 
   PRIMARY KEY ("id")
 );
@@ -286,7 +286,7 @@ CREATE TABLE "phyxo_tags"
   "id" serial  NOT NULL,
   "name" VARCHAR(255) DEFAULT '' NOT NULL,
   "url_name" VARCHAR(255) DEFAULT '' NOT NULL,
-  "lastmodified" TIMESTAMP NOT NULL DEFAULT now(),
+  "lastmodified" TIMESTAMP NULL DEFAULT now(),
 
   PRIMARY KEY ("id")
 );
@@ -422,7 +422,7 @@ CREATE TABLE "phyxo_user_infos"
   "level" INTEGER DEFAULT 0 NOT NULL,
   "activation_key" VARCHAR(255) DEFAULT NULL,
   "activation_key_expire" TIMESTAMP DEFAULT NULL,
-  "lastmodified" TIMESTAMP NOT NULL DEFAULT now(),
+  "lastmodified" TIMESTAMP NULL DEFAULT now(),
 
   PRIMARY KEY ("user_id"),
   CONSTRAINT "user_infos_ui1" UNIQUE ("user_id")

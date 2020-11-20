@@ -16,7 +16,6 @@ use Phyxo\EntityManager;
 use Phyxo\MenuBar;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
-use App\Repository\ImageRepository;
 use App\Repository\FavoriteRepository;
 use App\DataMapper\ImageMapper;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -39,7 +38,7 @@ class FavoriteController extends CommonController
 
         // @TODO: retrieve current sort order: user, category or default
         $filter = [];
-        $result = $em->getRepository(ImageRepository::class)->getFavorites($this->getUser(), $filter, $conf['order_by']);
+        $result = $em->getRepository(FavoriteRepository::class)->getFavorites($this->getUser(), $filter, $conf['order_by']);
         $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'image_id');
 
         if (count($tpl_params['items']) > 0) {

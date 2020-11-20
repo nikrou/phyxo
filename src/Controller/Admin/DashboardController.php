@@ -11,12 +11,12 @@
 
 namespace App\Controller\Admin;
 
+use App\DataMapper\ImageMapper;
 use App\Repository\AlbumRepository;
 use App\Repository\BaseRepository;
 use App\Repository\CommentRepository;
 use App\Repository\GroupRepository;
 use App\Repository\ImageAlbumRepository;
-use App\Repository\ImageRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\RateRepository;
 use App\Repository\TagRepository;
@@ -33,7 +33,7 @@ class DashboardController extends AdminCommonController
 {
     public function index(Request $request, bool $check_upgrade = false, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
                           UserRepository $userRepository, GroupRepository $groupRepository, HttpClientInterface $client, AlbumRepository $albumRepository,
-                          ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository)
+                          ImageMapper $imageMapper, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository)
     {
         $tpl_params = [];
 
@@ -63,7 +63,7 @@ class DashboardController extends AdminCommonController
             }
         }
 
-        $nb_elements = $em->getRepository(ImageRepository::class)->count();
+        $nb_elements = $imageMapper->getRepository()->count([]);
         $nb_categories = $albumRepository->count([]);
         $nb_virtual = $albumRepository->countByType($virtual = true);
         $nb_physical = $albumRepository->countByType($virtual = false);
@@ -105,8 +105,9 @@ class DashboardController extends AdminCommonController
         }
 
         if ($nb_elements > 0) {
-            $min_date_available = $em->getRepository(ImageRepository::class)->findMinDateAvailable();
-            $tpl_params['first_added'] = $translator->trans('first photo added on {date}', ['date' => (new \DateTime($min_date_available))->format('l d M Y')], 'admin');
+            if ($min_date_available = $imageMapper->getRepository()->findMinDateAvailable()) {
+                $tpl_params['first_added'] = $translator->trans('first photo added on {date}', ['date' => $min_date_available->format('l d M Y')], 'admin');
+            }
         }
 
         $tpl_params['ws'] = $this->generateUrl('ws');

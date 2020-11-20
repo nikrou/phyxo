@@ -12,10 +12,7 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use App\Repository\ImageRepository;
-use App\Repository\BaseRepository;
 use Phyxo\MenuBar;
-use Phyxo\EntityManager;
 use Phyxo\Conf;
 use App\DataMapper\ImageMapper;
 use Phyxo\Image\ImageStandardParams;
@@ -24,8 +21,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class IndexController extends CommonController
 {
-    public function mostVisited(Request $request, EntityManager $em, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
-                                ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0, TranslatorInterface $translator)
+    public function mostVisited(Request $request, Conf $conf, MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params,
+                                int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -36,22 +33,12 @@ class IndexController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        $filter = [];
-        $forbidden = $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
-            $this->getUser(),
-            $filter,
-            [
-                'forbidden_categories' => 'category_id',
-                'visible_categories' => 'category_id',
-                'visible_images' => 'id'
-            ],
-            'AND'
-        );
-
         $tpl_params['PAGE_TITLE'] = $translator->trans('Most visited');
+        $tpl_params['items'] = [];
+        foreach ($imageMapper->getRepository()->findMostVisited($this->getUser()->getForbiddenCategories(), $conf['order_by'], $conf['top_number']) as $image) {
+            $tpl_params['items'] = $image->getId();
+        }
 
-        $result = $em->getRepository(ImageRepository::class)->searchDistinctId('id', ['hit > 0 ' . $forbidden], true, $conf['order_by'], $conf['top_number']);
-        $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'id');
         if (count($tpl_params['items']) > 0) {
             $nb_image_page = $this->getUser()->getNbImagePage();
 
@@ -84,8 +71,8 @@ class IndexController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function recentPics(Request $request, EntityManager $em, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
-                                ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0, TranslatorInterface $translator)
+    public function recentPics(Request $request, Conf $conf, MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params,
+                                 int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -95,25 +82,16 @@ class IndexController extends CommonController
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
-
-        $filter = [];
-        $forbidden = $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
-            $this->getUser(),
-            $filter,
-            [
-                'forbidden_categories' => 'category_id',
-                'visible_categories' => 'category_id',
-                'visible_images' => 'id'
-            ],
-            'AND'
-        );
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Recent photos');
-        $result = $em->getRepository(ImageRepository::class)->searchDistinctId(
-            'id',
-            [$em->getRepository(BaseRepository::class)->getRecentPhotos($this->getUser(), 'date_available') . ' ' . $forbidden], true, $conf['order_by']
-        );
-        $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'id');
+        $tpl_params['items'] = [];
+
+        $recent_date = new \DateTime();
+        $recent_date->sub(new \DateInterval(sprintf('P%dD', $this->getUser()->getRecentPeriod())));
+
+        foreach ($imageMapper->getRepository()->findRecentImages($this->getUser()->getForbiddenCategories(), $recent_date, $conf['order_by']) as $image) {
+            $tpl_params['items'] = $image->getId();
+        }
 
         if (count($tpl_params['items']) > 0) {
             $nb_image_page = $this->getUser()->getNbImagePage();
@@ -147,8 +125,8 @@ class IndexController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function bestRated(Request $request, EntityManager $em, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
-                            ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0, TranslatorInterface $translator)
+    public function bestRated(Request $request, Conf $conf, MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params,
+                             int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -159,25 +137,13 @@ class IndexController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        $filter = [];
-        $forbidden = $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
-        $this->getUser(),
-        $filter,
-        [
-            'forbidden_categories' => 'category_id',
-            'visible_categories' => 'category_id',
-            'visible_images' => 'id'
-        ],
-        'AND'
-        );
-
         $tpl_params['PAGE_TITLE'] = $translator->trans('Best rated');
-
-        $super_order_by = true;
         $order_by = ' ORDER BY rating_score DESC, id DESC';
 
-        $result = $em->getRepository(ImageRepository::class)->searchDistinctId('id', ['rating_score IS NOT NULL ' . $forbidden], true, $order_by, $conf['top_number']);
-        $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'id');
+        $tpl_params['items'] = [];
+        foreach ($imageMapper->getRepository()->findBestRated($this->getUser()->getForbiddenCategories(), $order_by, $conf['top_number']) as $image) {
+            $tpl_params['items'] = $image->getId();
+        }
 
         if (count($tpl_params['items']) > 0) {
             $nb_image_page = $this->getUser()->getNbImagePage();
@@ -211,30 +177,18 @@ class IndexController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function random(EntityManager $em, Conf $conf)
+    public function random(ImageMapper $imageMapper, Conf $conf)
     {
-        $filter = [];
-        $where_sql = ' ' . $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
-            $this->getUser(),
-            $filter,
-            [
-                'forbidden_categories' => 'category_id',
-                'visible_categories' => 'category_id',
-                'visible_images' => 'id'
-            ],
-            'WHERE'
-        );
-        $result = $em->getRepository(ImageRepository::class)->findRandomImages($where_sql, '', min(50, $conf['top_number'], $this->getUser()->getNbImagePage()));
-        $list = $em->getConnection()->result2array($result, null, 'id');
+        $list = $imageMapper->getRepository()->findRandomImages($this->getUser()->getForbiddenCategories(), min(50, $conf['top_number'], $this->getUser()->getNbImagePage()));
 
-        if (empty($list)) {
+        if (count($list) === 0) {
             return $this->redirectToRoute('homepage');
         } else {
             return $this->redirectToRoute('random_list', ['list' => implode(',', $list)]);
         }
     }
 
-    public function randomList(Request $request, EntityManager $em, string $list, Conf $conf, ImageMapper $imageMapper, MenuBar $menuBar, int $start = 0,
+    public function randomList(Request $request, string $list, Conf $conf, ImageMapper $imageMapper, MenuBar $menuBar, int $start = 0,
                                 ImageStandardParams $image_std_params, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -246,21 +200,11 @@ class IndexController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        $filter = [];
-        $forbidden = $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
-            $this->getUser(),
-            $filter,
-            [
-                'forbidden_categories' => 'category_id',
-                'visible_categories' => 'category_id',
-                'visible_images' => 'id'
-            ],
-            'AND'
-        );
-
         $tpl_params['TITLE'] = $translator->trans('Random photos');
-        $result = $em->getRepository(ImageRepository::class)->findList(explode(',', $list), $forbidden, $conf['order_by']);
-        $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'id');
+        $tpl_params['items'] = [];
+        foreach ($imageMapper->getRepository()->getList(explode(',', $list), $this->getUser()->getForbiddenCategories()) as $image) {
+            $tpl_params['items'] = $image->getId();
+        }
 
         if (count($tpl_params['items']) > 0) {
             $nb_image_page = $this->getUser()->getNbImagePage();

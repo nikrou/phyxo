@@ -17,7 +17,6 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
 use Phyxo\EntityManager;
-use App\Repository\ImageRepository;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
 use Phyxo\Functions\DateTime;
@@ -27,9 +26,7 @@ use Phyxo\Functions\URL;
 use App\Repository\RateRepository;
 use Phyxo\Functions\Utils;
 use App\DataMapper\UserMapper;
-use App\Repository\CommentRepository;
 use App\DataMapper\CommentMapper;
-use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
 use App\Entity\Image;
 use App\Metadata;
@@ -67,29 +64,19 @@ class PictureController extends CommonController
             }
         }
 
-        $filter = [];
-
-        $forbidden = $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
-            $this->getUser(),
-            $filter,
-            [
-                'forbidden_categories' => 'category_id',
-                'visible_categories' => 'category_id',
-                'visible_images' => 'id'
-            ],
-            'AND'
-        );
-
-        $category = null;
+        $album = null;
         if ($type === 'list') {
             $tpl_params['TITLE'] = $translator->trans('Random photos');
-            $result = $em->getRepository(ImageRepository::class)->findList(explode(',', $element_id), $forbidden, $conf['order_by']);
-            $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'id');
+            $tpl_params['items'] = [];
+            foreach ($imageMapper->getRepository()->searchDistinctId($this->getUser()->getForbiddenCategories(), $conf['order_by']) as $image) {
+                $tpl_params['items'][] = $image['id'];
+            }
         } else {
-            $category = ['id' => (int) $element_id];
-            $where_sql = 'category_id = ' . $category['id'];
-            $result = $em->getRepository(ImageRepository::class)->searchDistinctId('image_id', [$where_sql . ' ' . $forbidden], true, $conf['order_by']);
-            $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'image_id');
+            $album = $albumMapper->getRepository()->find((int) $element_id);
+            $tpl_params['items'] = [];
+            foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum((int) $element_id, $this->getUser()->getForbiddenCategories(), $conf['order_by']) as $image) {
+                $tpl_params['items'][] = $image['id'];
+            }
         }
 
         if (count($tpl_params['items']) > 0) {
@@ -104,9 +91,7 @@ class PictureController extends CommonController
             $tpl_params['derivative_params_xxlarge'] = $image_std_params->getByType(ImageStandardParams::IMG_XXLARGE);
         }
 
-        $result = $em->getRepository(ImageRepository::class)->findById($this->getUser(), $filter, $image_id);
-        $picture = $em->getConnection()->db_fetch_assoc($result); // @TODO: check exist ?
-
+        $picture = $imageMapper->getRepository()->find($image_id)->toArray();
         $picture['src_image'] = new SrcImage($picture, $conf['picture_ext']);
 
         if ($conf['picture_download_icon']) {
@@ -151,7 +136,7 @@ class PictureController extends CommonController
         if ($type === 'list') {
             $tpl_params['U_UP'] = $this->generateUrl('random_list', ['list' => $element_id]);
         } else {
-            $tpl_params['U_UP'] = $this->generateUrl('album', ['category_id' => $category['id']]);
+            $tpl_params['U_UP'] = $this->generateUrl('album', ['category_id' => (int) $element_id]);
         }
         $deriv_type = $this->get('session')->has('picture_deriv') ? $this->get('session')->get('picture_deriv') : $conf['derivative_default_size'];
         $tpl_params['current']['selected_derivative'] = $tpl_params['current']['derivatives'][$deriv_type];
@@ -213,12 +198,12 @@ class PictureController extends CommonController
 
         // admin links
         if ($userMapper->isAdmin()) {
-            if (!empty($category)) {
+            if (!is_null($album)) {
                 $tpl_params['U_SET_AS_REPRESENTATIVE'] = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id, 'action' => 'set_as_representative']);
             }
 
             $tpl_params['U_CADDIE'] = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id, 'action' => 'add_to_caddie']);
-            $tpl_params['U_PHOTO_ADMIN'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'category_id' => $category['id']]);
+            $tpl_params['U_PHOTO_ADMIN'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'category_id' => (int) $element_id]);
 
             $tpl_params['available_permission_levels'] = Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator);
         }

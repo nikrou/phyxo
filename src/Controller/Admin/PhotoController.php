@@ -17,13 +17,13 @@ use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageAlbumRepository;
-use App\Repository\ImageRepository;
 use App\Repository\RateRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
+use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\DerivativeParams;
 use Phyxo\Image\ImageStandardParams;
@@ -48,7 +48,7 @@ class PhotoController extends AdminCommonController
     }
 
     public function edit(Request $request, int $image_id, int $category_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper,
-                        ImageStandardParams $image_std_params, UserMapper $userMapper, TranslatorInterface $translator,
+                        ImageStandardParams $image_std_params, UserMapper $userMapper, TranslatorInterface $translator, ImageMapper $imageMapper,
                         UserRepository $userRepository, AlbumMapper $albumMapper, ImageAlbumRepository $imageAlbumRepository)
     {
         $tpl_params = [];
@@ -61,21 +61,23 @@ class PhotoController extends AdminCommonController
             $represented_albums[] = $album->getId();
         }
 
+        $image = $imageMapper->getRepository()->find($image_id);
+
         if ($request->isMethod('POST')) {
-            $data = [];
-            $data['id'] = $image_id;
-            $data['name'] = $request->request->get('name');
-            $data['author'] = $request->request->get('author');
-            $data['level'] = $request->request->get('level');
+            $image->setName($request->request->get('name'));
+            $image->setAuthor($request->request->get('author'));
+            $image->setLevel($request->request->get('level'));
 
             if ($conf['allow_html_descriptions']) {
-                $data['comment'] = $request->request->get('description');
+                $image->setCommen($request->request->get('description'));
             } else {
-                $data['comment'] = htmlentities($request->request->get('description'), ENT_QUOTES, 'utf-8');
+                $image->setComment(htmlentities($request->request->get('description'), ENT_QUOTES, 'utf-8'));
             }
-            $data['date_creation'] = $request->request->get('date_creation') ?? null;
+            if ($request->request->get('date_creation')) {
+                $image->setDateCreation(new \DateTime($request->request->get('date_creation')));
+            }
 
-            $em->getRepository(ImageRepository::class)->updateImage($data, $data['id']);
+            $imageMapper->getRepository()->addOrUpdateImage($image);
 
             // time to deal with tags
             $tag_ids = [];
@@ -112,60 +114,56 @@ class PhotoController extends AdminCommonController
         $tag_selection = $tagMapper->prepareTagsListForUI($tags);
 
         // retrieving direct information about picture
-        $result = $em->getRepository(ImageRepository::class)->findById($this->getUser(), [], $image_id);
-        $row = $em->getConnection()->db_fetch_assoc($result);
-
         $storage_category_id = null;
         if (!empty($row['storage_category_id'])) {
             $storage_category_id = $row['storage_category_id'];
         }
 
-        $image_file = $row['file'];
-        $src_image = new SrcImage($row, $conf['picture_ext']);
+        $src_image = new SrcImage($image->toArray(), $conf['picture_ext']);
 
         $tpl_params['tag_selection'] = $tag_selection;
         $tpl_params['U_SYNC'] = $this->generateUrl('admin_photo_sync_metadata', ['image_id' => $image_id, 'category_id' => $category_id]);
         $tpl_params['U_DELETE'] = $this->generateUrl('admin_photo_delete', ['image_id' => $image_id, 'category_id' => $category_id]);
-        $tpl_params['PATH'] = $row['path'];
+        $tpl_params['PATH'] = $image->getPath();
         $tpl_params['TN_SRC'] = (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
         $tpl_params['FILE_SRC'] = (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params))->getUrl();
-        $tpl_params['NAME'] = $row['name'];
-        $tpl_params['TITLE'] = \Phyxo\Functions\Utils::render_element_name($row);
-        $tpl_params['DIMENSIONS'] = $row['width'] . ' * ' . $row['height'];
-        $tpl_params['FILESIZE'] = $row['filesize'] . ' KB';
-        $tpl_params['REGISTRATION_DATE'] = \Phyxo\Functions\DateTime::format_date($row['date_available']);
-        $tpl_params['AUTHOR'] = $row['author'];
-        $tpl_params['DATE_CREATION'] = $row['date_creation'];
-        $tpl_params['DESCRIPTION'] = $row['comment'];
+        $tpl_params['NAME'] = $image->getName();
+        $tpl_params['TITLE'] = Utils::render_element_name($image->toArray());
+        $tpl_params['DIMENSIONS'] = $image->getWidth() . ' * ' . $image->getHeight();
+        $tpl_params['FILESIZE'] = $image->getFilesize() . ' KB';
+        $tpl_params['REGISTRATION_DATE'] = $image->getDateAvailable()->format('c');
+        $tpl_params['AUTHOR'] = $image->getAuthor();
+        $tpl_params['DATE_CREATION'] = $image->getDateCreation();
+        $tpl_params['DESCRIPTION'] = $image->getComment();
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_photo', ['image_id' => $image_id]);
 
-        $added_by = $userRepository->findOneById($row['added_by']);
+        $added_by = $userRepository->findOneById($image->getAddedBy());
 
         $intro_vars = [
-            'file' => $translator->trans('Original file : {file}', ['file' => $image_file], 'admin'),
+            'file' => $translator->trans('Original file : {file}', ['file' => $image->getFile()], 'admin'),
             'add_date' => $translator->trans(
                 'Posted {since} on {date}',
                 [
-                    'since' => \Phyxo\Functions\DateTime::time_since($row['date_available'], 'year'),
-                    'date' => \Phyxo\Functions\DateTime::format_date($row['date_available'], ['day', 'month', 'year'])
+                    'since' => $image->getDateAvailable()->format('Y'),
+                    'date' => $image->getDateAvailable->format('c')
                 ],
                 'admin'
             ),
             'added_by' => $translator->trans('Added by {by}', ['by' => is_null($added_by) ? 'N/A' : $added_by->getUsername()], 'admin'),
-            'size' => $row['width'] . '&times;' . $row['height'] . ' pixels, ' . sprintf('%.2f', $row['filesize'] / 1024) . 'MB',
-            'stats' => $translator->trans('Visited {hit} times', ['hit' => $row['hit']], 'admin'),
-            'id' => $translator->trans('Numeric identifier : {id}', ['id' => $row['id']], 'admin'),
+            'size' => $image->getWidth() . '&times;' . $image->getHeight() . ' pixels, ' . sprintf('%.2f', $image->getFilesize() / 1024) . 'MB',
+            'stats' => $translator->trans('Visited {hit} times', ['hit' => $image->getHit()], 'admin'),
+            'id' => $translator->trans('Numeric identifier : {id}', ['id' => $image_id], 'admin'),
         ];
 
-        if ($conf['rate'] && !empty($row['rating_score'])) {
+        if ($conf['rate'] && $image->getRatinScore()) {
             $nb_rates = $em->getRepository(RateRepository::class)->count($image_id);
-            $intro_vars['stats'] .= ', ' . $translator->trans('Rated {count} times, score : {score}', ['count' => $nb_rates, 'score' => sprintf('%.2f', $row['rating_score'])], 'admin');
+            $intro_vars['stats'] .= ', ' . $translator->trans('Rated {count} times, score : {score}', ['count' => $nb_rates, 'score' => sprintf('%.2f', $image->getRatinScore())], 'admin');
         }
 
         $tpl_params['INTRO'] = $intro_vars;
 
         // image level options
-        $selected_level = $row['level'];
+        $selected_level = $image->getLevel();
         $tpl_params['level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator, 'admin');
         $tpl_params['level_options_selected'] = $selected_level;
 
@@ -274,57 +272,53 @@ class PhotoController extends AdminCommonController
     }
 
     public function coi(Request $request, int $image_id, int $category_id = null, ImageStandardParams $image_std_params, EntityManager $em, Conf $conf,
-                        ParameterBagInterface $params, TranslatorInterface $translator)
+                        ImageMapper $imageMapper, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $result = $em->getRepository(ImageRepository::class)->findById($this->getUser(), [], $image_id);
-        $row = $em->getConnection()->db_fetch_assoc($result);
+        $image = $imageMapper->getRepository()->find($image_id);
 
         if ($request->isMethod('POST')) {
             if (strlen($request->request->get('l')) === 0) {
-                $em->getRepository(ImageRepository::class)->updateImage(['coi' => null], $image_id);
+                $image->setCoi(null);
             } else {
-                $em->getRepository(ImageRepository::class)->updateImage(
-                    [
-                        'coi' => \Phyxo\Image\DerivativeParams::fraction_to_char($request->request->get('l'))
-                            . \Phyxo\Image\DerivativeParams::fraction_to_char($request->request->get('t'))
-                            . \Phyxo\Image\DerivativeParams::fraction_to_char($request->request->get('r'))
-                            . \Phyxo\Image\DerivativeParams::fraction_to_char($request->request->get('b'))
-                    ],
-                    $image_id
+                $image->setCoi(DerivativeParams::fraction_to_char($request->request->get('l'))
+                            . DerivativeParams::fraction_to_char($request->request->get('t'))
+                            . DerivativeParams::fraction_to_char($request->request->get('r'))
+                            . DerivativeParams::fraction_to_char($request->request->get('b'))
                 );
             }
+            $imageMapper->getRepository()->addOrUpdateImage($image);
 
             foreach ($image_std_params->getDefinedTypeMap() as $std_params) {
                 if ($std_params->sizing->max_crop != 0) {
-                    \Phyxo\Functions\Utils::delete_element_derivatives($row, $std_params->type);
+                    Utils::delete_element_derivatives($image->toArray(), $std_params->type);
                 }
             }
-            \Phyxo\Functions\Utils::delete_element_derivatives($row, ImageStandardParams::IMG_CUSTOM);
+            Utils::delete_element_derivatives($image->toArray(), ImageStandardParams::IMG_CUSTOM);
 
             return $this->redirectToRoute('admin_photo_coi', ['image_id' => $image_id, 'category_id' => $category_id]);
         }
 
-        $src_image = new SrcImage($row, $conf['picture_ext']);
-        $tpl_params['TITLE'] = \Phyxo\Functions\Utils::render_element_name($row);
-        $tpl_params['ALT'] = $row['file'];
+        $src_image = new SrcImage($image->toArray(), $conf['picture_ext']);
+        $tpl_params['TITLE'] = Utils::render_element_name($image->toArray());
+        $tpl_params['ALT'] = $image->getFile();
         $tpl_params['U_IMG'] = (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params))->getUrl();
 
-        if (!empty($row['coi'])) {
+        if ($image->getCoi()) {
             $tpl_params['coi'] = [
-                'l' => DerivativeParams::char_to_fraction($row['coi'][0]),
-                't' => DerivativeParams::char_to_fraction($row['coi'][1]),
-                'r' => DerivativeParams::char_to_fraction($row['coi'][2]),
-                'b' => DerivativeParams::char_to_fraction($row['coi'][3]),
+                'l' => DerivativeParams::char_to_fraction($image->getCoi()[0]),
+                't' => DerivativeParams::char_to_fraction($image->getCoi()[1]),
+                'r' => DerivativeParams::char_to_fraction($image->getCoi()[2]),
+                'b' => DerivativeParams::char_to_fraction($image->getCoi()[3]),
             ];
         }
 
         foreach ($image_std_params->getDefinedTypeMap() as $std_params) {
-            if ($std_params->sizing->max_crop != 0) {
+            if ($std_params->sizing->max_crop !== 0) {
                 $derivative = new DerivativeImage($src_image, $std_params, $image_std_params);
                 $tpl_params['cropped_derivatives'][] = [
                     'U_IMG' => $derivative->getUrl(),

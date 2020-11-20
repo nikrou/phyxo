@@ -12,7 +12,6 @@
 namespace Phyxo\Image;
 
 use Phyxo\Functions\Utils;
-use App\Repository\ImageRepository;
 
 /**
  * A source image is used to get a derivative image. It is either
@@ -130,13 +129,6 @@ class SrcImage
             if ($this->flags & self::DIM_NOT_GIVEN) {
                 throw new \Exception('SrcImage dimensions required but not provided');
             }
-
-            // @TODO : move that query elsewhere
-            // probably not metadata synced
-            // if (is_readable($this->get_path()) && ($size = getimagesize($this->get_path())) !== false) {
-            //     $this->size = [$size[0], $size[1]];
-            //     (new ImageRepository($conn))->updateImage(['width' => $size[0], 'height' => $size[1]], $this->id);
-            // }
         }
 
         return $this->size;

@@ -11,33 +11,31 @@
 
 namespace App\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
+use App\DataMapper\AlbumMapper;
+use App\DataMapper\ImageMapper;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
-use App\Repository\CategoryRepository;
-use App\Repository\ImageRepository;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
 use Phyxo\EntityManager;
 use Phyxo\Conf;
+use Phyxo\Functions\Utils;
 
 class DefaultController extends CommonController
 {
-    public function home(Request $request)
+    public function home()
     {
         return $this->forward('App\Controller\AlbumController::albums');
     }
 
-    public function action(Request $request, int $image_id, string $part, $download = false, EntityManager $em, Conf $conf, ImageStandardParams $image_std_params)
+    public function action(ImageMapper $imageMapper, int $image_id, string $part, $download = false, AlbumMapper $albumMapper, EntityManager $em, Conf $conf, ImageStandardParams $image_std_params)
     {
-        $filter = [];
-        $result = $em->getRepository(ImageRepository::class)->findById($this->getUser(), $filter, $image_id);
-        $element_info = $em->getConnection()->db_fetch_assoc($result);
+        $image = $imageMapper->getRepository()->find($image_id);
 
         /* $filter['visible_categories'] and $filter['visible_images']
         /* are not used because it's not necessary (filter <> restriction)
          */
-        if (!$em->getRepository(CategoryRepository::class)->hasAccessToImage($this->getUser(), $filter, $image_id)) {
+        if (!$albumMapper->getRepository()->hasAccessToImage($this->getUser()->getForbiddenCategories(), $image_id)) {
             throw new AccessDeniedException('Access denied');
         }
 
@@ -45,15 +43,15 @@ class DefaultController extends CommonController
         switch ($part) {
             case 'e':
                 if (!$this->getUser()->hasEnabledHigh()) {
-                    $deriv = new DerivativeImage(new SrcImage($element_info, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_XXLARGE), $image_std_params);
+                    $deriv = new DerivativeImage(new SrcImage($image->toArray(), $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_XXLARGE), $image_std_params);
                     if (!$deriv->same_as_source()) {
                         throw new AccessDeniedException('Access denied');
                     }
                 }
-                $file = \Phyxo\Functions\Utils::get_element_path($element_info);
+                $file = Utils::get_element_path($image->toArray());
                 break;
             case 'r':
-                $file = \Phyxo\Functions\Utils::original_to_representative(\Phyxo\Functions\Utils::get_element_path($element_info), $element_info['representative_ext']);
+                $file = Utils::original_to_representative(Utils::get_element_path($image->toArray()), $image->getRepresentativeExt());
                 break;
         }
 

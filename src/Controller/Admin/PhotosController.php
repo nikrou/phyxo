@@ -11,11 +11,12 @@
 
 namespace App\Controller\Admin;
 
+use App\DataMapper\ImageMapper;
 use App\Repository\CaddieRepository;
 use App\Repository\CategoryRepository;
-use App\Repository\ImageRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
+use Phyxo\Functions\Utils;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,7 +40,7 @@ class PhotosController extends AdminCommonController
     }
 
     public function direct(Request $request, int $album_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $tokenManager,
-                            TranslatorInterface $translator)
+                            TranslatorInterface $translator, ImageMapper $imageMapper)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -107,10 +108,8 @@ class PhotosController extends AdminCommonController
             $selected_category = json_decode($this->get('session')->getFlashBag()->get('selected_category'), true);
         } else {
             // we need to know the category in which the last photo was added
-            $result = $em->getRepository(ImageRepository::class)->findCategoryWithLastImageAdded();
-            if ($em->getConnection()->db_num_rows($result) > 0) {
-                $row = $em->getConnection()->db_fetch_assoc($result);
-                $selected_category = [$row['category_id']];
+            if ($last_album = $imageMapper->getRepository()->findAlbumWithLastImageAdded()) {
+                $selected_category = [$last_album->getId()];
             }
         }
 
@@ -119,7 +118,7 @@ class PhotosController extends AdminCommonController
 
         // image level options
         $selected_level = $request->request->get('level') ? (int) $request->request->get('level') : 0;
-        $tpl_params['level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator, 'admin');
+        $tpl_params['level_options'] = Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator, 'admin');
         $tpl_params['level_options_selected'] = [$selected_level];
 
         if (!function_exists('gd_info')) {
@@ -131,16 +130,16 @@ class PhotosController extends AdminCommonController
             $tpl_params['warnings'][] = $translator->trans('Exif extension not available, admin should disable exif use', [], 'admin');
         }
 
-        if (\Phyxo\Functions\Utils::get_ini_size('upload_max_filesize') > \Phyxo\Functions\Utils::get_ini_size('post_max_size')) {
+        if (Utils::get_ini_size('upload_max_filesize') > Utils::get_ini_size('post_max_size')) {
             $tpl_params['warnings'][] = $translator->trans(
               'In your php.ini file, the upload_max_filesize ({upload_max_filesize}B) is bigger than post_max_size ({post_max_size}B), you should change this setting',
-              ['upload_max_filesize' => \Phyxo\Functions\Utils::get_ini_size('upload_max_filesize', false),
-                  'post_max_size' => \Phyxo\Functions\Utils::get_ini_size('post_max_size', false)
+              ['upload_max_filesize' => Utils::get_ini_size('upload_max_filesize', false),
+                  'post_max_size' => Utils::get_ini_size('post_max_size', false)
               ],
               'admin'
             );
         }
-        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['categories'], $em, $this->getDoctrine(), $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['categories'], $em, $this->getDoctrine(), $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');

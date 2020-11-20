@@ -16,7 +16,7 @@ use App\Events\CommentEvent;
 use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Conf;
 use App\Repository\CommentRepository;
-use App\Repository\NewImageRepository;
+use App\Repository\ImageRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -27,7 +27,7 @@ class CommentMapper
     private $conn, $conf, $userMapper, $eventDispatcher, $translator, $userRepository, $userCacheRepository, $commentRepository, $imageRepository;
 
     public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator,
-                                UserRepository $userRepository, UserCacheRepository $userCacheRepository, CommentRepository $commentRepository, NewImageRepository $imageRepository)
+                                UserRepository $userRepository, UserCacheRepository $userCacheRepository, CommentRepository $commentRepository, ImageRepository $imageRepository)
     {
         $this->conn = $conn;
         $this->conf = $conf;

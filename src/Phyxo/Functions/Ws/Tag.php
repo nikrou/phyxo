@@ -14,7 +14,6 @@ namespace Phyxo\Functions\Ws;
 use Phyxo\Ws\Error;
 use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;
-use App\Repository\ImageRepository;
 use Phyxo\Functions\URL;
 use Phyxo\Ws\Server;
 
@@ -122,26 +121,16 @@ class Tag
         if (!empty($image_ids)) {
             $rank_of = array_flip($image_ids);
 
-            $result = (new ImageRepository($service->getConnection()))->findByIds($image_ids);
-            while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-                $image = [];
-                $image['rank'] = $rank_of[$row['id']];
+            foreach ($service->getImageMapper()->getRepository()->findBy(['id' => $image_ids]) as $image) {
+                $image_infos = $image->toArray();
+                $image_infos['rank'] = $rank_of[$image->getId()];
+                $image_infos = array_merge($image_infos, \Phyxo\Functions\Ws\Main::stdGetUrls($row, $service));
 
-                foreach (['id', 'width', 'height', 'hit'] as $k) {
-                    if (isset($row[$k])) {
-                        $image[$k] = (int)$row[$k];
-                    }
-                }
-                foreach (['file', 'name', 'comment', 'date_creation', 'date_available'] as $k) {
-                    $image[$k] = $row[$k];
-                }
-                $image = array_merge($image, \Phyxo\Functions\Ws\Main::stdGetUrls($row, $service));
-
-                $image_tag_ids = ($params['tag_mode_and']) ? $tag_ids : $image_tag_map[$image['id']];
+                $image_tag_ids = ($params['tag_mode_and']) ? $tag_ids : $image_tag_map[$image->getId()];
                 $image_tags = [];
                 foreach ($image_tag_ids as $tag_id) {
                     $url = $service->getRouter()->generate('images_by_tags', ['tag_ids' => URL::tagToUrl($tags_by_id[$tag_id])]);
-                    $page_url = $service->getRouter()->generate('picture', ['image_id' => $row['id'], 'type' => 'tags', 'element_id' => URL::tagToUrl($tags_by_id[$tag_id])]);
+                    $page_url = $service->getRouter()->generate('picture', ['image_id' => $image->getId(), 'type' => 'tags', 'element_id' => URL::tagToUrl($tags_by_id[$tag_id])]);
                     $image_tags[] = [
                         'id' => (int)$tag_id,
                         'url' => $url,
@@ -150,7 +139,7 @@ class Tag
                 }
 
                 $image['tags'] = $image_tags;
-                $images[$image['id']] = $image;
+                $images[$image['id']] = $image_infos;
             }
             // postgresql does not understand order by field(field_name, id1, id2, id3,...)
             $tmp = [];

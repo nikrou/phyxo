@@ -19,23 +19,23 @@ use Phyxo\Search\QNumericRangeScope;
 use Phyxo\Search\QMultipleToken;
 use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;
-use App\Repository\ImageRepository;
 use App\Repository\BaseRepository;
 use Phyxo\EntityManager;
 use Phyxo\Conf;
-use Symfony\Component\Security\Core\User\UserInterface;
 use App\DataMapper\UserMapper;
+use App\Entity\User;
 
 class SearchMapper
 {
-    private $em, $conf, $userMapper, $albumMapper;
+    private $em, $conf, $userMapper, $albumMapper, $imageMapper;
 
-    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, AlbumMapper $albumMapper)
+    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, AlbumMapper $albumMapper, ImageMapper $imageMapper)
     {
         $this->em = $em;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
         $this->albumMapper = $albumMapper;
+        $this->imageMapper = $imageMapper;
     }
 
     /**
@@ -149,18 +149,8 @@ class SearchMapper
      * @param string $images_where optional additional restriction on images table
      * @return array
      */
-    public function getRegularSearchResults(array $search, UserInterface $user, array $filter, string $images_where = ''): array
+    public function getRegularSearchResults(array $search, User $user, array $filter, string $images_where = ''): array
     {
-        $forbidden = $this->em->getRepository(BaseRepository::class)->getSQLConditionFandF(
-            $user,
-            $filter,
-            [
-                'forbidden_categories' => 'category_id',
-                'visible_categories' => 'category_id',
-                'visible_images' => 'id'
-            ]
-        );
-
         $items = [];
         $tag_items = [];
 
@@ -180,8 +170,10 @@ class SearchMapper
         $search_clause = $this->getSqlSearchClause($search);
 
         if (!empty($search_clause)) {
-            $result = $this->em->getRepository(ImageRepository::class)->searchDistinctId('id', [$search_clause, $forbidden, $images_where], true, $this->conf['order_by']);
-            $items = $this->em->getConnection()->result2array($result, null, 'id');
+            $items = [];
+            foreach ($this->imageMapper->getRepository()->searchDistinctId($user->getForbiddenCategories(), $this->conf['order_by']) as $image) {
+                $items[] = $image['id'];
+            }
         }
 
         if (!empty($tag_items)) {
@@ -313,8 +305,10 @@ class SearchMapper
                     break;
             }
             if (!empty($clauses)) {
-                $result = $this->em->getRepository(ImageRepository::class)->qsearchImages($clauses);
-                $qsr->images_iids[$i] = $this->em->getConnection()->result2array($result, null, 'id');
+                $qsr->images_iids[$i] = [];
+                foreach ($this->imageMapper->getRepository()->qsearchImages($clauses) as $image) {
+                    $qsr->images_iids[$i][] = $image->getId();
+                }
             }
         }
     }
@@ -376,7 +370,7 @@ class SearchMapper
                     $result = $this->em->getRepository(ImageTagRepository::class)->findImageIds();
                     $qsr->tag_iids[$i] = $this->em->getConnection()->result2array($result, null, 'image_id');
                 } else { // eg. 'tag:' returns all untagged images
-                    $result = $this->em->getRepository(ImageRepository::class)->findImageWithNoTag();
+                    $result = $this->em->getRepository(TagRepository::class)->findImageWithNoTag();
                     $qsr->tag_iids[$i] = $this->em->getConnection()->result2array($result, null, 'id');
                 }
             }
@@ -550,8 +544,10 @@ class SearchMapper
             );
         }
 
-        $result = $this->em->getRepository(ImageRepository::class)->searchDistinctId('id', $where_clauses, $permissions, $this->conf['order_by']);
-        $ids = $this->em->getConnection()->result2array($result, null, 'id');
+        $ids = [];
+        foreach ($this->imageMapper->getRepository()->searchDistinctId($this->userMapper->getUser()->getForbiddenCategories(), $this->conf['order_by']) as $image) {
+            $ids[] = $image['id'];
+        }
 
         $debug[] = count($ids) . ' final photo count -->';
 
@@ -564,7 +560,7 @@ class SearchMapper
      * Returns an array of 'items' corresponding to the search id.
      * It can be either a quick search or a regular search.
      */
-    public function getSearchResults(array $rules, UserInterface $user, array $filter, bool $super_order_by, string $images_where = ''): array
+    public function getSearchResults(array $rules, User $user, array $filter, bool $super_order_by, string $images_where = ''): array
     {
         if (!isset($rules['q'])) {
             return ['items' => $this->getRegularSearchResults($rules, $user, $filter, $images_where)];

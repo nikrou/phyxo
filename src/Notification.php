@@ -12,11 +12,10 @@
 namespace App;
 
 use App\DataMapper\AlbumMapper;
-use App\Repository\ImageRepository;
+use App\DataMapper\ImageMapper;
 use App\Repository\CommentRepository;
 use App\Repository\UserMailNotificationRepository;
 use App\Repository\UserInfosRepository;
-use App\Repository\BaseRepository;
 use App\DataMapper\UserMapper;
 use App\Entity\UserMailNotification;
 use Phyxo\Image\DerivativeImage;
@@ -34,17 +33,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Notification
 {
-    private $em, $conn, $conf, $userMapper, $albumMapper, $router, $commentRepository;
+    private $conf, $userMapper, $albumMapper, $router, $commentRepository, $imageMapper;
     private $env, $mailer, $translator, $userMailNotificationRepository, $userInfosRepository;
 
     private $infos = [], $errors = [];
 
-    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, AlbumMapper $albumMapper, RouterInterface $router,
+    public function __construct(Conf $conf, UserMapper $userMapper, AlbumMapper $albumMapper, RouterInterface $router, ImageMapper $imageMapper,
                                 MailerInterface $mailer, TranslatorInterface $translator, CommentRepository $commentRepository,
                                 UserMailNotificationRepository $userMailNotificationRepository, UserInfosRepository $userInfosRepository)
     {
-        $this->em = $em;
-        $this->conn = $em->getConnection();
         $this->conf = $conf;
         $this->userMapper = $userMapper;
         $this->albumMapper = $albumMapper;
@@ -54,6 +51,7 @@ class Notification
         $this->userMailNotificationRepository = $userMailNotificationRepository;
         $this->userInfosRepository = $userInfosRepository;
         $this->commentRepository = $commentRepository;
+        $this->imageMapper = $imageMapper;
 
         $this->env = [
             'start_time' => microtime(true),
@@ -95,23 +93,23 @@ class Notification
      */
     public function nb_new_elements(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
     {
-        return $this->commentRepository->getNewElements($this->userMapper->getUser(), [], $start, $end, $count_only = true);
+        return $this->imageMapper->getRepository()->getNewElements($this->userMapper->getUser()->getForbiddenCategories(), $start, $end, $count_only = true);
     }
 
     /**
-     * Returns new photos between two dates.es
+     * Returns new photos between two dates
      */
     public function new_elements(\DateTimeInterface $start = null, \DateTimeInterface $end = null): array
     {
-        return $this->em->getRepository(ImageRepository::class)->getNewElements($this->userMapper->getUser(), [], $start, $end);
+        return $this->imageMapper->getRepository()->getNewElements($this->userMapper->getUser()->getForbiddenCategories(), $start, $end);
     }
 
     /**
-     * Returns number of updated categories between two dates.
+     * Returns number of updated albums between two dates.
      */
     public function nb_updated_categories(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
     {
-        return $this->em->getRepository(ImageRepository::class)->getUpdatedCategories($this->userMapper->getUser(), [], $start, $end, $count_only = true);
+        return $this->imageMapper->getRepository()->getUpdatedAlbums($this->userMapper->getUser()->getForbiddenCategories(), $start, $end, $count_only = true);
     }
 
     /**
@@ -119,7 +117,7 @@ class Notification
      */
     public function updated_categories(\DateTimeInterface $start = null, \DateTimeInterface $end = null): array
     {
-        return $this->em->getRepository(ImageRepository::class)->getUpdatedCategories($this->userMapper->getUser(), [], $start, $end, $count_only = true);
+        return $this->imageMapper->getRepository()->getUpdatedAlbums($this->userMapper->getUser()->getForbiddenCategories(), $start, $end);
     }
 
     /**
@@ -249,20 +247,16 @@ class Notification
      */
     public function get_recent_post_dates(int $max_dates, int $max_elements, int $max_cats): array
     {
-        $where_sql = (new BaseRepository($this->conn))->getStandardSQLWhereRestrictFilter($this->userMapper->getUser(), [], 'WHERE', 'i.id', true);
-
-        $result = (new ImageRepository($this->conn))->getRecentPostedImages($where_sql, $max_dates);
-        $dates = $this->conn->result2array($result);
+        $dates = $this->imageMapper->getRepository()->getRecentPostedImages($this->userMapper->getUser()->getForbiddenCategories(), $max_dates);
 
         for ($i = 0; $i < count($dates); $i++) {
             if ($max_elements > 0) { // get some thumbnails ...
-                $result = (new ImageRepository($this->conn))->findRandomImages($where_sql, '', $max_elements);
-                $dates[$i]['elements'] = $this->conn->result2array($result);
+
+                $dates[$i]['elements'] = $this->imageMapper->getRepository()->findRandomImages($this->userMapper->getUser()->getForbiddenCategories(), $max_elements);
             }
 
-            if ($max_cats > 0) { // get some categories ...
-                $result = (new ImageRepository($this->conn))->getRecentImages($where_sql, $dates[$i]['date_available'], $max_cats);
-                $dates[$i]['categories'] = $this->conn->result2array($result);
+            if ($max_cats > 0) { // get some albums ...
+                $dates[$i]['categories'] = $this->imageMapper->getRepository()->getRecentImages($this->userMapper->getUser()->getForbiddenCategories(), $dates[$i]['date_available'], $max_cats);
             }
         }
 
@@ -384,8 +378,6 @@ class Notification
             } else {
                 $orders = ['u.username'];
             }
-
-
 
             return $this->userMailNotificationRepository->findInfosForUsers(($action === 'send'), $enabled_filter_value, $check_key_list, $orders);
         } else {
@@ -527,7 +519,7 @@ class Notification
                 $check_key_treated[] = $nbm_user->getCheckKey();
 
                 $do_update = true;
-                if ($nbm_user->getUser()->getMailAddress() !== '') {
+                if ($nbm_user->getUser()->getMailAddress()) {
                     $subject = ($is_subscribe ? $this->translator->trans('Subscribe to notification by mail') : $this->translator->trans('Unsubscribe from notification by mail'));
 
                     $mail_params = [];
@@ -840,7 +832,6 @@ class Notification
 
         $message->from(new Address($from['email'], $from['name']));
         $message->replyTo(new Address($from['email'], $from['name']));
-
 
         $this->mailer->send($message);
     }

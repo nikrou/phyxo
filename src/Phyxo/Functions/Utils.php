@@ -11,11 +11,11 @@
 
 namespace Phyxo\Functions;
 
+use App\Entity\Album;
 use App\Entity\Group;
+use App\Entity\Image;
 use App\Entity\UserInfos;
 use Phyxo\Block\RegisteredBlock;
-use App\Repository\CategoryRepository;
-use App\Repository\ImageRepository;
 use App\Repository\TagRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\EntityManager;
@@ -810,12 +810,12 @@ class Utils
     public static function getAdminClientCacheKeys(array $requested = [], EntityManager $em, ManagerRegistry $managerRegistry, string $base_url = ''): array
     {
         $tables = [
-            'categories' => CategoryRepository::class,
-            'images' => ImageRepository::class,
             'tags' => TagRepository::class,
         ];
 
         $otherTables = [
+            'categories' => Album::class,
+            'images' => Image::class,
             'users' => UserInfos::class,
             'groups' => Group::class,
         ];
@@ -848,6 +848,7 @@ class Utils
         foreach ($returned as $repository) {
             if (isset($otherTables[$repository])) {
                 $tableInfos = $managerRegistry->getRepository($otherTables[$repository])->getMaxLastModified();
+
                 $keys[$repository] = sprintf('%s_%s', (new \Datetime($tableInfos['max']))->getTimestamp(), $tableInfos['count']);
             }
         }

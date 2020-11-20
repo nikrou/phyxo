@@ -21,11 +21,11 @@ use App\Repository\AlbumRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\ImageAlbumRepository;
-use App\Repository\ImageRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\TagRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
+use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
@@ -83,7 +83,7 @@ class BatchManagerController extends AdminCommonController
             ['id' => 'last_import', 'name' => $translator->trans('Last import', [], 'admin')],
             ['id' => 'no_album', 'name' => $translator->trans('With no album', [], 'admin')],
             ['id' => 'no_tag', 'name' => $translator->trans('With no tag', [], 'admin')],
-            ['id' => 'duplicates', 'name' => $translator->trans('Duplicates', [], 'admin')],
+            //['id' => 'duplicates', 'name' => $translator->trans('Duplicates', [], 'admin')],
             ['id' => 'all_photos', 'name' => $translator->trans('All', [], 'admin')]
         ];
 
@@ -203,7 +203,7 @@ class BatchManagerController extends AdminCommonController
         }
 
         $this->filterFromSession();
-        $filter_sets = $this->getFilterSetsFromFilter($em, $conf, $searchMapper, $albumRepository);
+        $filter_sets = $this->getFilterSetsFromFilter($em, $conf, $searchMapper, $imageMapper, $albumRepository);
 
         $current_set = array_shift($filter_sets);
         if (empty($current_set)) {
@@ -213,7 +213,7 @@ class BatchManagerController extends AdminCommonController
             $current_set = array_intersect($current_set, $set);
         }
 
-        $tpl_params = array_merge($tpl_params, $this->setDimensions($em));
+        $tpl_params = array_merge($tpl_params, $this->setDimensions($imageMapper));
 
         // privacy level
         foreach ($conf['available_permission_levels'] as $level) {
@@ -248,8 +248,10 @@ class BatchManagerController extends AdminCommonController
         // Dissociate from a category : categories listed for dissociation can only
         // represent virtual links. We can't create orphans. Links to physical categories can't be broken.
         if (count($current_set) > 0) {
-            $result = $em->getRepository(ImageRepository::class)->findVirtualCategoriesWithImages($current_set);
-            $tpl_params['associated_categories'] = $em->getConnection()->result2array($result, 'id', 'id');
+            $tpl_params['associated_categories'] = [];
+            foreach ($imageMapper->getRepository()->findVirtualAlbumsWithImages($current_set) as $album) {
+                $tpl_params['associated_categories'][] = $album['id'];
+            }
 
             // remove tags
             $tpl_params['associated_tags'] = $tagMapper->getCommonTags($this->getUser(), [], $current_set, -1);
@@ -259,7 +261,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['DATE_CREATION'] = !$request->request->get('date_creation') ? date('Y-m-d') . ' 00:00:00' : $request->request->get('date_creation');
 
         // image level options
-        $tpl_params['level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator, 'admin');
+        $tpl_params['level_options'] = Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator, 'admin');
         $tpl_params['level_options_selected'] = 0;
 
         // metadata
@@ -294,7 +296,7 @@ class BatchManagerController extends AdminCommonController
         $nb_thumbs_page = 0;
 
         if (count($current_set) > 0) {
-            $tpl_params['navbar'] = \Phyxo\Functions\Utils::createNavigationBar($this->get('router'), 'admin_batch_manager_global', ['filter' => $filter], count($current_set), $start, $nb_images);
+            $tpl_params['navbar'] = Utils::createNavigationBar($this->get('router'), 'admin_batch_manager_global', ['filter' => $filter], count($current_set), $start, $nb_images);
 
             $is_category = false;
             if (isset($this->getFilter()['category']) && !isset($this->getFilter()['category_recursive'])) {
@@ -313,32 +315,31 @@ class BatchManagerController extends AdminCommonController
                     $conf['order_by'] = ' ORDER BY ' . $em->getConnection()->db_real_escape_string($album->getImageOrder());
                 }
             }
-            $result = $em->getRepository(ImageRepository::class)->findByImageIdsAndCategoryId(
+            $thumb_params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
+
+            // template thumbnail initialization
+            foreach ($imageMapper->getRepository()->findByImageIdsAndAlbumId(
                 $current_set,
                 $is_category ? ($this->getFilter()['category'] ?? null) : null,
                 $conf['order_by'] ?? '  ',
                 $nb_images,
                 $start
-            );
-            $thumb_params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
-
-            // template thumbnail initialization
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
+                ) as $image) {
                 $nb_thumbs_page++;
-                $src_image = new SrcImage($row, $conf['picture_ext']);
+                $src_image = new SrcImage($image->toArray(), $conf['picture_ext']);
 
-                $ttitle = \Phyxo\Functions\Utils::render_element_name($row);
-                if ($ttitle != \Phyxo\Functions\Utils::get_name_from_file($row['file'])) { // @TODO: simplify. code difficult to read
-                    $ttitle .= ' (' . $row['file'] . ')';
+                $ttitle = Utils::render_element_name($image->toArray());
+                if ($ttitle != Utils::get_name_from_file($image->getFile())) { // @TODO: simplify. code difficult to read
+                    $ttitle .= ' (' . $image->getFile() . ')';
                 }
 
                 $tpl_params['thumbnails'][] = array_merge(
-                    $row,
+                    $image->toArray(),
                     [
                         'thumb' => new DerivativeImage($src_image, $thumb_params, $image_std_params),
                         'TITLE' => $ttitle,
                         'FILE_SRC' => (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params))->getUrl(),
-                        'U_EDIT' => $this->generateUrl('admin_photo', ['image_id' => $row['id']])
+                        'U_EDIT' => $this->generateUrl('admin_photo', ['image_id' => $image->getId()])
                     ]
                 );
             }
@@ -364,7 +365,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['all_elements'] = $current_set;
         $tpl_params['nb_thumbs_page'] = $nb_thumbs_page;
         $tpl_params['nb_thumbs_set'] = count($current_set);
-        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['tags', 'categories'], $em, $this->getDoctrine(), $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['tags', 'categories'], $em, $this->getDoctrine(), $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_batch_manager_global');
@@ -463,10 +464,12 @@ class BatchManagerController extends AdminCommonController
         } elseif ($action === 'dissociate') {
             // physical links must not be broken, so we must first retrieve image_id
             // which create virtual links with the category to "dissociate from".
-            $result = $em->getRepository(ImageRepository::class)->findImagesInVirtualCategory($collection, $request->request->get('dissociate'));
-            $dissociables = $em->getConnection()->result2array($result, null, 'id');
+            $dissociables = [];
+            foreach ($imageMapper->getRepository()->findImagesInVirtualAlbum($collection, $request->request->get('dissociate')) as $image) {
+                $dissociables[] = $image->getId();
+            }
 
-            if (!empty($dissociables)) {
+            if (count($dissociables) > 0) {
                 $imageAlbumRepository->deleteByAlbum([$request->request->get('dissociate')], $dissociables);
                 $this->addFlash('info', $this->translator->trans('Information data registered in database', [], 'admin'));
 
@@ -480,15 +483,7 @@ class BatchManagerController extends AdminCommonController
                 $author = $request->request->get('author');
             }
 
-            $datas = [];
-            foreach ($collection as $image_id) {
-                $datas[] = [
-                    'id' => $image_id,
-                    'author' => $author
-                ];
-            }
-
-            $em->getRepository(ImageRepository::class)->massUpdates(['primary' => ['id'], 'update' => ['author']], $datas);
+            $imageMapper->getRepository()->updateFieldForImages($collection, 'author', $author);
         } elseif ($action === 'title') {
             if ($request->request->get('remove_title')) {
                 $title = null;
@@ -496,15 +491,7 @@ class BatchManagerController extends AdminCommonController
                 $title = $request->request->get('title');
             }
 
-            $datas = [];
-            foreach ($collection as $image_id) {
-                $datas[] = [
-                    'id' => $image_id,
-                    'name' => $title
-                ];
-            }
-
-            $em->getRepository(ImageRepository::class)->massUpdates(['primary' => ['id'], 'update' => ['name']], $datas);
+            $imageMapper->getRepository()->updateFieldForImages($collection, 'name', $title);
         } elseif ($action === 'date_creation') {
             if ($request->request->get('remove_date_creation') || !$request->request->get('date_creation')) {
                 $date_creation = null;
@@ -512,25 +499,9 @@ class BatchManagerController extends AdminCommonController
                 $date_creation = $request->request->get('date_creation');
             }
 
-            $datas = [];
-            foreach ($collection as $image_id) {
-                $datas[] = [
-                    'id' => $image_id,
-                    'date_creation' => $date_creation
-                ];
-            }
-
-            $em->getRepository(ImageRepository::class)->massUpdates(['primary' => ['id'], 'update' => ['date_creation']], $datas);
+            $imageMapper->getRepository()->updateFieldForImages($collection, 'date_creation', new \DateTime($date_creation));
         } elseif ($action === 'level') { // privacy_level
-            $datas = [];
-            foreach ($collection as $image_id) {
-                $datas[] = [
-                    'id' => $image_id,
-                    'level' => $request->request->get('level')
-                ];
-            }
-
-            $em->getRepository(ImageRepository::class)->massUpdates(['primary' => ['id'], 'update' => ['level']], $datas);
+            $imageMapper->getRepository()->updateFieldForImages($collection, 'level', $request->request->get('level'));
 
             if (!empty($this->getFilter()['level'])) {
                 if ($request->request->get('level') < $this->getFilter()['level']) {
@@ -555,10 +526,9 @@ class BatchManagerController extends AdminCommonController
             $tagMapper->sync_metadata($collection);
             $this->addFlash('info', $this->translator->trans('Metadata synchronized from file', [], 'admin'));
         } elseif ($action === 'delete_derivatives' && $request->request->get('del_derivatives_type')) {
-            $result = $em->getRepository(ImageRepository::class)->findByIds($collection);
-            while ($info = $em->getConnection()->db_fetch_assoc($result)) {
+            foreach ($imageMapper->getRepository()->find($collection) as $image) {
                 foreach ($request->request->get('del_derivatives_type') as $type) {
-                    \Phyxo\Functions\Utils::delete_element_derivatives($info, $type);
+                    Utils::delete_element_derivatives($image->toArray(), $type);
                 }
             }
         } elseif ($action === 'generate_derivatives') {
@@ -586,7 +556,7 @@ class BatchManagerController extends AdminCommonController
         }
     }
 
-    protected function getFilterSetsFromFilter(EntityManager $em, Conf $conf, SearchMapper $searchMapper, AlbumRepository $albumRepository)
+    protected function getFilterSetsFromFilter(EntityManager $em, Conf $conf, SearchMapper $searchMapper, ImageMapper $imageMapper, AlbumRepository $albumRepository)
     {
         $filter_sets = [];
 
@@ -605,16 +575,21 @@ class BatchManagerController extends AdminCommonController
                     break;
 
                 case 'last_import':
-                    if ($max_date_available = $em->getRepository(ImageRepository::class)->findMaxDateAvailable()) {
-                        $result = $em->getRepository(ImageRepository::class)->findImagesFromLastImport($max_date_available);
-                        $filter_sets[] = $em->getConnection()->result2array($result, null, 'id');
+                    if ($max_date_available = $imageMapper->getRepository()->findMaxDateAvailable()) {
+                        $image_ids = [];
+                        foreach ($imageMapper->getRepository()->findImagesFromLastImport($max_date_available) as $image) {
+                            $image_ids[] = $image->getId();
+                        }
+                        $filter_sets[] = $image_ids;
                     }
                     break;
 
                 case 'no_virtual_album':
                     // we are searching elements not linked to any virtual category
-                    $result = $em->getRepository(ImageRepository::class)->findAll();
-                    $all_elements = $em->getConnection()->result2array($result, null, 'id');
+                    $all_elements = [];
+                    foreach ($imageMapper->getRepository()->findAll() as $image) {
+                        $all_elements[] = $image->getId();
+                    }
 
                     $linked_to_virtual = [];
                     foreach ($albumRepository->findVirtualAlbums() as $album) {
@@ -627,12 +602,15 @@ class BatchManagerController extends AdminCommonController
                     break;
 
                 case 'no_album':
-                    $result = $em->getRepository(ImageRepository::class)->findImageWithNoAlbum();
-                    $filter_sets[] = $em->getConnection()->result2array($result, null, 'id');
+                    $image_ids = [];
+                    foreach ($imageMapper->getRepository()->findImageWithNoAlbum() as $image) {
+                        $image_ids[] = $image->getId();
+                    }
+                    $filter_sets[] = $image_ids;
                     break;
 
                 case 'no_tag':
-                    $result = $em->getRepository(ImageRepository::class)->findImageWithNoTag();
+                    $result = $em->getRepository(TagRepository::class)->findImageWithNoTag();
                     $filter_sets[] = $em->getConnection()->result2array($result, null, 'id');
                     break;
 
@@ -647,8 +625,10 @@ class BatchManagerController extends AdminCommonController
                         $duplicates_on_fields[] = 'height';
                     }
 
-                    $result = $em->getRepository(ImageRepository::class)->findDuplicates($duplicates_on_fields);
-                    $array_of_ids_string = $em->getConnection()->result2array($result, null, 'ids');
+                    $array_of_ids_string = [];
+                    foreach ($imageMapper->getRepository()->findDuplicates($duplicates_on_fields) as $image_ids) {
+                        $array_of_ids_string[] = $image_ids;
+                    }
 
                     $ids = [];
                     foreach ($array_of_ids_string as $ids_string) {
@@ -660,8 +640,11 @@ class BatchManagerController extends AdminCommonController
 
                 case 'all_photos':
                     if (count($bulk_manager_filter) === 1) { // make the query only if this is the only filter
-                        $result = $em->getRepository(ImageRepository::class)->findAll($conf['order_by']);
-                        $filter_sets[] = $em->getConnection()->result2array($result, null, 'id');
+                        $image_ids = [];
+                        foreach ($imageMapper->getRepository()->findAll() as $image) {
+                            $image_ids[] = $image->getId();
+                        }
+                        $filter_sets[] = $image_ids;
                     }
                     break;
 
@@ -675,7 +658,7 @@ class BatchManagerController extends AdminCommonController
             $albums = null;
 
             if (isset($bulk_manager_filter['category_recursive'])) {
-                $albums = $albumRepository->getSubAlbums($this->getFilter()['category']);
+                $albums = $albumRepository->getSubAlbums([$this->getFilter()['category']]);
             } else {
                 $albums = $albumRepository->find($bulk_manager_filter['category']);
             }
@@ -695,8 +678,11 @@ class BatchManagerController extends AdminCommonController
                 $operator = '<=';
             }
 
-            $result = $em->getRepository(ImageRepository::class)->filterByField('field', $operator, $bulk_manager_filter['level'], $conf['order_by']);
-            $filter_sets[] = $em->getConnection()->result2array($result, null, 'id');
+            $image_ids = [];
+            foreach ($imageMapper->getRepository()->filterByLevel($bulk_manager_filter['level'], $operator) as $image) {
+                $image_ids[] = $image->getId();
+            }
+            $filter_sets[] = $image_ids;
         }
 
         if (!empty($bulk_manager_filter['tags'])) {
@@ -716,44 +702,49 @@ class BatchManagerController extends AdminCommonController
         }
 
         if (!empty($bulk_manager_filter['dimension'])) {
-            $where_clause = [];
+            $image_ids = [];
             if (!empty($bulk_manager_filter['dimension']['min_width'])) {
-                $where_clause[] = 'width >= ' . $bulk_manager_filter['dimension']['min_width'];
+                $images = $imageMapper->getRepository()->findImagesByWidth($bulk_manager_filter['dimension']['min_width'], '>=');
             }
             if (!empty($bulk_manager_filter['dimension']['max_width'])) {
-                $where_clause[] = 'width <= ' . $bulk_manager_filter['dimension']['max_width'];
+                $images = $imageMapper->getRepository()->findImagesByWidth($bulk_manager_filter['dimension']['max_width'], '<=');
             }
             if (!empty($bulk_manager_filter['dimension']['min_height'])) {
-                $where_clause[] = 'height >= ' . $bulk_manager_filter['dimension']['min_height'];
+                $images = $imageMapper->getRepository()->findImagesByHeight($bulk_manager_filter['dimension']['min_height'], '>=');
             }
             if (!empty($bulk_manager_filter['dimension']['max_height'])) {
-                $where_clause[] = 'height <= ' . $bulk_manager_filter['dimension']['max_height'];
+                $images = $imageMapper->getRepository()->findImagesByHeight($bulk_manager_filter['dimension']['max_height'], '<=');
             }
             if (!empty($bulk_manager_filter['dimension']['min_ratio'])) {
-                $where_clause[] = 'width/height >= ' . $bulk_manager_filter['dimension']['min_ratio'];
+                $images = $imageMapper->getRepository()->findImagesByRatio($bulk_manager_filter['dimension']['min_ratio'], '>=');
             }
             if (!empty($bulk_manager_filter['dimension']['max_ratio'])) {
                 // max_ratio is a floor value, so must be a bit increased
-                $where_clause[] = 'width/height < ' . ($bulk_manager_filter['dimension']['max_ratio'] + 0.01);
+                $images = $imageMapper->getRepository()->findImagesByRatio($bulk_manager_filter['dimension']['max_ratio'] + 0.01, '<');
             }
 
-            $result = $em->getRepository(ImageRepository::class)->findWithConditions($where_clause, null, null, $conf['order_by'] ?? '');
-            $filter_sets[] = $em->getConnection()->result2array($result, null, 'id');
+            foreach ($images as $image) {
+                $image_ids[] = $image->getId();
+            }
+            $filter_sets[] = $image_ids;
         }
 
         if (!empty($bulk_manager_filter['filesize'])) {
-            $where_clause = [];
+            $image_ids = [];
 
             if (!empty($bulk_manager_filter['filesize']['min'])) {
-                $where_clause[] = 'filesize >= ' . $bulk_manager_filter['filesize']['min'] * 1024;
+                $images = $imageMapper->getRepository()->findImagesByFilesize($bulk_manager_filter['filesize']['min'] * 1024, '>=');
             }
 
             if (!empty($bulk_manager_filter['filesize']['max'])) {
-                $where_clause[] = 'filesize <= ' . $bulk_manager_filter['filesize']['max'] * 1024;
+                $images = $imageMapper->getRepository()->findImagesByFilesize($bulk_manager_filter['filesize']['max'] * 1024, '<=');
             }
 
-            $result = $em->getRepository(ImageRepository::class)->findWithConditions($where_clause, null, null, $conf['order_by']);
-            $filter_sets[] = $em->getConnection()->result2array($result, null, 'id');
+            foreach ($images as $image) {
+                $image_ids[] = $image->getId();
+            }
+
+            $filter_sets[] = $image_ids;
         }
 
         if (!empty($bulk_manager_filter['search']) && !empty($bulk_manager_filter['search']['q'])) {
@@ -767,7 +758,7 @@ class BatchManagerController extends AdminCommonController
         return $filter_sets;
     }
 
-    protected function setDimensions(EntityManager $em): array
+    protected function setDimensions(ImageMapper $imageMapper): array
     {
         $tpl_params = [];
 
@@ -775,19 +766,21 @@ class BatchManagerController extends AdminCommonController
         $heights = [];
         $ratios = [];
         $dimensions = [];
+        $filesizes = [];
+        $filesize = [];
 
         // get all width, height and ratios
-        $result = $em->getRepository(ImageRepository::class)->findAllWidthAndHeight();
-        if ($em->getConnection()->db_num_rows($result)) {
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                if ($row['width'] > 0 && $row['height'] > 0) {
-                    $widths[] = $row['width'];
-                    $heights[] = $row['height'];
-                    $ratios[] = floor($row['width'] / $row['height'] * 100) / 100;
-                }
+        foreach ($imageMapper->getRepository()->findAll() as $image) {
+            if ($image->getWidth() > 0 && $image->getHeight() > 0) {
+                $widths[] = $image->getWidth();
+                $heights[] = $image->getHeight();
+                $ratios[] = floor($image->getWidth() / $image->getHeight() * 100) / 100;
             }
+
+            $filesizes[] = sprintf('%.1f', $image->getFilesize() / 1024);
         }
-        if (empty($widths)) { // arbitrary values, only used when no photos on the gallery
+
+        if (count($widths) === 0) { // arbitrary values, only used when no photos on the gallery
             $widths = [600, 1920, 3500];
             $heights = [480, 1080, 2300];
             $ratios = [1.25, 1.52, 1.78];
@@ -850,15 +843,7 @@ class BatchManagerController extends AdminCommonController
 
         $tpl_params['dimensions'] = $dimensions;
 
-        $filesizes = [];
-        $filesize = [];
-
-        $result = $em->getRepository(ImageRepository::class)->findFilesize();
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-            $filesizes[] = sprintf('%.1f', $row['filesize'] / 1024);
-        }
-
-        if (empty($filesizes)) { // arbitrary values, only used when no photos on the gallery
+        if (count($filesizes) === 0) { // arbitrary values, only used when no photos on the gallery
             $filesizes = [0, 1, 2, 5, 8, 15];
         }
 
@@ -890,7 +875,7 @@ class BatchManagerController extends AdminCommonController
 
     public function unit(Request $request, string $filter = null, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, SearchMapper $searchMapper, TagMapper $tagMapper,
                         ImageStandardParams $image_std_params, AlbumMapper $albumMapper, UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator,
-                        AlbumRepository $albumRepository, ImageAlbumRepository $imageAlbumRepository)
+                        ImageMapper $imageMapper, AlbumRepository $albumRepository, ImageAlbumRepository $imageAlbumRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -900,40 +885,27 @@ class BatchManagerController extends AdminCommonController
         if ($request->isMethod('POST')) {
             $collection = explode(',', $request->request->get('element_ids'));
 
-            $datas = [];
-            $result = $em->getRepository(ImageRepository::class)->findByIds($collection);
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                $data = [];
-
-                $data['id'] = $row['id'];
-                $data['name'] = $request->request->get('name-' . $row['id']);
-                $data['author'] = $request->request->get('author-' . $row['id']);
-                $data['level'] = $request->request->get('level-' . $row['id']);
+            foreach ($imageMapper->getRepository()->findBy(['id' => $collection]) as $image) {
+                $image->setName($request->request->get('name-' . $image->getId()));
+                $image->setAuthor($request->request->get('author-' . $image->getId()));
+                $image->setLevel($request->request->get('level-' . $image->getId()));
 
                 if ($conf['allow_html_descriptions']) {
-                    $data['comment'] = $request->request->get('description-' . $row['id']) ?? '';
+                    $image->setComment($request->request->get('description-' . $image->getId()) ?? '');
                 } else {
-                    $data['comment'] = htmlentities($request->request->get('description-' . $row['id']), ENT_QUOTES, 'utf-8');
+                    $image->setComment(htmlentities($request->request->get('description-' . $image->getId()), ENT_QUOTES, 'utf-8'));
                 }
 
-                $data['date_creation'] = !empty($request->request->get('date_creation-' . $row['id'])) ? $request->request->get('date_creation-' . $row['id']) : null;
-                $datas[] = $data;
+                $image->setDateCreation($request->request->get('date_creation-' . $image->getId()) ? new \DateTime($request->request->get('date_creation-' . $image->getId())) : null);
 
                 // tags management
                 $tag_ids = [];
-                if ($request->request->get('tags-' . $row['id'])) {
-                    $tag_ids = $tagMapper->getTagsIds($request->request->get('tags-' . $row['id']));
+                if ($request->request->get('tags-' . $image->getId())) {
+                    $tag_ids = $tagMapper->getTagsIds($request->request->get('tags-' . $image->getId()));
                 }
-                $tagMapper->setTags($tag_ids, $row['id']);
+                $tagMapper->setTags($tag_ids, $image->getId());
+                $imageMapper->getRepository()->addOrUpdateImage($image);
             }
-
-            $em->getRepository(ImageRepository::class)->massUpdates(
-                [
-                    'primary' => ['id'],
-                    'update' => ['name', 'author', 'level', 'comment', 'date_creation']
-                ],
-                $datas
-            );
 
             $this->addFlash('info', $translator->trans('Photo informations updated', [], 'admin'));
             $userMapper->invalidateUserCache();
@@ -942,7 +914,7 @@ class BatchManagerController extends AdminCommonController
         }
 
         $this->filterFromSession();
-        $filter_sets = $this->getFilterSetsFromFilter($em, $conf, $searchMapper, $albumRepository);
+        $filter_sets = $this->getFilterSetsFromFilter($em, $conf, $searchMapper, $imageMapper, $albumRepository);
 
         $current_set = array_shift($filter_sets);
         if (empty($current_set)) {
@@ -952,7 +924,7 @@ class BatchManagerController extends AdminCommonController
             $current_set = array_intersect($current_set, $set);
         }
 
-        $tpl_params = array_merge($tpl_params, $this->setDimensions($em));
+        $tpl_params = array_merge($tpl_params, $this->setDimensions($imageMapper));
 
         // privacy level
         foreach ($conf['available_permission_levels'] as $level) {
@@ -987,8 +959,10 @@ class BatchManagerController extends AdminCommonController
         // Dissociate from a category : categories listed for dissociation can only
         // represent virtual links. We can't create orphans. Links to physical categories can't be broken.
         if (count($current_set) > 0) {
-            $result = $em->getRepository(ImageRepository::class)->findVirtualCategoriesWithImages($current_set);
-            $tpl_params['associated_categories'] = $em->getConnection()->result2array($result, 'id', 'id');
+            $tpl_params['associated_categories'] = [];
+            foreach ($imageMapper->getRepository()->findVirtualAlbumsWithImages($current_set) as $album) {
+                $tpl_params['associated_categories'][] = $album['id'];
+            }
 
             // remove tags
             $tpl_params['associated_tags'] = $tagMapper->getCommonTags($this->getUser(), [], $current_set, -1);
@@ -998,7 +972,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['DATE_CREATION'] = !$request->request->get('date_creation') ? date('Y-m-d') . ' 00:00:00' : $request->request->get('date_creation');
 
         // image level options
-        $tpl_params['level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator, 'admin');
+        $tpl_params['level_options'] = Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator, 'admin');
         $tpl_params['level_options_selected'] = 0;
 
         // metadata
@@ -1029,7 +1003,7 @@ class BatchManagerController extends AdminCommonController
             }
         }
         if (count($current_set) > 0) {
-            $tpl_params['navbar'] = \Phyxo\Functions\Utils::createNavigationBar($this->get('router'), 'admin_batch_manager_unit', ['filter' => $filter], count($current_set), $start, $nb_images);
+            $tpl_params['navbar'] = Utils::createNavigationBar($this->get('router'), 'admin_batch_manager_unit', ['filter' => $filter], count($current_set), $start, $nb_images);
 
             $is_category = false;
             if (isset($this->getFilter()['category']) && !isset($this->getFilter()['category_recursive'])) {
@@ -1048,42 +1022,41 @@ class BatchManagerController extends AdminCommonController
                     $conf['order_by'] = ' ORDER BY ' . $em->getConnection()->db_real_escape_string($album->getImageOrder());
                 }
             }
-            $result = $em->getRepository(ImageRepository::class)->findByImageIdsAndCategoryId(
-                $current_set,
-                $this->getFilter()['category'] ?? null,
-                $conf['order_by'] ?? '  ',
-                $nb_images,
-                $start
-            );
 
             // template thumbnail initialization
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                $element_ids[] = $row['id'];
+            foreach ($imageMapper->getRepository()->findByImageIdsAndAlbumId(
+                    $current_set,
+                    $this->getFilter()['category'] ?? null,
+                    $conf['order_by'] ?? '  ',
+                    $nb_images,
+                    $start
+                ) as $image) {
+                $element_ids[] = $image->getId();
 
-                $src_image = new SrcImage($row, $conf['picture_ext']);
+                $src_image = new SrcImage($image->toArray(), $conf['picture_ext']);
 
-                $tag_result = $em->getRepository(TagRepository::class)->getTagsByImage($row['id']);
+                $tag_result = $em->getRepository(TagRepository::class)->getTagsByImage($image->getId());
                 $tags = $em->getConnection()->result2array($tag_result);
                 $tag_selection = $tagMapper->prepareTagsListForUI($tags);
 
-                $legend = \Phyxo\Functions\Utils::render_element_name($row);
-                if ($legend != \Phyxo\Functions\Utils::get_name_from_file($row['file'])) {
-                    $legend .= ' (' . $row['file'] . ')';
+                $legend = Utils::render_element_name($image->toArray());
+                if ($legend != Utils::get_name_from_file($image->getFile())) {
+                    $legend .= ' (' . $image->getFile() . ')';
                 }
 
                 $tpl_params['elements'][] = array_merge(
-                    $row,
+                    $image->toArray(),
                     [
-                        'ID' => $row['id'],
+                        'ID' => $image->getId(),
                         'TN_SRC' => (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl(),
                         'FILE_SRC' => (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params))->getUrl(),
                         'LEGEND' => $legend,
-                        'U_EDIT' => $this->generateUrl('admin_photo', ['image_id' => $row['id']]),
-                        'NAME' => htmlspecialchars(@$row['name']), // @TODO: remove arobase
-                        'AUTHOR' => htmlspecialchars(@$row['author']), // @TODO: remove arobase
-                        'LEVEL' => !empty($row['level']) ? $row['level'] : '0',
-                        'DESCRIPTION' => htmlspecialchars(@$row['comment']), // @TODO: remove arobase
-                        'DATE_CREATION' => $row['date_creation'],
+                        'U_EDIT' => $this->generateUrl('admin_photo', ['image_id' => $image->getId()]),
+                        'NAME' => $image->getName(),
+                        'AUTHOR' => $image->getAuthor(),
+                        'LEVEL' => $image->getLevel(),
+                        'DESCRIPTION' => $image->getComment(),
+                        'DATE_CREATION' => $image->getDateCreation(),
                         'TAGS' => $tag_selection,
                     ]
                 );
@@ -1095,7 +1068,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_batch_manager_unit');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Site manager', [], 'admin');
-        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['tags', 'categories'], $em, $this->getDoctrine(), $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['tags', 'categories'], $em, $this->getDoctrine(), $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);

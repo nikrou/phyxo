@@ -11,6 +11,7 @@
 
 namespace App\Repository;
 
+use App\Entity\User;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 
@@ -101,5 +102,16 @@ class FavoriteRepository extends BaseRepository
         if (count($to_deletes) > 0) {
             (new FavoriteRepository($this->conn))->deleteImagesFromFavorite($to_deletes, $user->getId());
         }
+    }
+
+    public function getFavorites(User $user, array $filter = [], string $order_by)
+    {
+        $query = 'SELECT image_id FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::FAVORITES_TABLE . ' ON image_id = id';
+        $query .= ' WHERE user_id = ' . $user->getId();
+        $query .= ' ' . $this->getSQLConditionFandF($user, $filter, ['visible_images' => 'id'], 'AND');
+        $query .= ' ' . $order_by;
+
+        return $this->conn->db_query($query);
     }
 }

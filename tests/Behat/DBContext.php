@@ -16,6 +16,7 @@ use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
 use App\Entity\Group;
+use App\Entity\Image;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -259,26 +260,34 @@ class DBContext implements Context
             throw new \Exception('Album with name ' . $album_name . ' does not exist');
         }
 
+        $image = new Image();
+        $image->setName($image_infos['name']);
+        $image->setAddedBy(0);
         if (empty($image_infos['file'])) {
-            $image_infos['file'] = sprintf('%s/features/media/sample.jpg', $this->getContainer()->getParameter('root_project_dir'));
+            $image->setFile(sprintf('%s/features/media/sample.jpg', $this->getContainer()->getParameter('root_project_dir')));
+        } else {
+            $image->setFile($image_infos['file']);
         }
-        list($image_infos['width'], $image_infos['height']) = getimagesize($image_infos['file']);
-        $image_infos['md5sum'] = md5($image_infos['file']);
+        $image_dimensions = getimagesize($image->getFile());
+        $image->setWidth($image_dimensions[0]);
+        $image->setHeight($image_dimensions[1]);
+
+        $image->setMd5sum(md5_file($image->getFile()));
         $now = new \DateTime('now');
         $upload_dir = sprintf('%s/%s', $this->getContainer()->getParameter('upload_dir'), $now->format('Y/m/d'));
-        $image_infos['path'] = sprintf('%s/%s-%s.jpg', $upload_dir, $now->format('YmdHis'), substr($image_infos['md5sum'], 0, 8));
-        $image_infos['date_available'] = $now->format('Y-m-d H:i:s');
+
+        $image_path = sprintf('%s/%s-%s.jpg', $upload_dir, $now->format('YmdHis'), substr($image->getMd5sum(), 0, 8));
+        $image->setDateAvailable($now);
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0777, true);
         }
-        copy($image_infos['file'], $image_infos['path']);
+        copy($image->getFile(), $image_path);
 
-        $image_infos['file'] = basename($image_infos['file']);
-        $image_infos['path'] = substr($image_infos['path'], strlen($this->getContainer()->getParameter('root_project_dir')) + 1);
+        $image->setFile(basename($image->getFile()));
+        $image->setPath(substr($image_path, strlen($this->getContainer()->getParameter('root_project_dir')) + 1));
 
-        $image_id = $this->getContainer()->get(ImageMapper::class)->addImage($image_infos);
+        $image_id = $this->getContainer()->get(ImageMapper::class)->getRepository()->addOrUpdateImage($image);
 
-        $image = $this->getContainer()->get(ImageMapper::class)->getRepository()->find($image_id);
         $this->storage->set('image_' . $image_infos['name'], $image);
 
         $this->getContainer()->get(AlbumMapper::class)->associateImagesToAlbums([$image_id], [$album->getId()]);
