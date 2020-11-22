@@ -334,6 +334,19 @@ class FeatureContext extends BaseContext
     }
 
     /**
+     * @Given I follow album :album_name Edit
+     */
+    public function iFollowAlbumEdit(string $album_name)
+    {
+        $album = $this->storage->get('album_' . $album_name);
+        $divAlbum = $this->getPage()->find('css', sprintf('#album-%d', $album->getId()));
+        if (is_null($divAlbum)) {
+            throw new \Exception(sprintf('Cannot find an album "%s" on the page', $album_name));
+        }
+        $divAlbum->clickLink('Edit');
+    }
+
+    /**
      * @Then I restart my browser
      */
     public function iRestartMyBrowser()

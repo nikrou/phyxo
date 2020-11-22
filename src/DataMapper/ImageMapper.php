@@ -31,11 +31,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ImageMapper
 {
     private $em, $router, $conf, $userMapper, $image_std_params, $albumMapper, $imageRepository;
-    private $translator, $imageAlbumRepository, $commentRepository, $caddieRepository;
+    private $translator, $imageAlbumRepository, $commentRepository, $caddieRepository, $favoriteRepository;
 
     public function __construct(EntityManager $em, RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, AlbumMapper $albumMapper,
                                 TranslatorInterface $translator, ImageRepository $imageRepository, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository,
-                                CaddieRepository $caddieRepository)
+                                CaddieRepository $caddieRepository, FavoriteRepository $favoriteRepository)
     {
         $this->em = $em;
         $this->router = $router;
@@ -48,6 +48,7 @@ class ImageMapper
         $this->imageAlbumRepository = $imageAlbumRepository;
         $this->commentRepository = $commentRepository;
         $this->caddieRepository = $caddieRepository;
+        $this->favoriteRepository = $favoriteRepository;
     }
 
     public function getRepository(): ImageRepository
@@ -245,7 +246,7 @@ class ImageMapper
         $this->em->getRepository(ImageTagRepository::class)->deleteBy('image_id', $ids);
 
         // destruction of the favorites associated with the picture
-        $this->em->getRepository(FavoriteRepository::class)->deleteImagesFromFavorite($ids);
+        $this->favoriteRepository->deleteImagesFromFavorite($ids);
 
         // destruction of the rates associated to this element
         $this->em->getRepository(RateRepository::class)->deleteByElementIds($ids);
@@ -282,7 +283,7 @@ class ImageMapper
 
         $new_ids = [];
         foreach ($this->imageRepository->findBy(['id' => $ids]) as $image) {
-            if (URL::url_is_remote($image->getPat())) {
+            if (URL::url_is_remote($image->getPath())) {
                 continue;
             }
 

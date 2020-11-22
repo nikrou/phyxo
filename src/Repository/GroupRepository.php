@@ -45,7 +45,7 @@ class GroupRepository extends ServiceEntityRepository
         $qb->where('g.name = :name');
         $qb->setParameter('name', $name);
 
-        return $qb->getQuery()->getSingleScalarResult() === 1;
+        return (int) $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
     public function findUsersInGroups()

@@ -42,7 +42,8 @@ class PictureController extends CommonController
     public function picture(Request $request, int $image_id, string $type, string $element_id, Conf $conf, AlbumMapper $albumMapper,
                             MenuBar $menuBar, EntityManager $em, ImageStandardParams $image_std_params, TagMapper $tagMapper,
                             UserMapper $userMapper, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager,
-                            ImageMapper $imageMapper, Metadata $metadata, TranslatorInterface $translator, ImageAlbumRepository $imageAlbumRepository)
+                            ImageMapper $imageMapper, Metadata $metadata, TranslatorInterface $translator,
+                            FavoriteRepository $favoriteRepository, ImageAlbumRepository $imageAlbumRepository)
     {
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $this->translator = $translator;
@@ -210,7 +211,7 @@ class PictureController extends CommonController
 
         if (!$this->getUser()->isGuest() && $conf['picture_favorite_icon']) {
             // verify if the picture is already in the favorite of the user
-            $is_favorite = $em->getRepository(FavoriteRepository::class)->iSFavorite($this->getUser()->getId(), $image_id);
+            $is_favorite = $favoriteRepository->isFavorite($this->getUser()->getId(), $image_id);
             $tpl_params['favorite'] = [
                 'IS_FAVORITE' => $is_favorite,
                 'U_FAVORITE' => $this->generateUrl(!$is_favorite ? 'add_to_favorites' : 'remove_from_favorites', ['image_id' => $image_id])

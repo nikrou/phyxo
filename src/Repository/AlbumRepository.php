@@ -589,7 +589,7 @@ class AlbumRepository extends ServiceEntityRepository
             $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
         }
 
-        return $qb->getQuery()->getSingleScalarResult() === 1;
+        return (int) $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
     public function getMaxLastModified()

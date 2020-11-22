@@ -66,7 +66,7 @@ class UserRepository extends ServiceEntityRepository
         $qb->setParameter('mail_address', $mail_address);
         $qb->setParameter('id', $user_id);
 
-        return $qb->getQuery()->getSingleScalarResult() === 1;
+        return (int) $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
     public function isUsernameExistsExceptUser(string $username, int $user_id) : bool
@@ -78,7 +78,7 @@ class UserRepository extends ServiceEntityRepository
         $qb->setParameter('username', $username);
         $qb->setParameter('id', $user_id);
 
-        return $qb->getQuery()->getSingleScalarResult() === 1;
+        return (int) $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
     public function isUserExists(string $value, string $field = 'username') : bool
@@ -88,7 +88,7 @@ class UserRepository extends ServiceEntityRepository
         $qb->where('u.' . $field . ' = :value');
         $qb->setParameter('value', $value);
 
-        return $qb->getQuery()->getSingleScalarResult() === 1;
+        return (int) $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
     public function findUserByUsernameOrEmail(string $value): ?User

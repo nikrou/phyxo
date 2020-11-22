@@ -45,7 +45,7 @@ class CommentRepository extends ServiceEntityRepository
             $qb->setParameter('anonymous_id', $anonymous_id . '%');
         }
 
-        return $qb->getQuery()->getSingleScalarResult() === 1;
+        return (int) $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
     public function deleteByIds(array $comment_ids, ?int $user_id = null)

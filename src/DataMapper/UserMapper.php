@@ -32,13 +32,13 @@ class UserMapper
 {
     private $em, $conf, $autorizationChecker, $tagMapper, $themeRepository, $userRepository, $userInfosRepository, $userMailNotificationRepository;
     private $defaultLanguage, $defaultTheme, $themesDir, $userProvider, $default_user, $default_user_retrieved = false, $commentRepository;
-    private $webmaster, $webmaster_retrieved = false, $userFeedRepository, $userCacheRepository, $userCacheAlbumRepository, $caddieRepository;
+    private $webmaster, $webmaster_retrieved = false, $userFeedRepository, $userCacheRepository, $userCacheAlbumRepository, $caddieRepository, $favoriteRepository;
 
     public function __construct(EntityManager $em, Conf $conf, AuthorizationCheckerInterface $autorizationChecker, ThemeRepository $themeRepository,
                                 UserRepository $userRepository, UserInfosRepository $userInfosRepository, string $defaultTheme, CommentRepository $commentRepository,
                                 TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider, UserMailNotificationRepository $userMailNotificationRepository,
                                 UserFeedRepository $userFeedRepository, UserCacheRepository $userCacheRepository, UserCacheAlbumRepository $userCacheAlbumRepository,
-                                CaddieRepository $caddieRepository)
+                                CaddieRepository $caddieRepository, FavoriteRepository $favoriteRepository)
     {
         $this->em = $em;
         $this->themeRepository = $themeRepository;
@@ -57,6 +57,7 @@ class UserMapper
         $this->userCacheAlbumRepository = $userCacheAlbumRepository;
         $this->commentRepository = $commentRepository;
         $this->caddieRepository = $caddieRepository;
+        $this->favoriteRepository = $favoriteRepository;
     }
 
     public function getRepository(): UserRepository
@@ -232,7 +233,7 @@ class UserMapper
         $this->userCacheRepository->deleteForUser($user_id);
 
         // destruction of the favorites associated with the user
-        $this->em->getRepository(FavoriteRepository::class)->removeAllFavorites($user_id);
+        $this->favoriteRepository->deleteAllUserFavorites($user_id);
 
         // destruction of the caddie associated with the user
         $this->caddieRepository->emptyCaddies($user_id);

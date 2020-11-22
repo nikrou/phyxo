@@ -106,7 +106,7 @@ class ImageAlbumRepository extends ServiceEntityRepository
         $qb->andWhere('ia.album = :album_id');
         $qb->setParameter('album_id', $album_id);
 
-        return $qb->getQuery()->getSingleScalarResult() === 1;
+        return (int) $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
     public function maxRankForAlbum(int $album_id) : int

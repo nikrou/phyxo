@@ -12,19 +12,20 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Phyxo\EntityManager;
 use Phyxo\MenuBar;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use App\Repository\FavoriteRepository;
 use App\DataMapper\ImageMapper;
+use App\Entity\Favorite;
+use App\Repository\ImageRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FavoriteController extends CommonController
 {
-    public function index(Request $request, int $start = 0, EntityManager $em, MenuBar $menuBar, Conf $conf,
-                            ImageMapper $imageMapper, TranslatorInterface $translator)
+    public function index(Request $request, int $start = 0, MenuBar $menuBar, Conf $conf,
+                          FavoriteRepository $favoriteRepository, ImageMapper $imageMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -36,10 +37,10 @@ class FavoriteController extends CommonController
 
         $tpl_params['TITLE'] = $translator->trans('Your favorites');
 
-        // @TODO: retrieve current sort order: user, category or default
-        $filter = [];
-        $result = $em->getRepository(FavoriteRepository::class)->getFavorites($this->getUser(), $filter, $conf['order_by']);
-        $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'image_id');
+        $tpl_params['items'] = [];
+        foreach ($favoriteRepository->findUserFavorites($this->getUser()->getId(), $this->getUser()->getForbiddenCategories()) as $favorite) {
+            $tpl_params['items'][] = $favorite->getImage()->getId();
+        }
 
         if (count($tpl_params['items']) > 0) {
             $tpl_params['favorite'] = ['U_FAVORITE' => $this->generateUrl('remove_all_favorites')];
@@ -76,9 +77,13 @@ class FavoriteController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function add(int $image_id, EntityManager $em, Request $request, TranslatorInterface $translator)
+    public function add(int $image_id, ImageRepository $imageRepository, FavoriteRepository $favoriteRepository, Request $request, TranslatorInterface $translator)
     {
-        $em->getRepository(FavoriteRepository::class)->addFavorite($this->getUser()->getId(), $image_id);
+        $image = $imageRepository->find($image_id);
+        $favorite = new Favorite();
+        $favorite->setImage($image);
+        $favorite->setUser($this->getUser());
+        $favoriteRepository->addOrUpdateFavorite($favorite);
 
         if ($request->isXmlHttpRequest()) {
             return new JsonResponse(
@@ -93,9 +98,9 @@ class FavoriteController extends CommonController
         return $this->redirectToRoute('favorites');
     }
 
-    public function remove(int $image_id, EntityManager $em, Request $request, TranslatorInterface $translator)
+    public function remove(int $image_id, FavoriteRepository $favoriteRepository, Request $request, TranslatorInterface $translator)
     {
-        $em->getRepository(FavoriteRepository::class)->deleteFavorite($this->getUser()->getId(), $image_id);
+        $favoriteRepository->deleteUserFavorite($this->getUser()->getId(), $image_id);
 
         if ($request->isXmlHttpRequest()) {
             return new JsonResponse(
@@ -110,9 +115,9 @@ class FavoriteController extends CommonController
         return $this->redirectToRoute('favorites');
     }
 
-    public function removeAll(EntityManager $em)
+    public function removeAll(FavoriteRepository $favoriteRepository)
     {
-        $em->getRepository(FavoriteRepository::class)->removeAllFavorites($this->getUser()->getId());
+        $favoriteRepository->deleteAllUserFavorites($this->getUser()->getId());
 
         return $this->redirectToRoute('favorites');
     }

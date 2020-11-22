@@ -35,7 +35,7 @@ class SiteRepository extends ServiceEntityRepository
         $qb->where('galleries_url', ':url');
         $qb->setParameter('url', $url);
 
-        return $qb->getQuery()->getSingleScalarResult() === 1;
+        return (int) $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
     public function deleteById(int $id)

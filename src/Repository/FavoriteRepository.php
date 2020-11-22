@@ -11,107 +11,78 @@
 
 namespace App\Repository;
 
-use App\Entity\User;
-use Symfony\Component\Security\Core\User\UserInterface;
+use App\Entity\Favorite;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 
-
-class FavoriteRepository extends BaseRepository
+class FavoriteRepository extends ServiceEntityRepository
 {
-    public function findAll(int $user_id)
+    public function __construct(ManagerRegistry $registry)
     {
-        $query = 'SELECT image_id FROM ' . self::FAVORITES_TABLE;
-        $query .= ' WHERE user_id = ' . $user_id;
-
-        return $this->conn->db_query($query);
+        parent::__construct($registry, Favorite::class);
     }
 
-    public function addFavorite(int $user_id, int $image_id)
+    public function addOrUpdateFavorite(Favorite $favorite)
     {
-        $this->conn->single_insert(
-            self::FAVORITES_TABLE,
-            [
-                'user_id' => $user_id,
-                'image_id' => $image_id
-            ],
-            $auto_increment_for_table = false
-        );
+        $this->_em->persist($favorite);
+        $this->_em->flush();
     }
 
-    public function deleteFavorite(int $user_id, int $image_id)
+    public function findUserFavorites(int $user_id, array $forbidden_categories = [])
     {
-        $query = 'DELETE FROM ' . self::FAVORITES_TABLE;
-        $query .= ' WHERE user_id = ' . $user_id;
-        $query .= ' AND image_id = ' . $image_id;
-        $this->conn->db_query($query);
-    }
+        $qb = $this->createQueryBuilder('f');
+        $qb->where('f.user = :user_id');
+        $qb->setParameter('user_id', $user_id);
 
-    public function deleteImagesFromFavorite(array $ids, ? int $user_id = null)
-    {
-        $query = 'DELETE FROM ' . self::FAVORITES_TABLE;
-        $query .= ' WHERE image_id ' . $this->conn->in($ids);
-
-        if (!is_null($user_id)) {
-            $query .= ' AND user_id = ' . $user_id;
+        if (count($forbidden_categories) > 0) {
+            $qb->leftJoin('f.image', 'i');
+            $qb->leftJoin('i.imageAlbums', 'ia');
+            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
         }
-        $this->conn->db_query($query);
-    }
 
-    public function removeAllFavorites(int $user_id)
-    {
-        $query = 'DELETE FROM ' . self::FAVORITES_TABLE;
-        $query .= ' WHERE user_id = ' . $user_id;
-        $this->conn->db_query($query);
+        return $qb->getQuery()->getResult();
     }
 
     public function isFavorite(int $user_id, int $image_id) : bool
     {
-        $query = 'SELECT COUNT(1) AS nb_fav FROM ' . self::FAVORITES_TABLE;
-        $query .= ' WHERE image_id = ' . $image_id;
-        $query .= ' AND user_id = ' . $user_id;
-        $result = $this->conn->db_query($query);
-        $row = $this->conn->db_fetch_assoc($result);
+        $qb = $this->createQueryBuilder('f');
+        $qb->select('COUNT(1)');
+        $qb->where('f.user = :user_id');
+        $qb->setParameter('user_id', $user_id);
+        $qb->andWhere('f.image = :image_id');
+        $qb->setParameter('image_id', $image_id);
 
-        return ($row['nb_fav'] != 0);
+        return (int) $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
-    public function findAuthorizedImagesInFavorite(UserInterface $user, array $filter = [])
+    public function deleteUserFavorite(int $user_id, int $image_id)
     {
-        $query = 'SELECT DISTINCT f.image_id FROM ' . self::FAVORITES_TABLE . ' AS f';
-        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON f.image_id = ic.image_id';
-        $query .= ' WHERE f.user_id = ' . $user->getId();
-        $query .= ' ' . $this->getSQLConditionFandF($user, $filter, ['forbidden_categories' => 'ic.category_id'], ' AND ');
+        $qb = $this->createQueryBuilder('f');
+        $qb->delete();
+        $qb->where('f.user = :user_id');
+        $qb->setParameter('user_id', $user_id);
+        $qb->andWhere('f.image = :image_id');
+        $qb->setParameter('image_id', $image_id);
 
-        return $this->conn->db_query($query);
+        $qb->getQuery()->getResult();
     }
 
-    /**
-     * Deletes favorites of the current user if he's not allowed to see them.
-     */
-    public function deleteUnauthorizedImagesFromFavorites(UserInterface $user, array $filter = [])
+    public function deleteAllUserFavorites(int $user_id)
     {
-        // $filter['visible_categories'] and $filter['visible_images']
-        // must be not used because filter <> restriction
-        // retrieving images allowed : belonging to at least one authorized category
-        $result = $this->findAuthorizedImagesInFavorite($user, $filter);
-        $authorizeds = $this->conn->result2array($result, null, 'image_id');
+        $qb = $this->createQueryBuilder('f');
+        $qb->delete();
+        $qb->where('f.user = :user_id');
+        $qb->setParameter('user_id', $user_id);
 
-        $result = $this->findAll($user->getId());
-        $favorites = $this->conn->result2array($result, null, 'image_id');
-
-        $to_deletes = array_diff($favorites, $authorizeds);
-        if (count($to_deletes) > 0) {
-            (new FavoriteRepository($this->conn))->deleteImagesFromFavorite($to_deletes, $user->getId());
-        }
+        $qb->getQuery()->getResult();
     }
 
-    public function getFavorites(User $user, array $filter = [], string $order_by)
+    public function deleteImagesFromFavorite(array $image_ids)
     {
-        $query = 'SELECT image_id FROM ' . self::IMAGES_TABLE;
-        $query .= ' LEFT JOIN ' . self::FAVORITES_TABLE . ' ON image_id = id';
-        $query .= ' WHERE user_id = ' . $user->getId();
-        $query .= ' ' . $this->getSQLConditionFandF($user, $filter, ['visible_images' => 'id'], 'AND');
-        $query .= ' ' . $order_by;
+        $qb = $this->createQueryBuilder('f');
+        $qb->delete();
+        $qb->where($qb->expr()->in('f.image', $image_ids));
 
-        return $this->conn->db_query($query);
+        $qb->getQuery()->getResult();
     }
 }

@@ -67,7 +67,8 @@ class BatchManagerController extends AdminCommonController
 
     public function global(Request $request, string $filter = null, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, AlbumMapper $albumMapper,
                           ImageStandardParams $image_std_params, SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper, CaddieRepository $caddieRepository,
-                          UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator, AlbumRepository $albumRepository, ImageAlbumRepository $imageAlbumRepository)
+                          UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator, AlbumRepository $albumRepository,
+                          ImageAlbumRepository $imageAlbumRepository, FavoriteRepository $favoriteRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -204,7 +205,7 @@ class BatchManagerController extends AdminCommonController
         }
 
         $this->filterFromSession();
-        $filter_sets = $this->getFilterSetsFromFilter($em, $conf, $searchMapper, $imageMapper, $albumRepository);
+        $filter_sets = $this->getFilterSetsFromFilter($em, $conf, $searchMapper, $imageMapper, $albumRepository, $favoriteRepository);
 
         $current_set = array_shift($filter_sets);
         if (empty($current_set)) {
@@ -569,7 +570,8 @@ class BatchManagerController extends AdminCommonController
         }
     }
 
-    protected function getFilterSetsFromFilter(EntityManager $em, Conf $conf, SearchMapper $searchMapper, ImageMapper $imageMapper, AlbumRepository $albumRepository)
+    protected function getFilterSetsFromFilter(EntityManager $em, Conf $conf, SearchMapper $searchMapper, ImageMapper $imageMapper, AlbumRepository $albumRepository,
+                                                FavoriteRepository $favoriteRepository)
     {
         $filter_sets = [];
 
@@ -586,8 +588,11 @@ class BatchManagerController extends AdminCommonController
                     break;
 
                 case 'favorites':
-                    $result = $em->getRepository(FavoriteRepository::class)->findAll($this->getUser()->getId());
-                    $filter_sets[] = $em->getConnection()->result2array($result, null, 'image_id');
+                    $user_favorites = [];
+                    foreach ($favoriteRepository->findUserFavorites($this->getUser()->getId(), $this->getUser()->getForbiddenCategories()) as $favorite) {
+                        $user_favorites[] = $favorite->getImage()->geId();
+                    }
+                    $filter_sets[] = $user_favorites;
                     break;
 
                 case 'last_import':
@@ -905,7 +910,7 @@ class BatchManagerController extends AdminCommonController
 
     public function unit(Request $request, string $filter = null, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, SearchMapper $searchMapper, TagMapper $tagMapper,
                         ImageStandardParams $image_std_params, AlbumMapper $albumMapper, UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator,
-                        ImageMapper $imageMapper, AlbumRepository $albumRepository, ImageAlbumRepository $imageAlbumRepository)
+                        ImageMapper $imageMapper, AlbumRepository $albumRepository, ImageAlbumRepository $imageAlbumRepository, FavoriteRepository $favoriteRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -944,7 +949,7 @@ class BatchManagerController extends AdminCommonController
         }
 
         $this->filterFromSession();
-        $filter_sets = $this->getFilterSetsFromFilter($em, $conf, $searchMapper, $imageMapper, $albumRepository);
+        $filter_sets = $this->getFilterSetsFromFilter($em, $conf, $searchMapper, $imageMapper, $albumRepository, $favoriteRepository);
 
         $current_set = array_shift($filter_sets);
         if (empty($current_set)) {
