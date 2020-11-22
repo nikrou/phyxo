@@ -227,7 +227,7 @@ class UserMapper
     public function deleteUser(int $user_id)
     {
         // destruction of the access linked to the user
-        //(new UserAccessRepository($conn))->deleteByUserId($user_id);
+
         // deletion of calculated permissions linked to the user
         $this->userCacheAlbumRepository->deleteForUser($user_id);
         $this->userCacheRepository->deleteForUser($user_id);
