@@ -201,7 +201,7 @@ class ImageAlbumRepository extends ServiceEntityRepository
         $qb->orderBy('ia.image', 'DESC');
         $qb->setMaxResults(1);
 
-        return $qb->getQuery()->getResult();
+        return $qb->getQuery()->getOneOrNullResult();
     }
 
     public function getRelatedAlbum(int $image_id, array $forbidden_categories = [])

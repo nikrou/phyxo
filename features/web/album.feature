@@ -59,3 +59,21 @@ Feature: Album
     And I should see photo "photo 2.1"
     And I should see photo "photo 2.2"
 
+  Scenario: See only images in selected album
+    Given I am logged in as "user1" with password "pass1"
+    And I should see link "album 1"
+    And I follow "album 1"
+    And I should see photo "photo 1.1"
+    But I should not see photo "photo 2.1"
+    And I should not see photo "photo 2.2"
+    But I should not see photo "photo 2.1.1"
+    And I should not see photo "photo 3.1"
+
+  Scenario: See only images in selected album and not images from sub-albums
+    Given I am logged in as "user1" with password "pass1"
+    And I should see link "album 2"
+    And I follow "album 2"
+    And I should see photo "photo 2.1"
+    And I should see photo "photo 2.2"
+    But I should not see photo "photo 2.1.1"
+    But I should not see photo "photo 2.1.2"

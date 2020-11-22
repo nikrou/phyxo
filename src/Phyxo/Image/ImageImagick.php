@@ -17,6 +17,7 @@ class ImageImagick implements ImageInterface
 {
     private $image;
 
+    /** @phpstan-ignore-next-line @param $not_used */
     public function __construct($source_filepath, $not_used = '')
     {
         // A bug cause that Imagick class can not be extended

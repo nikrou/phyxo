@@ -461,6 +461,7 @@ class Image
 
         // does the image already exists ?
         if ($params['check_uniqueness']) {
+            $image = null;
             if ('md5sum' === $service->getConf()['uniqueness_mode']) {
                 $image = $service->getImageMapper()->getRepository()->findBy(['md5sum' => $params['original_sum']]);
             } elseif ('filename' === $service->getConf()['uniqueness_mode']) {
@@ -855,12 +856,11 @@ class Image
             return new Error(405, "This method requires HTTP POST");
         }
 
-        $image = new EntityImage($params['image_id']);
+        $image = $service->getImageMapper()->find($params['image_id']);
         if (!$service->getSecurity()->isGranted(TagVoter::ADD, $image) || !$service->getSecurity()->isGranted(TagVoter::DELETE, $image)) {
             return new Error(403, 'You are not allowed to add nor delete tags');
         }
 
-        $message = '';
         if (empty($params['tags'])) {
             $params['tags'] = [];
         }
@@ -1109,9 +1109,7 @@ class Image
 
             $album_ids[] = $album_id;
 
-            if (!isset($rank)) {
-                $rank = 'auto';
-            }
+            $rank = 'auto';
             $rank_on_album[$album_id] = $rank;
 
             if ($rank === 'auto') {
@@ -1273,7 +1271,7 @@ class Image
             $filename_dir = sprintf('%s/%s/%s/%s', $upload_dir, $year, $month, $day);
 
             // compute file path
-            $date_string = preg_replace('/[^\d]/', '', $now);
+            $date_string = $now->format('YmdHis');
             $random_string = substr($md5sum, 0, 8);
             $filename_wo_ext = $date_string . '-' . $random_string;
             $file_path = $filename_dir . '/' . $filename_wo_ext . '.';
@@ -1427,7 +1425,7 @@ class Image
 
         if (isset($image_id)) {
             $image = $service->getImageMapper()->getRepository()->find($image_id);
-            $image->setFile($service->getConnection()->db_real_escape_string(isset($original_filename) ? $original_filename : basename($file_path)));
+            $image->setFile(!empty($original_filename) ? $original_filename : basename($file_path));
             $image->setFilesize($file_infos['filesize']);
             $image->setWidth($file_infos['width']);
             $image->setHeight($file_infos['height']);
@@ -1441,7 +1439,7 @@ class Image
             $service->getImageMapper()->getRepository()->addOrUpdateImage($image);
         } else {
             $image = new EntityImage();
-            $image->setFile($service->getConnection()->db_real_escape_string(isset($original_filename) ? $original_filename : basename($file_path)));
+            $image->setFile(!empty($original_filename) ? $original_filename : basename($file_path));
             $image->setName(Utils::get_name_from_file($image->getFile()));
             $image->setDateAvailable($now);
             $image->setPath(preg_replace('#^' . preg_quote(dirname($upload_dir)) . '#', '.', realpath($file_path)));

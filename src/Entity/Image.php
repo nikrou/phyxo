@@ -521,4 +521,55 @@ class Image
             'date_available' => $this->getDateAvailable(),
         ];
     }
+
+    public function fromArray(array $values = [])
+    {
+        if (isset($values['path'])) {
+            $this->setPath($values['path']);
+        }
+
+        if (isset($values['representative_ext'])) {
+            $this->setRepresentativeExt($values['representative_ext']);
+        }
+
+        if (isset($values['width'])) {
+            $this->setWidth($values['width']);
+        }
+
+        if (isset($values['height'])) {
+            $this->setHeight($values['height']);
+        }
+
+        if (isset($values['rotation'])) {
+            $this->setRotation($values['rotation']);
+        }
+
+        if (isset($values['hit'])) {
+            $this->setHit($values['hit']);
+        }
+
+        if (isset($values['file'])) {
+            $this->setFile($values['file']);
+        }
+
+        if (isset($values['name'])) {
+            $this->setName($values['name']);
+        }
+
+        if (isset($values['comment'])) {
+            $this->setComment($values['comment']);
+        }
+
+        if (isset($values['rating_score'])) {
+            $this->setRatingScore($values['rating_score']);
+        }
+
+        if (isset($values['date_creation'])) {
+            $this->setDateCreation($values['date_creation']);
+        }
+
+        if (isset($values['date_available'])) {
+            $this->setDateAvailable($values['date_available']);
+        }
+    }
 }

@@ -225,7 +225,7 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findByParentId(int $parent_id, int $user_id)
+    public function findByParentId(?int $parent_id = null, int $user_id)
     {
         $qb = $this->createQueryBuilder('a');
         $qb->leftJoin('a.userCacheAlbums', 'ia', Expr\Join::WITH, 'ia.user = :user');

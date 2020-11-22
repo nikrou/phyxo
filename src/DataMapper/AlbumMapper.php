@@ -280,7 +280,7 @@ class AlbumMapper
         if ($single_link) {
             $single_url = $this->router->generate('album', ['category_id' => array_pop(explode(',', $uppercats)) ]);
             $output .= '<a href="' . $single_url . '"';
-            if (isset($link_class)) {
+            if (!empty($link_class)) {
                 $output .= ' class="' . $link_class . '"';
             }
             $output .= '>';
@@ -297,7 +297,7 @@ class AlbumMapper
                 $output .= ' / ';
             }
 
-            if (!isset($url) || $single_link) {
+            if ($url === '' || $single_link) {
                 $output .= $album->getName();
             } else {
                 $output .= '<a href="' . $this->router->generate('album', ['category_id' => $album->getId()]) . '">' . $album->getName() . '</a>';
@@ -597,7 +597,7 @@ class AlbumMapper
      *    - string comment
      *    - boolean inherit
      */
-    public function createAlbum(string $name, Album $parent = null, int $user_id, array $admin_ids = [], array $options = []): Album
+    public function createAlbum(string $name, ? Album $parent = null, int $user_id, array $admin_ids = [], array $options = []): Album
     {
         $album = new Album();
         $album->setName($name);

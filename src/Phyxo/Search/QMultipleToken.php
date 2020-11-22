@@ -9,24 +9,6 @@
  * file that was distributed with this source code.
  */
 
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
-
 namespace Phyxo\Search;
 
 use Phyxo\Search\QSearchScope;
@@ -254,6 +236,7 @@ class QMultipleToken
     // because evaluations occur left to right, we ensure that 'a OR b c d' is interpreted as 'a OR (b c d)'
     protected function check_operator_priority()
     {
+        $crt_prio = 0;
         for ($i = 0; $i < count($this->tokens); $i++) {
             if (!$this->tokens[$i]->is_single) {
                 $this->tokens[$i]->check_operator_priority();

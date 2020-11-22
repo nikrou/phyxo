@@ -15,6 +15,15 @@ use Behat\Behat\Context\Context;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Mink\Exception\ExpectationException;
 
+/**
+ * @method getPage()
+ * @method findLink(string $locator)
+ * @method visit(string $url)
+ * @method fillField(string $locator, string $value)
+ * @method findField(string $locator)
+ * @method checkField(string $locator)
+ * @method pressButton(string $locator)
+ */
 abstract class BaseContext extends RawMinkContext implements Context
 {
     public function __call($method, $parameters)

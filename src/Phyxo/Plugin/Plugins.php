@@ -80,10 +80,7 @@ class Plugins extends Extensions
             $crt_db_plugin = $this->db_plugins[$plugin_id];
         }
 
-        if ($action !== 'update') { // wait for files to be updated
-            $plugin_maintain = $this->buildMaintainClass($plugin_id);
-        }
-
+        $plugin_maintain = $this->buildMaintainClass($plugin_id);
         $error = '';
 
         switch ($action) {

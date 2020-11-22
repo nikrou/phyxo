@@ -231,7 +231,7 @@ class PictureController extends CommonController
             }
         }
 
-        $image = new Image($image_id);
+        $image = $imageMapper->getRepository()->find($image_id);
 
         $tpl_params['TAGS_PERMISSION_ADD'] = (int) $this->isGranted(TagVoter::ADD, $image);
         $tpl_params['TAGS_PERMISSION_DELETE'] = (int) $this->isGranted(TagVoter::DELETE, $image);

@@ -144,7 +144,7 @@ class PhotoController extends AdminCommonController
                 'Posted {since} on {date}',
                 [
                     'since' => $image->getDateAvailable()->format('Y'),
-                    'date' => $image->getDateAvailable->format('c')
+                    'date' => $image->getDateAvailable()->format('c')
                 ],
                 'admin'
             ),
@@ -154,7 +154,7 @@ class PhotoController extends AdminCommonController
             'id' => $translator->trans('Numeric identifier : {id}', ['id' => $image_id], 'admin'),
         ];
 
-        if ($conf['rate'] && $image->getRatinScore()) {
+        if ($conf['rate'] && $image->getRatingScore()) {
             $nb_rates = $em->getRepository(RateRepository::class)->count($image_id);
             $intro_vars['stats'] .= ', ' . $translator->trans('Rated {count} times, score : {score}', ['count' => $nb_rates, 'score' => sprintf('%.2f', $image->getRatinScore())], 'admin');
         }
@@ -175,12 +175,9 @@ class PhotoController extends AdminCommonController
         $associated_albums = [];
         foreach ($albumMapper->getRepository()->findAlbumsForImage($image_id) as $album) {
             $associated_albums[] = $album->getId();
-        }
+            $name = $albumMapper->getAlbumsDisplayNameCache($album->getUppercats());
 
-        foreach ($associated_albums as $album) {
-            $name = $albumMapper->getAlbumsDisplayNameCache($album['uppercats']);
-
-            if ($album['category_id'] === $storage_category_id) {
+            if ($album->getId() === $storage_category_id) {
                 $tpl_params['STORAGE_CATEGORY'] = $name;
             } else {
                 $tpl_params['related_categories'] = $name;

@@ -515,9 +515,14 @@ class TagMapper
 
             $image->setDateMetadataUpdate($now);
             $update_fields = $this->metadata->getSyncMetadataAttributes();
-            $image->setWidth($update_fields['width']);
-            $image->setHeight($update_fields['height']);
-            $image->setFilesize($update_fields['filesize']);
+            $image->fromArray(
+                array_filter(
+                    $metadata,
+                    function($m) use ($update_fields) {
+                        return in_array($m, $update_fields);
+                    }, ARRAY_FILTER_USE_KEY
+                )
+            );
 
             $this->imageRepository->addOrUpdateImage($image);
         }

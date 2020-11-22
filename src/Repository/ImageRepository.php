@@ -71,10 +71,10 @@ class ImageRepository extends ServiceEntityRepository
     public function findWithNoStorageOrStorageForAlbums(array $album_ids = [])
     {
         $qb = $this->createQueryBuilder('i');
-        $qb->where($qb->expr()->isNull('i.storage_category'));
+        $qb->where($qb->expr()->isNull('i.storage_category_id'));
 
         if (count($album_ids) > 0) {
-            $qb->orWhere($qb->expr()->notIn('i.storage_category', $album_ids));
+            $qb->orWhere($qb->expr()->notIn('i.storage_category_id', $album_ids));
         }
 
         return $qb->getQuery()->getResult();

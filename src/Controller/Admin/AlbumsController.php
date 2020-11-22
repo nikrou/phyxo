@@ -169,13 +169,13 @@ class AlbumsController extends AdminCommonController
                 list($order_by_field, $order_by_asc) = explode(' ', $request->request->get('order_by'));
 
                 $order_by_date = false;
+                $ref_dates = [];
                 if (strpos($order_by_field, 'date_') === 0) {
                     $order_by_date = true;
 
                     $ref_dates = $albumMapper->getAlbumsRefDate($category_ids, $order_by_field, 'ASC' == $order_by_asc ? 'min' : 'max');
                 }
 
-                $albums = [];
                 foreach ($albumRepository->findById($category_ids) as $album) {
                     if ($order_by_date) {
                         $sort[] = $ref_dates[$album->getId()];

@@ -39,6 +39,7 @@ class MediaController
         } else {
             $derivative_path = sprintf('%s/%s-%s.%s', '.', $path, $derivative, $image_extension);
         }
+        $this->page['derivative_path'] = $derivative_path;
         $image_src = sprintf('%s/%s', $rootProjectDir, $image_path);
         $derivative_src = sprintf('%s/%s', $mediaCacheDir, $derivative_path);
 

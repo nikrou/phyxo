@@ -249,7 +249,7 @@ class Category
 
         $parent = null;
         if ((int) $params['parent'] !== 0) {
-            $parent = (int) $params['parent'];
+            $parent = $service->getAlbumMapper()->getRepository()->find((int) $params['parent']);
         }
 
         $album = $service->getAlbumMapper()->createAlbum($params['name'], $parent, $service->getUserMapper()->getUser()->getId(), $admin_ids, $options);

@@ -13,11 +13,9 @@ namespace App\Controller;
 
 use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
-use Phyxo\EntityManager;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
 use Phyxo\Image\ImageStandardParams;
-use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
 use App\Entity\UserCacheAlbum;
 use App\Repository\ImageAlbumRepository;
@@ -29,8 +27,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AlbumController extends CommonController
 {
     public function album(Request $request, Conf $conf, ImageStandardParams $image_std_params, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
-                            EntityManager $em, ImageMapper $imageMapper, int $start = 0, int $category_id = 0, TranslatorInterface $translator,
-                            AlbumMapper $albumMapper)
+                            ImageMapper $imageMapper, int $start = 0, int $category_id = 0, TranslatorInterface $translator, AlbumMapper $albumMapper)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -93,7 +90,10 @@ class AlbumController extends CommonController
         $image_ids = [];
         $user_representative_updates_for = [];
 
-        list($is_child_date_last, $albums, $image_ids) = $albumMapper->getAlbumThumbnails($this->getUser(), $albumMapper->getRepository()->findByParentId($category_id, $this->getUser()->getId()));
+        list($is_child_date_last, $albums, $image_ids) = $albumMapper->getAlbumThumbnails(
+            $this->getUser(),
+            $albumMapper->getRepository()->findByParentId($category_id, $this->getUser()->getId())
+        );
 
         if (count($albums) > 0) {
             $infos_of_images = $albumMapper->getInfosOfImages($this->getUser(), $albums, $image_ids, $imageMapper);
@@ -108,32 +108,32 @@ class AlbumController extends CommonController
         if (count($albums) > 0) {
             $tpl_thumbnails_var = [];
 
-            foreach ($albums as $album) {
-                $userCacheAlbum = $this->getUser()->getUserCacheAlbums()->filter(function(UserCacheAlbum $uca) use ($album) {
-                    return $uca->getAlbum()->getId() === $album->getId();
+            foreach ($albums as $currentAlbum) {
+                $userCacheAlbum = $this->getUser()->getUserCacheAlbums()->filter(function(UserCacheAlbum $uca) use ($currentAlbum) {
+                    return $uca->getAlbum()->getId() === $currentAlbum->getId();
                 })->first();
 
                 if (!$userCacheAlbum || $userCacheAlbum->getCountImages() === 0) {
                     continue;
                 }
 
-                $name = $albumMapper->getAlbumsDisplayNameCache($album->getUppercats());
+                $name = $albumMapper->getAlbumsDisplayNameCache($currentAlbum->getUppercats());
 
-                $representative_infos = $infos_of_images[$album->getRepresentativePictureId()];
+                $representative_infos = $infos_of_images[$currentAlbum->getRepresentativePictureId()];
 
                 $tpl_var = [
-                    'id' => $album->getId(),
+                    'id' => $currentAlbum->getId(),
                     'representative' => $representative_infos,
-                    'TN_ALT' => $album->getName(),
-                    'TN_TITLE' => $imageMapper->getThumbnailTitle(['rating_score' => '', 'nb_comments' => ''], $album->getName(), $album->getComment()),
-                    'URL' => $this->generateUrl('album', ['category_id' => $album->getId(), 'start' => $start]),
+                    'TN_ALT' => $currentAlbum->getName(),
+                    'TN_TITLE' => $imageMapper->getThumbnailTitle(['rating_score' => '', 'nb_comments' => ''], $currentAlbum->getName(), $currentAlbum->getComment()),
+                    'URL' => $this->generateUrl('album', ['category_id' => $currentAlbum->getId(), 'start' => $start]),
                     'CAPTION_NB_IMAGES' => $albumMapper->getDisplayImagesCount(
                         $userCacheAlbum->getNbImages(), $userCacheAlbum->getCountImages(),
                         $userCacheAlbum->getCountAlbums(), true, '<br>'
                     ),
-                    'DESCRIPTION' => $album->getComment() ?? '',
+                    'DESCRIPTION' => $currentAlbum->getComment() ?? '',
                     'NAME' => $name,
-                    'name' => $album->getName(),
+                    'name' => $currentAlbum->getName(),
                 ];
 
                 if ($conf['index_new_icon']) {
@@ -187,7 +187,7 @@ class AlbumController extends CommonController
         }
 
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->searchDistinctId($this->getUser()->getForbiddenCategories(), $order_by) as $image) {
+        foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum($album->getId(), $this->getUser()->getForbiddenCategories(), $order_by) as $image) {
             $tpl_params['items'][] = $image['id'];
         }
 
@@ -248,7 +248,7 @@ class AlbumController extends CommonController
         }
 
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->searchDistinctId($this->getUser()->getForbiddenCategories(), $conf['order_by']) as $image) {
+        foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum($album->getId(), $this->getUser()->getForbiddenCategories(), $conf['order_by']) as $image) {
             $tpl_params['items'][] = $image['id'];
         }
 
@@ -339,7 +339,7 @@ class AlbumController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function albums(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
+    public function albums(Request $request, Conf $conf, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
                             ImageStandardParams $image_std_params, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator,
                             AlbumMapper $albumMapper, ImageAlbumRepository $imageAlbumRepository)
     {
@@ -399,20 +399,22 @@ class AlbumController extends CommonController
                     $representative_infos = $infos_of_images[$album->getRepresentativePictureId()];
                 }
 
-                $tpl_var = [
-                    'id' => $album->getId(),
-                    'representative' => $representative_infos,
-                    'TN_ALT' => $album->getName(),
-                    'TN_TITLE' => $imageMapper->getThumbnailTitle(['rating_score' => '', 'nb_comments' => ''], $album->getName(), $album->getComment()),
-                    'URL' => $this->generateUrl('album', ['category_id' => $album->getId(), 'start' => $start]),
-                    'CAPTION_NB_IMAGES' => $albumMapper->getDisplayImagesCount(
-                        $userCacheAlbum->getNbImages(), $userCacheAlbum->getCountImages(),
-                        $userCacheAlbum->getCountAlbums(), true, '<br>'
-                    ),
-                    'DESCRIPTION' => $album->getComment() ?? '',
-                    'NAME' => $name,
-                    'name' => $album->getName(),
-                ];
+                $tpl_var = array_merge(
+                    $album->toArray(),
+                    [
+                        'representative' => $representative_infos,
+                        'TN_ALT' => $album->getName(),
+                        'TN_TITLE' => $imageMapper->getThumbnailTitle(['rating_score' => '', 'nb_comments' => ''], $album->getName(), $album->getComment()),
+                        'URL' => $this->generateUrl('album', ['category_id' => $album->getId(), 'start' => $start]),
+                        'CAPTION_NB_IMAGES' => $albumMapper->getDisplayImagesCount(
+                            $userCacheAlbum->getNbImages(), $userCacheAlbum->getCountImages(),
+                            $userCacheAlbum->getCountAlbums(), true, '<br>'
+                        ),
+                        'DESCRIPTION' => $album->getComment() ?? '',
+                        'NAME' => $name,
+                        'name' => $album->getName(),
+                    ]
+                );
 
                 if ($conf['index_new_icon']) {
                     // $tpl_var['icon_ts'] = $em->getRepository(BaseRepository::class)->getIcon(
@@ -474,7 +476,7 @@ class AlbumController extends CommonController
         return $this->render('mainpage_categories.html.twig', $tpl_params);
     }
 
-    public function recentCats(Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
+    public function recentCats(Request $request, Conf $conf, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
                                 ImageStandardParams $image_std_params, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator,
                                 AlbumMapper $albumMapper, ImageAlbumRepository $imageAlbumRepository)
     {

@@ -217,6 +217,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params = array_merge($tpl_params, $this->setDimensions($imageMapper));
 
         // privacy level
+        $level_options = [];
         foreach ($conf['available_permission_levels'] as $level) {
             $level_options[$level] = $translator->trans('Level ' . $level, [], 'admin');
 
@@ -242,7 +243,10 @@ class BatchManagerController extends AdminCommonController
             $selected_category[] = $this->getFilter()['category'];
         } else {
             // we need to know the category in which the last photo was added
-            $selected_category[] = $imageAlbumRepository->getAlbumWithLastPhotoAdded()[0]->getAlbum()->getId();
+            $last_image_album = $imageAlbumRepository->getAlbumWithLastPhotoAdded();
+            if (!is_null($last_image_album)) {
+                $selected_category[] = $last_image_album->getAlbum()->getId();
+            }
         }
         $tpl_params['filter_category_selected'] = $selected_category;
 
@@ -675,9 +679,11 @@ class BatchManagerController extends AdminCommonController
                 $albums = $albumRepository->find($bulk_manager_filter['category']);
             }
 
-            foreach ($albums as $album) {
-                foreach ($album->getImageAlbums() as $image_album) {
-                    $image_ids[] = $image_album->getImage()->getId();
+            if (!is_null($albums)) {
+                foreach ($albums as $album) {
+                    foreach ($album->getImageAlbums() as $image_album) {
+                        $image_ids[] = $image_album->getImage()->getId();
+                    }
                 }
             }
 
@@ -715,34 +721,44 @@ class BatchManagerController extends AdminCommonController
 
         if (!empty($bulk_manager_filter['dimension'])) {
             $image_ids = [];
+            $images = null;
+
             if (!empty($bulk_manager_filter['dimension']['min_width'])) {
                 $images = $imageMapper->getRepository()->findImagesByWidth($bulk_manager_filter['dimension']['min_width'], '>=');
             }
+
             if (!empty($bulk_manager_filter['dimension']['max_width'])) {
                 $images = $imageMapper->getRepository()->findImagesByWidth($bulk_manager_filter['dimension']['max_width'], '<=');
             }
+
             if (!empty($bulk_manager_filter['dimension']['min_height'])) {
                 $images = $imageMapper->getRepository()->findImagesByHeight($bulk_manager_filter['dimension']['min_height'], '>=');
             }
+
             if (!empty($bulk_manager_filter['dimension']['max_height'])) {
                 $images = $imageMapper->getRepository()->findImagesByHeight($bulk_manager_filter['dimension']['max_height'], '<=');
             }
+
             if (!empty($bulk_manager_filter['dimension']['min_ratio'])) {
                 $images = $imageMapper->getRepository()->findImagesByRatio($bulk_manager_filter['dimension']['min_ratio'], '>=');
             }
+
             if (!empty($bulk_manager_filter['dimension']['max_ratio'])) {
                 // max_ratio is a floor value, so must be a bit increased
                 $images = $imageMapper->getRepository()->findImagesByRatio($bulk_manager_filter['dimension']['max_ratio'] + 0.01, '<');
             }
 
-            foreach ($images as $image) {
-                $image_ids[] = $image->getId();
+            if (!is_null($images)) {
+                foreach ($images as $image) {
+                    $image_ids[] = $image->getId();
+                }
             }
             $filter_sets[] = $image_ids;
         }
 
         if (!empty($bulk_manager_filter['filesize'])) {
             $image_ids = [];
+            $images = null;
 
             if (!empty($bulk_manager_filter['filesize']['min'])) {
                 $images = $imageMapper->getRepository()->findImagesByFilesize($bulk_manager_filter['filesize']['min'] * 1024, '>=');
@@ -752,8 +768,10 @@ class BatchManagerController extends AdminCommonController
                 $images = $imageMapper->getRepository()->findImagesByFilesize($bulk_manager_filter['filesize']['max'] * 1024, '<=');
             }
 
-            foreach ($images as $image) {
-                $image_ids[] = $image->getId();
+            if (!is_null($images)) {
+                foreach ($images as $image) {
+                    $image_ids[] = $image->getId();
+                }
             }
 
             $filter_sets[] = $image_ids;
@@ -939,6 +957,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params = array_merge($tpl_params, $this->setDimensions($imageMapper));
 
         // privacy level
+        $level_options = [];
         foreach ($conf['available_permission_levels'] as $level) {
             $level_options[$level] = $translator->trans('Level ' . $level, [], 'admin');
 
@@ -964,7 +983,10 @@ class BatchManagerController extends AdminCommonController
             $selected_category[] = $this->getFilter()['category'];
         } else {
             // we need to know the category in which the last photo was added
-            $selected_category[] = $imageAlbumRepository->getAlbumWithLastPhotoAdded()[0]->getAlbum()->getId();
+            $last_image_album = $imageAlbumRepository->getAlbumWithLastPhotoAdded();
+            if (!is_null($last_image_album)) {
+                $selected_category[] = $last_image_album->getAlbum()->getId();
+            }
         }
         $tpl_params['filter_category_selected'] = $selected_category;
 
