@@ -38,7 +38,7 @@ abstract class BaseContext extends RawMinkContext implements Context
             return call_user_func_array([$session, $method], $parameters);
         }
 
-        throw new \RuntimeException(sprintf('The "%s()" method does not exist.', $method));
+        throw new \RuntimeException(sprintf('The "%s()" method does not exist in DocumentElement(page) nor Mink(session).', $method));
     }
 
     /**

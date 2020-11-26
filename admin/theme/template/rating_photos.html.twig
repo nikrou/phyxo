@@ -69,7 +69,7 @@
 				<tr id="rate-{{rate.md5sum}}">
 				    <td>{{rate.rate}}</td>
 				<td><b>{{rate.USER}}</b></td>
-				<td>{{rate.date}}</td>
+				<td>{{rate.date|date}}</td>
 				<td>
 				    <button
 					data-confirm="{{'Are you sure?'|trans}}" data-action="{{WS_RATES_DELETE}}"

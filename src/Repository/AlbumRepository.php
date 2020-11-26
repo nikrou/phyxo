@@ -402,7 +402,7 @@ class AlbumRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('a');
         $qb->leftJoin('a.imageAlbums', 'ia');
-        $qb->where('ia.id = :image_id');
+        $qb->where('ia.image = :image_id');
         $qb->setParameter('image_id', $image_id);
 
         if (count($forbidden_categories) > 0) {

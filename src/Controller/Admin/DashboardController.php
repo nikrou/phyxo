@@ -33,7 +33,7 @@ class DashboardController extends AdminCommonController
 {
     public function index(Request $request, bool $check_upgrade = false, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
                           UserRepository $userRepository, GroupRepository $groupRepository, HttpClientInterface $client, AlbumRepository $albumRepository,
-                          ImageMapper $imageMapper, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository)
+                          ImageMapper $imageMapper, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository, RateRepository $rateRepository)
     {
         $tpl_params = [];
 
@@ -72,7 +72,7 @@ class DashboardController extends AdminCommonController
         $nb_image_tag = $em->getRepository(ImageTagRepository::class)->count();
         $nb_users = $userRepository->count([]);
         $nb_groups = $groupRepository->count([]);
-        $nb_rates = $em->getRepository(RateRepository::class)->count();
+        $nb_rates = $rateRepository->count([]);
 
         $tpl_params = array_merge($tpl_params,
             [

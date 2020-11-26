@@ -15,7 +15,6 @@ use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
-use Phyxo\EntityManager;
 use App\Repository\CommentRepository;
 use App\DataMapper\UserMapper;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -29,7 +28,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentController extends CommonController
 {
-    public function index(int $start = 0, int $comment_id = 0, Request $request, EntityManager $em, Conf $conf, MenuBar $menuBar, AlbumMapper $albumMapper,
+    public function index(int $start = 0, int $comment_id = 0, Request $request, Conf $conf, MenuBar $menuBar, AlbumMapper $albumMapper,
                         UserMapper $userMapper, CsrfTokenManagerInterface $csrfTokenManager, ImageStandardParams $image_std_params,
                         TranslatorInterface $translator, CommentRepository $commentRepository)
     {

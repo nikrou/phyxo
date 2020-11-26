@@ -121,7 +121,7 @@ class PhotosController extends AdminCommonController
         // image level options
         $selected_level = $request->request->get('level') ? (int) $request->request->get('level') : 0;
         $tpl_params['level_options'] = Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator, 'admin');
-        $tpl_params['level_options_selected'] = [$selected_level];
+        $tpl_params['level_options_selected'] = $selected_level;
 
         if (!function_exists('gd_info')) {
             $tpl_params['errors'][] = $translator->trans('GD library is missing', [], 'admin');

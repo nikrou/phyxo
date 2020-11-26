@@ -12,10 +12,8 @@
 namespace App\Repository;
 
 use App\Entity\Image;
-use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
-use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 class ImageRepository extends ServiceEntityRepository
@@ -129,6 +127,15 @@ class ImageRepository extends ServiceEntityRepository
         }
 
         $qb->orderBy($order_by);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findBestRatedImages(int $limit)
+    {
+        $qb = $this->createQueryBuilder('i');
+        $qb->orderBy('i.rating_score', 'DESC');
+        $qb->setMaxResults($limit);
 
         return $qb->getQuery()->getResult();
     }
@@ -874,7 +881,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getSingleScalarResult();
     }
 
-    public function isCommentable(array $forbidden_categories = [], int $image_id)
+    public function isAuthorizedToUser(array $forbidden_categories = [], int $image_id)
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('COUNT(1)');

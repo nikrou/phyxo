@@ -48,7 +48,7 @@ class PhotoController extends AdminCommonController
 
     public function edit(Request $request, int $image_id, int $category_id = null, EntityManager $em, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper,
                         ImageStandardParams $image_std_params, UserMapper $userMapper, TranslatorInterface $translator, ImageMapper $imageMapper,
-                        UserRepository $userRepository, AlbumMapper $albumMapper, ImageAlbumRepository $imageAlbumRepository)
+                        UserRepository $userRepository, AlbumMapper $albumMapper, ImageAlbumRepository $imageAlbumRepository, RateRepository $rateRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -155,7 +155,7 @@ class PhotoController extends AdminCommonController
         ];
 
         if ($conf['rate'] && $image->getRatingScore()) {
-            $nb_rates = $em->getRepository(RateRepository::class)->count($image_id);
+            $nb_rates = $rateRepository->count(['image' => $image_id]);
             $intro_vars['stats'] .= ', ' . $translator->trans('Rated {count} times, score : {score}', ['count' => $nb_rates, 'score' => sprintf('%.2f', $image->getRatinScore())], 'admin');
         }
 

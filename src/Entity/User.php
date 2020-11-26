@@ -108,6 +108,11 @@ class User implements UserInterface, EquatableInterface
      */
     private $favorites;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Rate::class, mappedBy="user", orphanRemoval=true)
+     */
+    private $rates;
+
     public function __construct()
     {
         $this->roles = ['ROLE_USER'];
@@ -118,6 +123,7 @@ class User implements UserInterface, EquatableInterface
         $this->userCacheAlbums = new ArrayCollection();
         $this->caddies = new ArrayCollection();
         $this->favorites = new ArrayCollection();
+        $this->rates = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -471,6 +477,37 @@ class User implements UserInterface, EquatableInterface
             // set the owning side to null (unless already changed)
             if ($favorite->getUser() === $this) {
                 $favorite->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Rate[]
+     */
+    public function getRates(): Collection
+    {
+        return $this->rates;
+    }
+
+    public function addRate(Rate $rate): self
+    {
+        if (!$this->rates->contains($rate)) {
+            $this->rates[] = $rate;
+            $rate->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRate(Rate $rate): self
+    {
+        if ($this->rates->contains($rate)) {
+            $this->rates->removeElement($rate);
+            // set the owning side to null (unless already changed)
+            if ($rate->getUser() === $this) {
+                $rate->setUser(null);
             }
         }
 

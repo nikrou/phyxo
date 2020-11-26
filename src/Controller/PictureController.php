@@ -16,7 +16,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
-use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
 use Phyxo\Functions\DateTime;
@@ -28,27 +27,27 @@ use Phyxo\Functions\Utils;
 use App\DataMapper\UserMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
-use App\Entity\Image;
+use App\DataMapper\RateMapper;
 use App\Metadata;
 use App\Repository\ImageAlbumRepository;
 use App\Security\TagVoter;
+use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PictureController extends CommonController
 {
-    private $em, $userMapper, $translator;
+    private $userMapper, $translator;
     private const VALID_COMMENT = 'valid_comment';
 
     public function picture(Request $request, int $image_id, string $type, string $element_id, Conf $conf, AlbumMapper $albumMapper,
-                            MenuBar $menuBar, EntityManager $em, ImageStandardParams $image_std_params, TagMapper $tagMapper,
+                            MenuBar $menuBar, ImageStandardParams $image_std_params, TagMapper $tagMapper,
                             UserMapper $userMapper, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager,
-                            ImageMapper $imageMapper, Metadata $metadata, TranslatorInterface $translator,
+                            ImageMapper $imageMapper, Metadata $metadata, TranslatorInterface $translator, RateRepository $rateRepository,
                             FavoriteRepository $favoriteRepository, ImageAlbumRepository $imageAlbumRepository)
     {
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $this->translator = $translator;
         $tpl_params = [];
-        $this->em = $em;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
 
@@ -109,6 +108,8 @@ class PictureController extends CommonController
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('comment');
         $tpl_params['current'] = $picture;
         $tpl_params['current']['derivatives'] = $image_std_params->getAll($picture['src_image']);
+        $tpl_params['type'] = $type;
+        $tpl_params['element_id'] = $element_id;
 
         if (count($tpl_params['items']) > 0) {
             $current_index = array_search($image_id, $tpl_params['items']);
@@ -250,7 +251,7 @@ class PictureController extends CommonController
         }
 
         if ($conf['rate']) {
-            $tpl_params = array_merge($tpl_params, $this->addRateInfos($picture, $request));
+            $tpl_params = array_merge($tpl_params, $this->addRateInfos($rateRepository, $picture, $request));
         }
 
         if (($conf['show_exif'] || $conf['show_iptc']) && !$picture['src_image']->is_mimetype()) {
@@ -501,15 +502,15 @@ class PictureController extends CommonController
         );
     }
 
-    protected function addRateInfos(array $picture, Request $request): array
+    protected function addRateInfos(RateRepository $rateRepository, array $picture, Request $request): array
     {
         $tpl_params = [];
 
         $rate_summary = ['count' => 0, 'score' => $picture['rating_score'], 'average' => null];
-        if (null != $rate_summary['score']) {
-            $calculated_rate = $this->em->getRepository(RateRepository::class)->calculateRateSummary($picture['id']);
+        if (!is_null($rate_summary['score'])) {
+            $calculated_rate = $rateRepository->calculateRateSummary($picture['id']);
             $rate_summary['count'] = $calculated_rate['count'];
-            $rate_summary['average'] = $calculated_rate['average'];
+            $rate_summary['average'] = round($calculated_rate['average'], 2);
         }
         $tpl_params['rate_summary'] = $rate_summary;
 
@@ -518,32 +519,48 @@ class PictureController extends CommonController
         if ($this->conf['rate_anonymous'] || $this->userMapper->isClassicUser()) {
             if ($rate_summary['count'] > 0) {
                 if (!$this->userMapper->isClassicUser()) {
-                    $ip_components = explode('.', $request->getClientIp());
-                    if (count($ip_components) > 3) {
-                        array_pop($ip_components);
-                    }
-                    $anonymous_id = implode('.', $ip_components);
+                    $anonymous_id = $request->getClientIp();
                 }
 
-                $result = $this->em->getRepository(RateRepository::class)->findByUserIdAndElementIdAndAnonymousId(
-                    $this->getUser()->getId(),
-                    $picture['id'],
-                    $anonymous_id
-                );
-                if ($this->em->getConnection()->db_num_rows($result) > 0) {
-                    $row = $this->em->getConnection()->db_fetch_assoc($result);
-                    $user_rate = $row['rate'];
+                $rate = $rateRepository->findOneBy([
+                    'user' => $this->getUser()->getId(),
+                    'image' => $picture['id'],
+                    'anonymous_id' => $anonymous_id
+                ]);
+                if (!is_null($rate)) {
+                    $user_rate = $rate->getRate();
                 }
             }
 
             $tpl_params['rating'] = [
-                'F_ACTION' => $this->generateUrl('picture', ['image_id' => $picture['id'], 'element_id' => 10, 'type' => 'category', 'action' => 'rate']),
+                'F_ACTION' => $this->generateUrl('picture_rate'),
+                'image_id' => $picture['id'],
                 'USER_RATE' => $user_rate,
                 'marks' => $this->conf['rate_items']
             ];
         }
 
         return $tpl_params;
+    }
+
+    public function rate(Request $request, ImageMapper $imageMapper, Conf $conf, RateMapper $rateMapper)
+    {
+        if ($request->isMethod('POST')) {
+            if (!$imageMapper->getRepository()->isAuthorizedToUser($this->getUser()->getForbiddenCategories(), $request->request->get('image_id'))) {
+                return new AccessDeniedException("Cannot rate that image");
+            }
+
+            $result = $rateMapper->ratePicture($request->request->get('image_id'), $request->request->get('rating'), $request->getClientIp());
+
+            if (is_null($result['score'])) {
+                return new AccessDeniedException('Forbidden or rate not in ' . implode(',', $conf['rate_items']));
+            }
+        }
+
+        return $this->redirectToRoute(
+            'picture',
+            ['image_id' => $request->request->get('image_id'), 'type' => $request->request->get('type'), 'element_id' => $request->request->get('element_id')]
+        );
     }
 
     protected function addMetadataInfos(array $picture = [], Metadata $metadata): array

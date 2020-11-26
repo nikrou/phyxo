@@ -31,11 +31,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ImageMapper
 {
     private $em, $router, $conf, $userMapper, $image_std_params, $albumMapper, $imageRepository;
-    private $translator, $imageAlbumRepository, $commentRepository, $caddieRepository, $favoriteRepository;
+    private $translator, $imageAlbumRepository, $commentRepository, $caddieRepository, $favoriteRepository, $rateRepository;
 
     public function __construct(EntityManager $em, RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, AlbumMapper $albumMapper,
                                 TranslatorInterface $translator, ImageRepository $imageRepository, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository,
-                                CaddieRepository $caddieRepository, FavoriteRepository $favoriteRepository)
+                                CaddieRepository $caddieRepository, FavoriteRepository $favoriteRepository, RateRepository $rateRepository)
     {
         $this->em = $em;
         $this->router = $router;
@@ -49,6 +49,7 @@ class ImageMapper
         $this->commentRepository = $commentRepository;
         $this->caddieRepository = $caddieRepository;
         $this->favoriteRepository = $favoriteRepository;
+        $this->rateRepository = $rateRepository;
     }
 
     public function getRepository(): ImageRepository
@@ -249,7 +250,7 @@ class ImageMapper
         $this->favoriteRepository->deleteImagesFromFavorite($ids);
 
         // destruction of the rates associated to this element
-        $this->em->getRepository(RateRepository::class)->deleteByElementIds($ids);
+        $this->rateRepository->deleteByImageIds($ids);
 
         // destruction of the caddie associated to this element
         $this->caddieRepository->deleteElements($ids);

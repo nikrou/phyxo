@@ -14,10 +14,10 @@ namespace Phyxo\Functions\Ws;
 use App\Entity\Comment;
 use App\Entity\Image as EntityImage;
 use App\Entity\ImageAlbum;
+use App\Entity\Rate;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use App\Repository\TagRepository;
-use App\Repository\RateRepository;
 use App\Repository\ImageTagRepository;
 use App\Security\TagVoter;
 use Phyxo\Functions\Utils;
@@ -43,8 +43,8 @@ class Image
      */
     public static function addComment($params, Server $service)
     {
-        if (!$service->getImageMapper()->getRepository()->isCommentable($service->getUserMapper()->getUser()->getForbiddenCategories(), $params['image_id'])) {
-            return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid image_id');
+        if (!$service->getImageMapper()->getRepository()->isAuthorizedToUser($service->getUserMapper()->getUser()->getForbiddenCategories(), $params['image_id'])) {
+            return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid image_id or access denied');
         }
 
         $comm = [
@@ -92,7 +92,7 @@ class Image
         //-------------------------------------------------------- related categories
         $is_commentable = false;
         $related_categories = [];
-        foreach ($service->getAlbumMapper()->getRepository()->findRelative($service->getUserMapper()->getUser()->getForbiddenCategories(), [], $image->getId()) as $album) {
+        foreach ($service->getAlbumMapper()->getRepository()->findRelative($service->getUserMapper()->getUser()->getForbiddenCategories(), $image->getId()) as $album) {
             $is_commentable = $album->isCommentable();
             $album_infos = array_merge(
                 $album->toArray(),
@@ -114,7 +114,7 @@ class Image
         $related_tags = $service->getTagMapper()->getCommonTags($service->getUserMapper()->getUser(), [$image->getId()], -1);
         foreach ($related_tags as $i => $tag) {
             $tag['url'] = $service->getRouter()->generate('images_by_tags', ['tag_ids' => URL::tagToUrl($tag)]);
-            $tag['page_url'] = $service->getRouter()->generate('picture', ['image_id' => $image->getId(), 'type' => 'tags', 'element_id' => URL::tagToUrl($image->getFile())]);
+            $tag['page_url'] = $service->getRouter()->generate('picture', ['image_id' => $image->getId(), 'type' => 'tags', 'element_id' => URL::tagToUrl($tag)]);
 
             unset($tag['counter']);
             $tag['id'] = (int)$tag['id'];
@@ -127,13 +127,13 @@ class Image
             'count' => 0,
             'average' => null,
         ];
-        if (isset($rating['score'])) {
-            $result = (new RateRepository($service->getConnection()))->calculateRateSummary($image->getId());
-            $row = $service->getConnection()->db_fetch_assoc($result);
+
+        if (is_null($rating['score'])) {
+            $rate_summary = $service->getManagerRegistry()->getRepository(Rate::class)->calculateRateSummary($image->getId());
 
             $rating['score'] = (float)$rating['score'];
-            $rating['average'] = (float)$row['average'];
-            $rating['count'] = (int)$row['count'];
+            $rating['average'] = round($rate_summary['average'], 2);
+            $rating['count'] = (int)$rate_summary['count'];
         }
 
         //---------------------------------------------------------- related comments
@@ -194,18 +194,17 @@ class Image
      */
     public static function rate($params, Server $service)
     {
-        $image = $service->getImageMapper()->getRepository()->find($params['image_id']);
-
-        if (is_null($image)) {
-            return new Error(404, 'Invalid image_id or access denied');
+        if (!$service->getImageMapper()->getRepository()->isAuthorizedToUser($service->getUserMapper()->getUser()->getForbiddenCategories(), $params['image_id'])) {
+            return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid image_id or access denied');
         }
-        $res = $service->getRateMapper()->ratePicture($params['image_id'], (int)$params['rate']);
 
-        if ($res == false) {
+        $result = $service->getRateMapper()->ratePicture($params['image_id'], (int)$params['rate'], $service->getRequest()->getClientIp());
+
+        if (is_null($result['score'])) {
             return new Error(403, 'Forbidden or rate not in ' . implode(',', $service->getConf()['rate_items']));
         }
 
-        return $res;
+        return $result;
     }
 
     /**

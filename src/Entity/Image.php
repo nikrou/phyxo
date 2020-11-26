@@ -154,10 +154,16 @@ class Image
      */
     private $comments;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Rate::class, mappedBy="image", orphanRemoval=true)
+     */
+    private $rates;
+
     public function __construct()
     {
         $this->imageAlbums = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        $this->rates = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -571,5 +577,36 @@ class Image
         if (isset($values['date_available'])) {
             $this->setDateAvailable($values['date_available']);
         }
+    }
+
+    /**
+     * @return Collection|Rate[]
+     */
+    public function getRates(): Collection
+    {
+        return $this->rates;
+    }
+
+    public function addRate(Rate $rate): self
+    {
+        if (!$this->rates->contains($rate)) {
+            $this->rates[] = $rate;
+            $rate->setImage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRate(Rate $rate): self
+    {
+        if ($this->rates->contains($rate)) {
+            $this->rates->removeElement($rate);
+            // set the owning side to null (unless already changed)
+            if ($rate->getImage() === $this) {
+                $rate->setImage(null);
+            }
+        }
+
+        return $this;
     }
 }

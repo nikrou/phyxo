@@ -41,7 +41,7 @@ class RatingController extends AdminCommonController
     }
 
     public function photos(Request $request, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, ImageStandardParams $image_std_params,
-                            TranslatorInterface $translator, UserMapper $userMapper, UserRepository $userRepository)
+                            TranslatorInterface $translator, UserMapper $userMapper, UserRepository $userRepository, RateRepository $rateRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -61,14 +61,15 @@ class RatingController extends AdminCommonController
             $navbar_params['order_by'] = $order_by_index;
         }
 
-        $user_filter = '';
+        $operator_user_filter = '';
+        $guest_id = 0;
         if ($request->get('users')) {
-            $guest_id = $userMapper->getId();
+            $guest_id = $userMapper->getDefaultUser()->getId();
 
             if ($request->get('users') === 'user') {
-                $user_filter = 'r.user_id != ' . $guest_id;
+                $operator_user_filter = '!=';
             } elseif ($request->get('users') === 'guest') {
-                $user_filter = 'r.user_id = ' . $guest_id;
+                $operator_user_filter = '=';
             }
             $navbar_params['users'] = $request->get('users');
         }
@@ -78,7 +79,7 @@ class RatingController extends AdminCommonController
             $users[$user->getId()] = $user->getUsername();
         }
 
-        $nb_images = $em->getRepository(RateRepository::class)->countImagesRatedForUser($user_filter);
+        $nb_images = $rateRepository->countImagesRatedForUser($guest_id, $operator_user_filter);
 
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_rating', ['start' => $start]);
         $tpl_params['DISPLAY'] = $elements_per_page;
@@ -109,31 +110,22 @@ class RatingController extends AdminCommonController
         $tpl_params['user_options'] = $user_options;
         $tpl_params['user_options_selected'] = [$request->get('users')];
 
-        $images = [];
-        $result = $em->getRepository(RateRepository::class)->getRatePerImage(
-            $user_filter,
-            $available_order_by[$order_by_index][1],
-            $elements_per_page,
-            $start
-        );
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-            $images[] = $row;
-        }
-
         $tpl_params['images'] = [];
-        foreach ($images as $image) {
+        foreach ($rateRepository->getRatePerImage($guest_id, $operator_user_filter, $available_order_by[$order_by_index][1], $elements_per_page, $start) as $image) {
+            $images[] = $image;
+
             $thumbnail_src = (new DerivativeImage(new SrcImage($image, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
             $image_url = $this->generateUrl('admin_photo', ['image_id' => $image['id']]);
 
-            $result = $em->getRepository(RateRepository::class)->findByElementId($image['id']);
-            $nb_rates = $em->getConnection()->db_num_rows($result);
+            $rates = $rateRepository->findBy(['image' => $image['id']]);
+            $nb_rates = count($rates);
 
             $tpl_image = [
                 'id' => $image['id'],
                 'U_THUMB' => $thumbnail_src,
                 'U_URL' => $image_url,
                 'SCORE_RATE' => $image['score'],
-                'AVG_RATE' => $image['avg_rates'],
+                'AVG_RATE' => round($image['avg_rates'], 2),
                 'SUM_RATE' => $image['sum_rates'],
                 'NB_RATES' => (int)$image['nb_rates'],
                 'NB_RATES_TOTAL' => (int)$nb_rates,
@@ -141,19 +133,24 @@ class RatingController extends AdminCommonController
                 'rates' => []
             ];
 
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                if (isset($users[$row['user_id']])) {
-                    $user_rate = $users[$row['user_id']];
+            foreach ($rates as $rate) {
+                if (isset($users[$rate->getUser()->getId()])) {
+                    $user_rate = $users[$rate->getUser()->getId()];
                 } else {
-                    $user_rate = '? ' . $row['user_id'];
+                    $user_rate = '? ' . $rate->getUser()->getId();
                 }
-                if (strlen($row['anonymous_id']) > 0) {
-                    $user_rate .= '(' . $row['anonymous_id'] . ')';
+                if ($rate->getAnonymousId()) {
+                    $user_rate .= '(' . $rate->getAnonymousId() . ')';
                 }
 
-                $row['USER'] = $user_rate;
-                $row['md5sum'] = md5($row['user_id'] . $row['element_id'] . $row['anonymous_id']);
-                $tpl_image['rates'][] = $row;
+                $tpl_image['rates'][] = [
+                    'USER' => $user_rate,
+                    'md5sum' => md5($rate->getUser()->getId() . $rate->getImage()->getId() . $rate->getAnonymousId()),
+                    'element_id' => $rate->getImage()->getId(),
+                    'anonymous_id' => $rate->getAnonymousId(),
+                    'rate' => $rate->getRate(),
+                    'date' => $rate->getDate()
+                ];
             }
             $tpl_params['images'][] = $tpl_image;
         }
@@ -179,7 +176,7 @@ class RatingController extends AdminCommonController
     }
 
     public function users(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, UserMapper $userMapper, ImageStandardParams $image_std_params,
-                            TranslatorInterface $translator, UserRepository $userRepository, ImageMapper $imageMapper)
+                            TranslatorInterface $translator, UserRepository $userRepository, ImageMapper $imageMapper, RateRepository $rateRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -213,33 +210,32 @@ class RatingController extends AdminCommonController
         // by user aggregation
         $image_ids = [];
         $by_user_ratings = [];
-        $result = $em->getRepository(RateRepository::class)->findAll();
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-            if (!isset($users_by_id[$row['user_id']])) {
-                $users_by_id[$row['user_id']] = ['name' => '???' . $row['user_id'], 'anon' => false];
+        foreach ($rateRepository->findAll() as $rate) {
+            if (!isset($users_by_id[$rate->getUser()->getId()])) {
+                $users_by_id[$rate->getUser()->getId()] = ['name' => '???' . $rate->getUser()->getId(), 'anon' => false];
             }
-            $usr = $users_by_id[$row['user_id']];
+            $usr = $users_by_id[$rate->getUser()->getId()];
             if ($usr['anon']) {
-                $user_key = $usr['name'] . '(' . $row['anonymous_id'] . ')';
+                $user_key = $usr['name'] . '(' . $rate->getAnonymousId() . ')';
             } else {
                 $user_key = $usr['name'];
             }
             $rating = &$by_user_ratings[$user_key];
             if (is_null($rating)) {
                 $rating = $by_user_rating_model;
-                $rating['uid'] = (int)$row['user_id'];
-                $rating['aid'] = $usr['anon'] ? $row['anonymous_id'] : '';
-                $rating['last_date'] = $rating['first_date'] = $row['date'];
+                $rating['uid'] = $rate->getUser()->getId();
+                $rating['aid'] = $usr['anon'] ? $rate->getAnonymousId() : '';
+                $rating['last_date'] = $rating['first_date'] = $rate->getDate();
                 $rating['md5sum'] = md5($rating['uid'] . $rating['aid']);
             } else {
-                $rating['first_date'] = $row['date'];
+                $rating['first_date'] = $rate->getDate();
             }
 
-            $rating['rates'][$row['rate']][] = [
-                'id' => $row['element_id'],
-                'date' => $row['date'],
+            $rating['rates'][$rate->getRate()][] = [
+                'id' => $rate->getImage()->getId(),
+                'date' => $rate->getDate(),
             ];
-            $image_ids[$row['element_id']] = 1;
+            $image_ids[$rate->getImage()->getId()] = 1;
             unset($rating);
         }
 
@@ -257,13 +253,12 @@ class RatingController extends AdminCommonController
 
         //all image averages
         $all_img_sum = [];
-        $result = $em->getRepository(RateRepository::class)->calculateAverageyElement();
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-            $all_img_sum[(int)$row['element_id']] = ['avg' => (float)$row['avg']];
+        foreach ($rateRepository->calculateAverageByImage() as $rate) {
+            $all_img_sum[(int)$rate['image']] = ['avg' => (float)$rate['avg']];
         }
 
         $best_rated = [];
-        foreach ($imageMapper->getRepository()->findBestRated($consensus_top_number) as $image) {
+        foreach ($imageMapper->getRepository()->findBestRatedImages($consensus_top_number) as $image) {
             $best_rated[] = $image->getId();
         }
 

@@ -59,11 +59,16 @@
 					<td>
 					    <div id="rating" class="imageInfo">
 						<form action="{{rating.F_ACTION}}" method="post" id="rateForm">
+						    <input class="js-hidden btn btn-primary pull-right" type="submit" name="rate-picture" value="{{'Rate'|trans}}">
+
 						    {% for mark in rating.marks|reverse %}
 							<input type="radio" id="rating-{{mark}}" name="rating"
 							       value="{{mark}}" {% if rating.USER_RATE is defined and mark==rating.USER_RATE %}checked="checked"{% endif %}/>
 							<label for="rating-{{mark}}" title="{{mark}}"></label>
 						    {% endfor %}
+						    <input type="hidden" name="image_id" value="{{rating.image_id}}"/>
+						    <input type="hidden" name="type" value="{{type}}"/>
+						    <input type="hidden" name="element_id" value="{{element_id}}"/>
 						</form>
 					    </div>
 					</td>

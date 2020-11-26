@@ -11,28 +11,36 @@
 
 namespace App\DataMapper;
 
+use App\Entity\Rate;
 use Phyxo\EntityManager;
 use Phyxo\Conf;
 use App\Repository\RateRepository;
+use Phyxo\Functions\Utils;
 
 class RateMapper
 {
-    private $em, $conf, $userMapper, $imageMapper;
+    private $em, $conf, $userMapper, $imageMapper, $rateRepository;
 
-    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, ImageMapper $imageMapper)
+    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, ImageMapper $imageMapper, RateRepository $rateRepository)
     {
         $this->em = $em;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
         $this->imageMapper = $imageMapper;
+        $this->rateRepository = $rateRepository;
+    }
+
+    public function getRepository(): RateRepository
+    {
+        return $this->rateRepository;
     }
 
     /**
      * Rate a picture by the current user.
      */
-    public function ratePicture(int $image_id, float $rate): array
+    public function ratePicture(int $image_id, int $note, string $anonymous_id): array
     {
-        if (!$this->conf['rate'] || !preg_match('/^[0-9]+$/', $rate) || !in_array($rate, $this->conf['rate_items'])) {
+        if (!$this->conf['rate'] || !preg_match('/^[0-9]+$/', $note) || !in_array($note, $this->conf['rate_items'])) {
             return [];
         }
 
@@ -42,34 +50,34 @@ class RateMapper
             return [];
         }
 
-        $ip_components = explode('.', $_SERVER['REMOTE_ADDR']);
-        if (count($ip_components) > 3) {
-            array_pop($ip_components);
-        }
-        $anonymous_id = implode('.', $ip_components);
-
         if ($user_anonymous) {
             $save_anonymous_id = isset($_COOKIE['anonymous_rater']) ? $_COOKIE['anonymous_rater'] : $anonymous_id;
 
-            if ($anonymous_id != $save_anonymous_id) { // client has changed his IP address or he's trying to fool us
-                $result = $this->em->getRepository(RateRepository::class)->findByUserAndAnonymousId($this->userMapper->getUser()->getId(), $anonymous_id);
-                $already_there = $this->em->getConnection()->result2array($result, null, 'element_id');
-
-                if (count($already_there) > 0) {
-                    $this->em->getRepository(RateRepository::class)->deleteRates($this->userMapper->getUser()->getId(), $save_anonymous_id, $already_there);
+            if ($anonymous_id !== $save_anonymous_id) { // client has changed his IP address or he's trying to fool us
+                $rate = $this->getRepository()->findOneBy([
+                    'user' => $this->userMapper->getUser()->getId(),
+                    'image' => $image_id,
+                    'anonymous_id' => $anonymous_id
+                ]);
+                if (!is_null($rate)) {
+                    $this->getRepository()->delete($rate);
                 }
 
-                $this->em->getRepository(RateRepository::class)->updateRate(
-                    ['anonymous_id' => $anonymous_id],
-                    ['user_id' => $this->userMapper->getUser()->getId(), 'anonymous_id' => $save_anonymous_id]
-                );
-            } // end client changed ip
+                $this->getRepository()->updateAnonymousIdField($anonymous_id, $this->userMapper->getUser()->getId(), $save_anonymous_id);
+            }
 
-            setcookie('anonymous_rater', $anonymous_id, strtotime('+1year'), \Phyxo\Functions\Utils::cookie_path());
-        } // end anonymous user
+            setcookie('anonymous_rater', $anonymous_id, strtotime('+1year'), Utils::cookie_path());
+        }
 
-        $this->em->getRepository(RateRepository::class)->deleteRate($this->userMapper->getUser()->getId(), $image_id, $user_anonymous ? $anonymous_id : null);
-        $this->em->getRepository(RateRepository::class)->addRate($this->userMapper->getUser()->getId(), $image_id, $anonymous_id, $rate, 'CURRENT_DATE');
+        $this->getRepository()->deleteImageRateForUser($this->userMapper->getUser()->getId(), $image_id, $user_anonymous ? $anonymous_id : null);
+        $image = $this->imageMapper->getRepository()->find($image_id);
+        $rate = new Rate();
+        $rate->setUser($this->userMapper->getUser());
+        $rate->setImage($image);
+        $rate->setAnonymousId($anonymous_id);
+        $rate->setDate(new \DateTime());
+        $rate->setRate($note);
+        $this->getRepository()->addOrUpdateRate($rate);
 
         return $this->updateRatingScore($image_id);
     }
@@ -90,11 +98,10 @@ class RateMapper
         $item_ratecount_avg = 0;
         $by_item = [];
 
-        $result = $this->em->getRepository(RateRepository::class)->calculateRateByElement();
-        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $all_rates_count += $row['rcount'];
-            $all_rates_avg += $row['rsum'];
-            $by_item[$row['element_id']] = $row;
+        foreach ($this->getRepository()->calculateRateByImage() as $rate) {
+            $all_rates_count += $rate['rcount'];
+            $all_rates_avg += $rate['rsum'];
+            $by_item[$rate['image']] = $rate;
         }
 
         if ($all_rates_count > 0) {
