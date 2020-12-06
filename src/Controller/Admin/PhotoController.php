@@ -19,7 +19,6 @@ use App\Repository\ImageAlbumRepository;
 use App\Repository\RateRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
-use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Functions\Utils;
@@ -108,8 +107,10 @@ class PhotoController extends AdminCommonController
         }
 
         // tags
-        $result = $em->getRepository(TagRepository::class)->getTagsByImage($image_id, $validated = true);
-        $tags = $em->getConnection()->result2array($result);
+        $tags = [];
+        foreach ($tagMapper->getRepository()->getTagsByImage($image_id, $validated = true) as $tag) {
+            $tags[] = $tag;
+        }
         $tag_selection = $tagMapper->prepareTagsListForUI($tags);
 
         // retrieving direct information about picture
@@ -211,7 +212,7 @@ class PhotoController extends AdminCommonController
         $tpl_params['associated_albums'] = $associated_albums;
         $tpl_params['represented_albums'] = $represented_albums;
         $tpl_params['STORAGE_ALBUM'] = $storage_category_id;
-        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['tags', 'categories'], $em, $this->getDoctrine(), $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['tags', 'categories'], $this->getDoctrine(), $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);
@@ -232,8 +233,7 @@ class PhotoController extends AdminCommonController
         return $this->render('photo_properties.html.twig', $tpl_params);
     }
 
-    public function delete(int $image_id, int $category_id = null, EntityManager $em, UserMapper $userMapper, ImageMapper $imageMapper, UserProvider $userProvider,
-                            ImageAlbumRepository $imageAlbumRepository)
+    public function delete(int $image_id, int $category_id = null, UserMapper $userMapper, ImageMapper $imageMapper, ImageAlbumRepository $imageAlbumRepository)
     {
         $imageMapper->deleteElements([$image_id], true);
         $userMapper->invalidateUserCache();

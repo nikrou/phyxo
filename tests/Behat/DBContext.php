@@ -15,8 +15,11 @@ use App\DataMapper\AlbumMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
+use App\DataMapper\UserMapper;
 use App\Entity\Group;
 use App\Entity\Image;
+use App\Entity\ImageTag;
+use App\Entity\Tag;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -295,11 +298,16 @@ class DBContext implements Context
 
     protected function addTag(string $tag_name)
     {
-        $tag = $this->getContainer()->get(TagMapper::class)->createTag($tag_name);
-        if (empty($tag['id'])) {
-            throw new \Exception($tag['error']);
+        if (!is_null($this->getContainer()->get(TagMapper::class)->getRepository()->findOneBy(['name' => $tag_name]))) {
+            throw new \Exception("Tag already exists");
         } else {
-            $this->storage->set('tag_' . $tag_name, $tag['id']);
+            $tag = new Tag();
+            $tag->setName($tag_name);
+            $tag->setUrlName($tag_name);
+            $tag->setLastModified(new \DateTime());
+            $this->getContainer()->get(TagMapper::class)->getRepository()->addOrUpdateTag($tag);
+
+            $this->storage->set('tag_' . $tag_name, $tag->getId());
         }
     }
 
@@ -315,7 +323,14 @@ class DBContext implements Context
             $tag_ids[] = $tag_id;
         }
 
-        $this->getContainer()->get(TagMapper::class)->toBeValidatedTags($tag_ids, $image_id, ['validated' => $validated, 'user_id' => $user_id]);
+        $image = $this->getContainer()->get(ImageMapper::class)->getRepository()->find($image_id);
+        if (!is_null($user_id)) {
+            $user = $this->getContainer()->get(ManagerRegistry::class)->getRepository(User::class)->find($user_id);
+        } else {
+            $user = $this->getContainer()->get(UserMapper::class)->getDefaultUser();
+        }
+
+        $this->getContainer()->get(TagMapper::class)->toBeValidatedTags($image, $tag_ids, $user, ImageTag::STATUS_TO_ADD, $validated);
     }
 
     protected function removeTagsFromImage(array $tags, int $image_id, int $user_id = null, bool $validated = true)
@@ -331,9 +346,16 @@ class DBContext implements Context
         }
 
         $conf = $this->getContainer()->get(Conf::class);
+        $image = $this->getContainer()->get(ImageMapper::class)->getRepository()->find($image_id);
+        if (!is_null($user_id)) {
+            $user = $this->getContainer()->get(ManagerRegistry::class)->getRepository(User::class)->find($user_id);
+        } else {
+            $user = $this->getContainer()->get(UserMapper::class)->getDefaultUser();
+        }
+
         // if publish_tags_immediately (or delete_tags_immediately) is not set we consider its value is true
         if (isset($conf['publish_tags_immediately']) && $conf['publish_tags_immediately'] === false) {
-            $this->getContainer()->get(TagMapper::class)->toBeValidatedTags($tag_ids, $image_id, ['status' => 0, 'validated' => $validated, 'user_id' => $user_id]);
+            $this->getContainer()->get(TagMapper::class)->toBeValidatedTags($image, $tag_ids, $user, ImageTag::STATUS_TO_DELETE, $validated);
         } else {
             $this->getContainer()->get(TagMapper::class)->dissociateTags($tag_ids, $image_id);
         }

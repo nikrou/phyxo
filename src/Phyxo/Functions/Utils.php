@@ -14,11 +14,10 @@ namespace Phyxo\Functions;
 use App\Entity\Album;
 use App\Entity\Group;
 use App\Entity\Image;
+use App\Entity\Tag;
 use App\Entity\UserInfos;
 use Phyxo\Block\RegisteredBlock;
-use App\Repository\TagRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Phyxo\EntityManager;
 use Symfony\Component\Routing\RouterInterface;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Filesystem\Filesystem;
@@ -807,17 +806,14 @@ class Utils
      * Used to invalidate LocalStorage cache on admin pages.
      * @param string|string[] list of keys to retrieve (categories,groups,images,tags,users)
      */
-    public static function getAdminClientCacheKeys(array $requested = [], EntityManager $em, ManagerRegistry $managerRegistry, string $base_url = ''): array
+    public static function getAdminClientCacheKeys(array $requested = [], ManagerRegistry $managerRegistry, string $base_url = ''): array
     {
         $tables = [
-            'tags' => TagRepository::class,
-        ];
-
-        $otherTables = [
             'categories' => Album::class,
             'images' => Image::class,
             'users' => UserInfos::class,
             'groups' => Group::class,
+            'tags' => Tag::class,
         ];
 
         if (empty($requested)) {
@@ -832,22 +828,7 @@ class Utils
 
         foreach ($returned as $repository) {
             if (isset($tables[$repository])) {
-                $result = $em->getRepository($tables[$repository])->getMaxLastModified();
-                $row = $em->getConnection()->db_fetch_row($result);
-
-                $keys[$repository] = sprintf('%s_%s', $row[0], $row[1]);
-            }
-        }
-
-        if (empty($requested)) {
-            $returned = array_keys($otherTables);
-        } else {
-            $returned = array_intersect($requested, array_keys($otherTables));
-        }
-
-        foreach ($returned as $repository) {
-            if (isset($otherTables[$repository])) {
-                $tableInfos = $managerRegistry->getRepository($otherTables[$repository])->getMaxLastModified();
+                $tableInfos = $managerRegistry->getRepository($tables[$repository])->getMaxLastModified();
 
                 $keys[$repository] = sprintf('%s_%s', (new \Datetime($tableInfos['max']))->getTimestamp(), $tableInfos['count']);
             }

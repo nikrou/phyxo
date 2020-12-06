@@ -68,7 +68,7 @@ class BatchManagerController extends AdminCommonController
     public function global(Request $request, string $filter = null, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, AlbumMapper $albumMapper,
                           ImageStandardParams $image_std_params, SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper, CaddieRepository $caddieRepository,
                           UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator, AlbumRepository $albumRepository,
-                          ImageAlbumRepository $imageAlbumRepository, FavoriteRepository $favoriteRepository)
+                          ImageAlbumRepository $imageAlbumRepository, FavoriteRepository $favoriteRepository, TagRepository $tagRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -205,7 +205,7 @@ class BatchManagerController extends AdminCommonController
         }
 
         $this->filterFromSession();
-        $filter_sets = $this->getFilterSetsFromFilter($em, $conf, $searchMapper, $imageMapper, $albumRepository, $favoriteRepository);
+        $filter_sets = $this->getFilterSetsFromFilter($searchMapper, $imageMapper, $albumRepository, $favoriteRepository, $tagRepository);
 
         $current_set = array_shift($filter_sets);
         if (empty($current_set)) {
@@ -232,8 +232,10 @@ class BatchManagerController extends AdminCommonController
         // tags
         $filter_tags = [];
         if (!empty($this->getFilter()['tags'])) {
-            $result = $em->getRepository(TagRepository::class)->findTags($this->getFilter()['tags']);
-            $tags = $em->getConnection()->result2array($result);
+            $tags = [];
+            foreach ($tagRepository->findBy(['id' => $this->getFilter()['tags']]) as $tag) {
+                $tags[] = $tag;
+            }
             $filter_tags = $tagMapper->prepareTagsListForUI($tags);
         }
         $tpl_params['filter_tags'] = $filter_tags;
@@ -260,7 +262,7 @@ class BatchManagerController extends AdminCommonController
             }
 
             // remove tags
-            $tpl_params['associated_tags'] = $tagMapper->getCommonTags($this->getUser(), [], $current_set, -1);
+            $tpl_params['associated_tags'] = $tagMapper->getCommonTags($this->getUser(), $current_set, -1);
         }
 
         // creation date
@@ -360,7 +362,7 @@ class BatchManagerController extends AdminCommonController
                 $collection = $request->request->get('selection');
             }
 
-            $this->actionOnCollection($request, $collection, $em, $tagMapper, $imageMapper, $userMapper, $imageAlbumRepository, $albumMapper, $caddieRepository);
+            $this->actionOnCollection($request, $collection, $tagMapper, $imageMapper, $userMapper, $imageAlbumRepository, $albumMapper, $caddieRepository);
         }
 
         $tpl_params['IN_CADDIE'] = isset($this->getFilter()['prefilter']) && $this->getFilter()['prefilter'] === 'caddie';
@@ -371,7 +373,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['all_elements'] = $current_set;
         $tpl_params['nb_thumbs_page'] = $nb_thumbs_page;
         $tpl_params['nb_thumbs_set'] = count($current_set);
-        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['tags', 'categories'], $em, $this->getDoctrine(), $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['tags', 'categories'], $this->getDoctrine(), $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_batch_manager_global');
@@ -399,9 +401,9 @@ class BatchManagerController extends AdminCommonController
         return $this->redirectToRoute('admin_batch_manager_global', ['start' => $request->get('start')]);
     }
 
-    protected function actionOnCollection(Request $request, array $collection = [], EntityManager $em, TagMapper $tagMapper, ImageMapper $imageMapper,
+    protected function actionOnCollection(Request $request, array $collection = [], TagMapper $tagMapper, ImageMapper $imageMapper,
                                         UserMapper $userMapper, ImageAlbumRepository $imageAlbumRepository, AlbumMapper $albumMapper,
-                                        CaddieRepository $caddieRepository)
+                                        CaddieRepository $caddieRepository, ImageTagRepository $imageTagRepository)
     {
         // if the user tries to apply an action, it means that there is at least 1 photo in the selection
         if (count($collection) === 0 && !$request->request->get('submitFilter')) {
@@ -428,7 +430,7 @@ class BatchManagerController extends AdminCommonController
             }
         } elseif ($action === 'del_tags') {
             if ($request->request->get('del_tags') && count($request->request->get('del_tags')) > 0) {
-                $em->getRepository(ImageTagRepository::class)->deleteByImagesAndTags($collection, $request->request->get('del_tags'));
+                $imageTagRepository->deleteByImagesAndTags($collection, $request->request->get('del_tags'));
 
                 if (!empty($this->getFilter()['tags']) && count(array_intersect($this->getFilter()['tags'], $request->request->get('del_tags'))) > 0) {
                     $redirect = true;
@@ -570,8 +572,8 @@ class BatchManagerController extends AdminCommonController
         }
     }
 
-    protected function getFilterSetsFromFilter(EntityManager $em, Conf $conf, SearchMapper $searchMapper, ImageMapper $imageMapper, AlbumRepository $albumRepository,
-                                                FavoriteRepository $favoriteRepository)
+    protected function getFilterSetsFromFilter(SearchMapper $searchMapper, ImageMapper $imageMapper, AlbumRepository $albumRepository,
+                                                FavoriteRepository $favoriteRepository, TagRepository $tagRepository)
     {
         $filter_sets = [];
 
@@ -631,8 +633,11 @@ class BatchManagerController extends AdminCommonController
                     break;
 
                 case 'no_tag':
-                    $result = $em->getRepository(TagRepository::class)->findImageWithNoTag();
-                    $filter_sets[] = $em->getConnection()->result2array($result, null, 'id');
+                    $images_with_no_tags = [];
+                    foreach ($tagRepository->findImageWithNoTag() as $tag) {
+                        $images_with_no_tags[] = $tag['image_id'];
+                    }
+                    $filter_sets[] = $images_with_no_tags;
                     break;
 
                 case 'duplicates':
@@ -709,19 +714,12 @@ class BatchManagerController extends AdminCommonController
         }
 
         if (!empty($bulk_manager_filter['tags'])) {
-            $filter_sets[] = $em->getConnection()->result2array(
-              $em->getRepository(TagRepository::class)->getImageIdsForTags(
-                  $this->getUser(),
-                  [],
-                  $bulk_manager_filter['tags'],
-                  $bulk_manager_filter['tag_mode'],
-                  null,
-                  $conf['order_by'],
-                  false // we don't apply permissions in administration screens
-              ),
-              null,
-              'id'
-          );
+            $image_ids = [];
+            foreach ($imageMapper->getRepository()->getImageIdsForTags(
+                $this->getUser()->getForbiddenCategories(), $bulk_manager_filter['tags'], $bulk_manager_filter['tag_mode']) as $image) {
+                $image_ids[] = $image->getId();
+            }
+            $filter_sets[] = $image_ids;
         }
 
         if (!empty($bulk_manager_filter['dimension'])) {
@@ -949,7 +947,7 @@ class BatchManagerController extends AdminCommonController
         }
 
         $this->filterFromSession();
-        $filter_sets = $this->getFilterSetsFromFilter($em, $conf, $searchMapper, $imageMapper, $albumRepository, $favoriteRepository);
+        $filter_sets = $this->getFilterSetsFromFilter($searchMapper, $imageMapper, $albumRepository, $favoriteRepository, $tagMapper->getRepository());
 
         $current_set = array_shift($filter_sets);
         if (empty($current_set)) {
@@ -976,8 +974,10 @@ class BatchManagerController extends AdminCommonController
         // tags
         $filter_tags = [];
         if (!empty($this->getFilter()['tags'])) {
-            $result = $em->getRepository(TagRepository::class)->findTags($this->getFilter()['tags']);
-            $tags = $em->getConnection()->result2array($result);
+            $tags = [];
+            foreach ($tagMapper->getRepository()->findTags($this->getFilter()['tags']) as $tag) {
+                $tags[] = $tag;
+            }
             $filter_tags = $tagMapper->prepareTagsListForUI($tags);
         }
         $tpl_params['filter_tags'] = $filter_tags;
@@ -1004,7 +1004,7 @@ class BatchManagerController extends AdminCommonController
             }
 
             // remove tags
-            $tpl_params['associated_tags'] = $tagMapper->getCommonTags($this->getUser(), [], $current_set, -1);
+            $tpl_params['associated_tags'] = $tagMapper->getCommonTags($this->getUser(), $current_set, -1);
         }
 
         // creation date
@@ -1074,8 +1074,10 @@ class BatchManagerController extends AdminCommonController
 
                 $src_image = new SrcImage($image->toArray(), $conf['picture_ext']);
 
-                $tag_result = $em->getRepository(TagRepository::class)->getTagsByImage($image->getId());
-                $tags = $em->getConnection()->result2array($tag_result);
+                $tags = [];
+                foreach ($tagMapper->getRepository()->getTagsByImage($image->getId()) as $tag) {
+                    $tags[] = $tag;
+                }
                 $tag_selection = $tagMapper->prepareTagsListForUI($tags);
 
                 $legend = Utils::render_element_name($image->toArray());
@@ -1107,7 +1109,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_batch_manager_unit');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Site manager', [], 'admin');
-        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['tags', 'categories'], $em, $this->getDoctrine(), $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['tags', 'categories'], $this->getDoctrine(), $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);

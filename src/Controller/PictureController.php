@@ -220,14 +220,14 @@ class PictureController extends CommonController
         }
 
         // related tags
-        $tags = $tagMapper->getCommonTags($this->getUser(), [$image_id], -1);
-        if (count($tags)) {
+        $tags = $tagMapper->getRelatedTags($this->getUser(), $image_id, -1);
+        if (count($tags) > 0) {
             foreach ($tags as $tag) {
                 $tpl_params['related_tags'][] = array_merge(
-                    $tag,
+                    $tag->toArray(),
                     [
-                        'URL' => $this->generateUrl('images_by_tags', ['tag_ids' => URL::tagToUrl($tag)]),
-                        'U_TAG_IMAGE' => $this->generateUrl('images_by_tags', ['tag_ids' => URL::tagToUrl($tag)]),
+                        'URL' => $this->generateUrl('images_by_tags', ['tag_ids' => $tag->toUrl()]),
+                        'U_TAG_IMAGE' => $this->generateUrl('images_by_tags', ['tag_ids' => $tag->toUrl()]),
                     ]
                );
             }

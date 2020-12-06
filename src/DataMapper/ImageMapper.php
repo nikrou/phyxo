@@ -30,12 +30,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ImageMapper
 {
-    private $em, $router, $conf, $userMapper, $image_std_params, $albumMapper, $imageRepository;
+    private $em, $router, $conf, $userMapper, $image_std_params, $albumMapper, $imageRepository, $imageTagRepository;
     private $translator, $imageAlbumRepository, $commentRepository, $caddieRepository, $favoriteRepository, $rateRepository;
 
     public function __construct(EntityManager $em, RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, AlbumMapper $albumMapper,
                                 TranslatorInterface $translator, ImageRepository $imageRepository, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository,
-                                CaddieRepository $caddieRepository, FavoriteRepository $favoriteRepository, RateRepository $rateRepository)
+                                CaddieRepository $caddieRepository, FavoriteRepository $favoriteRepository, RateRepository $rateRepository, ImageTagRepository $imageTagRepository)
     {
         $this->em = $em;
         $this->router = $router;
@@ -45,6 +45,7 @@ class ImageMapper
         $this->albumMapper = $albumMapper;
         $this->translator = $translator;
         $this->imageRepository = $imageRepository;
+        $this->imageTagRepository = $imageTagRepository;
         $this->imageAlbumRepository = $imageAlbumRepository;
         $this->commentRepository = $commentRepository;
         $this->caddieRepository = $caddieRepository;
@@ -126,8 +127,10 @@ class ImageMapper
                 );
             }
             if ($this->conf['activate_comments'] && $this->userMapper->getUser()->getShowNbComments()) {
-                $result = $this->commentRepository->countGroupByImage($selection);
-                $nb_comments_of = $this->em->getConnection()->result2array($result, 'image_id', 'nb_comments');
+                $nb_comments_of = [];
+                foreach ($this->commentRepository->countGroupByImage($selection) as $comment) {
+                    $nb_comments_of[$comment['image_id']] = $comment['nb_comments'];
+                }
             }
         }
 
@@ -244,7 +247,7 @@ class ImageMapper
         $this->imageAlbumRepository->deleteByImages($ids);
 
         // destruction of the links between images and tags
-        $this->em->getRepository(ImageTagRepository::class)->deleteBy('image_id', $ids);
+        $this->imageTagRepository->deleteByImageIds($ids);
 
         // destruction of the favorites associated with the picture
         $this->favoriteRepository->deleteImagesFromFavorite($ids);

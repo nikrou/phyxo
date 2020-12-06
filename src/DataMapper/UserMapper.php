@@ -30,17 +30,16 @@ use App\Security\UserProvider;
 
 class UserMapper
 {
-    private $em, $conf, $autorizationChecker, $tagMapper, $themeRepository, $userRepository, $userInfosRepository, $userMailNotificationRepository;
-    private $defaultLanguage, $defaultTheme, $themesDir, $userProvider, $default_user, $default_user_retrieved = false, $commentRepository;
+    private $conf, $autorizationChecker, $tagMapper, $themeRepository, $userRepository, $userInfosRepository, $userMailNotificationRepository;
+    private $defaultLanguage, $defaultTheme, $themesDir, $userProvider, $default_user, $default_user_retrieved = false, $commentRepository, $imageTagRepository;
     private $webmaster, $webmaster_retrieved = false, $userFeedRepository, $userCacheRepository, $userCacheAlbumRepository, $caddieRepository, $favoriteRepository;
 
-    public function __construct(EntityManager $em, Conf $conf, AuthorizationCheckerInterface $autorizationChecker, ThemeRepository $themeRepository,
+    public function __construct(Conf $conf, AuthorizationCheckerInterface $autorizationChecker, ThemeRepository $themeRepository,
                                 UserRepository $userRepository, UserInfosRepository $userInfosRepository, string $defaultTheme, CommentRepository $commentRepository,
                                 TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider, UserMailNotificationRepository $userMailNotificationRepository,
                                 UserFeedRepository $userFeedRepository, UserCacheRepository $userCacheRepository, UserCacheAlbumRepository $userCacheAlbumRepository,
-                                CaddieRepository $caddieRepository, FavoriteRepository $favoriteRepository)
+                                CaddieRepository $caddieRepository, FavoriteRepository $favoriteRepository, ImageTagRepository $imageTagRepository)
     {
-        $this->em = $em;
         $this->themeRepository = $themeRepository;
         $this->userRepository = $userRepository;
         $this->userInfosRepository = $userInfosRepository;
@@ -58,6 +57,7 @@ class UserMapper
         $this->commentRepository = $commentRepository;
         $this->caddieRepository = $caddieRepository;
         $this->favoriteRepository = $favoriteRepository;
+        $this->imageTagRepository = $imageTagRepository;
     }
 
     public function getRepository(): UserRepository
@@ -186,8 +186,7 @@ class UserMapper
      */
     public function getNumberAvailableTags(): int
     {
-        $filter = [];
-        $number_of_available_tags = count($this->tagMapper->getAvailableTags($this->getUser(), $filter));
+        $number_of_available_tags = count($this->tagMapper->getAvailableTags($this->getUser()));
 
         $this->userCacheRepository->invalidateNumberbAvailableTags($this->getUser()->getId());
 
@@ -226,8 +225,6 @@ class UserMapper
      */
     public function deleteUser(int $user_id)
     {
-        // destruction of the access linked to the user
-
         // deletion of calculated permissions linked to the user
         $this->userCacheAlbumRepository->deleteForUser($user_id);
         $this->userCacheRepository->deleteForUser($user_id);
@@ -239,13 +236,16 @@ class UserMapper
         $this->caddieRepository->emptyCaddies($user_id);
 
         $this->commentRepository->deleteByUserId($user_id);
+
         // remove  created_by user in image_tag
-        $this->em->getRepository(ImageTagRepository::class)->removeCreatedByKey($user_id);
+        $this->imageTagRepository->removeCreatedByKey($user_id);
 
         // destruction of data RSS notification for this user
         $this->userFeedRepository->deleteByUser($user_id);
+
         // // deletion of phyxo specific informations
         $this->userInfosRepository->deleteByUserId($user_id);
+
         // destruction of data notification by mail for this user
         $this->userMailNotificationRepository->deleteByUserId($user_id);
 

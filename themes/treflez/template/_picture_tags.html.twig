@@ -1,23 +1,23 @@
 <div>
-    {% if related_tags is defined %}
-	<div id="Tags" class="imageInfo">
-	    {% for tag in related_tags %}
-		<a class="btn btn-primary btn-raised mr-1{% if not tag.validated %} pending{% if tag.status==1 %} added{% else %} deleted{% endif %}{% endif %}" href="{{tag.URL}}">{{tag.name}}</a>
-	    {% endfor %}
-	</div>
-    {% endif %}
+	{% if related_tags is defined %}
+		<div id="Tags" class="imageInfo">
+			{% for tag in related_tags %}
+				<a class="btn btn-primary btn-raised mr-1{% if not tag.related_image_tag_infos.validated %} pending{% if tag.related_image_tag_infos.status==1 %} added{% else %} deleted{% endif %}{% endif %}" href="{{tag.URL}}">{{tag.name}}</a>
+			{% endfor %}
+		</div>
+	{% endif %}
 
-    {% if TAGS_PERMISSION_ADD %}
-	<form action="{{USER_TAGS_UPDATE_SCRIPT}}" method="post" id="user-tags-form" class="js-hidden mt-2">
-	    <select name="user_tags[]" id="user-tags" multiple="multiple">
-		{% if not related_tags is empty %}
-		    {% for tag in related_tags %}
-			<option value="~~{{tag.id}}~~" selected="selected">{{tag.name}}</option>
-		    {% endfor %}
-		{% endif %}
-	    </select>
-	    <input type="hidden" name="image_id" value="{{current.id}}">
-	    <input id="user-tags-update" class="btn btn-primary mt-2" name="user_tags_update" type="submit" value="{{'Update tags'|trans}}">
-	</form>
-    {% endif %}
+	{% if TAGS_PERMISSION_ADD %}
+		<form action="{{USER_TAGS_UPDATE_SCRIPT}}" method="post" id="user-tags-form" class="js-hidden mt-2">
+			<select name="user_tags[]" id="user-tags" multiple="multiple">
+				{% if not related_tags is empty %}
+					{% for tag in related_tags %}
+						<option value="~~{{tag.id}}~~" selected="selected">{{tag.name}}</option>
+					{% endfor %}
+				{% endif %}
+			</select>
+			<input type="hidden" name="image_id" value="{{current.id}}">
+			<input id="user-tags-update" class="btn btn-primary mt-2" name="user_tags_update" type="submit" value="{{'Update tags'|trans}}">
+		</form>
+	{% endif %}
 </div>

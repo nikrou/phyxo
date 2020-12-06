@@ -33,7 +33,7 @@ class Tag
         $total_count = 0;
 
         foreach ($tags as $tag) {
-            $total_count += $tag['counter'];
+            $total_count += $tag->getCounter();
         }
 
         // average count of available tags will determine the level of each tag
@@ -46,18 +46,17 @@ class Tag
         }
 
         // display sorted tags
-        foreach ($tags as &$tag) {
-            $tag['level'] = 1;
+        foreach ($tags as $tag) {
+            $tag->setLevel(1);
 
             // based on threshold, determine current tag level
             for ($i = $tags_levels - 1; $i >= 1; $i--) {
-                if ($tag['counter'] > $threshold_of_level[$i]) {
-                    $tag['level'] = $i + 1;
+                if ($tag->getCounter() > $threshold_of_level[$i]) {
+                    $tag->setLevel($i + 1);
                     break;
                 }
             }
         }
-        unset($tag);
 
         return $tags;
     }

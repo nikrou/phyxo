@@ -221,7 +221,7 @@ class AlbumController extends AdminCommonController
 
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_album', ['album_id' => $album_id, 'parent_id' => $parent_id]);
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
-        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['categories'], $em, $this->getDoctrine(), $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['categories'], $this->getDoctrine(), $this->generateUrl('homepage'));
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('properties', $album_id, $parent_id), $tpl_params);
@@ -501,7 +501,7 @@ class AlbumController extends AdminCommonController
 
         $tpl_params['CATEGORIES_NAV'] = $albumMapper->getAlbumsDisplayName($album->getUppercats(), 'admin_album', ['parent_id' => $parent_id]);
         $tpl_params['U_GROUPS'] = $this->generateUrl('admin_groups');
-        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['groups', 'users'], $em, $this->getDoctrine(), $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['groups', 'users'], $this->getDoctrine(), $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params['private'] = $album->getStatus() === Album::STATUS_PRIVATE;

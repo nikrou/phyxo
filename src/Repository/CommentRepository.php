@@ -109,7 +109,7 @@ class CommentRepository extends ServiceEntityRepository
     public function countGroupByImage(array $image_ids, bool $validated = true)
     {
         $qb = $this->createQueryBuilder('c');
-        $qb->select('COUNT(1)');
+        $qb->select('IDENTITY(c.image) AS image_id, COUNT(1) AS nb_comments');
         $qb->where('c.validated = :validated');
         $qb->setParameter('validated', $validated);
         $qb->andWhere($qb->expr()->in('c.image', $image_ids));

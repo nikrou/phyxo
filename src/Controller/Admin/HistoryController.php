@@ -25,7 +25,6 @@ use App\Repository\UserRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\URL;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
@@ -189,7 +188,8 @@ class HistoryController extends AdminCommonController
     }
 
     public function search(Request $request, SearchRepository $searchRepository, int $start, int $search_id = null, AlbumMapper $albumMapper, Conf $conf,
-                            EntityManager $em, ParameterBagInterface $params, UserRepository $userRepository, UserMapper $userMapper, ImageMapper $imageMapper)
+                            EntityManager $em, ParameterBagInterface $params, UserRepository $userRepository, UserMapper $userMapper, ImageMapper $imageMapper,
+                            TagRepository $tagRepository)
     {
         $tpl_params = [];
 
@@ -205,7 +205,7 @@ class HistoryController extends AdminCommonController
                 $rules = unserialize(base64_decode($search->getRules()));
             }
 
-            $tpl_params['search_results'] = $this->getElementFromSearchRules($rules, $start, $conf, $em, $albumMapper, $userMapper, $imageMapper, $userRepository);
+            $tpl_params['search_results'] = $this->getElementFromSearchRules($rules, $start, $conf, $em, $albumMapper, $userMapper, $imageMapper, $userRepository, $tagRepository);
             $tpl_params['search_summary'] = $tpl_params['search_results']['search_summary'];
             $nb_lines = $tpl_params['search_results']['nb_lines'];
 
@@ -247,7 +247,7 @@ class HistoryController extends AdminCommonController
     }
 
     protected function getElementFromSearchRules(array $rules, int $start, Conf $conf, EntityManager $em, AlbumMapper $albumMapper, UserMapper $userMapper,
-                                            ImageMapper $imageMapper, UserRepository $userRepository): array
+                                            ImageMapper $imageMapper, UserRepository $userRepository, TagRepository $tagRepository): array
     {
         $search_results = [];
 
@@ -319,11 +319,10 @@ class HistoryController extends AdminCommonController
 
         if ($has_tags > 0) {
             $name_of_tag = [];
-            $result = $em->getRepository(TagRepository::class)->findAll();
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                $name_of_tag[$row['id']] = [
-                    'name' => $row['name'],
-                    'url' => '<a href="' . $this->generateUrl('images_by_tags', ['tag_ids' => URL::tagToUrl($row)]) . '">' . $row['name'] . '</a>',
+            foreach ($tagRepository->findAll() as $tag) {
+                $name_of_tag[$tag->getId()] = [
+                    'name' => $tag->getName(),
+                    'url' => '<a href="' . $this->generateUrl('images_by_tags', ['tag_ids' => $tag->toUrl()]) . '">' . $tag->getName() . '</a>',
                 ];
             }
         }

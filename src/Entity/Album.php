@@ -506,15 +506,18 @@ class Album
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
-            'global_rank' => $this->getGlobalRank(),
-            'uppercats' => $this->getUppercats(),
+            'id_uppercat' => $this->getParent() ? $this->getParent()->getId() : null,
             'comment' => $this->getComment(),
-            'commentable' => $this->isCommentable(),
-            'status' => $this->getStatus(),
+            'dir' => $this->getDir(),
             'rank' => $this->getRank(),
+            'status' => $this->getStatus(),
             'visible' => $this->isVisible(),
             'representative_picture_id' => $this->getRepresentativePictureId(),
-            'image_order' => $this->getImageOrder()
+            'uppercats' => $this->getUppercats(),
+            'commentable' => $this->isCommentable(),
+            'global_rank' => $this->getGlobalRank(),
+            'image_order' => $this->getImageOrder(),
+            'last_modified' => $this->getLastModified(),
         ];
     }
 }

@@ -141,7 +141,7 @@ class PhotosController extends AdminCommonController
               'admin'
             );
         }
-        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['categories'], $em, $this->getDoctrine(), $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['categories'], $this->getDoctrine(), $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');

@@ -16,12 +16,12 @@ use Phyxo\MenuBar;
 use Phyxo\Conf;
 use Phyxo\Functions\Language;
 use App\DataMapper\TagMapper;
-use Phyxo\EntityManager;
 use App\Repository\TagRepository;
 use App\DataMapper\ImageMapper;
+use App\Entity\Tag as EntityTag;
+use Phyxo\Functions\Tag;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
-use Phyxo\Functions\URL;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TagController extends CommonController
@@ -46,12 +46,11 @@ class TagController extends CommonController
         $tpl_params['display_mode'] = $display_mode;
 
         // find all tags available for the current user
-        $filter = [];
-        $tags = $tagMapper->getAvailableTags($this->getUser(), $filter);
+        $tags = $tagMapper->getAvailableTags($this->getUser());
 
         if ($display_mode === 'letters') {
             // we want tags diplayed in alphabetic order
-            usort($tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
+            usort($tags, [$tagMapper, 'alphaCompare']);
 
             $current_letter = null;
             $nb_tags = count($tags);
@@ -61,7 +60,7 @@ class TagController extends CommonController
             $letter = ['tags' => [], 'CHANGE_COLUMN' => false];
 
             foreach ($tags as $tag) {
-                $tag_letter = mb_strtoupper(mb_substr(Language::transliterate($tag['name']), 0, 1, 'utf-8'), 'utf-8');
+                $tag_letter = mb_strtoupper(mb_substr(Language::transliterate($tag->getName()), 0, 1, 'utf-8'), 'utf-8');
 
                 if ($current_tag_idx == 0) {
                     $current_letter = $tag_letter;
@@ -84,9 +83,9 @@ class TagController extends CommonController
                 }
 
                 $letter['tags'][] = array_merge(
-                    $tag,
+                    $tag->toArray(),
                     [
-                        'URL' => $this->generateUrl('images_by_tags', ['tag_ids' => URL::tagToUrl($tag)])
+                        'URL' => $this->generateUrl('images_by_tags', ['tag_ids' => $tag->toUrl()])
                     ]
                 );
 
@@ -102,21 +101,21 @@ class TagController extends CommonController
         } else {
             // we want only the first most represented tags, so we sort them by counter
             // and take the first tags
-            usort($tags, '\Phyxo\Functions\Utils::counter_compare');
+            usort($tags, [$tagMapper, 'counterCompare']);
             $tags = array_slice($tags, 0, $conf['full_tag_cloud_items_number']);
 
             // depending on its counter and the other tags counter, each tag has a level
-            $tags = \Phyxo\Functions\Tag::addLevelToTags($tags);
+            $tags = Tag::addLevelToTags($tags);
 
             // we want tags diplayed in alphabetic order
-            usort($tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
+            usort($tags, [$tagMapper, 'alphaCompare']);
 
             // display sorted tags
             foreach ($tags as $tag) {
                 $tpl_params['tags'][] = array_merge(
-                    $tag,
+                    $tag->toArray(),
                     [
-                        'URL' => $this->generateUrl('images_by_tags', ['tag_ids' => URL::tagToUrl($tag)])
+                        'URL' => $this->generateUrl('images_by_tags', ['tag_ids' => $tag->toUrl()])
                     ]
                 );
             }
@@ -130,8 +129,8 @@ class TagController extends CommonController
         return $this->render('tags.html.twig', $tpl_params);
     }
 
-    public function imagesByTags(Request $request, EntityManager $em, ImageMapper $imageMapper, ImageStandardParams $image_std_params, string $tag_ids,
-                                    Conf $conf, MenuBar $menuBar, int $start = 0, TranslatorInterface $translator)
+    public function imagesByTags(Request $request, ImageMapper $imageMapper, ImageStandardParams $image_std_params, string $tag_ids,
+                                    Conf $conf, MenuBar $menuBar, int $start = 0, TranslatorInterface $translator, TagRepository $tagRepository)
     {
         $tpl_params = [];
 
@@ -142,19 +141,24 @@ class TagController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        $requested_tag_ids = array_map(function($tag) {
-            return substr($tag, 0, strpos($tag, '-'));
-        }, explode('/', $tag_ids));
-        $requested_tag_url_names = [];
+        $requested_tag_ids = array_map(
+            function($tag) {
+                return substr($tag, 0, strpos($tag, '-'));
+            },
+            explode('/', $tag_ids)
+        );
 
-        $result = $em->getRepository(TagRepository::class)->findTags($requested_tag_ids, $requested_tag_url_names);
-        $tpl_params['tags'] = $em->getConnection()->result2array($result);
+        $tpl_params['tags'] = [];
+        foreach ($tagRepository->findBy(['id' => $requested_tag_ids]) as $tag) {
+            $tpl_params['tags'][] = $tag;
+        }
 
         $tpl_params['TITLE'] = $this->getTagsContentTitle($tpl_params['tags'], $translator);
 
-        $filter = [];
-        $result = $em->getRepository(TagRepository::class)->getImageIdsForTags($this->getUser(), $filter, $requested_tag_ids);
-        $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'id');
+        $tpl_params['items'] = [];
+        foreach ($imageMapper->getRepository()->getImageIdsForTags($this->getUser()->getForbiddenCategories(), $requested_tag_ids) as $image) {
+            $tpl_params['items'][] = $image->getId();
+        }
 
         if (count($tpl_params['items']) > 0) {
             $nb_image_page = $this->getUser()->getNbImagePage();
@@ -208,9 +212,9 @@ class TagController extends CommonController
 
         for ($i = 0; $i < count($tags); $i++) {
             $title .= $i > 0 ? ' + ' : '';
-            $title .= '<a href="' . $this->generateUrl('images_by_tags', ['tag_ids' => URL::tagToUrl($tags[$i])]) . '"';
+            $title .= '<a href="' . $this->generateUrl('images_by_tags', ['tag_ids' => $tags[$i]->toUrl()]) . '"';
             $title .= ' title="' . $translator->trans('display photos linked to this tag') . '">';
-            $title .= $tags[$i]['name'];
+            $title .= $tags[$i]->getName();
             $title .= '</a>';
 
             if (count($tags) > 2) {
@@ -218,7 +222,9 @@ class TagController extends CommonController
                 unset($other_tags[$i]);
                 $remove_url = $this->generateUrl(
                     'images_by_tags',
-                    ['tag_ids' => implode('/', array_map('\Phyxo\Functions\URL::tagToUrl', $other_tags))]
+                    ['tag_ids' => implode('/', array_map(function(EntityTag $tag) {
+                        return $tag->toUrl();
+                    }, $other_tags))]
                 );
 
                 $title .= '<a href="' . $remove_url . '" title="';

@@ -33,7 +33,8 @@ class DashboardController extends AdminCommonController
 {
     public function index(Request $request, bool $check_upgrade = false, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
                           UserRepository $userRepository, GroupRepository $groupRepository, HttpClientInterface $client, AlbumRepository $albumRepository,
-                          ImageMapper $imageMapper, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository, RateRepository $rateRepository)
+                          ImageMapper $imageMapper, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository, RateRepository $rateRepository,
+                          TagRepository $tagRepository, ImageTagRepository $imageTagRepository)
     {
         $tpl_params = [];
 
@@ -68,8 +69,8 @@ class DashboardController extends AdminCommonController
         $nb_virtual = $albumRepository->countByType($virtual = true);
         $nb_physical = $albumRepository->countByType($virtual = false);
         $nb_image_category = $imageAlbumRepository->count([]);
-        $nb_tags = $em->getRepository(TagRepository::class)->count();
-        $nb_image_tag = $em->getRepository(ImageTagRepository::class)->count();
+        $nb_tags = $tagRepository->count([]);
+        $nb_image_tag = $imageTagRepository->count([]);
         $nb_users = $userRepository->count([]);
         $nb_groups = $groupRepository->count([]);
         $nb_rates = $rateRepository->count([]);
@@ -87,7 +88,7 @@ class DashboardController extends AdminCommonController
                 'DB_IMAGE_CATEGORY' => $translator->trans('number_of_associations', ['count' => $nb_image_category], 'admin'),
                 'DB_TAGS' => $translator->trans('number_of_tags', ['count' => $nb_tags], 'admin'),
                 'DB_IMAGE_TAG' => $translator->trans('number_of_associations', ['count' => $nb_image_tag], 'admin'),
-                'NB_PENDING_TAGS' => $em->getRepository(TagRepository::class)->getPendingTags($count_only = true),
+                'NB_PENDING_TAGS' => $tagRepository->getPendingTags($count_only = true),
                 'U_PENDING_TAGS' => $this->generateUrl('admin_tags_pending'),
                 'DB_USERS' => $translator->trans('number_of_users', ['count' => $nb_users], 'admin'),
                 'DB_GROUPS' => $translator->trans('number_of_groups', ['count' => $nb_groups], 'admin'),

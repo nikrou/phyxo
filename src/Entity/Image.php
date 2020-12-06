@@ -159,11 +159,17 @@ class Image
      */
     private $rates;
 
+    /**
+     * @ORM\OneToMany(targetEntity=ImageTag::class, mappedBy="image", orphanRemoval=true, cascade={"persist", "remove"})
+     */
+    private $imageTags;
+
     public function __construct()
     {
         $this->imageAlbums = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->rates = new ArrayCollection();
+        $this->imageTags = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -509,76 +515,6 @@ class Image
         return $this;
     }
 
-    public function toArray(): array
-    {
-        return [
-            'id' => $this->getId(),
-            'path' => $this->getPath(),
-            'representative_ext' => $this->getRepresentativeExt(),
-            'width' => $this->getWidth(),
-            'height' => $this->getHeight(),
-            'rotation' => $this->getRotation(),
-            'hit' => $this->getHit(),
-            'file' => $this->getFile(),
-            'name' => $this->getName(),
-            'comment' => $this->getComment(),
-            'rating_score' => $this->getRatingScore(),
-            'date_creation' => $this->getDateCreation(),
-            'date_available' => $this->getDateAvailable(),
-        ];
-    }
-
-    public function fromArray(array $values = [])
-    {
-        if (isset($values['path'])) {
-            $this->setPath($values['path']);
-        }
-
-        if (isset($values['representative_ext'])) {
-            $this->setRepresentativeExt($values['representative_ext']);
-        }
-
-        if (isset($values['width'])) {
-            $this->setWidth($values['width']);
-        }
-
-        if (isset($values['height'])) {
-            $this->setHeight($values['height']);
-        }
-
-        if (isset($values['rotation'])) {
-            $this->setRotation($values['rotation']);
-        }
-
-        if (isset($values['hit'])) {
-            $this->setHit($values['hit']);
-        }
-
-        if (isset($values['file'])) {
-            $this->setFile($values['file']);
-        }
-
-        if (isset($values['name'])) {
-            $this->setName($values['name']);
-        }
-
-        if (isset($values['comment'])) {
-            $this->setComment($values['comment']);
-        }
-
-        if (isset($values['rating_score'])) {
-            $this->setRatingScore($values['rating_score']);
-        }
-
-        if (isset($values['date_creation'])) {
-            $this->setDateCreation($values['date_creation']);
-        }
-
-        if (isset($values['date_available'])) {
-            $this->setDateAvailable($values['date_available']);
-        }
-    }
-
     /**
      * @return Collection|Rate[]
      */
@@ -604,6 +540,162 @@ class Image
             // set the owning side to null (unless already changed)
             if ($rate->getImage() === $this) {
                 $rate->setImage(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'file' => $this->getFile(),
+            'date_available' => $this->getDateAvailable(),
+            'date_creation' => $this->getDateCreation(),
+            'name' => $this->getName(),
+            'comment' => $this->getComment(),
+            'author' => $this->getAuthor(),
+            'hit' => $this->getHit(),
+            'filesize' => $this->getFilesize(),
+            'width' => $this->getWidth(),
+            'height' => $this->getHeight(),
+            'coi' => $this->getCoi(),
+            'representative_ext' => $this->getRepresentativeExt(),
+            'date_metadata_update' => $this->getDateMetadataUpdate(),
+            'rating_score' => $this->getRatingScore(),
+            'path' => $this->getPath(),
+            'storage_category_id' => $this->getStorageCategoryId(),
+            'level' => $this->getLevel(),
+            'md5sum' => $this->getMd5sum(),
+            'added_by' => $this->getAddedBy(),
+            'rotation' => $this->getRotation(),
+            'latitude' => $this->getLatitude(),
+            'longitude' => $this->getLongitude(),
+            'last_modified' => $this->getLastModified(),
+        ];
+    }
+
+    public function fromArray(array $values = [])
+    {
+        if (isset($values['file'])) {
+            $this->setFile($values['file']);
+        }
+
+        if (isset($values['date_available'])) {
+            $this->setDateAvailable($values['date_available']);
+        }
+
+        if (isset($values['date_creation'])) {
+            $this->setDateCreation($values['date_creation']);
+        }
+
+        if (isset($values['name'])) {
+            $this->setName($values['name']);
+        }
+
+        if (isset($values['comment'])) {
+            $this->setComment($values['comment']);
+        }
+
+        if (isset($values['author'])) {
+            $this->setAuthor($values['author']);
+        }
+
+        if (isset($values['hit'])) {
+            $this->setHit($values['hit']);
+        }
+
+        if (isset($values['filesize'])) {
+            $this->setFilesize($values['filesize']);
+        }
+
+        if (isset($values['width'])) {
+            $this->setWidth($values['width']);
+        }
+
+        if (isset($values['height'])) {
+            $this->setHeight($values['height']);
+        }
+
+        if (isset($values['coi'])) {
+            $this->setCoi($values['coi']);
+        }
+
+        if (isset($values['representative_ext'])) {
+            $this->setRepresentativeExt($values['representative_ext']);
+        }
+
+        if (isset($values['date_metadata_update'])) {
+            $this->setDateMetadataUpdate($values['date_metadata_update']);
+        }
+
+        if (isset($values['rating_score'])) {
+            $this->setRatingScore($values['rating_score']);
+        }
+
+        if (isset($values['path'])) {
+            $this->setPath($values['path']);
+        }
+
+        if (isset($values['storage_category_id'])) {
+            $this->setStorageCategoryId($values['storage_category_id']);
+        }
+
+        if (isset($values['level'])) {
+            $this->setLevel($values['level']);
+        }
+
+        if (isset($values['md5sum'])) {
+            $this->setMd5sum($values['md5sum']);
+        }
+
+        if (isset($values['added_by'])) {
+            $this->setAddedBy($values['added_by']);
+        }
+
+        if (isset($values['rotation'])) {
+            $this->setRotation($values['rotation']);
+        }
+
+        if (isset($values['latitude'])) {
+            $this->setLatitude($values['latitude']);
+        }
+
+        if (isset($values['longitude'])) {
+            $this->setLongitude($values['longitude']);
+        }
+
+        if (isset($values['last_modified'])) {
+            $this->setLastModified($values['last_modified']);
+        }
+    }
+
+    /**
+     * @return Collection|ImageTag[]
+     */
+    public function getImageTags(): Collection
+    {
+        return $this->imageTags;
+    }
+
+    public function addImageTag(ImageTag $imageTag): self
+    {
+        if (!$this->imageTags->contains($imageTag)) {
+            $this->imageTags[] = $imageTag;
+            $imageTag->setImage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImageTag(ImageTag $imageTag): self
+    {
+        if ($this->imageTags->contains($imageTag)) {
+            $this->imageTags->removeElement($imageTag);
+            // set the owning side to null (unless already changed)
+            if ($imageTag->getImage() === $this) {
+                $imageTag->setImage(null);
             }
         }
 

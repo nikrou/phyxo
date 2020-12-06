@@ -162,7 +162,7 @@ DROP TABLE IF EXISTS `phyxo_image_tag`;
 CREATE TABLE `phyxo_image_tag` (
   `image_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
   `tag_id` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
-  `validated` enum('true','false') NOT NULL DEFAULT 'true',
+  `validated` TINYINT(1) NOT NULL DEFAULT 1,
   `created_by` MEDIUMINT(8) UNSIGNED DEFAULT NULL,
   `status` SMALLINT(3) DEFAULT 1,
   PRIMARY KEY  (`image_id`,`tag_id`),

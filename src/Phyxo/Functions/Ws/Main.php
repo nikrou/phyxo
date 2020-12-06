@@ -14,11 +14,10 @@ namespace Phyxo\Functions\Ws;
 use App\Entity\Comment;
 use App\Entity\Group;
 use App\Entity\ImageAlbum;
+use App\Entity\ImageTag;
 use App\Entity\User;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
-use App\Repository\TagRepository;
-use App\Repository\ImageTagRepository;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\SrcImage;
 
@@ -124,8 +123,8 @@ class Main
         $infos['nb_virtual'] = $service->getAlbumMapper()->getRepository()->countByType($virtual = true);
         $infos['nb_physical'] = $service->getAlbumMapper()->getRepository()->countByType($virtual = false);
         $infos['nb_image_category'] = $service->getManagerRegistry()->getRepository(ImageAlbum::class)->count([]);
-        $infos['nb_tags'] = (new TagRepository($service->getConnection()))->count();
-        $infos['nb_image_tag'] = (new ImageTagRepository($service->getConnection()))->count();
+        $infos['nb_tags'] = $service->getTagMapper->getRepository()->count([]);
+        $infos['nb_image_tag'] = $service->getManagerRegistry()->getRepository(ImageTag::class)->count([]);
         $infos['nb_users'] = $service->getManagerRegistry()->getRepository(User::class)->count([]);
         $infos['nb_groups'] = $service->getManagerRegistry()->getRepository(Group::class)->count([]);
         $infos['nb_comments'] = $service->getManagerRegistry()->getRepository(Comment::class)->count([]);

@@ -848,6 +848,16 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    public function searchImages(array $forbidden_categories = [], array $clauses, string $order)
+    {
+        $qb = $this->createQueryBuilder('i');
+        foreach ($clauses as $clause) {
+            $qb->orWhere($clause);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
     public function deleteByIds(array $ids)
     {
         $qb = $this->createQueryBuilder('i');
@@ -894,5 +904,28 @@ class ImageRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getSingleScalarResult() > 0;
+    }
+
+    public function getImageIdsForTags(array $forbidden_categories = [], array $tag_ids = [], string $mode = 'AND')
+    {
+        if (empty($tag_ids)) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('i');
+        $qb->leftJoin('i.imageTags', 'it');
+        $qb->where($qb->expr()->in('it.tag', $tag_ids));
+
+        if (count($forbidden_categories) > 0) {
+            $qb->leftJoin('i.imageAlbums', 'ia');
+            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
+        }
+
+        if ($mode === 'AND') {
+            $qb->groupBy('i.id');
+            $qb->having('COUNT(DISTINCT(it.tag)) = ' . count($tag_ids));
+        }
+
+        return $qb->getQuery()->getResult();
     }
 }

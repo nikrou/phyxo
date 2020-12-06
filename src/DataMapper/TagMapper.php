@@ -11,6 +11,10 @@
 
 namespace App\DataMapper;
 
+use App\Entity\Image;
+use App\Entity\ImageTag;
+use App\Entity\Tag;
+use App\Entity\User;
 use App\Metadata;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Conf;
@@ -18,59 +22,80 @@ use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\ImageRepository;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Phyxo\EntityManager;
+use Phyxo\Functions\Language;
 use Phyxo\Image\SrcImage;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TagMapper
 {
-    private $em, $conf, $image_std_params, $router, $metadata, $translator, $userCacheRepository, $imageRepository;
+    private $conf, $image_std_params, $router, $metadata, $userCacheRepository, $imageRepository, $tagRepository, $imageTagRepository;
 
-    public function __construct(EntityManager $em, Conf $conf, ImageStandardParams $image_std_params, RouterInterface $router, Metadata $metadata, TranslatorInterface $translator,
-                                UserCacheRepository $userCacheRepository, ImageRepository $imageRepository)
+    public function __construct(Conf $conf, ImageStandardParams $image_std_params, RouterInterface $router, Metadata $metadata, ImageTagRepository $imageTagRepository,
+                                UserCacheRepository $userCacheRepository, ImageRepository $imageRepository, TagRepository $tagRepository)
     {
-        $this->em = $em;
         $this->conf = $conf;
         $this->image_std_params = $image_std_params;
         $this->router = $router;
         $this->metadata = $metadata;
-        $this->translator = $translator;
         $this->userCacheRepository = $userCacheRepository;
         $this->imageRepository = $imageRepository;
+        $this->tagRepository = $tagRepository;
+        $this->imageTagRepository = $imageTagRepository;
+    }
+
+    public function getRepository(): TagRepository
+    {
+        return $this->tagRepository;
+    }
+
+    public function alphaCompare(Tag $a, Tag $b)
+    {
+        return strcmp(Language::transliterate($a->getName()), Language::transliterate($b->getName()));
+    }
+
+    public function counterCompare(Tag $a, Tag $b)
+    {
+        if ($a->getCounter() === $b->getCounter()) {
+            return ($a->getId() < $b->getId()) ? -1 : 1;
+        }
+
+        return ($a->getCounter() < $b->getCounter()) ? +1 : -1;
     }
 
     /**
      * Returns all tags even associated to no image.
-     * The list can be filtered
-     *
-     * @param  q string substring of tag to search
-     * @return array [id, name, url_name]
+     * The list can be filtered by $q
      */
     public function getAllTags(string $q = '')
     {
-        $result = $this->em->getRepository(TagRepository::class)->findAll($q);
         $tags = [];
-        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $tags[] = $row;
+        foreach ($this->getRepository()->searchAll($q) as $tag) {
+            $tags[] = $tag;
         }
 
-        usort($tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
+        usort($tags, [$this, 'alphaCompare']);
 
         return $tags;
     }
 
     public function getPendingTags()
     {
-        $result = $this->em->getRepository(TagRepository::class)->getPendingTags();
         $tags = [];
         $params = $this->image_std_params->getByType(ImageStandardParams::IMG_THUMB);
-        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $row['thumb_src'] = (new DerivativeImage(new SrcImage($row, $this->conf['picture_ext']), $params, $this->image_std_params))->getUrl();
-            $row['picture_url'] = $this->router->generate('admin_photo', ['image_id' => $row['image_id']]);
-            $tags[] = $row;
+        foreach ($this->getRepository()->getPendingTags() as $tag) {
+            $image_tag = $tag->getImageTags()->first();
+            $image = $image_tag->getImage();
+            $tags[] = array_merge(
+                $tag->toArray(),
+                [
+                    'image_id' => $image->getId(),
+                    'created_by' => $image_tag->getCreatedBy(),
+                    'status' => $image_tag->getStatus(),
+                    'thumb_src' => (new DerivativeImage(new SrcImage($image->toArray(), $this->conf['picture_ext']), $params, $this->image_std_params))->getUrl(),
+                    'picture_url' => $this->router->generate('admin_photo', ['image_id' => $image->getId()]),
+                ]
+            );
         }
 
         usort($tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
@@ -85,53 +110,61 @@ class TagMapper
      *
      * @return array [id, name, counter, url_name]
      */
-    public function getAvailableTags(UserInterface $user, array $filter = [])
+    public function getAvailableTags(User $user)
     {
-        $result = $this->em->getRepository(TagRepository::class)->getAvailableTags($user, $filter, $this->conf['show_pending_added_tags'] ?? false);
-
-        // merge tags whether they are validated or not
-        $tag_counters = [];
-        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            if (!isset($tag_counters[$row['tag_id']])) {
-                $tag_counters[$row['tag_id']] = $row;
-            } else {
-                $tag_counters[$row['tag_id']]['counter'] += $row['counter'];
-            }
-        }
-
-        if (empty($tag_counters)) {
-            return [];
-        }
-
-        $result = $this->em->getRepository(TagRepository::class)->findAll();
-
         $tags = [];
-        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            if (!empty($tag_counters[$row['id']])) {
-                $row['counter'] = (int)$tag_counters[$row['id']]['counter'];
-                $row['status'] = $tag_counters[$row['id']]['status'];
-                $row['created_by'] = $tag_counters[$row['id']]['created_by'];
-                $row['validated'] = $this->em->getConnection()->get_boolean($tag_counters[$row['id']]['validated']);
-                $tags[] = $row;
-            }
+        $available_tags = $this->getRepository()->getAvailableTags($user->getId(), $user->getForbiddenCategories(), $this->conf['show_pending_added_tags'] ?? false);
+        foreach ($available_tags as $row) {
+            $tag = $row[0];
+            $tag->setCounter($row['counter']);
+            $tags[] = $tag;
         }
 
         return $tags;
     }
 
-    public function getCommonTags(UserInterface $user, $items, $max_tags, $excluded_tag_ids = [])
+    public function getRelatedTags(User $user, int $image_id, int $max_tags, array $excluded_tag_ids = [])
     {
-        if (empty($items)) {
+        $tags = [];
+        $related_tags = $this->getRepository()->getRelatedTags(
+            $user->getId(), $image_id, $max_tags,
+            $this->conf['show_pending_added_tags'] ?? false,
+            $this->conf['show_pending_deleted_tags'] ?? false
+        );
+        foreach ($related_tags as $tag) {
+            $image_tag = $tag->getImageTags()->filter(function(ImageTag $it) use ($tag) {
+                return $it->getTag()->getId() === $tag->getId();
+            })->first();
+
+            $tag->setRelatedImageTagInfos($image_tag);
+            $tags[] = $tag;
+        }
+
+        usort($tags, [$this, 'alphaCompare']);
+
+        return $tags;
+    }
+
+    public function getCommonTags(User $user, array $items, int $max_tags, array $excluded_tag_ids = [])
+    {
+        if (count($items) === 0) {
             return [];
         }
 
-        $result = $this->em->getRepository(TagRepository::class)->getCommonTags($user->getId(), $items, $max_tags, $this->conf['show_pending_added_tags'] ?? false, $excluded_tag_ids);
         $tags = [];
-        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $row['validated'] = $this->em->getConnection()->get_boolean($row['validated']);
-            $tags[] = $row;
+        foreach ($this->getRepository()->getCommonTags($user->getId(), $items, $max_tags, $excluded_tag_ids) as $row) {
+            $tag = $row[0];
+            $tag->setCounter($row['counter']);
+
+            $image_tag = $tag->getImageTags()->filter(function(ImageTag $it) use ($tag) {
+                return $it->getTag()->getId() === $tag->getId();
+            })->first();
+
+            $tag->setCounter($image_tag->isValidated());
+            $tags[] = $tag;
         }
-        usort($tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
+
+        usort($tags, [$this, 'alphaCompare']);
 
         return $tags;
     }
@@ -148,21 +181,18 @@ class TagMapper
         $taglist = [];
         $altlist = [];
         foreach ($tags as $tag) {
-            $raw_name = $tag['name'];
-            $name = $raw_name;
-
             $taglist[] = [
-                'name' => $name,
-                'id' => '~~' . $tag['id'] . '~~',
+                'name' => $tag->getName(),
+                'id' => '~~' . $tag->getId() . '~~',
             ];
 
             if (!$only_user_language) {
                 $alt_names = [];
 
-                foreach (array_diff(array_unique($alt_names), [$name]) as $alt) {
+                foreach (array_diff(array_unique($alt_names), [$tag->getName()]) as $alt) {
                     $altlist[] = [
                         'name' => $alt,
-                        'id' => '~~' . $tag['id'] . '~~',
+                        'id' => '~~' . $tag->getId() . '~~',
                     ];
                 }
             }
@@ -209,62 +239,54 @@ class TagMapper
 
     /**
      * Returns a tag id from its name. If nothing found, create a new tag.
-     *
-     * @param string $tag_name
-     * @return int
      */
     public function tagIdFromTagName(string $tag_name) : int
     {
         $tag_name = trim($tag_name);
 
-        // search existing by exact name
-        $result = $this->em->getRepository(TagRepository::class)->findBy('name', $tag_name);
-        $existing_tags = $this->em->getConnection()->result2array($result, null, 'id');
-
-        if (count($existing_tags) === 0) {
-            $url_name = $tag_name;
+        $tag = $this->getRepository()->findOneBy(['name' => $tag_name]);
+        if (is_null($tag)) {
             // search existing by url name
-            $result = $this->em->getRepository(TagRepository::class)->findBy('url_name', $url_name);
-            $existing_tags = $this->em->getConnection()->result2array($result, null, 'id');
+            $tag = $this->getRepository()->findOneBy(['url_name' => $tag_name]);
 
-            if (count($existing_tags) === 0) { // finally create the tag
-                $insert_tag_id = $this->em->getRepository(TagRepository::class)->insertTag($tag_name, $url_name);
+            if (is_null($tag)) { // finally create the tag
+                $tag = new Tag();
+                $tag->setName($tag_name);
+                $tag->setUrlName($tag_name);
+                $tag->setLastModified(new \DateTime());
+                $this->getRepository()->addOrUpdateTag($tag);
 
                 $this->invalidateUserCacheNbTags();
-
-                return $insert_tag_id;
             }
         }
 
-        return $existing_tags[0];
+        return $tag->getId();
     }
 
     /**
      * Add new tags to a set of images.
      */
-    public function addTags(array $tags, array $images)
+    public function addTags(array $tag_ids, array $image_ids)
     {
-        if (count($tags) == 0 or count($images) == 0) {
+        if (count($tag_ids) === 0 or count($image_ids) === 0) {
             return;
         }
 
-        // we can't insert twice the same {image_id,tag_id} so we must first
-        // delete lines we'll insert later
-        $this->em->getRepository(TagRepository::class)->deleteByImagesAndTags($images, $tags);
-
-        $inserts = [];
-        foreach ($images as $image_id) {
-            foreach (array_unique($tags) as $tag_id) {
-                $inserts[] = [
-                    'image_id' => $image_id,
-                    'tag_id' => $tag_id,
-                ];
-            }
+        $tags = [];
+        foreach ($this->getRepository()->findBy(['id' => array_unique($tag_ids)]) as $tag) {
+            $tags[] = $tag;
         }
-        $this->em->getRepository(ImageTagRepository::class)->insertImageTags(
-            array_keys($inserts[0]),
-            $inserts
-        );
+
+        foreach ($this->imageRepository->findBy(['id' => $image_ids]) as $image) {
+            foreach ($tags as $tag) {
+                $image_tag = new ImageTag();
+                $image_tag->setImage($image);
+                $image_tag->setTag($tag);
+                $image->addImageTag($image_tag);
+            }
+            $this->imageRepository->addOrUpdateImage($image);
+        }
+
         $this->invalidateUserCacheNbTags();
     }
 
@@ -287,8 +309,8 @@ class TagMapper
      */
     public function deleteTags(array $tag_ids)
     {
-        $this->em->getRepository(ImageTagRepository::class)->deleteBy('tag_id', $tag_ids);
-        $this->em->getRepository(TagRepository::class)->deleteBy('id', $tag_ids);
+        $this->imageTagRepository->deleteByTagIds($tag_ids);
+        $this->getRepository()->deleteTags($tag_ids);
 
         $this->invalidateUserCacheNbTags();
     }
@@ -301,24 +323,26 @@ class TagMapper
     public function setTagsOf(array $tags_of)
     {
         if (count($tags_of) > 0) {
-            $this->em->getRepository(ImageTagRepository::class)->deleteBy('image_id', array_keys($tags_of));
+            $tag_ids = [];
+            foreach ($tags_of as $ids) {
+                $tag_ids = array_merge($tag_ids, $ids);
+            }
+            $tag_ids = array_unique($tag_ids);
 
-            $inserts = [];
-
-            foreach ($tags_of as $image_id => $tag_ids) {
-                foreach (array_unique($tag_ids) as $tag_id) {
-                    $inserts[] = [
-                        'image_id' => $image_id,
-                        'tag_id' => $tag_id
-                    ];
-                }
+            $tags = [];
+            foreach ($this->getRepository()->findBy(['id' => array_unique($tag_ids)]) as $tag) {
+                $tags[] = $tag;
             }
 
-            if (count($inserts)) {
-                $this->em->getRepository(ImageTagRepository::class)->insertImageTags(
-                    array_keys($inserts[0]),
-                    $inserts
-                );
+            foreach ($this->imageRepository->findBy(['id' => array_keys($tags_of)]) as $image) {
+                $image->getImageTags()->clear();
+                foreach ($tags as $tag) {
+                    $image_tag = new ImageTag();
+                    $image_tag->setImage($image);
+                    $image_tag->setTag($tag);
+                    $image->addImageTag($image_tag);
+                }
+                $this->imageRepository->addOrUpdateImage($image);
             }
 
             $this->invalidateUserCacheNbTags();
@@ -330,156 +354,92 @@ class TagMapper
      */
     public function deleteOrphanTags()
     {
-        $result = $this->em->getRepository(TagRepository::class)->getOrphanTags();
-        $orphan_tags = $this->em->getConnection()->result2array($result);
+        $orphan_tags = [];
+        foreach ($this->getRepository()->getOrphanTags() as $tag) {
+            $orphan_tags[] = $tag->getId();
+        }
 
         if (count($orphan_tags) > 0) {
-            $orphan_tag_ids = [];
-            foreach ($orphan_tags as $tag) {
-                $orphan_tag_ids[] = $tag['id'];
-            }
-
-            $this->deleteTags($orphan_tag_ids);
-        }
-    }
-
-    /**
-     * Create a new tag.
-     *
-     * @param string $tag_name
-     * @return array ('id', info') or ('error')
-     */
-    public function createTag(string $tag_name) : array
-    {
-        // does the tag already exists?
-        $result = $this->em->getRepository(TagRepository::class)->findBy('name', $tag_name);
-        $existing_tags = $this->em->getConnection()->result2array($result, null, 'id');
-
-        if (count($existing_tags) === 0) {
-            $inserted_id = $this->em->getRepository(TagRepository::class)->insertTag($tag_name, $tag_name);
-
-            return [
-                'info' => $this->translator->trans('Tag "{tag}" was added', ['tag' => $tag_name]),
-                'id' => $inserted_id,
-            ];
-        } else {
-            return ['error' => $this->translator->trans('Tag "{tag}" already exists', ['tag' => $tag_name])];
+            $this->deleteTags($orphan_tags);
         }
     }
 
     public function associateTags(array $tag_ids, int $image_id)
     {
-        if (!is_array($tag_ids)) {
+        if (count($tag_ids) === 0) {
             return;
         }
 
-        $inserts = [];
-        foreach ($tag_ids as $tag_id) {
-            $inserts[] = [
-                'image_id' => $image_id,
-                'tag_id' => $tag_id
-            ];
+        $image = $this->imageRepository->find($image_id);
+        foreach ($this->getRepository()->findBy(['id' => array_unique($tag_ids)]) as $tag) {
+            $image_tag = new ImageTag();
+            $image_tag->setImage($image);
+            $image_tag->setTag($tag);
+            $image->addImageTag($image_tag);
         }
-        $this->em->getRepository(ImageTagRepository::class)->insertImageTags(
-            array_keys($inserts[0]),
-            $inserts
-        );
+        $this->imageRepository->addOrUpdateImage($image);
         $this->invalidateUserCacheNbTags();
     }
 
-    // @param $elements in an array of tags indexed by image_id
+    // @param $elements is an array of tags indexed by image_id
     public function rejectTags(array $elements)
     {
         if (empty($elements)) {
             return;
         }
-        $deletes = [];
-        foreach ($elements as $image_id => $tag_ids) {
-            foreach ($tag_ids as $tag_id) {
-                $deletes[] = [
-                    'image_id' => $image_id,
-                    'tag_id' => $tag_id
-                ];
-            }
-        }
-        $this->em->getRepository(ImageTagRepository::class)->deleteImageTags($deletes);
+        $this->imageTagRepository->deleteImageTags($elements);
     }
 
     // @param $elements in an array of tags indexed by image_id
     public function validateTags(array $elements)
     {
-        if (empty($elements)) {
+        if (count($elements) === 0) {
             return;
         }
-        $updates = [];
-        foreach ($elements as $image_id => $tag_ids) {
-            foreach ($tag_ids as $tag_id) {
-                $updates[] = [
-                    'image_id' => $image_id,
-                    'tag_id' => $tag_id,
-                    'validated' => $this->em->getConnection()->boolean_to_db(true)
-                ];
-            }
-        }
-        $this->em->getRepository(ImageTagRepository::class)->updateImageTags(
-            [
-                'primary' => ['tag_id', 'image_id'],
-                'update' => ['validated']
-            ],
-            $updates
-        );
-        $this->em->getRepository(TagRepository::class)->deleteValidated();
+
+        $this->imageTagRepository->validatedImageTags($elements);
+        $this->imageTagRepository->deleteMarkDeletedAndValidated();
         $this->invalidateUserCacheNbTags();
     }
 
-    public function dissociateTags($tag_ids, $image_id)
+    public function dissociateTags(array $tag_ids, int $image_id)
     {
-        if (!is_array($tag_ids)) {
+        if (count($tag_ids) === 0) {
             return;
         }
 
-        $this->em->getRepository(TagRepository::class)->deleteByImageAndTags($image_id, $tag_ids);
+        $this->imageTagRepository->deleteByImageAndTags($image_id, $tag_ids);
     }
 
     /**
      * Mark tags as to be validated for addition or deletion.
-     *
-     * @param array     $tags_ids
-     * @param int       $image_id
-     * @param array     $infos, keys are:
-     *                      status[0|1] - 0 for deletion, 1 for addition
-     *                      user_id -id user who add or delete tags
-     *                      validated : true|false, default false
      */
-    public function toBeValidatedTags(array $tags_ids, int $image_id, array $infos)
+    public function toBeValidatedTags(Image $image, array $tags_ids, User $user, int $status, bool $validated = false)
     {
-        $rows = [];
-        foreach ($tags_ids as $id) {
-            $rows[] = [
-                'tag_id' => $id,
-                'image_id' => $image_id,
-                'status' => isset($infos['status']) ? $infos['status'] : 1,
-                'created_by' => $infos['user_id'] ?? null,
-                'validated' => isset($infos['validated']) ? $infos['validated'] : false
-            ];
-        }
-
-        if (count($rows) > 0) {
-            if (!isset($infos['status']) || $infos['status'] === 1) {
-                $this->em->getRepository(ImageTagRepository::class)->insertImageTags(
-                    array_keys($rows[0]),
-                    $rows
-                );
-            } else {
-                $this->em->getRepository(ImageTagRepository::class)->updateImageTags(
-                    [
-                        'primary' => ['tag_id', 'image_id'],
-                        'update' => ['status', 'validated', 'created_by']
-                    ],
-                    $rows
-                );
+        $existing_ids = [];
+        if (!$image->getImageTags()->isEmpty()) {
+            foreach ($image->getImageTags() as $image_tag) {
+                if (in_array($image_tag->getTag()->getId(), $tags_ids)) {
+                    $existing_ids[] = $image_tag->getTag()->getId();
+                    $image_tag->setCreatedBy($user);
+                    $image_tag->setStatus($status);
+                    $image_tag->setValidated($validated);
+                }
             }
         }
+
+        $image_tag_to_add = array_diff($tags_ids, $existing_ids);
+        foreach ($this->getRepository()->findBy(['id' => $image_tag_to_add]) as $tag) {
+            $image_tag = new ImageTag();
+            $image_tag->setTag($tag);
+            $image_tag->setImage($image);
+            $image_tag->setCreatedBy($user);
+            $image_tag->setStatus($status);
+            $image_tag->setValidated($validated);
+            $image->addImageTag($image_tag);
+        }
+
+        $this->imageRepository->addOrUpdateImage($image);
 
         $this->invalidateUserCacheNbTags();
     }

@@ -11,100 +11,173 @@
 
 namespace App\Repository;
 
-class ImageTagRepository extends BaseRepository
+use App\Entity\ImageTag;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+
+class ImageTagRepository extends ServiceEntityRepository
 {
-    public function count() : int
+    public function __construct(ManagerRegistry $registry)
     {
-        $query = 'SELECT COUNT(1) FROM ' . self::IMAGE_TAG_TABLE;
-        $result = $this->conn->db_query($query);
-        list($nb_image_tag) = $this->conn->db_fetch_row($result);
-
-        return $nb_image_tag;
+        parent::__construct($registry, ImageTag::class);
     }
 
-    public function findBy(string $field, string $value)
+    public function addOrUpdateImageTag(ImageTag $image_tag)
     {
-        $query = 'SELECT tag_id, image_id FROM ' . self::IMAGE_TAG_TABLE;
-        $query .= sprintf(' WHERE %s = \'%s\'', $field, $this->conn->db_real_escape_string($value));
-
-        return $this->conn->db_query($query);
-    }
-
-    public function findImageIds()
-    {
-        $query = 'SELECT DISTINCT image_id FROM ' . self::IMAGE_TAG_TABLE;
-
-        return $this->conn->db_query($query);
-    }
-
-    public function findImageByTags(array $tag_ids)
-    {
-        $query = 'SELECT DISTINCT(image_id)  FROM ' . self::IMAGE_TAG_TABLE;
-        $query .= ' WHERE tag_id ' . $this->conn->in($tag_ids);
-
-        return $this->conn->db_query($query);
-    }
-
-    public function findImageTags(array $tag_ids, array $image_ids)
-    {
-        $query = 'SELECT image_id, ' . $this->conn->db_group_concat('tag_id') . ' AS tag_ids FROM ' . self::IMAGE_TAG_TABLE;
-        $query .= ' WHERE tag_id ' . $this->conn->in($tag_ids);
-        $query .= ' AND image_id ' . $this->conn->in($image_ids) . ' GROUP BY image_id';
-
-        return $this->conn->db_query($query);
+        $this->_em->persist($image_tag);
+        $this->_em->flush();
     }
 
     public function getTagCounters()
     {
-        $query = 'SELECT tag_id, COUNT(image_id) AS counter FROM ' . self::IMAGE_TAG_TABLE;
-        $query .= ' GROUP BY tag_id';
+        $qb = $this->createQueryBuilder('it');
+        $qb->select('IDENTITY(it.tag) AS tag_id, COUNT(it.image) AS counter');
+        $qb->groupBy('it.tag');
 
-        return $this->conn->db_query($query);
+        return $qb->getQuery()->getResult();
     }
 
-    public function deleteBy(string $field, array $values)
+    public function deleteByImagesAndTags(array $images, array $tags)
     {
-        $query = 'DELETE  FROM ' . self::IMAGE_TAG_TABLE;
-        $query .= ' WHERE ' . $field . ' ' . $this->conn->in($values);
-        $this->conn->db_query($query);
+        $qb = $this->createQueryBuilder('it');
+        $qb->delete();
+        $qb->where($qb->expr()->in('it.image', $images));
+        $qb->andWhere($qb->expr()->in('it.tag', $tags));
+
+        $qb->getQuery()->getResult();
     }
 
-    public function updateImageTags(array $fields, array $datas)
+    public function deleteByImageIds(array $image_ids)
     {
-        $this->conn->mass_updates(self::IMAGE_TAG_TABLE, $fields, $datas);
+        $qb = $this->createQueryBuilder('it');
+        $qb->delete();
+        $qb->where($qb->expr()->in('it.image', $image_ids));
+
+        $qb->getQuery()->getResult();
     }
 
-    public function insertImageTags(array $fields, array $datas)
+    public function deleteForImage(int $image_id)
     {
-        $this->conn->mass_inserts(self::IMAGE_TAG_TABLE, $fields, $datas);
+        $qb = $this->createQueryBuilder('it');
+        $qb->delete();
+        $qb->where('it.image = :image_id');
+        $qb->setParameter('image_id', $image_id);
+
+        $qb->getQuery()->getResult();
     }
 
     public function deleteImageTags(array $datas)
     {
-        $base_query = 'DELETE FROM ' . self::IMAGE_TAG_TABLE;
+        $qb = $this->createQueryBuilder('it');
+        $qb->delete();
 
-        // @TODO: find a better way to delete multiple rows. DBLayer::mass_deletes is buggy.
-        foreach ($datas as $data) {
-            $query = $base_query;
-            $query .= ' WHERE image_id = ' . (int)$data['image_id'];
-            $query .= ' AND tag_id = ' . (int)$data['tag_id'];
-            $this->conn->db_query($query);
+        $bind_param_index = 0;
+        foreach ($datas as $image_id => $tag_id) {
+            $bind_param_index++;
+            $qb->orWhere(
+                $qb->expr()->andX(
+                    $qb->expr()->eq('it.image', ':image_id' . $bind_param_index),
+                    $qb->expr()->eq('it.tag', ':tag_id' . $bind_param_index)
+                )
+            );
+            $qb->setParameter('image_id' . $bind_param_index, $image_id);
+            $qb->setParameter('tag_id' . $bind_param_index, $tag_id);
         }
+
+        $qb->getQuery()->getResult();
     }
 
-    public function deleteByImagesAndTags(array $image_ids, array $tag_ids)
+    public function deleteByImageAndTags(int $image_id, array $tags)
     {
-        $query = 'DELETE FROM ' . self::IMAGE_TAG_TABLE;
-        $query .= ' WHERE image_id ' . $this->conn->in($image_ids);
-        $query .= ' AND tag_id ' . $this->conn->in($tag_ids);
-        $this->conn->db_query($query);
+        $qb = $this->createQueryBuilder('it');
+        $qb->delete();
+        $qb->where('it.image = :image_id');
+        $qb->setParameter('image_id', $image_id);
+        $qb->andWhere($qb->expr()->in('it.tag', $tags));
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function validatedImageTags(array $datas)
+    {
+        $qb = $this->createQueryBuilder('it');
+        $qb->update();
+        $qb->set('it.validated', ':validated');
+        $qb->setParameter('validated', true);
+
+        $bind_param_index = 0;
+        foreach ($datas as $image_id => $tag_id) {
+            $bind_param_index++;
+            $qb->orWhere(
+                $qb->expr()->andX(
+                    $qb->expr()->eq('it.image', ':image_id' . $bind_param_index),
+                    $qb->expr()->eq('it.tag', ':tag_id' . $bind_param_index)
+                )
+            );
+            $qb->setParameter('image_id' . $bind_param_index, $image_id);
+            $qb->setParameter('tag_id' . $bind_param_index, $tag_id);
+        }
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function findImageTags(array $tag_ids, array $image_ids)
+    {
+        $qb = $this->createQueryBuilder('it');
+        $qb->where($qb->expr()->in('it.tag', $tag_ids));
+        $qb->andWhere($qb->expr()->in('it.image', $image_ids));
+        $qb->orderBy('it.image');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findImageByTags(array $tag_ids)
+    {
+        $qb = $this->createQueryBuilder('it');
+        $qb->where($qb->expr()->in('it.tag', $tag_ids));
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findImageIds()
+    {
+        $qb = $this->createQueryBuilder('it');
+        $qb->select('DISTINCT(IDENTITY(it.image)) AS image_id');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function deleteByTagIds(array $ids)
+    {
+        $qb = $this->createQueryBuilder('it');
+        $qb->delete();
+        $qb->where($qb->expr()->in('it.tag', $ids));
+
+        $qb->getQuery()->getResult();
+    }
+
+    public function deleteMarkDeletedAndValidated()
+    {
+        $qb = $this->createQueryBuilder('it');
+        $qb->delete();
+        $qb->where('it.status = :status');
+        $qb->setParameter('status', ImageTag::STATUS_TO_DELETE);
+        $qb->andWhere('it.validated = :validated');
+        $qb->setParameter('validated', true);
+
+        $qb->getQuery()->getResult();
     }
 
     public function removeCreatedByKey(int $user_id)
     {
-        $query = 'UPDATE ' . self::IMAGE_TAG_TABLE;
-        $query .= ' SET created_by = null';
-        $query .= ' WHERE created_by = ' . $user_id;
-        $this->conn->db_query($query);
+        $qb = $this->createQueryBuilder('it');
+        $qb->update();
+        $qb->set('it.created_by', ':null');
+        $qb->setParameter('null', null);
+
+        $qb->where('it.created_by = :created_by');
+        $qb->setParameter('created_by', $user_id);
+
+        $qb->getQuery()->getResult();
     }
 }

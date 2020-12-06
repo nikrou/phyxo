@@ -11,293 +11,250 @@
 
 namespace App\Repository;
 
-use Symfony\Component\Security\Core\User\UserInterface;
+use App\Entity\Tag;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\AbstractQuery;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
 
-class TagRepository extends BaseRepository
+class TagRepository extends ServiceEntityRepository
 {
-    public function findAll(string $q = '')
+    public function __construct(ManagerRegistry $registry)
     {
-        $query = 'SELECT id, name, url_name FROM ' . self::TAGS_TABLE;
+        parent::__construct($registry, Tag::class);
+    }
+
+    public function addOrUpdateTag(Tag $tag): int
+    {
+        $this->_em->persist($tag);
+        $this->_em->flush();
+
+        return $tag->getId();
+    }
+
+    public function searchAll(string $q = '')
+    {
+        $qb = $this->createQueryBuilder('t');
         if (!empty($q)) {
-            $query .= sprintf(' WHERE LOWER(name) like \'%%%s%%\'', strtolower($this->conn->db_real_escape_string($q)));
+            $qb->where($qb->expr()->like($qb->expr()->lower('t.name'), ':q'));
+            $qb->setParameter('q', '%' . strtolower($q) . '%');
         }
 
-        return $this->conn->db_query($query);
-    }
-
-    public function findByClause(string $clause = '')
-    {
-        $query = 'SELECT id, name, url_name FROM ' . self::TAGS_TABLE;
-        if (!empty($clause)) {
-            $query .= ' WHERE ' . $clause;
-        }
-
-        return $this->conn->db_query($query);
-    }
-
-    public function insertTag(string $tag_name, string $url_name)
-    {
-        return $this->conn->single_insert(self::TAGS_TABLE, ['name' => $tag_name, 'url_name' => $url_name]);
-    }
-
-    public function count() : int
-    {
-        $query = 'SELECT count(1) FROM ' . self::TAGS_TABLE;
-        $result = $this->conn->db_query($query);
-        list($nb_tags) = $this->conn->db_fetch_row($result);
-
-        return $nb_tags;
-    }
-
-    public function findBy(string $field, string $value)
-    {
-        $query = 'SELECT id FROM ' . self::TAGS_TABLE;
-        $query .= sprintf(' WHERE %s = \'%s\'', $field, $this->conn->db_real_escape_string($value));
-
-        return $this->conn->db_query($query);
-    }
-
-    /**
-     * Return a list of tags corresponding to any of ids, url_names or names.
-     *
-     * @param int[] $ids
-     * @param string[] $url_names
-     * @param string[] $names
-     * @return array [id, name, url_name]
-     */
-    public function findTags($ids = [], $url_names = [], $names = [])
-    {
-        $where_clauses = [];
-
-        if (!empty($ids)) {
-            $where_clauses[] = 'id ' . $this->conn->in($ids);
-        }
-
-        if (!empty($url_names)) {
-            $where_clauses[] = 'url_name ' . $this->conn->in($url_names);
-        }
-
-        if (!empty($names)) {
-            $where_clauses[] = 'name ' . $this->conn->in($names);
-        }
-
-        if (empty($where_clauses)) {
-            return [];
-        }
-
-        $query = 'SELECT id,name,url_name,lastmodified FROM ' . self::TAGS_TABLE;
-        $query .= ' WHERE ' . implode(' OR ', $where_clauses);
-
-        return $this->conn->db_query($query);
-    }
-
-    /**
-     * Return the list of image ids corresponding to given tags.
-     * AND & OR mode supported.
-     *
-     * @param int[] $tag_ids
-     * @param string $mode
-     * @param string $extra_images_where_sql - optionally apply a sql where filter to retrieved images
-     * @param string $order_by - optionally overwrite default photo order
-     * @param bool $use_permissions
-     * @return array
-     */
-    public function getImageIdsForTags(UserInterface $user, array $filter = [], array $tag_ids, string $mode = 'AND', ? string $extra_images_where_sql = null, string $order_by = '', bool $use_permissions = true)
-    {
-        if (empty($tag_ids)) {
-            return [];
-        }
-
-        $query = 'SELECT id FROM ' . self::IMAGES_TABLE . ' i ';
-
-        if ($use_permissions) {
-            $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON id=ic.image_id';
-        }
-
-        $query .= ' LEFT JOIN ' . self::IMAGE_TAG_TABLE . ' AS it ON id=it.image_id';
-        $query .= ' WHERE tag_id ' . $this->conn->in($tag_ids);
-
-        // need $user
-        if ($use_permissions) {
-            $query .= ' ' . $this->getSQLConditionFandF(
-                $user,
-                $filter,
-                [
-                    'forbidden_categories' => 'category_id',
-                    'visible_categories' => 'category_id',
-                    'visible_images' => 'id'
-                ],
-                ' AND '
-            );
-        }
-
-        if (!is_null($extra_images_where_sql)) {
-            $query .= ' AND (' . $extra_images_where_sql . ')' . ' GROUP BY i.id';
-        }
-
-        if ($mode == 'AND' and count($tag_ids) > 1) {
-            $query .= ' GROUP BY i.id';
-            $query .= ' HAVING COUNT(DISTINCT tag_id)=' . count($tag_ids);
-        }
-
-        if (!empty($order_by)) {
-            $query .= ' ' . $order_by;
-        }
-
-        return $this->conn->db_query($query);
-    }
-
-    public function findImageWithNoTag()
-    {
-        $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
-        $query .= ' LEFT JOIN ' . self::IMAGE_TAG_TABLE . ' ON id = image_id';
-        $query .= ' WHERE tag_id is null';
-
-        return $this->conn->db_query($query);
-    }
-
-    public function getTagsByImage(int $image_id, ? bool $validated = null)
-    {
-        $query = 'SELECT id,name,url_name FROM ' . self::TAGS_TABLE . ' AS t';
-        $query .= ' LEFT JOIN ' . self::IMAGE_TAG_TABLE . ' AS it ON t.id = it.tag_id';
-        $query .= ' WHERE image_id = ' . $this->conn->db_real_escape_string($image_id);
-        if ($validated !== null) {
-            $query .= ' AND validated = \'' . $this->conn->boolean_to_db(true) . '\'';
-        }
-
-        return $this->conn->db_query($query);
+        return $qb->getQuery()->getResult();
     }
 
     public function getPendingTags(bool $count_only = false)
     {
+        $qb = $this->createQueryBuilder('t');
+        $qb->leftJoin('t.imageTags', 'it');
+
         if ($count_only) {
-            $query = 'SELECT count(1)';
-        } else {
-            $query = 'SELECT t.id, t.name,it.image_id, url_name, created_by,';
-            $query .= ' i.path,u.username, status';
+            $qb->select('COUNT(1)');
         }
 
-        $query .= ' FROM ' . self::IMAGE_TAG_TABLE . ' AS it';
-        $query .= ' LEFT JOIN ' . self::TAGS_TABLE . ' AS t ON it.tag_id = t.id';
-        $query .= ' LEFT JOIN ' . self::IMAGES_TABLE . ' AS i ON i.id = it.image_id';
-        $query .= ' LEFT JOIN ' . self::USERS_TABLE . ' AS u ON u.id = created_by';
-        $query .= ' WHERE validated=\'' . $this->conn->boolean_to_db(false) . '\'';
-        $query .= ' AND created_by IS NOT NULL';
+        $qb->where('it.validated = :validated');
+        $qb->setParameter('validated', false);
+        $qb->andWhere($qb->expr()->isNotNull('it.created_by'));
 
         if ($count_only) {
-            list($nb_tags) = $this->conn->db_fetch_row($this->conn->db_query($query));
-
-            return $nb_tags;
+            return (int) $qb->getQuery()->getSingleScalarResult();
         } else {
-            return $this->conn->db_query($query);
+            return $qb->getQuery()->getResult();
         }
     }
 
-    public function getAvailableTags(UserInterface $user, array $filter = [], bool $show_pending_added_tags = false)
+    public function findByNamesOrUrlNames(array $names, array $url_names)
     {
-        // we can find top fatter tags among reachable images
-        $query = 'SELECT tag_id, validated, status, created_by,';
-        $query .= ' COUNT(DISTINCT(it.image_id)) AS counter FROM ' . self::IMAGE_CATEGORY_TABLE . ' ic';
-        $query .= ' LEFT JOIN ' . self::IMAGE_TAG_TABLE . ' AS it ON ic.image_id=it.image_id';
-        $query .= ' ' . $this->getSQLConditionFandF(
-            $user,
-            $filter,
-            [
-                'forbidden_categories' => 'category_id',
-                'visible_categories' => 'category_id',
-                'visible_images' => 'ic.image_id'
-            ],
-            ' WHERE '
+        return $this->findByIdsOrNamesOrUrlNames([], $names, $url_names);
+    }
+
+    public function findByIdsOrNamesOrUrlNames(array $ids = [], array $names = [], array $url_names = [])
+    {
+        $qb = $this->createQueryBuilder('t');
+
+        if (count($ids) > 0) {
+            $qb->where($qb->expr()->in('t.id', $ids));
+        }
+
+        if (count($names) > 0) {
+            $qb->orWhere($qb->expr()->in('t.name', $names));
+        }
+
+        if (count($url_names) > 0) {
+            $qb->orWhere($qb->expr()->in('t.url_name', $url_names));
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    protected function addValidatedCondition(QueryBuilder $qb, int $user_id, bool $show_pending_added_tags = false, bool $show_pending_deleted_tags = false)
+    {
+        if ($show_pending_added_tags) {
+            $addedValidated = $qb->expr()->orX(
+                $qb->expr()->eq('it.validated', ':validated_status_1'),
+                $qb->expr()->eq('it.created_by', ':user_id_1')
+            );
+            $qb->setParameter('validated_status_1', true);
+            $qb->setParameter('user_id_1', $user_id);
+        } else {
+            $addedValidated = $qb->expr()->eq('it.validated', ':validated_status_1');
+            $qb->setParameter('validated_status_1', true);
+        }
+
+        if ($show_pending_deleted_tags) {
+            $deletedAndNotValidated = $qb->expr()->andX(
+                $qb->expr()->orX(
+                    $qb->expr()->eq('it.validated', ':validated_status_0'),
+                    $qb->expr()->eq('it.created_by', ':user_id_0')
+                ),
+                $qb->expr()->eq('it.status', 0)
+            );
+            $qb->setParameter('validated_status_0', false);
+            $qb->setParameter('user_id_0', $user_id);
+        } else {
+            $deletedAndNotValidated = null;
+        }
+
+        $addedAndValidated = $qb->expr()->andX(
+            $addedValidated,
+            $qb->expr()->eq('it.status', 1)
         );
-        $query .= ' AND (' . $this->validatedCondition($user->getId(), $show_pending_added_tags) . ')';
-        $query .= ' GROUP BY tag_id,validated,created_by,status';
 
-        return $this->conn->db_query($query);
+        $orConditions = [$addedAndValidated, $deletedAndNotValidated];
+
+        $qb->andWhere($qb->expr()->orX(...$orConditions));
+
+        return $qb;
     }
 
-    public function getCommonTags(int $user_id, array $items, int $max_tags, bool $show_pending_added_tags, array $excluded_tag_ids = [])
+    public function getAvailableTags(int $user_id, array $forbidden_categories = [], bool $show_pending_added_tags = false, bool $show_pending_deleted_tags = false)
     {
-        $query = 'SELECT id,name,validated,created_by,status,';
-        $query .= ' url_name, count(1) AS counter FROM ' . self::TAGS_TABLE . ' AS t';
-        $query .= ' LEFT JOIN ' . self::IMAGE_TAG_TABLE . ' ON tag_id = id';
-        $query .= ' WHERE image_id ' . $this->conn->in($items);
-        $query .= ' AND (' . $this->validatedCondition($user_id, $show_pending_added_tags) . ')';
-        if (!empty($excluded_tag_ids)) {
-            $query .= ' AND tag_id NOT ' . $this->conn->in($excluded_tag_ids);
+        $qb = $this->createQueryBuilder('t');
+        $qb->leftJoin('t.imageTags', 'it');
+        $qb->addSelect('COUNT(it.image) AS counter');
+
+        $this->addValidatedCondition($qb, $user_id, $show_pending_added_tags, $show_pending_deleted_tags);
+
+        if (count($forbidden_categories) > 0) {
+            $qb->leftJoin('it.image', 'i');
+            $qb->leftJoin('i.imageAlbums', 'ia');
+            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
         }
-        $query .= ' GROUP BY validated,created_by,status,t.id';
+
+        $qb->groupBy('it.tag, it.validated, it.created_by, it.status, t.id');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getCommonTags(int $user_id, array $items, int $max_tags, array $excluded_tag_ids = [])
+    {
+        $qb = $this->createQueryBuilder('t');
+        $qb->leftJoin('t.imageTags', 'it');
+        $qb->addSelect('COUNT(1) AS counter');
+
+        if (count($items) > 0) {
+            $qb->where($qb->expr()->in('it.image', $items));
+        }
+
+        $this->addValidatedCondition($qb, $user_id);
+
+        if (count($excluded_tag_ids) > 0) {
+            $qb->andWhere($qb->expr()->notIn('t.id', $excluded_tag_ids));
+        }
+
+        $qb->groupBy('it.validated, it.created_by, it.status, t.id');
 
         if ($max_tags > 0) {
-            $query .= ' ORDER BY counter DESC LIMIT ' . $this->conn->db_real_escape_string($max_tags);
+            $qb->orderBy('counter', 'DESC');
+            $qb->setMaxResults($max_tags);
         }
 
-        return $this->conn->db_query($query);
+        return $qb->getQuery()->getResult();
     }
 
-    /**
-     * Get all tags (id + name) linked to no photo
-     */
+    public function getRelatedTags(int $user_id, int $image_id, int $max_tags, bool $show_pending_added_tags, bool $show_pending_deleted_tags = false)
+    {
+        $qb = $this->createQueryBuilder('t');
+        $qb->leftJoin('t.imageTags', 'it');
+        $qb->where('it.image = :image_id');
+        $qb->setParameter('image_id', $image_id);
+
+        $this->addValidatedCondition($qb, $user_id, $show_pending_added_tags, $show_pending_deleted_tags);
+
+        if ($max_tags > 0) {
+            $qb->setMaxResults($max_tags);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
     public function getOrphanTags()
     {
-        $query = 'SELECT id,name FROM ' . self::TAGS_TABLE;
-        $query .= ' LEFT JOIN ' . self::IMAGE_TAG_TABLE . ' ON id = tag_id';
-        $query .= ' WHERE tag_id IS NULL;';
+        $qb = $this->createQueryBuilder('t');
+        $qb->leftJoin('t.imageTags', 'it');
+        $qb->where($qb->expr()->isNull('it.tag'));
 
-        return $this->conn->db_query($query);
+        return $qb->getQuery()->getResult();
     }
 
-    public function deleteValidated()
+    public function findImageWithNoTag()
     {
-        $query = 'DELETE FROM ' . self::IMAGE_TAG_TABLE;
-        $query .= ' WHERE status = 0 AND validated = \'' . $this->conn->boolean_to_db(true) . '\'';
-        $this->conn->db_query($query);
+        $qb = $this->createQueryBuilder('t');
+        $qb->select('IDENTITY(it.image) AS image_id');
+        $qb->leftJoin('t.imageTags', 'it');
+        $qb->where($qb->expr()->isNull('it.tag'));
+
+        return $qb->getQuery()->getResult();
     }
 
-    public function deleteByImageAndTags(int $image_id, array $tags)
+    public function deleteTags(array $ids)
     {
-        $query = 'DELETE FROM ' . self::IMAGE_TAG_TABLE;
-        $query .= ' WHERE image_id = ' . $this->conn->db_real_escape_string($image_id);
-        $query .= ' AND tag_id ' . $this->conn->in($tags);
-        $this->conn->db_query($query);
+        $qb = $this->createQueryBuilder('t');
+        $qb->delete();
+        $qb->where($qb->expr()->in('t.id', $ids));
+
+        $qb->getQuery()->getResult();
     }
 
-    public function deleteByImagesAndTags(array $images, array $tags)
+    public function delete(Tag $tag)
     {
-        $query = 'DELETE FROM ' . self::IMAGE_TAG_TABLE;
-        $query .= ' WHERE image_id ' . $this->conn->in($images);
-        $query .= ' AND tag_id ' . $this->conn->in($tags);
-        $this->conn->db_query($query);
-    }
-
-    public function deleteBy(string $field, array $values)
-    {
-        $query = 'DELETE  FROM ' . self::TAGS_TABLE;
-        $query .= ' WHERE ' . $field . ' ' . $this->conn->in($values);
-        $this->conn->db_query($query);
-    }
-
-    public function updateTags(array $fields, array $datas)
-    {
-        $this->conn->mass_updates(self::TAGS_TABLE, $fields, $datas);
-    }
-
-    private function validatedCondition(int $user_id, bool $show_pending_added_tags = false)
-    {
-        $sql = '((validated = \'' . $this->conn->boolean_to_db(true) . '\' AND status = 1)';
-        $sql .= ' OR (validated = \'' . $this->conn->boolean_to_db(false) . '\' AND status = 0))';
-
-        if ($show_pending_added_tags) {
-            $sql .= ' OR (created_by = ' . $this->conn->db_real_escape_string($user_id) . ')';
-        }
-
-        return $sql;
+        $this->_em->remove($tag);
+        $this->_em->flush();
     }
 
     public function getMaxLastModified()
     {
-        $query = 'SELECT ' . $this->conn->db_date_to_ts('MAX(lastmodified)') . ', COUNT(1)';
-        $query .= ' FROM ' . self::TAGS_TABLE;
+        $qb = $this->createQueryBuilder('t');
+        $qb->select('MAX(t.last_modified) as max, COUNT(1) as count');
 
-        return $this->conn->db_query($query);
+        return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_ARRAY);
+    }
+
+    public function getTagsByImage(int $image_id, ? bool $validated = null)
+    {
+        $qb = $this->createQueryBuilder('t');
+        $qb->leftJoin('t.imageTags', 'it');
+        $qb->where('it.image = :image_id');
+        $qb->setParameter('image_id', $image_id);
+
+        if (!is_null($validated)) {
+            $qb->andWhere('it.validated = :validated');
+            $qb->setParameter('validated', $validated);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findByClauses(array $clauses = [])
+    {
+        $qb = $this->createQueryBuilder('t');
+
+        if (count($clauses) > 0) {
+            foreach ($clauses as $clause) {
+                $qb->orWhere($clause);
+            }
+        }
+
+        return $qb->getQuery()->getResult();
     }
 }

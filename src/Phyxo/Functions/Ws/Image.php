@@ -14,11 +14,10 @@ namespace Phyxo\Functions\Ws;
 use App\Entity\Comment;
 use App\Entity\Image as EntityImage;
 use App\Entity\ImageAlbum;
+use App\Entity\ImageTag;
 use App\Entity\Rate;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
-use App\Repository\TagRepository;
-use App\Repository\ImageTagRepository;
 use App\Security\TagVoter;
 use Phyxo\Functions\Utils;
 use Phyxo\Functions\URL;
@@ -855,7 +854,7 @@ class Image
             return new Error(405, "This method requires HTTP POST");
         }
 
-        $image = $service->getImageMapper()->find($params['image_id']);
+        $image = $service->getImageMapper()->getRepository()->find($params['image_id']);
         if (!$service->getSecurity()->isGranted(TagVoter::ADD, $image) || !$service->getSecurity()->isGranted(TagVoter::DELETE, $image)) {
             return new Error(403, 'You are not allowed to add nor delete tags');
         }
@@ -864,9 +863,10 @@ class Image
             $params['tags'] = [];
         }
 
-        $result = (new TagRepository($service->getConnection()))->getTagsByImage($params['image_id']);
-        $removed_tags_ids = $new_tags_ids = [];
-        $current_tags_ids = $service->getConnection()->result2array($result, null, 'id');
+        $current_tags_ids = $removed_tags_ids = $new_tags_ids = [];
+        foreach ($service->getTagMapper()->getRepository()->getTagsByImage($params['image_id']) as $tag) {
+            $current_tags_ids[] = $tag->getId();
+        }
         $current_tags = array_map(function ($id) {
             return '~~' . $id . '~~';
         }, $current_tags_ids);
@@ -887,24 +887,16 @@ class Image
         try {
             if (empty($params['tags'])) { // remove all tags for an image
                 if (isset($service->getConf()['delete_tags_immediately']) && $service->getConf()['delete_tags_immediately'] == 0) {
-                    $service->getTagMapper()->toBeValidatedTags(
-                        $current_tags_ids,
-                        $params['image_id'],
-                        ['status' => 0, 'user_id' => $service->getUserMapper()->getUser->getId()]
-                    );
+                    $service->getTagMapper()->toBeValidatedTags($image, $current_tags_ids, $service->getUserMapper()->getUser(), ImageTag::STATUS_TO_DELETE);
                 } else {
-                    (new ImageTagRepository($service->getConnection()))->deleteBy('image_id', $params['image_id']);
+                    $service->getManagerRegistry()->getRepository(ImageTag::class)->deleteForImage($params['image_id']);
                 }
             } else {
                 // if publish_tags_immediately (or delete_tags_immediately) is not set we consider its value is 1
                 if (count($removed_tags) > 0) {
                     $removed_tags_ids = $service->getTagMapper()->getTagsIds($removed_tags);
                     if (isset($service->getConf()['delete_tags_immediately']) && $service->getConf()['delete_tags_immediately'] == 0) {
-                        $service->getTagMapper()->toBeValidatedTags(
-                            $removed_tags_ids,
-                            $params['image_id'],
-                            ['status' => 0, 'user_id' => $service->getUserMapper()->getUser()->getId()]
-                        );
+                        $service->getTagMapper()->toBeValidatedTags($image, $removed_tags_ids, $service->getUserMapper()->getUser(), ImageTag::STATUS_TO_DELETE);
                     } else {
                         $service->getTagMapper()->dissociateTags($removed_tags_ids, $params['image_id']);
                     }
@@ -913,11 +905,7 @@ class Image
                 if (count($new_tags) > 0) {
                     $new_tags_ids = $service->getTagMapper()->getTagsIds($new_tags);
                     if (isset($service->getConf()['publish_tags_immediately']) && $service->getConf()['publish_tags_immediately'] == 0) {
-                        $service->getTagMapper()->toBeValidatedTags(
-                            $new_tags_ids,
-                            $params['image_id'],
-                            ['status' => 1, 'user_id' => $service->getUserMapper()->getUser()->getId()]
-                        );
+                        $service->getTagMapper()->toBeValidatedTags($image, $new_tags_ids, $service->getUserMapper()->getUser(), ImageTag::STATUS_TO_ADD);
                     } else {
                         $service->getTagMapper()->associateTags($new_tags_ids, $params['image_id']);
                     }

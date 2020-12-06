@@ -15,7 +15,6 @@ use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\MenuBar;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use App\DataMapper\TagMapper;
 use App\Repository\SearchRepository;
 use App\DataMapper\SearchMapper;
@@ -62,7 +61,7 @@ class SearchController extends CommonController
         return $this->redirectToRoute('search_results', ['search_id' => $search_id]);
     }
 
-    public function search(Request $request, EntityManager $em, TagMapper $tagMapper, AlbumMapper $albumMapper, Conf $conf,
+    public function search(Request $request, TagMapper $tagMapper, AlbumMapper $albumMapper, Conf $conf,
         SearchRepository $searchRepository, MenuBar $menuBar, TranslatorInterface $translator, ImageMapper $imageMapper)
     {
         $tpl_params = [];
@@ -74,11 +73,10 @@ class SearchController extends CommonController
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search');
 
-        $filter = [];
-        $available_tags = $tagMapper->getAvailableTags($this->getUser(), $filter);
+        $available_tags = $tagMapper->getAvailableTags($this->getUser());
 
         if (count($available_tags) > 0) {
-            usort($available_tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
+            usort($available_tags, [$tagMapper, 'alphaCompare']);
             $tpl_params['TAGS'] = $available_tags;
         }
 
@@ -99,8 +97,8 @@ class SearchController extends CommonController
                 'counter' => $counter,
             ];
         }
-
         $tpl_params['AUTHORS'] = $authors;
+
         $month_list = [1 => "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         foreach ($month_list as &$month) {
             $month = $translator->trans($month);
@@ -337,7 +335,7 @@ class SearchController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function searchRules(Request $request, EntityManager $em, AlbumMapper $albumMapper, Conf $conf,
+    public function searchRules(Request $request, AlbumMapper $albumMapper, Conf $conf, TagRepository $tagRepository,
                                 SearchRepository $searchRepository, int $search_id, MenuBar $menuBar, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -368,8 +366,10 @@ class SearchController extends CommonController
         if (isset($rules['fields']['tags'])) {
             $tpl_params['SEARCH_TAGS_MODE'] = $rules['fields']['tags']['mode'];
 
-            $result = $em->getRepository(TagRepository::class)->findTags($rules['fields']['tags']['words']);
-            $tpl_params['search_tags'] = $em->getConnection()->result2array($result, 'name');
+            $tpl_params['search_tags'] = [];
+            foreach ($tagRepository->findBy(['id' => $rules['fields']['tags']['words']]) as $tag) {
+                $tpl_params['search_tags'][] = $tag->getName();
+            }
         }
 
         if (isset($rules['fields']['author'])) {

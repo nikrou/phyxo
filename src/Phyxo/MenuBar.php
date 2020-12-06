@@ -17,6 +17,7 @@ use Phyxo\Block\BlockManager;
 use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\UserMapper;
 use App\DataMapper\TagMapper;
+use App\Entity\Tag as EntityTag;
 use Phyxo\Functions\Tag;
 use Phyxo\Functions\URL;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -127,22 +128,24 @@ class MenuBar
                     $this->items,
                     $this->conf['menubar_tag_cloud_items_number'],
                     array_map(function($tag) {
-                        return $tag['id'];
+                        return $tag->getId();
                     }, $this->tags)
                 );
 
                 $tags = Tag::addLevelToTags($tags);
                 foreach ($tags as $tag) {
                     $block->data[] = array_merge(
-                        $tag,
+                        $tag->toArray(),
                         [
                             'U_ADD' => $this->router->generate(
                                 'images_by_tags',
-                                ['tag_ids' => implode('/', array_map('\Phyxo\Functions\URL::tagToUrl', array_merge($this->tags, [$tag])))]
+                                ['tag_ids' => implode('/', array_map(function(EntityTag $tag) {
+                                    return $tag->toUrl();
+                                }, array_merge($this->tags, [$tag])))]
                             ),
                             'URL' => $this->router->generate(
                                 'images_by_tags',
-                                ['tag_ids' => URL::tagToUrl($tag)]
+                                ['tag_ids' => $tag->toUrl()]
                             )
                         ]
                     );
@@ -151,7 +154,7 @@ class MenuBar
                 $tags = $this->tagMapper->getAvailableTags($this->userMapper->getUser());
                 foreach ($tags as $tag) {
                     $block->data[] = array_merge(
-                        $tag, ['URL' => $this->router->generate('images_by_tags', ['tag_ids' => URL::tagToUrl($tag)])                        ]
+                        $tag->toArray(), ['URL' => $this->router->generate('images_by_tags', ['tag_ids' => $tag->toUrl()])                        ]
                     );
                 }
             } else {
@@ -160,7 +163,7 @@ class MenuBar
                 );
                 foreach ($tags as $tag) {
                     $block->data[] = array_merge(
-                        $tag, ['URL' => $this->router->generate('images_by_tags', ['tag_ids' => URL::tagToUrl($tag)])                        ]
+                        $tag->toArray(), ['URL' => $this->router->generate('images_by_tags', ['tag_ids' => $tag->toUrl()])                        ]
                     );
                 }
             }

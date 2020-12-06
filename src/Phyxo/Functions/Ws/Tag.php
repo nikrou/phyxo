@@ -11,9 +11,8 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Entity\Tag as EntityTag;
 use Phyxo\Ws\Error;
-use App\Repository\TagRepository;
-use App\Repository\ImageTagRepository;
 use Phyxo\Functions\URL;
 use Phyxo\Ws\Server;
 
@@ -71,49 +70,29 @@ class Tag
     public static function getImages($params, Server $service)
     {
         // first build all the tag_ids we are interested in
-        $tags = $service->getConnection()->result2array((new TagRepository($service->getConnection()))->findTags($params['tag_id'], $params['tag_url_name'], $params['tag_name']));
         $tags_by_id = [];
-        foreach ($tags as $tag) {
-            $tags['id'] = (int)$tag['id'];
-            $tags_by_id[$tag['id']] = $tag;
+        foreach ($service->getTagMapper()->getRepository()->findByIdsOrNamesOrUrlNames($params['tag_id'], $params['tag_url_name'], $params['tag_name']) as $tag) {
+            $tags_by_id[$tag->getId()] = $tag;
         }
-        unset($tags);
         $tag_ids = array_keys($tags_by_id);
 
-        $where_clauses = \Phyxo\Functions\Ws\Main::stdImageSqlFilter($params);
-        if (!empty($where_clauses)) {
-            $where_clauses = implode(' AND ', $where_clauses);
+        $image_ids = [];
+        foreach ($service->getImageMapper()->getRepository()->getImageIdsForTags(
+            $service->getUserMapper()->getUser()->getForbiddenCategories(),
+            $tag_ids,
+            $params['tag_mode_and'] ? 'AND' : 'OR') as $image) {
+            $image_ids[] = $image->getId();
         }
-
-        $order_by = \Phyxo\Functions\Ws\Main::stdImageSqlOrder($params, 'i.', $service);
-        if (!empty($order_by)) {
-            $order_by = 'ORDER BY ' . $order_by;
-        }
-
-        $image_ids = $service->getConnection()->result2array(
-            (new TagRepository($service->getConnection()))->getImageIdsForTags(
-                $service->getUserMapper()->getUser(),
-                [],
-                $tag_ids,
-                $params['tag_mode_and'] ? 'AND' : 'OR',
-                $where_clauses,
-                $order_by
-            ),
-            null,
-            'id'
-        );
 
         $count_set = count($image_ids);
         $image_ids = array_slice($image_ids, $params['per_page'] * $params['page'], $params['per_page']);
 
         $image_tag_map = [];
         // build list of image ids with associated tags per image
-        if (!empty($image_ids) and !$params['tag_mode_and']) {
-            $result = (new ImageTagRepository($service->getConnection()))->findImageTags($tag_ids, $image_ids);
-
-            while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-                $row['image_id'] = (int)$row['image_id'];
-                $image_tag_map[$row['image_id']] = explode(',', $row['tag_ids']);
+        if (count($image_ids) > 0 && !$params['tag_mode_and']) {
+            $image_tag_map = [];
+            foreach ($service->getTagMapper()->getRepository()->findImageTags($tag_ids, $image_ids) as $tag) {
+                $image_tag_map[$tag->getImage()->getId()][] = $tag->getId();
             }
         }
 
@@ -124,7 +103,7 @@ class Tag
             foreach ($service->getImageMapper()->getRepository()->findBy(['id' => $image_ids]) as $image) {
                 $image_infos = $image->toArray();
                 $image_infos['rank'] = $rank_of[$image->getId()];
-                $image_infos = array_merge($image_infos, \Phyxo\Functions\Ws\Main::stdGetUrls($row, $service));
+                $image_infos = array_merge($image_infos, Main::stdGetUrls($image->toArray(), $service));
 
                 $image_tag_ids = ($params['tag_mode_and']) ? $tag_ids : $image_tag_map[$image->getId()];
                 $image_tags = [];
@@ -172,36 +151,34 @@ class Tag
      */
     public static function add($params, Server $service)
     {
-        $creation_output = $service->getTagMapper()->createTag($params['name']);
-
-        if (isset($creation_output['error'])) {
-            return new Error(500, $creation_output['error']);
+        if (!is_null($service->getTagMapper()->getRepository()->findOneBy(['name' => $params['name']]))) {
+            return new Error(500, "Tag already exists");
+        } else {
+            $tag = new EntityTag();
+            $tag->setName($params['name']);
+            $tag->setUrlName($params['name']);
+            $tag->setLastModified(new \DateTime());
+            $service->getTagMapper()->getRepository()->addOrUpdateTag($tag);
         }
 
-        return $creation_output;
+        return ['info' => 'Tag was added', 'id' => $tag->getId()];
     }
 
     // protected methods
 
-    public static function tagsList($tags, $params, Server $service)
+    public static function tagsList(array $tags, $params, Server $service)
     {
         if (!empty($params['sort_by_counter'])) {
-            usort(
-                $tags,
-                function ($a, $b) {
-                    return -$a['counter'] + $b['counter'];
-                }
-            );
+            usort($tags, [$service->getTagMapper(), 'counterCompare']);
         } else {
-            usort($tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
+            usort($tags, [$service->getTagMapper(), 'alphaCompare']);
         }
 
         for ($i = 0; $i < count($tags); $i++) {
-            $tags[$i]['id'] = (int)$tags[$i]['id'];
             if (!empty($params['sort_by_counter'])) {
                 $tags[$i]['counter'] = (int)$tags[$i]['counter'];
             }
-            $tags[$i]['url'] = $service->getRouter()->generate('images_by_tags', ['tag_ids' => URL::tagToUrl($tags[$i])]);
+            //$tags[$i]['url'] = $service->getRouter()->generate('images_by_tags', ['tag_ids' => $tags[$i]->toUrl()]);
         }
 
         return ['tags' => $tags];

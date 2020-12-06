@@ -12,12 +12,11 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\TagMapper;
+use App\Entity\Tag;
 use App\Entity\User;
 use App\Repository\ImageTagRepository;
-use App\Repository\TagRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\URL;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,19 +40,16 @@ class TagsController extends AdminCommonController
     }
 
     public function list(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager,
-                        TranslatorInterface $translator)
+                        TranslatorInterface $translator, TagMapper $tagMapper, ImageTagRepository $imageTagRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $result = $em->getRepository(TagRepository::class)->getOrphanTags();
-        $orphan_tags = $em->getConnection()->result2array($result);
-
         $orphan_tag_names = [];
-        foreach ($orphan_tags as $tag) {
-            $orphan_tag_names[] = $tag['name'];
+        foreach ($tagMapper->getRepository()->getOrphanTags() as $tag) {
+            $orphan_tag_names[] = $tag->getName();
         }
 
         if (count($orphan_tag_names) > 0) {
@@ -70,33 +66,26 @@ class TagsController extends AdminCommonController
         // +-----------------------------------------------------------------------+
 
         // tag counters
-        $result = $em->getRepository(ImageTagRepository::class)->getTagCounters();
-        $tag_counters = $em->getConnection()->result2array($result, 'tag_id', 'counter');
+        $tag_counters = [];
+        foreach ($imageTagRepository->getTagCounters() as $image_tag) {
+            $tag_counters[$image_tag['tag_id']] = $image_tag['counter'];
+        }
 
         // all tags
-        $result = $em->getRepository(TagRepository::class)->findAll();
         $all_tags = [];
-        while ($tag = $em->getConnection()->db_fetch_assoc($result)) {
-            $raw_name = $tag['name'];
-            $tag['name'] = $raw_name;
-            if (empty($tag_counters[$tag['id']])) {
-                $tag['counter'] = 0;
-            } else {
-                $tag['counter'] = intval($tag_counters[$tag['id']]);
-            }
-            if ($tag['counter'] > 0) {
-                $tag['U_VIEW'] = $this->generateUrl('images_by_tags', ['tag_ids' => URL::tagToUrl($tag)]);
-                $tag['U_MANAGE_PHOTOS'] = $this->generateUrl('admin_batch_manager_global', ['filter' => 'tag', 'value' => $tag['id']]);
+        foreach ($tagMapper->getRepository()->findAll() as $tag) {
+            if (!empty($tag_counters[$tag->getId()])) {
+                $tag->setCounter($tag_counters[$tag->getId()]);
             }
 
-            $alt_names = [];
-            $alt_names = array_diff(array_unique($alt_names), [$tag['name']]);
-            if (count($alt_names)) {
-                $tag['alt_names'] = implode(', ', $alt_names);
+            $tpl_tag = $tag->toArray();
+            if ($tag->getCounter() > 0) {
+                $tpl_tag['U_VIEW'] = $this->generateUrl('images_by_tags', ['tag_ids' => $tag->toUrl()]);
+                $tpl_tag['U_MANAGE_PHOTOS'] = $this->generateUrl('admin_batch_manager_global', ['filter' => 'tag', 'value' => $tag->getId()]);
             }
-            $all_tags[] = $tag;
+
+            $all_tags[] = $tpl_tag;
         }
-        usort($all_tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
 
         $tpl_params['all_tags'] = $all_tags;
 
@@ -122,147 +111,99 @@ class TagsController extends AdminCommonController
         return $this->render('tags_all.html.twig', $tpl_params);
     }
 
-    public function actions(Request $request, EntityManager $em, TagMapper $tagMapper, TranslatorInterface $translator)
+    public function actions(Request $request, TagMapper $tagMapper, TranslatorInterface $translator)
     {
         if ($request->request->get('action') === 'edit') {
-            $result = $em->getRepository(TagRepository::class)->findAll();
-            $existing_names = $em->getConnection()->result2array($result, null, 'name');
-
-            $current_name_of = [];
-            $result = $em->getRepository(TagRepository::class)->findTags($request->request->get('edit_list'));
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                $current_name_of[$row['id']] = $row['name'];
+            $existing_names = [];
+            foreach ($tagMapper->getRepository()->findAll() as $tag) {
+                $existing_names[] = $tag->getName();
             }
 
-            $updates = [];
+            $current_name_of = [];
+            foreach ($tagMapper->getRepository()->findBy(['id' => $request->request->get('edit_list')]) as $tag) {
+                $current_name_of[$tag->getId()] = $tag;
+            }
+
             // we must not rename tag with an already existing name
             foreach (explode(',', $request->request->get('edit_list')) as $tag_id) {
                 $tag_name = $request->request->get('tag_name-' . $tag_id);
 
-                if ($tag_name !== $current_name_of[$tag_id]) {
+                if ($tag_name !== $current_name_of[$tag_id]->getName()) {
                     if (in_array($tag_name, $existing_names)) {
                         $this->addFlash('error', $translator->trans('Tag "{tag}" already exists', ['tag' => $tag_name], 'admin'));
                     } elseif (!empty($tag_name)) {
-                        $updates[] = [
-                            'id' => $tag_id,
-                            'name' => $tag_name,
-                            'url_name' => $tag_name,
-                        ];
+                        $current_tag = $current_name_of[$tag_id];
+                        $current_tag->setName($tag_name);
+                        $current_tag->setUrlName($tag_name);
+                        $tagMapper->getRepository()->addOrUpdateTag($current_tag);
                     }
                 }
             }
-            $em->getRepository(TagRepository::class)->updateTags(
-              [
-                  'primary' => ['id'],
-                  'update' => ['name', 'url_name'],
-              ],
-              $updates
-          );
         } elseif ($request->request->get('action') === 'duplicate') {
-            $result = $em->getRepository(TagRepository::class)->findAll();
-            $existing_names = $em->getConnection()->result2array($result, null, 'name');
-
-            $current_name_of = [];
-            $result = $em->getRepository(TagRepository::class)->findTags($request->request->get('tags'));
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                $current_name_of[$row['id']] = $row['name'];
+            $existing_names = [];
+            foreach ($tagMapper->getRepository()->findAll() as $tag) {
+                $existing_names[] = $tag->getName();
             }
 
-            $updates = [];
+            $current_name_of = [];
+            foreach ($tagMapper->getRepository()->findBy(['id' => $request->request->get('tags')]) as $tag) {
+                $current_name_of[$tag->getId()] = $tag;
+            }
+
             // we must not rename tag with an already existing name
             foreach ($request->request->get('tags') as $tag_id) {
                 $tag_name = $request->request->get('tag_name-' . $tag_id);
 
-                if ($tag_name != $current_name_of[$tag_id]) {
+                if ($tag_name != $current_name_of[$tag_id]->getName()) {
                     if (in_array($tag_name, $existing_names)) {
                         $this->addFlash('error', $translator->trans('Tag "{tag}" already exists', ['tag' => $tag_name], 'admin'));
                     } elseif (!empty($tag_name)) {
-                        $em->getRepository(TagRepository::class)->insertTag($tag_name, $tag_name);
+                        $destination_tag = new Tag();
+                        $destination_tag->setName($tag_name);
+                        $destination_tag->setUrlName($tag_name);
+                        $tagMapper->getRepository()->addOrUpdateTag($destination_tag);
 
-                        $result = $em->getRepository(TagRepository::class)->findBy('name', $tag_name);
-                        $destination_tag = $em->getConnection()->result2array($result, null, 'id');
-                        $destination_tag_id = $destination_tag[0];
-
-                        $result = $em->getRepository(ImageTagRepository::class)->findBy('tag_id', $tag_id);
-                        $destination_tag_image_ids = $em->getConnection()->result2array($result, null, 'image_id');
-
-                        $inserts = [];
-                        foreach ($destination_tag_image_ids as $image_id) {
-                            $inserts[] = [
-                                'tag_id' => $destination_tag_id,
-                                'image_id' => $image_id
-                            ];
-                        }
-
-                        if (count($inserts) > 0) {
-                            $em->getRepository(ImageTagRepository::class)->insertImageTags(
-                                array_keys($inserts[0]),
-                                $inserts
-                            );
+                        $existing_tag_images = $current_name_of[$tag_id]->getImageTags();
+                        if (!$existing_tag_images->isEmpty()) {
+                            foreach ($existing_tag_images as $tag_image) {
+                                $destination_tag->addImageTag($tag_image);
+                            }
+                            $tagMapper->getRepository()->addOrUpdateTag($destination_tag);
                         }
 
                         $this->addFlash(
                             'info',
-                            $translator->trans('Tag "{tag}" is now a duplicate of "{duplicate_tag}"', ['tag' => $tag_name, 'duplicate_tag' => $current_name_of[$tag_id]], 'admin')
+                            $translator->trans('Tag "{tag}" is now a duplicate of "{duplicate_tag}"', ['tag' => $tag_name, 'duplicate_tag' => $current_name_of[$tag_id]->getName()], 'admin')
                         );
                     }
                 }
             }
-
-            $em->getRepository(TagRepository::class)->updateTags(
-                [
-                    'primary' => ['id'],
-                    'update' => ['name', 'url_name'],
-                ],
-                $updates
-            );
         } elseif ($request->request->get('action') === 'merge') {
             if (!$request->request->get('destination_tag')) {
                 $this->addFlash('error', $translator->trans('No destination tag selected', [], 'admin'));
             } else {
-                $destination_tag_id = $request->request->get('destination_tag');
+                $destination_tag = $tagMapper->getRepository()->find($request->request->get('destination_tag'));
                 $tag_ids = $request->request->get('tags');
 
                 if (is_array($tag_ids) && count($tag_ids) > 1) {
-                    $name_of_tag = [];
-                    $result = $em->getRepository(TagRepository::class)->findTags($tag_ids);
-                    while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                        $name_of_tag[$row['id']] = $row['name'];
-                    }
-
-                    $tag_ids_to_delete = array_diff($tag_ids, [$destination_tag_id]);
-
-                    $result = $em->getRepository(ImageTagRepository::class)->findImageByTags($tag_ids_to_delete);
-                    $image_ids = $em->getConnection()->result2array($result, null, 'image_id');
-
-                    $tagMapper->deleteTags($tag_ids_to_delete);
-
-                    $result = $em->getRepository(ImageTagRepository::class)->findBy('tag_id', $destination_tag_id);
-                    $destination_tag_image_ids = $em->getConnection()->result2array($result, null, 'image_id');
-
-                    $image_ids_to_link = array_diff($image_ids, $destination_tag_image_ids);
-
-                    $inserts = [];
-                    foreach ($image_ids_to_link as $image_id) {
-                        $inserts[] = [
-                            'tag_id' => $destination_tag_id,
-                            'image_id' => $image_id
-                        ];
-                    }
-
-                    if (count($inserts) > 0) {
-                        $em->getRepository(ImageTagRepository::class)->insertImageTags(array_keys($inserts[0]), $inserts);
-                    }
-
                     $tags_deleted = [];
-                    foreach ($tag_ids_to_delete as $tag_id) {
-                        $tags_deleted[] = $name_of_tag[$tag_id];
+                    foreach ($tagMapper->getRepository()->findBy(['id' => $request->request->get('tags')]) as $tag) {
+                        $existing_tag_images = $tag->getImageTags();
+                        if (!$existing_tag_images->isEmpty()) {
+                            foreach ($existing_tag_images as $tag_image) {
+                                $destination_tag->addImageTag($tag_image);
+                            }
+                        }
+                        $tags_deleted[] = $tag->getName();
+                        $tagMapper->getRepository()->delete($tag);
                     }
+
+                    $tagMapper->getRepository()->addOrUpdateTag($destination_tag);
 
                     $this->addFlash(
                         'info',
-                        $translator->trans('Tags <em>{tags_deleted}</em> merged into tag <em>{destination_tags}</em>',
-                                            ['tags_deleted' => implode(', ', $tags_deleted), 'destination_tags' => $name_of_tag[$destination_tag_id]],
+                        $translator->trans('Tags <em>{tags_deleted}</em> merged into tag <em>{destination_tag}</em>',
+                                            ['tags_deleted' => implode(', ', $tags_deleted), 'destination_tag' => $destination_tag->getName()],
                                             'admin'
                         )
                     );
@@ -272,15 +213,12 @@ class TagsController extends AdminCommonController
             if (!$request->request->get('confirm_deletion')) {
                 $this->addFlash('error', $translator->trans('You need to confirm deletion', [], 'admin'));
             } else {
-                $result = $em->getRepository(TagRepository::class)->findTags($request->request->get('tags'));
-                $tag_names = $em->getConnection()->result2array($result, null, 'name');
+                $tagMapper->deleteTags($request->request->get('tags'));
 
-                $tagMapper->deleteTags($_POST['tags']);
-
-                if (count($tag_names) > 1) {
-                    $this->addFlash('info', $translator->trans('The following tags were deleted' . ' : ' . implode(', ', $tag_names)));
+                if (count($request->request->get('tags')) > 1) {
+                    $this->addFlash('info', $translator->trans('The tags were deleted', [], 'admin'));
                 } else {
-                    $this->addFlash('info', $translator->trans('The following tag was deleted' . ' : ' . implode(', ', $tag_names)));
+                    $this->addFlash('info', $translator->trans('The tag was deleted', [], 'admin'));
                 }
             }
         }
@@ -291,12 +229,16 @@ class TagsController extends AdminCommonController
     public function add(Request $request, TagMapper $tagMapper)
     {
         if ($request->request->get('add_tag')) {
-            $ret = $tagMapper->createTag($request->request->get('add_tag'));
-
-            if (isset($ret['error'])) {
-                $this->addFlash('error', $ret['error']);
+            if (!is_null($tagMapper->getRepository()->findOneBy(['name' => $request->request->get('add_tag')]))) {
+                $this->addFlash('error', "Tag already exists");
             } else {
-                $this->addFlash('info', $ret['info']);
+                $tag = new Tag();
+                $tag->setName($request->request->get('add_tag'));
+                $tag->setUrlName($request->request->get('add_tag'));
+                $tag->setLastModified(new \DateTime());
+                $tagMapper->getRepository()->addOrUpdateTag($tag);
+
+                $this->addFlash('info', $this->translator->trans('Tag "{tag}" was added', ['tag' => $tag->getName()], 'admin'));
             }
         }
 
