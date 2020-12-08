@@ -44,7 +44,7 @@ class SearchController extends CommonController
 
         $rules = ['q' => $request->get('q')];
         $search_id = null;
-        $search = $searchRepository->findByRules(base64_encode(serialize($rules)));
+        $search = $searchRepository->findOneBy(['rules' => base64_encode(serialize($rules))]);
 
         if (!is_null($search)) {
             $search_id = $search->getId();
@@ -73,7 +73,7 @@ class SearchController extends CommonController
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search');
 
-        $available_tags = $tagMapper->getAvailableTags($this->getUser());
+        $available_tags = $tagMapper->getAvailableTags($this->getUser(), $this->getUser()->getForbiddenCategories());
 
         if (count($available_tags) > 0) {
             usort($available_tags, [$tagMapper, 'alphaCompare']);
@@ -116,7 +116,7 @@ class SearchController extends CommonController
         $tpl_params['F_SEARCH_ACTION'] = $this->generateUrl('search');
         $tpl_params['month_list'] = $month_list;
 
-        $search = [];
+        $rules = [];
         if ($request->isMethod('POST')) {
             if ($request->request->get('search_allwords') && !preg_match('/^\s*$/', $request->request->get('search_allwords'))) {
                 $fields = array_intersect($request->request->get('fields'), ['name', 'comment', 'file']);
@@ -131,7 +131,7 @@ class SearchController extends CommonController
                 ];
 
                 // Split words
-                $search['fields']['allwords'] = [
+                $rules['fields']['allwords'] = [
                     'words' => array_unique(
                         preg_split(
                             '/\s+/',
@@ -148,7 +148,7 @@ class SearchController extends CommonController
             }
 
             if ($request->request->get('tags')) {
-                $search['fields']['tags'] = [
+                $rules['fields']['tags'] = [
                     'words' => $request->request->get('tags'),
                     'mode' => $request->request->get('tag_mode'),
                 ];
@@ -158,18 +158,18 @@ class SearchController extends CommonController
                 $authors = [];
 
                 foreach ($request->request->get('authors') as $author) {
-                    $authors[] = strip_tags($author);
+                    $authors[] = $author;
                 }
 
-                $search['fields']['author'] = [
+                $rules['fields']['author'] = [
                     'words' => $authors,
                     'mode' => 'OR',
                 ];
             }
 
             if ($request->request->get('cat')) {
-                $search['fields']['cat'] = [
-                    'words' => $_POST['cat'],
+                $rules['fields']['cat'] = [
+                    'words' => $request->request->get('cat'),
                     'sub_inc' => ($request->request->get('subcats-included') == 1) ? true : false,
                 ];
             }
@@ -178,7 +178,7 @@ class SearchController extends CommonController
             $type_date = $request->request->get('date_type');
 
             if ($request->request->get('start_year')) {
-                $search['fields'][$type_date . '-after'] = [
+                $rules['fields'][$type_date . '-after'] = [
                     'date' => sprintf(
                         '%d-%02d-%02d',
                         $request->request->get('start_year'),
@@ -190,7 +190,7 @@ class SearchController extends CommonController
             }
 
             if ($request->request->get('end_year')) {
-                $search['fields'][$type_date . '-before'] = [
+                $rules['fields'][$type_date . '-before'] = [
                     'date' => sprintf(
                         '%d-%02d-%02d',
                         $request->request->get('end_year'),
@@ -201,17 +201,24 @@ class SearchController extends CommonController
                 ];
             }
 
-            if (!empty($search)) {
+            if (count($rules) > 0) {
                 // default search mode : each clause must be respected
-                $search['mode'] = 'AND';
+                $rules['mode'] = 'AND';
 
                 // register search rules in database, then they will be available on thumbnails page and picture page.
-                $new_search = new Search();
-                $new_search->setRules(base64_encode(serialize($search)));
-                $new_search->setLastSeen(new \DateTime());
-                $searchRepository->addSearch($new_search);
+                $encoded_rules = base64_encode(serialize($rules));
+                $search = $searchRepository->findOneBy(['rules' => $encoded_rules]);
 
-                return $this->redirectToRoute('search_results', ['search_id' => $new_search->getId()]);
+                if (!is_null($search)) {
+                    $searchRepository->updateLastSeen($search->getId());
+                } else {
+                    $search = new Search();
+                    $search->setRules($encoded_rules);
+                    $search->setLastSeen(new \DateTime());
+                    $searchRepository->addSearch($search);
+                }
+
+                return $this->redirectToRoute('search_results', ['search_id' => $search->getId()]);
             } else {
                 $tpl_params['errors'][] = $translator->trans('Empty query. No criteria has been entered.');
             }
@@ -255,7 +262,6 @@ class SearchController extends CommonController
         $tpl_params['TITLE'] = $translator->trans('Search results');
         $tpl_params['U_SEARCH_RULES'] = $this->generateUrl('search_rules', ['search_id' => $search_id]);
 
-        $filter = [];
         $rules = [];
         $tpl_params['items'] = [];
 
@@ -263,8 +269,7 @@ class SearchController extends CommonController
         if (!is_null($search) && !empty($search->getRules())) {
             $rules = unserialize(base64_decode($search->getRules()));
 
-            $search_results = $searchMapper->getSearchResults($rules, $this->getUser(), $filter, $super_order_by = true);
-            $tpl_params['items'] = $search_results['items'];
+            $tpl_params['items'] = $searchMapper->getSearchResults($rules, $this->getUser());
         }
 
         if (!empty($search_results['qsearch_details'])) {
@@ -392,7 +397,7 @@ class SearchController extends CommonController
             usort($albums, [AlbumMapper::class, 'globalRankCompare']);
 
             foreach ($albums as $album) {
-                $tpl_params['search_categories'] = $albumMapper->getAlbumDisplayName($album->getUppercats());
+                $tpl_params['search_categories'] = $albumMapper->getAlbumsDisplayName($album->getUppercats(), 'album');
             }
         }
 

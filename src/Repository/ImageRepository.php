@@ -838,21 +838,92 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function qsearchImages(array $where)
+    public function qSearchImages(array $forbidden_categories = [], string $words)
     {
+        $search_value = '%' . str_replace(' ', '%', trim(strtolower($words))) . '%';
+
         $qb = $this->createQueryBuilder('i');
-        foreach ($where as $clause) {
-            $qb->orWhere($clause);
+        if (count($forbidden_categories) > 0) {
+            $qb->leftJoin('i.imageAlbums', 'ia');
+            $qb->where($qb->expr()->notIn('ia.album', $forbidden_categories));
         }
+
+        $qb->andWhere(
+            $qb->expr()->orX($qb->expr()->like($qb->expr()->lower('i.name'), ':name')),
+            $qb->expr()->orX($qb->expr()->like($qb->expr()->lower('i.comment'), ':name'))
+        );
+
+        $qb->setParameter('name', $search_value);
 
         return $qb->getQuery()->getResult();
     }
 
-    public function searchImages(array $forbidden_categories = [], array $clauses, string $order)
+    public function searchImages(array $forbidden_categories = [], array $rules)
     {
+        $whereMethod = $rules['mode'] === 'AND' ? 'andWhere' : 'orWhere';
+
         $qb = $this->createQueryBuilder('i');
-        foreach ($clauses as $clause) {
-            $qb->orWhere($clause);
+        if (count($forbidden_categories) > 0 || isset($rules['fields']['cat'])) {
+            $qb->leftJoin('i.imageAlbums', 'ia');
+        }
+
+        $clauses = [];
+        foreach (['file', 'name', 'comment', 'author'] as $field) {
+            if (isset($rules['fields'][$field])) {
+                foreach ($rules['fields'][$field]['words'] as $i => $word) {
+                    if ($field === 'author') {
+                        $clauses[] = $qb->expr()->eq('i.' . $field, ':value' . $i);
+                        $qb->setParameter('value' . $i, $word);
+                    } else {
+                        $clauses[] = $qb->expr()->like('i.' . $field, ':value' . $i);
+                        $qb->setParameter('value' . $i, '%' . $word . '%');
+                    }
+                }
+            }
+        }
+        if (count($clauses) > 0) {
+            $qb->$whereMethod(...$clauses);
+        }
+
+        if (isset($rules['fields']['cat'])) {
+            $qb->andWhere($qb->expr()->in('ia.album', $rules['fields']['cat']['words']));
+        }
+
+        if (isset($rules['fields']['allwords'])) {
+            $fields = ['file', 'name', 'comment'];
+
+            if (isset($rules['fields']['allwords']['fields']) && count($rules['fields']['allwords']['fields']) > 0) {
+                $fields = array_intersect($fields, $rules['fields']['allwords']['fields']);
+            }
+
+            $clauses = [];
+            foreach ($rules['fields']['allwords']['words'] as $i => $word) {
+                $orClauses = [];
+                foreach ($fields as $field) {
+                    $orClauses[] = $qb->expr()->like('i.' . $field, ':word' . $i);
+                    $qb->setParameter('word' . $i, '%' . $word . '%');
+                }
+                $clauses[] = $qb->expr()->orX(...$orClauses);
+            }
+            $qb->$whereMethod(...$clauses);
+        }
+
+        if (count($forbidden_categories) > 0) {
+            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
+        }
+
+        foreach (['date_available', 'date_creation'] as $datefield) {
+            foreach (['after', 'before'] as $suffix) {
+                $key = $datefield . '-' . $suffix;
+
+                if (isset($rules['fields'][$key])) {
+                    $sign = $suffix === 'after' ? ' >' : ' <';
+                    $sign .= $rules['fields'][$key]['inc'] ? '=' : '';
+
+                    $qb->$whereMethod('i.' . $datefield . $sign . ':date_value');
+                    $qb->setParameter('date_value', $rules['fields'][$key]['date']);
+                }
+            }
         }
 
         return $qb->getQuery()->getResult();

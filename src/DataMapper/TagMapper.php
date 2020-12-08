@@ -83,11 +83,10 @@ class TagMapper
     {
         $tags = [];
         $params = $this->image_std_params->getByType(ImageStandardParams::IMG_THUMB);
-        foreach ($this->getRepository()->getPendingTags() as $tag) {
-            $image_tag = $tag->getImageTags()->first();
+        foreach ($this->imageTagRepository->getPendingTags() as $image_tag) {
             $image = $image_tag->getImage();
             $tags[] = array_merge(
-                $tag->toArray(),
+                $image_tag->getTag()->toArray(),
                 [
                     'image_id' => $image->getId(),
                     'created_by' => $image_tag->getCreatedBy(),
@@ -113,11 +112,15 @@ class TagMapper
     public function getAvailableTags(User $user)
     {
         $tags = [];
-        $available_tags = $this->getRepository()->getAvailableTags($user->getId(), $user->getForbiddenCategories(), $this->conf['show_pending_added_tags'] ?? false);
+        $available_tags = $this->imageTagRepository->getAvailableTags($user->getId(), $user->getForbiddenCategories(), $this->conf['show_pending_added_tags'] ?? false);
         foreach ($available_tags as $row) {
-            $tag = $row[0];
-            $tag->setCounter($row['counter']);
-            $tags[] = $tag;
+            $tag = $row[0]->getTag();
+            if (isset($tags[$tag->getId()])) {
+                $tag->setCounter($tags[$tag->getId()]->getCounter() + $row['counter']);
+            } else {
+                $tag->setCounter($row['counter']);
+            }
+            $tags[$tag->getId()] = $tag;
         }
 
         return $tags;
@@ -397,7 +400,10 @@ class TagMapper
             return;
         }
 
-        $this->imageTagRepository->validatedImageTags($elements);
+        $image_id = array_keys($elements)[0];
+        foreach ($elements[$image_id] as $tag_id) {
+            $this->imageTagRepository->validatedImageTag($image_id, $tag_id);
+        }
         $this->imageTagRepository->deleteMarkDeletedAndValidated();
         $this->invalidateUserCacheNbTags();
     }

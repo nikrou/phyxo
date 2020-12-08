@@ -14,11 +14,12 @@ namespace App\Repository;
 use App\Entity\Tag;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
-use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 class TagRepository extends ServiceEntityRepository
 {
+    use BaseRepositoryTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Tag::class);
@@ -43,26 +44,6 @@ class TagRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function getPendingTags(bool $count_only = false)
-    {
-        $qb = $this->createQueryBuilder('t');
-        $qb->leftJoin('t.imageTags', 'it');
-
-        if ($count_only) {
-            $qb->select('COUNT(1)');
-        }
-
-        $qb->where('it.validated = :validated');
-        $qb->setParameter('validated', false);
-        $qb->andWhere($qb->expr()->isNotNull('it.created_by'));
-
-        if ($count_only) {
-            return (int) $qb->getQuery()->getSingleScalarResult();
-        } else {
-            return $qb->getQuery()->getResult();
-        }
-    }
-
     public function findByNamesOrUrlNames(array $names, array $url_names)
     {
         return $this->findByIdsOrNamesOrUrlNames([], $names, $url_names);
@@ -83,65 +64,6 @@ class TagRepository extends ServiceEntityRepository
         if (count($url_names) > 0) {
             $qb->orWhere($qb->expr()->in('t.url_name', $url_names));
         }
-
-        return $qb->getQuery()->getResult();
-    }
-
-    protected function addValidatedCondition(QueryBuilder $qb, int $user_id, bool $show_pending_added_tags = false, bool $show_pending_deleted_tags = false)
-    {
-        if ($show_pending_added_tags) {
-            $addedValidated = $qb->expr()->orX(
-                $qb->expr()->eq('it.validated', ':validated_status_1'),
-                $qb->expr()->eq('it.created_by', ':user_id_1')
-            );
-            $qb->setParameter('validated_status_1', true);
-            $qb->setParameter('user_id_1', $user_id);
-        } else {
-            $addedValidated = $qb->expr()->eq('it.validated', ':validated_status_1');
-            $qb->setParameter('validated_status_1', true);
-        }
-
-        if ($show_pending_deleted_tags) {
-            $deletedAndNotValidated = $qb->expr()->andX(
-                $qb->expr()->orX(
-                    $qb->expr()->eq('it.validated', ':validated_status_0'),
-                    $qb->expr()->eq('it.created_by', ':user_id_0')
-                ),
-                $qb->expr()->eq('it.status', 0)
-            );
-            $qb->setParameter('validated_status_0', false);
-            $qb->setParameter('user_id_0', $user_id);
-        } else {
-            $deletedAndNotValidated = null;
-        }
-
-        $addedAndValidated = $qb->expr()->andX(
-            $addedValidated,
-            $qb->expr()->eq('it.status', 1)
-        );
-
-        $orConditions = [$addedAndValidated, $deletedAndNotValidated];
-
-        $qb->andWhere($qb->expr()->orX(...$orConditions));
-
-        return $qb;
-    }
-
-    public function getAvailableTags(int $user_id, array $forbidden_categories = [], bool $show_pending_added_tags = false, bool $show_pending_deleted_tags = false)
-    {
-        $qb = $this->createQueryBuilder('t');
-        $qb->leftJoin('t.imageTags', 'it');
-        $qb->addSelect('COUNT(it.image) AS counter');
-
-        $this->addValidatedCondition($qb, $user_id, $show_pending_added_tags, $show_pending_deleted_tags);
-
-        if (count($forbidden_categories) > 0) {
-            $qb->leftJoin('it.image', 'i');
-            $qb->leftJoin('i.imageAlbums', 'ia');
-            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
-        }
-
-        $qb->groupBy('it.tag, it.validated, it.created_by, it.status, t.id');
 
         return $qb->getQuery()->getResult();
     }
@@ -240,19 +162,6 @@ class TagRepository extends ServiceEntityRepository
         if (!is_null($validated)) {
             $qb->andWhere('it.validated = :validated');
             $qb->setParameter('validated', $validated);
-        }
-
-        return $qb->getQuery()->getResult();
-    }
-
-    public function findByClauses(array $clauses = [])
-    {
-        $qb = $this->createQueryBuilder('t');
-
-        if (count($clauses) > 0) {
-            foreach ($clauses as $clause) {
-                $qb->orWhere($clause);
-            }
         }
 
         return $qb->getQuery()->getResult();

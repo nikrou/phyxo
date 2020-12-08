@@ -67,7 +67,7 @@ class PhotoController extends AdminCommonController
             $image->setLevel($request->request->get('level'));
 
             if ($conf['allow_html_descriptions']) {
-                $image->setCommen($request->request->get('description'));
+                $image->setComment($request->request->get('description'));
             } else {
                 $image->setComment(htmlentities($request->request->get('description'), ENT_QUOTES, 'utf-8'));
             }

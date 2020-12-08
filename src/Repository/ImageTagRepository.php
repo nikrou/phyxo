@@ -17,6 +17,8 @@ use Doctrine\Persistence\ManagerRegistry;
 
 class ImageTagRepository extends ServiceEntityRepository
 {
+    use BaseRepositoryTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, ImageTag::class);
@@ -33,6 +35,45 @@ class ImageTagRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('it');
         $qb->select('IDENTITY(it.tag) AS tag_id, COUNT(it.image) AS counter');
         $qb->groupBy('it.tag');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getPendingTags(bool $count_only = false)
+    {
+        $qb = $this->createQueryBuilder('it');
+        $qb->leftJoin('it.tag', 't');
+
+        if ($count_only) {
+            $qb->select('COUNT(1)');
+        }
+
+        $qb->where('it.validated = :validated');
+        $qb->setParameter('validated', false);
+        $qb->andWhere($qb->expr()->isNotNull('it.created_by'));
+
+        if ($count_only) {
+            return (int) $qb->getQuery()->getSingleScalarResult();
+        } else {
+            return $qb->getQuery()->getResult();
+        }
+    }
+
+    public function getAvailableTags(int $user_id, array $forbidden_categories = [], bool $show_pending_added_tags = false, bool $show_pending_deleted_tags = false)
+    {
+        $qb = $this->createQueryBuilder('it');
+        $qb->addSelect('COUNT(it.image) AS counter');
+
+        $this->addValidatedCondition($qb, $user_id, $show_pending_added_tags, $show_pending_deleted_tags);
+
+        if (count($forbidden_categories) > 0) {
+            $qb->leftJoin('it.image', 'i');
+            $qb->leftJoin('i.imageAlbums', 'ia');
+            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
+        }
+
+        $qb->groupBy('it.validated, it.status, it.image, it.tag');
+        $qb->orderBy('it.tag');
 
         return $qb->getQuery()->getResult();
     }
@@ -98,25 +139,16 @@ class ImageTagRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function validatedImageTags(array $datas)
+    public function validatedImageTag(int $image_id, int $tag_id)
     {
         $qb = $this->createQueryBuilder('it');
         $qb->update();
         $qb->set('it.validated', ':validated');
         $qb->setParameter('validated', true);
-
-        $bind_param_index = 0;
-        foreach ($datas as $image_id => $tag_id) {
-            $bind_param_index++;
-            $qb->orWhere(
-                $qb->expr()->andX(
-                    $qb->expr()->eq('it.image', ':image_id' . $bind_param_index),
-                    $qb->expr()->eq('it.tag', ':tag_id' . $bind_param_index)
-                )
-            );
-            $qb->setParameter('image_id' . $bind_param_index, $image_id);
-            $qb->setParameter('tag_id' . $bind_param_index, $tag_id);
-        }
+        $qb->where('it.image = :image_id');
+        $qb->andWhere('it.tag = :tag_id');
+        $qb->setParameter('image_id', $image_id);
+        $qb->setParameter('tag_id', $tag_id);
 
         $qb->getQuery()->getResult();
     }

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * @method EntityManagerInterface getEntityManager()
@@ -28,5 +29,45 @@ trait BaseRepositoryTrait
         return (int) $this->getEntityManager()
             ->createQuery(sprintf('SELECT COUNT(a) FROM %s a', $this->getClassName()))
             ->getSingleScalarResult();
+    }
+
+    protected function addValidatedCondition(QueryBuilder $qb, int $user_id, bool $show_pending_added_tags = false, bool $show_pending_deleted_tags = false)
+    {
+        if ($show_pending_added_tags) {
+            $addedValidated = $qb->expr()->orX(
+                $qb->expr()->eq('it.validated', ':validated_status_1'),
+                $qb->expr()->eq('it.created_by', ':user_id_1')
+            );
+            $qb->setParameter('validated_status_1', true);
+            $qb->setParameter('user_id_1', $user_id);
+        } else {
+            $addedValidated = $qb->expr()->eq('it.validated', ':validated_status_1');
+            $qb->setParameter('validated_status_1', true);
+        }
+
+        if ($show_pending_deleted_tags) {
+            $deletedAndNotValidated = $qb->expr()->andX(
+                $qb->expr()->orX(
+                    $qb->expr()->eq('it.validated', ':validated_status_0'),
+                    $qb->expr()->eq('it.created_by', ':user_id_0')
+                ),
+                $qb->expr()->eq('it.status', 0)
+            );
+            $qb->setParameter('validated_status_0', false);
+            $qb->setParameter('user_id_0', $user_id);
+        } else {
+            $deletedAndNotValidated = null;
+        }
+
+        $addedAndValidated = $qb->expr()->andX(
+            $addedValidated,
+            $qb->expr()->eq('it.status', 1)
+        );
+
+        $orConditions = [$addedAndValidated, $deletedAndNotValidated];
+
+        $qb->andWhere($qb->expr()->orX(...$orConditions));
+
+        return $qb;
     }
 }

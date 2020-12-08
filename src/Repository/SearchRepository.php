@@ -22,22 +22,13 @@ class SearchRepository extends ServiceEntityRepository
         parent::__construct($registry, Search::class);
     }
 
-    public function findByRules(string $rules): ?Search
-    {
-        $qb = $this->createQueryBuilder('s');
-        $qb->where('rules', ':rules');
-        $qb->setParameter('rules', $rules);
-
-        return $qb->getQuery()->getOneOrNullResult();
-    }
-
     public function updateLastSeen(int $id)
     {
         $qb = $this->createQueryBuilder('s');
         $qb->update();
-        $qb->set('last_seen', ':last_seen');
+        $qb->set('s.last_seen', ':last_seen');
         $qb->setParameter('last_seen', new \DateTime());
-        $qb->where('id', ':id');
+        $qb->where('s.id = :id');
         $qb->setParameter('id', $id);
 
         return $qb->getQuery()->getResult();

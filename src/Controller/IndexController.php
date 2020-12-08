@@ -203,7 +203,7 @@ class IndexController extends CommonController
         $tpl_params['TITLE'] = $translator->trans('Random photos');
         $tpl_params['items'] = [];
         foreach ($imageMapper->getRepository()->getList(explode(',', $list), $this->getUser()->getForbiddenCategories()) as $image) {
-            $tpl_params['items'] = $image->getId();
+            $tpl_params['items'][] = $image->getId();
         }
 
         if (count($tpl_params['items']) > 0) {

@@ -160,7 +160,7 @@
         "version": "2.2.3"
     },
     "openpsa/universalfeedcreator": {
-        "version": "v1.8.3.2"
+        "version": "v1.8.4"
     },
     "paragonie/random_compat": {
         "version": "v9.99.99"
@@ -273,6 +273,9 @@
     },
     "symfony/dependency-injection": {
         "version": "v4.4.13"
+    },
+    "symfony/deprecation-contracts": {
+        "version": "v2.2.0"
     },
     "symfony/doctrine-bridge": {
         "version": "v4.4.13"

@@ -218,22 +218,8 @@ class Image
     public static function search($params, Server $service)
     {
         $images = [];
-        $where_clauses = \Phyxo\Functions\Ws\Main::stdImageSqlFilter($params, 'i.');
-        $order_by = \Phyxo\Functions\Ws\Main::stdImageSqlOrder($params, 'i.', $service);
 
-        $super_order_by = false;
-        if (!empty($order_by)) {
-            $service->getConf()['order_by'] = 'ORDER BY ' . $order_by;
-            $super_order_by = true; // quick_search_result might be faster
-        }
-
-        $search_result = $service->getSearchMapper()->getQuickSearchResults(
-            $params['query'],
-            [
-                'super_order_by' => $super_order_by,
-                'images_where' => implode(' AND ', $where_clauses)
-            ]
-        );
+        $search_result = $service->getSearchMapper()->getQuickSearchResults($params['query'], $service->getUserMapper()->getUser());
 
         $image_ids = array_slice(
             $search_result['items'],

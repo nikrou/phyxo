@@ -286,6 +286,14 @@ class DBContext implements Context
         }
         copy($image->getFile(), $image_path);
 
+        if (!empty($image_infos['author'])) {
+            $image->setAuthor($image_infos['author']);
+        }
+
+        if (!empty($image_infos['date_creation'])) {
+            $image->setDateCreation(new \DateTime($image_infos['date_creation']));
+        }
+
         $image->setFile(basename($image->getFile()));
         $image->setPath(substr($image_path, strlen($this->getContainer()->getParameter('root_project_dir')) + 1));
 

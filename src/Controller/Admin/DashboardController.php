@@ -88,7 +88,7 @@ class DashboardController extends AdminCommonController
                 'DB_IMAGE_CATEGORY' => $translator->trans('number_of_associations', ['count' => $nb_image_category], 'admin'),
                 'DB_TAGS' => $translator->trans('number_of_tags', ['count' => $nb_tags], 'admin'),
                 'DB_IMAGE_TAG' => $translator->trans('number_of_associations', ['count' => $nb_image_tag], 'admin'),
-                'NB_PENDING_TAGS' => $tagRepository->getPendingTags($count_only = true),
+                'NB_PENDING_TAGS' => $imageTagRepository->getPendingTags($count_only = true),
                 'U_PENDING_TAGS' => $this->generateUrl('admin_tags_pending'),
                 'DB_USERS' => $translator->trans('number_of_users', ['count' => $nb_users], 'admin'),
                 'DB_GROUPS' => $translator->trans('number_of_groups', ['count' => $nb_groups], 'admin'),
