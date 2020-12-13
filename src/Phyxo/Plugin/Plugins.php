@@ -252,7 +252,7 @@ class Plugins extends Extensions
      * @param string $id returns only data about given plugin
      * @return array
      */
-    public function getDbPlugins($state = null, $id = '')
+    public function getDbPlugins($state = '', $id = '')
     {
         if (!$this->db_plugins_retrieved) {
             $this->db_plugins = [];
@@ -300,7 +300,7 @@ class Plugins extends Extensions
         $url = $this->pem_url . '/api/get_version_list.php?category_id=' . $pem_category;
         try {
             $pem_versions = $this->getJsonFromServer($url);
-            if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
+            if (!empty($pem_versions) && !preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                 $version = $pem_versions[0]['name'];
             }
             $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);
@@ -310,7 +310,7 @@ class Plugins extends Extensions
                 }
             }
         } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+            return null; // throw new \Exception($e->getMessage());
         }
 
         return $versions_to_check;

@@ -326,7 +326,7 @@ class Themes extends Extensions
 
             try {
                 $pem_versions = $this->getJsonFromServer($url, $get_data);
-                if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
+                if (!empty($pem_versions) && !preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                     $version = $pem_versions[0]['name'];
                 }
                 $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);

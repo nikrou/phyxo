@@ -16,7 +16,6 @@ use Phyxo\Plugin\Plugins;
 use Phyxo\Theme\Themes;
 use Phyxo\Language\Languages;
 use PclZip;
-use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Extension\Extensions;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\HttpClient;
@@ -27,11 +26,10 @@ class Updates
     private $types = [];
     private $default_themes = [], $default_plugins = [], $default_languages = [];
     private $update_url, $pem_url, $missing = [];
-    private $userMapper, $conn;
+    private $userMapper;
 
-    public function __construct(iDBLayer $conn = null, UserMapper $userMapper, string $core_version)
+    public function __construct(UserMapper $userMapper, string $core_version)
     {
-        $this->conn = $conn;
         $this->userMapper = $userMapper;
         $this->core_version = $core_version;
 
@@ -52,19 +50,10 @@ class Updates
         $this->pem_url = $url;
     }
 
-    protected function getType(string $type): Extensions
+    protected function getType(string $type): ?Extensions
     {
-        if (!isset($this->types[$type])) {
-            return null;
-        }
-
-        if (!isset($this->$type)) {
-            $classname = sprintf('\Phyxo\%s\%s', ucfirst(substr($type, 0, -1)), ucfirst($type));
-            $this->$type = new $classname($this->conn, $this->userMapper);
-            $this->$type->setRootPath(__DIR__ . '/../../../' . $this->types[$type]);
-        }
-
-        return $this->$type;
+        // @TODO need to inject Plugins, Languages and Themes
+        return null;
     }
 
     public function getAllVersions()

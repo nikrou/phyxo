@@ -146,7 +146,7 @@ class Extension
     public static function checkupdates($params, Server $service)
     {
         $result = [];
-        $update = new Updates($service->getConnection(), $service->getUserMapper(), $service->getCoreVersion());
+        $update = new Updates($service->getUserMapper(), $service->getCoreVersion());
         $update->setExtensionsURL($service->getExtensionsURL());
         $update->setUpdateUrl($service->getParams()->get('update_url'));
         $update->checkCoreUpgrade();

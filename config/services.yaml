@@ -82,12 +82,6 @@ services:
     public: true
     alias: 'Phyxo\Conf'
 
-  Phyxo\EntityManager: ~
-
-  phyxo.em:
-    public: true
-    alias: 'Phyxo\EntityManager'
-
   Phyxo\MenuBar: ~
 
   Phyxo\Image\ImageStandardParams: ~

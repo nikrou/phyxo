@@ -17,7 +17,6 @@ use App\Repository\ThemeRepository;
 use App\Repository\UpgradeRepository;
 use App\Repository\UserInfosRepository;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Update\Updates;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -39,7 +38,7 @@ class UpdateController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function core(Request $request, int $step = 0, string $version = null, Conf $conf, EntityManager $em, UserMapper $userMapper, string $defaultTheme,
+    public function core(Request $request, int $step = 0, string $version = null, Conf $conf, UserMapper $userMapper, string $defaultTheme,
                         ParameterBagInterface $params, TranslatorInterface $translator, PluginRepository $pluginRepository, ThemeRepository $themeRepository,
                         UpgradeRepository $upgradeRepository, UserInfosRepository $userInfosRepository)
     {
@@ -66,7 +65,7 @@ class UpdateController extends AdminCommonController
             $tpl_params['CHECK_VERSION'] = false;
             $tpl_params['DEV_VERSION'] = false;
 
-            $updater = new Updates($em->getConnection(), $userMapper, $params->get('core_version'));
+            $updater = new Updates($userMapper, $params->get('core_version'));
             $updater->setUpdateUrl($params->get('update_url'));
 
             if (preg_match('/.*-dev$/', $params->get('core_version'), $matches)) {
@@ -171,8 +170,9 @@ class UpdateController extends AdminCommonController
                         $userInfosRepository->updateFieldForUser('theme', $userMapper->getDefaultTheme(), $userMapper->getDefaultUser()->getId());
                     }
 
-                    $tables = $em->getConnection()->db_get_tables($em->getConnection()->getPrefix());
-                    $columns_of = $em->getConnection()->db_get_columns_of($tables);
+                    // @TODO : schema upgrade will be done with DoctrineMigrations
+                    // $tables = $em->getConnection()->db_get_tables($em->getConnection()->getPrefix());
+                    // $columns_of = $em->getConnection()->db_get_columns_of($tables);
 
                     $applied_upgrades = [];
                     foreach ($upgradeRepository->findAll() as $upgrade) {
@@ -185,8 +185,8 @@ class UpdateController extends AdminCommonController
                         $current_release = '1.1.0';
                     } elseif (!in_array(145, $applied_upgrades)) {
                         $current_release = '1.2.0';
-                    } elseif (in_array('validated', $columns_of[$em->getConnection()->getPrefix() . 'tags'])) {
-                        $current_release = '1.3.0';
+                    // } elseif (in_array('validated', $columns_of[$em->getConnection()->getPrefix() . 'tags'])) {
+                    //     $current_release = '1.3.0';
                     } elseif (!in_array(146, $applied_upgrades)) {
                         $current_release = '1.5.0';
                     } elseif (!in_array(147, $applied_upgrades)) {
