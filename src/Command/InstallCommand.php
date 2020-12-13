@@ -11,16 +11,13 @@
 
 namespace App\Command;
 
+use App\Install\PhyxoInstaller;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
-use Phyxo\DBLayer\DBLayer;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Phyxo\Language\Languages;
-use Phyxo\Upgrade;
-use Phyxo\Functions\Utils;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Input\ArrayInput;
 
@@ -29,19 +26,17 @@ class InstallCommand extends Command
     protected static $defaultName = 'phyxo:install';
 
     private $db_params = ['db_layer' => '', 'db_host' => '', 'db_name' => '', 'db_user' => '', 'db_password' => '', 'db_prefix' => ''];
-    private $phyxoVersion, $databaseConfigFile, $databaseYamlFile, $rootProjectDir, $translationsDir, $default_theme;
+    private $databaseConfigFile, $databaseYamlFile, $rootProjectDir, $phyxoInstaller;
     private $default_prefix = 'phyxo_';
 
-    public function __construct(string $phyxoVersion, string $databaseConfigFile, string $databaseYamlFile, string $rootProjectDir, string $translationsDir, string $defaultTheme)
+    public function __construct(PhyxoInstaller $phyxoInstaller, string $databaseConfigFile, string $databaseYamlFile, string $rootProjectDir)
     {
         parent::__construct();
 
-        $this->phyxoVersion = $phyxoVersion;
+        $this->phyxoInstaller = $phyxoInstaller;
         $this->databaseConfigFile = $databaseConfigFile;
         $this->databaseYamlFile = $databaseYamlFile;
         $this->rootProjectDir = $rootProjectDir;
-        $this->translationsDir = $translationsDir;
-        $this->default_theme = $defaultTheme;
     }
 
     public function isEnabled()
@@ -73,7 +68,7 @@ class InstallCommand extends Command
         $io->title('Phyxo installation');
 
         $io->section('Database settings');
-        $dbengines = DBLayer::availableEngines();
+        $dbengines = $this->phyxoInstaller->availableEngines();
         if (($this->db_params['db_layer'] = $input->getOption('db_layer')) === null) {
             $this->db_params['db_layer'] = $io->choice('Select database type', $dbengines, array_values($dbengines)[0]);
             $input->setOption('db_layer', $this->db_params['db_layer']);
@@ -139,7 +134,7 @@ class InstallCommand extends Command
         }
 
         try {
-            $this->installDatabase($this->db_params);
+            $this->phyxoInstaller->installDatabase($this->db_params);
 
             rename($this->databaseConfigFile . '.tmp', $this->databaseConfigFile);
             rename($this->databaseYamlFile . '.tmp', $this->databaseYamlFile);
@@ -168,175 +163,6 @@ class InstallCommand extends Command
             'Create a guest user, using phyxo:user:create command',
             'Go to http://your.hostname/path/to/phyxo and start using your application'
         ]);
-    }
-
-    /**
-     * Returns queries from an SQL file.
-     * Before returting a query, $replaced is... replaced by $replacing. This is
-     * useful when the SQL file contains generic words. Drop table queries are not returned
-     */
-    protected function getQueriesFromFile(string $dblayer, string $filepath, string $replaced, string $replacing): array
-    {
-        $queries = [];
-
-        $sql_lines = file($filepath);
-        $query = '';
-        foreach ($sql_lines as $sql_line) {
-            $sql_line = trim($sql_line);
-            if (preg_match('/(^--|^$)/', $sql_line)) {
-                continue;
-            }
-            $query .= ' ' . $sql_line;
-            // if we reached the end of query, we execute it and reinitialize the variable "query"
-            if (preg_match('/;$/', $sql_line)) {
-                $query = trim($query);
-                $query = str_replace($replaced, $replacing, $query);
-                // we don't execute "DROP TABLE" queries
-                if (!preg_match('/^DROP TABLE/i', $query)) {
-                    if ($dblayer === 'mysql') {
-                        if (preg_match('/^(CREATE TABLE .*)[\s]*;[\s]*/im', $query, $matches)) {
-                            $query = $matches[1] . ' DEFAULT CHARACTER SET utf8' . ';';
-                        }
-                    }
-                    $queries[] = $query;
-                }
-                $query = '';
-            }
-        }
-
-        return $queries;
-    }
-
-    protected function installDatabase(array $db_params = [])
-    {
-        $config = new \Doctrine\DBAL\Configuration();
-        if (!empty($db_params['dsn'])) {
-            $_params = parse_url($db_params['dsn']);
-            $db_params['db_layer'] = $_params['scheme'];
-            $db_params['db_host'] = isset($_params['host']) ? $_params['host'] : '';
-            $db_params['db_user'] = isset($_params['user']) ? $_params['user'] : '';
-            $db_params['db_password'] = isset($_params['pass']) ? $_params['pass'] : '';
-            $db_params['db_name'] = substr($_params['path'], 1);
-            unset($_params);
-        }
-        $connectionParams = [
-            'dbname' => $db_params['db_name'],
-            'user' => $db_params['db_user'],
-            'password' => $db_params['db_password'],
-            'host' => $db_params['db_host'],
-            'driver' => 'pdo_' . $db_params['db_layer'],
-        ];
-
-        $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
-
-        // tables creation, based on phyxo_structure.sql
-        $structure_queries = $this->getQueriesFromFile(
-            $db_params['db_layer'],
-            $this->rootProjectDir . '/install/phyxo_structure-' . $db_params['db_layer'] . '.sql',
-            $this->default_prefix,
-            $db_params['db_prefix']
-        );
-        foreach ($structure_queries as $query) {
-            $conn->query($query);
-        }
-
-        // We fill the tables with basic informations
-        $config_queries = $this->getQueriesFromFile(
-            $db_params['db_layer'],
-            $this->rootProjectDir . '/install/config.sql',
-            $this->default_prefix,
-            $db_params['db_prefix']
-        );
-        foreach ($config_queries as $query) {
-            $conn->query($query);
-        }
-
-        $raw_query = 'INSERT INTO phyxo_config (param, type, value, comment) VALUES(:param, :type, :value, :comment)';
-        $raw_query = str_replace($this->default_prefix, $db_params['db_prefix'], $raw_query);
-        $statement = $conn->prepare($raw_query);
-
-        $statement->bindValue('param', 'secret_key');
-        $statement->bindValue('type', 'string');
-        $statement->bindValue('value', md5(random_bytes(15)));
-        $statement->bindValue('comment', 'a secret key specific to the gallery for internal use');
-        $statement->execute();
-
-        $statement->bindValue('param', 'phyxo_db_version');
-        $statement->bindValue('type', 'string');
-        $statement->bindValue('value', Utils::get_branch_from_version($this->phyxoVersion));
-        $statement->bindValue('comment', '');
-        $statement->execute();
-
-        $statement->bindValue('param', 'gallery_title');
-        $statement->bindValue('type', 'string');
-        $statement->bindValue('value', 'Just another Phyxo gallery');
-        $statement->bindValue('comment', '');
-        $statement->execute();
-
-        $statement->bindValue('param', 'page_banner');
-        $statement->bindValue('type', 'string');
-        $statement->bindValue('value', '<h1>%gallery_title%</h1><p>Welcome to my photo gallery</p>');
-        $statement->bindValue('comment', '');
-        $statement->execute();
-
-        $raw_query = 'INSERT INTO phyxo_languages (id, version, name) VALUES(:id, :version, :name)';
-        $raw_query = str_replace($this->default_prefix, $db_params['db_prefix'], $raw_query);
-        $statement = $conn->prepare($raw_query);
-
-        $languages = new Languages();
-        $languages->setRootPath($this->translationsDir);
-        foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
-            $statement->bindValue('id', $language_code);
-            $statement->bindValue('version', $fs_language['version']);
-            $statement->bindValue('name', $fs_language['name']);
-            $statement->execute();
-        }
-
-        // activate default theme
-        $raw_query = 'INSERT INTO phyxo_themes (id, version, name) VALUES(:id, :version, :name)';
-        $raw_query = str_replace($this->default_prefix, $db_params['db_prefix'], $raw_query);
-        $statement = $conn->prepare($raw_query);
-        $statement->bindValue('id', $this->default_theme);
-        $statement->bindValue('version', $this->phyxoVersion);
-        $statement->bindValue('name', $this->default_theme);
-        $statement->execute();
-
-        // Available upgrades must be ignored after a fresh installation.
-        // To make Phyxo avoid upgrading, we must tell it upgrades have already been made.
-        $raw_query = 'INSERT INTO phyxo_upgrade (id, applied, description) VALUES(:id, :applied, :description)';
-        $raw_query = str_replace($this->default_prefix, $db_params['db_prefix'], $raw_query);
-        $statement = $conn->prepare($raw_query);
-        $now = new \DateTime();
-
-        foreach (Upgrade::getAvailableUpgradeIds($this->rootProjectDir) as $upgrade_id) {
-            $statement->bindValue('id', $upgrade_id);
-            $statement->bindValue('applied', $now->format('Y-m-d H:i:s'));
-            $statement->bindValue('description', 'upgrade included in installation');
-            $statement->execute();
-        }
-
-        $file_content = '<?php' . "\n";
-        $file_content .= '$conf[\'dblayer\'] = \'' . $db_params['db_layer'] . "';\n";
-        $file_content .= '$conf[\'db_base\'] = \'' . $db_params['db_name'] . "';\n";
-        if ($db_params['db_layer'] !== 'sqlite') {
-            $file_content .= '$conf[\'db_host\'] = \'' . $db_params['db_host'] . "';\n";
-            $file_content .= '$conf[\'db_user\'] = \'' . $db_params['db_user'] . "';\n";
-            $file_content .= '$conf[\'db_password\'] = \'' . $db_params['db_password'] . "';\n";
-        }
-        $file_content .= '$conf[\'db_prefix\'] = \'' . $db_params['db_prefix'] . "';\n\n";
-
-        file_put_contents($this->databaseConfigFile . '.tmp', $file_content);
-
-        $file_content = 'parameters:' . "\n";
-        $file_content .= '  database_driver: \'pdo_' . $db_params['db_layer'] . "'\n";
-        $file_content .= '  database_name: \'' . $db_params['db_name'] . "'\n";
-        if ($db_params['db_layer'] !== 'sqlite') {
-            $file_content .= '  database_host: \'' . $db_params['db_host'] . "'\n";
-            $file_content .= '  database_user: \'' . $db_params['db_user'] . "'\n";
-            $file_content .= '  database_password: \'' . $db_params['db_password'] . "'\n";
-        }
-        $file_content .= '  database_prefix: \'' . $db_params['db_prefix'] . "'\n\n";
-        file_put_contents($this->databaseYamlFile . '.tmp', $file_content);
     }
 
     protected function writeInfo($io, string $message)
