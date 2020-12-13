@@ -2,31 +2,35 @@
 {% extends "__layout.html.twig" %}
 
 {% block breadcrumb_items %}
-    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'History'|trans}}</a></li>
-    <li class="breadcrumb-item">{{'Statistics'|trans}}</li>
+	<li class="breadcrumb-item">
+		<a href="{{U_PAGE}}">{{'History'|trans}}</a>
+	</li>
+	<li class="breadcrumb-item">{{'Statistics'|trans}}</li>
 {% endblock %}
 
 {% block content %}
-    <h3>{{L_STAT_TITLE|raw}}</h3>
+	<h3>{{L_STAT_TITLE|raw}}</h3>
 
-    <table class="table table-hover table-striped">
-	<thead>
-	    <tr>
-		<th>{{PERIOD_LABEL}}</th>
-		<th>{{'Pages seen'|trans}}</th>
-		<th></th>
-	    </tr>
-	</thead>
-	<tbody>
-	    {% if statrows is defined %}
-		{% for row in statrows %}
-		    <tr>
-			<td>{{row.VALUE}}</td>
-			<td>{{row.PAGES}}</td>
-			<td><div class="statBar" style="width:{{row.WIDTH}}px"></div></td>
-		    </tr>
-		{% endfor %}
-	    {% endif %}
-	</tbody>
-    </table>
+	<table class="table table-hover table-striped">
+		<thead>
+			<tr>
+				<th>{{PERIOD_LABEL}}</th>
+				<th>{{'Pages seen'|trans}}</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			{% if statrows is defined %}
+				{% for row in statrows %}
+					<tr>
+						<td>{{row.VALUE|raw}}</td>
+						<td>{{row.PAGES}}</td>
+						<td>
+							<div class="statBar" style="width:{{row.WIDTH}}px"></div>
+						</td>
+					</tr>
+				{% endfor %}
+			{% endif %}
+		</tbody>
+	</table>
 {% endblock %}

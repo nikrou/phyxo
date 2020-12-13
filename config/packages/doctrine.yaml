@@ -12,13 +12,8 @@ doctrine:
         types:
             uuid: Ramsey\Uuid\Doctrine\UuidType
 
-            history_section: App\Type\HistorySectionType
-            history_image_type: App\Type\HistoryImageTypeType
-
         mapping_types:
             enum: string
-            history_section: history_section
-            history_image_type: history_image_type
 
     orm:
         auto_generate_proxy_classes: true

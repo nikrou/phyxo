@@ -12,10 +12,10 @@
 namespace Phyxo\Functions\Ws;
 
 use App\Entity\Group;
+use App\Entity\History;
 use App\Entity\Language;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
-use App\Repository\HistoryRepository;
 use App\Entity\User as EntityUser;
 use App\Entity\UserInfos;
 
@@ -86,12 +86,12 @@ class User
             $params['display'] = array_flip($params['display']);
 
             // if registration_date_string or registration_date_since is requested, then registration_date is automatically added
-            if (isset($params['display']['registration_date_string']) or isset($params['display']['registration_date_since'])) {
+            if (isset($params['display']['registration_date_string']) || isset($params['display']['registration_date_since'])) {
                 $params['display']['registration_date'] = true;
             }
 
             // if last_visit_string or last_visit_since is requested, then last_visit is automatically added
-            if (isset($params['display']['last_visit_string']) or isset($params['display']['last_visit_since'])) {
+            if (isset($params['display']['last_visit_string']) || isset($params['display']['last_visit_since'])) {
                 $params['display']['last_visit'] = true;
             }
 
@@ -139,24 +139,16 @@ class User
             }
 
             if (isset($params['display']['last_visit'])) {
-                $result = (new HistoryRepository($service->getConnection()))->getMaxIdForUsers(array_keys($users));
-                $history_ids = $service->getConnection()->result2array($result, null, 'history_id');
-
-                if (count($history_ids) == 0) {
-                    $history_ids[] = -1;
+                $history_ids = [];
+                foreach ($service->getManagerRegistry()->getRepository(History::class)->getMaxIdForUsers(array_keys($users)) as $history) {
+                    $history_ids[] = $history->getId();
                 }
 
-                $result = (new HistoryRepository($service->getConnection()))->findByIds($history_ids);
-                while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-                    $last_visit = $row['date'] . ' ' . $row['time'];
-                    $users[$row['user_id']]['last_visit'] = $last_visit;
-
-                    if (isset($params['display']['last_visit_string'])) {
-                        $users[$row['user_id']]['last_visit_string'] = \Phyxo\Functions\DateTime::format_date($last_visit, ['day', 'month', 'year']);
-                    }
-
-                    if (isset($params['display']['last_visit_since'])) {
-                        $users[$row['user_id']]['last_visit_since'] = \Phyxo\Functions\DateTime::time_since($last_visit, 'day');
+                if (count($history_ids) > 0) {
+                    foreach ($service->getManagerRegistry()->getRepository(History::class)->findBy(['id' => $history_ids]) as $history) {
+                        $last_visit = $history->getDate();
+                        $last_visit->setTime(...explode(':', $history->getTime()->format('h:i:s')));
+                        $users[$history->getUser()->getId()]['last_visit'] = $last_visit;
                     }
                 }
             }

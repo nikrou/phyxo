@@ -104,7 +104,7 @@ CREATE TABLE "phyxo_history"
   "date" DATE NOT NULL,
   "time" TIME NOT NULL,
   "user_id" INTEGER default 0 NOT NULL,
-  "ip" VARCHAR(15) default '' NOT NULL,
+  "ip" VARCHAR(255) default '' NOT NULL,
   "section" HISTORY_SECTION default NULL,
   "category_id" INTEGER,
   "tag_ids" VARCHAR(50),

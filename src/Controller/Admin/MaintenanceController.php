@@ -30,9 +30,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MaintenanceController extends AdminCommonController
 {
-    public function index(Request $request, ?string $action, Conf $conf, EntityManager $em, ParameterBagInterface $params,
-                          UserMapper $userMapper, RateMapper $rateMapper, TagMapper $tagMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator,
-                          SearchRepository $searchRepository, UserFeedRepository $userFeedRepository, AlbumMapper $albumMapper)
+    public function index(Request $request, ?string $action, Conf $conf, EntityManager $em, ParameterBagInterface $params, HistoryRepository $historyRepository,
+                        HistorySummaryRepository $historySummaryRepository, UserMapper $userMapper, RateMapper $rateMapper, TagMapper $tagMapper,
+                        ImageStandardParams $image_std_params, TranslatorInterface $translator, SearchRepository $searchRepository, UserFeedRepository $userFeedRepository, AlbumMapper $albumMapper)
     {
         $tpl_params = [];
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -78,12 +78,12 @@ class MaintenanceController extends AdminCommonController
               }
           case 'history_detail':
               {
-                  $em->getRepository(HistoryRepository::class)->deleteAll();
+                  $historyRepository->deleteAll();
                   return  $this->redirectToRoute('admin_maintenance');
               }
           case 'history_summary':
               {
-                  $em->getRepository(HistorySummaryRepository::class)->deleteAll();
+                  $historySummaryRepository->deleteAll();
                   return  $this->redirectToRoute('admin_maintenance');
               }
           case 'feeds':

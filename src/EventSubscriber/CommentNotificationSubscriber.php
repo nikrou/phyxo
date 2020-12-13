@@ -12,7 +12,6 @@
 namespace App\EventSubscriber;
 
 use App\DataMapper\UserMapper;
-use Twig\Environment;
 use App\Events\CommentEvent;
 use Phyxo\Conf;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -24,15 +23,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentNotificationSubscriber implements EventSubscriberInterface
 {
-    private $router, $mailer, $conf, $template, $userMapper, $translator;
+    private $router, $mailer, $conf, $userMapper, $translator;
 
-    public function __construct(MailerInterface $mailer, Conf $conf, RouterInterface $router, Environment $template,
-                                UserMapper $userMapper, TranslatorInterface $translator)
+    public function __construct(MailerInterface $mailer, Conf $conf, RouterInterface $router, UserMapper $userMapper, TranslatorInterface $translator)
     {
         $this->mailer = $mailer;
         $this->conf = $conf;
         $this->router = $router;
-        $this->template = $template;
         $this->userMapper = $userMapper;
         $this->translator = $translator;
     }

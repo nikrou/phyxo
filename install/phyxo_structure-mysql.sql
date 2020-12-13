@@ -32,7 +32,6 @@ CREATE TABLE `phyxo_categories` (
   `permalink` VARCHAR(64) BINARY DEFAULT NULL,
   `lastmodified` DATETIME DEFAULT NULL,
   PRIMARY KEY  (`id`),
-  UNIQUE KEY `categories_i3` (`permalink`),
   KEY `categories_i2` (`id_uppercat`)
 ) ENGINE=InnoDB;
 
@@ -117,13 +116,13 @@ CREATE TABLE `phyxo_history` (
   `date` date DEFAULT NULL,
   `time` time DEFAULT NULL,
   `user_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
-  `ip` VARCHAR(15) NOT NULL DEFAULT '',
-  `section` enum('categories','tags','search','list','favorites','most_visited','best_rated','recent_pics','recent_cats') DEFAULT NULL,
+  `ip` VARCHAR(255) NOT NULL DEFAULT '',
+  `section` VARCHAR(255),
   `category_id` SMALLINT(5) DEFAULT NULL,
   `tag_ids` VARCHAR(50) DEFAULT NULL,
   `image_id` MEDIUMINT(8) DEFAULT NULL,
-  `summarized` ENUM('true','false') DEFAULT 'false',
-  `image_type` ENUM('picture','high','other') DEFAULT NULL,
+  `summarized` TINYINT(1) DEFAULT 0,
+  `image_type` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `history_i1` (`summarized`)
 ) ENGINE=InnoDB;

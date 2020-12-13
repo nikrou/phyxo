@@ -11,56 +11,93 @@
 
 namespace App\Repository;
 
-class HistorySummaryRepository extends BaseRepository
+use App\Entity\HistorySummary;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+
+class HistorySummaryRepository extends ServiceEntityRepository
 {
-    public function getSummary(? int $year = null, ? int $month = null, ? int $day = null)
+    public function __construct(ManagerRegistry $registry)
     {
-        $query = 'SELECT year, month, day, hour, nb_pages FROM ' . self::HISTORY_SUMMARY_TABLE;
-
-        if (!is_null($day)) {
-            $query .= ' WHERE year = ' . $year . ' AND month = ' . $month;
-            $query .= ' AND day = ' . $day . ' AND hour IS NOT NULL';
-            $query .= ' ORDER BY year ASC, month ASC, day ASC, hour ASC;';
-        } elseif (!is_null($month)) {
-            $query .= ' WHERE year = ' . $year . ' AND month = ' . $month;
-            $query .= ' AND day IS NOT NULL AND hour IS NULL';
-            $query .= ' ORDER BY year ASC, month ASC, day ASC;';
-        } elseif (!is_null($year)) {
-            $query .= ' WHERE year = ' . $year . ' AND month IS NOT NULL';
-            $query .= ' AND day IS NULL';
-            $query .= ' ORDER BY year ASC, month ASC;';
-        } else {
-            $query .= ' WHERE year IS NOT NULL';
-            $query .= ' AND month IS NULL';
-            $query .= ' ORDER BY year ASC;';
-        }
-
-        return $this->conn->db_query($query);
+        parent::__construct($registry, HistorySummary::class);
     }
 
-    public function getSummaryToUpdate(int $year, ? int $month = null, ? int $day = null, ? int $hour = null)
+    public function addOrUpdateHistorySummary(HistorySummary $historySummary): int
     {
-        $query = 'SELECT id, year, month, day, hour, nb_pages FROM ' . self::HISTORY_SUMMARY_TABLE;
-        $query .= ' WHERE year = ' . $year;
-        $query .= ' AND ( month IS NULL OR ( month=' . $month . ' AND ( day is NULL OR (day=' . $day . ' AND (hour IS NULL OR hour=' . $hour . ')))))';
+        $this->_em->persist($historySummary);
+        $this->_em->flush();
 
-        return $this->conn->db_query($query);
+        return $historySummary->getId();
     }
 
     public function deleteAll()
     {
-        $query = 'DELETE FROM ' . self::HISTORY_SUMMARY_TABLE;
+        $qb = $this->createQueryBuilder('h');
+        $qb->delete();
 
-        return $this->conn->db_query($query);
+        $qb->getQuery()->getResult();
     }
 
-    public function massUpdates(array $fields, array $datas)
+    public function getSummaryToUpdate(int $year, ? int $month = null, ? int $day = null, ? int $hour = null)
     {
-        $this->conn->mass_updates(self::HISTORY_SUMMARY_TABLE, $fields, $datas);
+        $qb = $this->createQueryBuilder('h');
+        $qb->where('h.year = :year');
+        $qb->setParameter('year', $year);
+
+        if (is_null($month)) {
+            $qb->andWhere($qb->expr()->isNull('h.month'));
+        } else {
+            $qb->andWhere('h.month = :month');
+            $qb->setParameter('month', $month);
+        }
+
+        if (is_null($day)) {
+            $qb->andWhere($qb->expr()->isNull('h.day'));
+        } else {
+            $qb->andWhere('h.day = :day');
+            $qb->setParameter('day', $day);
+        }
+
+        if (is_null($hour)) {
+            $qb->andWhere($qb->expr()->isNull('h.hour'));
+        } else {
+            $qb->andWhere('h.hour = :hour');
+            $qb->setParameter('hour', $hour);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
-    public function massInserts(array $fields, array $datas)
+    public function getSummary(? int $year = null, ? int $month = null, ? int $day = null)
     {
-        $this->conn->mass_inserts(self::HISTORY_SUMMARY_TABLE, $fields, $datas);
+        $qb = $this->createQueryBuilder('h');
+
+        if (!is_null($day)) {
+            $qb->where('h.year = :year');
+            $qb->andWhere('h.month = :month');
+            $qb->andWhere('h.day = :day');
+            $qb->andWhere($qb->expr()->isNotNull('h.hour'));
+            $qb->orderBy('h.year, h.month, h.day, h.hour', 'ASC');
+            $qb->setParameters(['year' => $year, 'month' => $month, 'day' => $day]);
+        } elseif (!is_null($month)) {
+            $qb->where('h.year = :year');
+            $qb->andWhere('h.month = :month');
+            $qb->andWhere($qb->expr()->isNotNull('h.day'));
+            $qb->andWhere($qb->expr()->isNull('h.hour'));
+            $qb->orderBy('h.year, h.month, h.day', 'ASC');
+            $qb->setParameters(['year' => $year, 'month' => $month]);
+        } elseif (!is_null($year)) {
+            $qb->where('h.year = :year');
+            $qb->andWhere($qb->expr()->isNotNull('h.month'));
+            $qb->andWhere($qb->expr()->isNull('h.day'));
+            $qb->orderBy('h.year, h.month', 'ASC');
+            $qb->setParameters(['year' => $year]);
+        } else {
+            $qb->where($qb->expr()->isNotNull('h.year'));
+            $qb->andWhere($qb->expr()->isNull('h.month'));
+            $qb->orderBy('h.year', 'ASC');
+        }
+
+        return $qb->getQuery()->getResult();
     }
 }

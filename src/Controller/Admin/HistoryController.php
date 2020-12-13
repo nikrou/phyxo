@@ -14,6 +14,7 @@ namespace App\Controller\Admin;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\UserMapper;
+use App\Entity\HistorySummary;
 use App\Entity\Search;
 use App\Repository\CaddieRepository;
 use App\Repository\CommentRepository;
@@ -69,16 +70,19 @@ class HistoryController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function stats(Request $request, int $year = null, int $month = null, int $day = null, Conf $conf, EntityManager $em, ParameterBagInterface $params)
+    public function stats(Request $request, int $year = null, int $month = null, int $day = null, Conf $conf, HistorySummaryRepository $historySummaryRepository,
+                        HistoryRepository $historyRepository, ParameterBagInterface $params, EntityManager $em)
     {
         $tpl_params = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $this->refreshSummary($em);
+        $this->refreshSummary($historyRepository, $historySummaryRepository);
 
-        $result = $em->getRepository(HistorySummaryRepository::class)->getSummary($year, $month, $day);
-        $summary_lines = $em->getConnection()->result2array($result);
+        $summary_lines = [];
+        foreach ($historySummaryRepository->getSummary($year, $month, $day) as $historySummary) {
+            $summary_lines[] = $historySummary;
+        }
 
         $title_parts = [];
         $title_parts[] = '<a href="' . $this->generateUrl('admin_history') . '">' . $this->translator->trans('Overall', [], 'admin') . '</a>';
@@ -108,28 +112,28 @@ class HistoryController extends AdminCommonController
         $datas = [];
 
         if (!is_null($day)) {
-            $key = 'hour';
+            $method = 'getHour';
             $min_x = 0;
             $max_x = 23;
         } elseif (!is_null($month)) {
-            $key = 'day';
+            $method = 'getDay';
             $min_x = 1;
             $max_x = date('t', mktime(12, 0, 0, $month, 1, $year));
         } elseif (!is_null($year)) {
-            $key = 'month';
+            $method = 'getMonth';
             $min_x = 1;
             $max_x = 12;
         } else {
-            $key = 'year';
+            $method = 'getYear';
         }
 
         $max_pages = 1;
         foreach ($summary_lines as $line) {
-            if ($line['nb_pages'] > $max_pages) {
-                $max_pages = $line['nb_pages'];
+            if ($line->getNbPages() > $max_pages) {
+                $max_pages = $line->getNbPages();
             }
 
-            $datas[$line[$key]] = $line['nb_pages'];
+            $datas[$line->$method()] = $line->getNbPages();
         }
 
         if (!isset($min_x) and !isset($max_x) and count($datas) > 0) {
@@ -189,7 +193,7 @@ class HistoryController extends AdminCommonController
 
     public function search(Request $request, SearchRepository $searchRepository, int $start, int $search_id = null, AlbumMapper $albumMapper, Conf $conf,
                             EntityManager $em, ParameterBagInterface $params, UserRepository $userRepository, UserMapper $userMapper, ImageMapper $imageMapper,
-                            TagRepository $tagRepository)
+                            TagRepository $tagRepository, HistoryRepository $historyRepository)
     {
         $tpl_params = [];
 
@@ -205,7 +209,10 @@ class HistoryController extends AdminCommonController
                 $rules = unserialize(base64_decode($search->getRules()));
             }
 
-            $tpl_params['search_results'] = $this->getElementFromSearchRules($rules, $start, $conf, $em, $albumMapper, $userMapper, $imageMapper, $userRepository, $tagRepository);
+            $tpl_params['search_results'] = $this->getElementFromSearchRules(
+                $rules, $start, $conf, $historyRepository,
+                $albumMapper, $userMapper, $imageMapper, $userRepository, $tagRepository
+            );
             $tpl_params['search_summary'] = $tpl_params['search_results']['search_summary'];
             $nb_lines = $tpl_params['search_results']['nb_lines'];
 
@@ -246,7 +253,7 @@ class HistoryController extends AdminCommonController
         return $this->render('history_search.html.twig', $tpl_params);
     }
 
-    protected function getElementFromSearchRules(array $rules, int $start, Conf $conf, EntityManager $em, AlbumMapper $albumMapper, UserMapper $userMapper,
+    protected function getElementFromSearchRules(array $rules, int $start, Conf $conf, HistoryRepository $historyRepository, AlbumMapper $albumMapper, UserMapper $userMapper,
                                             ImageMapper $imageMapper, UserRepository $userRepository, TagRepository $tagRepository): array
     {
         $search_results = [];
@@ -258,12 +265,14 @@ class HistoryController extends AdminCommonController
             }
         }
 
-        $nb_lines = $em->getRepository(HistoryRepository::class)->getHistory($rules, $this->types, 0, 0, $count_only = true);
+        $nb_lines = $historyRepository->getHistory($rules, $this->types, 0, 0, $count_only = true);
 
-        $result = $em->getRepository(HistoryRepository::class)->getHistory($rules, $this->types, $conf['nb_logs_page'], $start * $conf['nb_logs_page']);
-        $data = $em->getConnection()->result2array($result);
+        $data = [];
+        foreach ($historyRepository->getHistory($rules, $this->types, $conf['nb_logs_page'], $start * $conf['nb_logs_page']) as $history) {
+            $data[] = $history;
+        }
         usort($data, function ($a, $b) {
-            return strcmp($a['date'] . $a['time'], $b['date'] . $b['time']);
+            return strcmp($a->getDate() . $a->getTime(), $b->getDate() . $b->getTime());
         });
 
         $history_lines = [];
@@ -557,24 +566,24 @@ class HistoryController extends AdminCommonController
         return $intl_date_formatter->format($date_time);
     }
 
-    protected function refreshSummary(EntityManager $em)
+    protected function refreshSummary(HistoryRepository $historyRepository, HistorySummaryRepository $historySummaryRepository)
     {
-        $result = $em->getRepository(HistoryRepository::class)->getDetailsFromNotSummarized();
         $need_update = [];
 
         $max_id = 0;
         $is_first = true;
         $first_time_key = null;
 
-        while ($row = $em->getConnection()->db_fetch_assoc($result)) {
+        foreach ($historyRepository->getDetailsFromNotSummarized() as $row) {
+            $history = $row[0];
             $time_keys = [
-                substr($row['date'], 0, 4), //yyyy
-                substr($row['date'], 0, 7), //yyyy-mm
-                substr($row['date'], 0, 10), //yyyy-mm-dd
+                $history->getDate()->format('Y'),
+                $history->getDate()->format('Y-m'),
+                $history->getDate()->format('Y-m-d'),
                 sprintf(
                     '%s-%02u',
-                    $row['date'],
-                    $row['hour']
+                    $history->getDate()->format('Y-m-d'),
+                    $history->getTime()->format('h')
                 ),
             ];
 
@@ -612,18 +621,16 @@ class HistoryController extends AdminCommonController
 
 
         $updates = [];
-        $inserts = [];
 
         if (isset($first_time_key)) {
-            $result = $em->getRepository(HistorySummaryRepository::class)->getSummaryToUpdate(...explode('-', $first_time_key));
-            while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                $key = sprintf('%4u', $row['year']);
-                if (isset($row['month'])) {
-                    $key .= sprintf('-%02u', $row['month']);
-                    if (isset($row['day'])) {
-                        $key .= sprintf('-%02u', $row['day']);
-                        if (isset($row['hour'])) {
-                            $key .= sprintf('-%02u', $row['hour']);
+            foreach ($historySummaryRepository->getSummaryToUpdate(...explode('-', $first_time_key)) as $historySummary) {
+                $key = sprintf('%4u', $historySummary->getYear());
+                if ($historySummary->getMonth()) {
+                    $key .= sprintf('-%02u', $historySummary->getMonth());
+                    if ($historySummary->getDay()) {
+                        $key .= sprintf('-%02u', $historySummary->getDay());
+                        if ($historySummary->getHour()) {
+                            $key .= sprintf('-%02u', $historySummary->getHour());
                         }
                     }
                 }
@@ -639,31 +646,23 @@ class HistoryController extends AdminCommonController
         foreach ($need_update as $time_key => $nb_pages) {
             $time_tokens = explode('-', $time_key);
 
-            $inserts[] = [
-                'year' => $time_tokens[0],
-                'month' => $time_tokens[1] ?? null,
-                'day' => $time_tokens[2] ?? null,
-                'hour' => $time_tokens[3] ?? null,
-                'nb_pages' => $nb_pages,
-            ];
-        }
-
-        if (count($updates) > 0) {
-            $em->getRepository(HistorySummaryRepository::class)->massUpdates(
-              [
-                  'primary' => ['year', 'month', 'day', 'hour'],
-                  'update' => ['nb_pages'],
-              ],
-              $updates
-            );
-        }
-
-        if (count($inserts) > 0) {
-            $em->getRepository(HistorySummaryRepository::class)->massInserts(array_keys($inserts[0]), $inserts);
+            $historySummary = new HistorySummary();
+            $historySummary->setYear($time_tokens[0]);
+            if (!empty($time_tokens[1])) {
+                $historySummary->setMonth($time_tokens[1]);
+            }
+            if (!empty($time_tokens[2])) {
+                $historySummary->setDay($time_tokens[2]);
+            }
+            if (!empty($time_tokens[3])) {
+                $historySummary->setHour($time_tokens[3]);
+            }
+            $historySummary->setNbPages($nb_pages);
+            $historySummaryRepository->addOrUpdateHistorySummary($historySummary);
         }
 
         if ($max_id != 0) {
-            $em->getRepository(HistoryRepository::class)->setSummarizedForUnsummarized($max_id);
+            $historyRepository->setSummarizedForUnsummarized($max_id);
         }
     }
 }

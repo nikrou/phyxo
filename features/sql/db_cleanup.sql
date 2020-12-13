@@ -1,3 +1,5 @@
+DELETE FROM phyxo_history;
+DELETE FROM phyxo_history_summary;
 DELETE FROM phyxo_comments;
 DELETE FROM phyxo_favorites;
 DELETE FROM phyxo_rate;

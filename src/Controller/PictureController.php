@@ -21,17 +21,19 @@ use Phyxo\Image\SrcImage;
 use Phyxo\Functions\DateTime;
 use App\Repository\FavoriteRepository;
 use App\DataMapper\TagMapper;
-use Phyxo\Functions\URL;
 use App\Repository\RateRepository;
 use Phyxo\Functions\Utils;
 use App\DataMapper\UserMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\RateMapper;
+use App\Entity\History;
+use App\Events\HistoryEvent;
 use App\Metadata;
 use App\Repository\ImageAlbumRepository;
 use App\Security\TagVoter;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PictureController extends CommonController
@@ -43,7 +45,7 @@ class PictureController extends CommonController
                             MenuBar $menuBar, ImageStandardParams $image_std_params, TagMapper $tagMapper,
                             UserMapper $userMapper, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager,
                             ImageMapper $imageMapper, Metadata $metadata, TranslatorInterface $translator, RateRepository $rateRepository,
-                            FavoriteRepository $favoriteRepository, ImageAlbumRepository $imageAlbumRepository)
+                            FavoriteRepository $favoriteRepository, ImageAlbumRepository $imageAlbumRepository, EventDispatcherInterface $eventDispatcher)
     {
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $this->translator = $translator;
@@ -51,6 +53,7 @@ class PictureController extends CommonController
         $this->conf = $conf;
         $this->userMapper = $userMapper;
 
+        $history_section = '';
         $this->image_std_params = $image_std_params;
 
         // @TODO : improve by verify token and redirect after changes
@@ -66,12 +69,14 @@ class PictureController extends CommonController
 
         $album = null;
         if ($type === 'list') {
+            $history_section = History::SECTION_LIST;
             $tpl_params['TITLE'] = $translator->trans('Random photos');
             $tpl_params['items'] = [];
             foreach ($imageMapper->getRepository()->searchDistinctId($this->getUser()->getForbiddenCategories(), $conf['order_by']) as $image) {
                 $tpl_params['items'][] = $image['id'];
             }
         } else {
+            $history_section = History::SECTION_ALBUMS;
             $album = $albumMapper->getRepository()->find((int) $element_id);
             $tpl_params['items'] = [];
             foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum((int) $element_id, $this->getUser()->getForbiddenCategories(), $conf['order_by']) as $image) {
@@ -234,6 +239,8 @@ class PictureController extends CommonController
         }
 
         $image = $imageMapper->getRepository()->find($image_id);
+        $image->setHit($image->getHit() + 1);
+        $imageMapper->getRepository()->addOrUpdateImage($image);
 
         $tpl_params['TAGS_PERMISSION_ADD'] = (int) $this->isGranted(TagVoter::ADD, $image);
         $tpl_params['TAGS_PERMISSION_DELETE'] = (int) $this->isGranted(TagVoter::DELETE, $image);
@@ -446,6 +453,14 @@ class PictureController extends CommonController
                 $tpl_params['TITLE'] = $tpl_params['related_categories'];
             }
         }
+
+        $historyEvent = new HistoryEvent($history_section);
+        $historyEvent->setImage($image);
+        if (!is_null($album)) {
+            $historyEvent->setAlbum($album);
+        }
+        $historyEvent->setIp($request->getClientIp());
+        $eventDispatcher->dispatch($historyEvent);
 
         $tpl_params['TITLE'][] = ['label' => $picture['name']];
         $tpl_params['SECTION_TITLE'] = '<a href="' . $this->generateUrl('homepage') . '">' . $translator->trans('Home') . '</a>';

@@ -34,8 +34,7 @@ CREATE TABLE "phyxo_categories"
   "image_order" VARCHAR(128),
   "permalink" VARCHAR(64),
   "lastmodified" TIMESTAMP NULL DEFAULT now(),
-  PRIMARY KEY ("id"),
-  CONSTRAINT "categories_i3" UNIQUE ("permalink")
+  PRIMARY KEY ("id")
 );
 
 -----------------------------------------------------------------------------
@@ -88,8 +87,7 @@ CREATE TABLE "phyxo_groups"
   "name" VARCHAR(255) DEFAULT '' NOT NULL,
   "is_default" BOOLEAN DEFAULT false,
   "lastmodified" TIMESTAMP NULL DEFAULT now(),
-  PRIMARY KEY ("id"),
-  CONSTRAINT "groups_ui1" UNIQUE ("name")
+  PRIMARY KEY ("id")
 );
 
 
@@ -98,25 +96,19 @@ CREATE TABLE "phyxo_groups"
 -----------------------------------------------------------------------------
 
 DROP TABLE IF EXISTS "phyxo_history";
-
-DROP TYPE IF EXISTS HISTORY_SECTION;
-CREATE TYPE HISTORY_SECTION AS ENUM('categories','tags','search','list','favorites','most_visited','best_rated','recent_pics','recent_cats');
-DROP TYPE IF EXISTS HISTORY_IMAGE_TYPE;
-CREATE TYPE HISTORY_IMAGE_TYPE AS ENUM('picture','high','other');
-
 CREATE TABLE "phyxo_history"
 (
   "id" serial  NOT NULL,
   "date" DATE NOT NULL,
   "time" TIME NOT NULL,
   "user_id" INTEGER DEFAULT 0 NOT NULL,
-  "ip" VARCHAR(15) DEFAULT '' NOT NULL,
-  "section" HISTORY_SECTION DEFAULT NULL,
+  "ip" VARCHAR(255) DEFAULT '' NOT NULL,
+  "section" VARCHAR(255) DEFAULT NULL,
   "category_id" INTEGER,
   "tag_ids" VARCHAR(50),
   "image_id" INTEGER,
   "summarized" BOOLEAN DEFAULT false,
-  "image_type" HISTORY_IMAGE_TYPE DEFAULT NULL,
+  "image_type" VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY ("id")
 );
 
@@ -134,8 +126,7 @@ CREATE TABLE "phyxo_history_summary"
   "hour" INTEGER,
   "nb_pages" INTEGER,
   "id" serial  NOT NULL,
-  PRIMARY KEY ("id"),
-  CONSTRAINT "history_summary_ymdh" UNIQUE ("year","month","day","hour")
+  PRIMARY KEY ("id")
 );
 
 
@@ -271,8 +262,7 @@ CREATE TABLE "phyxo_sites"
 (
   "id" serial  NOT NULL,
   "galleries_url" VARCHAR(255) DEFAULT '' NOT NULL,
-  PRIMARY KEY ("id"),
-  CONSTRAINT "sites_ui1" UNIQUE ("galleries_url")
+  PRIMARY KEY ("id")
 );
 
 
@@ -424,8 +414,7 @@ CREATE TABLE "phyxo_user_infos"
   "activation_key_expire" TIMESTAMP DEFAULT NULL,
   "lastmodified" TIMESTAMP NULL DEFAULT now(),
 
-  PRIMARY KEY ("user_id"),
-  CONSTRAINT "user_infos_ui1" UNIQUE ("user_id")
+  PRIMARY KEY ("user_id")
 );
 
 
@@ -440,8 +429,7 @@ CREATE TABLE "phyxo_user_mail_notification"
   "check_key" VARCHAR(16) DEFAULT '' NOT NULL,
   "enabled" BOOLEAN DEFAULT false,
   "last_send" TIMESTAMP,
-  PRIMARY KEY ("user_id"),
-  CONSTRAINT "user_mail_notification_ui1" UNIQUE ("check_key")
+  PRIMARY KEY ("user_id")
 );
 
 
@@ -457,8 +445,7 @@ CREATE TABLE "phyxo_users"
   "username" VARCHAR(100) DEFAULT '' NOT NULL,
   "password" VARCHAR(255) DEFAULT NULL,
   "mail_address" VARCHAR(255) DEFAULT NULL,
-  PRIMARY KEY ("id"),
-  CONSTRAINT "users_ui1" UNIQUE ("username")
+  PRIMARY KEY ("id")
 );
 
 
