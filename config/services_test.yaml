@@ -36,6 +36,3 @@ services:
 
   phyxo.comment.mapper:
     alias: 'App\DataMapper\CommentMapper'
-
-  phyxo.entity.manager:
-    alias: 'Phyxo\EntityManager'

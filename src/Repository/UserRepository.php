@@ -122,4 +122,15 @@ class UserRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function getUsersByGroup(int $group_id)
+    {
+        $qb = $this->createQueryBuilder('u');
+        $qb->leftJoin('u.groups', 'g');
+        $qb->where('g.id = :group_id');
+        $qb->setParameter('group_id', $group_id);
+        $qb->andWhere($qb->expr()->isNotNull('u.mail_address'));
+
+        return $qb->getQuery()->getResult();
+    }
 }

@@ -106,11 +106,7 @@ class Themes extends atoum\test
         $workspace = $this->mirrorToWorkspace();
 
         $prophet = new Prophet();
-        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
-        $conn->get_boolean('true')->willReturn(true);
-
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
-
         $userMapper->getUser()->willReturn(new class {
             function getLanguage()
             {
@@ -120,7 +116,7 @@ class Themes extends atoum\test
 
         $themeRepository = $prophet->prophesize('App\Repository\ThemeRepository');
 
-        $themes = new \Phyxo\Theme\Themes($conn->reveal(), $themeRepository->reveal(), $userMapper->reveal());
+        $themes = new \Phyxo\Theme\Themes($themeRepository->reveal(), $userMapper->reveal());
         $themes->setRootPath($workspace);
 
         $this
@@ -133,9 +129,6 @@ class Themes extends atoum\test
         $workspace = $this->mirrorToWorkspace();
 
         $prophet = new Prophet();
-        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
-        $conn->get_boolean('true')->willReturn(true);
-
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
 
         $userMapper->getUser()->willReturn(new class {
@@ -147,7 +140,7 @@ class Themes extends atoum\test
 
         $themeRepository = $prophet->prophesize('App\Repository\ThemeRepository');
 
-        $themes = new \Phyxo\Theme\Themes($conn->reveal(), $themeRepository->reveal(), $userMapper->reveal());
+        $themes = new \Phyxo\Theme\Themes($themeRepository->reveal(), $userMapper->reveal());
         $themes->setRootPath($workspace);
 
         $themes->sortFsThemes($sort_type);

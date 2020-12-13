@@ -18,7 +18,6 @@ use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\ThemeRepository;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Phyxo\EntityManager;
 use App\Repository\UserMailNotificationRepository;
 use App\Repository\UserFeedRepository;
 use App\Repository\FavoriteRepository;

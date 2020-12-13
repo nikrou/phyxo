@@ -12,8 +12,8 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\ImageMapper;
+use App\Kernel;
 use App\Repository\AlbumRepository;
-use App\Repository\BaseRepository;
 use App\Repository\CommentRepository;
 use App\Repository\GroupRepository;
 use App\Repository\ImageAlbumRepository;
@@ -22,8 +22,6 @@ use App\Repository\RateRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
-use Phyxo\DBLayer\DBLayer;
-use Phyxo\EntityManager;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -31,7 +29,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DashboardController extends AdminCommonController
 {
-    public function index(Request $request, bool $check_upgrade = false, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
+    public function index(Request $request, bool $check_upgrade = false, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
                           UserRepository $userRepository, GroupRepository $groupRepository, HttpClientInterface $client, AlbumRepository $albumRepository,
                           ImageMapper $imageMapper, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository, RateRepository $rateRepository,
                           TagRepository $tagRepository, ImageTagRepository $imageTagRepository)
@@ -78,9 +76,10 @@ class DashboardController extends AdminCommonController
         $tpl_params = array_merge($tpl_params,
             [
                 'OS' => PHP_OS,
-                'PHP_VERSION' => phpversion(),
-                'DB_ENGINE' => DBLayer::availableEngines()[$em->getConnection()->getLayer()],
-                'DB_VERSION' => $em->getConnection()->db_version(),
+                'PHP_VERSION' => \PHP_VERSION,
+                'SYMFONY_VERSION' => Kernel::VERSION,
+                'DB_ENGINE' => $this->getDoctrine()->getConnection()->getDatabasePlatform()->getName(),
+                'DB_VERSION' => $this->getDoctrine()->getConnection()->getWrappedConnection()->getServerVersion(),
                 'DB_ELEMENTS' => $translator->trans('number_of_photos', ['count' => $nb_elements], 'admin'),
                 'DB_CATEGORIES' => $translator->trans('number_of_albums_including', ['count' => $nb_categories], 'admin'),
                 'PHYSICAL_CATEGORIES' => $translator->trans('number_of_physicals', ['count' => $nb_physical], 'admin'),
@@ -93,9 +92,7 @@ class DashboardController extends AdminCommonController
                 'DB_USERS' => $translator->trans('number_of_users', ['count' => $nb_users], 'admin'),
                 'DB_GROUPS' => $translator->trans('number_of_groups', ['count' => $nb_groups], 'admin'),
                 'DB_RATES' => $translator->trans('number_of_rates', ['count' => $nb_rates], 'admin'),
-                'U_CHECK_UPGRADE' => $this->generateUrl('admin_check_upgrade'),
-                'PHP_DATATIME' => date("Y-m-d H:i:s"),
-                'DB_DATATIME' => $em->getRepository(BaseRepository::class)->getNow()
+                'U_CHECK_UPGRADE' => $this->generateUrl('admin_check_upgrade')
             ]
         );
 
@@ -124,7 +121,7 @@ class DashboardController extends AdminCommonController
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
 
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('dashboard.html.twig', $tpl_params);
     }

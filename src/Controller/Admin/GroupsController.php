@@ -17,7 +17,6 @@ use App\Entity\Album;
 use App\Entity\Group;
 use App\Repository\GroupRepository;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,7 +36,7 @@ class GroupsController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function list(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator, GroupRepository $groupRepository)
+    public function list(Request $request, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator, GroupRepository $groupRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -91,12 +90,12 @@ class GroupsController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('groups_list.html.twig', $tpl_params);
     }
 
-    public function perm(Request $request, int $group_id, EntityManager $em, Conf $conf, ParameterBagInterface $params,
+    public function perm(Request $request, int $group_id, Conf $conf, ParameterBagInterface $params,
                         AlbumMapper $albumMapper, UserMapper $userMapper, TranslatorInterface $translator, GroupRepository $groupRepository)
     {
         $tpl_params = [];
@@ -152,7 +151,7 @@ class GroupsController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_groups');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Groups', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('perm', $group_id), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_groups');
@@ -164,7 +163,7 @@ class GroupsController extends AdminCommonController
         return $this->render('groups_perm.html.twig', $tpl_params);
     }
 
-    public function action(Request $request, string $action, EntityManager $em, GroupRepository $groupRepository, TranslatorInterface $translator)
+    public function action(Request $request, string $action, GroupRepository $groupRepository, TranslatorInterface $translator)
     {
         $group_selection = $request->request->get('group_selection');
         if (count($group_selection) === 0) {

@@ -13,25 +13,23 @@ namespace App\EventSubscriber;
 
 use App\DataMapper\UserMapper;
 use App\Events\GroupEvent;
-use App\Repository\UserRepository;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class GroupNotificationSubscriber implements EventSubscriberInterface
 {
-    private $mailer, $em, $conf, $router, $userMapper, $translator;
+    private $mailer, $conf, $router, $userMapper, $translator;
 
-    public function __construct(MailerInterface $mailer, EntityManager $em, Conf $conf, RouterInterface $router,
+    public function __construct(MailerInterface $mailer, Conf $conf, RouterInterface $router,
                                 UserMapper $userMapper, TranslatorInterface $translator)
     {
         $this->mailer = $mailer;
-        $this->em = $em;
         $this->conf = $conf;
         $this->router = $router;
         $this->userMapper = $userMapper;
@@ -65,9 +63,8 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
         ];
 
         $languages = [];
-        $result = $this->em->getRepository(UserRepository::class)->getUsersByGroup($event->getGroup());
-        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $languages[$row['language']][] = $row;
+        foreach ($this->userMapper->getRepository()->getUsersByGroup($event->getGroup()) as $user) {
+            $languages[$user->getLanguage()][] = $user;
         }
 
         $message = (new TemplatedEmail())->subject($subject);
@@ -75,7 +72,7 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
         foreach ($languages as $language => $users) {
             //@switch to language in template (@see switch_lang_to and switch_lang_back from Mail class)
             foreach ($users as $user) {
-                $message->addBcc($user['email'], $user['name']);
+                $message->addBcc($user->getMailAddress(), $user->getUsername());
             }
         }
 
@@ -85,16 +82,17 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
           ->context($params);
 
         if (!empty($this->conf['mail_sender_email'])) {
-            $from[] = $this->conf['mail_sender_email'];
             if (!empty($this->conf['mail_sender_name'])) {
-                $from[] = $this->conf['mail_sender_name'];
+                $from = new Address($this->conf['mail_sender_email'], $this->conf['mail_sender_name']);
+            } else {
+                $from = new Address($this->conf['mail_sender_email']);
             }
         } else {
-            $from = [$webmaster->getMailAddress(), $webmaster->getUsername()];
+            $from = new Address($webmaster->getMailAddress(), $webmaster->getUsername());
         }
 
-        $message->from(...$from);
-        $message->replyTo(...$from);
+        $message->from($from);
+        $message->replyTo($from);
 
         $this->mailer->send($message);
     }

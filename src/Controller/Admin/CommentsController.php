@@ -14,7 +14,6 @@ namespace App\Controller\Admin;
 use App\DataMapper\CommentMapper;
 use App\Repository\CommentRepository;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
@@ -38,7 +37,7 @@ class CommentsController  extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function index(Request $request, string $section = 'all', int $start = 0, ImageStandardParams $image_std_params, Conf $conf, EntityManager $em,
+    public function index(Request $request, string $section = 'all', int $start = 0, ImageStandardParams $image_std_params, Conf $conf,
                         ParameterBagInterface $params, TranslatorInterface $translator, CommentRepository $commentRepository)
     {
         $tpl_params = [];
@@ -107,7 +106,7 @@ class CommentsController  extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('comments.html.twig', $tpl_params);
     }

@@ -12,10 +12,10 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\UserMapper;
+use App\Repository\PluginRepository;
 use App\Repository\ThemeRepository;
 use App\Twig\ThemeLoader;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Phyxo\Plugin\Plugins;
 use Phyxo\Theme\Themes;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -25,7 +25,7 @@ class ExtensionController extends AdminCommonController
 {
     protected $params, $conf;
 
-    public function theme(Request $request, string $theme, EntityManager $em, ThemeRepository $themeRepository, UserMapper $userMapper, string $themesDir, Conf $conf,
+    public function theme(Request $request, string $theme, ThemeRepository $themeRepository, UserMapper $userMapper, string $themesDir, Conf $conf,
                             ThemeLoader $themeLoader, ParameterBagInterface $params)
     {
         $tpl_params = [];
@@ -34,7 +34,7 @@ class ExtensionController extends AdminCommonController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $themes = new Themes($em->getConnection(), $themeRepository, $userMapper);
+        $themes = new Themes($themeRepository, $userMapper);
         $themes->setRootPath($themesDir);
         if (!in_array($theme, array_keys($themes->getFsThemes()))) {
             throw $this->createNotFoundException('Invalid theme');
@@ -70,7 +70,7 @@ class ExtensionController extends AdminCommonController
         }
 
         $themeResponse = $load($filename);
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($tpl_params, $themeResponse['tpl_params']);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_themes_installed');
@@ -78,7 +78,7 @@ class ExtensionController extends AdminCommonController
         return $this->render($themeResponse['template_filename'], $tpl_params);
     }
 
-    public function plugin(Request $request, string $plugin, EntityManager $em, UserMapper $userMapper, string $pluginsDir, Conf $conf, ParameterBagInterface $params)
+    public function plugin(Request $request, string $plugin, PluginRepository $pluginRepository, UserMapper $userMapper, string $pluginsDir, Conf $conf, ParameterBagInterface $params)
     {
         $tpl_params = [];
         $this->conf = $conf;
@@ -86,7 +86,7 @@ class ExtensionController extends AdminCommonController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $plugins = new Plugins($em->getConnection(), $userMapper);
+        $plugins = new Plugins($pluginRepository, $userMapper);
         $plugins->setRootPath($pluginsDir);
         if (!in_array($plugin, array_keys($plugins->getDbPlugins()))) {
             throw $this->createNotFoundException('Invalid plugin');
@@ -119,7 +119,7 @@ class ExtensionController extends AdminCommonController
 
         $pluginResponse = $load($filename, $conf, $this->getUser());
         $tpl_params = array_merge($tpl_params, $pluginResponse['tpl_params']);
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_plugins_installed');
 

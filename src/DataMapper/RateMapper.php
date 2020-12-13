@@ -12,18 +12,16 @@
 namespace App\DataMapper;
 
 use App\Entity\Rate;
-use Phyxo\EntityManager;
 use Phyxo\Conf;
 use App\Repository\RateRepository;
 use Phyxo\Functions\Utils;
 
 class RateMapper
 {
-    private $em, $conf, $userMapper, $imageMapper, $rateRepository;
+    private $conf, $userMapper, $imageMapper, $rateRepository;
 
-    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, ImageMapper $imageMapper, RateRepository $rateRepository)
+    public function __construct(Conf $conf, UserMapper $userMapper, ImageMapper $imageMapper, RateRepository $rateRepository)
     {
-        $this->em = $em;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
         $this->imageMapper = $imageMapper;

@@ -15,7 +15,6 @@ use App\DataMapper\UserMapper;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Theme\Themes;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -38,14 +37,14 @@ class ThemesController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function installed(Request $request, EntityManager $em, ThemeRepository $themeRepository, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function installed(Request $request, ThemeRepository $themeRepository, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $themes = new Themes($em->getConnection(), $themeRepository, $userMapper);
+        $themes = new Themes($themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
 
         $db_themes = $themes->getDbThemes();
@@ -149,12 +148,12 @@ class ThemesController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('error')) {
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('themes_installed.html.twig', $tpl_params);
     }
 
-    public function update(Request $request, EntityManager $em, UserMapper $userMapper, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
+    public function update(Request $request, UserMapper $userMapper, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
                             ThemeRepository $themeRepository, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -162,7 +161,7 @@ class ThemesController extends AdminCommonController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $themes = new Themes($em->getConnection(), $themeRepository, $userMapper);
+        $themes = new Themes($themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
         $themes->setExtensionsURL($params->get('pem_url'));
 
@@ -220,15 +219,15 @@ class ThemesController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('error')) {
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('themes_update.html.twig', $tpl_params);
     }
 
-    public function action(string $theme, string $action, EntityManager $em, UserMapper $userMapper, ThemeRepository $themeRepository,
+    public function action(string $theme, string $action, UserMapper $userMapper, ThemeRepository $themeRepository,
                         UserInfosRepository $userInfosRepository, ParameterBagInterface $params)
     {
-        $themes = new Themes($em->getConnection(), $themeRepository, $userMapper);
+        $themes = new Themes($themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
 
         if ($action === 'set_default') {
@@ -249,7 +248,7 @@ class ThemesController extends AdminCommonController
         return $this->redirectToRoute('admin_themes_installed');
     }
 
-    public function install(int $revision, EntityManager $em, ParameterBagInterface $params, UserMapper $userMapper, ThemeRepository $themeRepository, TranslatorInterface $translator)
+    public function install(int $revision, ParameterBagInterface $params, UserMapper $userMapper, ThemeRepository $themeRepository, TranslatorInterface $translator)
     {
         if (!$userMapper->isWebmaster()) {
             $this->addFlash('error', $translator->trans('Webmaster status is required.', [], 'admin'));
@@ -257,7 +256,7 @@ class ThemesController extends AdminCommonController
             return $this->redirectToRoute('admin_themes_new');
         }
 
-        $themes = new Themes($em->getConnection(), $themeRepository, $userMapper);
+        $themes = new Themes($themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
         $themes->setExtensionsURL($params->get('pem_url'));
 
@@ -273,14 +272,14 @@ class ThemesController extends AdminCommonController
         }
     }
 
-    public function new(Request $request, EntityManager $em, ThemeRepository $themeRepository, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function new(Request $request, ThemeRepository $themeRepository, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $themes = new Themes($em->getConnection(), $themeRepository, $userMapper);
+        $themes = new Themes($themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
         $themes->setExtensionsURL($params->get('pem_url'));
 
@@ -307,7 +306,7 @@ class ThemesController extends AdminCommonController
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
 
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('themes_new.html.twig', $tpl_params);
     }

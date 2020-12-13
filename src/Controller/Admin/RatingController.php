@@ -16,7 +16,6 @@ use App\DataMapper\UserMapper;
 use App\Repository\RateRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
@@ -40,7 +39,7 @@ class RatingController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function photos(Request $request, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, ImageStandardParams $image_std_params,
+    public function photos(Request $request, int $start = 0, Conf $conf, ParameterBagInterface $params, ImageStandardParams $image_std_params,
                             TranslatorInterface $translator, UserMapper $userMapper, UserRepository $userRepository, RateRepository $rateRepository)
     {
         $tpl_params = [];
@@ -112,7 +111,7 @@ class RatingController extends AdminCommonController
 
         $tpl_params['images'] = [];
         foreach ($rateRepository->getRatePerImage($guest_id, $operator_user_filter, $available_order_by[$order_by_index][1], $elements_per_page, $start) as $image) {
-            $images[] = $image;
+            $tpl_params['images'][] = $image;
 
             $thumbnail_src = (new DerivativeImage(new SrcImage($image, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
             $image_url = $this->generateUrl('admin_photo', ['image_id' => $image['id']]);
@@ -168,14 +167,14 @@ class RatingController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_rating');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_rating');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Rating', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('photos'), $tpl_params);
         $tpl_params['WS_RATES_DELETE'] = $this->generateUrl('ws') . '?method=pwg.rates.delete';
 
         return $this->render('rating_photos.html.twig', $tpl_params);
     }
 
-    public function users(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, UserMapper $userMapper, ImageStandardParams $image_std_params,
+    public function users(Request $request, Conf $conf, ParameterBagInterface $params, UserMapper $userMapper, ImageStandardParams $image_std_params,
                             TranslatorInterface $translator, UserRepository $userRepository, ImageMapper $imageMapper, RateRepository $rateRepository)
     {
         $tpl_params = [];
@@ -346,7 +345,7 @@ class RatingController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_rating');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_rating');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Rating', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('users'), $tpl_params);
 
         return $this->render('rating_users.html.twig', $tpl_params);

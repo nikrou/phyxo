@@ -15,9 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
 use Phyxo\Calendar\CalendarMonthly;
-use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
-use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
 use App\Repository\AlbumRepository;
 use App\Repository\ImageRepository;
@@ -139,7 +137,7 @@ class CalendarController extends CommonController
     }
 
     public function categoriesWeekly(Request $request, string $date_type, int $week = 0, Conf $conf, MenuBar $menuBar, ImageRepository $imageRepository, AlbumRepository $albumRepository,
-                                    ImageStandardParams $image_std_params, EntityManager $em, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
+                                    ImageStandardParams $image_std_params, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $tpl_params['START_ID'] = $start;
@@ -193,20 +191,7 @@ class CalendarController extends CommonController
         $calendar->setConf($conf);
         $calendar->setViewType('list');
         $calendar->setImageStandardParams($image_std_params);
-        $calendar->findByCondition(
-            $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
-                $this->getUser(),
-                $filter,
-                [
-
-                    'forbidden_categories' => 'category_id',
-                    'visible_categories' => 'category_id',
-                    'visible_images' => 'id'
-                ],
-                '',
-                true
-            )
-        );
+        $calendar->findByCondition($this->getUser()->getForbiddenCategories());
 
         $category_content = $calendar->generateCategoryContent();
         if (!empty($category_content)) {
@@ -254,7 +239,7 @@ class CalendarController extends CommonController
     }
 
     public function categoryMonthly(Request $request, int $category_id, string $date_type, string $view_type, Conf $conf, MenuBar $menuBar, ImageRepository $imageRepository,
-                            AlbumRepository $albumRepository, ImageStandardParams $image_std_params, EntityManager $em, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
+                            AlbumRepository $albumRepository, ImageStandardParams $image_std_params, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $tpl_params['START_ID'] = $start;
@@ -303,11 +288,7 @@ class CalendarController extends CommonController
         $calendar->setConf($conf);
         $calendar->setViewType($view_type);
         $calendar->setImageStandardParams($image_std_params);
-        $calendar->findByConditionAndCategory(
-            $em->getRepository(BaseRepository::class)->getSQLConditionFandF($this->getUser(), $filter, ['visible_images' => 'id'], 'AND', false),
-            $category_id,
-            $this->getUser()->getForbiddenCategories()
-        );
+        $calendar->findByConditionAndCategory($category_id, $this->getUser()->getForbiddenCategories());
 
 
         $category_content = $calendar->generateCategoryContent();
@@ -360,7 +341,7 @@ class CalendarController extends CommonController
     }
 
     public function categoryWeekly(Request $request, int $category_id, string $date_type, int $week, Conf $conf, ImageRepository $imageRepository, AlbumRepository $albumRepository,
-                                    MenuBar $menuBar, ImageStandardParams $image_std_params, ImageMapper $imageMapper, EntityManager $em, int $start = 0, TranslatorInterface $translator)
+                                    MenuBar $menuBar, ImageStandardParams $image_std_params, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $tpl_params['START_ID'] = $start;
@@ -432,11 +413,7 @@ class CalendarController extends CommonController
         $calendar->setConf($conf);
         $calendar->setViewType('list');
         $calendar->setImageStandardParams($image_std_params);
-        $calendar->findByConditionAndCategory(
-            $em->getRepository(BaseRepository::class)->getSQLConditionFandF($this->getUser(), $filter, ['visible_images' => 'id'], 'AND', false),
-            $category_id,
-            $this->getUser()->getForbiddenCategories()
-        );
+        $calendar->findByConditionAndCategory($category_id, $this->getUser()->getForbiddenCategories());
 
         if ($chronology_params = $calendar->generateCategoryContent()) {
             $tpl_params['items'] = [];

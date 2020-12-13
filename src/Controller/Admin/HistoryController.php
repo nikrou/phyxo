@@ -25,7 +25,6 @@ use App\Repository\TagRepository;
 use App\Repository\UserRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
@@ -71,7 +70,7 @@ class HistoryController extends AdminCommonController
     }
 
     public function stats(Request $request, int $year = null, int $month = null, int $day = null, Conf $conf, HistorySummaryRepository $historySummaryRepository,
-                        HistoryRepository $historyRepository, ParameterBagInterface $params, EntityManager $em)
+                        HistoryRepository $historyRepository, ParameterBagInterface $params)
     {
         $tpl_params = [];
 
@@ -186,13 +185,13 @@ class HistoryController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('history_stats.html.twig', $tpl_params);
     }
 
     public function search(Request $request, SearchRepository $searchRepository, int $start, int $search_id = null, AlbumMapper $albumMapper, Conf $conf,
-                            EntityManager $em, ParameterBagInterface $params, UserRepository $userRepository, UserMapper $userMapper, ImageMapper $imageMapper,
+                            ParameterBagInterface $params, UserRepository $userRepository, UserMapper $userMapper, ImageMapper $imageMapper,
                             TagRepository $tagRepository, HistoryRepository $historyRepository)
     {
         $tpl_params = [];
@@ -248,7 +247,7 @@ class HistoryController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('history_search.html.twig', $tpl_params);
     }
@@ -501,7 +500,7 @@ class HistoryController extends AdminCommonController
         return $image_string;
     }
 
-    public function saveSearch(Request $request, EntityManager $em, SearchRepository $searchRepository)
+    public function saveSearch(Request $request, SearchRepository $searchRepository)
     {
         if ($request->isMethod('POST')) {
             $rules = [];
@@ -526,11 +525,11 @@ class HistoryController extends AdminCommonController
             }
 
             if ($filename = $request->request->get('filename')) {
-                $rules['fields']['filename'] = str_replace('*', '%', $em->getConnection()->db_real_escape_string($filename));
+                $rules['fields']['filename'] = str_replace('*', '%', $filename);
             }
 
             if ($ip = $request->request->get('ip')) {
-                $rules['fields']['ip'] = str_replace('*', '%', $em->getConnection()->db_real_escape_string($ip));
+                $rules['fields']['ip'] = str_replace('*', '%', $ip);
             }
 
             $rules['fields']['display_thumbnail'] = $request->request->get('display_thumbnail');

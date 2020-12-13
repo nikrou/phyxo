@@ -17,7 +17,6 @@ use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
-use Phyxo\EntityManager;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 
@@ -28,7 +27,7 @@ class DefaultController extends CommonController
         return $this->forward('App\Controller\AlbumController::albums');
     }
 
-    public function action(ImageMapper $imageMapper, int $image_id, string $part, $download = false, AlbumMapper $albumMapper, EntityManager $em, Conf $conf, ImageStandardParams $image_std_params)
+    public function action(ImageMapper $imageMapper, int $image_id, string $part, $download = false, AlbumMapper $albumMapper, Conf $conf, ImageStandardParams $image_std_params)
     {
         $image = $imageMapper->getRepository()->find($image_id);
 

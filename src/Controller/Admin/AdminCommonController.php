@@ -16,7 +16,6 @@ use App\Repository\CaddieRepository;
 use App\Repository\CommentRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -42,7 +41,7 @@ abstract class AdminCommonController extends AbstractController
         return $user;
     }
 
-    protected function menu(RouterInterface $router, User $user, EntityManager $em, Conf $conf, string $core_version): array
+    protected function menu(RouterInterface $router, User $user, Conf $conf, string $core_version): array
     {
         $tpl_params = [
             'USERNAME' => $user->getUsername(),

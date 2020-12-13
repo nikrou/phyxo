@@ -20,7 +20,6 @@ use App\Repository\HistorySummaryRepository;
 use App\Repository\SearchRepository;
 use App\Repository\UserFeedRepository;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -30,7 +29,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MaintenanceController extends AdminCommonController
 {
-    public function index(Request $request, ?string $action, Conf $conf, EntityManager $em, ParameterBagInterface $params, HistoryRepository $historyRepository,
+    public function index(Request $request, ?string $action, Conf $conf, ParameterBagInterface $params, HistoryRepository $historyRepository,
                         HistorySummaryRepository $historySummaryRepository, UserMapper $userMapper, RateMapper $rateMapper, TagMapper $tagMapper,
                         ImageStandardParams $image_std_params, TranslatorInterface $translator, SearchRepository $searchRepository, UserFeedRepository $userFeedRepository, AlbumMapper $albumMapper)
     {
@@ -91,15 +90,15 @@ class MaintenanceController extends AdminCommonController
                   $userFeedRepository->deleteUserFeedNotChecked();
                 return  $this->redirectToRoute('admin_maintenance');
               }
-          case 'database':
-              {
-                  if ($em->getConnection()->do_maintenance_all_tables()) {
-                      $this->addFlash('info', $translator->trans('All optimizations have been successfully completed.', [], 'admin'));
-                  } else {
-                      $this->addFlash('error', $translator->trans('Optimizations have been completed with some errors.', [], 'admin'));
-                  }
-                  return  $this->redirectToRoute('admin_maintenance');
-              }
+        //   case 'database':
+        //       {
+        //           if ($em->getConnection()->do_maintenance_all_tables()) {
+        //               $this->addFlash('info', $translator->trans('All optimizations have been successfully completed.', [], 'admin'));
+        //           } else {
+        //               $this->addFlash('error', $translator->trans('Optimizations have been completed with some errors.', [], 'admin'));
+        //           }
+        //           return  $this->redirectToRoute('admin_maintenance');
+        //       }
           case 'search':
               {
                   $searchRepository->purge();
@@ -163,7 +162,7 @@ class MaintenanceController extends AdminCommonController
             'U_MAINT_HISTORY_DETAIL' => $this->generateUrl('admin_maintenance', ['action' => 'history_detail']),
             'U_MAINT_HISTORY_SUMMARY' => $this->generateUrl('admin_maintenance', ['action' => 'history_summary']),
             'U_MAINT_FEEDS' => $this->generateUrl('admin_maintenance', ['action' => 'feeds']),
-            'U_MAINT_DATABASE' => $this->generateUrl('admin_maintenance', ['action' => 'database']),
+            // 'U_MAINT_DATABASE' => $this->generateUrl('admin_maintenance', ['action' => 'database']),
             'U_MAINT_SEARCH' => $this->generateUrl('admin_maintenance', ['action' => 'search']),
             'U_MAINT_DERIVATIVES' => $this->generateUrl('admin_maintenance', ['action' => 'derivatives']),
             'U_MAINT_OBSOLETE' => $this->generateUrl('admin_maintenance', ['action' => 'obsolete']),
@@ -190,7 +189,7 @@ class MaintenanceController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('maintenance.html.twig', $tpl_params);
     }

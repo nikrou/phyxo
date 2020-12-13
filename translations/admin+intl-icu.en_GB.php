@@ -358,6 +358,7 @@ $lang["Show/Hide details"] = "Show/Hide details";
 $lang["any visitor can see this album"] = "any visitor can see this album";
 $lang["There is no group in this gallery."] = "There is no group in this gallery.";
 $lang["Send an information email to group members"] = "Send an information email to group members";
+$lang['An information email was sent to group "{group}"'] = "An information email was sent to group \"{group}\"";
 $lang["Group"] = "Group";
 $lang["Complementary mail content"] = "Complementary mail content";
 $lang["Send"] = "Send";

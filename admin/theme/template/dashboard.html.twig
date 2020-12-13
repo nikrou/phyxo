@@ -24,6 +24,7 @@
 			<span>(<a id="check-upgrade" href="{{U_CHECK_UPGRADE}}">{{'Check for upgrade'|trans}}</a>)</span>
 		    {% endif %}
 		</li>
+		<li>Symfony: {{SYMFONY_VERSION}}</li>
 	    </ul>
 	</dd>
 
@@ -31,10 +32,10 @@
 	<dd>
 	    <ul>
 		<li>{{'Operating system'|trans}}: {{OS}}</li>
-		<li>PHP: {{PHP_VERSION}} [{{PHP_DATATIME}}]</li>
-		<li>{{DB_ENGINE}}: {{DB_VERSION}} [{{DB_DATATIME}}]</li>
+		<li>PHP: {{PHP_VERSION}}</li>
+		<li>{{DB_ENGINE}}: {{DB_VERSION}}</li>
 		{% if GRAPHICS_LIBRARY is defined %}
-		<li>{{'Graphics Library'|trans}}: {{GRAPHICS_LIBRARY}}</li>
+		    <li>{{'Graphics Library'|trans}}: {{GRAPHICS_LIBRARY}}</li>
 		{% endif %}
 	    </ul>
 	</dd>
@@ -58,12 +59,12 @@
 		<li>{{DB_USERS}}</li>
 		<li>{{DB_GROUPS}}</li>
 		{% if DB_COMMENTS is defined %}
-		<li>
-		    {{DB_COMMENTS}}
-		    {% if NB_PENDING_COMMENTS is defined %}
-			(<a href="{{U_PENDING_COMMENTS}}">{{'waiting_for_validation'|trans({'count': NB_PENDING_COMMENTS})}}</a>)
-		    {% endif %}
-		</li>
+		    <li>
+			{{DB_COMMENTS}}
+			{% if NB_PENDING_COMMENTS is defined %}
+			    (<a href="{{U_PENDING_COMMENTS}}">{{'waiting_for_validation'|trans({'count': NB_PENDING_COMMENTS})}}</a>)
+			{% endif %}
+		    </li>
 		{% endif %}
 		<li>{{DB_RATES}}</li>
 	    </ul>

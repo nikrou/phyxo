@@ -12,7 +12,6 @@
 namespace App\DataMapper;
 
 use App\Repository\CaddieRepository;
-use Phyxo\EntityManager;
 use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
 use App\Repository\CommentRepository;
@@ -30,14 +29,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ImageMapper
 {
-    private $em, $router, $conf, $userMapper, $image_std_params, $albumMapper, $imageRepository, $imageTagRepository;
+    private $router, $conf, $userMapper, $image_std_params, $albumMapper, $imageRepository, $imageTagRepository;
     private $translator, $imageAlbumRepository, $commentRepository, $caddieRepository, $favoriteRepository, $rateRepository;
 
-    public function __construct(EntityManager $em, RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, AlbumMapper $albumMapper,
+    public function __construct(RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, AlbumMapper $albumMapper,
                                 TranslatorInterface $translator, ImageRepository $imageRepository, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository,
                                 CaddieRepository $caddieRepository, FavoriteRepository $favoriteRepository, RateRepository $rateRepository, ImageTagRepository $imageTagRepository)
     {
-        $this->em = $em;
         $this->router = $router;
         $this->userMapper = $userMapper;
         $this->conf = $conf;

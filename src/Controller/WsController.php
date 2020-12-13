@@ -24,7 +24,6 @@ use Phyxo\Conf;
 use Phyxo\DBLayer\iDBLayer;
 use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\RateMapper;
-use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
 use App\Security\UserProvider;
@@ -40,7 +39,7 @@ class WsController extends AbstractController
 {
     private $service;
 
-    public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, Conf $conf, iDBLayer $conn, EntityManager $em, UserProvider $userProvider,
+    public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, Conf $conf, iDBLayer $conn, UserProvider $userProvider,
                            UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, RateMapper $rateMapper, SearchMapper $searchMapper, RouterInterface $router,
                            string $phyxoVersion, ImageStandardParams $image_std_params, string $pemURL, Security $security, ParameterBagInterface $params,
                            ImageMapper $imageMapper, Request $request, ManagerRegistry $managerRegistry, AlbumMapper $albumMapper)
@@ -59,9 +58,7 @@ class WsController extends AbstractController
         $this->service->setCoreVersion($phyxoVersion);
         $this->service->setConf($conf);
         $this->service->setConnection($conn);
-        $this->service->setEntityManager($em);
         $this->service->setRouter($router);
-        $this->service->setEntityManager($em);
         $this->service->setUserManager($userManager);
         $this->service->setImageStandardParams($image_std_params);
         $this->service->setPasswordEncoder($passwordEncoder);

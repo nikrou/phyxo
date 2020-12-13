@@ -15,7 +15,6 @@ use App\DataMapper\UserMapper;
 use App\Repository\LanguageRepository;
 use App\Repository\UserInfosRepository;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Phyxo\Language\Languages;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -38,7 +37,7 @@ class LanguagesController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function installed(Request $request, UserMapper $userMapper, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
+    public function installed(Request $request, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
                             LanguageRepository $languageRepository, UserInfosRepository $userInfosRepository)
     {
         $tpl_params = [];
@@ -115,7 +114,7 @@ class LanguagesController extends AdminCommonController
         $tpl_params = array_merge($this->setTabsheet('installed'), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_languages_installed');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('languages_installed.html.twig', $tpl_params);
     }
@@ -139,7 +138,7 @@ class LanguagesController extends AdminCommonController
         return $this->redirectToRoute('admin_languages_installed');
     }
 
-    public function new(Request $request, UserMapper $userMapper, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
+    public function new(Request $request, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
                         LanguageRepository $languageRepository)
     {
         $tpl_params = [];
@@ -176,7 +175,7 @@ class LanguagesController extends AdminCommonController
         }
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_languages_installed');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('languages_new.html.twig', $tpl_params);
     }
@@ -206,7 +205,7 @@ class LanguagesController extends AdminCommonController
         }
     }
 
-    public function update(Request $request, UserMapper $userMapper, EntityManager $em, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
+    public function update(Request $request, UserMapper $userMapper, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
                             ParameterBagInterface $params, TranslatorInterface $translator, LanguageRepository $languageRepository)
     {
         $tpl_params = [];
@@ -279,7 +278,7 @@ class LanguagesController extends AdminCommonController
         }
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_languages_installed');
         $tpl_params['INSTALL_URL'] = $this->generateUrl('admin_languages_installed');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('languages_update.html.twig', $tpl_params);
     }

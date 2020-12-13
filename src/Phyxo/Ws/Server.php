@@ -21,7 +21,6 @@ use Phyxo\Conf;
 use Phyxo\DBLayer\iDBLayer;
 use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\RateMapper;
-use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
 use App\Security\UserProvider;
@@ -35,7 +34,7 @@ use Symfony\Component\Security\Core\Security;
 class Server
 {
     private $upload_dir, $tagMapper, $commentMapper, $userMapper, $albumMapper, $rateMapper, $searchMapper, $imageMapper, $phyxoVersion, $conn,
-            $em, $conf, $router, $image_std_params, $userManager, $passwordEncoder, $pem_url, $security, $params, $userProvider, $request, $managerRegistry;
+            $conf, $router, $image_std_params, $userManager, $passwordEncoder, $pem_url, $security, $params, $userProvider, $request, $managerRegistry;
 
     private $_requestHandler;
     private $_requestFormat;
@@ -189,16 +188,6 @@ class Server
     public function getConnection()
     {
         return $this->conn;
-    }
-
-    public function setEntityManager(EntityManager $em)
-    {
-        $this->em = $em;
-    }
-
-    public function getEntityManager()
-    {
-        return $this->em;
     }
 
     public function setImageStandardParams(ImageStandardParams $image_std_params)

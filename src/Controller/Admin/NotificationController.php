@@ -16,7 +16,6 @@ use App\Repository\CaddieRepository;
 use App\Repository\CommentRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -53,7 +52,7 @@ class NotificationController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function params(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, Notification $notification, TranslatorInterface $translator)
+    public function params(Request $request, Conf $conf, ParameterBagInterface $params, Notification $notification, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -97,12 +96,12 @@ class NotificationController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('notification_by_mail_params.html.twig', $tpl_params);
     }
 
-    public function subscribe(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, Notification $notification, TranslatorInterface $translator)
+    public function subscribe(Request $request, Conf $conf, ParameterBagInterface $params, Notification $notification, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -162,12 +161,12 @@ class NotificationController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('notification_by_mail_subscribe.html.twig', $tpl_params);
     }
 
-    public function send(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, Notification $notification, TranslatorInterface $translator)
+    public function send(Request $request, Conf $conf, ParameterBagInterface $params, Notification $notification, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -212,7 +211,7 @@ class NotificationController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_notification');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Notification', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('send'), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_notification');

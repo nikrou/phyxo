@@ -13,14 +13,13 @@ namespace App\Controller\Admin;
 
 use Phyxo\Block\BlockManager;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MenubarController extends AdminCommonController
 {
-    public function index(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params)
+    public function index(Request $request, Conf $conf, ParameterBagInterface $params)
     {
         $tpl_params = [];
 
@@ -51,7 +50,7 @@ class MenubarController extends AdminCommonController
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
 
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('menubar.html.twig', $tpl_params);
     }

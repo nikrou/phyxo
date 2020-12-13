@@ -2,49 +2,54 @@
 {% extends "__layout.html.twig" %}
 
 {% block breadcrumb_items %}
-    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Albums'|trans}}</a></li>
-    <li class="breadcrumb-item">{{'Album'|trans}}:
-	{% for category_nav in CATEGORIES_NAV %}
-	<a href="{{category_nav.url}}">{{category_nav.name}}</a>
-	{% if not loop.last %}/{% endif %}
-	{% endfor %}
-    </li>
-    <li class="breadcrumb-item">{{'Notification'|trans}}</li>
+	<li class="breadcrumb-item">
+		<a href="{{U_PAGE}}">{{'Albums'|trans}}</a>
+	</li>
+	<li class="breadcrumb-item">{{'Album'|trans}}:
+		{% for category_nav in CATEGORIES_NAV %}
+			<a href="{{category_nav.url}}">{{category_nav.name}}</a>
+			{% if not loop.last %}/
+			{% endif %}
+		{% endfor %}
+	</li>
+	<li class="breadcrumb-item">{{'Notification'|trans}}</li>
 {% endblock %}
 
 {% block content %}
-    <form action="{{F_ACTION}}" method="post" id="categoryNotify">
+	<form action="{{F_ACTION}}" method="post" id="categoryNotify">
 
-	<div class="fieldset">
-	    <h3>{{'Send an information email to group members'|trans}}</h3>
+		<div class="fieldset">
+			<h3>{{'Send an information email to group members'|trans}}</h3>
 
-	    {% if group_mail_options %}
-		<p>
-		    <label>{{'Group'|trans}}</label>
-		    <select class="custom-select" name="group">
-			{% for id, label in group_mail_options %}
-			    <option value="{{id}}">{{label}}</option>
-			{% endfor %}
-		    </select>
-		</p>
+			{% if group_mail_options is defined %}
+				<p>
+					<label>{{'Group'|trans}}</label>
+					<select class="custom-select" name="group">
+						{% for id, label in group_mail_options %}
+							<option value="{{id}}">{{label}}</option>
+						{% endfor %}
+					</select>
+				</p>
 
-		<p>
-		    <label>{{'Complementary mail content'|trans}}</label>
-		    <textarea cols="50" rows="5" name="mail_content" id="mail_content" class="form-control">{{MAIL_CONTENT}}</textarea>
-		</p>
+				<p>
+					<label>{{'Complementary mail content'|trans}}</label>
+					<textarea cols="50" rows="5" name="mail_content" id="mail_content" class="form-control">{{MAIL_CONTENT}}</textarea>
+				</p>
 
-		<p>
-		    <input class="btn btn-submit" type="submit" value="{{'Send'|trans}}" name="submitEmail">
-		</p>
+				<p>
+					<input class="btn btn-submit" type="submit" value="{{'Send'|trans}}" name="submitEmail">
+				</p>
 
-	    {% elseif no_group_in_gallery is defined and no_group_in_gallery %}
-		<p>{{'There is no group in this gallery.'|trans}} <a href="{{U_GROUPS}}">{{'Group management'|trans}}</a></p>
-	    {% else %}
-		<p>
-		    {{'No group is permitted to see this private album'|trans}}.
-		    <a href="{{permission_url}}" class="externalLink">{{'Permission management'|trans}}</a>
-		</p>
-	    {% endif %}
-	</div>
-    </form>
+			{% elseif no_group_in_gallery is defined and no_group_in_gallery %}
+				<p>{{'There is no group in this gallery.'|trans}}
+					<a href="{{U_GROUPS}}">{{'Group management'|trans}}</a>
+				</p>
+			{% else %}
+				<p>
+					{{'No group is permitted to see this private album'|trans}}.
+					<a href="{{U_PERMISSIONS}}">{{'Permission management'|trans}}</a>
+				</p>
+			{% endif %}
+		</div>
+	</form>
 {% endblock %}

@@ -25,7 +25,6 @@ use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\TagRepository;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
@@ -65,7 +64,7 @@ class BatchManagerController extends AdminCommonController
         return $this->get('session')->get('bulk_manager_filter');
     }
 
-    public function global(Request $request, string $filter = null, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, AlbumMapper $albumMapper,
+    public function global(Request $request, string $filter = null, int $start = 0, Conf $conf, ParameterBagInterface $params, AlbumMapper $albumMapper,
                           ImageStandardParams $image_std_params, SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper, CaddieRepository $caddieRepository,
                           UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator, AlbumRepository $albumRepository, ImageTagRepository $imageTagRepository,
                           ImageAlbumRepository $imageAlbumRepository, FavoriteRepository $favoriteRepository, TagRepository $tagRepository)
@@ -320,7 +319,7 @@ class BatchManagerController extends AdminCommonController
 
                 $conf['order_by'] = $conf['order_by_inside_category'];
                 if ($album->getImageOrder()) {
-                    $conf['order_by'] = ' ORDER BY ' . $em->getConnection()->db_real_escape_string($album->getImageOrder());
+                    $conf['order_by'] = ' ORDER BY ' . $album->getImageOrder();
                 }
             }
             $thumb_params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
@@ -379,7 +378,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Site manager', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('global'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -906,7 +905,7 @@ class BatchManagerController extends AdminCommonController
         return $tpl_params;
     }
 
-    public function unit(Request $request, string $filter = null, int $start = 0, EntityManager $em, Conf $conf, ParameterBagInterface $params, SearchMapper $searchMapper, TagMapper $tagMapper,
+    public function unit(Request $request, string $filter = null, int $start = 0, Conf $conf, ParameterBagInterface $params, SearchMapper $searchMapper, TagMapper $tagMapper,
                         ImageStandardParams $image_std_params, AlbumMapper $albumMapper, UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator,
                         ImageMapper $imageMapper, AlbumRepository $albumRepository, ImageAlbumRepository $imageAlbumRepository, FavoriteRepository $favoriteRepository)
     {
@@ -1058,7 +1057,7 @@ class BatchManagerController extends AdminCommonController
 
                 $conf['order_by'] = $conf['order_by_inside_category'];
                 if ($album->getImageOrder()) {
-                    $conf['order_by'] = ' ORDER BY ' . $em->getConnection()->db_real_escape_string($album->getImageOrder());
+                    $conf['order_by'] = ' ORDER BY ' . $album->getImageOrder();
                 }
             }
 
@@ -1112,7 +1111,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['tags', 'categories'], $this->getDoctrine(), $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('unit'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {

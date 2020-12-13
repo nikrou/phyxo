@@ -19,7 +19,6 @@ use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\Image;
 use Phyxo\Image\ImageStandardParams;
@@ -145,7 +144,7 @@ class ConfigurationController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function index(Request $request, string $section, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager,
+    public function index(Request $request, string $section, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager,
                         ThemeRepository $themeRepository, LanguageRepository $languageRepository, ImageStandardParams $image_std_params, UserMapper $userMapper)
     {
         $tpl_params = [];
@@ -197,7 +196,7 @@ class ConfigurationController extends AdminCommonController
 
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
 
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('configuration_' . $section . '.html.twig', $tpl_params);
     }

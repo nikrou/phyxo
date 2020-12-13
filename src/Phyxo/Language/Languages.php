@@ -14,7 +14,6 @@ namespace Phyxo\Language;
 use App\Entity\Language;
 use Phyxo\Extension\Extensions;
 use App\Repository\LanguageRepository;
-use App\Repository\UserInfosRepository;
 use PclZip;
 use Symfony\Component\Filesystem\Filesystem;
 

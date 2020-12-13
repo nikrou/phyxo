@@ -16,7 +16,6 @@ use App\Entity\Tag;
 use App\Entity\User;
 use App\Repository\ImageTagRepository;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,7 +38,7 @@ class TagsController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function list(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager,
+    public function list(Request $request, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager,
                         TranslatorInterface $translator, TagMapper $tagMapper, ImageTagRepository $imageTagRepository)
     {
         $tpl_params = [];
@@ -97,7 +96,7 @@ class TagsController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_tags');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_tags');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Tags', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('all'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -253,7 +252,7 @@ class TagsController extends AdminCommonController
         return $this->redirectToRoute('admin_tags');
     }
 
-    public function permissions(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper, TranslatorInterface $translator)
+    public function permissions(Request $request, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -306,7 +305,7 @@ class TagsController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_tags');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_tags');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Tags', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('permissions'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -320,7 +319,7 @@ class TagsController extends AdminCommonController
         return $this->render('tags_permissions.html.twig', $tpl_params);
     }
 
-    public function pending(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper, TranslatorInterface $translator)
+    public function pending(Request $request, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -344,7 +343,7 @@ class TagsController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_tags_permissions');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_tags');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Tags', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('pending'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {

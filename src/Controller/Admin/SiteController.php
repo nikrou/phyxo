@@ -16,7 +16,6 @@ use App\DataMapper\ImageMapper;
 use App\Entity\Site;
 use App\Repository\SiteRepository;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -25,7 +24,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SiteController extends AdminCommonController
 {
-    public function index(Request $request, EntityManager $em, Conf $conf, ParameterBagInterface $params, KernelInterface $kernel, CsrfTokenManagerInterface $csrfTokenManager,
+    public function index(Request $request, Conf $conf, ParameterBagInterface $params, KernelInterface $kernel, CsrfTokenManagerInterface $csrfTokenManager,
                         AlbumMapper $albumMapper, TranslatorInterface $translator, SiteRepository $siteRepository)
     {
         $tpl_params = [];
@@ -92,7 +91,7 @@ class SiteController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_site');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_site');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Site manager', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
@@ -105,7 +104,7 @@ class SiteController extends AdminCommonController
         return $this->render('site_manager.html.twig', $tpl_params);
     }
 
-    public function delete(Request $request, EntityManager $em, ImageMapper $imageMapper, AlbumMapper $albumMapper, TranslatorInterface $translator, SiteRepository $siteRepository)
+    public function delete(Request $request, ImageMapper $imageMapper, AlbumMapper $albumMapper, TranslatorInterface $translator, SiteRepository $siteRepository)
     {
         $site = $request->request->get('site');
 
@@ -133,7 +132,7 @@ class SiteController extends AdminCommonController
         return $this->redirectToRoute('admin_site');
     }
 
-    public function synchronize(Request $request, int $site, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function synchronize(Request $request, int $site, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -142,7 +141,7 @@ class SiteController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_site');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_synchronize', ['site' => 1]);
         $tpl_params['PAGE_TITLE'] = $translator->trans('Synchronize', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $em, $conf, $params->get('core_version')), $tpl_params);
+        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');

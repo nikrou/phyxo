@@ -20,7 +20,6 @@ use App\DataMapper\UserMapper;
 use App\Entity\UserMailNotification;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\SrcImage;
-use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;

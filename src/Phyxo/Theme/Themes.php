@@ -16,19 +16,17 @@ use App\Entity\Theme;
 use Phyxo\Extension\Extensions;
 use Phyxo\Theme\DummyThemeMaintain;
 use App\Repository\ThemeRepository;
-use Phyxo\DBLayer\iDBLayer;
 use Symfony\Component\Filesystem\Filesystem;
 
 class Themes extends Extensions
 {
-    private $conn, $themeRepository;
+    private $themeRepository;
     private $themes_root_path, $userMapper;
     private $fs_themes = [], $db_themes = [], $server_themes = [];
     private $fs_themes_retrieved = false, $db_themes_retrieved = false, $server_themes_retrieved = false;
 
-    public function __construct(iDBLayer $conn, ThemeRepository $themeRepository, UserMapper $userMapper)
+    public function __construct(ThemeRepository $themeRepository, UserMapper $userMapper)
     {
-        $this->conn = $conn;
         $this->themeRepository = $themeRepository;
         $this->userMapper = $userMapper;
     }

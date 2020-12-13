@@ -21,23 +21,21 @@ use App\Repository\ImageRepository;
 use App\Repository\UserCacheAlbumRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
-use Phyxo\EntityManager;
 use Phyxo\Image\SrcImage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class AlbumMapper
 {
-    private $conf, $albumRepository, $router, $cache = [], $albums_retrieved = false, $em, $translator, $userRepository, $userCacheAlbumRepository, $imageAlbumRepository, $imageRepository;
+    private $conf, $albumRepository, $router, $cache = [], $albums_retrieved = false, $translator, $userRepository, $userCacheAlbumRepository, $imageAlbumRepository, $imageRepository;
 
-    public function __construct(Conf $conf, AlbumRepository $albumRepository, RouterInterface $router, TranslatorInterface $translator, EntityManager $em, UserRepository $userRepository,
+    public function __construct(Conf $conf, AlbumRepository $albumRepository, RouterInterface $router, TranslatorInterface $translator, UserRepository $userRepository,
                                 UserCacheAlbumRepository $userCacheAlbumRepository, ImageAlbumRepository $imageAlbumRepository, ImageRepository $imageRepository)
     {
         $this->conf = $conf;
         $this->albumRepository = $albumRepository;
         $this->router = $router;
         $this->translator = $translator;
-        $this->em = $em;
         $this->userRepository = $userRepository;
         $this->userCacheAlbumRepository = $userCacheAlbumRepository;
         $this->imageAlbumRepository = $imageAlbumRepository;
