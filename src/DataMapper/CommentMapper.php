@@ -13,7 +13,6 @@ namespace App\DataMapper;
 
 use App\Entity\Comment;
 use App\Events\CommentEvent;
-use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Conf;
 use App\Repository\CommentRepository;
 use App\Repository\ImageRepository;
@@ -24,12 +23,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentMapper
 {
-    private $conn, $conf, $userMapper, $eventDispatcher, $translator, $userRepository, $userCacheRepository, $commentRepository, $imageRepository;
+    private $conf, $userMapper, $eventDispatcher, $translator, $userRepository, $userCacheRepository, $commentRepository, $imageRepository;
 
-    public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator,
+    public function __construct(Conf $conf, UserMapper $userMapper, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator,
                                 UserRepository $userRepository, UserCacheRepository $userCacheRepository, CommentRepository $commentRepository, ImageRepository $imageRepository)
     {
-        $this->conn = $conn;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
         $this->eventDispatcher = $eventDispatcher;

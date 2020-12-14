@@ -12,8 +12,6 @@
 namespace Phyxo\Functions;
 
 use App\Repository\ConfigRepository;
-use Phyxo\DBLayer\iDBLayer;
-
 
 class Upload
 {

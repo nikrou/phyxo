@@ -12,7 +12,6 @@
 namespace Phyxo\Functions\Ws;
 
 use Phyxo\Ws\Error;
-use App\Repository\BaseRepository;
 use Phyxo\Ws\Server;
 
 class Session
@@ -61,7 +60,7 @@ class Session
         $res['pwg_token'] = \Phyxo\Functions\Utils::get_token();
         $res['charset'] = \Phyxo\Functions\Utils::get_charset();
 
-        $res['current_datetime'] = (new BaseRepository($service->getConnection()))->getNow();
+        $res['current_datetime'] = new \DateTime();
         $res['version'] = $service->getCoreVersion();
 
         if ($service->getUserMapper()->isAdmin()) {

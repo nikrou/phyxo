@@ -7,7 +7,7 @@ imports:
 framework:
   csrf_protection: ~
   session:
-    handler_id: Phyxo\DBLayer\SessionHandler
+    handler_id: App\SessionHandler
     name: '%main_cookie%'
 
 services:
@@ -65,14 +65,6 @@ services:
 
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
-  Phyxo\DBLayer\iDBLayer:
-    factory: 'Phyxo\DBLayer\DBLayer::initFromConfigFile'
-    arguments: ['%database_config_file%']
-
-  phyxo.conn:
-    public: true
-    alias: 'Phyxo\DBLayer\iDBLayer'
-
   Phyxo\Conf:
     calls:
       - method: init
@@ -92,13 +84,9 @@ services:
     public: true
     alias: 'Phyxo\Upgrade'
 
-  Phyxo\DBLayer\SessionHandler: ~
-
-  Phyxo\DataCollector\DBLayerCollector:
-    tags:
-      - name: data_collector
-        template: 'data_collector/queries.html.twig'
-        id: 'app.dblayer_collector'
+  App\SessionHandler:
+    arguments:
+      - { driver: '%database_driver%', name: '%database_name%', host: '%database_host%', user: '%database_user%', password: '%database_password%', prefix: '%database_prefix%' }
 
   App\Utils\RuntimeTranslator:
     decorates: 'translator'

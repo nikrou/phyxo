@@ -30,8 +30,6 @@ use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Symfony2Extension\Context\KernelDictionary;
 use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\Conf;
-use Phyxo\DBLayer\DBLayer;
-use Phyxo\DBLayer\iDBLayer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class DBContext implements Context
@@ -244,7 +242,7 @@ class DBContext implements Context
      */
     public function prepareDB(BeforeScenarioScope $scope)
     {
-        $this->getContainer()->get(iDBLayer::class)->executeSqlFile($this->sqlInitFile, DBLayer::DEFAULT_PREFIX, $this->getContainer()->get(iDBLayer::class)->getPrefix());
+        $this->executeSqlFile($this->sqlInitFile, $this->getContainer()->getParameter('database_prefix'), 'phyxo_');
     }
 
     /**
@@ -252,7 +250,7 @@ class DBContext implements Context
      */
     public function cleanDB(AfterScenarioScope $scope)
     {
-        $this->getContainer()->get(iDBLayer::class)->executeSqlFile($this->sqlCleanupFile, DBLayer::DEFAULT_PREFIX, $this->getContainer()->get(iDBLayer::class)->getPrefix());
+        $this->executeSqlFile($this->sqlCleanupFile, $this->getContainer()->getParameter('database_prefix'), 'phyxo_');
     }
 
     protected function addImageToAlbum(array $image_infos, string $album_name)
@@ -366,6 +364,31 @@ class DBContext implements Context
             $this->getContainer()->get(TagMapper::class)->toBeValidatedTags($image, $tag_ids, $user, ImageTag::STATUS_TO_DELETE, $validated);
         } else {
             $this->getContainer()->get(TagMapper::class)->dissociateTags($tag_ids, $image_id);
+        }
+    }
+
+    /**
+     * Returns queries from an SQL file.
+     * Before executing a query, $replaced is... replaced by $replacing.
+     */
+    protected function executeSqlFile(string $filepath, string $replaced, string $replacing)
+    {
+        $sql_lines = file($filepath);
+        $query = '';
+        foreach ($sql_lines as $sql_line) {
+            $sql_line = trim($sql_line);
+            if (preg_match('/(^--|^$)/', $sql_line)) {
+                continue;
+            }
+            $query .= ' ' . $sql_line;
+            // if we reached the end of query, we execute it and reinitialize the variable "query"
+            if (preg_match('/;$/', $sql_line)) {
+                $query = trim($query);
+                $query = str_replace($replaced, $replacing, $query);
+
+                $this->getContainer()->get(ManagerRegistry::class)->getConnection()->query($query);
+                $query = '';
+            }
         }
     }
 }

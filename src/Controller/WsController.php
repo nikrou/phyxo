@@ -21,7 +21,6 @@ use Phyxo\Ws\Server;
 use Phyxo\Ws\Protocols\RestRequestHandler;
 use Phyxo\Ws\Protocols\JsonEncoder;
 use Phyxo\Conf;
-use Phyxo\DBLayer\iDBLayer;
 use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\RateMapper;
 use Phyxo\Image\ImageStandardParams;
@@ -39,7 +38,7 @@ class WsController extends AbstractController
 {
     private $service;
 
-    public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, Conf $conf, iDBLayer $conn, UserProvider $userProvider,
+    public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, Conf $conf, UserProvider $userProvider,
                            UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, RateMapper $rateMapper, SearchMapper $searchMapper, RouterInterface $router,
                            string $phyxoVersion, ImageStandardParams $image_std_params, string $pemURL, Security $security, ParameterBagInterface $params,
                            ImageMapper $imageMapper, Request $request, ManagerRegistry $managerRegistry, AlbumMapper $albumMapper)
@@ -57,7 +56,6 @@ class WsController extends AbstractController
         $this->service->setEncoder(new JsonEncoder());
         $this->service->setCoreVersion($phyxoVersion);
         $this->service->setConf($conf);
-        $this->service->setConnection($conn);
         $this->service->setRouter($router);
         $this->service->setUserManager($userManager);
         $this->service->setImageStandardParams($image_std_params);

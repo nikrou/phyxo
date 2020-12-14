@@ -18,7 +18,6 @@ use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\UserMapper;
 use Phyxo\Conf;
-use Phyxo\DBLayer\iDBLayer;
 use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\RateMapper;
 use Phyxo\Image\ImageStandardParams;
@@ -33,7 +32,7 @@ use Symfony\Component\Security\Core\Security;
 
 class Server
 {
-    private $upload_dir, $tagMapper, $commentMapper, $userMapper, $albumMapper, $rateMapper, $searchMapper, $imageMapper, $phyxoVersion, $conn,
+    private $upload_dir, $tagMapper, $commentMapper, $userMapper, $albumMapper, $rateMapper, $searchMapper, $imageMapper, $phyxoVersion,
             $conf, $router, $image_std_params, $userManager, $passwordEncoder, $pem_url, $security, $params, $userProvider, $request, $managerRegistry;
 
     private $_requestHandler;
@@ -178,16 +177,6 @@ class Server
     public function getConf()
     {
         return $this->conf;
-    }
-
-    public function setConnection(iDBLayer $conn)
-    {
-        $this->conn = $conn;
-    }
-
-    public function getConnection()
-    {
-        return $this->conn;
     }
 
     public function setImageStandardParams(ImageStandardParams $image_std_params)

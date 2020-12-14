@@ -9,17 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Phyxo\DBLayer;
+namespace App;
 
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler;
 
 class SessionHandler extends PdoSessionHandler
 {
-    public function __construct(iDBLayer $conn)
+    public function __construct(array $db_params)
     {
-        parent::__construct(
-            $conn->getDsn(),
-            ['db_table' => $conn->getPrefix() . 'sessions', 'db_username' => $conn->getDbUsername(), 'db_password' => $conn->getDbPassword()]
-        );
+        $dsn = sprintf('%s:dbname=%s host=%s', str_replace('pdo_', '', $db_params['driver']), $db_params['name'], $db_params['host']);
+
+        parent::__construct($dsn, ['db_table' => $db_params['prefix'] . 'sessions', 'db_username' => $db_params['user'], 'db_password' => $db_params['password']]);
     }
 }
