@@ -16,12 +16,13 @@ use App\Repository\PluginRepository;
 use Phyxo\Conf;
 use Phyxo\Plugin\Plugins;
 use Phyxo\TabSheet\TabSheet;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class PluginsController extends AdminCommonController
+class PluginsController extends AbstractController
 {
     private $translator;
 
@@ -111,7 +112,6 @@ class PluginsController extends AdminCommonController
         $tpl_params = array_merge($this->setTabsheet('installed'), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('plugins_installed.html.twig', $tpl_params);
     }
@@ -176,7 +176,6 @@ class PluginsController extends AdminCommonController
         $tpl_params = array_merge($this->setTabsheet('new'), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('plugins_new.html.twig', $tpl_params);
     }
@@ -254,7 +253,6 @@ class PluginsController extends AdminCommonController
 
         $tpl_params['INSTALL_URL'] = $this->generateUrl('admin_plugins_installed');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('plugins_update.html.twig', $tpl_params);
     }

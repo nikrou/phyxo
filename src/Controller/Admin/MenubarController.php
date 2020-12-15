@@ -11,15 +11,18 @@
 
 namespace App\Controller\Admin;
 
+use App\Repository\CaddieRepository;
+use App\Repository\CommentRepository;
 use Phyxo\Block\BlockManager;
 use Phyxo\Conf;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class MenubarController extends AdminCommonController
+class MenubarController extends AbstractController
 {
-    public function index(Request $request, Conf $conf, ParameterBagInterface $params)
+    public function index(Request $request, Conf $conf)
     {
         $tpl_params = [];
 
@@ -43,14 +46,11 @@ class MenubarController extends AdminCommonController
         }
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_menubar');
-
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_menubar');
 
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
-
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('menubar.html.twig', $tpl_params);
     }
@@ -102,5 +102,58 @@ class MenubarController extends AdminCommonController
         }
 
         return $orders;
+    }
+
+    public function navigation(Conf $conf, CaddieRepository $caddieRepository, CommentRepository $commentRepository, ParameterBagInterface $params)
+    {
+        $tpl_params = [];
+        $tpl_params = [
+            'USERNAME' => $this->getUser()->getUsername(),
+            'ENABLE_SYNCHRONIZATION' => $conf['enable_synchronization'],
+            'U_SITE_MANAGER' => $this->generateUrl('admin_site'),
+            'U_HISTORY_STAT' => $this->generateUrl('admin_history'),
+            'U_SITES' => $this->generateUrl('admin_site'),
+            'U_MAINTENANCE' => $this->generateUrl('admin_maintenance'),
+            'U_CONFIG_GENERAL' => $this->generateUrl('admin_configuration'),
+            'U_CONFIG_MENUBAR' => $this->generateUrl('admin_menubar'),
+            'U_CONFIG_LANGUAGES' => $this->generateUrl('admin_languages_installed'),
+            'U_CONFIG_THEMES' => $this->generateUrl('admin_themes_installed'),
+            'U_ALBUMS' => $this->generateUrl('admin_albums'),
+            'U_ALBUMS_OPTIONS' => $this->generateUrl('admin_albums_options'),
+            'U_CAT_UPDATE' => $conf['enable_synchronization'] ? $this->generateUrl('admin_synchronize', ['site' => 1]): '',
+            'U_RATING' => $this->generateUrl('admin_rating'),
+            'U_RECENT_SET' => $this->generateUrl('admin_batch_manager_global', ['filter' => 'last_import']),
+            'U_BATCH' => $this->generateUrl('admin_batch_manager_global'),
+            'U_TAGS' => $this->generateUrl('admin_tags'),
+            'U_USERS' => $this->generateUrl('admin_users'),
+            'U_GROUPS' => $this->generateUrl('admin_groups'),
+            'U_NOTIFICATION_BY_MAIL' => $this->generateUrl('admin_notification'),
+            'U_RETURN' => $this->generateUrl('homepage'),
+            'U_ADMIN' => $this->generateUrl('admin_home'),
+            'U_LOGOUT' => $this->generateUrl('logout'),
+            'U_PLUGINS' => $this->generateUrl('admin_plugins_installed'),
+            'U_ADD_PHOTOS' => $this->generateUrl('admin_photos_add'),
+            'U_UPDATE' => $this->generateUrl('admin_update'),
+            'U_DEV_VERSION' => strpos($params->get('core_version'), 'dev') !== false,
+            'U_DEV_API' => $this->generateUrl('api'),
+        ];
+
+        if ($conf['activate_comments']) {
+            $tpl_params['U_COMMENTS'] = $this->generateUrl('admin_comments');
+
+            // pending comments
+            $tpl_params['NB_PENDING_COMMENTS'] = $commentRepository->count(['validated' => false]);
+        }
+
+        // any photo in the caddie?
+        $nb_photos_in_caddie = $caddieRepository->count(['user' => $this->getUser()->getId()]);
+
+        if ($nb_photos_in_caddie > 0) {
+            $tpl_params['NB_PHOTOS_IN_CADDIE'] = $nb_photos_in_caddie;
+            $tpl_params['U_CADDIE'] = $this->generateUrl('admin_batch_manager_global', ['filter' => 'caddie']);
+        }
+        $tpl_params['GALLERY_TITLE'] = $conf['gallery_title'];
+
+        return $this->render('_menubar.html.twig', $tpl_params);
     }
 }

@@ -17,12 +17,12 @@ use App\Repository\AlbumRepository;
 use App\Repository\ImageAlbumRepository;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class AlbumsController extends AdminCommonController
+class AlbumsController extends AbstractController
 {
     private $translator;
 
@@ -36,9 +36,8 @@ class AlbumsController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function list(Request $request, int $parent_id = null, Conf $conf, ParameterBagInterface $params,
-                        AlbumRepository $albumRepository, CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator,
-                        ImageAlbumRepository $imageAlbumRepository)
+    public function list(Request $request, int $parent_id = null, Conf $conf, AlbumRepository $albumRepository, CsrfTokenManagerInterface $csrfTokenManager,
+                        TranslatorInterface $translator, ImageAlbumRepository $imageAlbumRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -141,7 +140,6 @@ class AlbumsController extends AdminCommonController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Albums', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('list'), $tpl_params);
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('albums_list.html.twig', $tpl_params);
     }
@@ -198,8 +196,7 @@ class AlbumsController extends AdminCommonController
         return $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
     }
 
-    public function move(Request $request, int $parent_id = null, Conf $conf, ParameterBagInterface $params,
-                        AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator)
+    public function move(Request $request, int $parent_id = null, AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -233,7 +230,6 @@ class AlbumsController extends AdminCommonController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Albums', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('move'), $tpl_params);
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('albums_move.html.twig', $tpl_params);
     }

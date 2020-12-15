@@ -19,12 +19,12 @@ use App\Repository\ImageRepository;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\TabSheet\TabSheet;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class PhotosController extends AdminCommonController
+class PhotosController extends AbstractController
 {
     private $translator;
 
@@ -40,7 +40,7 @@ class PhotosController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function direct(Request $request, int $album_id = null, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $tokenManager,
+    public function direct(Request $request, int $album_id = null, Conf $conf, CsrfTokenManagerInterface $tokenManager,
                             AlbumMapper $albumMapper, TranslatorInterface $translator, ImageMapper $imageMapper)
     {
         $tpl_params = [];
@@ -151,7 +151,6 @@ class PhotosController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_photos_add');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_photos_add');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Photo', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('direct', $conf['enable_synchronization']), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {

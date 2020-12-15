@@ -28,13 +28,13 @@ use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
 use Phyxo\TabSheet\TabSheet;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class AlbumController extends AdminCommonController
+class AlbumController extends AbstractController
 {
     private $translator;
 
@@ -50,9 +50,8 @@ class AlbumController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function properties(Request $request, int $album_id, int $parent_id = null, Conf $conf, ParameterBagInterface $params,
-                                ImageStandardParams $image_std_params, AlbumMapper $albumMapper, TranslatorInterface $translator,
-                                ImageAlbumRepository $imageAlbumRepository, ImageMapper $imageMapper)
+    public function properties(Request $request, int $album_id, int $parent_id = null, Conf $conf, ImageStandardParams $image_std_params, AlbumMapper $albumMapper,
+                                TranslatorInterface $translator, ImageAlbumRepository $imageAlbumRepository, ImageMapper $imageMapper)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -232,12 +231,11 @@ class AlbumController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('error')) {
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('album_properties.html.twig', $tpl_params);
     }
 
-    public function sort_order(Request $request, int $album_id, int $parent_id = null, Conf $conf, ParameterBagInterface $params,
+    public function sort_order(Request $request, int $album_id, int $parent_id = null, Conf $conf,
                                 ImageMapper $imageMapper, AlbumMapper $albumMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -356,7 +354,6 @@ class AlbumController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('sort_order', $album_id, $parent_id), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -370,7 +367,7 @@ class AlbumController extends AdminCommonController
         return $this->render('album_sort_order.html.twig', $tpl_params);
     }
 
-    public function permissions(Request $request, int $album_id, int $parent_id = null, Conf $conf, ParameterBagInterface $params, UserCacheRepository $userCacheRepository,
+    public function permissions(Request $request, int $album_id, int $parent_id = null, Conf $conf, UserCacheRepository $userCacheRepository,
                                 AlbumMapper $albumMapper, TranslatorInterface $translator, UserRepository $userRepository, GroupRepository $groupRepository)
     {
         $tpl_params = [];
@@ -509,7 +506,6 @@ class AlbumController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('permissions', $album_id, $parent_id), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -523,7 +519,7 @@ class AlbumController extends AdminCommonController
         return $this->render('album_permissions.html.twig', $tpl_params);
     }
 
-    public function notification(Request $request, int $album_id, int $parent_id = null, Conf $conf, ParameterBagInterface $params,
+    public function notification(Request $request, int $album_id, int $parent_id = null, Conf $conf,
                                 AlbumMapper $albumMapper, ImageStandardParams $image_std_params, EventDispatcherInterface $eventDispatcher,
                                 GroupRepository $groupRepository, ImageMapper $imageMapper, TranslatorInterface $translator)
     {
@@ -593,7 +589,6 @@ class AlbumController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('notification', $album_id, $parent_id), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {

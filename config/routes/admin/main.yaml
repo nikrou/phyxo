@@ -31,6 +31,10 @@ admin_menubar_update:
   controller: App\Controller\Admin\MenubarController:update
   methods: POST
 
+admin_menubar_navigation:
+  path: /menubar_navigation
+  controller: App\Controller\Admin\MenubarController:navigation
+
 api:
   path: /api
   controller: App\Controller\Admin\ApiController:index

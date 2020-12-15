@@ -15,16 +15,15 @@ use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\Entity\Site;
 use App\Repository\SiteRepository;
-use Phyxo\Conf;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class SiteController extends AdminCommonController
+class SiteController extends AbstractController
 {
-    public function index(Request $request, Conf $conf, ParameterBagInterface $params, KernelInterface $kernel, CsrfTokenManagerInterface $csrfTokenManager,
+    public function index(Request $request, KernelInterface $kernel, CsrfTokenManagerInterface $csrfTokenManager,
                         AlbumMapper $albumMapper, TranslatorInterface $translator, SiteRepository $siteRepository)
     {
         $tpl_params = [];
@@ -91,7 +90,6 @@ class SiteController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_site');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_site');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Site manager', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
@@ -132,7 +130,7 @@ class SiteController extends AdminCommonController
         return $this->redirectToRoute('admin_site');
     }
 
-    public function synchronize(Request $request, int $site, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function synchronize(Request $request, int $site, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -141,7 +139,6 @@ class SiteController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_site');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_synchronize', ['site' => 1]);
         $tpl_params['PAGE_TITLE'] = $translator->trans('Synchronize', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');

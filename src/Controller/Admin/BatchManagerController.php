@@ -31,11 +31,11 @@ use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
 use Phyxo\LocalSiteReader;
 use Phyxo\TabSheet\TabSheet;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class BatchManagerController extends AdminCommonController
+class BatchManagerController extends AbstractController
 {
     private $translator;
 
@@ -64,7 +64,7 @@ class BatchManagerController extends AdminCommonController
         return $this->get('session')->get('bulk_manager_filter');
     }
 
-    public function global(Request $request, string $filter = null, int $start = 0, Conf $conf, ParameterBagInterface $params, AlbumMapper $albumMapper,
+    public function global(Request $request, string $filter = null, int $start = 0, Conf $conf, AlbumMapper $albumMapper,
                           ImageStandardParams $image_std_params, SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper, CaddieRepository $caddieRepository,
                           UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator, AlbumRepository $albumRepository, ImageTagRepository $imageTagRepository,
                           ImageAlbumRepository $imageAlbumRepository, FavoriteRepository $favoriteRepository, TagRepository $tagRepository)
@@ -378,7 +378,6 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Site manager', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('global'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -780,7 +779,7 @@ class BatchManagerController extends AdminCommonController
         }
 
         if (!empty($bulk_manager_filter['search']) && !empty($bulk_manager_filter['search']['q'])) {
-            $result = $searchMapper->getQuickSearchResultsNoCache($bulk_manager_filter['search']['q'], ['permissions' => false]);
+            $result = $searchMapper->getQuickSearchResults($bulk_manager_filter['search']['q'], $this->getUser());
             if (!empty($result['items']) && !empty($result['qs']['unmatched_terms'])) {
                 // $tpl_params ??? $template->assign('no_search_results', $result['qs']['unmatched_terms']);
             }
@@ -905,7 +904,7 @@ class BatchManagerController extends AdminCommonController
         return $tpl_params;
     }
 
-    public function unit(Request $request, string $filter = null, int $start = 0, Conf $conf, ParameterBagInterface $params, SearchMapper $searchMapper, TagMapper $tagMapper,
+    public function unit(Request $request, string $filter = null, int $start = 0, Conf $conf, SearchMapper $searchMapper, TagMapper $tagMapper,
                         ImageStandardParams $image_std_params, AlbumMapper $albumMapper, UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator,
                         ImageMapper $imageMapper, AlbumRepository $albumRepository, ImageAlbumRepository $imageAlbumRepository, FavoriteRepository $favoriteRepository)
     {
@@ -1111,7 +1110,6 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['tags', 'categories'], $this->getDoctrine(), $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('unit'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {

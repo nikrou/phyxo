@@ -22,12 +22,13 @@ use App\Repository\RateRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class DashboardController extends AdminCommonController
+class DashboardController extends AbstractController
 {
     public function index(Request $request, bool $check_upgrade = false, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
                           UserRepository $userRepository, GroupRepository $groupRepository, HttpClientInterface $client, AlbumRepository $albumRepository,
@@ -120,8 +121,6 @@ class DashboardController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('error')) {
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
-
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('dashboard.html.twig', $tpl_params);
     }

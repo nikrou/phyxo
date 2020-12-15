@@ -12,13 +12,13 @@
 namespace App\Controller\Admin;
 
 use Phyxo\Conf;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
-class ApiController extends AdminCommonController
+class ApiController extends AbstractController
 {
-    public function index(Request $request, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager)
+    public function index(Request $request, CsrfTokenManagerInterface $csrfTokenManager)
     {
         $tpl_params = [];
 
@@ -37,7 +37,6 @@ class ApiController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('error')) {
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('api.html.twig', $tpl_params);
     }

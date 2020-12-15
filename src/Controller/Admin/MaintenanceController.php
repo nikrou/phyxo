@@ -22,12 +22,13 @@ use App\Repository\UserFeedRepository;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class MaintenanceController extends AdminCommonController
+class MaintenanceController extends AbstractController
 {
     public function index(Request $request, ?string $action, Conf $conf, ParameterBagInterface $params, HistoryRepository $historyRepository,
                         HistorySummaryRepository $historySummaryRepository, UserMapper $userMapper, RateMapper $rateMapper, TagMapper $tagMapper,
@@ -189,7 +190,6 @@ class MaintenanceController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('maintenance.html.twig', $tpl_params);
     }

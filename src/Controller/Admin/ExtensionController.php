@@ -18,10 +18,11 @@ use App\Twig\ThemeLoader;
 use Phyxo\Conf;
 use Phyxo\Plugin\Plugins;
 use Phyxo\Theme\Themes;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class ExtensionController extends AdminCommonController
+class ExtensionController extends AbstractController
 {
     protected $params, $conf;
 
@@ -70,7 +71,6 @@ class ExtensionController extends AdminCommonController
         }
 
         $themeResponse = $load($filename);
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($tpl_params, $themeResponse['tpl_params']);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_themes_installed');
@@ -119,7 +119,6 @@ class ExtensionController extends AdminCommonController
 
         $pluginResponse = $load($filename, $conf, $this->getUser());
         $tpl_params = array_merge($tpl_params, $pluginResponse['tpl_params']);
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_plugins_installed');
 

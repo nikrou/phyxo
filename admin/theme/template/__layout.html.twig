@@ -146,7 +146,8 @@
 
 	    {% block aside %}
 		<aside id="sidebar" role="navigation">
-		    {{include('_menubar.html.twig')}}
+		    {{ render_esi(url('admin_menubar_navigation')) }}
+		    <script>var menuitem_active = '{{ACTIVE_MENU}}';</script>
 		</aside>
 	    {% endblock %}
 	</div>

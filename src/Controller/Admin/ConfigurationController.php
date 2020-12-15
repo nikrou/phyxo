@@ -12,32 +12,29 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\UserMapper;
-use App\Repository\CaddieRepository;
-use App\Repository\CommentRepository;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
-use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\Image;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\WatermarkParams;
 use Phyxo\TabSheet\TabSheet;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class ConfigurationController extends AdminCommonController
+class ConfigurationController extends AbstractController
 {
     private $main_checkboxes, $sizes_checkboxes, $comments_checkboxes, $display_checkboxes, $display_info_checkboxes, $sort_fields, $comments_order, $mail_themes;
     private $translator;
 
-    public function __construct(UserProvider $userProvider, CommentRepository $commentRepository, CaddieRepository $caddieRepository, TranslatorInterface $translator)
+    public function __construct(TranslatorInterface $translator)
     {
-        parent::__construct($userProvider, $commentRepository, $caddieRepository);
         $this->translator = $translator;
 
         $this->main_checkboxes = [
@@ -195,8 +192,6 @@ class ConfigurationController extends AdminCommonController
         }
 
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
-
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('configuration_' . $section . '.html.twig', $tpl_params);
     }

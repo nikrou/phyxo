@@ -21,12 +21,12 @@ use App\Repository\UserInfosRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class UsersController extends AdminCommonController
+class UsersController extends AbstractController
 {
     private $translator;
 
@@ -40,8 +40,8 @@ class UsersController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function list(Request $request, Conf $conf, UserMapper $userMapper, ParameterBagInterface $params,
-                        CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator, ThemeRepository $themeRepository, LanguageRepository $languageRepository,
+    public function list(Request $request, Conf $conf, UserMapper $userMapper, CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator,
+                        ThemeRepository $themeRepository, LanguageRepository $languageRepository,
                         UserRepository $userRepository, UserInfosRepository $userInfosRepository, GroupRepository $groupRepository)
     {
         $tpl_params = [];
@@ -140,13 +140,11 @@ class UsersController extends AdminCommonController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_users');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Users', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('list'), $tpl_params);
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('users_list.html.twig', $tpl_params);
     }
 
-    public function perm(Request $request, int $user_id, Conf $conf, AlbumMapper $albumMapper,
-                        ParameterBagInterface $params, TranslatorInterface $translator, UserRepository $userRepository)
+    public function perm(Request $request, int $user_id, AlbumMapper $albumMapper, TranslatorInterface $translator, UserRepository $userRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -198,7 +196,6 @@ class UsersController extends AdminCommonController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_user_perm', ['user_id' => $user_id]);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_users');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Users', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('perm', $user_id), $tpl_params);
 
         return $this->render('user_perm.html.twig', $tpl_params);

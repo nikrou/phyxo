@@ -11,8 +11,8 @@ framework:
   # Remove or comment this section to explicitly disable session support.
   session: ~
 
-  #esi: true
-  #fragments: true
+  esi: true
+  fragments: true
   php_errors:
     log: true
 

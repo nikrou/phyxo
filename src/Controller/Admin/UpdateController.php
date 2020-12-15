@@ -19,12 +19,13 @@ use App\Repository\UserInfosRepository;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Update\Updates;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class UpdateController extends AdminCommonController
+class UpdateController extends AbstractController
 {
     private $translator, $defaultTheme;
 
@@ -242,7 +243,6 @@ class UpdateController extends AdminCommonController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_update');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_update');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Updates', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('core'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('error')) {
@@ -256,7 +256,7 @@ class UpdateController extends AdminCommonController
         return $this->render('updates_core.html.twig', $tpl_params);
     }
 
-    public function extensions(Request $request, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function extensions(Request $request, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -266,7 +266,6 @@ class UpdateController extends AdminCommonController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_update');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_update_extensions');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Updates', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('extensions'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('error')) {

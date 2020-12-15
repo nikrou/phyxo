@@ -19,11 +19,11 @@ use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
 use Phyxo\TabSheet\TabSheet;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class CommentsController  extends AdminCommonController
+class CommentsController  extends AbstractController
 {
     private $translator;
 
@@ -38,7 +38,7 @@ class CommentsController  extends AdminCommonController
     }
 
     public function index(Request $request, string $section = 'all', int $start = 0, ImageStandardParams $image_std_params, Conf $conf,
-                        ParameterBagInterface $params, TranslatorInterface $translator, CommentRepository $commentRepository)
+                        TranslatorInterface $translator, CommentRepository $commentRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -106,7 +106,6 @@ class CommentsController  extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('comments.html.twig', $tpl_params);
     }

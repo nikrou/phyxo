@@ -17,12 +17,13 @@ use App\Repository\UserInfosRepository;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Theme\Themes;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class ThemesController extends AdminCommonController
+class ThemesController extends AbstractController
 {
     private $translator;
 
@@ -148,7 +149,6 @@ class ThemesController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('error')) {
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('themes_installed.html.twig', $tpl_params);
     }
@@ -219,7 +219,6 @@ class ThemesController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('error')) {
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('themes_update.html.twig', $tpl_params);
     }
@@ -305,8 +304,6 @@ class ThemesController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('error')) {
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
-
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('themes_new.html.twig', $tpl_params);
     }

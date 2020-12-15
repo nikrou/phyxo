@@ -18,11 +18,12 @@ use App\Entity\Group;
 use App\Repository\GroupRepository;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class GroupsController extends AdminCommonController
+class GroupsController extends AbstractController
 {
     private $translator;
 
@@ -36,7 +37,7 @@ class GroupsController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function list(Request $request, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator, GroupRepository $groupRepository)
+    public function list(Request $request, TranslatorInterface $translator, GroupRepository $groupRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -90,13 +91,11 @@ class GroupsController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('groups_list.html.twig', $tpl_params);
     }
 
-    public function perm(Request $request, int $group_id, Conf $conf, ParameterBagInterface $params,
-                        AlbumMapper $albumMapper, UserMapper $userMapper, TranslatorInterface $translator, GroupRepository $groupRepository)
+    public function perm(Request $request, int $group_id, AlbumMapper $albumMapper, UserMapper $userMapper, TranslatorInterface $translator, GroupRepository $groupRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -151,7 +150,6 @@ class GroupsController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_groups');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Groups', [], 'admin');
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('perm', $group_id), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_groups');

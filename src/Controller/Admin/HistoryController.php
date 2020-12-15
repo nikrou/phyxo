@@ -16,33 +16,27 @@ use App\DataMapper\ImageMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\HistorySummary;
 use App\Entity\Search;
-use App\Repository\CaddieRepository;
-use App\Repository\CommentRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
 use App\Repository\SearchRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
-use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
 use Phyxo\TabSheet\TabSheet;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class HistoryController extends AdminCommonController
+class HistoryController extends AbstractController
 {
     private $image_std_params, $types, $display_thumbnails, $translator;
 
-    public function __construct(ImageStandardParams $image_std_params, CommentRepository $commentRepository, UserProvider $userProvider, TranslatorInterface $translator,
-                                CaddieRepository $caddieRepository)
+    public function __construct(ImageStandardParams $image_std_params, TranslatorInterface $translator)
     {
-        parent::__construct($userProvider, $commentRepository, $caddieRepository);
-
         $this->image_std_params = $image_std_params;
         $this->translator = $translator;
 
@@ -70,7 +64,7 @@ class HistoryController extends AdminCommonController
     }
 
     public function stats(Request $request, int $year = null, int $month = null, int $day = null, Conf $conf, HistorySummaryRepository $historySummaryRepository,
-                        HistoryRepository $historyRepository, ParameterBagInterface $params)
+                        HistoryRepository $historyRepository)
     {
         $tpl_params = [];
 
@@ -185,13 +179,12 @@ class HistoryController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('history_stats.html.twig', $tpl_params);
     }
 
     public function search(Request $request, SearchRepository $searchRepository, int $start, int $search_id = null, AlbumMapper $albumMapper, Conf $conf,
-                            ParameterBagInterface $params, UserRepository $userRepository, UserMapper $userMapper, ImageMapper $imageMapper,
+                            UserRepository $userRepository, UserMapper $userMapper, ImageMapper $imageMapper,
                             TagRepository $tagRepository, HistoryRepository $historyRepository)
     {
         $tpl_params = [];
@@ -247,7 +240,6 @@ class HistoryController extends AdminCommonController
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
-        $tpl_params = array_merge($this->menu($this->get('router'), $this->getUser(), $conf, $params->get('core_version')), $tpl_params);
 
         return $this->render('history_search.html.twig', $tpl_params);
     }
