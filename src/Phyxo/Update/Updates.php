@@ -26,7 +26,7 @@ class Updates
     private $types = [];
     private $default_themes = [], $default_plugins = [], $default_languages = [];
     private $update_url, $pem_url, $missing = [];
-    private $userMapper;
+    private $userMapper, $core_need_update = false, $extensions_need_update = [];
 
     public function __construct(UserMapper $userMapper, string $core_version)
     {
@@ -254,8 +254,6 @@ class Updates
 
     public function checkCoreUpgrade()
     {
-        $_SESSION['need_update'] = false;
-
         if (preg_match('/(\d+\.\d+)\.(\d+)$/', $this->core_version, $matches)) {
             try {
                 $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
@@ -266,9 +264,10 @@ class Updates
             } catch (\Exception $e) {
                 throw new \Exception($e->getMessage());
             }
-
-            $new_version = trim($all_versions[0]['version']);
-            $_SESSION['need_update'] = version_compare($this->core_version, $new_version, '<');
+            if (!empty($all_versions)) {
+                $new_version = trim($all_versions[0]['version']);
+                $this->core_need_update = version_compare($this->core_version, $new_version, '<');
+            }
         }
     }
 
@@ -278,8 +277,6 @@ class Updates
         if (!$this->getServerExtensions()) {
             return false;
         }
-
-        $_SESSION['extensions_need_update'] = [];
 
         foreach ($this->types as $type) {
             $ignore_list = [];
@@ -292,13 +289,13 @@ class Updates
                         if (in_array($ext_id, $updates_ignored[$type])) {
                             $ignore_list[] = $ext_id;
                         } else {
-                            $_SESSION['extensions_need_update'][$type][$ext_id] = $ext_info['revision_name'];
+                            $this->extensions_need_update[$type][$ext_id] = $ext_info['revision_name'];
                         }
                     }
                 }
             }
+            $updates_ignored[$type] = $ignore_list;
         }
-        $updates_ignored[$type] = $ignore_list;
 
         return $updates_ignored;
     }
@@ -307,10 +304,10 @@ class Updates
     public function checkUpdatedExtensions(array $updates_ignored = [])
     {
         foreach ($this->types as $type) {
-            if (!empty($_SESSION['extensions_need_update'][$type])) {
+            if (!empty($this->extensions_need_update[$type])) {
                 foreach ($this->getType($type)->getFsExtensions() as $ext_id => $fs_ext) {
-                    if (isset($_SESSION['extensions_need_update'][$type][$ext_id])
-                        && version_compare($fs_ext['version'], $_SESSION['extensions_need_update'][$type][$ext_id], '>=')) {
+                    if (isset($this->extensions_need_update[$type][$ext_id])
+                        && version_compare($fs_ext['version'], $this->extensions_need_update[$type][$ext_id], '>=')) {
                         // Extension have been upgraded
                         return $this->checkExtensions($updates_ignored);
                     }
@@ -331,5 +328,15 @@ class Updates
                 }
             }
         }
+    }
+
+    public function isCoreNeedUpdate(): bool
+    {
+        return $this->core_need_update;
+    }
+
+    public function isExtensionsNeedUpdate(): array
+    {
+        return $this->extensions_need_update;
     }
 }

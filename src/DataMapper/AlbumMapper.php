@@ -823,6 +823,7 @@ class AlbumMapper
             $albums[$album->getId()] = $album;
         }
 
+        $albums = [];
         $dirs_callback = function ($m) use ($albums) {
             return $albums[$m[1]]->getDir();
         };
@@ -1102,13 +1103,14 @@ class AlbumMapper
 
                         if (isset($image_id) && !in_array($image_id, $image_ids)) {
                             $new_image_ids[] = $image_id;
+
+                            if ($this->conf['representative_cache_on_level']) {
+                                $user_representative_updates_for[$album->getId()] = $image_id;
+                            }
+
+                            $album->setRepresentativePictureId($image_id);
                         }
 
-                        if ($this->conf['representative_cache_on_level']) {
-                            $user_representative_updates_for[$album->getId()] = $image_id;
-                        }
-
-                        $album->setRepresentativePictureId($image_id);
                         $this->getRepository()->addOrUpdateAlbum($album);
                     }
                 }

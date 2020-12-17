@@ -715,6 +715,7 @@ class Notification
                         // Fill return list of "treated" check_key for 'send'
                         $return_list[] = $nbm_user->getCheckKey();
 
+                        $news = '';
                         if ($this->conf['nbm_send_detailed_content']) {
                             $news = $this->news($nbm_user->getLastSend(), $now, false, $this->conf['nbm_send_html_mail']);
                             $exist_data = count($news) > 0;

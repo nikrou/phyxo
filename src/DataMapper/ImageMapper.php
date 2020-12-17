@@ -65,6 +65,7 @@ class ImageMapper
         }
 
         $rank_of = array_flip($selection);
+        $pictures = [];
 
         foreach ($this->imageRepository->findBy(['id' => $selection]) as $image) {
             $image_infos = $image->toArray();

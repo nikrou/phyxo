@@ -136,4 +136,24 @@ class RateRepository extends ServiceEntityRepository
 
         $qb->getQuery()->getResult();
     }
+
+    public function deleteWithConditions(int $user_id, ?int $image_id = null, ?string $anonymous_id)
+    {
+        $qb = $this->createQueryBuilder('r');
+        $qb->delete();
+        $qb->where('r.user = :user_id');
+        $qb->setParameter('user_id', $user_id);
+
+        if (!is_null($image_id)) {
+            $qb->andWhere('r.image = :image_id');
+            $qb->setParameter('image_id', $image_id);
+        }
+
+        if (!is_null($anonymous_id)) {
+            $qb->andWhere('r.anonymous_id = :anonymous_id');
+            $qb->setParameter('anonymous_id', $anonymous_id);
+        }
+
+        $qb->getQuery()->getResult();
+    }
 }

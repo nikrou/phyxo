@@ -11,7 +11,7 @@
 
 namespace Phyxo\Functions\Ws;
 
-use App\Repository\RateRepository;
+use App\Entity\Rate as EntityRate;
 use Phyxo\Ws\Server;
 
 class Rate
@@ -25,7 +25,7 @@ class Rate
      */
     function delete($params, Server $service)
     {
-        $changes = (new RateRepository($service->getConnection()))->deleteRate(
+        $changes = $service->getManagerRegistry()->getRepository(EntityRate::class)->deleteWithConditions(
             $params['user_id'],
             !empty($params['image_id']) ? $params['image_id'] : null,
             !empty($params['anonymous_id']) ? $params['anonymous_id'] : null

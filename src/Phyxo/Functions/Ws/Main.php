@@ -44,7 +44,7 @@ class Main
         }
 
         $max_urls = $params['max_urls'];
-        list($max_id, $image_count) = $service->getImageMapper->getRepository()->findMaxIdAndCount();
+        list($max_id, $image_count) = $service->getImageMapper()->getRepository()->findMaxIdAndCount();
 
         if ($image_count === 0) {
             return [];
@@ -64,7 +64,7 @@ class Main
         $where_clauses[] = self::stdImageSqlFilter($params, '');
 
         if (!empty($params['ids'])) {
-            $where_clauses[] = 'id ' . $service->getConnection()->in($params['ids']);
+            // $where_clauses[] = 'id ' . $service->getConnection()->in($params['ids']);
         }
 
         $urls = [];
@@ -123,7 +123,7 @@ class Main
         $infos['nb_virtual'] = $service->getAlbumMapper()->getRepository()->countByType($virtual = true);
         $infos['nb_physical'] = $service->getAlbumMapper()->getRepository()->countByType($virtual = false);
         $infos['nb_image_category'] = $service->getManagerRegistry()->getRepository(ImageAlbum::class)->count([]);
-        $infos['nb_tags'] = $service->getTagMapper->getRepository()->count([]);
+        $infos['nb_tags'] = $service->getTagMapper()->getRepository()->count([]);
         $infos['nb_image_tag'] = $service->getManagerRegistry()->getRepository(ImageTag::class)->count([]);
         $infos['nb_users'] = $service->getManagerRegistry()->getRepository(User::class)->count([]);
         $infos['nb_groups'] = $service->getManagerRegistry()->getRepository(Group::class)->count([]);
@@ -191,49 +191,6 @@ class Main
         }
 
         return $clauses;
-    }
-
-    /**
-     * returns a "standard" (for our web service) ORDER BY sql clause for images
-     */
-    public static function stdImageSqlOrder(array $params, string $tbl_name = '', Server $service)
-    {
-        $ret = '';
-        if (empty($params['order'])) {
-            return $ret;
-        }
-        $matches = [];
-        preg_match_all('/([a-z_]+) *(?:(asc|desc)(?:ending)?)? *(?:, *|$)/i', $params['order'], $matches);
-        for ($i = 0; $i < count($matches[1]); $i++) {
-            switch ($matches[1][$i]) {
-                case 'date_created':
-                    $matches[1][$i] = 'date_creation';
-                    break;
-                case 'date_posted':
-                    $matches[1][$i] = 'date_available';
-                    break;
-                case 'rand':
-                case 'random':
-                    $matches[1][$i] = $service->getConnection()::RANDOM_FUNCTION . '()';
-                    break;
-            }
-            $sortable_fields = [
-                'id', 'file', 'name', 'hit', 'rating_score',
-                'date_creation', 'date_available', $service->getConnection()::RANDOM_FUNCTION . '()'
-            ];
-            if (in_array($matches[1][$i], $sortable_fields)) {
-                if (!empty($ret)) {
-                    $ret .= ', ';
-                }
-                if ($matches[1][$i] != $service->getConnection()::RANDOM_FUNCTION . '()') {
-                    $ret .= $tbl_name;
-                }
-                $ret .= $matches[1][$i];
-                $ret .= ' ' . $matches[2][$i];
-            }
-        }
-
-        return $ret;
     }
 
     /**

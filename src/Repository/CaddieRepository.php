@@ -38,11 +38,13 @@ class CaddieRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteElements(array $image_ids)
+    public function deleteElements(array $image_ids, int $user_id)
     {
         $qb = $this->createQueryBuilder('c');
         $qb->delete();
         $qb->where($qb->expr()->in('c.image', $image_ids));
+        $qb->andWhere('c.user = :user_id');
+        $qb->setParameter('user_id', $user_id);
 
         $qb->getQuery()->getResult();
     }

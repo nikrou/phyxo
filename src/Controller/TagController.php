@@ -182,10 +182,11 @@ class TagController extends CommonController
                     $start
                 )
             );
+
+            $menuBar->setCurrentImages(array_slice($tpl_params['items'], $start, $nb_image_page));
         }
 
         $menuBar->setRoute('images_by_tags');
-        $menuBar->setCurrentImages(array_slice($tpl_params['items'], $start, $nb_image_page));
         $menuBar->setCurrentTags($tpl_params['tags']);
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());

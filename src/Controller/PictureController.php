@@ -286,7 +286,7 @@ class PictureController extends CommonController
 
                     if ($request->get('action') === 'edit_comment' && $request->get('comment_to_edit')) {
                         $comment['comment_id'] = $request->get('comment_to_edit');
-                        $comment_action = $commentMapper->updateUserComment($comment, $request->request->get('key'), $errors);
+                        $comment_action = $commentMapper->updateUserComment($comment, $request->request->get('key'));
                     } else {
                         $comment_action = $commentMapper->insertUserComment($comment, $errors);
                     }

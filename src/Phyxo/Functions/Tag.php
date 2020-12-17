@@ -39,8 +39,8 @@ class Tag
         // average count of available tags will determine the level of each tag
         $tag_average_count = $total_count / count($tags);
 
-        // tag levels threshold calculation: a tag with an average rate must have
-        // the middle level.
+        // tag levels threshold calculation: a tag with an average rate must have the middle level.
+        $threshold_of_level = [];
         for ($i = 1; $i < $tags_levels; $i++) {
             $threshold_of_level[$i] = 2 * $i * $tag_average_count / $tags_levels;
         }

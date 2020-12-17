@@ -66,6 +66,8 @@ class Extensions
     {
         $zip = new PclZip($zip_file);
         if ($list = $zip->listContent()) {
+            $root = '.';
+
             // find main file
             foreach ($list as $file) {
                 if (isset($file['filename']) && basename($file['filename']) === $main_file && (!isset($main_filepath) || strlen($file['filename']) < strlen($main_filepath))) {

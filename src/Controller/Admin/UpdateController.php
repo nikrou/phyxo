@@ -62,11 +62,12 @@ class UpdateController extends AbstractController
         // +-----------------------------------------------------------------------+
         // |                                Step 0                                 |
         // +-----------------------------------------------------------------------+
+        $updater = new Updates($userMapper, $params->get('core_version'));
+
         if ($step === 0) {
             $tpl_params['CHECK_VERSION'] = false;
             $tpl_params['DEV_VERSION'] = false;
 
-            $updater = new Updates($userMapper, $params->get('core_version'));
             $updater->setUpdateUrl($params->get('update_url'));
 
             if (preg_match('/.*-dev$/', $params->get('core_version'), $matches)) {
@@ -109,6 +110,7 @@ class UpdateController extends AbstractController
         // +-----------------------------------------------------------------------+
         // |                                Step 1                                 |
         // +-----------------------------------------------------------------------+
+        $last_version = null;
         if ($step === 1) {
             $tpl_params['MINOR_VERSION'] = $version;
             $tpl_params['MAJOR_VERSION'] = $last_version;

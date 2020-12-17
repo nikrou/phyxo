@@ -590,7 +590,7 @@ class Image
             $tag_ids = [];
             if (is_array($params['tags'])) {
                 foreach ($params['tags'] as $tag_name) {
-                    $tag_ids[] = $service->getTag['tags']->tagIdFromTagName($tag_name);
+                    $tag_ids[] = $service->getTagMapper()->tagIdFromTagName($tag_name);
                 }
             } else {
                 $tag_names = preg_split('~(?<!\\\),~', $params['tags']);
@@ -981,7 +981,7 @@ class Image
             }
 
             if ('replace' == $params['multiple_value_mode']) {
-                $service->getT['tags']->setTags($tag_ids, $params['image_id']);
+                $service->getTagMapper()->setTags($tag_ids, $params['image_id']);
             } elseif ('append' == $params['multiple_value_mode']) {
                 $service->getTagMapper()->addTags($tag_ids, [$params['image_id']]);
             } else {
@@ -1222,6 +1222,8 @@ class Image
 
         $file_path = null;
         $is_tiff = false;
+        $now = new \DateTime();
+        $upload_dir = $service->getUploadDir();
 
         if (isset($image_id)) { // this photo already exists, we update it
             $image = $service->getImageMapper()->getRepository()->find($image_id);
@@ -1233,12 +1235,9 @@ class Image
             // delete all physical files related to the photo (thumbnail, web site, HD)
             $service->getImageMapper()->deleteElementFiles([$image_id]);
         } else {
-            $now = new \DateTime();
             $year = $now->format('Y');
             $month = $now->format('m');
             $day = $now->format('d');
-
-            $upload_dir = $service->getUploadDir();
 
             // upload directory hierarchy
             $filename_dir = sprintf('%s/%s/%s/%s', $upload_dir, $year, $month, $day);
@@ -1434,7 +1433,7 @@ class Image
             $image_id = $service->getImageMapper()->getRepository()->addOrUpdateImage($image);
         }
 
-        if (isset($categories) && count($categories) > 0) {
+        if (count($categories) > 0) {
             $service->getAlbumMapper()->associateImagesToAlbums([$image_id], $categories);
         }
 

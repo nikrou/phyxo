@@ -89,6 +89,7 @@ class AlbumController extends CommonController
         $albums = [];
         $image_ids = [];
         $user_representative_updates_for = [];
+        $infos_of_images = [];
 
         list($is_child_date_last, $albums, $image_ids) = $albumMapper->getAlbumThumbnails(
             $this->getUser(),
@@ -497,6 +498,7 @@ class AlbumController extends CommonController
 
         $recent_date = new \DateTime();
         $recent_date->sub(new \DateInterval(sprintf('P%dD', $this->getUser()->getRecentPeriod())));
+        $infos_of_images = [];
 
         list($is_child_date_last, $albums, $image_ids) = $albumMapper->getAlbumThumbnails($this->getUser(), $albumMapper->getRepository()->findRecentAlbums($recent_date));
 

@@ -103,10 +103,9 @@ class Image
             list($width, $height) = [$height, $width];
         }
 
+        $x = 0;
+        $y = 0;
         if ($crop) {
-            $x = 0;
-            $y = 0;
-
             if ($width < $height and $follow_orientation) {
                 list($max_width, $max_height) = [$max_height, $max_width];
             }
@@ -150,7 +149,7 @@ class Image
             'height' => $destination_height,
         ];
 
-        if ($crop and ($x or $y)) {
+        if ($crop && ($x || $y)) {
             $result['crop'] = [
                 'width' => $width,
                 'height' => $height,

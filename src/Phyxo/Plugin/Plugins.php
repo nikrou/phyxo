@@ -192,10 +192,8 @@ class Plugins extends Extensions
 
     /**
      * Load metadata of a plugin in `fs_plugins` array
-     * @param $plugin_id
-     * @return false|array
      */
-    public function getFsPlugin($plugin_id)
+    public function getFsPlugin(string $plugin_id)
     {
         $path = $this->plugins_root_path . '/' . $plugin_id;
         $main_file = $path . '/main.inc.php';

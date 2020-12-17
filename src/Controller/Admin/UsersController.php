@@ -158,8 +158,8 @@ class UsersController extends AbstractController
                 // if you forbid access to a category, all sub-categories become automatically forbidden
                 foreach ($albumMapper->getRepository()->getSubAlbums($request->request->get('cat_true')) as $album) {
                     $album->removeUserAccess($user);
+                    $albumMapper->getRepository()->addOrUpdateAlbum($album);
                 }
-                $albumMapper->getRepository()->addOrUpdateAlbum($album);
             } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && count($request->request->get('cat_false')) > 0) {
                 $albumMapper->addPermissionOnAlbum($request->request->get('cat_false'), [$user_id]);
             }
@@ -172,6 +172,7 @@ class UsersController extends AbstractController
 
         // retrieve category ids authorized to the groups the user belongs to
         $group_authorized = [];
+        $authorized_ids = [];
         foreach ($user->getUserAccess() as $album) {
             $tpl_params['categories_because_of_groups'][] = $albumMapper->getAlbumsDisplayNameCache($album->getUppercats());
             $group_authorized[] = $album->getId();

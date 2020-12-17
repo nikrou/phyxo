@@ -128,7 +128,7 @@ class InstallCommand extends Command
             $this->db_params['dsn'] = $_SERVER['DATABASE_URL'];
             $this->db_params['db_prefix'] = $input->getOption('db_prefix') ? $input->getOption('db_prefix') : $this->default_prefix;
         } else {
-            if (!$io->askQuestion(new ConfirmationQuestion("Install Phyxo using these settings?"), true)) {
+            if (!$io->askQuestion(new ConfirmationQuestion("Install Phyxo using these settings?", true))) {
                 return;
             }
         }
@@ -163,6 +163,8 @@ class InstallCommand extends Command
             'Create a guest user, using phyxo:user:create command',
             'Go to http://your.hostname/path/to/phyxo and start using your application'
         ]);
+
+        return 0;
     }
 
     protected function writeInfo($io, string $message)

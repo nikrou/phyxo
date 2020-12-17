@@ -73,7 +73,7 @@ class SearchController extends CommonController
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search');
 
-        $available_tags = $tagMapper->getAvailableTags($this->getUser(), $this->getUser()->getForbiddenCategories());
+        $available_tags = $tagMapper->getAvailableTags($this->getUser());
 
         if (count($available_tags) > 0) {
             usort($available_tags, [$tagMapper, 'alphaCompare']);
@@ -409,7 +409,7 @@ class SearchController extends CommonController
                     'after' => $translator->trans('posted after %s (%s)'),
                     'before' => $translator->trans('posted before %s (%s)'),
                 ];
-            } elseif ($datefield === 'date_creation') {
+            } else { // date_creation
                 $lang_items = [
                     'date' => $translator->trans('created on %s'),
                     'period' => $translator->trans('created between %s (%s) and %s (%s)'),

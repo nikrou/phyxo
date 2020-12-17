@@ -973,7 +973,7 @@ class BatchManagerController extends AbstractController
         $filter_tags = [];
         if (!empty($this->getFilter()['tags'])) {
             $tags = [];
-            foreach ($tagMapper->getRepository()->findTags($this->getFilter()['tags']) as $tag) {
+            foreach ($tagMapper->getRepository()->findBy(['id' => $this->getFilter()['tags']]) as $tag) {
                 $tags[] = $tag;
             }
             $filter_tags = $tagMapper->prepareTagsListForUI($tags);

@@ -69,5 +69,7 @@ class UserListCommand extends Command
         }
 
         $io->table(array_values($this->Fields), $users);
+
+        return 0;
     }
 }

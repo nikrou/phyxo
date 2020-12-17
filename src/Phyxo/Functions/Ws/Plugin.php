@@ -11,6 +11,7 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Entity\Plugin as EntityPlugin;
 use Phyxo\Ws\Error;
 use Phyxo\Plugin\Plugins;
 use Phyxo\Ws\Server;
@@ -24,7 +25,7 @@ class Plugin
      */
     public static function getList($params, Server $service)
     {
-        $plugins = new Plugins($service->getConnection(), $service->getUserMapper());
+        $plugins = new Plugins($service->getManagerRegistry()->getRepository(EntityPlugin::class), $service->getUserMapper());
         $plugins->setRootPath($service->getParams()->get('plugins_dir'));
         $plugins->sortFsPlugins('name');
         $plugin_list = [];
@@ -62,7 +63,7 @@ class Plugin
             return new Error(403, 'Invalid security token');
         }
 
-        $plugins = new Plugins($service->getConnection(), $service->getUserMapper());
+        $plugins = new Plugins($service->getManagerRegistry()->getRepository(EntityPlugin::class), $service->getUserMapper());
         $plugins->setRootPath($service->getParams()->get('plugins_dir'));
         $error = $plugins->performAction($params['action'], $params['plugin']);
 

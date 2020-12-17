@@ -91,6 +91,8 @@ class CalendarMonthly extends CalendarBase
                 $route = 'calendar_categories_monthly_year_month';
             }
             $params['day'] = $date_components[2];
+
+            return $this->router->generate($route, $params);
         } elseif (count($date_components) === 2) {
             if (!is_null($this->category_id)) {
                 $route = 'calendar_category_monthly_year_month';
@@ -98,9 +100,11 @@ class CalendarMonthly extends CalendarBase
             } else {
                 $route = 'calendar_categories_monthly_year_month';
             }
+
+            return $this->router->generate($route, $params);
         }
 
-        return $this->router->generate($route, $params);
+        return '';
     }
 
     public function getCalendarLevels(): array
@@ -505,6 +509,7 @@ class CalendarMonthly extends CalendarBase
                 $route = 'calendar_categories_monthly_year_month_day';
             }
 
+            $dow = 6;
             for ($day = 1; $day <= $this->getAllDaysInMonth($this->chronology_date[self::CYEAR], $this->chronology_date[self::CMONTH]); $day++) {
                 $dow = ($first_day_dow + $day - 1) % 7;
                 if ($dow == 0 and $day != 1) {

@@ -42,6 +42,7 @@ class MediaController
         $this->page['derivative_path'] = $derivative_path;
         $image_src = sprintf('%s/%s', $rootProjectDir, $image_path);
         $derivative_src = sprintf('%s/%s', $mediaCacheDir, $derivative_path);
+        $derivative_params = null;
 
         $this->image_std_params = $image_std_params;
         foreach ($this->image_std_params->getDefinedTypeMap() as $type => $params) {

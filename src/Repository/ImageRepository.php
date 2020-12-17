@@ -140,7 +140,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findBestRated(array $forbidden_categories = [], string $order_by)
+    public function findBestRated(array $forbidden_categories = [], string $order_by, int $limit)
     {
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
@@ -151,6 +151,7 @@ class ImageRepository extends ServiceEntityRepository
         }
 
         $qb->orderBy($order_by);
+        $qb->setMaxResults($limit);
 
         return $qb->getQuery()->getResult();
     }
@@ -364,7 +365,7 @@ class ImageRepository extends ServiceEntityRepository
         }
 
         $qb = $this->createQueryBuilder('i');
-        $qb->select('CONCAT(' . explode($sub_queries, '-') . ' AS period');
+        $qb->select('CONCAT(' . implode('-', $sub_queries) . ' AS period');
         $qb->where($qb->expr()->in('i.id', $ids));
         $qb->andWhere($qb->expr()->isNotNull('i.' . $date_field));
         $qb->groupBy('period');
@@ -386,7 +387,7 @@ class ImageRepository extends ServiceEntityRepository
 
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
-        $qb->select('CONCAT(' . explode($sub_queries, '-') . ' AS period');
+        $qb->select('CONCAT(' . implode('-', $sub_queries) . ' AS period');
         if (count($album_ids) > 0) {
             $qb->where($qb->expr()->in('ia.album', $album_ids));
         }
@@ -721,7 +722,7 @@ class ImageRepository extends ServiceEntityRepository
         return null;
     }
 
-    public function findImagesFromLastImport(\DateTimeInterface $max_date)
+    public function findImagesFromLastImport(\DateTime $max_date)
     {
         $max_date_one_day_before = clone $max_date;
         $max_date_one_day_before->sub(new \DateInterval('P1D'));

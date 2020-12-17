@@ -32,7 +32,7 @@ class Theme
             return new Error(403, 'Invalid security token');
         }
 
-        $themes = new Themes($service->getConnection(), $service->getManagerRegistry()->getRepository(EntityTheme::class), $service->getUserMapper());
+        $themes = new Themes($service->getManagerRegistry()->getRepository(EntityTheme::class), $service->getUserMapper());
         $errors = $themes->performAction($params['action'], $params['theme']);
 
         if (!empty($errors)) {

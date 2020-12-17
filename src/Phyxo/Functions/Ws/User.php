@@ -14,6 +14,7 @@ namespace Phyxo\Functions\Ws;
 use App\Entity\Group;
 use App\Entity\History;
 use App\Entity\Language;
+use App\Entity\Theme;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use App\Entity\User as EntityUser;
@@ -37,83 +38,83 @@ class User
      */
     public static function getList($params, Server $service)
     {
-        $where_clauses = ['1=1'];
+        // $where_clauses = ['1=1'];
 
-        if (!empty($params['user_id'])) {
-            $where_clauses[] = 'u.id ' . $service->getConnection()->in($params['user_id']);
-        }
+        // if (!empty($params['user_id'])) {
+        //     $where_clauses[] = 'u.id ' . $service->getConnection()->in($params['user_id']);
+        // }
 
-        if (!empty($params['username'])) {
-            $where_clauses[] = 'u.username LIKE \'' . $service->getConnection()->db_real_escape_string($params['username']) . '\'';
-        }
+        // if (!empty($params['username'])) {
+        //     $where_clauses[] = 'u.username LIKE \'' . $service->getConnection()->db_real_escape_string($params['username']) . '\'';
+        // }
 
-        if (!empty($params['status'])) {
-            $params['status'] = array_intersect($params['status'], EntityUser::ALL_STATUS);
-            if (count($params['status']) > 0) {
-                $where_clauses[] = 'ui.status ' . $service->getConnection()->in($params['status']);
-            }
-        }
+        // if (!empty($params['status'])) {
+        //     $params['status'] = array_intersect($params['status'], EntityUser::ALL_STATUS);
+        //     if (count($params['status']) > 0) {
+        //         $where_clauses[] = 'ui.status ' . $service->getConnection()->in($params['status']);
+        //     }
+        // }
 
-        if (!empty($params['min_level'])) {
-            if (!in_array($params['min_level'], $service->getConf()['available_permission_levels'])) {
-                return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid level');
-            }
-            $where_clauses[] = 'ui.level >= ' . $params['min_level'];
-        }
+        // if (!empty($params['min_level'])) {
+        //     if (!in_array($params['min_level'], $service->getConf()['available_permission_levels'])) {
+        //         return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid level');
+        //     }
+        //     $where_clauses[] = 'ui.level >= ' . $params['min_level'];
+        // }
 
-        if (!empty($params['group_id'])) {
-            $where_clauses[] = 'ug.group_id ' . $service->getConnection()->in($params['group_id']);
-        }
+        // if (!empty($params['group_id'])) {
+        //     $where_clauses[] = 'ug.group_id ' . $service->getConnection()->in($params['group_id']);
+        // }
 
-        $display = ['u.id' => 'id'];
+        // $display = ['u.id' => 'id'];
 
-        if ($params['display'] != 'none') {
-            $params['display'] = array_map('trim', explode(',', $params['display']));
+        // if ($params['display'] != 'none') {
+        //     $params['display'] = array_map('trim', explode(',', $params['display']));
 
-            if (in_array('all', $params['display'])) {
-                $params['display'] = [
-                    'username', 'email', 'status', 'level', 'groups', 'language', 'theme',
-                    'nb_image_page', 'recent_period', 'expand', 'show_nb_comments', 'show_nb_hits',
-                    'enabled_high', 'registration_date', 'registration_date_string',
-                    'registration_date_since', 'last_visit', 'last_visit_string',
-                    'last_visit_since'
-                ];
-            } elseif (in_array('basics', $params['display'])) {
-                $params['display'] = array_merge($params['display'], [
-                    'username', 'email', 'status', 'level', 'groups',
-                ]);
-            }
-            $params['display'] = array_flip($params['display']);
+        //     if (in_array('all', $params['display'])) {
+        //         $params['display'] = [
+        //             'username', 'email', 'status', 'level', 'groups', 'language', 'theme',
+        //             'nb_image_page', 'recent_period', 'expand', 'show_nb_comments', 'show_nb_hits',
+        //             'enabled_high', 'registration_date', 'registration_date_string',
+        //             'registration_date_since', 'last_visit', 'last_visit_string',
+        //             'last_visit_since'
+        //         ];
+        //     } elseif (in_array('basics', $params['display'])) {
+        //         $params['display'] = array_merge($params['display'], [
+        //             'username', 'email', 'status', 'level', 'groups',
+        //         ]);
+        //     }
+        //     $params['display'] = array_flip($params['display']);
 
-            // if registration_date_string or registration_date_since is requested, then registration_date is automatically added
-            if (isset($params['display']['registration_date_string']) || isset($params['display']['registration_date_since'])) {
-                $params['display']['registration_date'] = true;
-            }
+        //     // if registration_date_string or registration_date_since is requested, then registration_date is automatically added
+        //     if (isset($params['display']['registration_date_string']) || isset($params['display']['registration_date_since'])) {
+        //         $params['display']['registration_date'] = true;
+        //     }
 
-            // if last_visit_string or last_visit_since is requested, then last_visit is automatically added
-            if (isset($params['display']['last_visit_string']) || isset($params['display']['last_visit_since'])) {
-                $params['display']['last_visit'] = true;
-            }
+        //     // if last_visit_string or last_visit_since is requested, then last_visit is automatically added
+        //     if (isset($params['display']['last_visit_string']) || isset($params['display']['last_visit_since'])) {
+        //         $params['display']['last_visit'] = true;
+        //     }
 
-            if (isset($params['display']['username'])) {
-                $display['u.username'] = 'username';
-            }
-            if (isset($params['display']['email'])) {
-                $display['u.mail_address'] = 'email';
-            }
+        //     if (isset($params['display']['username'])) {
+        //         $display['u.username'] = 'username';
+        //     }
+        //     if (isset($params['display']['email'])) {
+        //         $display['u.mail_address'] = 'email';
+        //     }
 
-            $ui_fields = [
-                'status', 'level', 'language', 'theme', 'nb_image_page', 'recent_period', 'expand',
-                'show_nb_comments', 'show_nb_hits', 'enabled_high', 'registration_date'
-            ];
-            foreach ($ui_fields as $field) {
-                if (isset($params['display'][$field])) {
-                    $display['ui.' . $field] = $field;
-                }
-            }
-        } else {
-            $params['display'] = [];
-        }
+        //     $ui_fields = [
+        //         'status', 'level', 'language', 'theme', 'nb_image_page', 'recent_period', 'expand',
+        //         'show_nb_comments', 'show_nb_hits', 'enabled_high', 'registration_date'
+        //     ];
+        //     foreach ($ui_fields as $field) {
+        //         if (isset($params['display'][$field])) {
+        //             $display['ui.' . $field] = $field;
+        //         }
+        //     }
+        // } else {
+        //     $params['display'] = [];
+        // }
 
         $users = [];
         // $result = (new UserRepository($service->getConnection()))->getList($display, $where_clauses, $params['order'], $params['per_page'], $params['per_page'] * $params['page']);
@@ -350,7 +351,7 @@ class User
         }
 
         if (!empty($params['theme'])) {
-            if (is_null($service->getManagerRegistry->getRepository(Theme::class)->findOneBy(['id' => $params['theme']]))) {
+            if (is_null($service->getManagerRegistry()->getRepository(Theme::class)->findOneBy(['id' => $params['theme']]))) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid theme');
             }
             $updates_infos['theme'] = $params['theme'];

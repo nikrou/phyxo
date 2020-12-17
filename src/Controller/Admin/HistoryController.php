@@ -129,9 +129,12 @@ class HistoryController extends AbstractController
             $datas[$line->$method()] = $line->getNbPages();
         }
 
-        if (!isset($min_x) and !isset($max_x) and count($datas) > 0) {
+        if (!isset($min_x) && !isset($max_x) && count($datas) > 0) {
             $min_x = min(array_keys($datas));
             $max_x = max(array_keys($datas));
+        } else {
+            $min_x = 0;
+            $max_x = 0;
         }
 
         if (count($datas) > 0) {
@@ -310,15 +313,15 @@ class HistoryController extends AbstractController
             }
         }
 
+        $image_infos = [];
         if (count($image_ids) > 0) {
-            $image_infos = [];
             foreach ($imageMapper->getRepository()->findBy(['id' => array_keys($image_ids)]) as $image) {
                 $image_infos[$image->getId()] = $image;
             }
         }
 
+        $name_of_tag = [];
         if ($has_tags > 0) {
-            $name_of_tag = [];
             foreach ($tagRepository->findAll() as $tag) {
                 $name_of_tag[$tag->getId()] = [
                     'name' => $tag->getName(),
@@ -379,7 +382,7 @@ class HistoryController extends AbstractController
                 );
             }
 
-            $image_string = $this->getImageString($line, $image_infos->toArray(), $rules, $conf, $this->image_std_params);
+            $image_string = $this->getImageString($line, $image_infos, $rules, $conf, $this->image_std_params);
 
             $search_results[] = [
                 'DATE' => $line['date'],
@@ -430,6 +433,7 @@ class HistoryController extends AbstractController
     protected function getImageString(array $line = [], array $image_infos = [], array $search = [], Conf $conf, ImageStandardParams $image_std_params): string
     {
         $image_string = '';
+        $element = [];
 
         if (isset($line['image_id'])) {
             $picture_url = $this->generateUrl('picture', ['image_id' => $line['image_id']]); // @FIX: missing other param
@@ -455,6 +459,7 @@ class HistoryController extends AbstractController
             }
 
             $image_string = '';
+            $thumb_url = '';
 
             if ($thumbnail_display === 'display_thumbnail_classic' || $thumbnail_display === 'display_thumbnail_hoverbox') {
                 $src_image = new SrcImage($element, $conf['picture_ext']);
@@ -564,6 +569,7 @@ class HistoryController extends AbstractController
         $max_id = 0;
         $is_first = true;
         $first_time_key = null;
+        $row = [];
 
         foreach ($historyRepository->getDetailsFromNotSummarized() as $row) {
             $history = $row[0];

@@ -108,5 +108,7 @@ class UserCreateCommand extends Command
         } catch (\Exception $e) {
             $io->error($e->getMessage());
         }
+
+        return 0;
     }
 }

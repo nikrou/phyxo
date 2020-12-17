@@ -11,8 +11,9 @@
 
 namespace Phyxo\Functions\Ws;
 
-use App\Entity\Config;
-use App\Repository\ConfigRepository;
+use App\Entity\Language;
+use App\Entity\Plugin;
+use App\Entity\Theme;
 use Phyxo\Extension\Extensions;
 use Phyxo\Theme\Themes;
 use Phyxo\Plugin\Plugins;
@@ -49,11 +50,17 @@ class Extension
         }
 
         $type = $params['type'];
-        $typeClassName = sprintf('\Phyxo\%s\%s', ucfirst(substr($type, 0, -1)), ucfirst($type));
+        if ($type === 'plugins') {
+            $extension = new Plugins($service->getManagerRegistry()->getRepository(Plugin::class), $service->getUserMapper());
+        } elseif ($type === 'languages') {
+            $extension = new Languages($service->getManagerRegistry()->getRepository(Language::class), $service->getUserMapper());
+        } else { // themes
+            $extension = new Themes($service->getManagerRegistry()->getRepository(Theme::class), $service->getUserMapper());
+        }
+
         $extension_id = $params['id'];
         $revision = $params['revision'];
 
-        $extension = new $typeClassName($service->getConnection(), $service->getUserMapper());
         $extension->setExtensionsURL($service->getExtensionsURL());
         $extension->setRootPath($service->getParams()->get($type . '_dir'));
 
@@ -65,18 +72,18 @@ class Extension
                     return;
                 }
 
-                $errors = $extension->performAction('update', $extension_id, $revision);
+                $extension->performAction('update', $extension_id, $revision);
                 $extension_name = $extension->getFsPlugins()[$extension_id]['name'];
 
                 if (isset($params['reactivate'])) {
                     $extension->performAction('activate', $extension_id);
                 }
-            } elseif ($type === 'themes') {
-                $extension->extractThemeFiles('upgrade', $revision, $extension_id);
-                $extension_name = $extension->getFsThemes()[$extension_id]['name'];
             } elseif ($type === 'languages') {
                 $extension->extractLanguageFiles('upgrade', $revision);
                 $extension_name = $extension->getFsLanguages()[$extension_id]['name'];
+            } else { // themes
+                $extension->extractThemeFiles('upgrade', $revision, $extension_id);
+                $extension_name = $extension->getFsThemes()[$extension_id]['name'];
             }
 
             return sprintf('%s has been successfully updated.', $extension_name);
@@ -120,7 +127,7 @@ class Extension
                 $updates_ignored = ['plugins' => [], 'themes' => [], 'languages' => []];
             }
 
-            $service->getManagerRegistry()->getRepository(Config::class)->addOrUpdateParam('updates_ignored', $updates_ignored);
+            $service->getConf()->addOrUpdateParam('updates_ignored', $updates_ignored);
             return true;
         }
 
@@ -133,7 +140,7 @@ class Extension
             $updates_ignored[$params['type']][] = $params['id'];
         }
 
-        $service->getManagerRegistry()->getRepository(Config::class)->addOrUpdateParam('updates_ignored', $updates_ignored);
+        $service->getConf()->addOrUpdateParam('updates_ignored', $updates_ignored);
 
         return true;
     }
@@ -151,7 +158,7 @@ class Extension
         $update->setUpdateUrl($service->getParams()->get('update_url'));
         $update->checkCoreUpgrade();
 
-        $result['phyxo_need_update'] = $_SESSION['need_update'];
+        $result['phyxo_need_update'] = $update->isCoreNeedUpdate();
 
         if (!empty($service->getConf()['updates_ignored'])) {
             $updates_ignored = $service->getConf()['updates_ignored'];
@@ -159,16 +166,16 @@ class Extension
             $updates_ignored = [];
         }
 
-        if (!isset($_SESSION['extensions_need_update'])) {
+        if (!$update->isExtensionsNeedUpdate()) {
             $service->getConf()->addOrUpdateParam('updates_ignored', $update->checkExtensions($updates_ignored));
         } else {
             $service->getConf()->addOrUpdateParam('updates_ignored', $update->checkUpdatedExtensions($updates_ignored));
         }
 
-        if (!isset($_SESSION['extensions_need_update'])) {
+        if (!$update->isExtensionsNeedUpdate()) {
             $result['ext_need_update'] = false;
         } else {
-            $result['ext_need_update'] = !empty($_SESSION['extensions_need_update']);
+            $result['ext_need_update'] = !$update->isExtensionsNeedUpdate();
         }
 
         return $result;
