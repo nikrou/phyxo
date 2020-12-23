@@ -17,7 +17,7 @@ class SessionHandler extends PdoSessionHandler
 {
     public function __construct(array $db_params)
     {
-        $dsn = sprintf('%s:dbname=%s host=%s', str_replace('pdo_', '', $db_params['driver']), $db_params['name'], $db_params['host']);
+        $dsn = sprintf('%s://%s/%s', str_replace('pdo_', '', $db_params['driver']), $db_params['host'], $db_params['name']);
 
         parent::__construct($dsn, ['db_table' => $db_params['prefix'] . 'sessions', 'db_username' => $db_params['user'], 'db_password' => $db_params['password']]);
     }

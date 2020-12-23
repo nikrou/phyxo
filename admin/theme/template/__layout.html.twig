@@ -30,8 +30,8 @@
 
 		    <div class="collapse navbar-collapse" id="navbarCollapse">
 			<ul class="navbar-nav ml-auto">
-			    <li class="nav-item"><a class="nav-link" href="{{U_RETURN}}"><i class="fa fa-eye"></i> {{'Visit Gallery'|trans}}</a></li>
-			    <li class="nav-item"><a class="nav-link" href="{{path('logout')}}"><i class="fa fa-sign-out"></i> {{'Logout'|trans}}  ({{USERNAME}})</a></li>
+			    <li class="nav-item"><a class="nav-link" href="{{path('homepage')}}"><i class="fa fa-eye"></i> {{'Visit Gallery'|trans}}</a></li>
+			    <li class="nav-item"><a class="nav-link" href="{{path('logout')}}"><i class="fa fa-sign-out"></i> {{'Logout'|trans}}  ({{app.user.username}})</a></li>
 			</ul>
 		    </div>
 		</nav>

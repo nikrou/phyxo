@@ -20,6 +20,7 @@ jobs:
         with:
           tools: composer:v1
           php-version: ${{ matrix.php-versions }}
+          coverage: xdebug
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
         env:
           update: true
@@ -45,6 +46,7 @@ jobs:
         with:
           tools: composer:v1
           php-version: '7.2'
+          coverage: xdebug
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
         env:
           update: true

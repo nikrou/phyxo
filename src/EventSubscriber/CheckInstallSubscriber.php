@@ -13,18 +13,18 @@ namespace App\EventSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
-use App\Exception\ConfigFileMissingException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class CheckInstallSubscriber implements EventSubscriberInterface
 {
-    private $urlGenerator;
+    private $urlGenerator, $databaseConfigFile;
 
-    public function __construct(UrlGeneratorInterface $urlGenerator)
+    public function __construct(UrlGeneratorInterface $urlGenerator, string $databaseConfigFile)
     {
         $this->urlGenerator = $urlGenerator;
+        $this->databaseConfigFile = $databaseConfigFile;
     }
 
     public function onKernelException(ExceptionEvent $event)
@@ -33,10 +33,7 @@ class CheckInstallSubscriber implements EventSubscriberInterface
             return false;
         }
 
-        $exception = $event->getException();
-        $previous_exception = $exception->getPrevious();
-
-        if (!($exception instanceof ConfigFileMissingException) && !($previous_exception instanceof ConfigFileMissingException)) {
+        if (is_readable($this->databaseConfigFile)) {
             return false;
         }
 

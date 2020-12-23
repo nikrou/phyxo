@@ -11,6 +11,8 @@
 
 namespace App\Install;
 
+use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\DriverManager;
 use Phyxo\Functions\Utils;
 use Phyxo\Language\Languages;
 use Phyxo\Upgrade;
@@ -52,14 +54,20 @@ class PhyxoInstaller
 
     public function availableEngines()
     {
-        return array_filter($this->dblayers, function($dblayer) {
-            return function_exists($dblayer['function_available']);
-        });
+        return array_map(
+            function($dblayer) {
+                return $dblayer['engine'];
+            },
+            array_filter($this->dblayers, function($dblayer) {
+                return (isset($dblayer['function_available']) && function_exists($dblayer['function_available']))
+                || (isset($dblayer['class_available']) && class_exists($dblayer['class_available']));
+            })
+        );
     }
 
     public function installDatabase(array $db_params = [])
     {
-        $config = new \Doctrine\DBAL\Configuration();
+        $config = new Configuration();
         if (!empty($db_params['dsn'])) {
             $_params = parse_url($db_params['dsn']);
             $db_params['db_layer'] = $_params['scheme'];
@@ -77,7 +85,7 @@ class PhyxoInstaller
             'host' => $db_params['db_host'],
             'driver' => 'pdo_' . $db_params['db_layer'],
         ];
-        $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
+        $conn = DriverManager::getConnection($connectionParams, $config);
 
         // tables creation, based on phyxo_structure.sql
         $structure_queries = $this->getQueriesFromFile(
