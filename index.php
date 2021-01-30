@@ -11,6 +11,7 @@
 
 use App\Kernel;
 use App\InstallKernel;
+use App\UpdateKernel;
 use Symfony\Component\Debug\Debug;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +44,11 @@ if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? false) {
 }
 
 if (is_readable(__DIR__ . '/local/config/database.inc.php')) {
-    $kernel = new Kernel($env, $debug);
+    if (is_readable(__DIR__ . '/.update.mode')) {
+        $kernel = new UpdateKernel($env, $debug);
+    } else {
+        $kernel = new Kernel($env, $debug);
+    }
 } else {
     $kernel = new InstallKernel($env, $debug);
 }

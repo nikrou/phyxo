@@ -31,7 +31,7 @@ config: clean ## prepare environment for building archive
 
 	rm -f $(DIST)/$(APP_NAME)/bin/phpunit $(DIST)/$(APP_NAME)/bin/simple-phpunit $(DIST)/$(APP_NAME)/phpunit.xml.dist
 	rm -fr $(DIST)/$(APP_NAME)/config/packages/dev $(DIST)/$(APP_NAME)/config/packages/test $(DIST)/$(APP_NAME)/config/routes/dev
-	rm -f $(DIST)/$(APP_NAME)/config/services_dev.yaml $(DIST)/$(APP_NAME)/config/services_test.yaml
+	rm -f $(DIST)/$(APP_NAME)/config/*_prod.yaml $(DIST)/$(APP_NAME)/config/*_dev.yaml $(DIST)/$(APP_NAME)/config/*_test.yaml
 	rm -f $(DIST)/$(APP_NAME)/composer.* $(DIST)/$(APP_NAME)/symfony.lock $(DIST)/$(APP_NAME)/src/Log.php
 
 	# remove doc and useless stuff

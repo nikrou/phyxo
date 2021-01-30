@@ -1,7 +1,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-  core_version: 2.0.2
+  core_version: 2.0.3
   phyxo_website: https://www.phyxo.net
   pem_url: 'https://ext.phyxo.net'
   update_url: https://download.phyxo.net/versions
@@ -16,6 +16,7 @@ parameters:
   languages_dir: '%kernel.project_dir%/languages'
   install_dir: '%kernel.project_dir%/install'
   cache_dir: '%kernel.cache_dir%'
+  update_mode: '%kernel.project_dir%/.update.mode'
   default_config_file: '%kernel.project_dir%/include/config_default.inc.php'
   default_theme: 'treflez'
   user_config_file: '%local_dir%/config/config.inc.php'

@@ -18,7 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
-class Kernel extends BaseKernel
+class UpdateKernel extends BaseKernel
 {
     use MicroKernelTrait;
 
@@ -37,17 +37,12 @@ class Kernel extends BaseKernel
 
     public function getCacheDir()
     {
-        return $this->getProjectDir() . '/var/cache/' . $this->environment . '/main/';
+        return $this->getProjectDir() . '/var/cache/' . $this->environment . '/update/';
     }
 
     public function getLogDir()
     {
         return $this->getProjectDir() . '/var/log';
-    }
-
-    public function getDbConfigFile()
-    {
-        return $this->getProjectDir() . '/local/config/database.inc.php';
     }
 
     public function registerBundles()

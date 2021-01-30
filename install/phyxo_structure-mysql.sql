@@ -284,7 +284,7 @@ CREATE TABLE `phyxo_sessions` (
   `sess_id` VARCHAR(128) NOT NULL PRIMARY KEY,
   `sess_data` BLOB NOT NULL,
   `sess_time` INTEGER UNSIGNED NOT NULL,
-  `sess_lifetime` MEDIUMINT NOT NULL
+  `sess_lifetime` INTEGER NOT NULL
 ) ENGINE=MyISAM;
 
 --

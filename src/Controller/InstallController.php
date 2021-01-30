@@ -408,8 +408,7 @@ class InstallController extends AbstractController
         list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
         $datas = [];
 
-        $upgrade = new Upgrade(new EntityManager($conn), $conf);
-        foreach ($upgrade->getAvailableUpgradeIds($this->rootProjectDir) as $upgrade_id) {
+        foreach (Upgrade::getAvailableUpgradeIds($this->rootProjectDir) as $upgrade_id) {
             $datas[] = [
                 'id' => $upgrade_id,
                 'applied' => $dbnow,

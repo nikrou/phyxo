@@ -1,3 +1,7 @@
+# Phyxo 2.0.3 - 2021-01-30
+
+- fix smalls issues preventing major upgrade
+
 # Phyxo 2.0.2 - 2020-07-27
 
 - updates php dependencies

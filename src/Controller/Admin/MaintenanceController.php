@@ -24,14 +24,19 @@ use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MaintenanceController extends AdminCommonController
 {
-    public function index(Request $request, ?string $action, Conf $conf, EntityManager $em, ParameterBagInterface $params, CategoryMapper $categoryMapper,
+    public function index(Request $request, ?string $action, Conf $conf, EntityManager $em, ParameterBagInterface $params, CategoryMapper $categoryMapper, KernelInterface $kernel,
                           UserMapper $userMapper, RateMapper $rateMapper, TagMapper $tagMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -41,12 +46,12 @@ class MaintenanceController extends AdminCommonController
           case 'lock_gallery':
               {
                   $conf['gallery_locked'] = true;
-                  return  $this->redirectToRoute('admin_maintenance');
+                  return $this->redirectToRoute('admin_maintenance');
               }
           case 'unlock_gallery':
               {
                   $conf['gallery_locked'] = false;
-                  return  $this->redirectToRoute('admin_maintenance');
+                  return $this->redirectToRoute('admin_maintenance');
               }
           case 'categories':
               {
@@ -56,7 +61,7 @@ class MaintenanceController extends AdminCommonController
                   $categoryMapper->updateGlobalRank();
                   $userMapper->invalidateUserCache(true);
 
-                  return  $this->redirectToRoute('admin_maintenance');
+                  return $this->redirectToRoute('admin_maintenance');
               }
           case 'images':
               {
@@ -72,7 +77,7 @@ class MaintenanceController extends AdminCommonController
 
                   $rateMapper->updateRatingScore();
                   $userMapper->invalidateUserCache();
-                  return  $this->redirectToRoute('admin_maintenance');
+                  return $this->redirectToRoute('admin_maintenance');
               }
           case 'delete_orphan_tags':
               {
@@ -81,11 +86,34 @@ class MaintenanceController extends AdminCommonController
 
                   return  $this->redirectToRoute('admin_maintenance');
               }
+          case 'app_cache':
+              {
+                $application = new Application($kernel);
+                $application->setAutoExit(true);
+
+                $input = new ArrayInput(['command' => 'cache:clear']);
+                $output = new NullOutput();
+
+                $this->addFlash('info', $translator->trans('Application cache has been clear.', [], 'admin'));
+
+                $result = $application->run($input, $output);
+
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(
+                        [
+                            'status' => 'ok',
+                            'title' => 'application cache clear'
+                        ]
+                    );
+                }
+
+                return $this->redirectToRoute('admin_maintenance');
+              }
           case 'user_cache':
               {
                   $userMapper->invalidateUserCache();
 
-                  return  $this->redirectToRoute('admin_maintenance');
+                  return $this->redirectToRoute('admin_maintenance');
               }
           case 'history_detail':
               {
@@ -153,7 +181,7 @@ class MaintenanceController extends AdminCommonController
                     $this->addFlash('error', $translator->trans('Some files ({count}) could have not be removed.', [], 'admin'));
                 }
 
-                return  $this->redirectToRoute('admin_maintenance');
+                return $this->redirectToRoute('admin_maintenance');
               }
           default:
               {
@@ -169,6 +197,7 @@ class MaintenanceController extends AdminCommonController
             'U_MAINT_CATEGORIES' => $this->generateUrl('admin_maintenance', ['action' => 'categories']),
             'U_MAINT_IMAGES' => $this->generateUrl('admin_maintenance', ['action' => 'images']),
             'U_MAINT_ORPHAN_TAGS' => $this->generateUrl('admin_maintenance', ['action' => 'delete_orphan_tags']),
+            'U_MAINT_APP_CACHE' => $this->generateUrl('admin_maintenance', ['action' => 'app_cache']),
             'U_MAINT_USER_CACHE' => $this->generateUrl('admin_maintenance', ['action' => 'user_cache']),
             'U_MAINT_HISTORY_DETAIL' => $this->generateUrl('admin_maintenance', ['action' => 'history_detail']),
             'U_MAINT_HISTORY_SUMMARY' => $this->generateUrl('admin_maintenance', ['action' => 'history_summary']),
