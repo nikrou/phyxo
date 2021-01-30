@@ -1,7 +1,11 @@
 # Phyxo 2.1.0 - YYYY-MM-DD
 
-- upgrade to Symfony 4.4.\* (use HttpClient instead of guzzle, use Mailer instead of Swiftmailer)
+- upgrade to Symfony 4.4 (use HttpClient instead of guzzle, use Mailer instead of Swiftmailer)
 - use Doctrine as database abstraction layer through Doctrine::DBAL and Object Relation Mapper through Doctrine::ORM
+
+# Phyxo 2.0.3 - 2021-01-30
+
+- fix smalls issues preventing major upgrade
 
 # Phyxo 2.0.2 - 2020-07-27
 

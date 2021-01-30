@@ -27,7 +27,7 @@
 {% block content %}
     {% if STEP == 0 %}
 	{% if UPGRADE_ERROR %}
-	    <p>{{UPGRADE_ERROR}}</p>
+	    <p>{{UPGRADE_ERROR|raw}}</p>
 	{% elseif CHECK_VERSION %}
 	    <p>{{'You are running the latest version of Phyxo.'|trans}}</p>
 	{% elseif DEV_VERSION %}
@@ -42,10 +42,10 @@
 	<p>
 	    <ul>
 		<li><a href="{{U_UPDATE_MINOR}}"><strong>{{'Update to Phyxo {version}'|trans({'version': MINOR_VERSION})}}</strong></a>: {{'This is a minor update, with only bug corrections.'|trans}}</li>
-		<li><a href="{{U_UPDATE_MAJOR}}"><strong>{{'Update to Phyxo {version}'|trans({'version': MAJOR_VERSION})}}</strong></a>: {{'This is a major update, with <a href="%s">new exciting features</a>.'|trans|format(RELEASE_URL)}} {{'Some themes and plugins may be not available yet.'|trans}}</li>
+		<li><a href="{{U_UPDATE_MAJOR}}"><strong>{{'Update to Phyxo {version}'|trans({'version': MAJOR_VERSION})}}</strong></a>: {{'This is a major update, with <a href="%s">new exciting features</a>.'|trans|format(RELEASE_URL)|raw}} {{'Some themes and plugins may be not available yet.'|trans}}</li>
 	    </ul>
 	</p>
-	<p>{{'You can update to Phyxo %s directly, without upgrading to Phyxo %s (recommended).'|trans({'major': MAJOR_VERSION, 'minor': MINOR_VERSION})}}</p>
+	<p>{{'You can update to Phyxo {major} directly, without upgrading to Phyxo {minor} (recommended).'|trans({'major': MAJOR_VERSION, 'minor': MINOR_VERSION})}}</p>
     {% endif %}
 
     {% if STEP == 2 %}
@@ -53,7 +53,7 @@
 	    {{'A new version of Phyxo is available.'|trans}}<br>
 	    {{'This is a minor update, with only bug corrections.'|trans}}
 	</p>
-	<form action="" method="post">
+	<form action="{{path('admin_update', { 'step': STEP })}}" method="post">
 	    <p><input type="submit" class="btn btn-submit" name="submit" value="{{'Update to Phyxo {version}'|trans({'version': UPGRADE_TO})}}"></p>
 	    <p class="autoupdate_bar" style="display:none;">&nbsp; {{'Update in progress... Please wait.'|trans}}</p>
 	    <p><input type="hidden" name="upgrade_to" value="{{UPGRADE_TO}}"></p>
@@ -63,9 +63,9 @@
     {% if STEP == 3 %}
 	<p>
 	    {{'A new version of Phyxo is available.'|trans}}<br>
-	    {{'This is a major update, with <a href="%s">new exciting features</a>.'|trans|format(RELEASE_URL)}} {{'Some themes and plugins may be not available yet.'|trans}}
+	    {{'This is a major update, with <a href="%s">new exciting features</a>.'|trans|format(RELEASE_URL)|raw}} {{'Some themes and plugins may be not available yet.'|trans}}
 	</p>
-	<form action="" method="post">
+	<form action="{{path('admin_update', { 'step': STEP, 'version': UPGRADE_TO } )}}" method="post">
 	    <fieldset>
 		<legend>{{'Update to Phyxo {version}'|trans({'version': UPGRADE_TO})}}</legend>
 		{% if missing.plugins %}

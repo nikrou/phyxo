@@ -87,12 +87,6 @@ services:
 
   Phyxo\Image\ImageStandardParams: ~
 
-  Phyxo\Upgrade: ~
-
-  phyxo.upgrade:
-    public: true
-    alias: 'Phyxo\Upgrade'
-
   App\Command\InstallCommand: ~
 
   App\Utils\RuntimeTranslator:

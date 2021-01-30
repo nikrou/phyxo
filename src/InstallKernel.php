@@ -20,7 +20,7 @@ class InstallKernel extends BaseKernel
 {
     public function getCacheDir()
     {
-        return $this->getProjectDir() . '/var/cache/install/' . $this->environment;
+        return $this->getProjectDir() . '/var/cache/' . $this->environment . '/install/';
     }
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader)

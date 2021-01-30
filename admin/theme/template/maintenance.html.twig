@@ -41,34 +41,21 @@
 			</li>
 		</ul> #}
 
-	<ul>
-		<li>
-			<a href="{{U_MAINT_OBSOLETE}}">{{'Remove obsolete files from old releases'|trans}}</a>
-		</li>
-		<li>
-			<a href="{{U_MAINT_USER_CACHE}}">{{'Purge user cache'|trans}}</a>
-		</li>
-		<li>
-			<a href="{{U_MAINT_ORPHAN_TAGS}}">{{'Delete orphan tags'|trans}}</a>
-		</li>
-		<li>
-			<a href="{{U_MAINT_HISTORY_DETAIL}}" onclick="return confirm('{{'Purge history detail'|trans}}');">{{'Purge history detail'|trans}}</a>
-		</li>
-		<li>
-			<a href="{{U_MAINT_HISTORY_SUMMARY}}" onclick="return confirm('{{'Purge history summary'|trans}}');">{{'Purge history summary'|trans}}</a>
-		</li>
-		<li>
-			<a href="{{U_MAINT_FEEDS}}">{{'Purge never used notification feeds'|trans}}</a>
-		</li>
-		<li>
-			<a href="{{U_MAINT_SEARCH}}" onclick="return confirm('{{'Purge search history'|trans}}');">{{'Purge search history'|trans}}</a>
-		</li>
-		<li>{{'Delete multiple size images'|trans}}:
-			{% for name, url in purge_derivatives %}
-				{% if not loop.first %},
-				{% endif %}
-				<a href="{{url}}" {% if loop.first %} onclick="return confirm('{{'Are you sure?'|trans}}');" {% endif %}>{{name}}</a>
-			{% endfor %}
-		</li>
-	</ul>
+    <ul>
+	<li><a href="{{U_MAINT_OBSOLETE}}">{{'Remove obsolete files from old releases'|trans}}</a></li>
+	<li><a data-action="appCache" href="{{U_MAINT_APP_CACHE}}">{{'Purge application cache'|trans}}</a></li>
+	<li><a href="{{U_MAINT_USER_CACHE}}">{{'Purge user cache'|trans}}</a></li>
+	<li><a href="{{U_MAINT_ORPHAN_TAGS}}">{{'Delete orphan tags'|trans}}</a></li>
+	<li><a href="{{U_MAINT_HISTORY_DETAIL}}" onclick="return confirm('{{'Purge history detail'|trans}}');">{{'Purge history detail'|trans}}</a></li>
+	<li><a href="{{U_MAINT_HISTORY_SUMMARY}}" onclick="return confirm('{{'Purge history summary'|trans}}');">{{'Purge history summary'|trans}}</a></li>
+	<li><a href="{{U_MAINT_FEEDS}}">{{'Purge never used notification feeds'|trans}}</a></li>
+	<li><a href="{{U_MAINT_SEARCH}}" onclick="return confirm('{{'Purge search history'|trans}}');">{{'Purge search history'|trans}}</a></li>
+	<li>{{'Delete multiple size images'|trans}}:
+	    {% for name, url in purge_derivatives %}
+		{% if not loop.first %},
+		{% endif %}
+		<a href="{{url}}" {% if loop.first %} onclick="return confirm('{{'Are you sure?'|trans}}');" {% endif %}>{{name}}</a>
+	    {% endfor %}
+	</li>
+    </ul>
 {% endblock %}

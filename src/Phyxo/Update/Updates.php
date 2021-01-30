@@ -88,7 +88,7 @@ class Updates
         }
 
         $fs = new Filesystem();
-        $old_files = file($obsolete_file, FILE_IGNORE_NEW_LINES);
+        $old_files = file($obsolete_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         foreach ($old_files as $old_file) {
             $path = $root . '/' . $old_file;
             if (is_writable($path)) {
@@ -111,6 +111,7 @@ class Updates
                 file_put_contents($zip_file, $response->getContent());
             }
         } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
         }
     }
 

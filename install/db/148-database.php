@@ -19,7 +19,7 @@ if (in_array($conn->getLayer(), ['mysql'])) {
     $query .= '`sess_id` VARCHAR(128) NOT NULL PRIMARY KEY,';
     $query .= '`sess_data` BLOB NOT NULL,';
     $query .= '`sess_time` INTEGER UNSIGNED NOT NULL,';
-    $query .= '`sess_lifetime` MEDIUMINT NOT NULL';
+    $query .= '`sess_lifetime` INTEGER NOT NULL';
     $query .= ') ENGINE=MyISAM;';
     $conn->db_query($query);
 

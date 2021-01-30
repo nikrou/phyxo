@@ -11,6 +11,7 @@
 
 use App\Kernel;
 use App\InstallKernel;
+use App\UpdateKernel;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -31,7 +32,11 @@ if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? false) {
 }
 
 if (is_readable(__DIR__ . '/local/config/database.inc.php')) {
-    $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+    if (is_readable(__DIR__ . '/.update.mode')) {
+        $kernel = new UpdateKernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+    } else {
+        $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+    }
 } else {
     $kernel = new InstallKernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
 }

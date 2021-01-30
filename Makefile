@@ -1,7 +1,7 @@
 DIST=.dist
 APP_NAME=phyxo
 CORE_VERSION=$(shell grep "core_version:" ./config/parameters.yaml| sed -e 's/.*: //')
-ifeq (, $(findstring "-dev",$(CORE_VERSION)))
+ifneq (, $(findstring '-dev',$(CORE_VERSION)))
   APP_VERSION=$(CORE_VERSION)'-'$$(date +%Y%m%d%H%M%S)
 else
   APP_VERSION=$(CORE_VERSION)

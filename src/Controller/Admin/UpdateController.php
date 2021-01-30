@@ -16,13 +16,14 @@ use App\Repository\PluginRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UpgradeRepository;
 use App\Repository\UserInfosRepository;
-use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Update\Updates;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UpdateController extends AbstractController
@@ -39,9 +40,9 @@ class UpdateController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function core(Request $request, int $step = 0, string $version = null, Conf $conf, UserMapper $userMapper, string $defaultTheme,
+    public function core(Request $request, int $step = 0, string $version = null, UserMapper $userMapper, string $defaultTheme,
                         ParameterBagInterface $params, TranslatorInterface $translator, PluginRepository $pluginRepository, ThemeRepository $themeRepository,
-                        UpgradeRepository $upgradeRepository, UserInfosRepository $userInfosRepository)
+                         UpgradeRepository $upgradeRepository, UserInfosRepository $userInfosRepository, TokenStorageInterface $tokenStorage, SessionInterface $session)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -90,10 +91,10 @@ class UpdateController extends AbstractController
 
                             // Check if new version exists in same branch
                             foreach ($all_versions as $version) {
-                                $new_branch = preg_replace('/(\d+\.\d+)\.\d+/', '$1', $version);
+                                $new_branch = preg_replace('/(\d+\.\d+)\.\d+/', '$1', $version['version']);
 
                                 if ($new_branch === $actual_branch) {
-                                    if (version_compare($params->get('core_version'), $version, '<')) {
+                                    if (version_compare($params->get('core_version'), $version['version'], '<')) {
                                         $step = 1;
                                     }
                                     break;
@@ -112,31 +113,38 @@ class UpdateController extends AbstractController
         // +-----------------------------------------------------------------------+
         $last_version = null;
         if ($step === 1) {
-            $tpl_params['MINOR_VERSION'] = $version;
+            $tpl_params['MINOR_VERSION'] = $version['version'];
             $tpl_params['MAJOR_VERSION'] = $last_version;
 
-            $tpl_params['U_UPDATE_MINOR'] = $this->generateUrl('admin_update', ['step' => 2, 'version' => $version]);
+            $tpl_params['U_UPDATE_MINOR'] = $this->generateUrl('admin_update', ['step' => 2, 'version' => $version['version']]);
             $tpl_params['U_UPDATE_MAJOR'] = $this->generateUrl('admin_update', ['step' => 3, 'version' => $last_version]);
         }
+
+        $fs = new Filesystem();
 
         // +-----------------------------------------------------------------------+
         // |                                Step 2                                 |
         // +-----------------------------------------------------------------------+
         if ($step === 2 && $userMapper->isWebmaster()) {
+            if (!is_readable($params->get('update_mode'))) {
+                $fs->touch($params->get('update_mode'));
+            }
+
             if ($request->isMethod('POST') && $request->request->get('upgrade_to')) {
-                $zip = $params->get('cache_dir') . '/update' . '/' . $request->request->get('upgrade_to') . '.zip';
+                $zip = $params->get('cache_dir') . '/' . $request->request->get('upgrade_to') . '.zip';
                 $updater->upgradeTo($request->request->get('upgrade_to'));
                 $updater->download($zip);
 
-                $fs = new Filesystem();
                 try {
                     $updater->upgrade($zip);
                     $updater->removeObsoleteFiles($obsolete_file, $params->get('root_project_dir'));
                     $userMapper->invalidateUserCache(true);
 
-                    $page['infos'][] = $translator->trans('Update Complete', [], 'admin');
-                    $page['infos'][] = $upgrade_to;
-                    $step = -1;
+                    $fs->remove($params->get('cache_dir') . '/../main');
+
+                    $this->addFlash('info', $translator->trans('Update complete.', [], 'admin'));
+
+                    return $this->redirectToRoute('admin_home');
                 } catch (\Exception $e) {
                     $step = 0;
                     $message = $e->getMessage();
@@ -153,8 +161,12 @@ class UpdateController extends AbstractController
         // |                                Step 3                                 |
         // +-----------------------------------------------------------------------+
         if ($step === 3 && $userMapper->isWebmaster()) {
+            if (!is_readable($params->get('update_mode'))) {
+                $fs->touch($params->get('update_mode'));
+            }
+
             if ($request->isMethod('POST') && $request->request->get('upgrade_to')) {
-                $zip = __DIR__ . '/../' . $conf['data_location'] . 'update' . '/' . $request->request->get('upgrade_to') . '.zip';
+                $zip = $params->get('cache_dir') . '/update' . '/' . $request->request->get('upgrade_to') . '.zip';
                 $updater->upgradeTo($request->request->get('upgrade_to'));
                 $updater->download($zip);
 
@@ -194,35 +206,39 @@ class UpdateController extends AbstractController
                         $current_release = '1.5.0';
                     } elseif (!in_array(147, $applied_upgrades)) {
                         $current_release = '1.6.0';
-                    } elseif (!is_dir(__DIR__ . '/../src/LegacyPages')) {
+                    } elseif (!in_array(148, $applied_upgrades)) {
                         $current_release = '1.8.0';
-                    } else {
+                    } elseif (!in_array(149, $applied_upgrades)) {
                         $current_release = '1.9.0';
+                    } else {
+                        $current_release = '2.0.0';
                     }
 
-                    $upgrade_file = __DIR__ . '/../install/upgrade_' . $current_release . '.php';
+                    $upgrade_file = $params->get('kernel.project_dir') . '/install/upgrade_' . $current_release . '.php';
                     if (is_readable($upgrade_file)) {
                         ob_start();
                         include($upgrade_file);
                         ob_end_clean();
                     }
 
-                    $updater->removeObsoleteFiles($obsolete_file, __DIR__ . '/..');
+                    $updater->removeObsoleteFiles($obsolete_file, $params->get('root_project_dir'));
+                    $this->addFlash('info', $translator->trans('Upgrade complete.', [], 'admin'));
 
-                    $fs = new Filesystem();
-                    $fs->remove(__DIR__ . '/../' . $conf['data_location'] . 'update');
-                    $fs->remove(__DIR__ . '/../var/cache');
+                    $tokenStorage->setToken(null);
+                    $session->invalidate();
 
-                    $userMapper->invalidateUserCache($full = true);
+                    $fs->remove($params->get('cache_dir') . '/../main');
+                    $fs->remove($params->get('update_mode'));
 
-                    file_get_contents('./'); // @TODO cache warmup
-                    \Phyxo\Functions\Utils::redirect('./?now=' . time());
+                    return $this->redirectToRoute('admin_home');
                 } catch (\Exception $e) {
                     $step = 0;
                     $message = $e->getMessage();
-                    $message .= '<pre>';
-                    $message .= implode("\n", $e->not_writable);
-                    $message .= '</pre>';
+                    if (isset($e->not_writable)) {
+                        $message .= '<pre>';
+                        $message .= implode("\n", $e->not_writable);
+                        $message .= '</pre>';
+                    }
 
                     $tpl_params['UPGRADE_ERROR'] = $message;
                 }

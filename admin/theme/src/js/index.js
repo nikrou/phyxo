@@ -12,6 +12,7 @@ import './tags';
 import 'jquery-colorbox';
 import './add_album';
 import './batchManagerGlobal';
+import './maintenance';
 
 $(function () {
   $('#sidebarCollapse').on('click', function () {

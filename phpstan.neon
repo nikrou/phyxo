@@ -9,7 +9,7 @@ parameters:
     - tests/Behat
 
   symfony:
-    container_xml_path: var/cache/dev/srcApp_KernelDevDebugContainer.xml
+    container_xml_path: var/cache/dev/main/srcApp_KernelDevDebugContainer.xml
     console_application_loader: tools/phpstan-console-loader.php
 
   doctrine:

@@ -707,5 +707,7 @@ $lang["[NBM] Problems or questions"] = "[NBM] Problems or questions";
 $lang[", click on"] = ", click on";
 $lang["To subscribe"] = "To subscribe";
 $lang["Remove obsolete files from old releases"] = "Remove obsolete files from old releases";
+$lang['Update to Phyxo {version}'] = 'Update to Phyxo {version}';
+$lang['You can update to Phyxo {major} directly, without upgrading to Phyxo {minor} (recommended).'] = 'You can update to Phyxo {major} directly, without upgrading to Phyxo {minor} (recommended).';
 
 return $lang;
