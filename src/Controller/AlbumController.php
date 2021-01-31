@@ -195,21 +195,22 @@ class AlbumController extends CommonController
         if (count($tpl_params['items']) > 0) {
             $nb_image_page = $this->getUser()->getNbImagePage();
 
-            $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                $this->get('router'),
-                'album',
-                ['category_id' => $category_id],
-                count($tpl_params['items']),
-                $start,
-                $nb_image_page,
-                $conf['paginate_pages_around']
-            );
-
+            if (count($tpl_params['items']) > $nb_image_page) {
+                $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                    $this->get('router'),
+                    'album',
+                    ['category_id' => $category_id],
+                    count($tpl_params['items']),
+                    $start,
+                    $nb_image_page,
+                    $conf['paginate_pages_around']
+                );
+            }
 
             $tpl_params = array_merge(
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
-                    array_slice($tpl_params['items'], 0, $nb_image_page),
+                    array_slice($tpl_params['items'], $start, $nb_image_page),
                     $category_id,
                     'category',
                     $start
@@ -256,15 +257,17 @@ class AlbumController extends CommonController
         if (count($tpl_params['items']) > 0) {
             $nb_image_page = $this->getUser()->getNbImagePage();
 
-            $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                $this->get('router'),
-                'album_flat',
-                ['category_id' => $category_id],
-                count($tpl_params['items']),
-                $start,
-                $nb_image_page,
-                $conf['paginate_pages_around']
-            );
+            if (count($tpl_params['items']) > $nb_image_page) {
+                $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                    $this->get('router'),
+                    'album_flat',
+                    ['category_id' => $category_id],
+                    count($tpl_params['items']),
+                    $start,
+                    $nb_image_page,
+                    $conf['paginate_pages_around']
+                );
+            }
 
             $tpl_params = array_merge(
                 $tpl_params,
@@ -310,15 +313,17 @@ class AlbumController extends CommonController
         if (count($tpl_params['items']) > 0) {
             $nb_image_page = $this->getUser()->getNbImagePage();
 
-            $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                $this->get('router'),
-                'albums_flat',
-                [],
-                count($tpl_params['items']),
-                $start,
-                $nb_image_page,
-                $conf['paginate_pages_around']
-            );
+            if (count($tpl_params['items']) > $nb_image_page) {
+                $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                    $this->get('router'),
+                    'albums_flat',
+                    [],
+                    count($tpl_params['items']),
+                    $start,
+                    $nb_image_page,
+                    $conf['paginate_pages_around']
+                );
+            }
 
             $tpl_params = array_merge(
                 $tpl_params,

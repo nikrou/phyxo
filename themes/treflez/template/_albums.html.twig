@@ -67,3 +67,9 @@
 	{% endif %}
     {% endfor %}
 </div>
+
+{% if cats_navbar is defined %}
+    <div class="row justify-content-center">
+	{% include '_navigation_bar.html.twig' with { navbar: cats_navbar}  %}
+    </div>
+{% endif %}

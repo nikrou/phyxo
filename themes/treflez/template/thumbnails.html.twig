@@ -3,13 +3,19 @@
 {% block content %}
   {{ include('_category_nav.html.twig') }}
 
-  <div id="content" class="{% if category_view == 'list' %}content-list{% else %}content-grid{% endif %}">
-	  {% if category_thumbnails is defined %} {# display sub-albums #}
+    <div id="content" class="{% if category_view == 'list' %}content-list{% else %}content-grid{% endif %}">
+	{% if category_thumbnails is defined %} {# display sub-albums #}
 	    {{ include('_albums.html.twig') }}
-	  {% endif %}
+	{% endif %}
 
-	  {% if thumbnails is defined  %}
+	{% if thumbnails is defined  %}
 	    {{ include('_thumbnails.html.twig') }}
-	  {% endif %}
+	{% endif %}
+
+	{% if thumb_navbar is defined %}
+	    <div class="row justify-content-center">
+		{% include '_navigation_bar.html.twig' with { navbar: thumb_navbar}  %}
+	    </div>
+	{% endif %}
   </div>
 {% endblock %}

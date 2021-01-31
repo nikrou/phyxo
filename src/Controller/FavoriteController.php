@@ -57,15 +57,17 @@ class FavoriteController extends CommonController
                 )
             );
 
-            $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                $this->get('router'),
-                'favorites',
-                [],
-                count($tpl_params['items']),
-                $start,
-                $this->getUser()->getNbImagePage(),
-                $conf['paginate_pages_around']
-            );
+            if (count($tpl_params['items']) > $this->getUser()->getNbImagePage()) {
+                $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                    $this->get('router'),
+                    'favorites',
+                    [],
+                    count($tpl_params['items']),
+                    $start,
+                    $this->getUser()->getNbImagePage(),
+                    $conf['paginate_pages_around']
+                );
+            }
         }
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
