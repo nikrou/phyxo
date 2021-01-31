@@ -80,7 +80,7 @@ class PhotoController extends AbstractController
             if ($request->request->get('tags')) {
                 $tag_ids = $tagMapper->getTagsIds($request->request->get('tags'));
             }
-            $tagMapper->setTags($tag_ids, $image_id);
+            $tagMapper->setTags($tag_ids, $image_id, $this->getUser());
 
             // association to albums
             $albumMapper->moveImagesToAlbums([$image_id], $request->request->get('associate') ?? []);
@@ -200,7 +200,8 @@ class PhotoController extends AbstractController
         if ($category_id && in_array($category_id, $authorizeds)) {
             $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'category', 'element_id' => $category_id]);
         } else {
-            $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'category', 'element_id' => $cache_albums[$authorizeds[0]]->getId()]);
+            $album_id = isset($authorizeds[0]) ? $authorizeds[0] : 1;
+            $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'category', 'element_id' => $cache_albums[$album_id]->getId()]);
         }
 
         if (!empty($url_img)) {
@@ -260,7 +261,7 @@ class PhotoController extends AbstractController
 
     public function syncMetadata(int $image_id, int $category_id = null, TagMapper $tagMapper, TranslatorInterface $translator)
     {
-        $tagMapper->sync_metadata([$image_id]);
+        $tagMapper->sync_metadata([$image_id], $this->getUser());
         $this->addFlash('info', $translator->trans('Metadata synchronized from file', [], 'admin'));
 
         return $this->redirectToRoute('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);

@@ -93,7 +93,7 @@
 
 	    <p>
 		<label>{{'Creation date'|trans}}</label>
-		<input type="datetime" name="date_creation" value="{{DATE_CREATION}}">
+		<input type="date" name="date_creation" value="{{DATE_CREATION|date('Y-m-d')}}"/>
 	    </p>
 
 	    <p>

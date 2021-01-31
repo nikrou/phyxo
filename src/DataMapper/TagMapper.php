@@ -300,9 +300,9 @@ class TagMapper
      * @param int[] $tags
      * @param int $image_id
      */
-    public function setTags(array $tags, int $image_id)
+    public function setTags(array $tags, int $image_id, User $user)
     {
-        $this->setTagsOf([$image_id => $tags]);
+        $this->setTagsOf([$image_id => $tags], $user);
     }
 
     /**
@@ -323,7 +323,7 @@ class TagMapper
      *
      * @param array $tags_of - keys are image ids, values are array of tag ids
      */
-    public function setTagsOf(array $tags_of)
+    public function setTagsOf(array $tags_of, User $user)
     {
         if (count($tags_of) > 0) {
             $tag_ids = [];
@@ -339,10 +339,12 @@ class TagMapper
 
             foreach ($this->imageRepository->findBy(['id' => array_keys($tags_of)]) as $image) {
                 $image->getImageTags()->clear();
+                $this->imageRepository->addOrUpdateImage($image);
                 foreach ($tags as $tag) {
                     $image_tag = new ImageTag();
                     $image_tag->setImage($image);
                     $image_tag->setTag($tag);
+                    $image_tag->setCreatedBy($user);
                     $image->addImageTag($image_tag);
                 }
                 $this->imageRepository->addOrUpdateImage($image);
@@ -454,7 +456,7 @@ class TagMapper
      * Sync all metadata of a list of images.
      * Metadata are fetched from original files and saved in database.
      */
-    public function sync_metadata(array $ids)
+    public function sync_metadata(array $ids, User $user)
     {
         $now = new \DateTime();
 
@@ -493,7 +495,7 @@ class TagMapper
             $this->imageRepository->addOrUpdateImage($image);
         }
 
-        $this->setTagsOf($tags_of);
+        $this->setTagsOf($tags_of, $user);
     }
 
     /**

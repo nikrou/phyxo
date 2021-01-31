@@ -518,7 +518,7 @@ class Image
 
         // and now, let's create tag associations
         if (!empty($params['tag_ids'])) {
-            $service->getTagMapper()->setTags(explode(',', $params['tag_ids']), $image_id);
+            $service->getTagMapper()->setTags(explode(',', $params['tag_ids']), $image_id, $service->getUserMapper()->getUser());
         }
 
         $service->getUserMapper()->invalidateUserCache();
@@ -697,7 +697,7 @@ class Image
                 $params['level'],
                 null // image_id = not provided, this is a new photo
             );
-            $service->getTagMapper()->sync_metadata([$image_id]);
+            $service->getTagMapper()->sync_metadata([$image_id], $service->getUserMapper()->getUser());
 
             $image_infos = $service->getImageMapper()->getRepository()->find($image_id)->toArray();
             $src_image = new SrcImage($image_infos, $service->getConf()['picture_ext']);
@@ -981,7 +981,7 @@ class Image
             }
 
             if ('replace' == $params['multiple_value_mode']) {
-                $service->getTagMapper()->setTags($tag_ids, $params['image_id']);
+                $service->getTagMapper()->setTags($tag_ids, $params['image_id'], $service->getUserMapper()->getUser());
             } elseif ('append' == $params['multiple_value_mode']) {
                 $service->getTagMapper()->addTags($tag_ids, [$params['image_id']]);
             } else {

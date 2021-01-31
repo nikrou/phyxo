@@ -347,6 +347,86 @@ class FeatureContext extends BaseContext
     }
 
     /**
+     * @Given I want to edit :image_name
+     */
+    public function iWantToEdit(string $image_name)
+    {
+        $image = $this->storage->get('image_' . $image_name);
+        $this->visit($this->getContainer()->get('router')->generate('admin_photo', ['image_id' => $image->getId()]));
+    }
+
+    /**
+     * @Then linked albums :element should be album :album_name
+     */
+    public function linkedAlbumsShouldBeAlbum(string $element, string $album_name)
+    {
+        $select = $this->findField($element);
+        if (is_null($select)) {
+            throw new \Exception(sprintf('Select "%s" not found but should be', $element));
+        }
+
+        $options = [];
+        $albums_value = $select->getAttribute('data-value');
+        if (!is_null($albums_value)) {
+            $options = json_decode($albums_value, true);
+        }
+
+        $expectedOptions = [$this->storage->get('album_' . $album_name)->getId()];
+        sort($options);
+        sort($expectedOptions);
+
+        if (array_diff($options, $expectedOptions) !== array_diff($expectedOptions, $options)) {
+            throw new \Exception(sprintf('Element "%s" should contain "%s" but contains "%s".', $element, implode('|', $expectedOptions), implode('|', $options)));
+        }
+    }
+
+    /**
+     * @Then tags :element should be :list_tags
+     */
+    public function tagsShouldBeAlbum(string $element, string $list_tags)
+    {
+        $select = $this->findField($element);
+        if (is_null($select)) {
+            throw new \Exception(sprintf('Select "%s" not found but should be', $element));
+        }
+
+        $tags = [];
+        $tags_value = $select->getAttribute('data-value');
+        if (!is_null($tags_value)) {
+            $tags = array_map(
+                function($tag) {
+                    return $tag['name'];
+                },
+                json_decode($tags_value, true)
+            );
+        }
+
+        $expectedTags = explode(',', $list_tags);
+        if (array_diff($tags, $expectedTags) !== array_diff($expectedTags, $tags)) {
+            throw new \Exception(sprintf('Element "%s" should contain "%s" but contains "%s".', $element, implode('|', $expectedTags), implode('|', $tags)));
+        }
+    }
+
+    /**
+     * @Then the :field_name field date should contain :date
+     */
+    public function theFieldDateShouldContain(string $field_name, string $date)
+    {
+        $field = $this->findField($field_name);
+        if (is_null($field)) {
+            throw new \Exception(sprintf('Field "%s" not found but should be', $field_name));
+        }
+
+        if ($date === 'now') {
+            $date = (new \DateTime())->format('Y-m-d');
+        }
+
+        if ($field->getValue() !== $date) {
+            throw new \Exception(sprintf('Field "%s" should contain "%s" but contains "%s"', $field_name, $field->getValue(), $date));
+        }
+    }
+
+    /**
      * @Then I restart my browser
      */
     public function iRestartMyBrowser()

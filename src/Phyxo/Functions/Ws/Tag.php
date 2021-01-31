@@ -52,7 +52,12 @@ class Tag
      */
     public static function getAdminList($params, Server $service)
     {
-        return ['tags' => $service->getTagMapper()->getAllTags()];
+        $tags = [];
+        foreach ($service->getTagMapper()->getAllTags() as $tag) {
+            $tags[] = $tag->toArray();
+        }
+
+        return ['tags' => $tags];
     }
 
     /**

@@ -934,7 +934,7 @@ class BatchManagerController extends AbstractController
                 if ($request->request->get('tags-' . $image->getId())) {
                     $tag_ids = $tagMapper->getTagsIds($request->request->get('tags-' . $image->getId()));
                 }
-                $tagMapper->setTags($tag_ids, $image->getId());
+                $tagMapper->setTags($tag_ids, $image->getId(), $this->getUser());
                 $imageMapper->getRepository()->addOrUpdateImage($image);
             }
 
