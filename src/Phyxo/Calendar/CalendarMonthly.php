@@ -217,20 +217,20 @@ class CalendarMonthly extends CalendarBase
                 $b .= '01-01';
                 $e .= '12-31';
                 if (isset($date[self::CMONTH]) && $date[self::CMONTH] !== 'any') {
-                    $res .= ' AND ' . $calendar_levels[self::CMONTH]['sql'] . '=' . $date[self::CMONTH];
+                    $res .= $calendar_levels[self::CMONTH]['sql'] . '=' . $date[self::CMONTH];
                 }
                 if (isset($date[self::CDAY]) && $date[self::CDAY] !== 'any') {
-                    $res .= ' AND ' . $calendar_levels[self::CDAY]['sql'] . '=' . $date[self::CDAY];
+                    $res .= $calendar_levels[self::CDAY]['sql'] . '=' . $date[self::CDAY];
                 }
             }
-            $res = " AND $this->date_field BETWEEN '$b' AND '$e 23:59:59'" . $res;
+            $res = 'i.' . $this->date_field . " BETWEEN '$b' AND '$e 23:59:59'" . $res;
         } else {
-            $res = ' AND ' . $this->date_field . ' IS NOT NULL';
+            $res = 'i.' . $this->date_field . ' IS NOT NULL';
             if (isset($date[self::CMONTH]) && $date[self::CMONTH] !== 'any') {
-                $res .= ' AND ' . $calendar_levels[self::CMONTH]['sql'] . '=' . $date[self::CMONTH];
+                $res .= $calendar_levels[self::CMONTH]['sql'] . '=' . $date[self::CMONTH];
             }
             if (isset($date[self::CDAY]) && $date[self::CDAY] !== 'any') {
-                $res .= ' AND ' . $calendar_levels[self::CDAY]['sql'] . '=' . $date[self::CDAY];
+                $res .= $calendar_levels[self::CDAY]['sql'] . '=' . $date[self::CDAY];
             }
         }
 
@@ -286,8 +286,8 @@ class CalendarMonthly extends CalendarBase
 
         $items = [];
         foreach ($rowImages as $image) {
-            $y = substr($image['period'], 0, 4);
-            $m = (int)substr($image['period'], 4, 2);
+            $y = $image['period']->format('Y');
+            $m = $image['period']->format('m');
             if (!isset($items[$y])) {
                 $items[$y] = ['nb_images' => 0, 'children' => []];
             }
@@ -365,8 +365,8 @@ class CalendarMonthly extends CalendarBase
 
         $items = [];
         foreach ($rowIamges as $image) {
-            $m = (int)substr($image['period'], 0, 2);
-            $d = substr($image['period'], 2, 2);
+            $m = $image['period']->format('m');
+            $d = $image['period']->format('d');
             if (!isset($items[$m])) {
                 $items[$m] = ['nb_images' => 0, 'children' => []];
             }
@@ -437,7 +437,7 @@ class CalendarMonthly extends CalendarBase
 
         $items = [];
         foreach ($rowImages as $image) {
-            $d = (int)$image['period'];
+            $d = $image['period']->format('d');
             $items[$d] = ['nb_images' => $image['count']];
         }
 

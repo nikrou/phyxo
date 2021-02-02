@@ -258,7 +258,7 @@ class ImageRepository extends ServiceEntityRepository
     public function getRecentPostedImages(array $forbidden_categories = [], int $limit)
     {
         $qb = $this->createQueryBuilder('i');
-        $qb->select('i.date_available, COUNT(DISTINCT(i.id) AS nb_elements');
+        $qb->select('i.date_available, COUNT(DISTINCT(i.id)) AS nb_elements');
         $qb->leftJoin('i.imageAlbums', 'ia');
 
         if (count($forbidden_categories) > 0) {
@@ -364,8 +364,13 @@ class ImageRepository extends ServiceEntityRepository
             }
         }
 
+        $sub_queries = array_map(
+            function($field) {
+                return 'i.' . $field;
+            }, $sub_queries
+        );
         $qb = $this->createQueryBuilder('i');
-        $qb->select('CONCAT(' . implode('-', $sub_queries) . ' AS period');
+        $qb->select('CONCAT(' . implode(',\'-\',', $sub_queries) . ') AS period');
         $qb->where($qb->expr()->in('i.id', $ids));
         $qb->andWhere($qb->expr()->isNotNull('i.' . $date_field));
         $qb->groupBy('period');
@@ -385,9 +390,14 @@ class ImageRepository extends ServiceEntityRepository
             }
         }
 
+        $sub_queries = array_map(
+            function($field) {
+                return 'i.' . $field;
+            }, $sub_queries
+        );
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
-        $qb->select('CONCAT(' . implode('-', $sub_queries) . ' AS period');
+        $qb->select('CONCAT(' . implode(',\'-\',', $sub_queries) . ') AS period');
         if (count($album_ids) > 0) {
             $qb->where($qb->expr()->in('ia.album', $album_ids));
         }
@@ -424,7 +434,7 @@ class ImageRepository extends ServiceEntityRepository
     public function findDayOfMonthPeriodAndImagesCountByIds(string $date_field, string $date_where = '', array $ids)
     {
         $qb = $this->createQueryBuilder('i');
-        $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id) as count');
+        $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id)) as count');
         $qb->where($qb->expr()->in('i.id', $ids));
 
         if ($date_where) {
@@ -439,7 +449,7 @@ class ImageRepository extends ServiceEntityRepository
     public function findDayOfMonthPeriodAndImagesCount(string $date_field, string $date_where = '', array $forbidden_categories = [], array $album_ids = [])
     {
         $qb = $this->createQueryBuilder('i');
-        $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id) as count');
+        $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id)) as count');
         $qb->leftJoin('i.imageAlbums', 'ia');
 
         if (count($album_ids) > 0) {
@@ -463,7 +473,7 @@ class ImageRepository extends ServiceEntityRepository
     public function findYYYYMMPeriodAndImagesCountByIds(string $date_field, string $date_where = '', array $ids)
     {
         $qb = $this->createQueryBuilder('i');
-        $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id) as count');
+        $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id)) as count');
         $qb->where($qb->expr()->in('i.id', $ids));
 
         if ($date_where) {
@@ -502,7 +512,7 @@ class ImageRepository extends ServiceEntityRepository
     public function findMMDDPeriodAndImagesCountByIds(string $date_field, string $date_where = '', array $ids)
     {
         $qb = $this->createQueryBuilder('i');
-        $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id) as count');
+        $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id)) as count');
         $qb->where($qb->expr()->in('i.id', $ids));
         if ($date_where) {
             $qb->andWhere($date_where);
@@ -517,7 +527,7 @@ class ImageRepository extends ServiceEntityRepository
     public function findMMDDPeriodAndImagesCount(string $date_field, string $date_where = '', array $forbidden_categories = [], array $album_ids = [])
     {
         $qb = $this->createQueryBuilder('i');
-        $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id) as count');
+        $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id)) as count');
         $qb->leftJoin('i.imageAlbums', 'ia');
 
         if (count($album_ids) > 0) {
