@@ -122,9 +122,9 @@ class FeedController extends CommonController
                 [
                     'date_type' => 'posted',
                     'view_type' => 'calendar',
-                    'year' => substr($date, 0, 4),
-                    'month' => substr($date, 5, 2),
-                    'day' => substr($date, 8, 2)
+                    'year' => $date->format('Y'),
+                    'month' => $date->format('m'),
+                    'day' => $date->format('d'),
                 ],
                 UrlGeneratorInterface::ABSOLUTE_URL
             );
@@ -134,9 +134,9 @@ class FeedController extends CommonController
 
             $item->descriptionHtmlSyndicated = true;
 
-            $item->date = (new \DateTime($date))->format('c');
+            $item->date = $date->format('c');
             $item->author = $conf['rss_feed_author'];
-            $item->guid = sprintf('%s', 'pics-' . $date);
+            $item->guid = sprintf('%s', 'pics-' . $date->format('c'));
 
             $rss->addItem($item);
         }

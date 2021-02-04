@@ -166,7 +166,10 @@ class Metadata
                 if (preg_match('/^(\d{4}).(\d{2}).(\d{2}) (\d{2}).(\d{2}).(\d{2})/', $value, $matches)) {
                     if ($matches[1] != '0000' && $matches[2] != '00' && $matches[3] != '00'
                         && $matches[4] != '00' && $matches[5] != '00' && $matches[6] != '00') {
-                        $exif[$exif_key] = $matches[1] . '-' . $matches[2] . '-' . $matches[3] . ' ' . $matches[4] . ':' . $matches[5] . ':' . $matches[6];
+                        $exif[$exif_key] = \DateTime::createFromFormat(
+                            'Y-m-d H:i:s',
+                            $matches[1] . '-' . $matches[2] . '-' . $matches[3] . ' ' . $matches[4] . ':' . $matches[5] . ':' . $matches[6]
+                        );
                     } else {
                         unset($exif[$exif_key]);
                     }

@@ -138,25 +138,27 @@ class IndexController extends CommonController
         }
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Best rated');
-        $order_by = ' ORDER BY rating_score DESC, id DESC';
+        $order_by = [['rating_score'], ['id',  'DESC']];
 
         $tpl_params['items'] = [];
         foreach ($imageMapper->getRepository()->findBestRated($this->getUser()->getForbiddenCategories(), $order_by, $conf['top_number']) as $image) {
-            $tpl_params['items'] = $image->getId();
+            $tpl_params['items'][] = $image->getId();
         }
 
         if (count($tpl_params['items']) > 0) {
             $nb_image_page = $this->getUser()->getNbImagePage();
 
-            $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                $this->get('router'),
-                'best_rated',
-                [],
-                count($tpl_params['items']),
-                $start,
-                $nb_image_page,
-                $conf['paginate_pages_around']
-            );
+            if (count($tpl_params['items']) > $nb_image_page) {
+                $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                    $this->get('router'),
+                    'best_rated',
+                    [],
+                    count($tpl_params['items']),
+                    $start,
+                    $nb_image_page,
+                    $conf['paginate_pages_around']
+                );
+            }
 
             $tpl_params = array_merge(
                 $tpl_params,

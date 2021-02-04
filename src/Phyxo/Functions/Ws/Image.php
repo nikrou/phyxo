@@ -262,7 +262,7 @@ class Image
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid level');
         }
 
-        $service->getImageMapper()->getRepository()->updateLevel($params['image_id'], (int)$params['level']);
+        $service->getImageMapper()->getRepository()->updateFieldForImages($params['image_id'], 'level', (int)$params['level']);
         $service->getUserMapper()->invalidateUserCache();
     }
 

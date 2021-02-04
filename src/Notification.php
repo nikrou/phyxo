@@ -250,8 +250,15 @@ class Notification
 
         for ($i = 0; $i < count($dates); $i++) {
             if ($max_elements > 0) { // get some thumbnails ...
-
-                $dates[$i]['elements'] = $this->imageMapper->getRepository()->findRandomImages($this->userMapper->getUser()->getForbiddenCategories(), $max_elements);
+                $ids = [];
+                foreach ($this->imageMapper->getRepository()->findRandomImages($this->userMapper->getUser()->getForbiddenCategories(), $max_elements) as $id) {
+                    $ids[] = $id;
+                }
+                $elements = [];
+                foreach ($this->imageMapper->getRepository()->findBy(['id' => $ids]) as $image) {
+                    $elements[] = $image;
+                }
+                $dates[$i]['elements'] = $elements;
             }
 
             if ($max_cats > 0) { // get some albums ...
@@ -300,11 +307,11 @@ class Notification
         $params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
 
         foreach ($date_detail['elements'] as $element) {
-            $tn_src = (new DerivativeImage(new SrcImage($element, $picture_ext), $params, $image_std_params))->getUrl();
+            $tn_src = (new DerivativeImage(new SrcImage($element->toArray(), $picture_ext), $params, $image_std_params))->getUrl();
             $description .= '<a href="';
             $description .= $this->router->generate(
                 'picture',
-                ['image_id' => $element['id'], 'type' => 'file', 'element_id' => $element['file']],
+                ['image_id' => $element->getId(), 'type' => 'file', 'element_id' => $element->getFile()],
                 UrlGeneratorInterface::ABSOLUTE_URL
             );
             $description .= '"><img src="' . $tn_src . '"></a>';
@@ -313,14 +320,14 @@ class Notification
 
         $description .=
             '<li>'
-            . $this->translator->trans('number_of_albums_updated', ['count' => $date_detail['nb_cats']])
+            . $this->translator->trans('number_of_albums_updated', ['count' => $date_detail['categories']])
             . '</li>';
 
         $description .= '<ul>';
         foreach ($date_detail['categories'] as $cat) {
             $description .=
                 '<li>'
-                . $this->albumMapper->getAlbumsDisplayNameCache($cat['uppercats'])
+                . $this->albumMapper->getAlbumsDisplayNameCache($cat['upp'])
                 . ' (' . $this->translator->trans('number_of_new_photos', ['count' => $cat['img_count']]) . ')'
                 . '</li>';
         }
@@ -342,10 +349,9 @@ class Notification
         $english_months = [1 => "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
         $date = $date_detail['date_available'];
-        $exploded_date = strptime($date, '%Y-%m-%d %H:%M:%S');
 
         $title = $this->translator->trans('number_of_new_photos', ['count' => $date_detail['nb_elements']]);
-        $title .= ' (' . $this->translator->trans($english_months[1 + $exploded_date['tm_mon']]) . ' ' . $exploded_date['tm_mday'] . ')';
+        $title .= ' (' . $this->translator->trans($english_months[$date->format('n')]) . ' ' . $date->format('d') . ')';
 
         return $title;
     }

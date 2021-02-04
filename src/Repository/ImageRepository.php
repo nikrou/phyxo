@@ -140,7 +140,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findBestRated(array $forbidden_categories = [], string $order_by, int $limit)
+    public function findBestRated(array $forbidden_categories = [], array $sorts = [], int $limit)
     {
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
@@ -150,7 +150,10 @@ class ImageRepository extends ServiceEntityRepository
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
         }
 
-        $qb->orderBy($order_by);
+        foreach ($sorts as $order_by) {
+            $qb->orderBy('i.' . $order_by[0], $order_by[1] ?? null);
+        }
+
         $qb->setMaxResults($limit);
 
         return $qb->getQuery()->getResult();
