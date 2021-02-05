@@ -684,7 +684,7 @@ class BatchManagerController extends AbstractController
             if (isset($bulk_manager_filter['category_recursive'])) {
                 $albums = $albumRepository->getSubAlbums([$this->getFilter()['category']]);
             } else {
-                $albums = $albumRepository->find($bulk_manager_filter['category']);
+                $albums[] = $albumRepository->find($bulk_manager_filter['category']);
             }
 
             if (!is_null($albums)) {

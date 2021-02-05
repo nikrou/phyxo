@@ -150,8 +150,10 @@ class ImageRepository extends ServiceEntityRepository
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
         }
 
-        foreach ($sorts as $order_by) {
-            $qb->orderBy('i.' . $order_by[0], $order_by[1] ?? null);
+        if (count($sorts) > 0) {
+            foreach ($sorts as $order_by) {
+                $qb->orderBy('i.' . $order_by[0], $order_by[1] ?? null);
+            }
         }
 
         $qb->setMaxResults($limit);
@@ -325,7 +327,7 @@ class ImageRepository extends ServiceEntityRepository
     public function findImagesInPeriodsByIds(string $level, array $ids = [], string $date_where = '')
     {
         $qb = $this->createQueryBuilder('i');
-        $qb->select('DISTINCT(' . $level . ') as period, COUNT(DISTINCT id) as nb_images)');
+        $qb->select('DISTINCT(i.' . $level . ') as period, COUNT(DISTINCT i.id) as nb_images)');
         $qb->where($qb->expr()->in('i.id', $ids));
         $qb->andWhere($date_where);
         $qb->groupBy('period');
@@ -336,7 +338,7 @@ class ImageRepository extends ServiceEntityRepository
     public function findImagesInPeriods(string $level, string $date_where = '', array $forbidden_categories = [], array $album_ids = [])
     {
         $qb = $this->createQueryBuilder('i');
-        $qb->select('DISTINCT(' . $level . ') as period, COUNT(DISTINCT id) as nb_images)');
+        $qb->select('DISTINCT(i.' . $level . ') as period, COUNT(DISTINCT i.id) as nb_images');
         $qb->leftJoin('i.imageAlbums', 'ia');
 
         if (count($album_ids) > 0) {
@@ -415,10 +417,10 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findDistincIds(array $forbidden_categories = [], array $album_ids = [], string $order_by)
+    public function findDistincIds(array $forbidden_categories = [], array $album_ids = [], array $sorts = [])
     {
         $qb = $this->createQueryBuilder('i');
-        $qb->addSelect('DISTINCT(i.id)');
+        $qb->select('DISTINCT(i.id)');
         $qb->leftJoin('i.imageAlbums', 'ia');
 
         if (count($album_ids) > 0) {
@@ -429,7 +431,11 @@ class ImageRepository extends ServiceEntityRepository
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
         }
 
-        $qb->orderBy($order_by);
+        if (count($sorts) > 0) {
+            foreach ($sorts as $order_by) {
+                $qb->orderBy('i.' . $order_by[0], $order_by[1] ?? null);
+            }
+        }
 
         return $qb->getQuery()->getResult();
     }

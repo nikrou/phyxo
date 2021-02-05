@@ -33,7 +33,7 @@ class LanguageRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('l');
         $qb->update();
         $qb->set('version', ':version');
-        $qb->where('id = :id');
+        $qb->where('l.id = :id');
         $qb->setParameter('id', $language_id);
         $qb->setParameter('version', $version);
 
@@ -43,7 +43,7 @@ class LanguageRepository extends ServiceEntityRepository
     public function deleteById(string $language_id)
     {
         $qb = $this->createQueryBuilder('l');
-        $qb->where('id', ':id');
+        $qb->where('l.id = :id');
         $qb->setParameter('id', $language_id);
         $qb->delete();
 

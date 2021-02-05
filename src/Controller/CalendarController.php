@@ -87,8 +87,7 @@ class CalendarController extends CommonController
         }
 
         if (empty($category_content['chronology_calendar'])) {
-            $order_by = $conf['order_by'];
-            $tpl_params['items'] = $calendar->getItems($order_by);
+            $tpl_params['items'] = $calendar->getItems($this->orderByToSorts($conf['order_by']));
 
             if (count($tpl_params['items']) > 0) {
                 $nb_image_page = $this->getUser()->getNbImagePage();
@@ -200,8 +199,7 @@ class CalendarController extends CommonController
         }
 
         if (empty($category_content['chronology_calendar'])) {
-            $order_by = $conf['order_by'];
-            $tpl_params['items'] = $calendar->getItems($order_by);
+            $tpl_params['items'] = $calendar->getItems($this->orderByToSorts($conf['order_by']));
 
             if (count($tpl_params['items']) > 0) {
                 $nb_image_page = $this->getUser()->getNbImagePage();
@@ -268,7 +266,6 @@ class CalendarController extends CommonController
             ],
         ];
 
-        $filter = [];
         $calendar = new CalendarMonthly($imageRepository, $albumRepository, $date_type);
         $chronology_date = [];
         if ($year = $request->get('year')) {
@@ -298,8 +295,7 @@ class CalendarController extends CommonController
         }
 
         if (empty($category_content['chronology_calendar'])) {
-            $order_by = $conf['order_by'];
-            $tpl_params['items'] = $calendar->getItems($order_by);
+            $tpl_params['items'] = $calendar->getItems($this->orderByToSorts($conf['order_by']));
 
             if (count($tpl_params['items']) > 0) {
                 $nb_image_page = $this->getUser()->getNbImagePage();
@@ -419,8 +415,7 @@ class CalendarController extends CommonController
             $tpl_params['items'] = [];
             $tpl_params = array_merge($tpl_params, $chronology_params);
         } else {
-            $order_by = $conf['order_by'];
-            $tpl_params['items'] = $calendar->getItems($order_by);
+            $tpl_params['items'] = $calendar->getItems($this->orderByToSorts($conf['order_by']));
 
             if (count($tpl_params['items']) > 0) {
                 $nb_image_page = $this->getUser()->getNbImagePage();
@@ -455,5 +450,18 @@ class CalendarController extends CommonController
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('month_calendar.html.twig', $tpl_params);
+    }
+
+    protected function orderByToSorts(string $order_by): array
+    {
+        $sorts = explode(',', str_ireplace('order by', '', $order_by));
+        $sorts = array_map(
+            function($sort) {
+                return explode(' ', $sort);
+            },
+            $sorts
+        );
+
+        return $sorts;
     }
 }

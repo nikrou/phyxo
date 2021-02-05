@@ -289,7 +289,7 @@ abstract class CalendarBase
             $level_items[$image['period']] = $image['nb_images'];
         }
 
-        if (count($level_items) == 1 && count($this->chronology_date) < count($this->getCalendarLevels()) - 1) {
+        if (count($level_items) === 1 && count($this->chronology_date) < count($this->getCalendarLevels()) - 1) {
             if (!isset($this->chronology_date[$level])) {
                 list($key) = array_keys($level_items);
                 $this->chronology_date[$level] = (int)$key;
@@ -383,7 +383,7 @@ abstract class CalendarBase
         return $tpl_params;
     }
 
-    public function getItems(string $order_by)
+    public function getItems(array $order_by)
     {
         if ($this->find_by_items) {
             return $this->items;
@@ -398,8 +398,8 @@ abstract class CalendarBase
             }
 
             $results = [];
-            foreach ($this->imageRepository->findDistincIds($this->forbidden_categories, $sub_ids, $order_by) as $image) {
-                $results[] = $image->getId();
+            foreach ($this->imageRepository->findDistincIds($this->forbidden_categories, $sub_ids, $order_by) as $image_id) {
+                $results[] = $image_id[1];
             }
 
             return $results;

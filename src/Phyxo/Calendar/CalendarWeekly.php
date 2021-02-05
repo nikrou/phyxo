@@ -186,17 +186,17 @@ class CalendarWeekly extends CalendarBase
         $res = '';
         if (isset($date[self::CYEAR]) and $date[self::CYEAR] !== 'any') {
             $y = $date[self::CYEAR];
-            $res = " AND $this->date_field BETWEEN '$y-01-01' AND '$y-12-31 23:59:59'";
+            $res = 'i.' . $this->date_field . " BETWEEN '$y-01-01' AND '$y-12-31 23:59:59'";
         }
 
         if (isset($date[self::CWEEK]) and $date[self::CWEEK] !== 'any') {
-            $res .= ' AND ' . $this->getCalendarLevels()[self::CWEEK]['sql'] . '=' . $date[self::CWEEK];
+            $res .= $this->getCalendarLevels()[self::CWEEK]['sql'] . '=' . $date[self::CWEEK];
         }
         if (isset($date[self::CDAY]) and $date[self::CDAY] !== 'any') {
-            $res .= ' AND ' . $this->getCalendarLevels()[self::CDAY]['sql'] . '=' . $date[self::CDAY];
+            $res .= $this->getCalendarLevels()[self::CDAY]['sql'] . '=' . $date[self::CDAY];
         }
         if (empty($res)) {
-            $res = ' AND ' . $this->date_field . ' IS NOT NULL';
+            $res = 'i.' . $this->date_field . ' IS NOT NULL';
         }
 
         return $res;
