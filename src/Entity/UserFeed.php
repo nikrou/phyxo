@@ -34,7 +34,7 @@ class UserFeed
     private $last_check;
 
     /**
-     * @ORM\OneToOne(targetEntity=User::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=User::class)
      * @ORM\JoinColumn(name="user_id", nullable=false)
      */
     private $user;

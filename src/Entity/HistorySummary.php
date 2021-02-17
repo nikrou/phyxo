@@ -16,6 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=HistorySummaryRepository::class)
+ * @ORM\Table(name="history_summary")
  */
 class HistorySummary
 {

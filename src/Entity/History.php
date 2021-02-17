@@ -16,6 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=HistoryRepository::class)
+ * @ORM\Table(name="history")
  */
 class History
 {
@@ -79,7 +80,7 @@ class History
 
     /**
      * @ORM\ManyToOne(targetEntity=Image::class)
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $image;
 
@@ -89,7 +90,7 @@ class History
     private $summarized = false;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $image_type = self::IMAGE_TYPE_PICTURE;
 

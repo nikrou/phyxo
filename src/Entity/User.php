@@ -94,7 +94,7 @@ class User implements UserInterface, EquatableInterface
     private $userCache;
 
     /**
-     * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="user")
+     * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="user", cascade={"persist", "remove"})
      */
     private $comments;
 
