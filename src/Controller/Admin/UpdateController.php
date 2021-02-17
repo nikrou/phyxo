@@ -72,12 +72,11 @@ class UpdateController extends AdminCommonController
         // |                                Step 0                                 |
         // +-----------------------------------------------------------------------+
         $updater = new Updates($em->getConnection(), $userMapper, $params->get('core_version'));
+        $updater->setUpdateUrl($params->get('update_url'));
 
         if ($step === 0) {
             $tpl_params['CHECK_VERSION'] = false;
             $tpl_params['DEV_VERSION'] = false;
-
-            $updater->setUpdateUrl($params->get('update_url'));
 
             if (preg_match('/.*-dev$/', $params->get('core_version'), $matches)) {
                 $tpl_params['DEV_VERSION'] = true;

@@ -1,3 +1,7 @@
+# Phyxo 2.0.4 - 2021-02-17
+
+- fix upgrade : missing update URL when severals upgrades are available
+
 # Phyxo 2.0.3 - 2021-01-30
 
 - fix smalls issues preventing major upgrade
