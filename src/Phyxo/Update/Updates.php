@@ -74,6 +74,10 @@ class Updates
 
     public function upgradeTo($version, $release = 'stable')
     {
+        if (count($this->versions) === 0) {
+            $this->getAllVersions();
+        }
+
         foreach ($this->versions as $v) {
             if ($v['version'] == $version && $v['release'] == $release) {
                 $this->version = $v;
