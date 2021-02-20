@@ -22,8 +22,9 @@ Feature: Metatadas
     Then the "date_creation" field date should contain "now"
     Then linked albums "associate[]" should be album "album 1"
     Then I follow "Synchronize metadata"
+
     # exiftool -S  features/media/with-metadata.jpg| grep '^Subject
-    # following test failed with travis
-    # Then tags "tags[]" should be "volcan,montagne,Auvergne"
+    Then tags "tags[]" should be "volcan,montagne,Auvergne"
+
     # exiftool -S  ~/Images/faune/2019101519093614854702-724691bf.jpg| grep DateCreated
     Then the "date_creation" field should contain "2013-08-18"

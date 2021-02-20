@@ -8,7 +8,6 @@ Simply share your images.
 
 This project use severals librairies that need at least PHP 7.2.0
 
-[![Build Status](https://travis-ci.com/nikrou/phyxo.svg?branch=master)](https://travis-ci.com/nikrou/phyxo)
 ![PHPSTan level](https://img.shields.io/badge/PHPStan-level%201-brightgreen.svg?style=flat)
 
 This project uses a database and support all database engines managed by [DBAL](https://www.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/platforms.html#platforms) like Mysql, PostgreSQL and SQLite engines.
@@ -78,8 +77,6 @@ To run tests :
 ```
 $ ./bin/atoum
 ```
-
-Tests are automatically runned by travis (see badge above)
 
 You can also get coverage report for tests by running :
 
