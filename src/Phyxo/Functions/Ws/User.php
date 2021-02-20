@@ -123,20 +123,19 @@ class User
         }
 
         if (count($users) > 0) {
-            if (!isset($params['display']['groups'])) {
-                unset($user['groups']);
-            }
+            foreach ($users as $cur_user) {
+                $users[$cur_user['id']]['registration_date_string'] = \Phyxo\Functions\DateTime::format_date($cur_user['userInfos']['registration_date'], ['day', 'month', 'year']);
+                $users[$cur_user['id']]['registration_date_since'] = \Phyxo\Functions\DateTime::time_since($cur_user['userInfos']['registration_date'], 'month');
 
-            if (isset($params['display']['registration_date_string'])) {
-                foreach ($users as $cur_user) {
-                    $users[$cur_user['id']]['registration_date_string'] = \Phyxo\Functions\DateTime::format_date($cur_user['userInfos']['registration_date'], ['day', 'month', 'year']);
-                }
-            }
-
-            if (isset($params['display']['registration_date_since'])) {
-                foreach ($users as $cur_user) {
-                    $users[$cur_user['id']]['registration_date_since'] = \Phyxo\Functions\DateTime::time_since($cur_user['userInfos']['registration_date'], 'month');
-                }
+                $users[$cur_user['id']]['enabled_high'] = $cur_user['userInfos']['enabled_high'];
+                $users[$cur_user['id']]['language'] = $cur_user['userInfos']['language'];
+                $users[$cur_user['id']]['level'] = $cur_user['userInfos']['level'];
+                $users[$cur_user['id']]['nb_image_page'] = $cur_user['userInfos']['nb_image_page'];
+                $users[$cur_user['id']]['recent_period'] = $cur_user['userInfos']['recent_period'];
+                $users[$cur_user['id']]['show_nb_comments'] = $cur_user['userInfos']['show_nb_comments'];
+                $users[$cur_user['id']]['show_nb_hits'] = $cur_user['userInfos']['show_nb_hits'];
+                $users[$cur_user['id']]['status'] = $cur_user['userInfos']['status'];
+                $users[$cur_user['id']]['theme'] = $cur_user['userInfos']['theme'];
             }
 
             if (isset($params['display']['last_visit'])) {
