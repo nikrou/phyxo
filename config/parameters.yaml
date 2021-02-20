@@ -5,7 +5,7 @@ imports:
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-  core_version: 2.1.0-dev
+  core_version: 2.1.0
   phyxo_website: https://www.phyxo.net
   pem_url: 'https://ext.phyxo.net'
   update_url: https://download.phyxo.net/versions
