@@ -112,11 +112,7 @@ class PhotoController extends AbstractController
         $tag_selection = $tagMapper->prepareTagsListForUI($tags);
 
         // retrieving direct information about picture
-        $storage_category_id = null;
-        if (!empty($row['storage_category_id'])) {
-            $storage_category_id = $row['storage_category_id'];
-        }
-
+        $storage_category_id = $image->getStorageCategoryId();
         $src_image = new SrcImage($image->toArray(), $conf['picture_ext']);
 
         $tpl_params['tag_selection'] = $tag_selection;

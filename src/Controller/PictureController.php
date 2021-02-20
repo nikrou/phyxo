@@ -268,6 +268,7 @@ class PictureController extends CommonController
         if ($conf['activate_comments']) {
             // the picture is commentable if it belongs at least to one category which is commentable
             $errors = [];
+            $comment_action = null;
 
             if ($request->isMethod('POST')) {
                 $token = $request->request->get('_csrf_comment');

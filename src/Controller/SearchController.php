@@ -264,6 +264,7 @@ class SearchController extends CommonController
 
         $rules = [];
         $tpl_params['items'] = [];
+        $search_results = [];
 
         $search = $searchRepository->findOneBy(['id' => $search_id]);
         if (!is_null($search) && !empty($search->getRules())) {

@@ -47,6 +47,7 @@ class Conf implements \ArrayAccess
             return;
         }
 
+        $conf = [];
         // in case of unwanted output
         ob_start();
         require $conf_file;

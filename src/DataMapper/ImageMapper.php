@@ -293,8 +293,8 @@ class ImageMapper
             $files = [];
             $files[] = Utils::get_element_path($image->toArray());
 
-            if (!empty($row['representative_ext'])) {
-                $files[] = \Phyxo\Functions\Utils::original_to_representative($files[0], $row['representative_ext']);
+            if ($image->getRepresentativeExt()) {
+                $files[] = \Phyxo\Functions\Utils::original_to_representative($files[0], $image->getRepresentativeExt());
             }
 
             $fs = new Filesystem();

@@ -90,6 +90,7 @@ class AlbumController extends CommonController
         $image_ids = [];
         $user_representative_updates_for = [];
         $infos_of_images = [];
+        $dates_of_category = [];
 
         list($is_child_date_last, $albums, $image_ids) = $albumMapper->getAlbumThumbnails(
             $this->getUser(),
