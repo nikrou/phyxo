@@ -6,7 +6,7 @@ Simply share your images.
 
 ## Requirements
 
-This project use severals librairies that need at least PHP 7.2.0
+This project use severals librairies that need at least PHP 7.3.0
 
 ![PHPSTan level](https://img.shields.io/badge/PHPStan-level%201-brightgreen.svg?style=flat)
 
@@ -14,7 +14,7 @@ This project uses a database and support all database engines managed by [DBAL](
 
 ## Installation
 
-### Manual
+### From web browser
 
 [Download](https://download.phyxo.net/?C=M;O=A) the latest stable version and unarchive it.
 Transfer the content to your web space with any FTP client.

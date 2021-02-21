@@ -1,3 +1,7 @@
+# Phyxo 2.2.0 - YYYY-MM-DD
+
+- nothing yet
+
 # Phyxo 2.1.0 - 2021-02-20
 
 - upgrade to Symfony 4.4 (use HttpClient instead of guzzle, use Mailer instead of Swiftmailer)
