@@ -61,7 +61,12 @@ class BatchManagerController extends AbstractController
 
     protected function getFilter()
     {
-        return $this->get('session')->get('bulk_manager_filter');
+        $filter = $this->get('session')->get('bulk_manager_filter');
+        if (!isset($filter['prefilter'])) {
+            $filter['prefilter'] = null;
+        }
+
+        return $filter;
     }
 
     public function global(Request $request, string $filter = null, int $start = 0, Conf $conf, AlbumMapper $albumMapper,
@@ -420,7 +425,7 @@ class BatchManagerController extends AbstractController
                 $this->addFlash('error', $this->translator->trans('Select at least one tag', [], 'admin'));
             } else {
                 $tag_ids = $tagMapper->getTagsIds($request->request->get('add_tags'));
-                $tagMapper->addTags($tag_ids, $collection);
+                $tagMapper->addTags($tag_ids, $collection, $this->getUser());
 
                 if ($this->getFilter()['prefilter'] === 'no_tag') {
                     $redirect = true;

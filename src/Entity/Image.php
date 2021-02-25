@@ -461,11 +461,13 @@ class Image
         return $this->imageAlbums;
     }
 
-    public function addImageAlbum(ImageAlbum $imageAlbum): self
+    public function addImageAlbum(ImageAlbum $newImageAlbum): self
     {
-        if (!$this->imageAlbums->contains($imageAlbum)) {
-            $this->imageAlbums[] = $imageAlbum;
-            $imageAlbum->setImage($this);
+        if ($this->imageAlbums->filter(function($imageAlbum) use ($newImageAlbum) {
+            return ($imageAlbum->getAlbum()->getId() === $newImageAlbum->getAlbum()->getId());
+        })->isEmpty()) {
+            $this->imageAlbums[] = $newImageAlbum;
+            $newImageAlbum->setImage($this);
         }
 
         return $this;
@@ -679,11 +681,13 @@ class Image
         return $this->imageTags;
     }
 
-    public function addImageTag(ImageTag $imageTag): self
+    public function addImageTag(ImageTag $newImageTag): self
     {
-        if (!$this->imageTags->contains($imageTag)) {
-            $this->imageTags[] = $imageTag;
-            $imageTag->setImage($this);
+        if ($this->imageTags->filter(function($imageTag) use ($newImageTag) {
+            return ($imageTag->getTag()->getId() === $newImageTag->getTag()->getId());
+        })->isEmpty()) {
+            $this->imageTags[] = $newImageTag;
+            $newImageTag->setImage($this);
         }
 
         return $this;

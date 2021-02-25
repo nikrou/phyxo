@@ -599,7 +599,7 @@ class Image
                 }
             }
 
-            $service->getTagMapper()->addTags($tag_ids, [$image_id]);
+            $service->getTagMapper()->addTags($tag_ids, [$image_id], $service->getUserMapper()->getUser());
         }
 
         $url_params = ['image_id' => $image_id];
@@ -983,7 +983,7 @@ class Image
             if ('replace' == $params['multiple_value_mode']) {
                 $service->getTagMapper()->setTags($tag_ids, $params['image_id'], $service->getUserMapper()->getUser());
             } elseif ('append' == $params['multiple_value_mode']) {
-                $service->getTagMapper()->addTags($tag_ids, [$params['image_id']]);
+                $service->getTagMapper()->addTags($tag_ids, [$params['image_id']], $service->getUserMapper()->getUser());
             } else {
                 return new Error(
                     500,

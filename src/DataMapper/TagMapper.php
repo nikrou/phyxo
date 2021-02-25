@@ -269,7 +269,7 @@ class TagMapper
     /**
      * Add new tags to a set of images.
      */
-    public function addTags(array $tag_ids, array $image_ids)
+    public function addTags(array $tag_ids, array $image_ids, User $user)
     {
         if (count($tag_ids) === 0 or count($image_ids) === 0) {
             return;
@@ -285,6 +285,7 @@ class TagMapper
                 $image_tag = new ImageTag();
                 $image_tag->setImage($image);
                 $image_tag->setTag($tag);
+                $image_tag->setCreatedBy($user);
                 $image->addImageTag($image_tag);
             }
             $this->imageRepository->addOrUpdateImage($image);
