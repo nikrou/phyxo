@@ -22,17 +22,12 @@ class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
 
-    const CONFIG_EXTS = '.{php,xml,yaml,yml}';
+    const CONFIG_EXTS = '.yaml';
 
     // override Kernel::getProjectDir because it defines project dir based on composer.json file
     public function getProjectDir()
     {
         return realpath(__DIR__ . '/../');
-    }
-
-    public function getUploadDir()
-    {
-        return $this->getProjectDir() . '/upload';
     }
 
     public function getCacheDir()
@@ -65,7 +60,7 @@ class Kernel extends BaseKernel
         $confDir = $this->getProjectDir() . '/config';
 
         $loader->load($confDir . '/{packages}/*' . self::CONFIG_EXTS, 'glob');
-        $loader->load($confDir . '/{packages}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, 'glob');
+        $loader->load($confDir . '/{packages}/' . $this->environment . '/*' . self::CONFIG_EXTS, 'glob');
         $loader->load($confDir . '/{services}' . self::CONFIG_EXTS, 'glob');
         $loader->load($confDir . '/{services}_' . $this->environment . self::CONFIG_EXTS, 'glob');
 
@@ -78,7 +73,7 @@ class Kernel extends BaseKernel
         $confDir = $this->getProjectDir() . '/config';
 
         $routes->import($confDir . '/{routes}/*' . self::CONFIG_EXTS, '/', 'glob');
-        $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, '/', 'glob');
+        $routes->import($confDir . '/{routes}/' . $this->environment . '/*' . self::CONFIG_EXTS, '/', 'glob');
         $routes->import($confDir . '/{routes}' . self::CONFIG_EXTS, '/', 'glob');
     }
 }

@@ -16,7 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\HttpKernel\Event\PostResponseEvent;
+use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class CoreInstalledSubscriber implements EventSubscriberInterface
@@ -35,7 +35,7 @@ class CoreInstalledSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onKernelTerminate(PostResponseEvent $event)
+    public function onKernelTerminate(TerminateEvent $event)
     {
         if (!$event->isMasterRequest()) {
             return false;

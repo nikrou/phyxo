@@ -12,9 +12,10 @@
 
 use App\InstallKernel;
 use App\Kernel;
+use App\UpdateKernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
-use Symfony\Component\Debug\Debug;
+use Symfony\Component\ErrorHandler\Debug;
 
 if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
     echo 'Warning: The console should be invoked via the CLI version of PHP, not the ' . PHP_SAPI . ' SAPI' . PHP_EOL;
@@ -47,8 +48,12 @@ if ($_SERVER['APP_DEBUG']) {
     }
 }
 
-if (is_readable(__DIR__ . '/../local/config/database.inc.php')) {
-    $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+if (is_readable(__DIR__ . '/config/database.yaml')) {
+    if (is_readable(__DIR__ . '/.update.mode')) {
+        $kernel = new UpdateKernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+    } else {
+        $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+    }
 } else {
     $kernel = new InstallKernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
 }
