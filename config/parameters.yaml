@@ -13,7 +13,6 @@ parameters:
 
   local_dir: '%kernel.project_dir%/local'
   upload_dir: '%kernel.project_dir%/upload'
-  database_config_file: '%local_dir%/config/database.inc.php'
   database_yaml_file: '%kernel.project_dir%/config/database.yaml'
   admin_theme_dir: '%kernel.project_dir%/admin/theme'
   themes_dir: '%kernel.project_dir%/themes'

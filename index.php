@@ -31,7 +31,7 @@ if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? false) {
     Request::setTrustedHosts([$trustedHosts]);
 }
 
-if (is_readable(__DIR__ . '/local/config/database.inc.php')) {
+if (is_readable(__DIR__ . '/config/database.yaml')) {
     if (is_readable(__DIR__ . '/.update.mode')) {
         $kernel = new UpdateKernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
     } else {

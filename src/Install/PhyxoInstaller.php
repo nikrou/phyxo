@@ -20,7 +20,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PhyxoInstaller
 {
-    private $phyxoVersion, $rootProjectDir, $translationsDir, $defaultTheme, $databaseConfigFile, $databaseYamlFile, $translator;
+    private $phyxoVersion, $rootProjectDir, $translationsDir, $defaultTheme, $databaseYamlFile, $translator;
     private $default_prefix = 'phyxo_';
 
     private $dblayers = [
@@ -40,14 +40,12 @@ class PhyxoInstaller
         ]
     ];
 
-    public function __construct(string $phyxoVersion, string $rootProjectDir, string $translationsDir, string $defaultTheme, string $databaseConfigFile,
-                                string $databaseYamlFile, TranslatorInterface $translator)
+    public function __construct(string $phyxoVersion, string $rootProjectDir, string $translationsDir, string $defaultTheme, string $databaseYamlFile, TranslatorInterface $translator)
     {
         $this->phyxoVersion = $phyxoVersion;
         $this->rootProjectDir = $rootProjectDir;
         $this->translationsDir = $translationsDir;
         $this->defaultTheme = $defaultTheme;
-        $this->databaseConfigFile = $databaseConfigFile;
         $this->databaseYamlFile = $databaseYamlFile;
         $this->translator = $translator;
     }
@@ -171,21 +169,6 @@ class PhyxoInstaller
             $statement->bindValue('applied', $now->format('Y-m-d H:i:s'));
             $statement->bindValue('description', 'upgrade included in installation');
             $statement->execute();
-        }
-
-        $file_content = '<?php' . "\n";
-        $file_content .= '$conf[\'dblayer\'] = \'' . $db_params['db_layer'] . "';\n";
-        $file_content .= '$conf[\'db_base\'] = \'' . $db_params['db_name'] . "';\n";
-        if ($db_params['db_layer'] !== 'sqlite') {
-            $file_content .= '$conf[\'db_host\'] = \'' . $db_params['db_host'] . "';\n";
-            $file_content .= '$conf[\'db_user\'] = \'' . $db_params['db_user'] . "';\n";
-            $file_content .= '$conf[\'db_password\'] = \'' . $db_params['db_password'] . "';\n";
-        }
-        $file_content .= '$conf[\'db_prefix\'] = \'' . $db_params['db_prefix'] . "';\n\n";
-
-        file_put_contents($this->databaseConfigFile . '.tmp', $file_content);
-        if (!is_readable($this->databaseConfigFile . '.tmp')) {
-            throw new \Exception($this->translator->trans('Cannot create database configuration file "{filename}"', ['filename' => $this->databaseConfigFile], 'install'));
         }
 
         $file_content = 'parameters:' . "\n";

@@ -31,14 +31,13 @@ class InstallController extends AbstractController
     ];
 
     private $languages_options, $passwordEncoder, $default_language, $default_theme, $translationsDir;
-    private $rootProjectDir, $translator, $databaseConfigFile, $databaseYamlFile, $phyxoInstaller;
+    private $rootProjectDir, $translator, $databaseYamlFile, $phyxoInstaller;
     private $default_prefix = 'phyxo_';
 
     public function __construct(string $translationsDir, string $defaultLanguage, string $defaultTheme, PhyxoInstaller $phyxoInstaller,
-          string $databaseConfigFile, string $databaseYamlFile, UserPasswordEncoderInterface $passwordEncoder, TranslatorInterface $translator, string $rootProjectDir)
+                                string $databaseYamlFile, UserPasswordEncoderInterface $passwordEncoder, TranslatorInterface $translator, string $rootProjectDir)
     {
         $this->translationsDir = $translationsDir;
-        $this->databaseConfigFile = $databaseConfigFile;
         $this->databaseYamlFile = $databaseYamlFile;
         $this->default_language = $defaultLanguage;
         $this->default_theme = $defaultTheme;
@@ -53,7 +52,7 @@ class InstallController extends AbstractController
         $tpl_params = [];
         $tpl_params['STEPS'] = $this->Steps;
 
-        if (is_readable($this->databaseConfigFile) && ($step !== 'success')) {
+        if (is_readable($this->databaseYamlFile) && ($step !== 'success')) {
             return  $this->redirectToRoute('homepage', []);
         }
 
@@ -383,7 +382,6 @@ class InstallController extends AbstractController
 
     public function successStep(Request $request)
     {
-        rename($this->databaseConfigFile . '.tmp', $this->databaseConfigFile);
         rename($this->databaseYamlFile . '.tmp', $this->databaseYamlFile);
 
         $tpl_params['STEP'] = 'success';

@@ -25,19 +25,19 @@ class UserCreateCommand extends Command
     protected static $defaultName = 'phyxo:user:create';
 
     private $params = ['username' => '', 'password' => '', 'mail_address' => ''];
-    private $userManager, $passwordEncoder, $databaseConfigFile;
+    private $userManager, $passwordEncoder, $databaseYamlFile;
 
-    public function __construct(UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, string $databaseConfigFile)
+    public function __construct(UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, string $databaseYamlFile)
     {
         parent::__construct();
         $this->userManager = $userManager;
         $this->passwordEncoder = $passwordEncoder;
-        $this->databaseConfigFile = $databaseConfigFile;
+        $this->databaseYamlFile = $databaseYamlFile;
     }
 
     public function isEnabled()
     {
-        return is_readable($this->databaseConfigFile);
+        return is_readable($this->databaseYamlFile);
     }
 
     public function configure()

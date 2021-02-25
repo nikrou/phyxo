@@ -26,22 +26,21 @@ class InstallCommand extends Command
     protected static $defaultName = 'phyxo:install';
 
     private $db_params = ['db_layer' => '', 'db_host' => '', 'db_name' => '', 'db_user' => '', 'db_password' => '', 'db_prefix' => ''];
-    private $databaseConfigFile, $databaseYamlFile, $rootProjectDir, $phyxoInstaller;
+    private $databaseYamlFile, $rootProjectDir, $phyxoInstaller;
     private $default_prefix = 'phyxo_';
 
-    public function __construct(PhyxoInstaller $phyxoInstaller, string $databaseConfigFile, string $databaseYamlFile, string $rootProjectDir)
+    public function __construct(PhyxoInstaller $phyxoInstaller, string $databaseYamlFile, string $rootProjectDir)
     {
         parent::__construct();
 
         $this->phyxoInstaller = $phyxoInstaller;
-        $this->databaseConfigFile = $databaseConfigFile;
         $this->databaseYamlFile = $databaseYamlFile;
         $this->rootProjectDir = $rootProjectDir;
     }
 
     public function isEnabled()
     {
-        return !is_readable($this->databaseConfigFile);
+        return !is_readable($this->databaseYamlFile);
     }
 
     public function configure()
@@ -136,7 +135,6 @@ class InstallCommand extends Command
         try {
             $this->phyxoInstaller->installDatabase($this->db_params);
 
-            rename($this->databaseConfigFile . '.tmp', $this->databaseConfigFile);
             rename($this->databaseYamlFile . '.tmp', $this->databaseYamlFile);
 
             $env_file_content = 'APP_ENV=prod' . "\n";

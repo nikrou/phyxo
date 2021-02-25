@@ -21,7 +21,7 @@ class UserListCommand extends Command
 {
     protected static $defaultName = 'phyxo:user:list';
 
-    private $userRepository, $databaseConfigFile;
+    private $userRepository, $databaseYamlFile;
 
     private $Fields = [
         'id' => 'Id',
@@ -32,17 +32,17 @@ class UserListCommand extends Command
         'theme' => 'Theme',
     ];
 
-    public function __construct(UserRepository $userRepository, string $databaseConfigFile)
+    public function __construct(UserRepository $userRepository, string $databaseYamlFile)
     {
         parent::__construct();
 
         $this->userRepository = $userRepository;
-        $this->databaseConfigFile = $databaseConfigFile;
+        $this->databaseYamlFile = $databaseYamlFile;
     }
 
     public function isEnabled()
     {
-        return is_readable($this->databaseConfigFile);
+        return is_readable($this->databaseYamlFile);
     }
 
     public function configure()

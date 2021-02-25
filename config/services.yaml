@@ -22,7 +22,6 @@ services:
 
     bind:
       $rememberMeCookie: '%remember_cookie%'
-      $databaseConfigFile: '%database_config_file%'
       $databaseYamlFile: '%database_yaml_file%'
       $localDir: '%local_dir%'
       $uploadDir: '%upload_dir%'
