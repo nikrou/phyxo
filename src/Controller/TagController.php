@@ -19,7 +19,6 @@ use App\DataMapper\TagMapper;
 use App\Repository\TagRepository;
 use App\DataMapper\ImageMapper;
 use App\Entity\Tag as EntityTag;
-use Phyxo\Functions\Tag;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -105,7 +104,7 @@ class TagController extends CommonController
             $tags = array_slice($tags, 0, $conf['full_tag_cloud_items_number']);
 
             // depending on its counter and the other tags counter, each tag has a level
-            $tags = Tag::addLevelToTags($tags);
+            $tags = $tagMapper->addLevelToTags($tags);
 
             // we want tags diplayed in alphabetic order
             usort($tags, [$tagMapper, 'alphaCompare']);

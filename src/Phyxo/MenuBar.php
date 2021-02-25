@@ -18,8 +18,6 @@ use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\UserMapper;
 use App\DataMapper\TagMapper;
 use App\Entity\Tag as EntityTag;
-use Phyxo\Functions\Tag;
-use Phyxo\Functions\URL;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MenuBar
@@ -132,7 +130,7 @@ class MenuBar
                     }, $this->tags)
                 );
 
-                $tags = Tag::addLevelToTags($tags);
+                $tags = $this->tagMapper->addLevelToTags($tags);
                 foreach ($tags as $tag) {
                     $block->data[] = array_merge(
                         $tag->toArray(),
@@ -158,7 +156,7 @@ class MenuBar
                     );
                 }
             } else {
-                $tags = Tag::addLevelToTags(
+                $tags = $this->tagMapper->addLevelToTags(
                     $this->tagMapper->getCommonTags($this->userMapper->getUser(), $this->items, $this->conf['content_tag_cloud_items_number'])
                 );
                 foreach ($tags as $tag) {
