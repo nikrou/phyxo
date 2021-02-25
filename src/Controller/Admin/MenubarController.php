@@ -28,14 +28,19 @@ class MenubarController extends AbstractController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
+        if (is_null($conf['blk_menubar'])) {
+            $mb_conf = [];
+        } else {
+            $mb_conf = $conf['blk_menubar'];
+        }
+
         $menu = new BlockManager('menubar');
         $menu->loadDefaultBlocks();
         $menu->loadRegisteredBlocks();
-        $menu->loadMenuConfig($conf['blk_menubar']);
+        $menu->loadMenuConfig($mb_conf);
         $menu->prepareDisplay();
         $reg_blocks = $menu->getRegisteredBlocks();
 
-        $mb_conf = $conf['blk_menubar'];
         $mb_conf = $this->makeConsecutive($reg_blocks, $mb_conf);
 
         foreach ($mb_conf as $id => $pos) {
@@ -62,7 +67,11 @@ class MenubarController extends AbstractController
             $menu->loadDefaultBlocks();
             $reg_blocks = $menu->getRegisteredBlocks();
 
-            $mb_conf = $conf['blk_menubar'];
+            if (is_null($conf['blk_menubar'])) {
+                $mb_conf = [];
+            } else {
+                $mb_conf = $conf['blk_menubar'];
+            }
 
             foreach ($mb_conf as $id => $pos) {
                 $hide = $request->request->get('hide_' . $id);
