@@ -18,7 +18,6 @@ use Phyxo\Conf;
 use Phyxo\MenuBar;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
-use Phyxo\Functions\DateTime;
 use App\Repository\FavoriteRepository;
 use App\DataMapper\TagMapper;
 use App\Repository\RateRepository;
@@ -32,6 +31,7 @@ use App\Events\HistoryEvent;
 use App\Metadata;
 use App\Repository\ImageAlbumRepository;
 use App\Security\TagVoter;
+use IntlDateFormatter;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -174,13 +174,14 @@ class PictureController extends CommonController
         $tpl_params['U_METADATA'] = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id, 'metadata' => '']);
         $tpl_params['current']['unique_derivatives'] = $unique_derivatives;
 
+        $fmt = new IntlDateFormatter($this->getUser()->getLocale(), IntlDateFormatter::FULL, IntlDateFormatter::NONE);
         $tpl_params['INFO_POSTED_DATE'] = [
-            'label' => DateTime::format_date($picture['date_available']),
+            'label' => $fmt->format($picture['date_available']),
             'url' => $this->generateUrl('calendar_categories_monthly', ['date_type' => 'posted', 'view_type' => 'calendar'])
         ];
 
         $tpl_params['INFO_CREATION_DATE'] = [
-            'label' => DateTime::format_date($picture['date_creation']),
+            'label' => $picture['date_creation'] ? $fmt->format($picture['date_creation']) : 'N/A',
             'url' => $this->generateUrl('calendar_categories_monthly', ['date_type' => 'created', 'view_type' => 'calendar'])
         ];
 

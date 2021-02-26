@@ -21,6 +21,7 @@ use App\Repository\ImageTagRepository;
 use App\Repository\RateRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
+use IntlDateFormatter;
 use Phyxo\Conf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -105,7 +106,8 @@ class DashboardController extends AbstractController
 
         if ($nb_elements > 0) {
             if ($min_date_available = $imageMapper->getRepository()->findMinDateAvailable()) {
-                $tpl_params['first_added'] = $translator->trans('first photo added on {date}', ['date' => $min_date_available->format('l d M Y')], 'admin');
+                $fmt = new IntlDateFormatter($this->getUser()->getLocale(), IntlDateFormatter::FULL, IntlDateFormatter::NONE);
+                $tpl_params['first_added'] = $translator->trans('first photo added on {date}', ['date' => $fmt->format($min_date_available)], 'admin');
             }
         }
 

@@ -698,7 +698,7 @@ class WsController extends AbstractController
                 'order' => ['default' => 'id', 'info' => 'id, username, level, email'],
                 'display' => ['default' => 'basics', 'info' => 'Comma saparated list (see method description)'],
             ],
-            'Retrieves a list of all the users.<br><br><b>display</b> controls which data are returned, possible values are:<br>all, basics, none,<br>username, email, status, level, groups,<br>language, theme, nb_image_page, recent_period, expand, show_nb_comments, show_nb_hits,<br>enabled_high, registration_date, registration_date_string, registration_date_since, last_visit, last_visit_string, last_visit_since<br><b>basics</b> stands for "username,email,status,level,groups"',
+            'Retrieves a list of all the users.<br><br><b>display</b> controls which data are returned, possible values are:<br>all, basics, none,<br>username, email, status, level, groups,<br>language, theme, nb_image_page, recent_period, expand, show_nb_comments, show_nb_hits,<br>enabled_high, registration_date, registration_date_string, last_visit, last_visit_string, last_visit_since<br><b>basics</b> stands for "username,email,status,level,groups"',
             ['admin_only' => true]
         );
 

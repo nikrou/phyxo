@@ -19,6 +19,7 @@ use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use App\Entity\User as EntityUser;
 use App\Entity\UserInfos;
+use IntlDateFormatter;
 
 class User
 {
@@ -76,7 +77,7 @@ class User
         //             'username', 'email', 'status', 'level', 'groups', 'language', 'theme',
         //             'nb_image_page', 'recent_period', 'expand', 'show_nb_comments', 'show_nb_hits',
         //             'enabled_high', 'registration_date', 'registration_date_string',
-        //             'registration_date_since', 'last_visit', 'last_visit_string',
+        //             'last_visit', 'last_visit_string',
         //             'last_visit_since'
         //         ];
         //     } elseif (in_array('basics', $params['display'])) {
@@ -85,11 +86,6 @@ class User
         //         ]);
         //     }
         //     $params['display'] = array_flip($params['display']);
-
-        //     // if registration_date_string or registration_date_since is requested, then registration_date is automatically added
-        //     if (isset($params['display']['registration_date_string']) || isset($params['display']['registration_date_since'])) {
-        //         $params['display']['registration_date'] = true;
-        //     }
 
         //     // if last_visit_string or last_visit_since is requested, then last_visit is automatically added
         //     if (isset($params['display']['last_visit_string']) || isset($params['display']['last_visit_since'])) {
@@ -124,9 +120,9 @@ class User
 
         if (count($users) > 0) {
             foreach ($users as $cur_user) {
-                $users[$cur_user['id']]['registration_date_string'] = \Phyxo\Functions\DateTime::format_date($cur_user['userInfos']['registration_date'], ['day', 'month', 'year']);
-                $users[$cur_user['id']]['registration_date_since'] = \Phyxo\Functions\DateTime::time_since($cur_user['userInfos']['registration_date'], 'month');
+                $fmt = new IntlDateFormatter($service->getUserMapper()->getUser()->getLocale(), IntlDateFormatter::FULL, IntlDateFormatter::NONE);
 
+                $users[$cur_user['id']]['registration_date_string'] = $fmt->format($cur_user['userInfos']['registration_date']);
                 $users[$cur_user['id']]['enabled_high'] = $cur_user['userInfos']['enabled_high'];
                 $users[$cur_user['id']]['language'] = $cur_user['userInfos']['language'];
                 $users[$cur_user['id']]['level'] = $cur_user['userInfos']['level'];

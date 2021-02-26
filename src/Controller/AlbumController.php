@@ -90,7 +90,6 @@ class AlbumController extends CommonController
         $image_ids = [];
         $user_representative_updates_for = [];
         $infos_of_images = [];
-        $dates_of_category = [];
 
         list($is_child_date_last, $albums, $image_ids) = $albumMapper->getAlbumThumbnails(
             $this->getUser(),
@@ -144,17 +143,6 @@ class AlbumController extends CommonController
                     //     $this->getUser(),
                     //     $is_child_date_last
                     // );
-                }
-
-                if ($conf['display_fromto']) {
-                    if (isset($dates_of_category[$album->getId()])) {
-                        $from = $dates_of_category[$album->getId()]['_from'];
-                        $to = $dates_of_category[$album->getId()]['_to'];
-
-                        if (!empty($from)) {
-                            $tpl_var['INFO_DATES'] = \Phyxo\Functions\DateTime::format_fromto($from, $to);
-                        }
-                    }
                 }
 
                 $tpl_thumbnails_var[] = $tpl_var;
@@ -370,15 +358,6 @@ class AlbumController extends CommonController
             $albumMapper->getRepository()->findParentAlbums($this->getUser()->getId())
         );
 
-        if ($conf['display_fromto']) {
-            if (count($albums) > 0) {
-                $dates_of_category = [];
-                foreach ($imageAlbumRepository->dateOfAlbums(array_keys($albums)) as $image) {
-                    $dates_of_category[] = $image;
-                }
-            }
-        }
-
         if (count($albums) > 0) {
             $infos_of_images = $albumMapper->getInfosOfImages($this->getUser(), $albums, $image_ids, $imageMapper);
         }
@@ -428,17 +407,6 @@ class AlbumController extends CommonController
                     //     $userCacheAlbum->getMaxDateLast()->format('Y-m-d H:m:i'),
                     //     $this->getUser(), $is_child_date_last
                     // );
-                }
-
-                if ($conf['display_fromto']) {
-                    if (isset($dates_of_category[$album->getId()])) {
-                        $from = $dates_of_category[$album->getId()]['_from'];
-                        $to = $dates_of_category[$album->getId()]['_to'];
-
-                        if (!empty($from)) {
-                            $tpl_var['INFO_DATES'] = \Phyxo\Functions\DateTime::format_fromto($from, $to);
-                        }
-                    }
                 }
 
                 $tpl_thumbnails_var[] = $tpl_var;
@@ -508,15 +476,6 @@ class AlbumController extends CommonController
 
         list($is_child_date_last, $albums, $image_ids) = $albumMapper->getAlbumThumbnails($this->getUser(), $albumMapper->getRepository()->findRecentAlbums($recent_date));
 
-        if ($conf['display_fromto']) {
-            if (count($albums) > 0) {
-                $dates_of_category = [];
-                foreach ($imageAlbumRepository->dateOfAlbums(array_keys($albums)) as $image) {
-                    $dates_of_category[] = $image;
-                }
-            }
-        }
-
         if (count($albums) > 0) {
             $infos_of_images = $albumMapper->getInfosOfImages($this->getUser(), $albums, $image_ids, $imageMapper);
         }
@@ -562,17 +521,6 @@ class AlbumController extends CommonController
                     //     $userCacheAlbum->getMaxDateLast()->format('Y-m-d H:m:i'),
                     //     $this->getUser(), $is_child_date_last
                     // );
-                }
-
-                if ($conf['display_fromto']) {
-                    if (isset($dates_of_category[$album->getId()])) {
-                        $from = $dates_of_category[$album->getId()]['_from'];
-                        $to = $dates_of_category[$album->getId()]['_to'];
-
-                        if (!empty($from)) {
-                            $tpl_var['INFO_DATES'] = \Phyxo\Functions\DateTime::format_fromto($from, $to);
-                        }
-                    }
                 }
 
                 $tpl_thumbnails_var[] = $tpl_var;

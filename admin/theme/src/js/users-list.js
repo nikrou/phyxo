@@ -350,8 +350,7 @@ $(function () {
 
       user.registeredOn_string = sprintf(
         phyxo_msg.registeredOn_pattern,
-        user.registration_date_string,
-        user.registration_date_since
+        user.registration_date_string
       );
 
       user.lastVisit_string = '';

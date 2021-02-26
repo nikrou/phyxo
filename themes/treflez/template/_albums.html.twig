@@ -28,9 +28,6 @@
 				{% if not cat.DESCRIPTION is empty %}
 				    <div data-testid="album-description" class="description {% if theme_config.cat_descriptions %} d-block{% endif %}">{{cat.DESCRIPTION}}</div>
 				{% endif %}
-				{% if cat.INFO_DATES is defined %}
-				    <div class="info-dates">{{cat.INFO_DATES}}</div>
-				{% endif %}
 			    </div>
 			</div>
 			{% if theme_config.cat_nb_images %}
@@ -51,9 +48,6 @@
 				    <h4 data-testid="album-name" class="mt-0 mb-1">{{cat.NAME}}</h4>
 				    {% if not cat.DESCRIPTION is empty %}
 					<div data-testid="album-description" class="description">{{cat.DESCRIPTION}}</div>
-				    {% endif %}
-				    {% if cat.INFO_DATES is defined %}
-					<div>{{cat.INFO_DATES}}</div>
 				    {% endif %}
 				    {% if theme_config.cat_nb_images %}
 					<div data-testid="album-nb-images" class="text-muted">{{cat.CAPTION_NB_IMAGES|replace({'<br>': ', '})}}</div>

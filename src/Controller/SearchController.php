@@ -22,7 +22,6 @@ use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\ImageMapper;
 use App\Entity\Search;
 use App\Repository\TagRepository;
-use Phyxo\Functions\DateTime;
 use Phyxo\Functions\Utils;
 use Phyxo\Functions\URL;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -426,25 +425,25 @@ class SearchController extends CommonController
             ];
 
             if (isset($rules['fields'][$keys['date']])) {
-                $tpl_params[strtoupper($datefield)] = sprintf($lang_items['date'], DateTime::format_date($rules['fields'][$keys['date']]));
+                $tpl_params[strtoupper($datefield)] = sprintf($lang_items['date'], $rules['fields'][$keys['date']]->format('l D M Y'));
             } elseif (isset($rules['fields'][$keys['before']], $rules['fields'][$keys['after']])) {
                 $tpl_params[strtoupper($datefield)] = sprintf(
                     $lang_items['period'],
-                    DateTime::format_date($rules['fields'][$keys['after']]['date']),
+                    $rules['fields'][$keys['after']]['date']->format('l D M Y'),
                     $rules['fields'][$keys['after']]['inc'] ? $translator->trans('included') : $translator->trans('excluded'),
-                    DateTime::format_date($rules['fields'][$keys['before']]['date']),
+                    $rules['fields'][$keys['before']]['date']->format('l D M Y'),
                     $rules['fields'][$keys['before']]['inc'] ? $translator->trans('included') : $translator->trans('excluded')
                 );
             } elseif (isset($rules['fields'][$keys['before']])) {
                 $tpl_params[strtoupper($datefield)] = sprintf(
                     $lang_items['before'],
-                    DateTime::format_date($rules['fields'][$keys['before']]['date']),
+                    $rules['fields'][$keys['before']]['date']->format('l D M Y'),
                     $rules['fields'][$keys['before']]['inc'] ? $translator->trans('included') : $translator->trans('excluded')
                 );
             } elseif (isset($rules['fields'][$keys['after']])) {
                 $tpl_params[strtoupper($datefield)] = sprintf(
                     $lang_items['after'],
-                    DateTime::format_date($rules['fields'][$keys['after']]['date']),
+                    $rules['fields'][$keys['after']]['date']->format('l D M Y'),
                     $rules['fields'][$keys['after']]['inc'] ? $translator->trans('included') : $translator->trans('excluded')
                 );
             }

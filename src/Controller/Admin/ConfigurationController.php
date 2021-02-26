@@ -318,7 +318,7 @@ class ConfigurationController extends AbstractController
         $tpl_vars = [];
         $now = time();
         foreach ($image_std_params->getCustoms() as $custom => $time) {
-            $tpl_vars[$custom] = ($now - $time <= 24 * 3600) ? $this->translator->trans('today', [], 'admin') : \Phyxo\Functions\DateTime::time_since($time, 'day');
+            $tpl_vars[$custom] = ($now - $time >= 24 * 3600) ? $this->translator->trans('today', [], 'admin') : $time;
         }
         $tpl_params['custom_derivatives'] = $tpl_vars;
 
