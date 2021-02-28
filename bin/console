@@ -48,8 +48,8 @@ if ($_SERVER['APP_DEBUG']) {
     }
 }
 
-if (is_readable(__DIR__ . '/config/database.yaml')) {
-    if (is_readable(__DIR__ . '/.update.mode')) {
+if (is_readable(dirname(__DIR__) . '/config/database.yaml')) {
+    if (is_readable(dirname(__DIR__) . '/.update.mode')) {
         $kernel = new UpdateKernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
     } else {
         $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
