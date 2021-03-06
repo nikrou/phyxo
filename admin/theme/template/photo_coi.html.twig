@@ -41,7 +41,7 @@
 	 onChange: jOnChange,
 	 onRelease: jOnRelease
      }
-	 {% if coi %}
+	 {% if coi is defined %}
 		      ,function() {
 			  var $img = $("#jcrop");
 			  this.animateTo( [from_coi({{coi.l}}, $img.width()), from_coi({{coi.t}}, $img.height()), from_coi({{coi.r}}, $img.width()), from_coi({{coi.b}}, $img.height()) ] );
@@ -68,10 +68,12 @@
 		{{'By default, the center of interest is placed in the middle of the photo.'|trans}}
 		{{'Select a zone with your mouse to define a new center of interest.'|trans}}
 	    </p>
+	    {% if coi is defined %}
 	    <input type="hidden" id="l" name="l" value="{% if coi %}{{coi.l}}{% endif %}">
 	    <input type="hidden" id="t" name="t" value="{% if coi %}{{coi.t}}{% endif %}">
 	    <input type="hidden" id="r" name="r" value="{% if coi %}{{coi.r}}{% endif %}">
 	    <input type="hidden" id="b" name="b" value="{% if coi %}{{coi.b}}{% endif %}">
+	    {% endif %}
 
 	    <img id="jcrop" src="{{U_IMG}}" alt="{{ALT}}">
 

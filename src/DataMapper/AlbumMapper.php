@@ -100,6 +100,8 @@ class AlbumMapper
                     'LEVEL' => substr_count($album->getGlobalRank(), '.') + 1,
                     'SELECTED' => isset($selected_category['id']) && $selected_category['id'] === $album->getId() ? true : false,
                     'IS_UPPERCAT' => isset($selected_category['id_uppercat']) && $selected_category['id_uppercat'] === $album->getId() ? true : false,
+                    'count_images' => $album->getUserCacheAlbums()->first()->getCountImages(),
+                    'icon_ts' => ''
                 ]
             );
             if ($this->conf['index_new_icon'] && !empty($row['max_date_last'])) { // @FIX : cf BUGS

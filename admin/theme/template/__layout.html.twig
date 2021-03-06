@@ -23,7 +23,7 @@
 	{% block header %}
 	    <header>
 		<nav class="navbar navbar-expand-lg navbar-dark">
-		    <a class="navbar-brand mr-auto" href="{{path('admin_home')}}" title="{{'Administration'|trans}}"><i class="fa fa-home"></i> {{GALLERY_TITLE}}</a>
+		    <a class="navbar-brand mr-auto" href="{{path('admin_home')}}" title="{{'Administration'|trans}}"><i class="fa fa-home"></i> {{GALLERY_TITLE|default('')}}</a>
 		    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse">
 			<i class="fa fa-align-justify"></i>
 		    </button>
@@ -101,7 +101,7 @@
 			{% endif %}
 		    {% endblock %}
 
-		    {% if errors %}
+		    {% if errors is defined %}
 			<div class="alert alert-danger alert-dismissible fade show" role="alert">
 			    {% for error in errors %}
 				<p>{{error|raw}}</p>
@@ -118,7 +118,7 @@
 			</button>
 		    </div>
 
-		    {% if infos %}
+		    {% if infos is defined %}
 			<div class="alert alert-success alert-dismissible fade show" role="alert">
 			    {% for info in infos %}
 				<p>{{info|raw}}</p>
@@ -129,7 +129,7 @@
 			</div>
 		    {% endif %}
 
-		    {% if warnings %}
+		    {% if warnings is defined %}
 			<div class="alert alert-warning alert-dismissible fade show" role="alert">
 			    {% for warning in warnings %}
 				<p>{{warning|raw}}</p>
@@ -147,7 +147,7 @@
 	    {% block aside %}
 		<aside id="sidebar" role="navigation">
 		    {{ render_esi(url('admin_menubar_navigation')) }}
-		    <script>var menuitem_active = '{{ACTIVE_MENU}}';</script>
+		    <script>var menuitem_active = '{{ACTIVE_MENU|default('')}}';</script>
 		</aside>
 	    {% endblock %}
 	</div>

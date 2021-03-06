@@ -9,7 +9,7 @@
 {% block content %}
     <p><a class="btn btn-submit" data-toggle="collapse" href="#add-group"><i class="fa fa-plus-circle"></i> {{'Add group'|trans}}</a></p>
 
-    <form method="post" action="{{F_ACTION}}">
+    <form method="post" action="{{path('admin_groups')}}">
 	<div class="fieldset collapse" id="add-group">
 	    <h3>{{'Add group'|trans}}</h3>
 
@@ -26,7 +26,7 @@
 	</div>
     </form>
 
-    <form method="post" name="groups-action" action="{{F_ACTION}}">
+    <form method="post" name="groups-action" action="{{path('admin_groups')}}">
 	<table class="table table-hover table-striped">
 	    <thead>
 		<tr>
@@ -75,11 +75,6 @@
 		    <option value="merge">{{'Merge selected groups'|trans}}</option>
 		    <option value="duplicate">{{'Duplicate'|trans}}</option>
 		    <option value="toggle_default">{{'Toggle "default group" property'|trans}}</option>
-		    {% if element_set_groupe_plugins_actions %}
-			{% for action in element_set_groupe_plugins_actions %}
-			    <option value="{{action.ID}}">{{action.NAME}}</option>
-			{% endfor %}
-		    {% endif %}
 		</select>
 
 		<!-- rename -->
@@ -129,15 +124,6 @@
 			{% endfor %}
 		    {% endif %}
 		</div>
-
-		<!-- plugins -->
-		{% if element_set_groupe_plugins_actions %}
-		    {% for action in element_set_groupe_plugins_actions %}
-			<div id="action_{{action.ID}}">
-			    {% if action.CONTENT %}{{action.CONTENT}}{% endif %}
-			</div>
-		    {% endfor %}
-		{% endif %}
 
 		<p id="applyActionBlock" class="d-none actionButtons">
 		    <input id="applyAction" class="btn btn-submit" type="submit" value="{{'Apply action'|trans}}" name="submit">

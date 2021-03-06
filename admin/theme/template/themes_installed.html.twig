@@ -44,8 +44,8 @@
 				    {{'Version'|trans}} {{version|raw}}
 				</div>
 				<div class="card-body">
-				    <a href="{{ROOT_URL}}{{theme.SCREENSHOT}}" class="preview-box icon-zoom-in" title="{{theme.NAME}}">
-					<img class="card-img-top" src="{{ROOT_URL}}../{{theme.SCREENSHOT}}" alt="">
+				    <a href="{{asset(theme.SCREENSHOT)}}" class="preview-box icon-zoom-in" title="{{theme.NAME}}">
+					<img class="card-img-top" src="{{asset('../' ~ theme.SCREENSHOT)}}" alt="">
 				    </a>
 				</div>
 				<div class="actions btn-group btn-group-sm">

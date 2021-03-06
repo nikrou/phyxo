@@ -10,7 +10,7 @@
 	{% if TAGS_PERMISSION_ADD %}
 		<form action="{{USER_TAGS_UPDATE_SCRIPT}}" method="post" id="user-tags-form" class="js-hidden mt-2">
 			<select name="user_tags[]" id="user-tags" multiple="multiple">
-				{% if not related_tags is empty %}
+				{% if related_tags is defined and (not related_tags is empty) %}
 					{% for tag in related_tags %}
 						<option value="~~{{tag.id}}~~" selected="selected">{{tag.name}}</option>
 					{% endfor %}

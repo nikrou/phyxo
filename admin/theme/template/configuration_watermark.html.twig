@@ -15,11 +15,11 @@
 		</div>
 		<div class="col-auto">
 		    <select name="watermark[file]" class="custom-select">
-			{% for option in watermark_files %}
-			    <option value="{{option}}" {% if option==watermark.file %}selected=selected{% endif %}>{{option}}</option>
+			{% for code, option in watermark_files %}
+			    <option value="{{code}}" {% if option==watermark.file %}selected=selected{% endif %}>{{option}}</option>
 			{% endfor %}
 		    </select>
-		    <img style="max-width:100px" id="seleted-watermark-file" src="{{ROOT_URL}}/{{watermark.file}}" alt=""/>
+		    <img style="max-width:100px" id="seleted-watermark-file" src="{{asset(watermark.file)}}" alt=""/>
 		</div>
 		<div class="col-auto">
 		    ... {{'or'|trans}}

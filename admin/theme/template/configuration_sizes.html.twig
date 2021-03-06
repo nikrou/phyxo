@@ -31,24 +31,24 @@
 		    <p>
 			<label>
 			    {{'Maximum width'|trans}}
-			    <input type="text" name="original_resize_maxwidth" value="{{sizes.original_resize_maxwidth}}" size="4" maxlength="4"{% if ferrors.original_resize_maxwidth %} class="dError"{% endif %}>
+			    <input type="text" name="original_resize_maxwidth" value="{{sizes.original_resize_maxwidth}}" size="4" maxlength="4"{% if errors.original_resize_maxwidth is defined %} class="dError"{% endif %}>
 			    {{'pixels'|trans}}
-			    {% if ferrors.original_resize_maxwidth %}<span class="dErrorDesc" title="{{ferrors.original_resize_maxwidth}}">X</span>{% endif %}
+			    {% if errors.original_resize_maxwidth is defined %}<span class="dErrorDesc" title="{{ferrors.original_resize_maxwidth}}">X</span>{% endif %}
 			</label>
 		    </p>
 		    <p>
 			<label>
 			    {{'Maximum height'|trans}}
-			    <input type="text" name="original_resize_maxheight" value="{{sizes.original_resize_maxheight}}" size="4" maxlength="4"{% if ferrors.original_resize_maxheight %} class="dError"{% endif %}>
+			    <input type="text" name="original_resize_maxheight" value="{{sizes.original_resize_maxheight}}" size="4" maxlength="4"{% if errors.original_resize_maxheight is defined %} class="dError"{% endif %}>
 			    {{'pixels'|trans}}
-			    {% if ferrors.original_resize_maxheight %}<span class="dErrorDesc" title="{{ferrors.original_resize_maxheight}}">X</span>{% endif %}
+			    {% if ferrors.original_resize_maxheight is defined %}<span class="dErrorDesc" title="{{ferrors.original_resize_maxheight}}">X</span>{% endif %}
 			</label>
 		    </p>
 		    <p>
 			<label>
 			    {{'Image quality'|trans}}
-			    <input type="text" name="original_resize_quality" value="{{sizes.original_resize_quality}}" size="3" maxlength="3"{% if ferrors.original_resize_quality %} class="dError"{% endif %}> %
-			    {% if ferrors.original_resize_quality %}<span class="dErrorDesc" title="{{ferrors.original_resize_quality}}">X</span>{% endif %}
+			    <input type="text" name="original_resize_quality" value="{{sizes.original_resize_quality}}" size="3" maxlength="3"{% if errors.original_resize_quality is defined %} class="dError"{% endif %}> %
+			    {% if ferrors.original_resize_quality is defined %}<span class="dErrorDesc" title="{{ferrors.original_resize_quality}}">X</span>{% endif %}
 			</label>
 		    </p>
 		</div>
@@ -85,7 +85,6 @@
 			    <button type="button" class="btn btn-submit" data-target="#sizeEdit-{{type}}" data-toggle="collapse">{{'edit'|trans}}</button>
 			</td>
 		    </tr>
-
 		    <tr id="sizeEdit-{{type}}" class="collapse">
 			<td colspan="3">
 			    {% if not d.must_square %}
@@ -100,23 +99,23 @@
 			    <p>
 				<label>
 				    {% if d.must_square or d.crop %}{{'Width'|trans}}{% else %}{{'Maximum width'|trans}}{% endif %}
-				    <input class="form-control" type="text" name="d[{{type}}][w]" maxlength="4" size="4" value="{{d.w}}"{% if ferrors.type.w %} class="dError"{% endif %}> {{'pixels'|trans}}
-				    {% if ferrors.type.w %}<span class="dErrorDesc" title="{{ferrors.type.w}}">X</span>{% endif %}
+				    <input class="form-control" type="text" name="d[{{type}}][w]" maxlength="4" size="4" value="{{d.w}}"{% if errors.type.w is defined %} class="dError"{% endif %}> {{'pixels'|trans}}
+				    {% if errors.type.w is defined %}<span class="dErrorDesc" title="{{errors.type.w}}">X</span>{% endif %}
 				</label>
 			    </p>
 			    {% if not d.must_square %}
 				<p>
 				    <label>{% if d.crop %}{{'Height'|trans}}{% else %}{{'Maximum height'|trans}}{% endif %}
-					<input class="form-control" type="text" name="d[{{type}}][h]" maxlength="4" size="4"  value="{{d.h}}"{% if ferrors.type.h %} class="dError"{% endif %}> {{'pixels'|trans}}
-					{% if ferrors.type.h %}<span class="dErrorDesc" title="{{ferrors.type.h}}">X</span>{% endif %}
+					<input class="form-control" type="text" name="d[{{type}}][h]" maxlength="4" size="4"  value="{{d.h}}"{% if errors.type.h is defined %} class="dError"{% endif %}> {{'pixels'|trans}}
+					{% if errors.type.h is defined %}<span class="dErrorDesc" title="{{errors.type.h}}">X</span>{% endif %}
 				    </label>
 				</p>
 			    {% endif %}
 			    <p>
 				<label>
 				    {{'Sharpen'|trans}}
-				    <input class="form-control" type="text" name="d[{{type}}][sharpen]" maxlength="4" size="4"  value="{{d.sharpen}}"{% if ferrors.type.sharpen %} class="dError"{% endif %}> %
-				    {% if ferrors.type.sharpen %}<span class="dErrorDesc" title="{{ferrors.type.sharpen}}">X</span>{% endif %}
+				    <input class="form-control" type="text" name="d[{{type}}][sharpen]" maxlength="4" size="4"  value="{{d.sharpen}}"{% if errors.type.sharpen is defined %} class="dError"{% endif %}> %
+				    {% if errors.type.sharpen is defined %}<span class="dErrorDesc" title="{{errors.type.sharpen}}">X</span>{% endif %}
 				</label>
 			    </p>
 			</td>
@@ -126,8 +125,8 @@
 
 	    <p>
 		{{'Image quality'|trans}}
-		<input class="form-control" type="text" name="resize_quality" value="{{resize_quality}}" size="3" maxlength="3"{% if ferrors.resize_quality %} class="dError"{% endif %}> %
-		{% if ferrors.resize_quality %}<span class="dErrorDesc" title="{{ferrors.resize_quality}}">X</span>{% endif %}
+		<input class="form-control" type="text" name="resize_quality" value="{{resize_quality}}" size="3" maxlength="3"{% if errors.resize_quality is defined %} class="dError"{% endif %}> %
+		{% if errors.resize_quality is defined %}<span class="dErrorDesc" title="{{errors.resize_quality}}">X</span>{% endif %}
 	    </p>
 	    <p>
 		<a class="btn btn-reset" href="{{path('admin_configuration_sizes_restore')}}" onclick="return confirm('{{'Are you sure?'|trans}}');">{{'Reset to default values'|trans}}</a>
@@ -150,7 +149,7 @@
 	{% endif %}
 
 	<p>
-	    <input type="hidden" name="pwg_token" value="{{csrf_token}}">
+	    <input type="hidden" name="_csrf_token" value="{{csrf_token}}">
 	    <input type="submit" class="btn btn-submit" name="submit" value="{{'Save Settings'|trans}}">
 	</p>
     </form>

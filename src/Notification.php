@@ -478,7 +478,7 @@ class Notification
             'SEND_AS_NAME' => $this->env['send_as_name'],
             'UNSUBSCRIBE_LINK' => $this->router->generate('notification_unsubscribe', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'SUBSCRIBE_LINK' => $this->router->generate('notification_subscribe', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            'CONTACT_EMAIL' => $this->env['send_as_mail_address']
+            'CONTACT_MAIL' => $this->env['send_as_mail_address']
         ];
     }
 
@@ -554,6 +554,7 @@ class Notification
                         $do_update = false;
                     }
                 }
+
 
                 if ($do_update) {
                     $nbm_user->setEnabled($is_subscribe);

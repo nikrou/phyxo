@@ -151,7 +151,7 @@ class PhotoController extends AbstractController
 
         if ($conf['rate'] && $image->getRatingScore()) {
             $nb_rates = $rateRepository->count(['image' => $image_id]);
-            $intro_vars['stats'] .= ', ' . $translator->trans('Rated {count} times, score : {score}', ['count' => $nb_rates, 'score' => sprintf('%.2f', $image->getRatinScore())], 'admin');
+            $intro_vars['stats'] .= ', ' . $translator->trans('Rated {count} times, score : {score}', ['count' => $nb_rates, 'score' => sprintf('%.2f', $image->getRatingScore())], 'admin');
         }
 
         $tpl_params['INTRO'] = $intro_vars;
@@ -275,7 +275,7 @@ class PhotoController extends AbstractController
 
         if ($request->isMethod('POST')) {
             if (strlen($request->request->get('l')) === 0) {
-                $image->setCoi(null);
+                $image->setCoi('');
             } else {
                 $image->setCoi(DerivativeParams::fraction_to_char($request->request->get('l'))
                             . DerivativeParams::fraction_to_char($request->request->get('t'))

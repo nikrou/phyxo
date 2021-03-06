@@ -1,6 +1,6 @@
 <div id="navigationButtons" class="col-12 py-2">
     {% if DISPLAY_NAV_BUTTONS is defined or slideshow is defined %}
-	{% if slideshow %}
+	{% if slideshow is defined %}
 	    {% if slideshow.U_INC_PERIOD is defined %}
 		<a href="{{slideshow.U_INC_PERIOD}}" title="{{'Reduce diaporama speed'|trans}}" class="pwg-state-default pwg-button">
 		    <i class="fa fa-minus" aria-hiden="true"></i>

@@ -95,7 +95,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findMostVisited(array $forbidden_categories = [], string $order_by, ?int $limit = null)
+    public function findMostVisited(array $forbidden_categories = [], array $sorts = [], ?int $limit = null)
     {
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
@@ -105,7 +105,11 @@ class ImageRepository extends ServiceEntityRepository
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
         }
 
-        $qb->orderBy($order_by);
+        if (count($sorts) > 0) {
+            foreach ($sorts as $order_by) {
+                $qb->orderBy('i.' . $order_by[0], $order_by[1] ?? null);
+            }
+        }
 
         if (!is_null($limit)) {
             $qb->setMaxResults($limit);
@@ -114,7 +118,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findRecentImages(array $forbidden_categories = [], \DateTimeInterface $recent_date, string $order_by)
+    public function findRecentImages(array $forbidden_categories = [], \DateTimeInterface $recent_date, array $sorts = [])
     {
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
@@ -126,7 +130,11 @@ class ImageRepository extends ServiceEntityRepository
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
         }
 
-        $qb->orderBy($order_by);
+        if (count($sorts) > 0) {
+            foreach ($sorts as $order_by) {
+                $qb->orderBy('i.' . $order_by[0], $order_by[1] ?? null);
+            }
+        }
 
         return $qb->getQuery()->getResult();
     }

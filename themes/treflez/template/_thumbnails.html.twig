@@ -24,7 +24,7 @@
 		<div class="h-100">
 		    <a href="{{thumbnail.URL}}" data-index="{{idx}}" class="ripple{% if category_view != 'list' %} d-block{% endif %}">
 			<img data-photo-id="{{thumbnail.id}}" class="{% if category_view == 'list' %}card-img-left{% else %}card-img-top{% endif %}"
-			     {% if derivative.is_cached() %}src="{{derivative.getUrl()}}"{% else %}src="{{ROOT_URL}}themes/treflez/img/transparent.png" data-src="{{derivative.getUrl()}}"{% endif %} alt="{{thumbnail.TN_ALT}}" title="{{thumbnail.TN_TITLE|raw('html')}}">
+			     {% if derivative.is_cached() %}src="{{derivative.getUrl()}}"{% else %}src="{{asset('themes/treflez/img/transparent.png')}}" data-src="{{derivative.getUrl()}}"{% endif %} alt="{{thumbnail.TN_ALT}}" title="{{thumbnail.TN_TITLE|raw('html')}}">
 			{% if loaded_plugins.UserCollections is defined and not U_LOGIN %}
 			    <div class="addCollection" data-id="{{thumbnail.id}}" data-cols="[{{thumbnail.COLLECTIONS}}]">
 				<i class="fa fa-star"></i><span class="ml-2">{{'Collections'|trans}}</span>
@@ -33,7 +33,7 @@
 		    </a>
 		    {% set idx=idx+1 %}
 
-		    {% if SHOW_THUMBNAIL_CAPTION %}
+		    {% if SHOW_THUMBNAIL_CAPTION is defined %}
 			<div class="card-body{% if not theme_config.thumbnail_caption and category_view != 'list' %} d-none{% endif %}{% if not theme_config.thumbnail_caption %} list-view-only{% endif %}">
 			    <h6 class="card-title">
 				<a href="{{thumbnail.URL}}" class="ellipsis{% if thumbnail.icon_ts %} recent{% endif %}">{{thumbnail.NAME}}</a>
@@ -41,14 +41,14 @@
 				    <i class="fa fa-exclamation"></i>
 				{% endif %}
 			    </h6>
-			    {% if thumbnail.NB_COMMENTS or thumbnail.NB_HITS %}
+			    {% if thumbnail.NB_COMMENTS is defined or thumbnail.NB_HITS is defined %}
 				<div class="card-text">
-				    {% if thumbnail.NB_COMMENTS %}
+				    {% if thumbnail.NB_COMMENTS is defined %}
 					<p class="text-muted {% if 0==thumbnail.NB_COMMENTS %}zero {% endif %}nb-comments">
 					    {{'number_of_comments'|trans({'count': thumbnail.NB_COMMENTS})}}
 					</p>
 				    {% endif %}
-				    {% if thumbnail.NB_HITS %}
+				    {% if thumbnail.NB_HITS is defined %}
 					<p class="text-muted {% if 0==thumbnail.NB_HITS %}zero {% endif %}nb-hits">
 					    {{'number_of_hits'|trans({'count': thumbnail.NB_HITS})}}
 					</p>

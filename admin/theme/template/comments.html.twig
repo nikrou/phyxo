@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-    {% if navbar is defined %}{{include('_navigation_bar.html.twig')}}{% endif %}
+    {% if navbar is defined and not navbar is empty %}{{include('_navigation_bar.html.twig')}}{% endif %}
 
     {% if comments is defined %}
 	<form method="post" action="{{F_ACTION}}">

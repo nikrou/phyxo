@@ -18,7 +18,7 @@
 			<tr>
 			    <td id="header">
 				<div id="title">{{MAIL_TITLE}}</div>
-				{% if MAIL_SUBTITLE %}<div id="subtitle">{{MAIL_SUBTITLE}}</div>{% endif %}
+				{% if MAIL_SUBTITLE is defined %}<div id="subtitle">{{MAIL_SUBTITLE}}</div>{% endif %}
 			    </td>
 			</tr>
 			<tr>

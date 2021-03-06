@@ -186,6 +186,7 @@ class ImageMapper
                 'URL' => $url,
                 'DESCRIPTION' => $desc,
                 'src_image' => new SrcImage($row, $this->conf['picture_ext']),
+                'icon_ts' => '',
             ]);
 
             if ($this->conf['index_new_icon']) {

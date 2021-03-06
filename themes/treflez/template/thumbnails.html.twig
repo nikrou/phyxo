@@ -12,7 +12,7 @@
 	    {{ include('_thumbnails.html.twig') }}
 	{% endif %}
 
-	{% if thumb_navbar is defined %}
+	{% if thumb_navbar is defined and (not thumb_navbar is empty) %}
 	    <div class="row justify-content-center">
 		{% include '_navigation_bar.html.twig' with { navbar: thumb_navbar}  %}
 	    </div>

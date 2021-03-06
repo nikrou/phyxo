@@ -225,7 +225,7 @@ class CommentController extends CommonController
         return $this->render('comments.html.twig', $tpl_params);
     }
 
-    public function edit(Request $request, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator)
+    public function edit(int $comment_id, Request $request, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator)
     {
         if ($request->isMethod('POST')) {
             $token = new CsrfToken('authenticate', $request->request->get('_csrf_token'));
@@ -235,7 +235,7 @@ class CommentController extends CommonController
 
             $comment_action = $commentMapper->updateUserComment(
                 [
-                    'comment_id' => $request->get('comment_id'),
+                    'id' => $comment_id,
                     'image_id' => $request->request->get('image_id'),
                     'content' => $request->request->get('content'),
                     'website_url' => $request->request->get('website_url'),

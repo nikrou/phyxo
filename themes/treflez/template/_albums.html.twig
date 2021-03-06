@@ -5,64 +5,66 @@
     {% set album_derivative_params = define_derivative({width: 520, height: 360, crop: true}) %}
     {% set album_derivative_params_square = define_derivative_square() %}
 
-    {% for cat in category_thumbnails %}
-	{% if theme_config.category_wells == 'never' %}
-	    {% set album_derivative = derivative_from_image({image: cat.representative.src_image, params: album_derivative_params}) %}
+    {% if category_thumbnails is defined %}
+	{% for cat in category_thumbnails %}
+	    {% if theme_config.category_wells == 'never' %}
+		{% set album_derivative = derivative_from_image({image: cat.representative.src_image, params: album_derivative_params}) %}
 
 
-	    {# this needs a fixed size else it messes up the grid on tablets #}
-	    <div class="col-outer mt-3 {% if category_view == 'list' %}col-12{%  else %}{{macro.col_class(260, 180, theme_config)|trim}}{% endif %}" data-grid-classes="{{macro.col_class(260, 180, theme_config)|trim}}">
-		<div class="card card-thumbnail" data-id="{{cat.id}}">
-		    <div class="h-100">
-			<a href="{{cat.URL}}" class="ripple{% if category_view != 'list' %} d-block{% endif %}">
-			    <img class="{% if category_view == 'list' %}card-img-left{% else %}card-img-top{% endif %}" {% if album_derivative.is_cached() %}src="{{album_derivative.getUrl()}}"{% else %}src="{{asset('themes/treflez/img/transparent.png')}}" data-src="{{album_derivative.getUrl()}}"{% endif %} alt="{{cat.TN_ALT}}" title="{{cat.name}} - {{'display this album'|trans}}">
-			</a>
-			<div class="card-body">
-			    <h5 class="card-title ellipsis {% if not cat.icon_ts is empty %} recent{% endif %}">
-				<a data-testid="album-name" href="{{cat.URL}}">{{cat.name}}</a>
-				{% if not cat.icon_ts is empty %}
-				    <i class="fa fa-exclamation"></i>
-				{% endif %}
-			    </h5>
-			    <div class="card-text">
-				{% if not cat.DESCRIPTION is empty %}
-				    <div data-testid="album-description" class="description {% if theme_config.cat_descriptions %} d-block{% endif %}">{{cat.DESCRIPTION}}</div>
-				{% endif %}
-			    </div>
-			</div>
-			{% if theme_config.cat_nb_images %}
-			    <div class="card-footer text-muted"><div data-testid="album-nb-images" class="d-inline-block ellipsis">{{cat.CAPTION_NB_IMAGES|replace({'<br>':', '})}}</div></div>
-			{% endif %}
-		    </div>
-		</div>
-	    </div>
-	{% else %}
-	    {% set album_derivative_square = derivative_from_image({ image: cat.representative.src_image, params: album_derivative_params_square}) %}
-	    <div class="col-outer col-12">
-		<div class="card">
-		    <div class="card-body p-0">
-			<a href="{{cat.URL}}">
-			    <div class="media h-100">
-				<img class="d-flex mr-3" {% if album_derivative_square.is_cached() %}src="{{album_derivative_square.getUrl()}}"{% else %}src="{{asset('themes/treflez/img/transparent.png')}}" data-src="{{album_derivative_square.getUrl()}}"{% endif %} alt="{{cat.TN_ALT}}">
-				<div class="media-body pt-2">
-				    <h4 data-testid="album-name" class="mt-0 mb-1">{{cat.NAME}}</h4>
-				    {% if not cat.DESCRIPTION is empty %}
-					<div data-testid="album-description" class="description">{{cat.DESCRIPTION}}</div>
+		{# this needs a fixed size else it messes up the grid on tablets #}
+		<div class="col-outer mt-3 {% if category_view == 'list' %}col-12{%  else %}{{macro.col_class(260, 180, theme_config)|trim}}{% endif %}" data-grid-classes="{{macro.col_class(260, 180, theme_config)|trim}}">
+		    <div class="card card-thumbnail" data-id="{{cat.id}}">
+			<div class="h-100">
+			    <a href="{{cat.URL}}" class="ripple{% if category_view != 'list' %} d-block{% endif %}">
+				<img class="{% if category_view == 'list' %}card-img-left{% else %}card-img-top{% endif %}" {% if album_derivative.is_cached() %}src="{{album_derivative.getUrl()}}"{% else %}src="{{asset('themes/treflez/img/transparent.png')}}" data-src="{{album_derivative.getUrl()}}"{% endif %} alt="{{cat.TN_ALT}}" title="{{cat.name}} - {{'display this album'|trans}}">
+			    </a>
+			    <div class="card-body">
+				<h5 class="card-title ellipsis {% if not cat.icon_ts is empty %} recent{% endif %}">
+				    <a data-testid="album-name" href="{{cat.URL}}">{{cat.name}}</a>
+				    {% if not cat.icon_ts is empty %}
+					<i class="fa fa-exclamation"></i>
 				    {% endif %}
-				    {% if theme_config.cat_nb_images %}
-					<div data-testid="album-nb-images" class="text-muted">{{cat.CAPTION_NB_IMAGES|replace({'<br>': ', '})}}</div>
+				</h5>
+				<div class="card-text">
+				    {% if not cat.DESCRIPTION is empty %}
+					<div data-testid="album-description" class="description {% if theme_config.cat_descriptions %} d-block{% endif %}">{{cat.DESCRIPTION}}</div>
 				    {% endif %}
 				</div>
 			    </div>
-			</a>
+			    {% if theme_config.cat_nb_images %}
+				<div class="card-footer text-muted"><div data-testid="album-nb-images" class="d-inline-block ellipsis">{{cat.CAPTION_NB_IMAGES|replace({'<br>':', '})}}</div></div>
+			    {% endif %}
+			</div>
 		    </div>
 		</div>
-	    </div>
-	{% endif %}
-    {% endfor %}
+	    {% else %}
+		{% set album_derivative_square = derivative_from_image({ image: cat.representative.src_image, params: album_derivative_params_square}) %}
+		<div class="col-outer col-12">
+		    <div class="card">
+			<div class="card-body p-0">
+			    <a href="{{cat.URL}}">
+				<div class="media h-100">
+				    <img class="d-flex mr-3" {% if album_derivative_square.is_cached() %}src="{{album_derivative_square.getUrl()}}"{% else %}src="{{asset('themes/treflez/img/transparent.png')}}" data-src="{{album_derivative_square.getUrl()}}"{% endif %} alt="{{cat.TN_ALT}}">
+				    <div class="media-body pt-2">
+					<h4 data-testid="album-name" class="mt-0 mb-1">{{cat.NAME}}</h4>
+					{% if not cat.DESCRIPTION is empty %}
+					    <div data-testid="album-description" class="description">{{cat.DESCRIPTION}}</div>
+					{% endif %}
+					{% if theme_config.cat_nb_images %}
+					    <div data-testid="album-nb-images" class="text-muted">{{cat.CAPTION_NB_IMAGES|replace({'<br>': ', '})}}</div>
+					{% endif %}
+				    </div>
+				</div>
+			    </a>
+			</div>
+		    </div>
+		</div>
+	    {% endif %}
+	{% endfor %}
+    {% endif %}
 </div>
 
-{% if cats_navbar is defined %}
+{% if cats_navbar is defined and (not cats_navbar is empty) %}
     <div class="row justify-content-center">
 	{% include '_navigation_bar.html.twig' with { navbar: cats_navbar}  %}
     </div>

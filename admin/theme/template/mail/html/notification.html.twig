@@ -9,17 +9,17 @@
 	{% if subscribe_by_admin %}
 	    <p>{{'The webmaster has subscribed you to receiving notifications by mail.'|trans}}</p>
 	{% endif %}
-	{% if subscribe_by_himself %}
+	{% if subscribe_by_himself is defined %}
 	    <p>{{'You have subscribed to receiving notifications by mail.'|trans}}</p>
 	{% endif %}
-	{% if unsubscribe_by_admin %}
+	{% if unsubscribe_by_admin is defined %}
 	    <p>{{'The webmaster has unsubscribed you from receiving notifications by mail.'|trans}}</p>
 	{% endif %}
-	{% if unsubscribe_by_himself %}
+	{% if unsubscribe_by_himself is defined %}
 	    <p>{{'You have unsubscribed from receiving notifications by mail.'|trans}}</p>
 	{% endif %}
 
-	{% if content_new_elements_single %}
+	{% if content_new_elements_single is defined %}
 	    <p>
 		{{'New photos were added'|trans}}
 		{{'on'|trans}}
@@ -27,7 +27,7 @@
 	    </p>
 	{% endif %}
 
-	{% if content_new_elements_between %}
+	{% if content_new_elements_between is defined %}
 	    <p>
 		{{'New photos were added'|trans}}
 		{{'between'|trans}}
@@ -37,7 +37,7 @@
 	    </p>
 	{% endif %}
 
-	{% if global_new_lines %}
+	{% if global_new_lines is defined %}
 	    <ul id="nbm_new_line">
 		{% for line in global_new_lines %}
 		    <li>{{line}}</li>
@@ -45,7 +45,7 @@
 	    </ul>
 	{% endif %}
 
-	{% if custom_mail_content %}
+	{% if custom_mail_content is defined %}
 	    <p>{{custom_mail_content}}</p>
 	{% endif %}
 
@@ -64,12 +64,12 @@
 	    {{'To subscribe'|trans}}{{', click on'|trans}}
 	    <a href="{{SUBSCRIBE_LINK}}">{{SUBSCRIBE_LINK}}</a><br>
 	    {{'If you encounter problems or have any question, please send a message to'|trans}}
-	    <a href="mailto:{{CONTACT_EMAIL}}?subject={{'[NBM] Problems or questions'|trans}}">{{CONTACT_EMAIL}}</a><br>
+	    <a href="mailto:{{CONTACT_MAIL}}?subject={{'[NBM] Problems or questions'|trans}}">{{CONTACT_MAIL}}</a><br>
 	</p>
 	<hr>
     </div>
 
-    {% if recent_posts %}
+    {% if recent_posts is defined %}
 	<div id="nbm_recent_post">
 	    {% for recent_post in recent_posts %}
 		<h2>{{recent_post.TITLE}}</h2>

@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-    {% if groups %}
+    {% if groups is defined %}
 	<ul class="inline-groups">
 	    {% for group in groups %}
 		<li>
@@ -19,7 +19,7 @@
     {% else %}
 	<h3>{{TITLE}}</h3>
 	<form method="post" action="{{F_ACTION}}">
-	    <input type="hidden" name="pwg_token" value="{{csrf_token}}">
+	    <input type="hidden" name="_csrf_token" value="{{csrf_token}}">
 	    {{include('include/_double_select.html.twig')}}
 	</form>
 	<p>{{'Only private albums are listed'|trans}}</p>

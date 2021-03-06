@@ -7,11 +7,11 @@
 
 {% block javascripts %}
     {{parent()}}
-    <script src="{{ROOT_URL}}theme/js/ui/jquery.ui.core.js"></script>
-    <script src="{{ROOT_URL}}theme/js/ui/jquery.ui.widget.js"></script>
-    <script src="{{ROOT_URL}}theme/js/ui/jquery.ui.mouse.js"></script>
-    <script src="{{ROOT_URL}}theme/js/ui/jquery.ui.sortable.js"></script>
-    <script src="{{ROOT_URL}}theme/js/menubar.js"></script>
+    <script src="{{asset('admin/theme/js/ui/jquery.ui.core.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/jquery.ui.widget.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/jquery.ui.mouse.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/jquery.ui.sortable.js')}}"></script>
+    <script src="{{asset('admin/theme/js/menubar.js')}}"></script>
 {% endblock %}
 
 {% block content %}

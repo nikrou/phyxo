@@ -251,7 +251,7 @@ class TagsController extends AbstractController
         return $this->redirectToRoute('admin_tags');
     }
 
-    public function permissions(Request $request, Conf $conf, TagMapper $tagMapper, TranslatorInterface $translator)
+    public function permissions(Request $request, Conf $conf, TagMapper $tagMapper, TranslatorInterface $translator, CsrfTokenManagerInterface $tokenManager)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -300,6 +300,7 @@ class TagsController extends AbstractController
         $tpl_params['PERMISSIONS'] = $Permissions;
         $tpl_params['STATUS_OPTIONS'] = $status_options;
 
+        $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_tags_permissions');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_tags');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_tags');
@@ -317,7 +318,7 @@ class TagsController extends AbstractController
         return $this->render('tags_permissions.html.twig', $tpl_params);
     }
 
-    public function pending(Request $request, TagMapper $tagMapper, TranslatorInterface $translator)
+    public function pending(Request $request, TagMapper $tagMapper, TranslatorInterface $translator, CsrfTokenManagerInterface $tokenManager)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -338,6 +339,7 @@ class TagsController extends AbstractController
 
         $tpl_params['tags'] = $tagMapper->getPendingTags();
 
+        $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_tags_permissions');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_tags');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Tags', [], 'admin');

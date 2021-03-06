@@ -1,14 +1,16 @@
 <nav class="navbar navbar-expand-lg navbar-contextual {{theme_config.navbar_contextual_style}} {{theme_config.navbar_contextual_bg}}{% if theme_config.page_header == 'fancy' and theme_config.page_header_both_navs %} navbar-transparent navbar-sm{% endif %} sticky-top mb-2">
     <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
 
-	{{include("_breadcrumb.html.twig", {'elements': TITLE})}}
+	{% if TITLE is defined %}
+	    {%  include '_breadcrumb.html.twig' with { 'elements': TITLE } %}
+	{% endif %}
 
         <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#secondary-navbar" aria-controls="secondary-navbar" aria-expanded="false" aria-label="Toggle navigation">
             <span class="fa fa-bars"></span>
         </button>
         <div class="navbar-collapse collapse justify-content-end" id="secondary-navbar">
             <ul class="navbar-nav">
-		{% if image_orders %}
+		{% if image_orders is defined %}
                     <li class="nav-item dropdown">
 			<button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown" title="{{'Sort order'|trans}}">
                             <i class="fa fa-sort" aria-hidden="true"></i>
@@ -21,7 +23,7 @@
                         </div>
                     </li>
 		{% endif %}
-		{% if image_derivatives %}
+		{% if image_derivatives is defined %}
                     <li class="nav-item dropdown">
                         <button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown" title="{{'Photo sizes'|trans}}">
                             <i class="fa fa-photo" aria-hidden="true"></i>
@@ -34,7 +36,7 @@
                         </div>
                     </li>
 		{% endif %}
-		{% if favorite %}
+		{% if favorite is defined %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{favorite.U_FAVORITE}}" title="{{'Delete all photos from your favorites'|trans}}">
                             <i class="fa fa-heartbeat fa-fw" aria-hidden="true"></i><span class="d-lg-none ml-2">{{'Delete all photos from your favorites'|trans}}</span>

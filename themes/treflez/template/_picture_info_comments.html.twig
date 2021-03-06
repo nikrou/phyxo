@@ -16,9 +16,9 @@
 	    {% if COMMENT_COUNT > 0 %}
 		<div id="viewcomments" class="tab-pane active">
 		    {{include('_comment_list.html.twig')}}
-		    {% if navbar is defined %}
+		    {% if navbar is defined and (not navbar is empty) %}
 			<div class="row justify-content-center">
-			    {{include('_navigation_bar.html.twig', {fragment: 'comments'})}}
+			    {% include '_navigation_bar.html.twig' with { navbar: navbar } %}
 			</div>
 		    {% endif %}
 		</div>

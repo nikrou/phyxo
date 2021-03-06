@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block content %}
-    <form method="post" name="notification_by_mail" id="notification_by_mail" action="{{F_ACTION}}">
+    <form method="post" name="notification_by_mail" id="notification_by_mail" action="{{path('admin_notification_send')}}">
 	{% if send.users is empty %}
 	    <p>{{'There is no available subscribers to mail.'|trans}}</p>
 	    <p>

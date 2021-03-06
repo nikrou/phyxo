@@ -80,8 +80,9 @@ class PluginsController extends AbstractController
         if (count($missing_plugin_ids) > 0) {
             foreach ($missing_plugin_ids as $plugin_id) {
                 $tpl_plugin = [
+                    'ID' => $plugin_id,
                     'NAME' => $plugin_id,
-                    'VERSION' => $plugins->getDbPlugins()[$plugin_id]['version'],
+                    'VERSION' => $plugins->getDbPlugins()[$plugin_id]->getVersion(),
                     'DESC' => $translator->trans('Error! This plugin is missing but it is installed! Uninstall it now.', [], 'admin'),
                     'state' => 'missing',
                 ];
@@ -109,6 +110,7 @@ class PluginsController extends AbstractController
         $tpl_params['plugins'] = $tpl_plugins;
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_plugins_installed');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Plugins', [], 'admin');
+        $tpl_params['EXT_TYPE'] = 'plugins';
         $tpl_params = array_merge($this->setTabsheet('installed'), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');
@@ -173,6 +175,7 @@ class PluginsController extends AbstractController
         $tpl_params['ws'] = $this->generateUrl('ws');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_plugins_new');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Plugins', [], 'admin');
+        $tpl_params['EXT_TYPE'] = 'plugins';
         $tpl_params = array_merge($this->setTabsheet('new'), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');

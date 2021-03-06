@@ -9,25 +9,25 @@
 	{{'The webmaster has subscribed you to receiving notifications by mail.'|trans}}
     {% endif %}
 
-    {% if subscribe_by_himself %}
+    {% if subscribe_by_himself is defined %}
 	{{'You have subscribed to receiving notifications by mail.'|trans}}
     {% endif %}
 
-    {% if unsubscribe_by_admin %}
+    {% if unsubscribe_by_admin is defined %}
 	{{'The webmaster has unsubscribed you from receiving notifications by mail.'|trans}}
     {% endif %}
 
-    {% if unsubscribe_by_himself %}
+    {% if unsubscribe_by_himself is defined %}
 	{{'You have unsubscribed from receiving notifications by mail.'|trans}}
     {% endif %}
 
-    {% if content_new_elements_single %}
+    {% if content_new_elements_single is defined %}
 	{{'New photos were added'|trans}}
 	{{'on'|trans}}
 	{{content_new_elements_single.DATE_SINGLE|date('Y-m-d H:m:i')}}.
     {% endif %}
 
-    {% if content_new_elements_between %}
+    {% if content_new_elements_between is defined %}
 	{{'New photos were added'|trans}}
 	{{'between'|trans}}
 	{{content_new_elements_between.DATE_BETWEEN_1|date('Y-m-d H:m:i')}}
@@ -35,27 +35,27 @@
 	{{content_new_elements_between.DATE_BETWEEN_2|date('Y-m-d H:m:i')}}.
     {% endif %}
 
-    {% if global_new_lines %}
+    {% if global_new_lines is defined %}
 	{% for line in global_new_lines %}
 	    o
 	    {{line}}
 	{% endfor %}
     {% endif %}
 
-    {% if custom_mail_content %}
+    {% if custom_mail_content is defined %}
 	{{custom_mail_content}}
     {% endif %}
 
-    {% if GOTO_GALLERY_TITLE %}
-	.{{GOTO_GALLERY_TITLE}}
-	{{GOTO_GALLERY_URL}}
+    {% if GOTO_GALLERY_TITLE is defined %}
+	.{{'Go to'|trans}} {{GALLERY_TITLE}}
+	{{GALLERY_URL}}
 	.
     {% endif %}
 
     {{'See you soon,'|trans}}
     {{SEND_AS_NAME}}
 
-    {% if recent_posts %}
+    {% if recent_posts is defined %}
 	{% for recent_post in recent_posts %}
 	    {{recent_post.TITLE}}
 
@@ -70,6 +70,6 @@
     {{'To subscribe'|trans}}{{', click on'|trans}}
     {{SUBSCRIBE_LINK}}
     {{'If you encounter problems or have any question, please send a message to'|trans}}
-    {{CONTACT_EMAIL}}
+    {{CONTACT_MAIL}}
     ______________________________________________________________________________
 {% endblock %}

@@ -11,12 +11,12 @@
 		<div class="embed-responsive embed-responsive-9by16">
     {% endif %}
     <video id="video" class="embed-responsive-item" width="100%" height="auto" controls preload="auto" poster="{{current.selected_derivative.getUrl()}}">
-	<source src="{{ROOT_URL}}{{current.path}}" type="video/mp4"></source>
+	<source src="{{asset('themes/treflez/' ~ current.path)}}" type="video/mp4"></source>
     </video>
 		</div>
 	    </div>
 {% else %}
-	    <img {% if current.selected_derivative.is_cached() %}src="{{current.selected_derivative.getUrl()}}" {{current.selected_derivative.get_size_htm()|raw('html')}}{% else %}src="{{ROOT_URL}}themes/treflez/img/transparent.png" data-src="{{current.selected_derivative.getUrl()}}"{% endif %} alt="{% if ALT_IMG is defined %}ALT_IMG{% endif %}" id="theMainImage" usemap="#map{{current.selected_derivative.get_type()}}" title="{% if COMMENT_IMG is defined %}{{COMMENT_IMG|raw('html')}}{% else %}{% if current.TITLE_ESC is defined %}{{current.TITLE_ESC}}{% endif %}{% if ALT_IMG is defined %} - {{ALT_IMG}}{% endif %}{% endif %}">
+	    <img {% if current.selected_derivative.is_cached() %}src="{{current.selected_derivative.getUrl()}}" {{current.selected_derivative.get_size_htm()|raw('html')}}{% else %}src="{{asset('themes/treflez/img/transparent.png')}}" data-src="{{current.selected_derivative.getUrl()}}"{% endif %} alt="{% if ALT_IMG is defined %}ALT_IMG{% endif %}" id="theMainImage" usemap="#map{{current.selected_derivative.get_type()}}" title="{% if COMMENT_IMG is defined %}{{COMMENT_IMG|raw('html')}}{% else %}{% if current.TITLE_ESC is defined %}{{current.TITLE_ESC}}{% endif %}{% if ALT_IMG is defined %} - {{ALT_IMG}}{% endif %}{% endif %}">
 
 	    {% for derivative in current.unique_derivatives %}
 		<map name="map{{derivative.get_type()}}">

@@ -3,6 +3,6 @@
 {% block content %}
   <h1>{{'You are not authorized to access the requested page'|trans}}</h1>
 
-  <p><a href="{{ROOT_URL}}identification">{{'Identification'|trans}}</a></p>
-  <p><a href="{{ROOT_URL}}">{{'Home'|trans}}</a></p>
+  <p><a href="{{path('login')}}">{{'Identification'|trans}}</a></p>
+  <p><a href="{{path('homepage')}}">{{'Home'|trans}}</a></p>
 {% endblock %}

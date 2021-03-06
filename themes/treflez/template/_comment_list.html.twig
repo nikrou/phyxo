@@ -10,7 +10,7 @@
 		    {% endif %}
 		    {% set derivative = derivative_from_image({image: comment.src_image, params: cropped_derivative_params}) %}
 		    <a href="{{comment.U_PICTURE}}">
-			<img {% if derivative.is_cached() %}src="{{derivative.getUrl()}}"{% else %}src="{{ROOT_URL}}{{themeconf.icon_dir}}/img_small.png" data-src="{{derivative.getUrl()}}"{% endif %} alt="{{comment.ALT}}">
+			<img {% if derivative.is_cached() %}src="{{derivative.getUrl()}}"{% else %}src="{{asset('themes/treflez/img/img_small.png')}}" data-src="{{derivative.getUrl()}}"{% endif %} alt="{{comment.ALT}}">
 		    </a>
 		</div>
 	    {% endif %}
@@ -58,7 +58,7 @@
 			</div>
 			<input type="hidden" name="key" value="{{comment.KEY}}">
 			<input type="hidden" name="_csrf_token" value="{{csrf_token}}">
-			<input type="hidden" name="image_id" value="{{comment.IMAGE_ID|default(current.id)}}">
+			<input type="hidden" name="image_id" value="{{comment.IMAGE_ID}}">
 			<button type="submit" class="btn btn-primary">{{'Submit'|trans}}</button>
 		    </form>
 		{% else %}

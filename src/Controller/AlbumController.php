@@ -135,6 +135,7 @@ class AlbumController extends CommonController
                     'DESCRIPTION' => $currentAlbum->getComment() ?? '',
                     'NAME' => $name,
                     'name' => $currentAlbum->getName(),
+                    'icon_ts' => '',
                 ];
 
                 if ($conf['index_new_icon']) {
@@ -399,6 +400,7 @@ class AlbumController extends CommonController
                         'DESCRIPTION' => $album->getComment() ?? '',
                         'NAME' => $name,
                         'name' => $album->getName(),
+                        'icon_ts' => '',
                     ]
                 );
 
@@ -514,6 +516,7 @@ class AlbumController extends CommonController
                     'DESCRIPTION' => $album->getComment() ?? '',
                     'NAME' => $name,
                     'name' => $album->getName(),
+                    'icon_ts' => '',
                 ];
 
                 if ($conf['index_new_icon']) {

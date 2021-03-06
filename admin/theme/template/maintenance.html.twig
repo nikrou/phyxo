@@ -7,39 +7,35 @@
 
 {% block content %}
 	<ul>
-		{% if U_MAINT_LOCK_GALLERY is defined %}
-			<li>
-				<a href="{{U_MAINT_LOCK_GALLERY}}" onclick="return confirm('{{'A locked gallery is only visible to administrators'|trans}}');">{{'Lock gallery'|trans}}</a>
-			</li>
-		{% else %}
-			<li>
-				<a href="{{U_MAINT_UNLOCK_GALLERY}}">{{'Unlock gallery'|trans}}</a>
-			</li>
-		{% endif %}
+	    {% if U_MAINT_LOCK_GALLERY is defined %}
+		<li>
+		    <a href="{{U_MAINT_LOCK_GALLERY}}" onclick="return confirm('{{'A locked gallery is only visible to administrators'|trans}}');">{{'Lock gallery'|trans}}</a>
+		</li>
+	    {% else %}
+		<li>
+		    <a href="{{U_MAINT_UNLOCK_GALLERY}}">{{'Unlock gallery'|trans}}</a>
+		</li>
+	    {% endif %}
 	</ul>
 
-	<ul>
+	{% if advanced_features is defined  %}
+	    <ul>
 		{% for feature in advanced_features %}
-			<li>
-				<a href="{{feature.URL}}">{{feature.CAPTION}}</a>
-			</li>
+		    <li><a href="{{feature.URL}}">{{feature.CAPTION}}</a></li>
 		{% endfor %}
-	</ul>
+	    </ul>
+	{% endif %}
 
 	<ul>
-		<li>
-			<a href="{{U_MAINT_CATEGORIES}}">{{'Update albums informations'|trans}}</a>
-		</li>
-		<li>
-			<a href="{{U_MAINT_IMAGES}}">{{'Update photos information'|trans}}</a>
-		</li>
+	    <li><a href="{{U_MAINT_CATEGORIES}}">{{'Update albums informations'|trans}}</a></li>
+	    <li><a href="{{U_MAINT_IMAGES}}">{{'Update photos information'|trans}}</a></li>
 	</ul>
 
 	{# <ul>
-			<li>
-				<a href="{{U_MAINT_DATABASE}}">{{'Repair and optimize database'|trans}}</a>
-			</li>
-		</ul> #}
+	<li>
+	<a href="{{U_MAINT_DATABASE}}">{{'Repair and optimize database'|trans}}</a>
+	</li>
+	</ul> #}
 
     <ul>
 	<li><a href="{{U_MAINT_OBSOLETE}}">{{'Remove obsolete files from old releases'|trans}}</a></li>

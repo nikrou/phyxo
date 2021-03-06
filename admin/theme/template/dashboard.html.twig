@@ -71,7 +71,7 @@
 	</dd>
     </dl>
 
-    {% if ENABLE_SYNCHRONIZATION %}
+    {% if ENABLE_SYNCHRONIZATION is defined %}
 	<form name="QuickSynchro" action="{{U_CAT_UPDATE}}" method="post" id="QuickSynchro" style="display: block; text-align:right;">
 	    <div>
 		<input type="hidden" name="sync" value="files" checked="checked">

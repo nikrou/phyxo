@@ -8,6 +8,7 @@ DELETE FROM phyxo_themes;
 DELETE FROM phyxo_user_cache;
 DELETE FROM phyxo_user_cache_categories;
 DELETE FROM phyxo_image_tag;
+DELETE FROM phyxo_caddie;
 DELETE FROM phyxo_tags;
 DELETE FROM phyxo_user_group;
 DELETE FROM phyxo_group_access;

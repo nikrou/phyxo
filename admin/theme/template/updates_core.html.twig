@@ -26,7 +26,7 @@
 
 {% block content %}
     {% if STEP == 0 %}
-	{% if UPGRADE_ERROR %}
+	{% if UPGRADE_ERROR is defined %}
 	    <p>{{UPGRADE_ERROR|raw}}</p>
 	{% elseif CHECK_VERSION %}
 	    <p>{{'You are running the latest version of Phyxo.'|trans}}</p>

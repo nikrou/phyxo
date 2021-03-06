@@ -32,6 +32,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AlbumController extends AbstractController
@@ -367,7 +368,7 @@ class AlbumController extends AbstractController
         return $this->render('album_sort_order.html.twig', $tpl_params);
     }
 
-    public function permissions(Request $request, int $album_id, int $parent_id = null, Conf $conf, UserCacheRepository $userCacheRepository,
+    public function permissions(Request $request, int $album_id, int $parent_id = null, Conf $conf, UserCacheRepository $userCacheRepository, CsrfTokenManagerInterface $tokenManager,
                                 AlbumMapper $albumMapper, TranslatorInterface $translator, UserRepository $userRepository, GroupRepository $groupRepository)
     {
         $tpl_params = [];
@@ -495,6 +496,7 @@ class AlbumController extends AbstractController
             }
         }
 
+        $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');
         $tpl_params['CATEGORIES_NAV'] = $albumMapper->getAlbumsDisplayName($album->getUppercats(), 'admin_album', ['parent_id' => $parent_id]);
         $tpl_params['U_GROUPS'] = $this->generateUrl('admin_groups');
         $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['groups', 'users'], $this->getDoctrine(), $this->generateUrl('homepage'));

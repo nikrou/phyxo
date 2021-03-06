@@ -3,9 +3,9 @@
     <head>
 	<meta charset="utf-8">
 	<title>Phyxo web API (web-services) explorer</title>
-	<link type="text/css" rel="stylesheet" href="{{ROOT_URL}}theme/css/api.css">
-	<script src="{{ROOT_URL}}theme/js/jquery/jquery.js"></script>
-	<script src="{{ROOT_URL}}theme/js/jquery/jquery-migrate-1.2.1.js"></script>
+	<link type="text/css" rel="stylesheet" href="{{asset('admin/theme/css/api.css')}}">
+	<script src="{{asset('admin/theme/js/jquery/jquery.js')}}"></script>
+	<script src="{{asset('admin/theme/js/jquery/jquery-migrate-1.2.1.js')}}"></script>
     </head>
     <body>
 	<a name="top"></a>
@@ -140,6 +140,6 @@
 	 var ws_url = '{{ws}}';
 	 var pwg_token = '{{csrf_token}}';
 	</script>
-	<script src="{{ROOT_URL}}theme/js/api.js"></script>
+	<script src="{{asset('admin/theme/js/api.js')}}"></script>
     </body>
 </html>

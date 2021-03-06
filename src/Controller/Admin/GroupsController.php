@@ -21,6 +21,7 @@ use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class GroupsController extends AbstractController
@@ -37,7 +38,7 @@ class GroupsController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function list(Request $request, TranslatorInterface $translator, GroupRepository $groupRepository)
+    public function list(Request $request, TranslatorInterface $translator, GroupRepository $groupRepository, CsrfTokenManagerInterface $tokenManager)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -73,6 +74,7 @@ class GroupsController extends AbstractController
         }
         $tpl_params['groups'] = $groups;
 
+        $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_groups');
         $tpl_params['F_ACTION_MERGE'] = $this->generateUrl('admin_groups_action', ['action' => 'merge']);
         $tpl_params['F_ACTION_DUPLICATE'] = $this->generateUrl('admin_groups_action', ['action' => 'duplicate']);
@@ -95,7 +97,8 @@ class GroupsController extends AbstractController
         return $this->render('groups_list.html.twig', $tpl_params);
     }
 
-    public function perm(Request $request, int $group_id, AlbumMapper $albumMapper, UserMapper $userMapper, TranslatorInterface $translator, GroupRepository $groupRepository)
+    public function perm(Request $request, int $group_id, AlbumMapper $albumMapper, UserMapper $userMapper, TranslatorInterface $translator,
+                        GroupRepository $groupRepository, CsrfTokenManagerInterface $tokenManager)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -128,6 +131,7 @@ class GroupsController extends AbstractController
             $groupname = $group->getName();
         }
 
+        $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');
         $tpl_params['TITLE'] = $translator->trans('Manage permissions for group "{group}"', ['group' => $groupname], 'admin');
         $tpl_params['L_CAT_OPTIONS_TRUE'] = $translator->trans('Authorized', [], 'admin');
         $tpl_params['L_CAT_OPTIONS_FALSE'] = $translator->trans('Forbidden', [], 'admin');

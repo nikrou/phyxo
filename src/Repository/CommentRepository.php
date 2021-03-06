@@ -115,7 +115,7 @@ class CommentRepository extends ServiceEntityRepository
         $qb->andWhere($qb->expr()->in('c.image', $image_ids));
         $qb->groupBy('c.image');
 
-        return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR) ?? [];
+        return $qb->getQuery()->getResult();
     }
 
     public function countGroupByValidated()

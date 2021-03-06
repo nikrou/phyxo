@@ -6,5 +6,5 @@ twig:
     PHYXO_URL: '%phyxo_website%'
 
   exception_controller: null
-  #
-  # strict_variables: '%kernel.debug%'
+
+  strict_variables: '%kernel.debug%'

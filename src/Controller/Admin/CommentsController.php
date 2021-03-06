@@ -93,6 +93,7 @@ class CommentsController  extends AbstractController
             $tpl_params['NB_ELEMENTS'] = $nb_total;
             $tpl_params['SECTION_TITLE'] = $translator->trans('All', [], 'admin');
         } else {
+            $tpl_params['NB_ELEMENTS'] = '';
             $tpl_params['SECTION_TITLE'] = $translator->trans('number_of_comments_pending', ['count' => $nb_pending], 'admin');
         }
 

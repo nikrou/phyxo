@@ -97,7 +97,7 @@
 			name="users[]" multiple></select>
 	    </p>
 
-	    {% if nb_users_granted_indirect and nb_users_granted_indirect > 0 %}
+	    {% if nb_users_granted_indirect is defined and nb_users_granted_indirect|length > 0 %}
 		<p>
 		    {{'{count} users have automatic permission because they belong to a granted group.'|trans({'count': nb_users_granted_indirect})}}
 		    <a class="btn btn-submit" href="#indirectPermissionsDetails" data-toggle="collapse">{{'Show/Hide details'|trans}}</a>
@@ -117,7 +117,7 @@
 		<input type="checkbox" name="apply_on_sub" {% if INHERIT %}checked="checked"{% endif %}>
 		{{'Apply to sub-albums'|trans}}
 	    </label>
-	    <input type="hidden" name="pwg_token" value="{{csrf_token}}">
+	    <input type="hidden" name="_csrf_token" value="{{csrf_token}}">
 	</p>
     </form>
 {% endblock %}

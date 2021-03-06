@@ -1,5 +1,5 @@
 {{MAIL_TITLE}}
-{% if MAIL_SUBTITLE %}{{MAIL_SUBTITLE}}{% endif %}
+{% if MAIL_SUBTITLE is defined %}{{MAIL_SUBTITLE}}{% endif %}
 ----
 {% block content %}{% endblock %}
 

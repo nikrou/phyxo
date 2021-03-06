@@ -35,8 +35,9 @@ class IndexController extends CommonController
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Most visited');
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->findMostVisited($this->getUser()->getForbiddenCategories(), $conf['order_by'], $conf['top_number']) as $image) {
-            $tpl_params['items'] = $image->getId();
+        $order_by = [['id', 'DESC']];
+        foreach ($imageMapper->getRepository()->findMostVisited($this->getUser()->getForbiddenCategories(), $order_by, $conf['top_number']) as $image) {
+            $tpl_params['items'][] = $image->getId();
         }
 
         if (count($tpl_params['items']) > 0) {
@@ -63,6 +64,7 @@ class IndexController extends CommonController
             );
         }
 
+        $tpl_params['START_ID'] = $start;
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
@@ -89,7 +91,8 @@ class IndexController extends CommonController
         $recent_date = new \DateTime();
         $recent_date->sub(new \DateInterval(sprintf('P%dD', $this->getUser()->getRecentPeriod())));
 
-        foreach ($imageMapper->getRepository()->findRecentImages($this->getUser()->getForbiddenCategories(), $recent_date, $conf['order_by']) as $image) {
+        $order_by = [['id', 'DESC']];
+        foreach ($imageMapper->getRepository()->findRecentImages($this->getUser()->getForbiddenCategories(), $recent_date, $order_by) as $image) {
             $tpl_params['items'] = $image->getId();
         }
 
@@ -117,6 +120,7 @@ class IndexController extends CommonController
             );
         }
 
+        $tpl_params['START_ID'] = $start;
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
@@ -171,6 +175,7 @@ class IndexController extends CommonController
             );
         }
 
+        $tpl_params['START_ID'] = $start;
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 

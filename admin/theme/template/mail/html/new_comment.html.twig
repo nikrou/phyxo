@@ -2,17 +2,17 @@
 {% extends "mail/html/__layout.html.twig" %}
 
 {% block content %}
-    <p>{{'Author: %author%'|trans({'%author%': comment.author})}}</p>
+    <p>{{'Author: author'|trans({'author': comment.author})}}</p>
     {% if comment_action == 'delete' %}
 	<p>{{'This author removed the comment with id %ids%'|trans({'%ids%': comment.IDS})}}</p>
     {% elseif comment_action == 'edit' %}
 	<p>{{'This author modified following comment'|trans}}</p>
 	<blockquote>{{comment.content}}</blockquote>
     {% else %}
-	<p>{{'Email: %email%'|trans({'%email%': comment.email}) }}</p>
+	<p>{{'Email: email'|trans({'email': comment.email}) }}</p>
 	<h3>{{'Comment'|trans}}</h3>
 	<blockquote>{{comment.content}}</blockquote>
-	{% if comment_url %}
+	{% if comment_url is defined %}
 	    <p><a href="{{comment_url}}">{{'Manage this user comment'|trans}}</a></p>
 	{% endif %}
 	{% if comment_action == 'moderate' %}
