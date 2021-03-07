@@ -116,7 +116,7 @@
 					    {% if TAGS_PERMISSION_ADD %}<i class="fa fa-edit edit-tags"></i>{% endif %}{{'Tags'|trans}}
 					</th>
 					<td>
-					    {{include('_picture_tags.html.twig')}}
+					    {{ include('_picture_tags.html.twig') }}
 					</td>
 				    </tr>
 				{% endif %}
@@ -144,7 +144,7 @@
 							<div class="dropdown-menu" role="menu" aria-labelledby="dropdownPermissions">
 							    {% for level, label in available_permission_levels %}
 								<button id="permission-{{level}}" type="button" class="dropdown-item permission-li {% if current.level == level %} active{% endif %}"
-									    data-action="setPrivacyLevel" data-id="{{current.id}}" data-level="{{level}}" data-label="{{label}}">{{label}}</button>
+									data-action="setPrivacyLevel" data-id="{{current.id}}" data-level="{{level}}" data-label="{{label}}">{{label}}</button>
 							    {% endfor %}
 							</div>
 						    </div>
@@ -186,7 +186,7 @@
 
 	{% if comment_add is defined or COMMENT_COUNT > 0 %}
             <div role="tabpanel" class="tab-pane" id="tab_comments">
-		{{include('_picture_info_comments.html.twig')}}
+		{{ include('_picture_info_comments.html.twig') }}
             </div>
 	{% endif %}
     </div>

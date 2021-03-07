@@ -147,7 +147,7 @@
 	<div id="card-tags" class="card mb-2">
             <div class="card-body">
 		<h5>{% if TAGS_PERMISSION_ADD %}<i class="fa fa-edit edit-tags"></i>{% endif %}{{'Tags'|trans}}</h5>
-		{{include('_picture_tags.html.twig')}}
+		{{ include('_picture_tags.html.twig') }}
             </div>
 	</div>
     {% endif %}
@@ -244,7 +244,7 @@
 	    </div>
 	{% endif %}
 	<div id="card-comments" class="ml-2">
-            {{include('_picture_info_comments.html.twig')}}
+            {{ include('_picture_info_comments.html.twig') }}
 	</div>
     </div>
 {% endif %}

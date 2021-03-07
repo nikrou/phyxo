@@ -66,6 +66,6 @@
 
 {% if cats_navbar is defined and (not cats_navbar is empty) %}
     <div class="row justify-content-center">
-	{% include '_navigation_bar.html.twig' with { navbar: cats_navbar}  %}
+	{{ include('_navigation_bar.html.twig', { navbar: cats_navbar }) }}
     </div>
 {% endif %}

@@ -1,73 +1,73 @@
 {% extends "__layout.html.twig" %}
 
 {% block content %}
-	<nav class="navbar navbar-contextual navbar-expand-lg {{theme_config.navbar_contextual_style}} {{theme_config.navbar_contextual_bg}} sticky-top mb-5">
-		<div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
-			<div class="navbar-brand mr-auto">
-				<a href="{{U_HOME}}">{{'Home'|trans}}</a>
-				{{LEVEL_SEPARATOR}}
-				{{'Search'|trans}}
-			</div>
-			<ul class="navbar-nav justify-content-end">
-				{% if PLUGIN_INDEX_ACTIONS is defined %}
-					{{PLUGIN_INDEX_ACTIONS}}
-				{% endif %}
-			</ul>
-		</div>
-	</nav>
-
-	{{include('_infos_errors.html.twig')}}
-
+    <nav class="navbar navbar-contextual navbar-expand-lg {{theme_config.navbar_contextual_style}} {{theme_config.navbar_contextual_bg}} sticky-top mb-5">
 	<div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
-		{% if INTRODUCTION is defined %}
-			<p>{{INTRODUCTION}}</p>
+	    <div class="navbar-brand mr-auto">
+		<a href="{{U_HOME}}">{{'Home'|trans}}</a>
+		{{LEVEL_SEPARATOR}}
+		{{'Search'|trans}}
+	    </div>
+	    <ul class="navbar-nav justify-content-end">
+		{% if PLUGIN_INDEX_ACTIONS is defined %}
+		    {{PLUGIN_INDEX_ACTIONS}}
 		{% endif %}
-
-		<ul>
-			{% if search_words is defined %}
-				{% for word in search_words %}
-					<li>{word}}</li>
-				{% endfor %}
-			{% endif %}
-
-			{% if SEARCH_TAGS_MODE is defined %}
-				<li>
-					<p>
-						{% if 'AND'==SEARCH_TAGS_MODE %}
-							{{'All tags'|trans}}
-						{% else %}
-							{{'Any tag'|trans}}
-						{% endif %}
-					</p>
-					<ul>
-						{% for tag in search_tags %}
-							<li>{{tag.name}}</li>
-						{% endfor %}
-					</ul>
-				</li>
-			{% endif %}
-
-			{% if DATE_CREATION is defined %}
-				<li>{{DATE_CREATION}}</li>
-			{% endif %}
-
-			{% if DATE_AVAILABLE is defined %}
-				<li>{{DATE_AVAILABLE}}</li>
-			{% endif %}
-
-			{% if search_categories is defined %}
-				<li>
-					<p>{{'Albums'|trans}}</p>
-
-					<ul>
-						{% for category in search_categories %}
-							<li>
-								<a href="{{category.url}}">{{category.name}}</a>
-							</li>
-						{% endfor %}
-					</ul>
-				</li>
-			{% endif %}
-		</ul>
+	    </ul>
 	</div>
+    </nav>
+
+    {{include('_infos_errors.html.twig')}}
+
+    <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
+	{% if INTRODUCTION is defined %}
+	    <p>{{INTRODUCTION}}</p>
+	{% endif %}
+
+	<ul>
+	    {% if search_words is defined %}
+		{% for word in search_words %}
+		    <li>{word}}</li>
+		{% endfor %}
+	    {% endif %}
+
+	    {% if SEARCH_TAGS_MODE is defined %}
+		<li>
+		    <p>
+			{% if 'AND'==SEARCH_TAGS_MODE %}
+			    {{'All tags'|trans}}
+			{% else %}
+			    {{'Any tag'|trans}}
+			{% endif %}
+		    </p>
+		    <ul>
+			{% for tag in search_tags %}
+			    <li>{{tag.name}}</li>
+			{% endfor %}
+		    </ul>
+		</li>
+	    {% endif %}
+
+	    {% if DATE_CREATION is defined %}
+		<li>{{DATE_CREATION}}</li>
+	    {% endif %}
+
+	    {% if DATE_AVAILABLE is defined %}
+		<li>{{DATE_AVAILABLE}}</li>
+	    {% endif %}
+
+	    {% if search_categories is defined %}
+		<li>
+		    <p>{{'Albums'|trans}}</p>
+
+		    <ul>
+			{% for category in search_categories %}
+			    <li>
+				<a href="{{category.url}}">{{category.name}}</a>
+			    </li>
+			{% endfor %}
+		    </ul>
+		</li>
+	    {% endif %}
+	</ul>
+    </div>
 {% endblock %}

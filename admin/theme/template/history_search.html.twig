@@ -106,7 +106,9 @@
 	</div>
     {% endif %}
 
-    {% if navbar is defined %}{{include('_navigation_bar.html.twig')}}{% endif %}
+    {% if navbar is defined %}
+	{{ include('_navigation_bar.html.twig') }}
+    {% endif %}
 
     <table class="table table-hover table-striped">
 	<thead>
@@ -137,5 +139,7 @@
 	{% endif %}
     </table>
 
-    {% if navbar is defined %}{{include('_navigation_bar.html.twig')}}{% endif %}
+    {% if navbar is defined %}
+	{{include('_navigation_bar.html.twig') }}
+    {% endif %}
 {% endblock %}

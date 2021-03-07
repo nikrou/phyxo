@@ -22,8 +22,8 @@
 {% endblock %}
 
 {% block content %}
-    <form action="{{F_ACTION}}" method="post">
-	{% if thumbnails %}
+    <form action="{{ path('admin_album_sort_order', { album_id: ALBUM_ID}) }}" method="post">
+	{% if thumbnails is defined %}
 	    <p><input class="btn btn-submit" type="submit" value="{{'Submit'|trans}}" name="submit"></p>
 	    <div class="fieldset">
 		<h3>{{'Manual order'|trans}}</h3>

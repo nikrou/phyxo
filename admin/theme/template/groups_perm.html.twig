@@ -20,7 +20,7 @@
 	<h3>{{TITLE}}</h3>
 	<form method="post" action="{{F_ACTION}}">
 	    <input type="hidden" name="_csrf_token" value="{{csrf_token}}">
-	    {{include('include/_double_select.html.twig')}}
+	    {{ include('include/_double_select.html.twig') }}
 	</form>
 	<p>{{'Only private albums are listed'|trans}}</p>
     {% endif %}

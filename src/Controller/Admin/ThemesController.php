@@ -38,7 +38,8 @@ class ThemesController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function installed(Request $request, ThemeRepository $themeRepository, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function installed(Request $request, ThemeRepository $themeRepository, UserMapper $userMapper, ParameterBagInterface $params,
+                            TranslatorInterface $translator, CsrfTokenManagerInterface $tokenManager)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -69,6 +70,7 @@ class ThemesController extends AbstractController
                 'PARENT' => $fs_theme['parent'] ?? null,
                 'SCREENSHOT' => $fs_theme['screenshot'],
                 'IS_MOBILE' => $fs_theme['mobile'],
+                'IS_DEFAULT' => ($theme_id === $default_theme),
                 'ADMIN_URI' => $fs_theme['admin_uri'] ? $this->generateUrl('admin_theme', ['theme' => $theme_id]) : ''
             ];
 
@@ -137,6 +139,9 @@ class ThemesController extends AbstractController
             }
         });
 
+        $tpl_params['ws'] = $this->generateUrl('ws');
+        $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');
+        $tpl_params['EXT_TYPE'] = 'themes';
         $tpl_params['themes'] = $tpl_themes;
         $tpl_params['theme_states'] = ['active', 'inactive'];
 
@@ -153,7 +158,7 @@ class ThemesController extends AbstractController
         return $this->render('themes_installed.html.twig', $tpl_params);
     }
 
-    public function update(Request $request, UserMapper $userMapper, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
+    public function update(Request $request, UserMapper $userMapper, Conf $conf, CsrfTokenManagerInterface $tokenManager,
                             ThemeRepository $themeRepository, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
@@ -206,7 +211,7 @@ class ThemesController extends AbstractController
             }
         }
 
-        $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
+        $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');
         $tpl_params['ws'] = $this->generateUrl('ws');
         $tpl_params['EXT_TYPE'] = 'themes';
 

@@ -51,9 +51,11 @@
 	    </p>
 	</div>
 
-	{% if navbar %}{{include('_navigation_bar.html.twig')}}{% endif %}
+	{% if navbar is defined %}
+	    {{ include('_navigation_bar.html.twig') }}
+	{% endif %}
 
-	{% if elements %}
+	{% if elements is defined %}
 	    <div><input type="hidden" name="element_ids" value="{{ELEMENT_IDS}}"></div>
 	    {% for element in elements %}
 		<div class="fieldset">
@@ -104,7 +106,9 @@
 		</div>
 	    {% endfor %}
 
-	    {% if navbar %}{{include('_navigation_bar.html.twig')}}{% endif %}
+	    {% if navbar is defined %}
+		{{ include('_navigation_bar.html.twig') }}
+	    {% endif %}
 
 	    <p>
 		<input type="submit" class="btn btn-submit" value="{{'Submit'|trans}}" name="submit">

@@ -2,7 +2,7 @@
     <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
 
 	{% if TITLE is defined %}
-	    {%  include '_breadcrumb.html.twig' with { 'elements': TITLE } %}
+	    {{ include('_breadcrumb.html.twig', { 'elements': TITLE }) }}
 	{% endif %}
 
         <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#secondary-navbar" aria-controls="secondary-navbar" aria-expanded="false" aria-label="Toggle navigation">

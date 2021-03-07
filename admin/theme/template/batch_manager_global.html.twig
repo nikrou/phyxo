@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="{{asset('admin/theme/js/plugins/selectize.clear.css')}}">
 
     <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.theme.css')}}">
-    {% if thumb_params %}
+    {% if thumb_params is defined %}
 	<style type="text/css">
 	 .wrapper-thumbnail {
 	     width: {{thumb_params.max_width()+2}}px;
@@ -110,7 +110,7 @@
      var selectedMessage_all = "{{'All %d photos are selected'|trans}}";
 
      $(function() {
-	 var associated_categories = {{associated_categories|json_encode|raw}};
+	 var associated_categories = {{associated_categories|default('')|json_encode|raw}};
 
 	 if (associated_categories) {
 	     categoriesCache.selectize($('[data-selectize=categories]'), {
@@ -325,7 +325,7 @@
 {% endblock %}
 
 {% block content %}
-    {{include('include/_add_album.inc.html.twig')}}
+    {{ include('include/_add_album.inc.html.twig') }}
     <div id="batchManagerGlobal">
 	<form action="{{F_ACTION}}" method="post">
 	    <input type="hidden" name="start" value="{{START}}">
@@ -343,7 +343,7 @@
 				<option value="{{prefilter.id}}" {% if filter.prefilter and filter.prefilter == prefilter.id %}selected="selected"{% endif %}>{{prefilter.name}}</option>
 			    {% endfor %}
 			</select>
-			{% if thumbnails %}
+			{% if thumbnails is defined %}
 			    <a id="empty_caddie" href="{{U_EMPTY_CADDIE}}"
 			       class="btn btn-success {% if not filter.prefilter or not filter.prefilter == 'caddie' %}visually-hidden{% endif %}">{{'Empty caddie'|trans}}
 			    </a>
@@ -352,39 +352,39 @@
 			<span id="duplicates_options" class="{% if not filter.prefilter or not filter.prefilter == 'duplicates' %}visually-hidden{% endif %}">
 			    {{'based on'|trans}}
 			    <input type="checkbox" checked="checked" disabled="disabled"> {{'Filename'|trans}}
-			    <label><input type="checkbox" name="filter_duplicates_date" {% if filter.duplicates_date or (filter.prefilter and not filter.prefilter == 'duplicates') %}checked="checked"{% endif %}> {{'date & time'|trans}}</label>
-			    <label><input type="checkbox" name="filter_duplicates_dimensions" {% if filter.duplicates_dimensions %}checked="checked"{% endif %}> {{'width & height'|trans}}</label>
+			    <label><input type="checkbox" name="filter_duplicates_date" {% if filter.duplicates_date is defined or (filter.prefilter and not filter.prefilter == 'duplicates') %}checked="checked"{% endif %}> {{'date & time'|trans}}</label>
+			    <label><input type="checkbox" name="filter_duplicates_dimensions" {% if filter.duplicates_dimensions is defined %}checked="checked"{% endif %}> {{'width & height'|trans}}</label>
 			</span>
 		    </li>
 
-		    <li id="filter_category" {% if not filter.category %}class="collapse"{% endif %}>
+		    <li id="filter_category" {% if not filter.category is defined %}class="collapse"{% endif %}>
 			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}"><i class="fa fa-times"></i></button>
-			<input type="checkbox" name="filter_category_use" class="useFilterCheckbox" {% if filter.category %}checked="checked"{% endif %}>
+			<input type="checkbox" name="filter_category_use" class="useFilterCheckbox" {% if filter.category is defined %}checked="checked"{% endif %}>
 			{{'Album'|trans}}
 			<select data-selectize="categories" data-value="{{filter_category_selected|json_encode}}"
 						data-default="first" name="filter_category" style="width:600px"></select>
-			<label><input type="checkbox" name="filter_category_recursive" {% if filter.category_recursive %}checked="checked"{% endif %}> {{'include child albums'|trans}}</label>
+			<label><input type="checkbox" name="filter_category_recursive" {% if filter.category_recursive is defined %}checked="checked"{% endif %}> {{'include child albums'|trans}}</label>
 		    </li>
 
-		    <li id="filter_tags" {% if not filter.tags %}class="collapse"{% endif %}>
+		    <li id="filter_tags" {% if not filter.tags is defined %}class="collapse"{% endif %}>
 			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}"><i class="fa fa-times"></i></button>
-			<input type="checkbox" name="filter_tags_use" class="useFilterCheckbox" {% if filter.tags %}checked="checked"{% endif %}>
+			<input type="checkbox" name="filter_tags_use" class="useFilterCheckbox" {% if filter.tags is defined %}checked="checked"{% endif %}>
 			{{'Tags'|trans}}
 			<select data-selectize="tags" data-value="{{filter_tags|json_encode}}"
 				placeholder="{{'Type in a search term'|trans}}" name="filter_tags[]" multiple></select>
 			<label>
-			    <input type="radio" name="tag_mode" value="AND" {% if not filter.tag_mode or filter.tag_mode == 'AND' %}checked="checked"{% endif %}>
+			    <input type="radio" name="tag_mode" value="AND" {% if not filter.tag_mode is defined or filter.tag_mode == 'AND' %}checked="checked"{% endif %}>
 			    {{'All tags'|trans}}
 			</label>
 			<label>
-			    <input type="radio" name="tag_mode" value="OR" {% if filter.tag_mode and filter.tag_mode == 'OR' %}checked="checked"{% endif %}>
+			    <input type="radio" name="tag_mode" value="OR" {% if filter.tag_mode is defined and filter.tag_mode == 'OR' %}checked="checked"{% endif %}>
 			    {{'Any tag'|trans}}
 			</label>
 		    </li>
 
-		    <li id="filter_level" {% if not filter.level %}class="collapse"{% endif %}>
+		    <li id="filter_level" {% if not filter.level is defined %}class="collapse"{% endif %}>
 			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}"><i class="fa fa-times"></i></button>
-			<input type="checkbox" name="filter_level_use" class="useFilterCheckbox" {% if filter.level %}checked="checked"{% endif %}>
+			<input type="checkbox" name="filter_level_use" class="useFilterCheckbox" {% if filter.level is defined %}checked="checked"{% endif %}>
 			{{'Privacy level'|trans}}
 			<select class="custom-select" name="filter_level" size="1">
 			    {% for option, label in filter_level_options %}
@@ -392,14 +392,14 @@
 			    {% endfor %}
 			</select>
 			<label>
-			    <input type="checkbox" name="filter_level_include_lower" {% if filter.level_include_lower %}checked="checked"{% endif %}>
+			    <input type="checkbox" name="filter_level_include_lower" {% if filter.level_include_lower is defined %}checked="checked"{% endif %}>
 			    {{'include photos with lower privacy level'|trans}}
 			</label>
 		    </li>
 
-		    <li id="filter_dimension" {% if not filter.dimension %}class="collapse"{% endif %}>
+		    <li id="filter_dimension" {% if not filter.dimension is defined %}class="collapse"{% endif %}>
 			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}"><i class="fa fa-times"></i></button>
-			<input type="checkbox" name="filter_dimension_use" class="useFilterCheckbox" {% if filter.dimension %}checked="checked"{% endif %}>
+			<input type="checkbox" name="filter_dimension_use" class="useFilterCheckbox" {% if filter.dimension is defined %}checked="checked"{% endif %}>
 			{{'Dimensions'|trans}}
 
 			<blockquote>
@@ -432,16 +432,16 @@
 				<span class="slider-info">
 				    {{'between {min} and {max} {unit}'|trans({'min': dimensions.selected.min_ratio, 'max': dimensions.selected.max_ratio, 'unit': ''})}}
 				</span>
-				{% if dimensions.ratio_portrait %}
+				{% if dimensions.ratio_portrait is defined %}
 				    | <a class="slider-choice" data-min="{{dimensions.ratio_portrait.min}}" data-max="{{dimensions.ratio_portrait.max}}">{{'Portrait'|trans}}</a>
 				{% endif %}
-				{% if dimensions.ratio_square %}
+				{% if dimensions.ratio_square is defined %}
 				    | <a class="slider-choice" data-min="{{dimensions.ratio_square.min}}" data-max="{{dimensions.ratio_square.max}}">{{'square'|trans}}</a>
 				{% endif %}
-				{% if dimensions.ratio_landscape %}
+				{% if dimensions.ratio_landscape is defined %}
 				    | <a class="slider-choice" data-min="{{dimensions.ratio_landscape.min}}" data-max="{{dimensions.ratio_landscape.max}}">{{'Landscape'|trans}}</a>
 				{% endif %}
-				{% if dimensions.ratio_panorama %}
+				{% if dimensions.ratio_panorama is defined %}
 				    | <a class="slider-choice" data-min="{{dimensions.ratio_panorama.min}}" data-max="{{dimensions.ratio_panorama.max}}">{{'Panorama'|trans}}</a>
 				{% endif %}
 				| <a class="slider-choice" data-min="{{dimensions.bounds.min_ratio}}" data-max="{{dimensions.bounds.max_ratio}}">{{'Reset'|trans}}</a>
@@ -453,12 +453,12 @@
 			</blockquote>
 		    </li>
 
-		    <li id="filter_search"{% if not filter.search %} class="collapse"{% endif %}>
+		    <li id="filter_search"{% if not filter.search is defined %} class="collapse"{% endif %}>
 			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}"><i class="fa fa-times"></i></button>
-			<input type="checkbox" name="filter_search_use" class="useFilterCheckbox"{% if filter.search %} checked="checked"{% endif %}>
+			<input type="checkbox" name="filter_search_use" class="useFilterCheckbox"{% if filter.search is defined %} checked="checked"{% endif %}>
 			{{'Search'|trans}}
-			<input name="q" size=40 value="{{filter.search.q}}">
-			{% if no_search_results %}
+			<input name="q" size=40 value="{{filter.search.q|default('')}}">
+			{% if no_search_results is defined %}
 			    <div>{{'No results for'|trans}} :
 				<em><strong>
 				    {% for rest in no_search_results %}
@@ -470,9 +470,9 @@
 			{% endif %}
 		    </li>
 
-		    <li id="filter_filesize" {% if not filter.filesize %}class="collapse"{% endif %}>
+		    <li id="filter_filesize" {% if not filter.filesize is defined %}class="collapse"{% endif %}>
 			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}"><i class="fa fa-times"></i></button>
-			<input type="checkbox" name="filter_filesize_use" class="useFilterCheckbox" {% if filter.filesize %}checked="checked"{% endif %}>
+			<input type="checkbox" name="filter_filesize_use" class="useFilterCheckbox" {% if filter.filesize is defined %}checked="checked"{% endif %}>
 			{{'Filesize'|trans}}
 
 			<blockquote>
@@ -492,13 +492,13 @@
 		    <select class="custom-select" id="addFilter">
 			<option value="-1">{{'Add a filter'|trans}}</option>
 			<option disabled="disabled">------------------</option>
-			<option value="filter_prefilter" {% if filter.prefilter %}disabled="disabled"{% endif %}>{{'Predefined filter'|trans}}</option>
-			<option value="filter_category" {% if filter.category %}disabled="disabled"{% endif %}>{{'Album'|trans}}</option>
-			<option value="filter_tags" {% if filter.tags %}disabled="disabled"{% endif %}>{{'Tags'|trans}}</option>
-			<option value="filter_level" {% if filter.level %}disabled="disabled"{% endif %}>{{'Privacy level'|trans}}</option>
-			<option value="filter_dimension" {% if filter.dimension %}disabled="disabled"{% endif %}>{{'Dimensions'|trans}}</option>
-			<option value="filter_filesize" {% if filter.filesize %}disabled="disabled"{% endif %}>{{'Filesize'|trans}}</option>
-			<option value="filter_search"{% if filter.search %} disabled="disabled"{% endif %}>{{'Search'|trans}}</option>
+			<option value="filter_prefilter" {% if filter.prefilter is defined %}disabled="disabled"{% endif %}>{{'Predefined filter'|trans}}</option>
+			<option value="filter_category" {% if filter.category is defined %}disabled="disabled"{% endif %}>{{'Album'|trans}}</option>
+			<option value="filter_tags" {% if filter.tags is defined %}disabled="disabled"{% endif %}>{{'Tags'|trans}}</option>
+			<option value="filter_level" {% if filter.level is defined %}disabled="disabled"{% endif %}>{{'Privacy level'|trans}}</option>
+			<option value="filter_dimension" {% if filter.dimension is defined %}disabled="disabled"{% endif %}>{{'Dimensions'|trans}}</option>
+			<option value="filter_filesize" {% if filter.filesize is defined %}disabled="disabled"{% endif %}>{{'Filesize'|trans}}</option>
+			<option value="filter_search"{% if filter.search is defined %} disabled="disabled"{% endif %}>{{'Search'|trans}}</option>
 		    </select>
 		</p>
 		<p>
@@ -513,7 +513,7 @@
 	    <div class="fieldset">
 		<h3>{{'Selection'|trans}}</h3>
 
-		{% if thumbnails %}
+		{% if thumbnails is defined %}
 		    <p id="checkActions">
 			{{'Select:'|trans}}
 			{% if nb_thumbs_set > nb_thumbs_page %}
@@ -553,8 +553,8 @@
 			{% endfor %}
 		    </div>
 
-		    {% if navbar %}
-			{{include('_navigation_bar.html.twig')}}
+		    {% if navbar is defined %}
+			{{ include('_navigation_bar.html.twig') }}
 
 			<div>
 			    {{'display'|trans}}
@@ -582,11 +582,11 @@
 			    <option value="delete">{{'Delete selected photos'|trans}}</option>
 			    <option value="associate">{{'Associate to album'|trans}}</option>
 			    <option value="move">{{'Move to album'|trans}}</option>
-			    {% if associated_categories %}
+			    {% if associated_categories is defined %}
 				<option value="dissociate">{{'Dissociate from album'|trans}}</option>
 			    {% endif %}
 			    <option value="add_tags">{{'Add tags'|trans}}</option>
-			    {% if associated_tags %}
+			    {% if associated_tags is defined %}
 				<option value="del_tags">{{'remove tags'|trans}}</option>
 			    {% endif %}
 			    <option value="author">{{'Set author'|trans}}</option>
@@ -601,7 +601,7 @@
 			    {% endif %}
 			    <option value="delete_derivatives">{{'Delete multiple size images'|trans}}</option>
 			    <option value="generate_derivatives">{{'Generate multiple size images'|trans}}</option>
-			    {% if element_set_global_plugins_actions %}
+			    {% if element_set_global_plugins_actions is defined %}
 				{% for action in element_set_global_plugins_actions %}
 				    <option value="{{action.ID}}">{{action.NAME}}</option>
 				{% endfor %}
@@ -655,7 +655,7 @@
 
 		    <!-- del_tags -->
 		    <div id="action_del_tags">
-			{% if associated_tags %}
+			{% if associated_tags is defined %}
 			    <p>
 				<select data-selectize="tags" name="del_tags[]" multiple placeholder="{{'Type in a search term'|trans}}">
 				    {% for tag in associated_tags %}
@@ -757,7 +757,7 @@
 		    </div>
 
 		    <!-- plugins -->
-		    {% if element_set_global_plugins_actions %}
+		    {% if element_set_global_plugins_actions is defined %}
 			{% for action in element_set_global_plugins_actions %}
 			    <div id="action_{{action.ID}}" class="bulkAction">
 				{% if action.CONTENT %}{{action.CONTENT}}{% endif %}

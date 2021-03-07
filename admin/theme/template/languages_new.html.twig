@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-    {% if languages %}
+    {% if languages is defined %}
 	<div class="table-responsive">
 	    <table class="table table-striped table-hovered" style="width:100%">
 		<thead>
@@ -36,6 +36,6 @@
 	    </table>
 	</div>
     {% else %}
-       <p>{{'There is no other language available.'|trans}}</p>
+	<p>{{'There is no other language available.'|trans}}</p>
     {% endif %}
 {% endblock %}

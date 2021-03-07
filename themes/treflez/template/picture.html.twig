@@ -23,7 +23,7 @@
     </script>
 
     {% if theme_config.slick_enabled and thumbnails is defined and thumbnails|length > 1 %}
-	{{include('_slick_js.html.twig')}}
+	{{ include('_slick_js.html.twig') }}
     {% endif %}
 
     {% if theme_config.photoswipe %}
@@ -46,21 +46,21 @@
 {% block content %}
     {% if PLUGIN_PICTURE_BEFORE is defined %}{{PLUGIN_PICTURE_BEFORE}}{% endif %}
 
-    {{include('_picture_nav.html.twig')}}
+    {{ include('_picture_nav.html.twig') }}
 
     <div id="main-picture-container" class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
-	{{include('_infos_errors.html.twig')}}
+	{{ include('_infos_errors.html.twig') }}
 
 	<div class="row justify-content-center">
-	    {{include('_picture_nav_buttons.html.twig')}}
+	    {{ include('_picture_nav_buttons.html.twig') }}
 	</div>
 
 	<div id="theImage" class="row d-block justify-content-center mb-3">
-	    {{include('_picture_content.html.twig')}}
+	    {{ include('_picture_content.html.twig') }}
 	</div>
 
 	{% if theme_config.picture_info == 'sidebar' %}
- 	    {{include('_picture_info_sidebar.html.twig')}}
+ 	    {{ include('_picture_info_sidebar.html.twig') }}
 	{% endif %}
 
 	<div id="theImageComment" class="row justify-content-center mb-3">
@@ -188,12 +188,12 @@
     <div id="info-container" class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
 	<div id="theImageInfos" class="row justify-content-center">
 	    {% if theme_config.picture_info == 'cards' %}
-		{{include('_picture_info_cards.html.twig')}}
+		{{ include('_picture_info_cards.html.twig') }}
 	    {% elseif theme_config.picture_info == 'tabs' %}
-		{{include('_picture_info_tabs.html.twig')}}
+		{{ include('_picture_info_tabs.html.twig') }}
 	    {%elseif theme_config.picture_info == 'sidebar' or theme_config.picture_info == 'disabled' %}
 		<div class="col-lg-8 col-md-10 col-12 mx-auto">
-		    {{include('_picture_info_comments.html.twig')}}
+		    {{ include('_picture_info_comments.html.twig') }}
 		</div>
 	    {% endif %}
 	</div>
@@ -202,6 +202,6 @@
     </div>
 
     {% if theme_config.photoswipe %}
-	{{include('_photoswipe_div.html.twig')}}
+	{{ include('_photoswipe_div.html.twig') }}
     {% endif %}
 {% endblock %}

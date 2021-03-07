@@ -142,7 +142,8 @@ class PluginsController extends AbstractController
         }
     }
 
-    public function new(Request $request, UserMapper $userMapper, PluginRepository $pluginRepository, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function new(Request $request, UserMapper $userMapper, PluginRepository $pluginRepository, Conf $conf, ParameterBagInterface $params,
+                        TranslatorInterface $translator, CsrfTokenManagerInterface $tokenManager)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -172,6 +173,7 @@ class PluginsController extends AbstractController
             ];
         }
 
+        $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');
         $tpl_params['ws'] = $this->generateUrl('ws');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_plugins_new');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Plugins', [], 'admin');

@@ -369,6 +369,7 @@ class BatchManagerController extends AbstractController
             $this->actionOnCollection($request, $collection, $tagMapper, $imageMapper, $userMapper, $imageAlbumRepository, $albumMapper, $caddieRepository, $imageTagRepository);
         }
 
+        $tpl_params['START'] = $start;
         $tpl_params['IN_CADDIE'] = isset($this->getFilter()['prefilter']) && $this->getFilter()['prefilter'] === 'caddie';
         $tpl_params['U_EMPTY_CADDIE'] = $this->generateUrl('admin_batch_manager_global_empty_caddie', ['start' => $start]);
         $tpl_params['prefilters'] = $prefilters;
@@ -542,7 +543,7 @@ class BatchManagerController extends AbstractController
                 $this->addFlash('error', $this->translator->trans('You need to confirm deletion', [], 'admin'));
             }
         } elseif ($action === 'metadata') {
-            $tagMapper->sync_metadata($collection);
+            $tagMapper->sync_metadata($collection, $this->getUser());
             $this->addFlash('info', $this->translator->trans('Metadata synchronized from file', [], 'admin'));
         } elseif ($action === 'delete_derivatives' && $request->request->get('del_derivatives_type')) {
             foreach ($imageMapper->getRepository()->find($collection) as $image) {
@@ -1107,6 +1108,7 @@ class BatchManagerController extends AbstractController
             }
         }
 
+        $tpl_params['START'] = $start;
         $tpl_params['ELEMENT_IDS'] = implode(',', $element_ids);
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_batch_manager_unit');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_batch_manager_unit');

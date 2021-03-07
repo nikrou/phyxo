@@ -47,7 +47,7 @@
 {% endblock %}
 
 {% block content %}
-    {{include('include/_add_album.inc.html.twig')}}
+    {{ include('include/_add_album.inc.html.twig') }}
 
     <div id="photosAddContent">
 	<div class="infos" style="display:none"></div>
@@ -60,7 +60,7 @@
 	    <a class="btn btn-sm btn-success" href="{{F_ACTION}}">{{'Add another set of photos'|trans}}</a>
 	</div>
 
-	{% if setup_errors %}
+	{% if setup_errors is defined %}
 	    <div class="errors">
 		<ul>
 		    {% for error in setup_errors %}
@@ -69,7 +69,7 @@
 		</ul>
 	    </div>
 	{% else %}
-	    {% if setup_warnings %}
+	    {% if setup_warnings is defined %}
 		<div class="warnings">
 		    <ul>
 			{% for warning in setup_warnings %}
@@ -81,7 +81,7 @@
 	    {% endif %}
 
 
-	    <form id="uploadForm" enctype="multipart/form-data" method="post" action="{{form_action}}">
+	    <form id="uploadForm" enctype="multipart/form-data" method="post" action="{{path('admin_photos_add')}}">
 		<div class="fieldset">
 		    <h3>{{'Drop into album'|trans}}</h3>
 
@@ -122,14 +122,14 @@
 			{% endif %}
 
 			<p class="form-text">
-			    {{upload_max_filesize_shorthand}}B. {{upload_file_types}}. {% if max_upload_resolution %}{{max_upload_resolution}}Mpx{% endif %}
+			    {{upload_max_filesize_shorthand}}B. {{upload_file_types}}. {% if max_upload_resolution is defined %}{{max_upload_resolution}}Mpx{% endif %}
 			    <a class="showInfo" title="{{'Learn more'|trans}}"><i class="fa fa-info-circle"></i></a>
 			</p>
 
 			<p>
 			    {{'Maximum file size: {size}B.'|trans({'size': upload_max_filesize_shorthand})}}
 			    {{'Allowed file types: {types}.'|trans({'types': upload_file_types})}}
-			    {% if max_upload_resolution %}
+			    {% if max_upload_resolution is defined %}
 				{{'Approximate maximum resolution: %dM pixels (that\'s %dx%d pixels).'|trans|format(max_upload_resolution, max_upload_width, max_upload_height)}}
 			    {% endif %}
 			</p>

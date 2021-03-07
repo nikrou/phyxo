@@ -41,7 +41,9 @@
 	</div>
     </form>
 
-    {% if navbar %}{{include('_navigation_bar.html.twig')}}{% endif %}
+    {% if navbar is defined and not(navbar is empty) %}
+	{{ include('_navigation_bar.html.twig') }}
+    {% endif %}
 
     <table class="table table-hover table-striped">
 	<thead>
@@ -68,15 +70,15 @@
 			    {% for rate in image.rates %}
 				<tr id="rate-{{rate.md5sum}}">
 				    <td>{{rate.rate}}</td>
-				<td><b>{{rate.USER}}</b></td>
-				<td>{{rate.date|date}}</td>
-				<td>
-				    <button
-					data-confirm="{{'Are you sure?'|trans}}" data-action="{{WS_RATES_DELETE}}"
-					data-data="{'image_id': {{image.id}},'user_id': {{rate.user_id}}{% if rate.anonymous_id %},'anonymous_id': '{{rate.anonymous_id}}'{% endif %}}"
-					data-method="POST" data-delete="#rate-{{rate.md5sum}}" data-toggle="modal" data-target="#confirm-delete" class="btn btn-danger fa fa-trash"></button>
-				</td>
-			    </tr>
+				    <td><b>{{rate.USER}}</b></td>
+				    <td>{{rate.date|date}}</td>
+				    <td>
+					<button
+					    data-confirm="{{'Are you sure?'|trans}}" data-action="{{WS_RATES_DELETE}}"
+							  data-data="{'image_id': {{image.id}},'user_id': {{rate.user_id}}{% if rate.anonymous_id %},'anonymous_id': '{{rate.anonymous_id}}'{% endif %}}"
+							  data-method="POST" data-delete="#rate-{{rate.md5sum}}" data-toggle="modal" data-target="#confirm-delete" class="btn btn-danger fa fa-trash"></button>
+				    </td>
+				</tr>
 			    {% endfor %}
 			</table>
 		    </td>
@@ -85,7 +87,9 @@
 	</tbody>
     </table>
 
-    {% if navbar %}{{include('_navigation_bar.html.twig')}}{% endif %}
+    {% if navbar is defined and not(navbar is empty) %}
+	{{ include('_navigation_bar.html.twig') }}
+    {% endif %}
 
-    {{include('include/_modal_delete_confirm.html.twig')}}
+    {{ include('include/_modal_delete_confirm.html.twig') }}
 {% endblock %}

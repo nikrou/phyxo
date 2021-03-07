@@ -51,7 +51,7 @@ class PhotosController extends AbstractController
         $upload_max_filesize = min(
           \Phyxo\Functions\Utils::get_ini_size('upload_max_filesize'),
           \Phyxo\Functions\Utils::get_ini_size('post_max_size')
-      );
+        );
 
         if ($upload_max_filesize == \Phyxo\Functions\Utils::get_ini_size('upload_max_filesize')) {
             $upload_max_filesize_shorthand = \Phyxo\Functions\Utils::get_ini_size('upload_max_filesize', false);
@@ -89,8 +89,6 @@ class PhotosController extends AbstractController
             $tpl_params['original_resize_maxheight'] = $conf['original_resize_maxheight'];
         }
 
-        $tpl_params['pwg_token'] = $tokenManager->getToken('authenticate');
-
         $unique_exts = array_unique(array_map('strtolower', $conf['upload_form_all_types'] ? $conf['file_ext'] : $conf['picture_ext']));
 
         $tpl_params['upload_file_types'] = implode(', ', $unique_exts);
@@ -123,16 +121,16 @@ class PhotosController extends AbstractController
         $tpl_params['level_options_selected'] = $selected_level;
 
         if (!function_exists('gd_info')) {
-            $tpl_params['errors'][] = $translator->trans('GD library is missing', [], 'admin');
+            $tpl_params['setup_errors'][] = $translator->trans('GD library is missing', [], 'admin');
         }
 
 
         if ($conf['use_exif'] && !function_exists('exif_read_data')) {
-            $tpl_params['warnings'][] = $translator->trans('Exif extension not available, admin should disable exif use', [], 'admin');
+            $tpl_params['setup_warnings'][] = $translator->trans('Exif extension not available, admin should disable exif use', [], 'admin');
         }
 
         if (Utils::get_ini_size('upload_max_filesize') > Utils::get_ini_size('post_max_size')) {
-            $tpl_params['warnings'][] = $translator->trans(
+            $tpl_params['setup_warnings'][] = $translator->trans(
               'In your php.ini file, the upload_max_filesize ({upload_max_filesize}B) is bigger than post_max_size ({post_max_size}B), you should change this setting',
               ['upload_max_filesize' => Utils::get_ini_size('upload_max_filesize', false),
                   'post_max_size' => Utils::get_ini_size('post_max_size', false)

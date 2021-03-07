@@ -3,16 +3,16 @@
 
 {% block breadcrumb_items %}
     <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Properties'|trans}}</a></li>
-    <li class="breadcrumb-item">{{TABSHEET_TITLE}}</li>
+    <li class="breadcrumb-item">{{'Albums properties'|trans}}</li>
 {% endblock %}
 
 {% block content %}
-    <h2>{{TABSHEET_TITLE}}</h2>
+    <h2>{{'Albums properties'|trans}}</h2>
 
-    <form method="post" action="{{F_ACTION}}" id="cat_options">
+    <form method="post" action="{{ path('admin_albums_options') }}" id="cat_options">
 	<div class="fieldset">
 	    <h3>{{L_SECTION}}</h3>
-	    {{include('include/_double_select.html.twig')}}
+	    {{ include('include/_double_select.html.twig') }}
 	</div>
     </form>
 {% endblock %}

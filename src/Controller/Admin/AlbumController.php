@@ -355,6 +355,7 @@ class AlbumController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
+        $tpl_params['ALBUM_ID'] = $album_id;
         $tpl_params = array_merge($this->setTabsheet('sort_order', $album_id, $parent_id), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -588,6 +589,7 @@ class AlbumController extends AbstractController
         $tpl_params['CATEGORIES_NAV'] = $albumMapper->getAlbumsDisplayName($album->getUppercats(), 'admin_album', ['parent_id' => $parent_id]);
         $tpl_params['U_GROUPS'] = $this->generateUrl('admin_groups');
 
+        $tpl_params['ALBUM_ID'] = $album_id;
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
