@@ -1,4 +1,4 @@
-Feature: Tags
+Feature: Album
   In order to manage the gallery
   As an admin
   I need to be able to configure albums
@@ -37,3 +37,10 @@ Feature: Tags
     And I should not see link "album 2"
     When I follow "album 1"
     And I should see link "album 2"
+
+  Scenario: Delete album
+    Given I am logged in as "user1" with password "pass1"
+    When I go to "admin/albums"
+    Then I should see 2 ".album" elements
+    When I follow "delete album" for album "album 1"
+    Then I should see 1 ".album" elements

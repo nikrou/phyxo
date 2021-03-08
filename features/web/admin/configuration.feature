@@ -1,4 +1,4 @@
-Feature: Tags
+Feature: Configuration
   In order to manage the gallery
   As an admin
   I need to be able to configure some parameters
@@ -18,5 +18,3 @@ Feature: Tags
     Then the "Gallery title" field should contain "Another Phyxo gallery!"
     Then the "Page banner" field should contain "Welcome to my photo gallery"
     Then the option "monday" from "Week starts on" is selected
-
-

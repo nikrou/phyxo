@@ -72,17 +72,19 @@
 			{% set status_title = 'Public album'|trans %}
 		    {% endif %}
 
-		    <div class="album{% if category.IS_VIRTUAL is defined %} virtual_cat{% endif %}" id="album-{{category.ID}}">
+		    <div class="album{% if category.IS_VIRTUAL is defined %} virtual{% endif %}" id="album-{{category.ID}}">
 			<p class="album-title">
 			    <i class="fa infos {{status_icon}}" title="{{status_title}}"></i>
 			    <i class="drag_button move visibility-hidden" title="{{'Drag to re-order'|trans}}"></i>
 			    <strong><a href="{{category.U_CHILDREN}}" title="{{'manage sub-albums'|trans}}">{{category.NAME}}</a></strong>
 			    <span class="albumInfos">
 				<span class="userSeparator">&middot;</span>
-				{{'number_of_photos'|trans({'count': category.NB_PHOTOS})}}
+				<span data-testid="number_of_photos">{{'number_of_photos'|trans({'count': category.NB_PHOTOS})}}</span>
 				<span class="userSeparator">&middot;</span>
-				{{'number_of_photos'|trans({'count': category.NB_SUB_PHOTOS})}}
-				{{'number_of_photos_in_sub_albums'|trans({'count': category.NB_SUB_ALBUMS})}}
+				<span data-testid="number_of_photos_in_sub_albums">
+				    {{'number_of_photos'|trans({'count': category.NB_SUB_PHOTOS})}}
+				    {{'number_of_photos_in_sub_albums'|trans({'count': category.NB_SUB_ALBUMS})}}
+				</span>
 			    </span>
 			</p>
 

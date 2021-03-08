@@ -192,7 +192,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then I should see :description for :album_name description
      */
-    public function iShouldSeeForDescription(string $description, string $album_name)
+    public function iShouldSeeDescriptionForAlbum(string $description, string $album_name)
     {
         $album = $this->getPage()->find('css', sprintf('*[data-id="%d"]', $this->storage->get('album_' . $album_name)->getId()));
         $this->assert
@@ -203,7 +203,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then I should see :nb_images for :album_name number of images
      */
-    public function iShouldSeeForNumberOfImages(string $nb_images, string $album_name)
+    public function iShouldSeeNumberOfImagesForAlbum(string $nb_images, string $album_name)
     {
         $album = $this->getPage()->find('css', sprintf('*[data-id="%d"]', $this->storage->get('album_' . $album_name)->getId()));
         $element = $this->findByDataTestid('album-nb-images', $album);
@@ -216,6 +216,28 @@ class FeatureContext extends BaseContext
         $this->assert
             ->string($nb_images)
             ->isEqualTo($element->getText());
+    }
+
+    /**
+     * admin
+     * @Then I should see :nb_images for album :album_name
+     */
+    public function iShouldSeeTextNumberOfImagesForAlbum(string $nb_images, string $album_name)
+    {
+        $div_album = $this->getPage()->find('css', sprintf('#album-%d', $this->storage->get('album_' . $album_name)->getId()));
+        $element = $div_album->find('css', '*[data-testid="number_of_photos"]');
+
+        $this->assert
+            ->string($nb_images)
+            ->isEqualTo($element->getText());
+    }
+
+    /**
+     * @Then I select :image_name in thumbnails
+     */
+    public function iSelectPhotoInThumbnails(string $image_name)
+    {
+        $this->getPage()->find('css', sprintf('*[data-testid="image-%d"] input[type="checkbox"]', $this->storage->get('image_' . $image_name)->getId()))->check();
     }
 
     /**
@@ -408,6 +430,8 @@ class FeatureContext extends BaseContext
     }
 
     /**
+     * Example: Then the "date_creation" field date should contain "now"
+     *
      * @Then the :field_name field date should contain :date
      */
     public function theFieldDateShouldContain(string $field_name, string $date)
@@ -424,6 +448,21 @@ class FeatureContext extends BaseContext
         if ($field->getValue() !== $date) {
             throw new \Exception(sprintf('Field "%s" should contain "%s" but contains "%s"', $field_name, $field->getValue(), $date));
         }
+    }
+
+    /**
+     * Example: When I follow "delete album" for album "album 1"
+     *
+     * @When I follow :link_label for album :album_name
+     */
+    public function iFollowLinkForAlbum(string $link_label, string $album_name)
+    {
+        $album = $this->storage->get('album_' . $album_name);
+        $divAlbum = $this->getPage()->find('css', sprintf('#album-%d', $album->getId()));
+        if (is_null($divAlbum)) {
+            throw new \Exception(sprintf('Cannot find an album "%s" on the page', $album_name));
+        }
+        $divAlbum->clickLink($link_label);
     }
 
     /**

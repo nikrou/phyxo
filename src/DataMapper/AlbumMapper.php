@@ -941,9 +941,8 @@ class AlbumMapper
         $this->imageAlbumRepository->deleteByAlbum($ids);
 
         // destruction of the albums
-        $this->getRepository()->deleteAlbums($ids);
-
         $this->userCacheAlbumRepository->deleteForAlbums($ids);
+        $this->getRepository()->deleteAlbums($ids);
     }
 
     /**

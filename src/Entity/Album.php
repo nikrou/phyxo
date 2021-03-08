@@ -124,7 +124,7 @@ class Album
     private $user_access;
 
     /**
-     * @ORM\OneToMany(targetEntity=ImageAlbum::class, mappedBy="album")
+     * @ORM\OneToMany(targetEntity=ImageAlbum::class, mappedBy="album", cascade={"persist", "remove"})
      */
     private $imageAlbums;
 
