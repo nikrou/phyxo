@@ -227,7 +227,7 @@ class PhotoController extends AbstractController
         return $this->render('photo_properties.html.twig', $tpl_params);
     }
 
-    public function delete(int $image_id, int $category_id = null, UserMapper $userMapper, ImageMapper $imageMapper, ImageAlbumRepository $imageAlbumRepository)
+    public function delete(int $image_id, int $category_id = null, TranslatorInterface $translator, UserMapper $userMapper, ImageMapper $imageMapper, ImageAlbumRepository $imageAlbumRepository)
     {
         $imageMapper->deleteElements([$image_id], true);
         $userMapper->invalidateUserCache();
@@ -251,6 +251,8 @@ class PhotoController extends AbstractController
         if (count($authorizeds) > 0) {
             return $this->redirectToRoute('admin_album', ['album_id' => $authorizeds[0]]);
         }
+
+        $this->addFlash('info', $translator->trans('Photo deleted', [], 'admin'));
 
         return $this->redirectToRoute('admin_home');
     }

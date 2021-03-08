@@ -16,6 +16,7 @@ use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
 use App\Repository\CommentRepository;
 use App\Repository\FavoriteRepository;
+use App\Repository\HistoryRepository;
 use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\ImageRepository;
@@ -29,10 +30,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ImageMapper
 {
-    private $router, $conf, $userMapper, $image_std_params, $albumMapper, $imageRepository, $imageTagRepository;
+    private $router, $conf, $userMapper, $image_std_params, $albumMapper, $imageRepository, $imageTagRepository, $historyRepository;
     private $translator, $imageAlbumRepository, $commentRepository, $caddieRepository, $favoriteRepository, $rateRepository;
 
-    public function __construct(RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, AlbumMapper $albumMapper,
+    public function __construct(RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, AlbumMapper $albumMapper, HistoryRepository $historyRepository,
                                 TranslatorInterface $translator, ImageRepository $imageRepository, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository,
                                 CaddieRepository $caddieRepository, FavoriteRepository $favoriteRepository, RateRepository $rateRepository, ImageTagRepository $imageTagRepository)
     {
@@ -49,6 +50,7 @@ class ImageMapper
         $this->caddieRepository = $caddieRepository;
         $this->favoriteRepository = $favoriteRepository;
         $this->rateRepository = $rateRepository;
+        $this->historyRepository = $historyRepository;
     }
 
     public function getRepository(): ImageRepository
@@ -257,6 +259,9 @@ class ImageMapper
 
         // destruction of the caddie associated to this element
         $this->caddieRepository->deleteElements($ids);
+
+        // destruction of the history associated to this element
+        $this->historyRepository->deleteElements($ids);
 
         // destruction of the image
         $this->imageRepository->deleteByIds($ids);

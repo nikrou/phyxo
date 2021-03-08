@@ -110,6 +110,15 @@ class HistoryRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
+    public function deleteElements(array $ids = [])
+    {
+        $qb = $this->createQueryBuilder('h');
+        $qb->delete();
+        $qb->where($qb->expr()->in('h.image', $ids));
+
+        $qb->getQuery()->getResult();
+    }
+
     public function getDetailsFromNotSummarized()
     {
         $qb = $this->createQueryBuilder('h');

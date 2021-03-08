@@ -1,6 +1,6 @@
 {% trans_default_domain 'admin' %}
 <ul class="pagination">
-    {% if navbar.URL_FIRST %}
+    {% if navbar.URL_FIRST is defined %}
 	<li class="page-item">
 	    <a class="page-link" href="{{navbar.URL_FIRST}}" aria-label="{{'First'|trans}}" rel="first">
 		<i class="fa fa-fast-backward"></i>
@@ -39,7 +39,7 @@
 	{% set prev_page = page %}
     {% endfor %}
 
-    {% if navbar.URL_NEXT %}
+    {% if navbar.URL_NEXT is defined %}
 	<li class="page-item">
 	    <a class="page-link" href="{{navbar.URL_NEXT}}" rel="next">
 		<i class="fa fa-forward"></i>
