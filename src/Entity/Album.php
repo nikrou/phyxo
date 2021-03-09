@@ -449,7 +449,11 @@ class Album
 
     public function addImageAlbum(ImageAlbum $imageAlbum): self
     {
-        if (!$this->imageAlbums->contains($imageAlbum)) {
+        $predicate = function($key, $element) use ($imageAlbum) {
+            return $element->getImage()->getId() === $imageAlbum->getImage()->getId();
+        };
+
+        if (!$this->imageAlbums->exists($predicate)) {
             $this->imageAlbums[] = $imageAlbum;
             $imageAlbum->setAlbum($this);
         }
@@ -459,7 +463,11 @@ class Album
 
     public function removeImageAlbum(ImageAlbum $imageAlbum): self
     {
-        if ($this->imageAlbums->contains($imageAlbum)) {
+        $predicate = function($key, $element) use ($imageAlbum) {
+            return $element->getImage()->getId() === $imageAlbum->getImage()->getId();
+        };
+
+        if ($this->imageAlbums->exists($predicate)) {
             $this->imageAlbums->removeElement($imageAlbum);
             // set the owning side to null (unless already changed)
             if ($imageAlbum->getAlbum() === $this) {

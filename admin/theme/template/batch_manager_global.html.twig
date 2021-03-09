@@ -532,10 +532,10 @@
 
 		    <div class="thumbnails">
 			{% for thumbnail in thumbnails %}
-			    <div class="thumbnail{% if selection[thumbnail.id] %} thumbSelected{% endif %}">
+			    <div class="thumbnail{% if selection[thumbnail.id] is defined %} thumbSelected{% endif %}" data-testid="image-{{thumbnail.id}}">
 				<span class="wrapper-label">
 				    <label>
-					<input type="checkbox" name="selection[]" value="{{thumbnail.id}}" {% if selection[thumbnail.id] %}checked="checked"{% endif %}>
+					<input type="checkbox" name="selection[]" value="{{thumbnail.id}}" {% if selection[thumbnail.id] is defined %}checked="checked"{% endif %}>
 					<span class="wrapper-thumbnail">
 					    <div class="actions">
 						<a href="{{thumbnail.FILE_SRC}}" class="preview-box"><i class="fa fa-search-plus"></i><span class="visually-hidden">{{'Zoom'|trans}}</span></a>
@@ -553,7 +553,7 @@
 			{% endfor %}
 		    </div>
 
-		    {% if navbar is defined %}
+		    {% if navbar is defined and not(navbar is empty) %}
 			{{ include('_navigation_bar.html.twig') }}
 
 			<div>

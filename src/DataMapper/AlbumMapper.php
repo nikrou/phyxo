@@ -958,17 +958,19 @@ class AlbumMapper
         $images = $this->imageRepository->findBy(['id' => $image_ids]);
 
         foreach ($albums as $album) {
-            $imageAlbum = new ImageAlbum();
-            $imageAlbum->setAlbum($album);
-
             foreach ($images as $i => $image) {
+                $imageAlbum = new ImageAlbum();
+                $imageAlbum->setAlbum($album);
                 $imageAlbum->setImage($image);
                 $imageAlbum->setRank($current_rank_of[$album->getId()] ?? $i);
-                $this->imageAlbumRepository->addOrUpdateImageAlbum($imageAlbum);
+
+                $album->addImageAlbum($imageAlbum);
             }
+            $this->albumRepository->addOrUpdateAlbum($album);
         }
 
         $this->updateAlbums($album_ids);
+        $this->userCacheAlbumRepository->deleteForAlbums($album_ids);
     }
 
     /**

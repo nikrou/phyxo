@@ -145,7 +145,7 @@ class Image
     private $last_modified;
 
     /**
-     * @ORM\OneToMany(targetEntity=ImageAlbum::class, mappedBy="image")
+     * @ORM\OneToMany(targetEntity=ImageAlbum::class, mappedBy="image", cascade={"persist", "remove"})
      */
     private $imageAlbums;
 

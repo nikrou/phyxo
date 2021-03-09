@@ -331,12 +331,8 @@ class BatchManagerController extends AbstractController
 
             // template thumbnail initialization
             foreach ($imageMapper->getRepository()->findByImageIdsAndAlbumId(
-                $current_set,
-                $is_category ? ($this->getFilter()['category'] ?? null) : null,
-                $conf['order_by'] ?? '  ',
-                $nb_images,
-                $start
-                ) as $image) {
+                $current_set, $is_category ? ($this->getFilter()['category'] ?? null) : null,
+                $conf['order_by'] ?? '  ', $nb_images, $start) as $image) {
                 $nb_thumbs_page++;
                 $src_image = new SrcImage($image->toArray(), $conf['picture_ext']);
 

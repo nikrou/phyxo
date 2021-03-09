@@ -115,6 +115,19 @@ class DBContext implements Context
     }
 
     /**
+     * Example: And some images:
+     * | name    | album     |
+     * | photo 1 | album 1   |
+     * | photo 2 | album 2   |
+     *
+     * Example: And some images:
+     * | file                     | name    | album   | author  | date_creation       | tags          |
+     * | features/media/img_1.jpg | photo 1 | album 1 | author1 | 2019-04-02 11:00:00 | [tag 1,tag 2] |
+     * | features/media/img_2.jpg | photo 2 | album 2 | author2 | 2019-05-01 13:00:00 | tag 1         |
+     * | features/media/img_3.jpg | photo 3 | album 2 | author3 | 2019-06-11 14:00:00 |               |
+     * | features/media/img_4.jpg | photo 4 | album 3 | author1 | 2020-04-01 14:00:00 | [tag 3,tag 2] |
+     * | features/media/img_5.jpg | photo 5 | album 2 | author2 | 2020-04-03 14:00:00 | tag 2         |
+     *
      * @Given an image:
      * @Given some images:
      */
@@ -125,7 +138,11 @@ class DBContext implements Context
                 return !in_array($k, ['album', 'tags']);
             }, ARRAY_FILTER_USE_KEY);
 
-            $this->addImageToAlbum($image_params, $image['album']);
+            $this->addImage($image_params);
+            if (!empty($image['album'])) {
+                $this->associateImageToAlbum($image['name'], $image['album']);
+            }
+
             if (!empty($image['tags'])) {
                 if (preg_match('`\[(.*)]`', $image['tags'], $matches)) {
                     $tags = array_map('trim', explode(',', $matches[1]));
@@ -253,14 +270,8 @@ class DBContext implements Context
         $this->executeSqlFile($this->sqlCleanupFile, $this->getContainer()->getParameter('database_prefix'), 'phyxo_');
     }
 
-    protected function addImageToAlbum(array $image_infos, string $album_name)
+    protected function addImage(array $image_infos)
     {
-        try {
-            $album = $this->getContainer()->get(AlbumMapper::class)->getRepository()->findOneByName($album_name);
-        } catch (\Exception $e) {
-            throw new \Exception('Album with name ' . $album_name . ' does not exist');
-        }
-
         $image = new Image();
         $image->setName($image_infos['name']);
         $image->setAddedBy(0);
@@ -295,9 +306,20 @@ class DBContext implements Context
         $image->setFile(basename($image->getFile()));
         $image->setPath(substr($image_path, strlen($this->getContainer()->getParameter('root_project_dir')) + 1));
 
-        $image_id = $this->getContainer()->get(ImageMapper::class)->getRepository()->addOrUpdateImage($image);
+        $this->getContainer()->get(ImageMapper::class)->getRepository()->addOrUpdateImage($image);
 
         $this->storage->set('image_' . $image_infos['name'], $image);
+    }
+
+    protected function associateImageToAlbum(string $image_name, string $album_name)
+    {
+        try {
+            $album = $this->getContainer()->get(AlbumMapper::class)->getRepository()->findOneByName($album_name);
+        } catch (\Exception $e) {
+            throw new \Exception('Album with name ' . $album_name . ' does not exist');
+        }
+
+        $image_id = $this->storage->get('image_' . $image_name)->getId();
 
         $this->getContainer()->get(AlbumMapper::class)->associateImagesToAlbums([$image_id], [$album->getId()]);
     }
