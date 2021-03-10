@@ -195,9 +195,6 @@
     "phpstan/phpstan-doctrine": {
         "version": "0.12.19"
     },
-    "phpstan/phpstan-symfony": {
-        "version": "0.12.7"
-    },
     "psr/cache": {
         "version": "1.0.1"
     },

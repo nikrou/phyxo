@@ -6,11 +6,18 @@ jobs:
   tests:
     name: Phyxo tests
     runs-on: ubuntu-18.04
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
       matrix:
-        php-versions: [7.3, 7.4]
+        php-versions: [7.3, 7.4, 8.0]
+        experimental: [false]
         mysql: [5.7, 8.0]
+        include:
+          - php-version: 8.0
+            experimental: true
+        exclude:
+          - mysql: 8.0
 
     env:
       APP_ENV: test
@@ -42,11 +49,26 @@ jobs:
       - name: Install dependencies
         run: composer install
 
+      - name: Cache warmup
+        run: ./bin/console cache:warmup
+
       - name: Run PHPStan
         run: composer phpstan
 
       - name: Unit tests
         run: ./bin/atoum
+
+      - name: Create database
+        run: ./bin/console doctrine:database:create -vvv
+
+      - name: Install Phyxo
+        run: ./bin/console phyxo:install -vvv
+
+      - name: Create guest user
+        run: ./bin/console phyxo:user:create --username guest --password '' --mail_address '' --status guest
+
+      - name: Run Behat tests
+        run: ./bin/behat --colors --no-interaction -vvv -c behat.yml.dist --suite=web
 
   release:
     name: Phyxo release

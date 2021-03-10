@@ -8,10 +8,6 @@ parameters:
     - src
     - tests/Behat
 
-  symfony:
-    container_xml_path: var/cache/dev/main/srcApp_KernelDevDebugContainer.xml
-    console_application_loader: tools/phpstan-console-loader.php
-
   doctrine:
     objectManagerLoader: tools/phpstan-doctrine-orm-bootstrap.php
 

@@ -48,7 +48,6 @@
         "phpstan/extension-installer": "^1.0",
         "phpstan/phpstan": "^0.12.42",
         "phpstan/phpstan-doctrine": "^0.12.19",
-        "phpstan/phpstan-symfony": "^0.12.7",
         "symfony/maker-bundle": "^1.21",
         "symfony/profiler-pack": "^1.0",
         "symfony/test-pack": "^1.0"
