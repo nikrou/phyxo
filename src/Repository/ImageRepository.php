@@ -31,6 +31,18 @@ class ImageRepository extends ServiceEntityRepository
         return $image->getId();
     }
 
+    // deal with ./ at the beginning of path
+    public function findOneByUnsanePath(string $path): ?Image
+    {
+        $qb = $this->createQueryBuilder('i');
+        $qb->where('i.path = :path');
+        $qb->orWhere('i.path = :path_with_slash');
+        $qb->setParameter('path', $path);
+        $qb->setParameter('path_with_slash', './' . $path);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
     public function updateFieldForImages(array $ids, string $field, $value)
     {
         $qb = $this->createQueryBuilder('i');

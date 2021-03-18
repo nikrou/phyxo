@@ -430,16 +430,6 @@ $conf['slideshow_repeat'] = true;
 // Every plugin from 1.7 would be design to manage light_slideshow case.
 $conf['light_slideshow'] = true;
 
-// the local data directory is used to store data such as compiled templates,
-// plugin variables, or resized images. Beware of
-// mandatory trailing slash.
-$conf['data_location'] = '_data/';
-
-// where should the API/UploadForm add photos? This path must be relative to
-// the Phyxo installation directory (but can be outside, as long as it's
-// reachable from your webserver).
-$conf['upload_dir'] = './upload';
-
 // enable the synchronization method for adding photos
 $conf['enable_synchronization'] = false;
 

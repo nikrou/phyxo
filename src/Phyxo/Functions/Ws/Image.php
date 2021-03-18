@@ -1041,13 +1041,18 @@ class Image
      */
     public static function checkUpload($params, Server $service)
     {
-        $ret['message'] = \Phyxo\Functions\Utils::ready_for_upload_message($service->getConf()['upload_dir']);
-        $ret['ready_for_upload'] = true;
-        if (!empty($ret['message'])) {
-            $ret['ready_for_upload'] = false;
+        $message = '';
+        if (!is_dir($service->getUploadDir())) {
+            if (!is_writable(dirname($service->getUploadDir()))) {
+                $message = sprintf('Create the "%s" directory at the root of your Phyxo installation', basename($service->getUploadDir()));
+            }
+        } else {
+            if (!is_writable($service->getUploadDir())) {
+                $message = sprintf('Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation', basename($service->getUploadDir()));
+            }
         }
 
-        return $ret;
+        return ['message' => $message, 'ready_for_upload' => $message === ''];
     }
 
     // protected methods, not part of the API
@@ -1271,7 +1276,8 @@ class Image
                 throw new \Exception('forbidden file type');
             }
 
-            Utils::prepare_directory($filename_dir);
+            $fs = new Filesystem();
+            $fs->mkdir($filename_dir);
         }
 
         if (is_uploaded_file($source_filepath)) {
@@ -1281,6 +1287,8 @@ class Image
         }
         @chmod($file_path, 0644);
 
+        $fs = new Filesystem();
+
         if ($is_tiff && \Phyxo\Image\Image::getLibrary(null, null, $service->getConf()['ext_image_dir']) === 'ExtImagick') {
             // move the uploaded file to pwg_representative sub-directory
             $representative_file_path = dirname($file_path) . '/pwg_representative/';
@@ -1289,7 +1297,7 @@ class Image
             $representative_ext = $service->getConf()['tiff_representative_ext'];
             $representative_file_path .= $representative_ext;
 
-            Utils::prepare_directory(dirname($representative_file_path));
+            $fs->mkdir(dirname($representative_file_path));
 
             $exec = $service->getConf()['ext_imagick_dir'] . 'convert';
 
@@ -1327,6 +1335,8 @@ class Image
             'avi', 'rm',
         ];
 
+        $fs = new Filesystem();
+
         if (isset($original_extension) && in_array($original_extension, $ffmpeg_video_exts)) {
             $representative_file_path = dirname($file_path) . '/pwg_representative/';
             $representative_file_path .= \Phyxo\Functions\Utils::get_filename_wo_extension(basename($file_path)) . '.';
@@ -1334,7 +1344,7 @@ class Image
             $representative_ext = 'jpg';
             $representative_file_path .= $representative_ext;
 
-            Utils::prepare_directory(dirname($representative_file_path));
+            $fs->mkdir(dirname($representative_file_path));
 
             $second = 1;
 
@@ -1357,7 +1367,7 @@ class Image
             $representative_ext = 'jpg';
             $representative_file_path .= $representative_ext;
 
-            Utils::prepare_directory(dirname($representative_file_path));
+            $fs->mkdir(dirname($representative_file_path));
 
             $exec = $service->getConf()['ext_imagick_dir'] . 'convert';
             $exec .= ' -quality 98';

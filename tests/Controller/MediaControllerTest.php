@@ -11,20 +11,82 @@
 
 namespace App\Tests\Controller;
 
+use App\Entity\Image;
+use App\Repository\ImageRepository;
+use Prophecy\Argument;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
 class MediaContollerTest extends WebTestCase
 {
-    public function testGenerateImage()
+    private $fixtures_dir = __DIR__ . '/../fixtures/media', $sample_image = 'sample.jpg', $image_paths = '', $derivative_path = '', $imageRepository;
+
+    protected function setUp(): void
     {
-        $mediaCacheDir = __DIR__ . '/../../_data/i';
-        $image_path = 'upload/2019/03/18/2019031818551945391201-e29966c3-sq.jpg';
+        $kernel = self::bootKernel();
+        $uploadDir = $kernel->getContainer()->getParameter('upload_dir');
+        $mediaCacheDir = $kernel->getContainer()->getParameter('media_cache_dir');
+
+        $now = new \DateTime('now');
+        $base_image_path = sprintf('%s/%s-%s', $now->format('Y/m/d'), $now->format('YmdHis'), substr(md5($this->sample_image), 0, 8));
+        $image_upload_path = sprintf('%s/%s.jpg', $uploadDir, $base_image_path);
+        $this->image_paths = [
+            'sq' => sprintf('tests/upload/%s-sq.jpg', $base_image_path),
+            'unknown' => sprintf('tests/upload/%s-cu_e777x333.jpg', $base_image_path),
+            'custom' => sprintf('tests/upload/%s-cu_e1200x900.jpg', $base_image_path),
+        ];
+        $this->derivative_path = sprintf('%s/%s-sq.jpg', $mediaCacheDir, $base_image_path);
+
+        $image = new Image();
+        $image->setPath($this->image_paths['sq']);
+        $image->setWidth(961);
+        $image->setHeight(1200);
+
+        $this->imageRepository = $this->prophesize(ImageRepository::class);
+        $this->imageRepository->findOneByUnsanePath(Argument::any())->willReturn($image);
+        $this->imageRepository->addOrUpdateImage(Argument::any())->willReturn(1);
+
+        $fs = new Filesystem();
+        $fs->remove($mediaCacheDir);
+        $fs->remove($uploadDir);
+        $fs->mkdir(dirname($image_upload_path));
+        $fs->copy(sprintf('%s/%s', $this->fixtures_dir, $this->sample_image), $image_upload_path);
+    }
+
+    protected function tearDown(): void
+    {
+        // parent::tearDown();
+    }
+
+    public function testUnkwnonImageGive404Error()
+    {
+        self::ensureKernelShutdown();
 
         $client = static::createClient();
-        $client->request(
-            'GET',
-            "/media/$image_path"
-        );
+        $client->request('GET', '/media/tests/upload/dummy-sq.jpg');
+
+        $this->assertEquals(404, $client->getResponse()->getStatusCode());
+    }
+
+    public function testGenerateImage()
+    {
+        self::ensureKernelShutdown();
+        $client = static::createClient();
+        $container = self::$container;
+        $container->set('phyxo.image.repository', $this->imageRepository->reveal());
+        $client->request('GET', sprintf('/media/%s', $this->image_paths['sq']));
+
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+    }
+
+    public function testReusedGenerateImage()
+    {
+        self::ensureKernelShutdown();
+
+        $client = static::createClient();
+        $container = self::$container;
+        $container->set('phyxo.image.repository', $this->imageRepository->reveal());
+        $client->request('GET', sprintf('/media/%s', $this->image_paths['sq']));
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertTrue(
@@ -38,27 +100,25 @@ class MediaContollerTest extends WebTestCase
         // same path, image not changed so http status code must be 304
         $client->request(
             'GET',
-            "/media/$image_path",
+            sprintf('/media/%s', $this->image_paths['sq']),
             [],
             [],
             [
-                'HTTP_If-Modified-Since' => gmdate('D, d M Y H:i:s', filemtime($mediaCacheDir . '/' . $image_path)) . ' GMT',
-                'HTTP_If-None-Match' => '"' . md5_file($mediaCacheDir . '/' . $image_path) . '"',
-                'HTTP_Etag' => '"' . md5_file($mediaCacheDir . '/' . $image_path) . '"'
+                'HTTP_If-Modified-Since' => gmdate('D, d M Y H:i:s', filemtime($this->derivative_path)) . ' GMT',
+                'HTTP_If-None-Match' => '"' . md5_file($this->derivative_path) . '"',
+                'HTTP_Etag' => '"' . md5_file($this->derivative_path) . '"'
             ]
         );
         $this->assertEquals(304, $client->getResponse()->getStatusCode());
     }
 
-    public function testGenerateCustomSizeNotAllowed()
+    public function testGenerateUnknownCustomSizeNotAllowed()
     {
-        $image_path = 'upload/2019/03/18/2019031818551945391201-e29966c3-cu_e777x333.jpg';
-
+        self::ensureKernelShutdown();
         $client = static::createClient();
-        $client->request(
-            'GET',
-            "/media/$image_path"
-        );
+        $container = self::$container;
+        $container->set('phyxo.image.repository', $this->imageRepository->reveal());
+        $client->request('GET', sprintf('/media/%s', $this->image_paths['unknown']));
 
         $this->assertEquals(403, $client->getResponse()->getStatusCode());
     }
@@ -68,26 +128,16 @@ class MediaContollerTest extends WebTestCase
         $width = 1200;
         $height = 900;
         $custom = sprintf('e%dx%d', $width, $height);
-        $image_path = sprintf('upload/2019/03/18/2019031818551945391201-e29966c3-cu_%s.jpg', $custom);
 
+        self::ensureKernelShutdown();
         $client = static::createClient();
-        $image_std_params = self::$container->get('Phyxo\Image\ImageStandardParams');
-        $image_std_params->unsetCustom($custom);
-        $this->assertFalse($image_std_params->hasCustom($custom));
+        $container = self::$container;
+        $container->set('phyxo.image.repository', $this->imageRepository->reveal());
 
-        $client->request(
-            'GET',
-            "/media/$image_path"
-        );
-        $this->assertEquals(403, $client->getResponse()->getStatusCode());
-
-        // but 200 when size is defined
-        $image_std_params->makeCustom($width, $height, 1, $width, $height);
+        $image_std_params = $container->get('Phyxo\Image\ImageStandardParams');
         $this->assertTrue($image_std_params->hasCustom($custom));
-        $client->request(
-            'GET',
-            "/media/$image_path"
-        );
+
+        $client->request('GET', sprintf('/media/%s', $this->image_paths['custom']));
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
     }
 }

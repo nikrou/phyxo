@@ -11,7 +11,7 @@
 
 namespace App\Controller;
 
-use App\DataMapper\ImageMapper;
+use App\Repository\ImageRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Phyxo\Conf;
 use Phyxo\Image\DerivativeParams;
@@ -20,27 +20,29 @@ use Phyxo\Image\SizingParams;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\File\MimeType\FileinfoMimeTypeGuesser;
+use Symfony\Component\Mime\FileinfoMimeTypeGuesser;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Image\ImageStandardParams;
 
 class MediaController
 {
-    private $page, $image_std_params;
+    private $image_std_params, $rotation_angle, $original_size;
 
-    public function index(Request $request, string $path, string $derivative, string $sizes, string $image_extension, string $mediaCacheDir, string $rootProjectDir, Conf $conf,
-                        LoggerInterface $logger, ImageStandardParams $image_std_params, ImageMapper $imageMapper)
+    public function index(Request $request, string $path, string $derivative, string $sizes, string $image_extension, string $mediaCacheDir, string $uploadDir, Conf $conf,
+                        LoggerInterface $logger, ImageStandardParams $image_std_params, ImageRepository $imageRepository, string $rootProjectDir)
     {
-        $this->page = [];
+        $fs = new Filesystem();
+        $relative_path = $fs->makePathRelative(sprintf('%s/%s', $rootProjectDir, $path), $uploadDir);
+        $relative_path = rtrim($relative_path, '/');
 
-        $image_path = sprintf('%s/%s.%s', '.', $path, $image_extension);
+        $image_path = sprintf('%s.%s', $relative_path, $image_extension);
         if (!empty($sizes)) {
-            $derivative_path = sprintf('%s/%s-%s%s.%s', '.', $path, $derivative, $sizes, $image_extension);
+            $derivative_path = sprintf('%s-%s%s.%s', $relative_path, $derivative, $sizes, $image_extension);
         } else {
-            $derivative_path = sprintf('%s/%s-%s.%s', '.', $path, $derivative, $image_extension);
+            $derivative_path = sprintf('%s-%s.%s', $relative_path, $derivative, $image_extension);
         }
-        $this->page['derivative_path'] = $derivative_path;
-        $image_src = sprintf('%s/%s', $rootProjectDir, $image_path);
+
+        $image_src = sprintf('%s/%s', $uploadDir, $image_path);
         $derivative_src = sprintf('%s/%s', $mediaCacheDir, $derivative_path);
         $derivative_params = null;
 
@@ -83,8 +85,12 @@ class MediaController
 
         $params = $derivative_params;
 
+        if (!is_readable($image_src)) {
+            return new Response('Image not found ' . $image_src, 404);
+        }
         $src_mtime = filemtime($image_src);
         $need_generate = true;
+
         if (is_readable($derivative_src)) {
             $derivative_mtime = filemtime($derivative_src);
             if ($derivative_mtime < $src_mtime || $derivative_mtime < $params->last_mod_time) {
@@ -104,27 +110,29 @@ class MediaController
 
         $coi = null;
         try {
-            $image = $imageMapper->getRepository()->findOneBy(['path' => $image_path]);
+            // deal with ./ at the beginning of path
+            $image = $imageRepository->findOneByUnsanePath($path . '.' . $image_extension);
             if (is_null($image)) {
-                return new Response('Db file path not found', 404);
+                return new Response('Db file path not found ', 404);
             }
 
             if ($image->getWidth() > 0 && $image->getHeight()) {
-                $this->page['original_size'] = [$image->getWidth(), $image->getHeight()];
+                $this->original_size = [$image->getWidth(), $image->getHeight()];
             }
+
             $coi = $image->getCoi();
             if (!$image->getRotation()) {
-                $this->page['rotation_angle'] = Image::getRotationAngle($image_path);
-                $image->setRotation(Image::getRotationCodeFromAngle($this->page['rotation_angle']));
-                $imageMapper->getRepository()->addOrUpdateImage($image);
+                $this->rotation_angle = Image::getRotationAngle($image_src);
+                $image->setRotation(Image::getRotationCodeFromAngle($this->rotation_angle));
+                $imageRepository->addOrUpdateImage($image);
             } else {
-                $this->page['rotation_angle'] = Image::getRotationAngleFromCode($image->getRotation());
+                $this->rotation_angle = Image::getRotationAngleFromCode($image->getRotation());
             }
         } catch (\Exception $e) {
             return new Response($e->getMessage());
         }
 
-        if (!$this->try_switch_source($params, $src_mtime) && $params->type === ImageStandardParams::IMG_CUSTOM) {
+        if (!$this->try_switch_source($params, $derivative_src, $src_mtime) && $params->type === ImageStandardParams::IMG_CUSTOM) {
             $sharpen = 0;
             foreach ($this->image_std_params->getDefinedTypeMap() as $std_params) {
                 $sharpen += $std_params->sharpen;
@@ -132,13 +140,13 @@ class MediaController
             $params->sharpen = round($sharpen / count($this->image_std_params->getDefinedTypeMap()));
         }
 
-        $image = new Image($image_path);
+        $image = new Image($image_src);
         $changes = 0;
 
         // rotate
-        if (isset($this->page['rotation_angle']) && $this->page['rotation_angle'] != 0) {
+        if (isset($this->rotation_angle) && $this->rotation_angle !== 0) {
             $changes++;
-            $image->rotate($this->page['rotation_angle']);
+            $image->rotate($this->rotation_angle);
         }
 
         // Crop & scale
@@ -199,13 +207,14 @@ class MediaController
             $image->strip();
         }
 
-        $fs = new Filesystem();
         $fs->mkdir(dirname($mediaCacheDir . '/' . $derivative_path));
         $image->set_compression_quality($this->image_std_params->getQuality());
         $logger->info(sprintf('WRITE %s', $mediaCacheDir . '/' . $derivative_path));
         $image->write($mediaCacheDir . '/' . $derivative_path);
         $image->destroy();
         chmod($mediaCacheDir . '/' . $derivative_path, 0644);
+
+        $f = filemtime($mediaCacheDir . '/' . $derivative_path);
 
         return $this->makeDerivativeResponse($mediaCacheDir . '/' . $derivative_path);
     }
@@ -251,14 +260,14 @@ class MediaController
         return new DerivativeParams(new SizingParams($size, $crop, $min_size));
     }
 
-    private function try_switch_source(DerivativeParams $params, $original_mtime)
+    private function try_switch_source(DerivativeParams $params, string $derivative_path, $original_mtime)
     {
-        if (!isset($this->page['original_size'])) {
+        if (!isset($this->original_size)) {
             return false;
         }
 
-        $original_size = $this->page['original_size'];
-        if ($this->page['rotation_angle'] == 90 || $this->page['rotation_angle'] == 270) {
+        $original_size = $this->original_size;
+        if ($this->rotation_angle === 90 || $this->rotation_angle === 270) {
             $tmp = $original_size[0];
             $original_size[0] = $original_size[1];
             $original_size[1] = $tmp;
@@ -302,17 +311,21 @@ class MediaController
         }
 
         foreach (array_reverse($candidates) as $candidate) {
-            $candidate_path = $this->page['derivative_path'];
+            $candidate_path = $derivative_path;
             $candidate_path = str_replace('-' . DerivativeParams::derivative_to_url($params->type), '-' . DerivativeParams::derivative_to_url($candidate->type), $candidate_path);
-            $candidate_mtime = @filemtime($candidate_path);
+
+            if (!is_readable($candidate_path)) {
+                continue;
+            }
+
+            $candidate_mtime = filemtime($candidate_path);
             if ($candidate_mtime === false || $candidate_mtime < $original_mtime || $candidate_mtime < $candidate->last_mod_time) {
                 continue;
             }
             $params->use_watermark = false;
             $params->sharpen = min(1, $params->sharpen);
-            $this->page['src_path'] = $candidate_path;
-            $this->page['src_url'] = $this->page['root_path'] . substr($candidate_path, strlen(__DIR__ . '/../../'));
-            $this->page['rotation_angle'] = 0;
+            $this->rotation_angle = 0;
+
             return true;
         }
 
@@ -325,13 +338,13 @@ class MediaController
         $response->setCache([
             'etag' => md5_file($image_path),
             'last_modified' => (new \DateTime())->setTimestamp(filemtime($image_path)),
-            'max_age' => 100, //@TODO : read from conf
+            'max_age' => 3600, //@TODO : read from conf
             'public' => true
         ]);
 
         $mimeTypeGuesser = new FileinfoMimeTypeGuesser();
-        if ($mimeTypeGuesser->isSupported()) {
-            $response->headers->set('Content-Type', $mimeTypeGuesser->guess($image_path));
+        if ($mimeTypeGuesser->isGuesserSupported()) {
+            $response->headers->set('Content-Type', $mimeTypeGuesser->guessMimeType($image_path));
         } else {
             $response->headers->set('Content-Type', 'text/plain');
         }

@@ -837,29 +837,6 @@ class Utils
         return $keys;
     }
 
-    public static function prepare_directory($directory)
-    {
-        if (!is_dir($directory)) {
-            if (substr(PHP_OS, 0, 3) == 'WIN') {
-                $directory = str_replace('/', DIRECTORY_SEPARATOR, $directory);
-            }
-            umask(0000);
-            $recursive = true;
-            if (!@mkdir($directory, 0777, $recursive)) {
-                throw new \Exception('[prepare_directory] cannot create directory "' . $directory . '"');
-            }
-        }
-
-        if (!is_writable($directory)) {
-            // last chance to make the directory writable
-            @chmod($directory, 0777);
-
-            if (!is_writable($directory)) {
-                throw new \Exception('[prepare_directory] directory "' . $directory . '" has no write access');
-            }
-        }
-    }
-
     public static function need_resize($image_filepath, $max_width, $max_height)
     {
         // TODO : the resize check should take the orientation into account. If a
@@ -884,28 +861,6 @@ class Utils
             'height' => $height,
             'filesize' => $filesize,
         ];
-    }
-
-    public static function ready_for_upload_message(string $upload_dir = '')
-    {
-        $relative_dir = preg_replace('#^' . realpath(__DIR__ . '/../../../') . '#', '', $upload_dir);
-        $absolute_dir = realpath(__DIR__ . '/../../../') . '/' . $upload_dir;
-
-        if (!is_dir($absolute_dir)) {
-            if (!is_writable(dirname($absolute_dir))) {
-                return sprintf('Create the "%s" directory at the root of your Phyxo installation', $relative_dir);
-            }
-        } else {
-            if (!is_writable($absolute_dir)) {
-                @chmod($absolute_dir, 0777);
-
-                if (!is_writable($absolute_dir)) {
-                    return sprintf('Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation', $relative_dir);
-                }
-            }
-        }
-
-        return null;
     }
 
     public static function get_ini_size($ini_key, $in_bytes = true)

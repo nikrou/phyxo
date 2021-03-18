@@ -71,3 +71,12 @@ behat.yml
 /.php_cs.cache
 ###< friendsofphp/php-cs-fixer ###
 /install/queries.sql
+
+/tests/media
+/tests/upload
+
+###> symfony/phpunit-bridge ###
+.phpunit
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###

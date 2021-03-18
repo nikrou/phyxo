@@ -1,0 +1,3 @@
+parameters:
+    upload_dir: '%kernel.project_dir%/tests/upload'
+    media_cache_dir: '%kernel.project_dir%/tests/media'

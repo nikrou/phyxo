@@ -241,6 +241,26 @@ class FeatureContext extends BaseContext
     }
 
     /**
+     * @Given I follow image of type :type_map
+     */
+    public function iFollowImageOfType(string $type_map)
+    {
+        $picture_derivatives = $this->getPage()->find('css', '*[data-testid="picture.derivatives"]');
+        if (is_null($picture_derivatives)) {
+            throw new \Exception("Cannot find picture derivatives");
+        }
+
+        // $derivative = $picture_derivatives->find('css', sprintf('*[data-type-save="%s"]', $type_map));
+        $derivative = $picture_derivatives->find('css', sprintf('#derivative%s', $type_map));
+
+        if (is_null($derivative)) {
+            throw new \Exception("Cannot find image of size ${type_map}");
+        }
+
+        $this->visit($derivative->getAttribute('data-url'));
+    }
+
+    /**
      * @When I add a comment :
      */
     public function iAddAComment(PyStringNode $comment)

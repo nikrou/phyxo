@@ -58,6 +58,9 @@ jobs:
       - name: Unit tests
         run: ./bin/atoum
 
+      - name: PHPUnit tests
+        run: ./bin/simple-phpunit --testdox
+
       - name: Create database
         run: ./bin/console doctrine:database:create -vvv
 

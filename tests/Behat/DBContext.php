@@ -31,6 +31,7 @@ use Behat\Symfony2Extension\Context\KernelDictionary;
 use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\Conf;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 class DBContext implements Context
 {
@@ -260,6 +261,7 @@ class DBContext implements Context
     public function prepareDB(BeforeScenarioScope $scope)
     {
         $this->executeSqlFile($this->sqlInitFile, $this->getContainer()->getParameter('database_prefix'), 'phyxo_');
+        $this->cleanUploadAndMediaDirectories();
     }
 
     /**
@@ -268,6 +270,14 @@ class DBContext implements Context
     public function cleanDB(AfterScenarioScope $scope)
     {
         $this->executeSqlFile($this->sqlCleanupFile, $this->getContainer()->getParameter('database_prefix'), 'phyxo_');
+        $this->cleanUploadAndMediaDirectories();
+    }
+
+    protected function cleanUploadAndMediaDirectories()
+    {
+        $fs = new Filesystem();
+        $fs->remove($this->getContainer()->getParameter('upload_dir'));
+        $fs->remove($this->getContainer()->getParameter('media_cache_dir'));
     }
 
     protected function addImage(array $image_infos)
