@@ -30,12 +30,13 @@ class InstallController extends AbstractController
         'success' => ['label' => 'Installation completed']
     ];
 
-    private $languages_options, $passwordEncoder, $default_language, $default_theme, $translationsDir;
-    private $rootProjectDir, $translator, $databaseYamlFile, $phyxoInstaller;
+    private $languages_options, $passwordEncoder, $default_language, $default_theme, $translationsDir, $mediaCacheDir, $localDir;
+    private $rootProjectDir, $translator, $databaseYamlFile, $phyxoInstaller, $pluginsDir, $themesDir, $uploadDir, $varDir, $configDir;
     private $default_prefix = 'phyxo_';
 
-    public function __construct(string $translationsDir, string $defaultLanguage, string $defaultTheme, PhyxoInstaller $phyxoInstaller,
-                                string $databaseYamlFile, UserPasswordEncoderInterface $passwordEncoder, TranslatorInterface $translator, string $rootProjectDir)
+    public function __construct(string $translationsDir, string $defaultLanguage, string $defaultTheme, PhyxoInstaller $phyxoInstaller, string $mediaCacheDir,
+                                string $themesDir, string $pluginsDir, string $databaseYamlFile, UserPasswordEncoderInterface $passwordEncoder, string $uploadDir,
+                                TranslatorInterface $translator, string $rootProjectDir, string $varDir, string $configDir, string $localDir)
     {
         $this->translationsDir = $translationsDir;
         $this->databaseYamlFile = $databaseYamlFile;
@@ -43,6 +44,13 @@ class InstallController extends AbstractController
         $this->default_theme = $defaultTheme;
         $this->passwordEncoder = $passwordEncoder;
         $this->translator = $translator;
+        $this->themesDir = $themesDir;
+        $this->pluginsDir = $pluginsDir;
+        $this->uploadDir = $uploadDir;
+        $this->localDir = $localDir;
+        $this->varDir = $varDir;
+        $this->configDir = $configDir;
+        $this->mediaCacheDir = $mediaCacheDir;
         $this->rootProjectDir = $rootProjectDir;
         $this->phyxoInstaller = $phyxoInstaller;
     }
@@ -121,40 +129,40 @@ class InstallController extends AbstractController
             'plugins' => [
                 'readable' => false,
                 'writable' => false,
-                'path' => realpath(__DIR__ . '/../../plugins'),
+                'path' => $this->pluginsDir,
             ],
             'themes' => [
                 'readable' => false,
                 'writable' => false,
-                'path' => realpath(__DIR__ . '/../../themes'),
+                'path' => $this->themesDir,
             ],
         ];
 
         $write_directories = [
-            '_data' => [
+            'media' => [
                 'readable' => false,
                 'writable' => false,
-                'path' => realpath(__DIR__ . '/../../_data'),
+                'path' => $this->mediaCacheDir,
             ],
             'config' => [
                 'readable' => false,
                 'writable' => false,
-                'path' => realpath(__DIR__ . '/../../config'),
+                'path' => $this->configDir,
             ],
             'local' => [
                 'readable' => false,
                 'writable' => false,
-                'path' => realpath(__DIR__ . '/../../local'),
+                'path' => $this->localDir,
             ],
             'upload' => [
                 'readable' => false,
                 'writable' => false,
-                'path' => realpath(__DIR__ . '/../../upload'),
+                'path' => $this->uploadDir,
             ],
             'var' => [
                 'readable' => false,
                 'writable' => false,
-                'path' => realpath(__DIR__ . '/../../var'),
+                'path' => $this->varDir,
             ],
         ];
 

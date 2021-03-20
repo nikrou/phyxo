@@ -19,8 +19,6 @@ use App\Entity\UserInfos;
 use Phyxo\Block\RegisteredBlock;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\RouterInterface;
-use Phyxo\Image\ImageStandardParams;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -689,114 +687,6 @@ class Utils
         }
         ksort($ordered_element_ids);
         return $ordered_element_ids;
-    }
-
-    /**
-     * Delete all derivative files for one or several types
-     */
-    public static function clear_derivative_cache(array $types, array $all_types)
-    {
-        for ($i = 0; $i < count($types); $i++) {
-            $type = $types[$i];
-            if ($type === ImageStandardParams::IMG_CUSTOM) {
-                $type = \Phyxo\Image\DerivativeParams::derivative_to_url($type) . '[a-zA-Z0-9]+';
-            } elseif (in_array($type, $all_types)) {
-                $type = \Phyxo\Image\DerivativeParams::derivative_to_url($type);
-            } else { //assume a custom type
-                $type = \Phyxo\Image\DerivativeParams::derivative_to_url(ImageStandardParams::IMG_CUSTOM) . '_' . $type;
-            }
-            $types[$i] = $type;
-        }
-
-        $pattern = '#.*-';
-        if (count($types) > 1) {
-            $pattern .= '(' . implode('|', $types) . ')';
-        } else {
-            $pattern .= $types[0];
-        }
-        $pattern .= '\.[a-zA-Z0-9]{3,4}$#';
-
-        // @TODO: use glob
-        $derivative_dir = '_data/i/';
-        $base_dir = __DIR__ . '/../../../';
-        if ($contents = @opendir($base_dir . $derivative_dir)) {
-            while (($node = readdir($contents)) !== false) {
-                if ($node != '.' and $node != '..' && is_dir($base_dir . $derivative_dir . $node)) {
-                    self::clear_derivative_cache_rec($base_dir . $derivative_dir . $node, $pattern);
-                }
-            }
-            closedir($contents);
-        }
-    }
-
-    /**
-     * Used by clear_derivative_cache()
-     * @ignore
-     */
-    public static function clear_derivative_cache_rec($path, $pattern)
-    {
-        $rmdir = true;
-        $rm_index = false;
-
-        // @TODO: use glob
-        if ($contents = opendir($path)) {
-            while (($node = readdir($contents)) !== false) {
-                if ($node == '.' or $node == '..') {
-                    continue;
-                }
-                if (is_dir($path . '/' . $node)) {
-                    $rmdir = self::clear_derivative_cache_rec($path . '/' . $node, $pattern);
-                } else {
-                    if (preg_match($pattern, $node)) {
-                        unlink($path . '/' . $node);
-                    } elseif ($node == 'index.htm') {
-                        $rm_index = true;
-                    } else {
-                        $rmdir = false;
-                    }
-                }
-            }
-            closedir($contents);
-
-            if ($rmdir) {
-                if ($rm_index) {
-                    unlink($path . '/index.htm');
-                }
-                clearstatcache();
-                @rmdir($path);
-            }
-            return $rmdir;
-        }
-    }
-
-    /**
-     * Deletes derivatives of a particular element
-     *
-     * @param array $infos ('path'[, 'representative_ext'])
-     * @param 'all'|int $type
-     */
-    public static function delete_element_derivatives($infos, $type = 'all')
-    {
-        $path = $infos['path'];
-        if (!empty($infos['representative_ext'])) {
-            $path = \Phyxo\Functions\Utils::original_to_representative($path, $infos['representative_ext']);
-        }
-        if (substr_compare($path, '../', 0, 3) == 0) {
-            $path = substr($path, 3);
-        }
-        $dot = strrpos($path, '.');
-        if ($type == 'all') {
-            $pattern = '-*';
-        } else {
-            $pattern = '-' . \Phyxo\Image\DerivativeParams::derivative_to_url($type) . '*';
-        }
-        $fs = new Filesystem();
-        $path = substr_replace($path, $pattern, $dot, 0);
-        if (($glob = glob(__DIR__ . '/../../../_data/i/' . $path)) !== false) {
-            foreach ($glob as $file) {
-                $fs->remove($file);
-            }
-        }
     }
 
     /**

@@ -15,8 +15,8 @@ use App\DataMapper\UserMapper;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
+use App\Services\DerivativeService;
 use Phyxo\Conf;
-use Phyxo\Functions\Utils;
 use Phyxo\Image\Image;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\WatermarkParams;
@@ -196,10 +196,10 @@ class ConfigurationController extends AbstractController
         return $this->render('configuration_' . $section . '.html.twig', $tpl_params);
     }
 
-    public function sizeRestore(ImageStandardParams $image_std_params, Conf $conf, TranslatorInterface $translator)
+    public function sizeRestore(ImageStandardParams $image_std_params, Conf $conf, TranslatorInterface $translator, DerivativeService $derivativeService)
     {
         $image_std_params->setAndSave($image_std_params->getDefaultSizes());
-        Utils::clear_derivative_cache($image_std_params->getAllTypes(), $image_std_params->getAllTypes());
+        $derivativeService->clearCache($image_std_params->getAllTypes(), $image_std_params->getAllTypes());
         $this->addFlash('info', $translator->trans('Your configuration settings have been saved', [], 'admin'));
         unset($conf['disabled_derivatives']);
 
@@ -430,7 +430,7 @@ class ConfigurationController extends AbstractController
     }
 
     public function update(Request $request, string $section, Conf $conf, ThemeRepository $themeRepository, string $localDir, ImageStandardParams $image_std_params,
-                            UserMapper $userMapper, UserInfosRepository $userInfosRepository, LanguageRepository $languageRepository)
+                            UserMapper $userMapper, UserInfosRepository $userInfosRepository, LanguageRepository $languageRepository, DerivativeService $derivativeService)
     {
         $conf_updated = false;
         $error = false;
@@ -769,7 +769,7 @@ class ConfigurationController extends AbstractController
                     $image_std_params->save();
 
                     if (count($changed_types)) {
-                        \Phyxo\Functions\Utils::clear_derivative_cache($changed_types, $image_std_params->getAllTypes());
+                        $derivativeService->clearCache($changed_types, $image_std_params->getAllTypes());
                     }
 
                     $this->addFlash('info', $this->translator->trans('Your configuration settings have been saved', [], 'admin'));
@@ -956,7 +956,7 @@ class ConfigurationController extends AbstractController
                     }
 
                     if (count($changed_types)) {
-                        \Phyxo\Functions\Utils::clear_derivative_cache($changed_types, $image_std_params->getAllTypes());
+                        $derivativeService->clearCache($changed_types, $image_std_params->getAllTypes());
                     }
                 }
             }

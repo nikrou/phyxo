@@ -24,6 +24,7 @@ use App\Repository\FavoriteRepository;
 use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\TagRepository;
+use App\Services\DerivativeService;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
@@ -37,7 +38,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BatchManagerController extends AbstractController
 {
-    private $translator;
+    private $translator, $derivativeService;
 
     protected function setTabsheet(string $section = 'global')
     {
@@ -69,13 +70,14 @@ class BatchManagerController extends AbstractController
         return $filter;
     }
 
-    public function global(Request $request, string $filter = null, int $start = 0, Conf $conf, AlbumMapper $albumMapper,
+    public function global(Request $request, string $filter = null, int $start = 0, Conf $conf, AlbumMapper $albumMapper, DerivativeService $derivativeService,
                           ImageStandardParams $image_std_params, SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper, CaddieRepository $caddieRepository,
                           UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator, AlbumRepository $albumRepository, ImageTagRepository $imageTagRepository,
                           ImageAlbumRepository $imageAlbumRepository, FavoriteRepository $favoriteRepository, TagRepository $tagRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
+        $this->derivativeService = $derivativeService;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
@@ -544,7 +546,7 @@ class BatchManagerController extends AbstractController
         } elseif ($action === 'delete_derivatives' && $request->request->get('del_derivatives_type')) {
             foreach ($imageMapper->getRepository()->find($collection) as $image) {
                 foreach ($request->request->get('del_derivatives_type') as $type) {
-                    Utils::delete_element_derivatives($image->toArray(), $type);
+                    $this->derivativeService->deleteForElement($image->toArray(), $type);
                 }
             }
         } elseif ($action === 'generate_derivatives') {

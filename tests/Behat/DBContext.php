@@ -276,8 +276,8 @@ class DBContext implements Context
     protected function cleanUploadAndMediaDirectories()
     {
         $fs = new Filesystem();
-        $fs->remove($this->getContainer()->getParameter('upload_dir'));
-        $fs->remove($this->getContainer()->getParameter('media_cache_dir'));
+        $fs->remove($this->getContainer()->getParameter('upload_dir') . '/*');
+        $fs->remove($this->getContainer()->getParameter('media_cache_dir') . '/*');
     }
 
     protected function addImage(array $image_infos)

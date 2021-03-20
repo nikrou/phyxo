@@ -18,6 +18,7 @@ use App\DataMapper\UserMapper;
 use App\Repository\ImageAlbumRepository;
 use App\Repository\RateRepository;
 use App\Repository\UserRepository;
+use App\Services\DerivativeService;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
@@ -266,7 +267,7 @@ class PhotoController extends AbstractController
     }
 
     public function coi(Request $request, int $image_id, int $category_id = null, ImageStandardParams $image_std_params, Conf $conf,
-                        ImageMapper $imageMapper, TranslatorInterface $translator)
+                        ImageMapper $imageMapper, TranslatorInterface $translator, DerivativeService $derivativeService)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -288,11 +289,11 @@ class PhotoController extends AbstractController
             $imageMapper->getRepository()->addOrUpdateImage($image);
 
             foreach ($image_std_params->getDefinedTypeMap() as $std_params) {
-                if ($std_params->sizing->max_crop != 0) {
-                    Utils::delete_element_derivatives($image->toArray(), $std_params->type);
+                if ($std_params->sizing->max_crop !== 0) {
+                    $derivativeService->deleteForElement($image->toArray(), $std_params->type);
                 }
             }
-            Utils::delete_element_derivatives($image->toArray(), ImageStandardParams::IMG_CUSTOM);
+            $derivativeService->deleteForElement($image->toArray(), ImageStandardParams::IMG_CUSTOM);
 
             return $this->redirectToRoute('admin_photo_coi', ['image_id' => $image_id, 'category_id' => $category_id]);
         }
@@ -312,7 +313,7 @@ class PhotoController extends AbstractController
         }
 
         foreach ($image_std_params->getDefinedTypeMap() as $std_params) {
-            if ($std_params->sizing->max_crop !== 0) {
+            if ($std_params->sizing->max_crop != 0) {
                 $derivative = new DerivativeImage($src_image, $std_params, $image_std_params);
                 $tpl_params['cropped_derivatives'][] = [
                     'U_IMG' => $derivative->getUrl(),

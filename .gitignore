@@ -60,6 +60,11 @@
 /public/bundles/
 /var/
 /vendor/
+
+/media/*
+/tests/media
+/tests/upload
+
 ###< symfony/framework-bundle ###
 
 ###> behat/symfony2-extension ###
@@ -70,10 +75,7 @@ behat.yml
 /.php_cs
 /.php_cs.cache
 ###< friendsofphp/php-cs-fixer ###
-/install/queries.sql
 
-/tests/media
-/tests/upload
 
 ###> symfony/phpunit-bridge ###
 .phpunit

@@ -21,6 +21,7 @@ use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\ImageRepository;
 use App\Repository\RateRepository;
+use App\Services\DerivativeService;
 use Phyxo\Functions\URL;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\SrcImage;
@@ -31,11 +32,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ImageMapper
 {
     private $router, $conf, $userMapper, $image_std_params, $albumMapper, $imageRepository, $imageTagRepository, $historyRepository;
-    private $translator, $imageAlbumRepository, $commentRepository, $caddieRepository, $favoriteRepository, $rateRepository;
+    private $translator, $imageAlbumRepository, $commentRepository, $caddieRepository, $favoriteRepository, $rateRepository, $derivativeService;
 
     public function __construct(RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, AlbumMapper $albumMapper, HistoryRepository $historyRepository,
                                 TranslatorInterface $translator, ImageRepository $imageRepository, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository,
-                                CaddieRepository $caddieRepository, FavoriteRepository $favoriteRepository, RateRepository $rateRepository, ImageTagRepository $imageTagRepository)
+                                CaddieRepository $caddieRepository, FavoriteRepository $favoriteRepository, RateRepository $rateRepository, ImageTagRepository $imageTagRepository,
+                                DerivativeService $derivativeService)
     {
         $this->router = $router;
         $this->userMapper = $userMapper;
@@ -51,6 +53,7 @@ class ImageMapper
         $this->favoriteRepository = $favoriteRepository;
         $this->rateRepository = $rateRepository;
         $this->historyRepository = $historyRepository;
+        $this->derivativeService = $derivativeService;
     }
 
     public function getRepository(): ImageRepository
@@ -316,7 +319,7 @@ class ImageMapper
             }
 
             if ($ok) {
-                Utils::delete_element_derivatives($image->toArray());
+                $this->derivativeService->deleteForElement($image->toArray());
                 $new_ids[] = $image->getId();
             } else {
                 break;

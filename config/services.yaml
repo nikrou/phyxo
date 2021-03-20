@@ -24,6 +24,8 @@ services:
       $rememberMeCookie: '%remember_cookie%'
       $databaseYamlFile: '%database_yaml_file%'
       $localDir: '%local_dir%'
+      $configDir: '%kernel.project_dir%/config'
+      $varDir: '%kernel.project_dir%/var'
       $uploadDir: '%upload_dir%'
       $themesDir: '%themes_dir%'
       $pluginsDir: '%plugins_dir%'

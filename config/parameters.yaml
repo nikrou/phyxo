@@ -23,7 +23,7 @@ parameters:
   default_config_file: '%kernel.project_dir%/include/config_default.inc.php'
   default_theme: 'treflez'
   user_config_file: '%local_dir%/config/config.inc.php'
-  media_cache_dir: '%kernel.project_dir%/_data/i'
+  media_cache_dir: '%kernel.project_dir%/media'
   root_project_dir: '%kernel.project_dir%'
 
   start_param: 'start'

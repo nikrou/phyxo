@@ -19,8 +19,8 @@ use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
 use App\Repository\SearchRepository;
 use App\Repository\UserFeedRepository;
+use App\Services\DerivativeService;
 use Phyxo\Conf;
-use Phyxo\Functions\Utils;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -223,9 +223,9 @@ class MaintenanceController extends AbstractController
         return $this->render('maintenance.html.twig', $tpl_params);
     }
 
-    public function derivatives(string $type, ImageStandardParams $image_std_params)
+    public function derivatives(string $type, ImageStandardParams $image_std_params, DerivativeService $derivativeService)
     {
-        Utils::clear_derivative_cache([$type], $image_std_params->getAllTypes());
+        $derivativeService->clearCache([$type], $image_std_params->getAllTypes());
 
         return  $this->redirectToRoute('admin_maintenance');
     }
