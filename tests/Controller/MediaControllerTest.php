@@ -28,12 +28,12 @@ class MediaContollerTest extends WebTestCase
         $mediaCacheDir = $kernel->getContainer()->getParameter('media_cache_dir');
 
         $now = new \DateTime('now');
-        $base_image_path = sprintf('%s/%s-%s', $now->format('Y/m/d'), $now->format('YmdHis'), substr(md5($this->sample_image), 0, 8));
-        $image_upload_path = sprintf('%s/%s.jpg', $uploadDir, $base_image_path);
+        $base_image_path = sprintf('tests/upload/%s/%s-%s', $now->format('Y/m/d'), $now->format('YmdHis'), substr(md5($this->sample_image), 0, 8));
+        $image_upload_path = sprintf('%s/%s.jpg', $kernel->getContainer()->getParameter('root_project_dir'), $base_image_path);
         $this->image_paths = [
-            'sq' => sprintf('tests/upload/%s-sq.jpg', $base_image_path),
-            'unknown' => sprintf('tests/upload/%s-cu_e777x333.jpg', $base_image_path),
-            'custom' => sprintf('tests/upload/%s-cu_e1200x900.jpg', $base_image_path),
+            'sq' => sprintf('%s-sq.jpg', $base_image_path),
+            'unknown' => sprintf('%s-cu_e777x333.jpg', $base_image_path),
+            'custom' => sprintf('%s-cu_e1200x900.jpg', $base_image_path),
         ];
         $this->derivative_path = sprintf('%s/%s-sq.jpg', $mediaCacheDir, $base_image_path);
 

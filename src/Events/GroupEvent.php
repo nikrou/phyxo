@@ -11,7 +11,7 @@
 
 namespace App\Events;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class GroupEvent extends Event
 {

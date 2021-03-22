@@ -4,6 +4,11 @@
 /galleries
 /db/*
 !/db/index.php
+/media/*
+/public/*
+!/public/index.php
+/tests/media
+/tests/upload
 
 
 ;; conf
@@ -60,10 +65,6 @@
 /public/bundles/
 /var/
 /vendor/
-
-/media/*
-/tests/media
-/tests/upload
 
 ###< symfony/framework-bundle ###
 

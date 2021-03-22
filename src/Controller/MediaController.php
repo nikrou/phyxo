@@ -24,25 +24,22 @@ use Symfony\Component\Mime\FileinfoMimeTypeGuesser;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Image\ImageStandardParams;
 
-class MediaController
+class MediaController extends CommonController
 {
-    private $image_std_params, $rotation_angle, $original_size;
+    protected $image_std_params;
+    private $rotation_angle, $original_size;
 
     public function index(Request $request, string $path, string $derivative, string $sizes, string $image_extension, string $mediaCacheDir, string $uploadDir, Conf $conf,
                         LoggerInterface $logger, ImageStandardParams $image_std_params, ImageRepository $imageRepository, string $rootProjectDir)
     {
-        $fs = new Filesystem();
-        $relative_path = $fs->makePathRelative(sprintf('%s/%s', $rootProjectDir, $path), $uploadDir);
-        $relative_path = rtrim($relative_path, '/');
-
-        $image_path = sprintf('%s.%s', $relative_path, $image_extension);
+        $image_path = sprintf('%s.%s', $path, $image_extension);
         if (!empty($sizes)) {
-            $derivative_path = sprintf('%s-%s%s.%s', $relative_path, $derivative, $sizes, $image_extension);
+            $derivative_path = sprintf('%s-%s%s.%s', $path, $derivative, $sizes, $image_extension);
         } else {
-            $derivative_path = sprintf('%s-%s.%s', $relative_path, $derivative, $image_extension);
+            $derivative_path = sprintf('%s-%s.%s', $path, $derivative, $image_extension);
         }
 
-        $image_src = sprintf('%s/%s', $uploadDir, $image_path);
+        $image_src = sprintf('%s/%s', $rootProjectDir, $image_path);
         $derivative_src = sprintf('%s/%s', $mediaCacheDir, $derivative_path);
         $derivative_params = null;
 
@@ -115,6 +112,11 @@ class MediaController
             if (is_null($image)) {
                 return new Response('Db file path not found ', 404);
             }
+
+            // @TODO: add test to ckeck if user is allowed to see that image
+            // if ($imageRepository->isAuthorizedToUser($this->getUser()->getForbiddenCategories(), $image->getId())) {
+            //     return new Response('User not allowed to see that image ', 403);
+            // }
 
             if ($image->getWidth() > 0 && $image->getHeight()) {
                 $this->original_size = [$image->getWidth(), $image->getHeight()];
@@ -207,6 +209,7 @@ class MediaController
             $image->strip();
         }
 
+        $fs = new Filesystem();
         $fs->mkdir(dirname($mediaCacheDir . '/' . $derivative_path));
         $image->set_compression_quality($this->image_std_params->getQuality());
         $logger->info(sprintf('WRITE %s', $mediaCacheDir . '/' . $derivative_path));
