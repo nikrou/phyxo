@@ -9,35 +9,21 @@
 {% block stylesheets %}
     {{parent()}}
     <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.core.css')}}">
-    <link rel="stylesheet" href="{{asset('admin/theme/js/plugins/selectize.clear.css')}}">
 {% endblock %}
 
 {% block javascripts %}
-    {{parent()}}
     <script>
      var ws_url = '{{ws}}';
-    </script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.core.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.widget.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.mouse.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/jquery.colorbox.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/selectize.js')}}"></script>
-    <script src="{{asset('admin/theme/js/LocalStorageCache.js')}}"></script>
-    <script>
-     var tagsCache = new TagsCache({
+     var phyxo = phyxo || {};
+     phyxo.tagsCache = {
 	 serverKey: '{{CACHE_KEYS.tags}}',
 	 serverId: '{{CACHE_KEYS._hash}}',
 	 rootUrl: '{{app.request.basepath}}/'
-     });
-
-     tagsCache.selectize($('[data-selectize=tags]'), { lang: {
-	 'Add': '{{'Create'|trans}}'
-     }});
-
-     $(function() {
-	 $("a.preview-box").colorbox();
-     });
+     };
+     var phyxo_msg = phyxo_msg || {};
+     phyxo_msg.create = "{{'Create'|trans}}";
     </script>
+    {{parent()}}
 {% endblock %}
 
 {% block content %}
@@ -80,7 +66,7 @@
 			<label>{{'Creation date'|trans}}</label>
 			<label>
 			    <i class="fa fa-calendar"></i>
-			    <input type="datetime" name="date_creation-{{element.id}}" value="{{element.DATE_CREATION}}">
+			    <input type="datetime" name="date_creation-{{element.id}}" value="{{element.DATE_CREATION|date}}">
 			</label>
 		    </p>
 

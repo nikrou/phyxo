@@ -12,51 +12,23 @@
     <li class="breadcrumb-item">{{'Permissions'|trans}}</li>
 {% endblock %}
 
-{% block stylesheets %}
-    {{parent()}}
-    <link rel="stylesheets" href="{{asset('admin/theme/js/plugins/selectize.clear.css')}}"/>
-{% endblock %}
-
 {% block javascripts %}
-    {{parent()}}
-
     <script>
      var ws_url = '{{ws}}';
+     var phyxo = phyxo || {};
+     phyxo.groupsCache = {
+	 serverKey: '{{CACHE_KEYS.groups}}',
+	 serverId: '{{CACHE_KEYS._hash}}',
+	 rootUrl: '{{app.request.basepath}}/'
+     };
+
+     phyxo.usersCache = {
+	 serverKey: '{{CACHE_KEYS.users}}',
+	 serverId: '{{CACHE_KEYS._hash}}',
+	 rootUrl: '{{app.request.basepath}}/'
+     };
     </script>
-    <script src="{{asset('admin/theme/js/LocalStorageCache.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/selectize.js')}}"></script>
-    <script>
-     (function(){
-	 var groupsCache = new GroupsCache({
-	     serverKey: '{{CACHE_KEYS.groups}}',
-	     serverId: '{{CACHE_KEYS._hash}}',
-	     rootUrl: '{{app.request.basepath}}/'
-	 });
-
-	 groupsCache.selectize($('[data-selectize=groups]'));
-
-	 var usersCache = new UsersCache({
-	     serverKey: '{{CACHE_KEYS.users}}',
-	     serverId: '{{CACHE_KEYS._hash}}',
-	     rootUrl: '{{app.request.basepath}}/'
-	 });
-
-	 usersCache.selectize($('[data-selectize=users]'));
-
-	 function checkStatusOptions() {
-	     if ($("input[name=status]:checked").val() == "private") {
-		 $("#privateOptions, #applytoSubAction").show();
-	     }	else {
-		 $("#privateOptions, #applytoSubAction").hide();
-	     }
-	 }
-
-	 checkStatusOptions();
-	 $("input[name=status]").change(function() {
-	     checkStatusOptions();
-	 });
-     }());
-    </script>
+    {{parent()}}
 {% endblock %}
 
 {% block content %}

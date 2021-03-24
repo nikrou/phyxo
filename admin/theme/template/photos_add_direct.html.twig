@@ -10,27 +10,16 @@
     {{parent()}}
     <link rel="stylesheet" href="{{asset('admin/theme/js/plugins/jquery.jgrowl.css')}}">
     <link rel="stylesheet" href="{{asset('admin/theme/js/plugins/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css')}}">
-    <link rel="stylesheet" href="{{asset('admin/theme/js/plugins/selectize.clear.css')}}">
 {% endblock %}
 
 {% block javascripts %}
-    {{parent()}}
-    <script src="{{asset('admin/theme/js/LocalStorageCache.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/plupload/moxie.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/jquery.jgrowl.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/selectize.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/plupload/plupload.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/plupload/jquery.plupload.queue/jquery.plupload.queue.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/plupload/i18n/' ~ app.user.lang ~ '.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/jquery.colorbox.js')}}"></script>
-    <script src="{{asset('admin/theme/js/photos_add_direct.js')}}"></script>
-
     <script>
-     var categoriesCache = new CategoriesCache({
+     var phyxo = phyxo || {};
+     phyxo.categoriesCache = {
 	 serverKey: '{{CACHE_KEYS.categories}}',
 	 serverId: '{{CACHE_KEYS._hash}}',
 	 rootUrl: '{{app.request.basepath}}/'
-     });
+     };
 
      var ws_url = '{{ws}}';
      var pwg_token = '{{csrf_token}}';
@@ -44,6 +33,15 @@
      var uploadedPhotos = [];
      var uploadCategory = null;
     </script>
+    {{parent()}}
+    <script src="{{asset('admin/theme/js/plugins/plupload/moxie.js')}}"></script>
+    <script src="{{asset('admin/theme/js/plugins/jquery.jgrowl.js')}}"></script>
+    <script src="{{asset('admin/theme/js/plugins/plupload/plupload.js')}}"></script>
+    <script src="{{asset('admin/theme/js/plugins/plupload/jquery.plupload.queue/jquery.plupload.queue.js')}}"></script>
+    <script src="{{asset('admin/theme/js/plugins/plupload/i18n/' ~ app.user.lang ~ '.js')}}"></script>
+    <script src="{{asset('admin/theme/js/plugins/jquery.colorbox.js')}}"></script>
+    <script src="{{asset('admin/theme/js/photos_add_direct.js')}}"></script>
+
 {% endblock %}
 
 {% block content %}

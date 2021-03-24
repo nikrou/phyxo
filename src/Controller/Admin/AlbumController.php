@@ -166,7 +166,7 @@ class AlbumController extends AbstractController
 
         if ($album->isVirtual()) {
             $tpl_params['U_DELETE'] = $this->generateUrl('admin_album_delete', ['album_id' => $album_id, 'parent_id' => $parent_id]);
-            $tpl_params['parent_category'] = $category['id_uppercat'] ?? [];
+            $tpl_params['parent_category'] = $album->getParent() ? [$album->getParent()->getId()] : [];
         } else {
             $album = $albumMapper->getRepository()->findWithSite($album_id);
 
@@ -588,6 +588,7 @@ class AlbumController extends AbstractController
 
         $tpl_params['CATEGORIES_NAV'] = $albumMapper->getAlbumsDisplayName($album->getUppercats(), 'admin_album', ['parent_id' => $parent_id]);
         $tpl_params['U_GROUPS'] = $this->generateUrl('admin_groups');
+        $tpl_params['COMPLEMENTARY_MAIL_CONTENT'] = $conf['nbm_complementary_mail_content'];
 
         $tpl_params['ALBUM_ID'] = $album_id;
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');

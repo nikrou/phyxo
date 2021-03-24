@@ -250,7 +250,7 @@
 		    <p>
 			<select class="custom-select" name="associate">
 			    {% for option, label in association_options %}
-				<option value="{{option}}" {% if option == associate_selected %}selected="selected"{% endif %}>{{label}}</option>
+				<option value="{{option}}">{{label}}</option>
 			    {% endfor %}
 			</select>
 		    </p>
@@ -260,7 +260,7 @@
 		    <p>
 			<select class="custom-select" name="dissociate">
 			    {% for option, label in association_options %}
-				<option value="{{option}}" {% if option == dissociate_selected %}selected="selected"{% endif %}>{{label}}</option>
+				<option value="{{option}}">{{label}}</option>
 			    {% endfor %}
 			</select>
 		    </p>

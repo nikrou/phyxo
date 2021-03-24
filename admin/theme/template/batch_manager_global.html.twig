@@ -10,7 +10,6 @@
     {{parent()}}
     <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.core.css')}}">
     <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.slider.css')}}">
-    <link rel="stylesheet" href="{{asset('admin/theme/js/plugins/selectize.clear.css')}}">
 
     <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.theme.css')}}">
     {% if thumb_params is defined %}
@@ -24,43 +23,23 @@
 {% endblock %}
 
 {% block javascripts %}
-    {{parent()}}
     <script>
      var ws_url = '{{ws}}';
-    </script>
-    <script src="{{asset('admin/theme/js/scripts.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/jquery.colorbox.js')}}"></script>
-    <script src="{{asset('admin/theme/js/common.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.core.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.widget.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.mouse.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.slider.js')}}"></script>
-    <script src="{{asset('admin/theme/js/LocalStorageCache.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/selectize.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/jquery.progressbar.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/jquery.ajaxmanager.js')}}"></script>
+     var phyxo_msg = phyxo_msg || {};
+     phyxo_msg.cancel = "{{'Cancel'|trans}}";
+     phyxo_msg.areyousure = "{{'Are you sure?'|trans}}";
 
-    <script>
-     var lang = {
-	 Cancel: '{{'Cancel'|trans}}',
-	 AreYouSure: "{{'Are you sure?'|trans}}"
-     };
-
-     var tagsCache = new TagsCache({
+     var phyxo = phyxo || {};
+     phyxo.tagsCache = {
 	 serverKey: '{{CACHE_KEYS.tags}}',
 	 serverId: '{{CACHE_KEYS._hash}}',
 	 rootUrl: '{{app.request.basepath}}/'
-     });
-
-     tagsCache.selectize($('[data-selectize=tags]'), { lang: {
-	 'Add': '{{'Create'|trans}}'
-     }});
-
-     var categoriesCache = new CategoriesCache({
+     };
+     phyxo.categoriesCache = {
 	 serverKey: '{{CACHE_KEYS.categories}}',
 	 serverId: '{{CACHE_KEYS._hash}}',
 	 rootUrl: '{{app.request.basepath}}/'
-     });
+     };
 
      var sliders = {
 	 widths: {
@@ -109,219 +88,16 @@
      var selectedMessage_none = "{{'No photo selected, %d photos in current set'|trans}}";
      var selectedMessage_all = "{{'All %d photos are selected'|trans}}";
 
-     $(function() {
-	 var associated_categories = {{associated_categories|default('')|json_encode|raw}};
-
-	 if (associated_categories) {
-	     categoriesCache.selectize($('[data-selectize=categories]'), {
-		 filter: function(categories, options) {
-		     if (this.name == 'dissociate') {
-			 var filtered = $.grep(categories, function(cat) {
-			     return !!associated_categories[cat.id];
-			 });
-
-			 if (filtered.length > 0) {
-			     options.default = filtered[0].id;
-			 }
-
-			 return filtered;
-		     } else {
-			 return categories;
-		     }
-		 }
-	     });
-	 }
-
-	 function checkPermitAction() {
-	     var nbSelected = 0;
-	     if ($("input[name=setSelected]").is(':checked')) {
-		 nbSelected = nb_thumbs_set;
-	     } else {
-		 nbSelected = $(".thumbnails input[type=checkbox]").filter(':checked').length;
-	     }
-
-	     if (nbSelected == 0) {
-		 $("#permitAction").hide();
-		 $("#forbidAction").show();
-	     } else {
-		 $("#permitAction").show();
-		 $("#forbidAction").hide();
-	     }
-
-	     $("#applyOnDetails").text(
-		 sprintf(
-		     applyOnDetails_pattern,
-		     nbSelected
-		 )
-	     );
-
-	     // display the number of currently selected photos in the "Selection" fieldset
-	     if (nbSelected == 0) {
-		 $("#selectedMessage").text(
-		     sprintf(
-			 selectedMessage_none,
-			 nb_thumbs_set
-		     )
-		 );
-	     } else if (nbSelected == nb_thumbs_set) {
-		 $("#selectedMessage").text(
-		     sprintf(
-			 selectedMessage_all,
-			 nb_thumbs_set
-		     )
-		 );
-	     } else {
-		 $("#selectedMessage").text(
-		     sprintf(
-			 selectedMessage_pattern,
-			 nbSelected,
-			 nb_thumbs_set
-		     )
-		 );
-	     }
-	 }
-
-	 $("[id^=action_]").hide();
-
-	 $("select[name=selectAction]").change(function () {
-	     $("[id^=action_]").hide();
-	     $("#action_"+$(this).prop("value")).show();
-
-	     if ($(this).val() != -1) {
-		 $("#applyActionBlock").show();
-	     }
-	     else {
-		 $("#applyActionBlock").hide();
-	     }
-	 });
-
-	 $(".wrapper-label label").click(function (event) {
-	     $("input[name=setSelected]").prop('checked', false);
-
-	     var wrap2 = $(this).children(".wrapper-thumbnail");
-	     var checkbox = $(this).children("input[type=checkbox]");
-
-	     checkbox.triggerHandler("shclick",event);
-
-	     if ($(checkbox).is(':checked')) {
-		 $(wrap2).addClass("thumbSelected");
-	     }
-	     else {
-		 $(wrap2).removeClass('thumbSelected');
-	     }
-
-	     checkPermitAction();
-	 });
-
-	 $("#selectAll").click(function () {
-	     $("input[name=setSelected]").prop('checked', false);
-	     selectPageThumbnails();
-	     checkPermitAction();
-	     return false;
-	 });
-
-	 function selectPageThumbnails() {
-	     $(".thumbnails label").each(function() {
-		 var wrap2 = $(this).children(".wrapper-thumbnail");
-		 var checkbox = $(this).children("input[type=checkbox]");
-
-		 $(checkbox).prop('checked', true);
-		 $(wrap2).addClass("thumbSelected");
-	     });
-	 }
-
-	 $("#selectNone").click(function () {
-	     $("input[name=setSelected]").prop('checked', false);
-
-	     $(".thumbnails label").each(function() {
-		 var wrap2 = $(this).children(".wrapper-thumbnail");
-		 var checkbox = $(this).children("input[type=checkbox]");
-
-		 $(checkbox).prop('checked', false);
-		 $(wrap2).removeClass("thumbSelected");
-	     });
-	     checkPermitAction();
-	     return false;
-	 });
-
-	 $("#selectInvert").click(function () {
-	     $("input[name=setSelected]").prop('checked', false);
-
-	     $(".thumbnails label").each(function() {
-		 var wrap2 = $(this).children(".wrapper-thumbnail");
-		 var checkbox = $(this).children("input[type=checkbox]");
-
-		 $(checkbox).prop('checked', !$(checkbox).is(':checked'));
-
-		 if ($(checkbox).is(':checked')) {
-		     $(wrap2).addClass("thumbSelected");
-		 }
-		 else {
-		     $(wrap2).removeClass('thumbSelected');
-		 }
-	     });
-	     checkPermitAction();
-	     return false;
-	 });
-
-	 $("#selectSet").click(function () {
-	     selectPageThumbnails();
-	     $("input[name=setSelected]").prop('checked', true);
-	     checkPermitAction();
-	     return false;
-	 });
-
-
-	 $('#applyAction').click(function() {
-	     var action = $('[name="selectAction"]').val();
-	     if (action == 'delete_derivatives') {
-		 var d_count = $('#action_delete_derivatives input[type=checkbox]').filter(':checked').length
-		   , e_count = $('input[name="setSelected"]').is(':checked') ? nb_thumbs_set : $('.thumbnails input[type=checkbox]').filter(':checked').length;
-		 if (d_count*e_count > 500)
-		     return confirm(lang.AreYouSure);
-	     }
-
-	     if (action != 'generate_derivatives'
-		 || derivatives.finished() )
-		 {
-		     return true;
-		 }
-
-	     $('.bulkAction').hide();
-
-	     var queuedManager = $.manageAjax.create('queued', {
-		 queue: true,
-		 cacheResponse: false,
-		 maxRequests: 1
-	     });
-
-	     derivatives.elements = [];
-	     if ($('input[name="setSelected"]').is(':checked'))
-		 derivatives.elements = all_elements;
-	     else
-		 $('.thumbnails input[type=checkbox]').each(function() {
-		     if ($(this).is(':checked')) {
-			 derivatives.elements.push($(this).val());
-		     }
-		 });
-
-	     $('#applyActionBlock').hide();
-	     $('select[name="selectAction"]').hide();
-	     $('#regenerationMsg').show();
-
-	     progress();
-	     getDerivativeUrls();
-	     return false;
-	 });
-
-	 checkPermitAction();
-
-	 $("select[name=filter_prefilter]").change(function() {
-	     $("#empty_caddie").toggle($(this).val() == "caddie");
-	     $("#duplicates_options").toggle($(this).val() == "duplicates");
-	 });
-     });
+     var associated_categories = {{associated_categories|default('')|json_encode|raw}};
     </script>
+    {{parent()}}
+    <script src="{{asset('admin/theme/js/common.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/jquery.ui.core.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/jquery.ui.widget.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/jquery.ui.mouse.js')}}"></script>
+    <script src="{{asset('admin/theme/js/ui/jquery.ui.slider.js')}}"></script>
+    <script src="{{asset('admin/theme/js/plugins/jquery.progressbar.js')}}"></script>
+    <script src="{{asset('admin/theme/js/plugins/jquery.ajaxmanager.js')}}"></script>
 {% endblock %}
 
 {% block content %}

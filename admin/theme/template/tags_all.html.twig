@@ -2,105 +2,105 @@
 {% extends "__layout.html.twig" %}
 
 {% block breadcrumb_items %}
-	<li class="breadcrumb-item">
-		<a href="{{U_PAGE}}">{{'Tags'|trans}}</a>
-	</li>
-	<li class="breadcrumb-item">{{'Manage tags'|trans}}</li>
+    <li class="breadcrumb-item">
+	<a href="{{U_PAGE}}">{{'Tags'|trans}}</a>
+    </li>
+    <li class="breadcrumb-item">{{'Manage tags'|trans}}</li>
 {% endblock %}
 
 {% block javascripts %}
-	{{parent()}}
-	<script>
-		var phyxo_msg = phyxo_msg || {};
-phyxo_msg.select_at_least_two_tags = "{{ 'Select at least two tags for merging'|trans }}";
-	</script>
+    {{parent()}}
+    <script>
+     var phyxo_msg = phyxo_msg || {};
+     phyxo_msg.select_at_least_two_tags = "{{ 'Select at least two tags for merging'|trans }}";
+    </script>
 {% endblock %}
 
 {% block content %}
-	<p>
-		<a href="#add-tag" data-toggle="collapse" class="btn btn-submit">
-			<i class="fa fa-plus-circle"></i>
-			{{'Add a tag'|trans}}</a>
-	</p>
+    <p>
+	<a href="#add-tag" data-toggle="collapse" class="btn btn-submit">
+	    <i class="fa fa-plus-circle"></i>
+	    {{'Add a tag'|trans}}</a>
+    </p>
 
-	<div id="add-tag" class="collapse">
-		<form action="{{F_ACTION_ADD}}" method="post">
-			<div class="fieldset">
-				<h3>{{'Add a tag'|trans}}</h3>
+    <div id="add-tag" class="collapse">
+	<form action="{{F_ACTION_ADD}}" method="post">
+	    <div class="fieldset">
+		<h3>{{'Add a tag'|trans}}</h3>
 
-				<label>
-					{{'New tag'|trans}}
-					<input type="text" class="form-control" name="add_tag" size="50">
-				</label>
+		<label>
+		    {{'New tag'|trans}}
+		    <input type="text" class="form-control" name="add_tag" size="50">
+		</label>
 
-				<p>
-					<input class="btn btn-submit" type="submit" name="add" value="{{'Submit'|trans}}">
-					<a href="#add-tag" class="btn btn-cancel" data-toggle="collapse">{{'Cancel'|trans}}</a>
-				</p>
-			</div>
-		</form>
+		<p>
+		    <input class="btn btn-submit" type="submit" name="add" value="{{'Submit'|trans}}">
+		    <a href="#add-tag" class="btn btn-cancel" data-toggle="collapse">{{'Cancel'|trans}}</a>
+		</p>
+	    </div>
+	</form>
+    </div>
+
+    <form action="{{F_ACTION}}" method="post">
+	<div class="fieldset" id="tags">
+	    <h3>{{'Tag selection'|trans}}</h3>
+
+	    {% for tag in all_tags %}
+		<div class="row tag">
+		    <div class="col checktag">
+			<input type="checkbox" id="tag_id_{{tag.id}}" data-name="{{tag.name}}" name="tags[]" value="{{tag.id}}">
+			<label for="tag_id_{{tag.id}}">{{tag.name}}</label>
+			({{'number_of_photos'|trans({'count': tag.counter})}})
+		    </div>
+		    <div class="col">
+			{% if tag.U_MANAGE_PHOTOS is defined %}
+			    <a class="btn btn-sm btn-submit3" href="{{tag.U_MANAGE_PHOTOS}}">
+				<i class="fa fa-tasks"></i>
+				{{'Manage photos'|trans}}</a>
+			{% endif %}
+			{% if tag.U_VIEW is defined %}
+			    <a class="btn btn-sm btn-submit" href="{{tag.U_VIEW}}">
+				<i class="fa fa-eye"></i>
+				{{'View in gallery'|trans}}</a>
+			{% endif %}
+		    </div>
+		</div>
+	    {% endfor %}
+
+	    <p class="checkActions">
+		{{'Select:'|trans}}
+		<button type="button" class="btn btn-sm btn-all" id="tagSelectAll">{{'All'|trans}}</button>
+		<button type="button" class="btn btn-sm btn-none" id="tagSelectNone">{{'None'|trans}}</button>
+		<button type="button" class="btn btn-sm btn-invert" id="tagSelectInvert">{{'Invert'|trans}}</button>
+	    </p>
 	</div>
 
-	<form action="{{F_ACTION}}" method="post">
-		<div class="fieldset" id="tags">
-			<h3>{{'Tag selection'|trans}}</h3>
+	<div class="fieldset" id="actions">
+	    <h3>{{'Action'|trans}}</h3>
+	    <div id="no-tag-selected">{{'No tags selected, no action possible.'|trans}}</div>
 
-			{% for tag in all_tags %}
-				<div class="row tag">
-					<div class="col checktag">
-						<input type="checkbox" id="tag_id_{{tag.id}}" data-name="{{tag.name}}" name="tags[]" value="{{tag.id}}">
-						<label for="tag_id_{{tag.id}}">{{tag.name}}</label>
-						({{'number_of_photos'|trans({'count': tag.counter})}})
-					</div>
-					<div class="col">
-						{% if tag.U_MANAGE_PHOTOS %}
-							<a class="btn btn-sm btn-submit3" href="{{tag.U_MANAGE_PHOTOS}}">
-								<i class="fa fa-tasks"></i>
-								{{'Manage photos'|trans}}</a>
-						{% endif %}
-						{% if tag.U_VIEW %}
-							<a class="btn btn-sm btn-submit" href="{{tag.U_VIEW}}">
-								<i class="fa fa-eye"></i>
-								{{'View in gallery'|trans}}</a>
-						{% endif %}
-					</div>
-				</div>
-			{% endfor %}
+	    <p class="d-none" id="selectAction">
+		<input type="hidden" name="pwg_token" value="{{csrf_token}}">
+		<select class="custom-select" name="action">
+		    <option value="">{{'Choose an action'|trans}}</option>
+		    <option value="edit">{{'Edit selected tags'|trans}}</option>
+		    <option value="duplicate">{{'Duplicate selected tags'|trans}}</option>
+		    <option value="merge">{{'Merge selected tags'|trans}}</option>
+		    <option value="delete">{{'Delete selected tags'|trans}}</option>
+		</select>
+	    </p>
 
-			<p class="checkActions">
-				{{'Select:'|trans}}
-				<button type="button" class="btn btn-sm btn-all" id="tagSelectAll">{{'All'|trans}}</button>
-				<button type="button" class="btn btn-sm btn-none" id="tagSelectNone">{{'None'|trans}}</button>
-				<button type="button" class="btn btn-sm btn-invert" id="tagSelectInvert">{{'Invert'|trans}}</button>
-			</p>
-		</div>
-
-		<div class="fieldset" id="actions">
-			<h3>{{'Action'|trans}}</h3>
-			<div id="no-tag-selected">{{'No tags selected, no action possible.'|trans}}</div>
-
-			<p class="d-none" id="selectAction">
-				<input type="hidden" name="pwg_token" value="{{csrf_token}}">
-				<select class="custom-select" name="action">
-					<option value="">{{'Choose an action'|trans}}</option>
-					<option value="edit">{{'Edit selected tags'|trans}}</option>
-					<option value="duplicate">{{'Duplicate selected tags'|trans}}</option>
-					<option value="merge">{{'Merge selected tags'|trans}}</option>
-					<option value="delete">{{'Delete selected tags'|trans}}</option>
-				</select>
-			</p>
-
-			<div id="action-edit" class="action d-none">
-				<div class="fieldset table-responsive">
-					<h3>{{'Edit selected tags'|trans}}</h3>
-					<table class="table table-striped table-hovered" style="width:100%">
-						<thead>
-							<tr>
-								<th>{{'Current name'|trans}}</th>
-								<th>{{'New name'|trans}}</th>
-							</tr>
-						</thead>
-						<script type="text/template" class="edit">
+	    <div id="action-edit" class="action d-none">
+		<div class="fieldset table-responsive">
+		    <h3>{{'Edit selected tags'|trans}}</h3>
+		    <table class="table table-striped table-hovered" style="width:100%">
+			<thead>
+			    <tr>
+				<th>{{'Current name'|trans}}</th>
+				<th>{{'New name'|trans}}</th>
+			    </tr>
+			</thead>
+			<script type="text/template" class="edit">
 							<%_.each(tags, function(tag, index) { %>
 								<tr>
 									<td><%- tag.name %></td>
@@ -109,17 +109,17 @@ phyxo_msg.select_at_least_two_tags = "{{ 'Select at least two tags for merging'|
 									</td>
 								</tr>
 							<% });%>
-						</script>
-						<tbody id="editHtml"></tbody>
-					</table>
-				</div>
-			</div>
+			</script>
+			<tbody id="editHtml"></tbody>
+		    </table>
+		</div>
+	    </div>
 
-			<div id="action-merge" class="action d-none">
-				<div class="fieldset">
-					<h3>{{'Merge selected tags'|trans}}</h3>
-					{{'Select the destination tag'|trans}}
-					<script type="text/template" class="merge">
+	    <div id="action-merge" class="action d-none">
+		<div class="fieldset">
+		    <h3>{{'Merge selected tags'|trans}}</h3>
+		    {{'Select the destination tag'|trans}}
+		    <script type="text/template" class="merge">
 						<%_.each(tags, function(tag, index) { %>
 							<p>
 								<label>
@@ -132,42 +132,42 @@ phyxo_msg.select_at_least_two_tags = "{{ 'Select at least two tags for merging'|
 									</label>
 								</p>
 							<% });%>
-						</script>
-						<div id="mergeHtml"></div>
-					</div>
-				</div>
+		    </script>
+		    <div id="mergeHtml"></div>
+		</div>
+	    </div>
 
-				<div id="action-duplicate" class="action d-none">
-					<div class="fieldset table-responsive">
-						<h3>{{'Duplicate selected tags'|trans}}</h3>
-						<table class="table table-striped table-hovered" style="width:100%">
-							<thead>
-								<tr>
-									<th>{{'Source tag'|trans}}</th>
-									<th>{{'Name of the duplicate'|trans}}</th>
-								</tr>
-							</thead>
-							<script type="text/template" class="duplicate">
+	    <div id="action-duplicate" class="action d-none">
+		<div class="fieldset table-responsive">
+		    <h3>{{'Duplicate selected tags'|trans}}</h3>
+		    <table class="table table-striped table-hovered" style="width:100%">
+			<thead>
+			    <tr>
+				<th>{{'Source tag'|trans}}</th>
+				<th>{{'Name of the duplicate'|trans}}</th>
+			    </tr>
+			</thead>
+			<script type="text/template" class="duplicate">
 								<%_.each(tags, function(tag, index) { %>
 									<tr>
 										<td><%- tag.name %></td>
 										<td><input type="text" class="form-control" name="tag_name-<%- tag.id %>" value="<%- tag.name %>" size="50"></td>
 									</tr>
 								<% });%>
-							</script>
-							<tbody id="duplicateHtml"></tbody>
-						</table>
-					</div>
-				</div>
+			</script>
+			<tbody id="duplicateHtml"></tbody>
+		    </table>
+		</div>
+	    </div>
 
-				<p id="action-delete" class="action custom-control custom-checkbox d-none">
-					<input class="custom-control-input" type="checkbox" id="confirm-deletion" name="confirm_deletion" value="1">
-					<label class="custom-control-label" for="confirm-deletion">{{'Are you sure?'|trans}}</label>
-				</p>
+	    <p id="action-delete" class="action custom-control custom-checkbox d-none">
+		<input class="custom-control-input" type="checkbox" id="confirm-deletion" name="confirm_deletion" value="1">
+		<label class="custom-control-label" for="confirm-deletion">{{'Are you sure?'|trans}}</label>
+	    </p>
 
-				<p id="applyAction" class="d-none">
-					<input class="btn btn-submit" type="submit" value="{{'Apply action'|trans}}" name="submit">
-				</p>
-			</div>
-		</form>
-	{% endblock %}
+	    <p id="applyAction" class="d-none">
+		<input class="btn btn-submit" type="submit" value="{{'Apply action'|trans}}" name="submit">
+	    </p>
+	</div>
+    </form>
+{% endblock %}

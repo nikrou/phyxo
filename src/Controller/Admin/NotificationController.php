@@ -170,6 +170,9 @@ class NotificationController extends AbstractController
 
         $conf_derivatives = $conf['derivatives'];
 
+        $tpl_var = [];
+        $tpl_var['CUSTOMIZE_MAIL_CONTENT'] = $conf['nbm_complementary_mail_content'];
+
         if ($request->isMethod('POST')) {
             $check_key_treated = $notification->do_action_send_mail_notification(
                 'send',
@@ -180,12 +183,10 @@ class NotificationController extends AbstractController
 
             if ($request->request->get('send_customize_mail_content')) {
                 $tpl_var['CUSTOMIZE_MAIL_CONTENT'] = $request->request->get('send_customize_mail_content');
-            } else {
-                $tpl_var['CUSTOMIZE_MAIL_CONTENT'] = $conf['nbm_complementary_mail_content'];
             }
         }
 
-        $tpl_var = ['users' => []];
+        $tpl_var['users'] = [];
         $data_users = $notification->do_action_send_mail_notification('list_to_send', [], '');
 
         foreach ($data_users as $nbm_user) {

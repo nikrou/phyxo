@@ -8,27 +8,25 @@
  * file that was distributed with this source code.
  */
 
-const webpack = require('webpack');
-const merge = require('webpack-merge');
-const path = require('path');
+const webpack = require('webpack')
+const path = require('path')
 
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const WebpackManifestPlugin = require('webpack-manifest-plugin')
 
-const HOST = process.env.HOST ? process.env.HOST : 'localhost';
-const PORT = process.env.PORT ? process.env.PORT : 8080;
-const IS_DEV = process.env.NODE_ENV !== 'production';
+const HOST = process.env.HOST ? process.env.HOST : 'localhost'
+const PORT = process.env.PORT ? process.env.PORT : 8080
+const IS_DEV = process.env.NODE_ENV !== 'production'
 
-const TARGET_NAME = 'build';
-const TARGET = path.join(__dirname, TARGET_NAME);
-const PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : './admin/theme/build/';
-const ASSETS_PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : './';
+const TARGET_NAME = 'build'
+const PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : './admin/theme/build/'
+const ASSETS_PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : './'
 
 const PATHS = {
   app: path.join(__dirname, 'src', 'js'),
   target: path.join(__dirname, 'build'),
-};
+}
 
 module.exports = {
   devtool: 'source-map',
@@ -130,4 +128,4 @@ module.exports = {
     overlay: true,
     headers: { 'Access-Control-Allow-Origin': '*' },
   },
-};
+}

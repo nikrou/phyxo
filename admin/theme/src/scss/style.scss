@@ -1,6 +1,7 @@
 @import 'bootstrap-custom';
 @import 'fonts';
 @import 'users-list';
+@import 'selectize.clear';
 
 @import '~jquery-colorbox/example1/colorbox.css';
 
@@ -62,10 +63,10 @@ section[role='main'] {
 
   .fieldset,
   .form-filter {
-      border: 2px solid $gray-200;
-      border-radius: 5px;
-      padding: 1em;
-      margin: 1em 0;
+    border: 2px solid $gray-200;
+    border-radius: 5px;
+    padding: 1em;
+    margin: 1em 0;
   }
 
   // temporary, until theme.css and clear.css will be removed

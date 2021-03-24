@@ -236,7 +236,7 @@ class CommentRepository extends ServiceEntityRepository
         $qb->leftJoin('i.imageAlbums', 'ia');
 
         if (count($forbidden_categories)) {
-            $qb->where($qb->expr()->notIn('c.album', $forbidden_categories));
+            $qb->where($qb->expr()->notIn('ia.album', $forbidden_categories));
         }
 
         if (!is_null($start)) {

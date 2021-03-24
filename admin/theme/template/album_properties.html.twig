@@ -12,44 +12,18 @@
     <li class="breadcrumb-item">{{'Properties'|trans}}</li>
 {% endblock %}
 
-{% block stylesheets %}
-    {{parent()}}
-    <link rel="stylesheet" href="{{asset('admin/theme/js/plugins/selectize.clear.css')}}">
-{% endblock %}
-
 {% block javascripts %}
-    {{parent()}}
     <script>
      var ws_url = '{{ws}}';
-    </script>
-
-    <script src="{{asset('admin/theme/js/LocalStorageCache.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/selectize.js')}}"></script>
-    <script>
-     var categoriesCache = new CategoriesCache({
+     var phyxo = phyxo || {};
+     phyxo.cat_id = "{{CAT_ID}}";
+     phyxo.categoriesCache = {
 	 serverKey: '{{CACHE_KEYS.categories}}',
 	 serverId: '{{CACHE_KEYS._hash}}',
 	 rootUrl: '{{app.request.basepath}}/'
-     });
-
-     categoriesCache.selectize($('[data-selectize=categories]'), {
-	 default: 0,
-	 filter: function(categories, options) {
-	     // remove itself and children
-	     var filtered = $.grep(categories, function(cat) {
-		 return !(/\b{{CAT_ID}}\b/.test(cat.uppercats));
-	     });
-
-	     filtered.push({
-		 id: 0,
-		 fullname: '------------',
-		 global_rank: 0
-	     });
-
-	     return filtered;
-	 }
-     });
+     };
     </script>
+    {{parent()}}
 {% endblock %}
 
 {% block content %}
@@ -112,7 +86,7 @@
 	   {% if parent_category %}
 	       <p>
 		   <label for="categories">{{'Parent album'|trans}}</label>
-		   <select id="categories" data-selectize="categories" data-value="{{parent_category|json_encode()}}" name="parent" style="width:600px"></select>
+		   <select id="categories" data-selectize="parent-categories" data-value="{{parent_category|json_encode()}}" name="parent" style="width:600px"></select>
 	       </p>
 	   {% endif %}
 

@@ -135,6 +135,7 @@ class MediaContollerTest extends WebTestCase
         $container->set('phyxo.image.repository', $this->imageRepository->reveal());
 
         $image_std_params = $container->get('Phyxo\Image\ImageStandardParams');
+        $image_std_params->makeCustom($width, $height, 1, $width, $height);
         $this->assertTrue($image_std_params->hasCustom($custom));
 
         $client->request('GET', sprintf('/media/%s', $this->image_paths['custom']));

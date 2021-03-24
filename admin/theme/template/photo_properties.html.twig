@@ -8,40 +8,32 @@
 
 {% block stylesheets %}
     {{parent()}}
-    <link rel="stylesheet" href="{{asset('admin/theme/js/plugins/selectize.clear.css')}}">
     <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.theme.css')}}">
 {% endblock %}
 
 {% block javascripts %}
+    <script>
+     var ws_url = '{{ws}}';
+     var phyxo = phyxo || {};
+     phyxo.categoriesCache = {
+	 serverKey: '{{CACHE_KEYS.categories}}',
+	 serverId: '{{CACHE_KEYS._hash}}',
+	 rootUrl: '{{app.request.basepath}}/'
+     };
+     phyxo.tagsCache = {
+	 serverKey: '{{CACHE_KEYS.tags}}',
+	 serverId: '{{CACHE_KEYS._hash}}',
+	 rootUrl: '{{app.request.basepath}}/'
+     };
+     var phyxo_msg = phyxo_msg || {};
+     phyxo_msg.create = "{{'Create'|trans}}";
+    </script>
     {{parent()}}
     <script src="{{asset('admin/theme/js/plugins/jquery.colorbox.js')}}"></script>
     <script src="{{asset('admin/theme/js/ui/jquery.ui.core.js')}}"></script>
     <script src="{{asset('admin/theme/js/ui/jquery.ui.widget.js')}}"></script>
     <script src="{{asset('admin/theme/js/ui/jquery.ui.mouse.js')}}"></script>
     <script src="{{asset('admin/theme/js/ui/jquery.ui.slider.js')}}"></script>
-    <script src="{{asset('admin/theme/js/LocalStorageCache.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/selectize.js')}}"></script>
-    <script>
-     var ws_url = '{{ws}}';
-     var categoriesCache = new CategoriesCache({
-	 serverKey: '{{CACHE_KEYS.categories}}',
-	 serverId: '{{CACHE_KEYS._hash}}',
-	 rootUrl: '{{app.request.basepath}}/'
-     });
-
-     var tagsCache = new TagsCache({
-	 serverKey: '{{CACHE_KEYS.tags}}',
-	 serverId: '{{CACHE_KEYS._hash}}',
-	 rootUrl: '{{app.request.basepath}}/'
-     });
-
-     $(function() {
-	 categoriesCache.selectize($('[data-selectize=categories]'));
-	 tagsCache.selectize($('[data-selectize=tags]'), { lang: {
-	     'Add': '{{'Create'|trans}}'
-	 }});
-     });
-    </script>
 {% endblock %}
 
 {% block content %}
