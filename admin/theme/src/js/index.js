@@ -17,6 +17,7 @@ import './album-properties'
 import './photo-properties'
 import './batch_manager_global'
 import './batch_manager_unit'
+import './photo-coi'
 
 $(function () {
   $('#sidebarCollapse').on('click', function () {
