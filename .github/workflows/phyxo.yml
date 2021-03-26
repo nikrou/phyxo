@@ -14,10 +14,9 @@ jobs:
         experimental: [false]
         mysql: [5.7]
         include:
+          - mysql: 5.7
           - php-version: 8.0
             experimental: true
-        # exclude:
-        #   - mysql: 8.0
 
     env:
       APP_ENV: test

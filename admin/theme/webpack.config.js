@@ -25,18 +25,20 @@ const ASSETS_PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : './'
 
 const PATHS = {
   app: path.join(__dirname, 'src', 'js'),
+  install: path.join(__dirname, 'src', 'js', 'install'),
   target: path.join(__dirname, 'build'),
 }
 
 module.exports = {
-  devtool: 'source-map',
+  devtool: 'cheap-module-source-map',
 
   entry: {
     app: PATHS.app,
+    install: PATHS.install,
   },
 
   output: {
-    filename: path.join('js', IS_DEV ? '[name].js' : '[name]-[fullhash].js'),
+    filename: path.join('js', IS_DEV ? '[name].js' : '[name]-[hash].js'),
     path: PATHS.target,
     publicPath: PUBLIC_PATH,
   },
@@ -110,8 +112,8 @@ module.exports = {
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // both options are optional
-      filename: IS_DEV ? '[name].css' : '[name].[fullhash].css',
-      chunkFilename: IS_DEV ? '[id].css' : '[id].[fullhash].css', // @TODO: find a way to inject [hash] in templates
+      filename: IS_DEV ? '[name].css' : '[name].[hash].css',
+      chunkFilename: IS_DEV ? '[id].css' : '[id].[hash].css', // @TODO: find a way to inject [hash] in templates
     }),
 
     new webpack.HotModuleReplacementPlugin(),

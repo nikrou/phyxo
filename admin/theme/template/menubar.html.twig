@@ -5,15 +5,6 @@
     <li class="breadcrumb-item">{{'Menu Management'|trans}}</li>
 {% endblock %}
 
-{% block javascripts %}
-    {{parent()}}
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.core.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.widget.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.mouse.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.sortable.js')}}"></script>
-    <script src="{{asset('admin/theme/js/menubar.js')}}"></script>
-{% endblock %}
-
 {% block content %}
     <form id="menuOrdering" action="{{path('admin_menubar_update')}}" method="post">
 	<ul class="menuUl">
@@ -47,6 +38,5 @@
 	    <input type="submit" class="btn btn-submit" name="submit" value="{{'Submit'|trans}}">
 	    <input type="submit" class="btn btn-reset" name="reset" value="{{'Reset'|trans}}">
 	</p>
-
     </form>
 {% endblock %}

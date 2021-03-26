@@ -260,7 +260,9 @@ class InstallController extends AbstractController
         if (empty($errors) && $request->isMethod('POST') && $request->request->get('install_database')) {
             $tpl_params['STEP'] = 'user';
         } else {
-            $tpl_params['errors'] = $errors;
+            if (!empty($errors)) {
+                $tpl_params['errors'] = $errors;
+            }
             $tpl_params['STEP'] = 'database';
         }
 
@@ -272,6 +274,8 @@ class InstallController extends AbstractController
         $errors = [];
         $db_params = [];
         $tpl_params = [
+            '_username' => '',
+            '_mail_address' => '',
             'INSTALL_ACTION' => $this->generateUrl('install', ['step' => 'user']),
         ];
 
@@ -382,7 +386,9 @@ class InstallController extends AbstractController
             $tpl_params['STEP'] = 'success';
         } else {
             $tpl_params['STEP'] = 'user';
-            $tpl_params['errors'] = $errors;
+            if (!empty($errors)) {
+                $tpl_params['errors'] = $errors;
+            }
         }
 
         return $tpl_params;

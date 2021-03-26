@@ -2,15 +2,14 @@
 {% extends "__layout.html.twig" %}
 
 {% block javascripts %}
-    {{parent()}}
-    <script src="{{asset('admin/theme/js/install.js')}}"></script>
+    <script src="{{asset('install.js')}}"></script>
 {% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block breadcrumb %}
-    <h2>Phyxo {{'Version'|trans}} {{RELEASE}} - {{'Installation'|trans}}</h2>
+    <h2>Phyxo {{'Version'|trans}} {{PHYXO_VERSION}} - {{'Installation'|trans}}</h2>
 {% endblock %}
 
 {% block aside %}
@@ -185,7 +184,7 @@
 		</p>
 		<p>
 		    <label for="admin_mail">{{'Email address'|trans}}</label>
-		    <input class="form-control" type="text" name="_mail_address" id="admin_mail" value="{{_mail_adress}}">
+		    <input class="form-control" type="text" name="_mail_address" id="admin_mail" value="{{_mail_address}}">
 		    <small class="form-text text-muted">{{'Visitors will be able to contact site administrator with this mail'|trans}}</small>
 		</p>
 	    </div>

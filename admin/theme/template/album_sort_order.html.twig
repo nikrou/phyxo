@@ -12,15 +12,6 @@
     <li class="breadcrumb-item">{{'Manage photo ranks'|trans}}</li>
 {% endblock %}
 
-{% block javascripts %}
-    {{parent()}}
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.core.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.widget.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.mouse.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.sortable.js')}}"></script>
-    <script src="{{asset('admin/theme/js/element_set_ranks.js')}}"></script>
-{% endblock %}
-
 {% block content %}
     <form action="{{ path('admin_album_sort_order', { album_id: ALBUM_ID}) }}" method="post">
 	{% if thumbnails is defined %}

@@ -18,6 +18,8 @@ import './photo-properties'
 import './batch_manager_global'
 import './batch_manager_unit'
 import './photo-coi'
+import './element_set_ranks'
+import './menubar'
 
 $(function () {
   $('#sidebarCollapse').on('click', function () {

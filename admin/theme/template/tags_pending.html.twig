@@ -8,16 +8,6 @@
     <li class="breadcrumb-item">{{'Pendings tags'|trans}}</li>
 {% endblock %}
 
-{% block javascripts %}
-    {{parent()}}
-    <script src="{{asset('admin/theme/js/phyxo.js')}}"></script>
-    <script>
-     $(function () {
-	 phyxo.checkboxesHelper('#pending-tags');
-     });
-    </script>
-{% endblock %}
-
 {% block content %}
     <form action="{{path('admin_tags_pending')}}" method="post" id="pending-tags">
 	<table class="table table-stripped table-hover checkboxes">
