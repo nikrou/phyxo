@@ -26,7 +26,8 @@ const ASSETS_PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : './'
 const PATHS = {
   app: path.join(__dirname, 'src', 'js'),
   install: path.join(__dirname, 'src', 'js', 'install'),
-  target: path.join(__dirname, 'build'),
+  api: path.join(__dirname, 'src', 'js', 'api'),
+  target: path.join(__dirname, TARGET_NAME),
 }
 
 module.exports = {
@@ -35,6 +36,7 @@ module.exports = {
   entry: {
     app: PATHS.app,
     install: PATHS.install,
+    api: PATHS.api,
   },
 
   output: {

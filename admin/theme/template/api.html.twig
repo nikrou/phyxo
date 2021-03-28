@@ -3,29 +3,26 @@
     <head>
 	<meta charset="utf-8">
 	<title>Phyxo web API (web-services) explorer</title>
-	<link type="text/css" rel="stylesheet" href="{{asset('admin/theme/css/api.css')}}">
-	<script src="{{asset('admin/theme/js/jquery/jquery.js')}}"></script>
-	<script src="{{asset('admin/theme/js/jquery/jquery-migrate-1.2.1.js')}}"></script>
+	<link type="text/css" rel="stylesheet" href="{{asset('api.css')}}">
     </head>
     <body>
 	<a name="top"></a>
-
-	<div id="the_header">
+	<header>
 	    <h1>Phyxo web API (web-services) explorer</h1>
-	</div> <!-- the_header -->
+	</header>
 
-	<div id="the_methods">
+	<div id="methods">
 	    <h2>Available methods</h2>
 
 	    <ul id="methodsList">
 	    </ul>
-	</div> <!-- the_methods -->
+	</div>
 
-	<div id="the_page">
+	<div id="page">
 	    <h2 id="methodName" style="display:none;"></h2>
 	    <h2 id="errorWrapper" style="display:none;"></h2>
 
-	    <div id="the_content">
+	    <div id="content">
 		<form id="urlForm" style="display:none;">
 		    <input type="text" name="ws_url" size="60">
 		    <input type="submit" value="Go!">
@@ -128,18 +125,18 @@
 		<!-- hidden form for POST submition -->
 		<form method="post" action="" target="" id="invokeForm" style="display:none;"></form>
 
-	    </div> <!-- the_content -->
-	</div> <!-- the_page -->
+	    </div>
+	</div>
 
-	<div id="the_footer">
+	<footer>
 	    <div class="copyright">
 		{{'Powered by'|trans}}&nbsp;<a href="{{PHYXO_URL}}">Phyxo</a>&nbsp;{{PHYXO_VERSION}}
 	    </div>
-	</div> <!-- the_footer -->
+	</footer>
 	<script>
 	 var ws_url = '{{ws}}';
 	 var pwg_token = '{{csrf_token}}';
 	</script>
-	<script src="{{asset('admin/theme/js/api.js')}}"></script>
+	<script src="{{asset('api.js')}}"></script>
     </body>
 </html>

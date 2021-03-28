@@ -1,0 +1,282 @@
+@import '~normalize.css/normalize.css';
+
+html {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Corbel', 'Lucida Grande', 'Verdana', sans-serif;
+  color: #222;
+  font-size: 1em;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: #247ebf;
+  text-decoration: none;
+
+  &:hover {
+    color: #eb9c39;
+    border-bottom-width: 1px;
+    text-shadow: 1px 1px 0 #ddd;
+  }
+}
+
+blockquote {
+  border: 1px solid #cdcdcd;
+  background: #f9f9f9;
+  padding: 8px;
+}
+
+hr {
+  margin: 10px 30px;
+  color: #fff;
+}
+
+ul {
+  margin-left: 25px;
+}
+
+p {
+  margin: 8px 0;
+}
+
+h1 {
+  color: #fff;
+  font-size: 26px;
+  padding: 10px 15px;
+  background: #45484d;
+}
+
+h2 {
+  color: #fff;
+  font-size: 20px;
+  padding: 5px 10px;
+  background: #f2a841;
+}
+
+#errorWrapper {
+  color: #f42c00;
+  font-weight: normal;
+  background: #eaeaea;
+}
+
+h3 {
+  display: inline-block;
+  padding: 5px 10px;
+  color: #555;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 8px 8px 0 0;
+  background: #f2f2f2;
+}
+
+header {
+  border-bottom: 1px solid #cdcdcd;
+  margin-bottom: 1px;
+}
+
+footer {
+  background: #eaeaea;
+  border-top: 1px solid #cdcdcd;
+  padding: 10px;
+  clear: both;
+}
+
+#methods {
+  width: 250px;
+  float: left;
+  border-style: solid;
+  border-color: #cdcdcd;
+  border-width: 1px 1px 0 0;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAADCAIAAADZSiLoAAAAH0lEQVQImSXHMQEAMAwCMOrfK0jIjuVL2gLBzyHJtgd7wBdU3Vt/7AAAAABJRU5ErkJggg==);
+}
+
+#methodsList {
+  font-size: 0.9em;
+  margin: 5px 0 10px 10px;
+  padding: 0;
+  list-style: none;
+
+  & li:before {
+    content: '\203A\00A0';
+    font-weight: bold;
+    color: #eb9c39;
+    font-size: 1.1em;
+  }
+
+  & li:hover:before {
+    content: '\00A0\203A';
+  }
+}
+
+#page {
+  margin-left: 252px;
+  border-style: solid;
+  border-color: #cdcdcd;
+  border-width: 1px 0 0 1px;
+}
+
+#content {
+  padding: 10px;
+}
+
+#methodParams {
+  margin-right: 230px;
+
+  & thead td {
+    background: #dee3e9;
+    font-weight: bold;
+    padding: 2px 5px;
+  }
+
+  & td {
+    padding: 2px;
+    border: 1px solid #cdcdcd;
+    vertical-align: middle;
+  }
+
+  & tbody tr:nth-child(even) {
+    background: #f7f7f7;
+  }
+
+  & tbody tr td:first-child {
+    font-family: monospace;
+    font-size: 0.95em;
+  }
+
+  & td.mini {
+    width: 0px;
+    text-align: center;
+  }
+
+  & tfoot {
+    font-size: 0.95em;
+  }
+  & td.input {
+    text-align: center;
+  }
+  & td.input input[type='text'] {
+    width: 97%;
+    font-size: 0.9em;
+    background: #f7f7f7;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+  }
+
+  & td.input input[type='text']:hover,
+  & td.input input[type='text']:focus {
+    border-color: #c7e2f1;
+    border-top-color: #96bcd7;
+    background: #fff;
+  }
+
+  & .type {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    font-size: 12px;
+    line-height: 16px;
+    background: #ddd;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+    color: #222;
+  }
+
+  & .subtype {
+    vertical-align: super;
+  }
+}
+
+#testForm {
+  float: right;
+
+  & td {
+    padding: 2px 0;
+  }
+
+  & tr:last-child td {
+    padding: 8px 0 5px 0;
+  }
+
+  & blockquote {
+    width: 200px;
+  }
+}
+
+#introMessage {
+  font-size: 1.1em;
+}
+
+#urlForm {
+  margin-bottom: 10px;
+}
+
+a.button {
+  color: #fff;
+  padding: 3px 8px;
+  border: 1px solid #91bb5c;
+  font-size: 0.9em;
+  margin-right: 3px;
+  display: inline-block;
+  border-radius: 5px;
+  text-shadow: 1px 1px 0 #666;
+  background: #84bb3c;
+  background: linear-gradient(to bottom, #84bb3c 0%, #3f5a1d 100%);
+
+  &:hover {
+    color: #e5ff00;
+  }
+}
+
+.methodInfo {
+  float: right;
+  width: 16px;
+  height: 16px;
+  font-size: 12px;
+  line-height: 16px;
+  background: #555;
+  border-radius: 8px;
+  font-family: 'Times New Roman', sans-serif;
+  font-style: italic;
+  font-weight: bold;
+  text-align: center;
+  color: #fff;
+
+  &:hover {
+    border: none;
+    text-shadow: none;
+    background: #888;
+    cursor: pointer;
+    color: #fff;
+  }
+}
+
+#iframeWrapper {
+  width: 100%;
+  height: 300px;
+  padding: 3px 3px 20px 3px;
+  background: #f9f9f9;
+  border: 1px solid #cdcdcd;
+  overflow: hidden;
+  position: relative;
+}
+
+iframe {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+}
+
+div.onlys {
+  background: #faa;
+  color: #fff;
+  border: 1px solid #f22;
+  padding: 0.25em 0.5em;
+  display: table;
+  border-radius: 4px;
+  margin-bottom: 0.5em;
+}
