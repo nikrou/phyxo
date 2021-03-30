@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-    {% if remote_output %}
+    {% if remote_output is defined %}
 	<div class="remoteOutput">
 	    <ul>
 		{% for remote_line in remote_output %}
@@ -16,7 +16,7 @@
 	</div>
     {% endif %}
 
-    {% if sites %}
+    {% if sites is defined %}
 	<table class="table table-hover table-striped">
 	    <thead>
 		<tr>

@@ -5,6 +5,8 @@
 
 @import '~jquery-colorbox/example1/colorbox.css';
 @import '~jcrop/build/css/jcrop.scss';
+@import '~jgrowl/jquery.jgrowl.css';
+@import '~plupload/src/jquery.plupload.queue/css/jquery.plupload.queue.css';
 
 $sidebar-width: 15em;
 $sidebar-install-width: $sidebar-width + 5em;
@@ -113,10 +115,8 @@ section[role='main'] {
   }
 
   // upload form
-  .plupload_header,
-  .plupload_buttons,
-  .plupload_progress {
-    display: none;
+  progress {
+    width: 100%;
   }
 
   .menuUl {
@@ -172,6 +172,8 @@ section[role='main'] {
       display: table-cell;
       vertical-align: middle;
       border-radius: 4px;
+      width: 146px;
+      height: 169px;
     }
 
     label {

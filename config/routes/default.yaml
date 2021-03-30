@@ -38,7 +38,7 @@ media:
   requirements:
     path: '[^_]*'
     derivative: sq|th|2s|xs|sm|me|la|xl|xx
-    image_extension: jpg|jpeg
+    image_extension: jpg|jpeg|png
     sizes: '(?:|_[^\.]*)'
   defaults:
     sizes: ''
@@ -48,7 +48,7 @@ media_custom:
   controller: App\Controller\MediaController::index
   requirements:
     path: '[^_]*'
-    image_extension: jpg|jpeg
+    image_extension: jpg|jpeg|png
     sizes: 'e[^\.]*'
   defaults:
     derivative: cu

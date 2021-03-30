@@ -130,7 +130,7 @@ $lang['You need to confirm deletion'] = "Vous devez confirmer la suppression";
 $lang['You are about to delete one element, this procedure is irreversible.'] = "Vous allez supprimer un élément, cette opération est irréversible";
 $lang['Do you want to proceed?'] = "Voulez-vous continuer ? ";
 $lang['Delete'] = 'Supprimer';
-$lang['Filename'] = 'nom de fichier';
+$lang['Filename'] = 'Nom de fichier';
 $lang['Variation'] = "Variation";
 $lang['Consensus deviation'] = "Consensus deviation";
 $lang['Last'] = 'Dernière';
@@ -731,6 +731,18 @@ $lang['No photo can be deleted'] = "Aucune photo ne peut être supprimée";
 $lang['The following tag was deleted'] = 'Le tag suivant a été supprimé';
 $lang['The following tags were deleted'] = 'Les tags suivants ont été supprimés';
 $lang['Virtual album deleted'] = 'Album virtuel supprimé';
+$lang['Size'] = 'Taille';
+$lang['Stop Upload'] = "Arrêter l'envoi.";
+$lang['Drag files here.'] = "Déposez les fichiers ici.";
+$lang['Add Files'] = "Ajouter des fichiers";
+$lang['Invalid file extension: '] = "Extension de fichier invalide : ";
+$lang['File too large: '] = "Fichier trop volumineux : ";
+$lang['Uploaded errors'] = "Erreurs pendant le chargement";
+$lang['b'] = "o";
+$lang['kb'] = "Ko";
+$lang['mb'] = "Mo";
+$lang['gb'] = "Go";
+$lang['tb'] = "To";
 
 // mail
 $lang['[{title}] Visit album {album}'] = '[{title}] Venez visiter l\'album {album}';

@@ -1,3 +1,5 @@
+import 'jquery-ui/ui/widgets/sortable'
+
 $(function () {
   $('.menuPos').hide()
   $('.drag_button').show()

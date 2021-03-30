@@ -6,22 +6,6 @@
     <li class="breadcrumb-item">{{'global mode'|trans}}</li>
 {% endblock %}
 
-{% block stylesheets %}
-    {{parent()}}
-    <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.core.css')}}">
-    <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.slider.css')}}">
-
-    <link rel="stylesheet" href="{{asset('admin/theme/js/ui/theme/jquery.ui.theme.css')}}">
-    {% if thumb_params is defined %}
-	<style type="text/css">
-	 .wrapper-thumbnail {
-	     width: {{thumb_params.max_width()+2}}px;
-	     height: {{thumb_params.max_height()+25}}px;
-	 }
-	</style>
-    {% endif %}
-{% endblock %}
-
 {% block javascripts %}
     <script>
      var ws_url = '{{ws}}';
@@ -91,12 +75,6 @@
      var associated_categories = {{associated_categories|default('')|json_encode|raw}};
     </script>
     {{parent()}}
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.core.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.widget.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.mouse.js')}}"></script>
-    <script src="{{asset('admin/theme/js/ui/jquery.ui.slider.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/jquery.progressbar.js')}}"></script>
-    <script src="{{asset('admin/theme/js/plugins/jquery.ajaxmanager.js')}}"></script>
 {% endblock %}
 
 {% block content %}

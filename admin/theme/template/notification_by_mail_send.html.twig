@@ -6,23 +6,6 @@
     <li class="breadcrumb-item">{{'Send'|trans}}</li>
 {% endblock %}
 
-{% block javascripts %}
-    {{parent()}}
-    <script>
-     $(function() {
-	 $("#checkAllLink").click(function () {
-	     $("#notification_by_mail input[type=checkbox]").prop('checked', true);
-	     return false;
-	 });
-
-	 $("#uncheckAllLink").click(function () {
-	     $("#notification_by_mail input[type=checkbox]").prop('checked', false);
-	     return false;
-	 });
-     });
-    </script>
-{% endblock %}
-
 {% block content %}
     <form method="post" name="notification_by_mail" id="notification_by_mail" action="{{path('admin_notification_send')}}">
 	{% if send.users is empty %}

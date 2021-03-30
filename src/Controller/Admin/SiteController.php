@@ -66,11 +66,11 @@ class SiteController extends AbstractController
         }
 
         foreach ($siteRepository->findAll() as $site) {
-            $is_remote = \Phyxo\Functions\URL::url_is_remote($site->getGalleryUrl());
+            $is_remote = \Phyxo\Functions\URL::url_is_remote($site->getGalleriesUrl());
 
             $tpl_var = [
                 'ID' => $site->getId(),
-                'NAME' => $site->getGalleryUrl(),
+                'NAME' => $site->getGalleriesUrl(),
                 'TYPE' => $translator->trans($is_remote ? 'Remote' : 'Local', [], 'admin'),
                 'CATEGORIES' => isset($sites_detail[$site->getId()]['nb_albums']) ?? null,
                 'IMAGES' => isset($sites_detail[$site->getId()]['nb_images']) ?? null,
@@ -123,7 +123,7 @@ class SiteController extends AbstractController
             }
             $imageMapper->deleteElements($element_ids);
 
-            $siteRepository->deleteById($site);
+            $siteRepository->deleteById($site->getId());
             $this->addFlash('info', $galleries_url . ' ' . $translator->trans('deleted', [], 'admin'));
         }
 

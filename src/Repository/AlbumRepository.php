@@ -602,12 +602,14 @@ class AlbumRepository extends ServiceEntityRepository
 
     public function findSitesDetail()
     {
-        $qb = $this->createQueryBuilder('a');
-        $qb->select('a.site_id, COUNT(DISTINCT(a.id)) AS nb_albums, COUNT(ia.id) AS nb_images');
-        $qb->leftJoin('ia.imageAlbums', 'ia', Expr\Join::WITH, 'a.id = ia.storage_category_id');
-        $qb->where($qb->expr()->isNotNull('a.site_id'));
-        $qb->groupBy('a.site_id');
+        return [];
+        // $qb = $this->createQueryBuilder('a');
+        // $qb->select('a.site');
+        // $qb->addSelect('COUNT(DISTINCT(IDENa.id)) AS nb_albums, COUNT(ia.image) AS nb_images');
+        // $qb->leftJoin('a.imageAlbums', 'ia'); //, Expr\Join::WITH, 'a.id = ia.storage_category_id');
+        // $qb->where($qb->expr()->isNotNull('a.site_id'));
+        // $qb->groupBy('a.site_id');
 
-        return $qb->getQuery()->getResult();
+        // return $qb->getQuery()->getResult();
     }
 }

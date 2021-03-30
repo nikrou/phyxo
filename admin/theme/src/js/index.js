@@ -20,6 +20,7 @@ import './batch_manager_unit'
 import './photo-coi'
 import './element_set_ranks'
 import './menubar'
+import './photos_add_direct'
 
 $(function () {
   $('#sidebarCollapse').on('click', function () {
@@ -176,4 +177,17 @@ $(function () {
   })
 
   $('.alert').alert()
+
+  // notification by mail
+  $('#checkAllLink').on('click', function () {
+    $('#notification_by_mail input[type="checkbox"]').prop('checked', true)
+
+    return false
+  })
+
+  $('#uncheckAllLink').on('click', function () {
+    $('#notification_by_mail input[type="checkbox"]').prop('checked', false)
+
+    return false
+  })
 })

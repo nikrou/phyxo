@@ -32,7 +32,7 @@ class SiteRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('s');
         $qb->select('count(s.id)');
-        $qb->where('galleries_url', ':url');
+        $qb->where('s.galleries_url = :url');
         $qb->setParameter('url', $url);
 
         return (int) $qb->getQuery()->getSingleScalarResult() === 1;
@@ -40,8 +40,8 @@ class SiteRepository extends ServiceEntityRepository
 
     public function deleteById(int $id)
     {
-        $qb = $this->createQueryBuilder('l');
-        $qb->where('id', ':id');
+        $qb = $this->createQueryBuilder('s');
+        $qb->where('s.id = :id');
         $qb->setParameter('id', $id);
         $qb->delete();
 
