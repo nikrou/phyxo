@@ -9,19 +9,7 @@
  * file that was distributed with this source code.
  */
 
-use mageekguy\atoum;
-use mageekguy\atoum\reports;
+use atoum\atoum;
 
-// Enable extension
-//$extension = new reports\extension($script);
-//$extension->addToRunner($runner);
-
-// Write all on stdout.
-$stdOutWriter = new atoum\writers\std\out();
-
-// Generate a CLI report.
-$cliReport = new atoum\reports\realtime\cli();
-$cliReport->addWriter($stdOutWriter);
-
-$runner->addTestsFromDirectory('tests/units/');
-$runner->addReport($cliReport);
+$report = $script->addDefaultReport();
+$runner->addTestsFromDirectory('tests/units');

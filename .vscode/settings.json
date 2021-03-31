@@ -9,7 +9,6 @@
         "**/.git/**": true,
         "**/.dist": true,
         "**/node_modules/**": true,
-        "**/vendor/**": true,
         "**/var/cache/**": true,
         "**/var/log/**": true
     },

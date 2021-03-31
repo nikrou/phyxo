@@ -13,7 +13,7 @@ namespace App\Tests\Behat;
 
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Symfony2Extension\Context\KernelDictionary;
-use mageekguy\atoum\asserter as Atoum;
+use atoum\atoum\asserter\generator;
 
 class FeatureContext extends BaseContext
 {
@@ -23,7 +23,7 @@ class FeatureContext extends BaseContext
 
     public function __construct(Storage $storage)
     {
-        $this->assert = new Atoum\generator();
+        $this->assert = new generator();
         $this->storage = $storage;
     }
 

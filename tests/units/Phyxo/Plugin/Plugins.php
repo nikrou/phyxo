@@ -13,11 +13,11 @@ namespace tests\units\Phyxo\Plugin;
 
 require_once __DIR__ . '/../../bootstrap.php';
 
-use mageekguy\atoum;
+use atoum;
 use Prophecy\Prophet;
 use Symfony\Component\Filesystem\Filesystem;
 
-class Plugins extends atoum\test
+class Plugins extends atoum
 {
     private $plugins_path = __DIR__ . '/../../fixtures/plugins';
     protected  $plugins_dir = PHPWG_TMP_PATH . '/plugins';

@@ -14,10 +14,10 @@ namespace tests\units\Phyxo;
 require_once __DIR__ . '/../bootstrap.php';
 
 use App\Repository\ConfigRepository;
-use mageekguy\atoum;
+use atoum;
 use Prophecy\Prophet;
 
-class Conf extends atoum\test
+class Conf extends atoum
 {
     public function testLoadFile()
     {

@@ -13,9 +13,9 @@ namespace tests\units\Phyxo\Functions;
 
 require_once __DIR__ . '/../../bootstrap.php';
 
-use mageekguy\atoum;
+use atoum;
 
-class Language extends atoum\test
+class Language extends atoum
 {
     private $plugins_path = __DIR__ . '/../../fixtures/plugins';
     private $themes_path = __DIR__ . '/../../fixtures/themes';

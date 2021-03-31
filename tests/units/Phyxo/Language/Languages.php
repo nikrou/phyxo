@@ -13,10 +13,10 @@ namespace tests\units\Phyxo\Language;
 
 require_once __DIR__ . '/../../bootstrap.php';
 
-use mageekguy\atoum;
+use atoum;
 use Prophecy\Prophet;
 
-class Languages extends atoum\test
+class Languages extends atoum
 {
     private $languages_path = __DIR__ . '/../../fixtures/translations/';
 

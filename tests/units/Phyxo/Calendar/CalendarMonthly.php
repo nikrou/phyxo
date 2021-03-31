@@ -11,11 +11,10 @@
 
 namespace tests\units\Phyxo\Calendar;
 
-use mageekguy\atoum;
-use Prophecy\Argument;
+use atoum;
 use Prophecy\Prophet;
 
-class CalendarMonthly extends atoum\test
+class CalendarMonthly extends atoum
 {
     public function testCalendar()
     {

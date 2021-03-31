@@ -8,13 +8,11 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-use mageekguy\atoum\reports;
-use mageekguy\atoum\reports\coverage;
-use mageekguy\atoum\writers\std;
 
-$script->addDefaultReport();
+use atoum\atoum;
 
-$coverage = new coverage\html();
-$coverage->addWriter(new std\out());
-$coverage->setOutPutDirectory(__DIR__ . '/coverage/html');
-$runner->addReport($coverage);
+$coverageHtmlField = new atoum\report\fields\runner\coverage\html('Phyxo', __DIR__ . '/coverage/html');
+
+$script
+  ->addDefaultReport()
+  ->addField($coverageHtmlField);
