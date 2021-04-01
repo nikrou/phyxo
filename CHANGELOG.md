@@ -1,6 +1,7 @@
 # Phyxo 2.2.0 - YYYY-MM-DD
 
 - no more database config file in local/config. Use config/database.yaml instead.
+- move back index.php in public directory
 
 # Phyxo 2.1.0 - 2021-02-20
 

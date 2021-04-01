@@ -15,7 +15,7 @@ use App\UpdateKernel;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
 
-require __DIR__ . '/config/bootstrap.php';
+require dirname(__DIR__) . '/config/bootstrap.php';
 
 if ($_SERVER['APP_DEBUG']) {
     umask(0000);
@@ -31,8 +31,8 @@ if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? false) {
     Request::setTrustedHosts([$trustedHosts]);
 }
 
-if (is_readable(__DIR__ . '/config/database.yaml')) {
-    if (is_readable(__DIR__ . '/.update.mode')) {
+if (is_readable(dirname(__DIR__) . '/config/database.yaml')) {
+    if (is_readable(dirname(__DIR__) . '/.update.mode')) {
         $kernel = new UpdateKernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
     } else {
         $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);

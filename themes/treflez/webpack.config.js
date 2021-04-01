@@ -36,7 +36,15 @@ const ASSETS_PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : './';
 
 const PATHS = {
   theme: path.join(__dirname, 'src', 'js'),
-  target: path.join(__dirname, 'build'),
+  target: path.join(
+    __dirname,
+    '..',
+    '..',
+    'public',
+    'themes',
+    'treflez',
+    TARGET_NAME
+  ),
 };
 
 /**

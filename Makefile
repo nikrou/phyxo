@@ -27,7 +27,7 @@ PUBLIC_MANIFEST=$(PUBLIC_THEME_PATH)/build/manifest.json
 
 config: clean ## prepare environment for building archive
 	mkdir -p $(DIST)/$(APP_NAME)/bin
-	cp -pr .env *.php include install languages templates translations config imgs src \
+	cp -pr .env public include install languages templates translations config imgs src \
 	CHANGELOG.md LICENSE README.md $(DIST)/$(APP_NAME)/
 	cp -p tools/.htaccess $(DIST)/$(APP_NAME)/
 
@@ -43,8 +43,24 @@ config: clean ## prepare environment for building archive
 	# remove doc and useless stuff
 	find $(DIST)/$(APP_NAME)/vendor -path '*/.git/*' | xargs rm -fr ;
 
-	rm -fr $(DIST)/$(APP_NAME)/vendor/symfony/*/Tests \
-		$(DIST)/$(APP_NAME)/vendor/openpsa/universalfeedcreator/test \
+	rm -fr $(DIST)/$(APP_NAME)/vendor/symfony/*/Tests				\
+		$(DIST)/$(APP_NAME)/vendor/symfony/var-dumper/Test			\
+		$(DIST)/$(APP_NAME)/vendor/symfony/mime/Test				\
+		$(DIST)/$(APP_NAME)/vendor/symfony/http-client-contracts/Test		\
+		$(DIST)/$(APP_NAME)/vendor/symfony/validator/Test			\
+		$(DIST)/$(APP_NAME)/vendor/symfony/mailer/Test				\
+		$(DIST)/$(APP_NAME)/vendor/symfony/http-foundation/Test			\
+		$(DIST)/$(APP_NAME)/vendor/symfony/framework-bundle/Test		\
+		$(DIST)/$(APP_NAME)/vendor/symfony/service-contracts/Test		\
+		$(DIST)/$(APP_NAME)/vendor/symfony/doctrine-bridge/Test			\
+		$(DIST)/$(APP_NAME)/vendor/symfony/service-contracts/Test		\
+		$(DIST)/$(APP_NAME)/vendor/doctrine/deprecations/test_fixtures		\
+		$(DIST)/$(APP_NAME)/vendor/twig/twig/src/Node/Expression/Test		\
+		$(DIST)/$(APP_NAME)/vendor/psr/log/Psr/Log/Test				\
+		$(DIST)/$(APP_NAME)/vendor/twig/twig/src/Test				\
+		$(DIST)/$(APP_NAME)/vendor/doctrine/deprecations/tests			\
+		$(DIST)/$(APP_NAME)/vendor/laminas/laminas-eventmanager/src/Test	\
+		$(DIST)/$(APP_NAME)/vendor/openpsa/universalfeedcreator/test		\
 		$(DIST)/$(APP_NAME)/vendor/twig/twig/doc
 
 	# empty dirs

@@ -27,7 +27,15 @@ const PATHS = {
   app: path.join(__dirname, 'src', 'js'),
   install: path.join(__dirname, 'src', 'js', 'install'),
   api: path.join(__dirname, 'src', 'js', 'api'),
-  target: path.join(__dirname, TARGET_NAME),
+  target: path.join(
+    __dirname,
+    '..',
+    '..',
+    'public',
+    'admin',
+    'theme',
+    TARGET_NAME
+  ),
 }
 
 module.exports = {
