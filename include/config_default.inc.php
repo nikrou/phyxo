@@ -55,9 +55,6 @@ $conf['file_ext'] = array_merge(
 // visited" categories
 $conf['top_number'] = 15;
 
-// number of second after ephemeral key is valid for comments
-$conf['key_comment_valid_time'] = 3;
-
 // anti-flood_time : number of seconds between 2 comments : 0 to disable
 $conf['anti-flood_time'] = 60;
 

@@ -56,7 +56,6 @@
 			    <label for="contenteditid">{{'Edit a comment'|trans}} :</label>
 			    <textarea class="form-control" name="content" id="contenteditid" rows="5" cols="80">{{comment.CONTENT}}</textarea>
 			</div>
-			<input type="hidden" name="key" value="{{comment.KEY}}">
 			<input type="hidden" name="_csrf_token" value="{{csrf_token}}">
 			<input type="hidden" name="image_id" value="{{comment.IMAGE_ID}}">
 			<button type="submit" class="btn btn-primary">{{'Submit'|trans}}</button>

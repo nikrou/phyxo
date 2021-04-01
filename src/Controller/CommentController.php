@@ -194,8 +194,6 @@ class CommentController extends CommonController
 
                     if ($comment->getId() === $comment_id) {
                         $tpl_comment['IN_EDIT'] = true;
-                        $key = Utils::get_ephemeral_key($conf['key_comment_valid_time'], $comment->getImage()->getId(), $conf['secret_key']);
-                        $tpl_comment['KEY'] = $key;
                         $tpl_comment['IMAGE_ID'] = $comment->getImage()->getId();
                         $tpl_comment['CONTENT'] = $comment->getContent();
                         $tpl_comment['U_CANCEL'] = $this->generateUrl('comments', array_merge($query_params, ['start' => $start]));
@@ -214,7 +212,7 @@ class CommentController extends CommonController
 
         $derivative_params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
         $tpl_params['derivative_params'] = $derivative_params;
-        $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
+        $tpl_params['csrf_token'] = $csrfTokenManager->getToken('comment');
         $tpl_params['F_ACTION'] = $this->generateUrl('comments', array_merge($query_params, ['start' => $start]));
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
@@ -228,7 +226,7 @@ class CommentController extends CommonController
     public function edit(int $comment_id, Request $request, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator)
     {
         if ($request->isMethod('POST')) {
-            $token = new CsrfToken('authenticate', $request->request->get('_csrf_token'));
+            $token = new CsrfToken('comment', $request->request->get('_csrf_token'));
             if (!$csrfTokenManager->isTokenValid($token)) {
                 throw new InvalidCsrfTokenException();
             }
@@ -271,7 +269,7 @@ class CommentController extends CommonController
 
     public function delete(Request $request, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager)
     {
-        $token = new CsrfToken('authenticate', $request->request->get('_csrf_token'));
+        $token = new CsrfToken('comment', $request->request->get('_csrf_token'));
         if (!$csrfTokenManager->isTokenValid($token)) {
             throw new InvalidCsrfTokenException();
         }
@@ -292,7 +290,7 @@ class CommentController extends CommonController
 
     public function  validate(Request $request, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager)
     {
-        $token = new CsrfToken('authenticate', $request->request->get('_csrf_token'));
+        $token = new CsrfToken('comment', $request->request->get('_csrf_token'));
         if (!$csrfTokenManager->isTokenValid($token)) {
             throw new InvalidCsrfTokenException();
         }

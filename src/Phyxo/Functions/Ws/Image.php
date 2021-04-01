@@ -157,7 +157,6 @@ class Image
         $comment_post_data = null;
         if ($is_commentable && (!$service->getUserMapper()->isGuest() || ($service->getUserMapper()->isGuest() && $service->getConf()['comments_forall']))) {
             $comment_post_data['author'] = $service->getUserMapper()->getUser()->getUsername();
-            $comment_post_data['key'] = \Phyxo\Functions\Utils::get_ephemeral_key(2, $params['image_id'], $service->getConf()['secret_key']);
         }
 
         $ret = $image->toArray();

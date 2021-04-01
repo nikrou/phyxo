@@ -233,9 +233,7 @@ class CommentMapper
     {
         $comment_action = 'validate';
 
-        if (!\Phyxo\Functions\Utils::verify_ephemeral_key($post_key, $comment_infos['image_id'], $this->conf['secret_key'])) {
-            $comment_action = 'reject';
-        } elseif (!$this->conf['comments_validation'] || $this->userMapper->isAdmin()) { // should the updated comment must be validated
+        if (!$this->conf['comments_validation'] || $this->userMapper->isAdmin()) { // should the updated comment must be validated
             $comment_action = 'validate'; //one of validate, moderate, reject
         } else {
             $comment_action = 'moderate'; //one of validate, moderate, reject

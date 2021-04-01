@@ -242,54 +242,6 @@ class Utils
     }
 
     /**
-     * returns a "secret key" that is to be sent back when a user posts a form
-     *
-     * @param int $valid_after_seconds - key validity start time from now
-     * @param string $aditionnal_data_to_hash
-     * @return string
-     */
-    public static function get_ephemeral_key($valid_after_seconds, $aditionnal_data_to_hash = '', $secret_key)
-    {
-        $time = round(microtime(true), 1);
-        return $time . ':' . $valid_after_seconds . ':'
-            . hash_hmac(
-                'md5',
-                $time . substr($_SERVER['REMOTE_ADDR'], 0, 5) . $valid_after_seconds . $aditionnal_data_to_hash,
-                $secret_key
-            );
-    }
-
-    /**
-     * verify a key sent back with a form
-     *
-     * @param string $key
-     * @param string $aditionnal_data_to_hash
-     * @return bool
-     */
-    public static function verify_ephemeral_key($key, $aditionnal_data_to_hash = '', $secret_key)
-    {
-        // @FIX : find another way to check key
-        return true;
-
-        $time = microtime(true);
-        $key = explode(':', @$key);
-
-        // page must have been retrieved more than X sec ago
-        if (
-            count($key) != 3 or $key[0] > $time - (float)$key[1] or $key[0] < $time - 3600
-            or hash_hmac(
-                'md5',
-                $key[0] . substr($_SERVER['REMOTE_ADDR'], 0, 5) . $key[1] . $aditionnal_data_to_hash,
-                $secret_key
-            ) != $key[2]
-        ) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * get pwg_token used to prevent csrf attacks
      *
      * @return string
