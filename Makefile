@@ -55,7 +55,6 @@ config: clean ## prepare environment for building archive
 		$(DIST)/$(APP_NAME)/vendor/symfony/doctrine-bridge/Test			\
 		$(DIST)/$(APP_NAME)/vendor/symfony/service-contracts/Test		\
 		$(DIST)/$(APP_NAME)/vendor/doctrine/deprecations/test_fixtures		\
-		$(DIST)/$(APP_NAME)/vendor/twig/twig/src/Node/Expression/Test		\
 		$(DIST)/$(APP_NAME)/vendor/psr/log/Psr/Log/Test				\
 		$(DIST)/$(APP_NAME)/vendor/twig/twig/src/Test				\
 		$(DIST)/$(APP_NAME)/vendor/doctrine/deprecations/tests			\

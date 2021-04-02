@@ -63,6 +63,8 @@ class ImageTagRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('it');
         $qb->addSelect('COUNT(it.image) AS counter');
+        $qb->leftJoin('it.tag', 't');
+        $qb->addSelect('t');
 
         $this->addValidatedCondition($qb, $user_id, $show_pending_added_tags, $show_pending_deleted_tags);
 

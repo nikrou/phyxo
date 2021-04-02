@@ -64,6 +64,7 @@ class AlbumRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('a');
         $qb->leftJoin('a.userCacheAlbums', 'ia', Expr\Join::WITH, 'ia.user = :user_id');
+        $qb->addSelect('ia');
         $qb->setParameter('user_id', $user_id);
 
         if (count($forbidden_categories) > 0) {
