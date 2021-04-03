@@ -580,6 +580,10 @@ class Image
 
     public function fromArray(array $values = [])
     {
+        if (isset($values['id'])) {
+            $this->id = $values['id'];
+        }
+
         if (isset($values['file'])) {
             $this->setFile($values['file']);
         }

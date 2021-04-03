@@ -514,6 +514,11 @@ class User implements UserInterface, EquatableInterface, \Serializable
         return $this;
     }
 
+    public function getForbiddenCategories(): array
+    {
+        return $this->userInfos->getForbiddenCategories();
+    }
+
     public function serialize()
     {
         return serialize([

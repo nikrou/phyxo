@@ -10,6 +10,9 @@ services:
   phyxo.conf:
     alias: 'Phyxo\Conf'
 
+  phyxo.user.provider:
+    alias: 'App\Security\UserProvider'
+
   phyxo.user.manager:
     alias: 'App\Utils\UserManager'
 
