@@ -1,4 +1,4 @@
-# ![logo](/imgs/favicon-96.png) Phyxo
+# ![logo](/public/imgs/favicon-96.png) Phyxo
 
 Simply share your images.
 

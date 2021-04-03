@@ -71,37 +71,31 @@ jobs:
 
       - name: Run Behat tests
         run: ./bin/behat --colors --no-interaction -vvv -c behat.yml.dist --suite=web
-
-  release:
-    name: Phyxo release
-    runs-on: ubuntu-18.04
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Setup PHP, extensions and composer with shivammathur/setup-php
-        uses: shivammathur/setup-php@v2
-        with:
-          tools: composer:v1
-          php-version: '7.3'
-          coverage: xdebug
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
-        env:
-          update: true
-
-      - name: Install dependencies
-        run: composer install
-
-      - name: Setup Phyxo version
-        run: |
-          echo "PHYXO_VERSION=$(make version)" >> $GITHUB_ENV
-
-      - name: Build archive
-        run: make build
-
-      - name: Archive nightly build
-        uses: actions/upload-artifact@v2
-        with:
-          name: phyxo-${{ env.PHYXO_VERSION }}
-          path: .dist
+  #
+  # release:
+  #   name: Phyxo release
+  #   runs-on: ubuntu-18.04
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
+  #     - name: Setup PHP, extensions and composer with shivammathur/setup-php
+  #       uses: shivammathur/setup-php@v2
+  #       with:
+  #         tools: composer:v1
+  #         php-version: '7.3'
+  #         coverage: xdebug
+  #         extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+  #       env:
+  #         update: true
+  #     - name: Install dependencies
+  #       run: composer install
+  #     - name: Setup Phyxo version
+  #       run: |
+  #         echo "PHYXO_VERSION=$(make version)" >> $GITHUB_ENV
+  #     - name: Build archive
+  #       run: make build
+  #     - name: Archive nightly build
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: phyxo-${{ env.PHYXO_VERSION }}
+  #         path: .dist

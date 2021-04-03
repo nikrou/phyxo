@@ -22,7 +22,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ORM\Table(name="users")
  */
-class User implements UserInterface, EquatableInterface
+class User implements UserInterface, EquatableInterface, \Serializable
 {
     const STATUS_WEBMASTER = 'webmaster';
     const STATUS_ADMIN = 'admin';
@@ -512,5 +512,25 @@ class User implements UserInterface, EquatableInterface
         }
 
         return $this;
+    }
+
+    public function serialize()
+    {
+        return serialize([
+            $this->id,
+            $this->username,
+            $this->password,
+            $this->getRoles()
+        ]);
+    }
+
+    public function unserialize($serialized)
+    {
+        list (
+            $this->id,
+            $this->username,
+            $this->password,
+            $this->roles
+        ) = unserialize($serialized);
     }
 }

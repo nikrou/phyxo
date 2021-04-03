@@ -98,6 +98,7 @@ class TagRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('t');
         $qb->leftJoin('t.imageTags', 'it');
+        $qb->addSelect('it');
         $qb->where('it.image = :image_id');
         $qb->setParameter('image_id', $image_id);
 

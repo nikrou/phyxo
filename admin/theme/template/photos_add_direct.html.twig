@@ -111,7 +111,7 @@
 
 		    <button id="addFiles" class="btn btn-submit"><i class="fa fa-plus-circle"></i> {{'Add Photos'|trans}}</button>
 
-		    {% if original_resize_maxheight %}
+		    {% if original_resize_maxheight is defined %}
 			<p class="form-text">{{'The picture dimensions will be reduced to %dx%d pixels.'|trans|format(original_resize_maxwidth, original_resize_maxheight)}}</p>
 			{% endif %}
 
