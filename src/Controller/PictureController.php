@@ -33,6 +33,7 @@ use App\Repository\ImageAlbumRepository;
 use App\Security\TagVoter;
 use IntlDateFormatter;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -78,6 +79,10 @@ class PictureController extends CommonController
         } else {
             $history_section = History::SECTION_ALBUMS;
             $album = $albumMapper->getRepository()->find((int) $element_id);
+            if (!is_null($album) && in_array($album->getId(), $this->getUser()->getForbiddenCategories())) {
+                throw new AccessDeniedHttpException("Access denied to that album");
+            }
+
             $tpl_params['items'] = [];
             foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum((int) $element_id, $this->getUser()->getForbiddenCategories(), $conf['order_by']) as $image) {
                 $tpl_params['items'][] = $image['id'];

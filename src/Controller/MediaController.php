@@ -52,6 +52,16 @@ class MediaController extends CommonController
             }
         }
 
+        // deal with ./ at the beginning of path
+        $image = $imageRepository->findOneByUnsanePath($path . '.' . $image_extension);
+        if (is_null($image)) {
+            return new Response('Db file path not found ', 404);
+        }
+
+        if (!$imageRepository->isAuthorizedToUser($this->getUser()->getForbiddenCategories(), $image->getId())) {
+            return new Response('User not allowed to see that image ', 403);
+        }
+
         if (!isset($derivative_type)) {
             if (DerivativeParams::derivative_to_url(ImageStandardParams::IMG_CUSTOM) === $derivative) {
                 $derivative_type = ImageStandardParams::IMG_CUSTOM;
@@ -107,17 +117,6 @@ class MediaController extends CommonController
 
         $coi = null;
         try {
-            // deal with ./ at the beginning of path
-            $image = $imageRepository->findOneByUnsanePath($path . '.' . $image_extension);
-            if (is_null($image)) {
-                return new Response('Db file path not found ', 404);
-            }
-
-            // @TODO: add test to ckeck if user is allowed to see that image
-            // if ($imageRepository->isAuthorizedToUser($this->getUser()->getForbiddenCategories(), $image->getId())) {
-            //     return new Response('User not allowed to see that image ', 403);
-            // }
-
             if ($image->getWidth() > 0 && $image->getHeight()) {
                 $this->original_size = [$image->getWidth(), $image->getHeight()];
             }
@@ -338,12 +337,10 @@ class MediaController extends CommonController
     protected function makeDerivativeResponse(string $image_path): Response
     {
         $response = new BinaryFileResponse($image_path);
-        $response->setCache([
-            'etag' => md5_file($image_path),
-            'last_modified' => (new \DateTime())->setTimestamp(filemtime($image_path)),
-            'max_age' => 3600, //@TODO : read from conf
-            'public' => true
-        ]);
+        $response->setEtag(md5_file($image_path));
+        $response->setAutoLastModified((new \DateTime())->setTimestamp(filemtime($image_path)));
+        $response->setMaxAge(3600); //@TODO : read from conf
+        $response->setPublic();
 
         $mimeTypeGuesser = new FileinfoMimeTypeGuesser();
         if ($mimeTypeGuesser->isGuesserSupported()) {
