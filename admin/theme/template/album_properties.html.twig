@@ -36,7 +36,7 @@
 		    {% if representant.picture is defined %}
 			<a href="{{representant.picture.URL}}"><img src="{{representant.picture.SRC}}" alt=""></a>
 		    {% else %}
-			<img src="./theme/icon/category_representant_random.png" alt="{{'Random photo'|trans}}">
+			<i class="fa fa-3x fa-question" title="{{'Random photo'|trans}}"></i>
 		    {% endif %}
 
 		    {% if representant.ALLOW_SET_RANDOM is defined %}

@@ -196,15 +196,17 @@ class AlbumController extends AbstractController
 
             // picture to display : the identified representant or the generic random representant ?
             if ($album->getRepresentativePictureId()) {
-                $src = $imageMapper->getRepository()->find($album->getRepresentativePictureId())->toArray();
-                $src = (new DerivativeImage(new SrcImage($src, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
-                $url = $this->generateUrl('admin_photo', ['image_id' => $album->getRepresentativePictureId()]);
+                $representative_picture = $imageMapper->getRepository()->find($album->getRepresentativePictureId());
+                if (!is_null($representative_picture)) {
+                    $src = $representative_picture->toArray();
+                    $src = (new DerivativeImage(new SrcImage($src, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
+                    $url = $this->generateUrl('admin_photo', ['image_id' => $album->getRepresentativePictureId()]);
 
-                $tpl_params['representant']['picture'] =
-                    [
+                    $tpl_params['representant']['picture'] = [
                         'SRC' => $src,
                         'URL' => $url
                     ];
+                }
             }
 
             // can the admin choose to set a new random representant ?
