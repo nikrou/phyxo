@@ -310,12 +310,16 @@ class InstallController extends AbstractController
                 $database_params = Yaml::parseFile($this->databaseYamlFile . '.tmp');
                 $config = new \Doctrine\DBAL\Configuration();
                 $connectionParams = [
-                    'dbname' => $database_params['parameters']['database_name'],
-                    'user' => $database_params['parameters']['database_user'],
-                    'password' => $database_params['parameters']['database_password'],
-                    'host' => $database_params['parameters']['database_host'],
-                    'driver' => $database_params['parameters']['database_driver'],
+                    'driver' => $database_params['parameters']['database_driver']
                 ];
+                if ($database_params['parameters']['database_driver'] === 'pdo_sqlite') {
+                    $connectionParams['path'] = str_replace('%kernel.project_dir%', $this->rootProjectDir, $database_params['parameters']['database_path']);
+                } else {
+                    $connectionParams['host'] = $database_params['parameters']['database_host'];
+                    $connectionParams['dbname'] = $database_params['parameters']['database_name'];
+                    $connectionParams['user'] = $database_params['parameters']['database_user'];
+                    $connectionParams['password'] = $database_params['parameters']['database_password'];
+                }
                 $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
 
                 $now = new \DateTime();

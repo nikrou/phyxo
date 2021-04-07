@@ -4,6 +4,7 @@ parameters:
   database_host: ''
   database_port: ''
   database_name: ''
+  database_path: ''
   database_user: ''
   database_password: ''
   database_prefix: 'phyxo_'

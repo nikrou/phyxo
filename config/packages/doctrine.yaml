@@ -5,7 +5,7 @@ doctrine:
         host: '%database_host%'
         port: '%database_port%'
         dbname: '%database_name%'
-        path: '%database_name%'
+        path: '%database_path%'
         user: '%database_user%'
         password: '%database_password%'
         server_version: '%database_version%'

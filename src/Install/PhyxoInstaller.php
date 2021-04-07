@@ -16,6 +16,7 @@ use Doctrine\DBAL\DriverManager;
 use Phyxo\Functions\Utils;
 use Phyxo\Language\Languages;
 use Phyxo\Upgrade;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PhyxoInstaller
@@ -76,6 +77,13 @@ class PhyxoInstaller
             unset($_params);
         }
 
+        $sqlite_db = sprintf('%s/db/%s', $this->rootProjectDir, $db_params['db_name']);
+        if ($db_params['db_layer'] === 'sqlite') {
+            $fs = new Filesystem();
+            $fs->touch($sqlite_db);
+            $fs->chmod($sqlite_db, 0666);
+        }
+
         $connectionParams = [
             'dbname' => $db_params['db_name'],
             'user' => $db_params['db_user'],
@@ -83,6 +91,9 @@ class PhyxoInstaller
             'host' => $db_params['db_host'],
             'driver' => 'pdo_' . $db_params['db_layer'],
         ];
+        if ($db_params['db_layer'] === 'sqlite') {
+            $connectionParams['path'] = $sqlite_db;
+        }
         $conn = DriverManager::getConnection($connectionParams, $config);
 
         // tables creation, based on phyxo_structure.sql
@@ -91,9 +102,9 @@ class PhyxoInstaller
           $this->rootProjectDir . '/install/phyxo_structure-' . $db_params['db_layer'] . '.sql',
           $this->default_prefix,
           $db_params['db_prefix']
-      );
+        );
         foreach ($structure_queries as $query) {
-            $conn->query($query);
+            $conn->executeQuery($query);
         }
 
         // We fill the tables with basic informations
@@ -102,9 +113,9 @@ class PhyxoInstaller
           $this->rootProjectDir . '/install/config.sql',
           $this->default_prefix,
           $db_params['db_prefix']
-      );
+        );
         foreach ($config_queries as $query) {
-            $conn->query($query);
+            $conn->executeQuery($query);
         }
 
         $raw_query = 'INSERT INTO phyxo_config (param, type, value, comment) VALUES(:param, :type, :value, :comment)';
@@ -173,11 +184,13 @@ class PhyxoInstaller
 
         $file_content = 'parameters:' . "\n";
         $file_content .= '  database_driver: \'pdo_' . $db_params['db_layer'] . "'\n";
-        $file_content .= '  database_name: \'' . $db_params['db_name'] . "'\n";
         if ($db_params['db_layer'] !== 'sqlite') {
             $file_content .= '  database_host: \'' . $db_params['db_host'] . "'\n";
+            $file_content .= '  database_name: \'' . $db_params['db_name'] . "'\n";
             $file_content .= '  database_user: \'' . $db_params['db_user'] . "'\n";
             $file_content .= '  database_password: \'' . $db_params['db_password'] . "'\n";
+        } else {
+            $file_content .= '  database_path: \'%kernel.project_dir%/db/' . $db_params['db_name'] . "'\n";
         }
         $file_content .= '  database_prefix: \'' . $db_params['db_prefix'] . "'\n\n";
 
