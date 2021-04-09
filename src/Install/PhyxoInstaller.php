@@ -183,14 +183,14 @@ class PhyxoInstaller
         }
 
         $file_content = 'parameters:' . "\n";
-        $file_content .= '  database_driver: \'pdo_' . $db_params['db_layer'] . "'\n";
         if ($db_params['db_layer'] !== 'sqlite') {
+            $file_content .= '  database_driver: \'pdo_' . $db_params['db_layer'] . "'\n";
             $file_content .= '  database_host: \'' . $db_params['db_host'] . "'\n";
             $file_content .= '  database_name: \'' . $db_params['db_name'] . "'\n";
             $file_content .= '  database_user: \'' . $db_params['db_user'] . "'\n";
             $file_content .= '  database_password: \'' . $db_params['db_password'] . "'\n";
         } else {
-            $file_content .= '  database_path: \'%kernel.project_dir%/db/' . $db_params['db_name'] . "'\n";
+            $file_content .= '  env(DATABASE_URL): "sqlite:///%kernel.project_dir%/db/' . $db_params['db_name'] . "\"\n";
         }
         $file_content .= '  database_prefix: \'' . $db_params['db_prefix'] . "'\n\n";
 

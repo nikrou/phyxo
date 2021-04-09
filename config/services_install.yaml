@@ -55,6 +55,10 @@ services:
     autowire: false
     autoconfigure: false
 
+  App\EventSubscriber\ExtensionManagerSubscriber:
+    autowire: false
+    autoconfigure: false
+
   App\EventSubscriber\ThemePathSubscriber:
     autowire: false
     autoconfigure: false
