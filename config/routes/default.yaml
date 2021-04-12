@@ -53,6 +53,20 @@ media_custom:
   defaults:
     derivative: cu
 
+plugin_asset:
+  path: /asset/plugin/{id}/{path}
+  controller: App\Controller\ExtensionAssetController::pluginAsset
+  requirements:
+    id: '[^/]*'
+    path: '.+'
+
+theme_asset:
+  path: /asset/theme/{id}/{path}
+  controller: App\Controller\ExtensionAssetController::themeAsset
+  requirements:
+    id: '[^/]*'
+    path: '.+'
+
 action:
   path: /action/{image_id}/{part}/{download}
   controller: App\Controller\DefaultController::action

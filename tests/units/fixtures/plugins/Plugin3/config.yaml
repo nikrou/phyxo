@@ -1,0 +1,6 @@
+name: My Plugin
+version: 2.1.0
+author: Jean
+author_uri: https://www.phyxo.net/
+uri: https://ext.phyxo.net/extension_view.php?eid=30
+description: Fake description replace by ones in description.txt file

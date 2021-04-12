@@ -17,9 +17,12 @@ use Phyxo\Plugin\DummyPluginMaintain;
 use Phyxo\Extension\Extensions;
 use App\Repository\PluginRepository;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Yaml\Yaml;
 
 class Plugins extends Extensions
 {
+    const CONFIG_FILE = 'config.yaml';
+
     private $fs_plugins = [], $db_plugins = [], $server_plugins = [];
     private $fs_plugins_retrieved = false, $db_plugins_retrieved = false, $server_plugins_retrieved = false;
     private $default_plugins = [];
@@ -121,7 +124,7 @@ class Plugins extends Extensions
                 if (!isset($crt_db_plugin)) {
                     $error = $this->performAction('install', $plugin_id);
                     $this->getDbPlugins(null, $plugin_id);
-                } elseif ($crt_db_plugin['state'] === 'active') {
+                } elseif ($crt_db_plugin->getState() === 'active') {
                     break;
                 }
 
@@ -131,7 +134,7 @@ class Plugins extends Extensions
                 break;
 
             case 'deactivate':
-                if (!isset($crt_db_plugin) || $crt_db_plugin['state'] !== 'active') {
+                if (!isset($crt_db_plugin) || $crt_db_plugin->getState() !== 'active') {
                     break;
                 }
                 $this->pluginRepository->updateState($plugin_id, Plugin::INACTIVE);
@@ -142,7 +145,7 @@ class Plugins extends Extensions
                 if (!isset($crt_db_plugin)) {
                     break;
                 }
-                if ($crt_db_plugin['state'] === 'active') {
+                if ($crt_db_plugin->getState() === 'active') {
                     $this->performAction('deactivate', $plugin_id);
                 }
                 $this->pluginRepository->deleteById($plugin_id);
@@ -176,31 +179,29 @@ class Plugins extends Extensions
     /**
      * Get plugins defined in the plugin directory
      */
-    public function getFsPlugins()
+    public function getFsPlugins(): array
     {
         if (!$this->fs_plugins_retrieved) {
-            foreach (glob($this->plugins_root_path . '/*/main.inc.php') as $main_file) {
-                $plugin_dir = basename(dirname($main_file));
-                if (preg_match('`^[a-zA-Z0-9-_]+$`', $plugin_dir)) {
-                    $this->getFsPlugin($plugin_dir);
+            foreach (glob($this->plugins_root_path . '/*') as $plugin_dir) {
+                if (!is_readable($plugin_dir . '/' . self::CONFIG_FILE)) {
+                    continue;
                 }
+
+                $this->getFsPlugin(basename($plugin_dir));
             }
             $this->fs_plugins_retrieved = true;
         }
+
         return $this->fs_plugins;
     }
 
     /**
      * Load metadata of a plugin in `fs_plugins` array
      */
-    public function getFsPlugin(string $plugin_id)
+    public function getFsPlugin(string $plugin_id): void
     {
         $path = $this->plugins_root_path . '/' . $plugin_id;
-        $main_file = $path . '/main.inc.php';
-
-        if (!is_dir($path) && !is_readable($main_file)) {
-            return false;
-        }
+        $config_file = $path . '/' . self::CONFIG_FILE;
 
         $plugin = [
             'name' => $plugin_id,
@@ -209,38 +210,16 @@ class Plugins extends Extensions
             'description' => '',
             'author' => '',
         ];
-        $plugin_data = file_get_contents($main_file, false, null, 0, 2048);
-
-        if (preg_match("|Plugin Name:\\s*(.+)|", $plugin_data, $val)) {
-            $plugin['name'] = trim($val[1]);
-        }
-        if (preg_match("|Version:\\s*([\\w.-]+)|", $plugin_data, $val)) {
-            $plugin['version'] = trim($val[1]);
-        }
-        if (preg_match("|Plugin URI:\\s*(https?:\\/\\/.+)|", $plugin_data, $val)) {
-            $plugin['uri'] = trim($val[1]);
-        }
-        if ($desc = \Phyxo\Functions\Language::loadLanguageFile('description.' . $this->userMapper->getUser()->getLanguage() . '.txt', dirname($main_file))) {
-            $plugin['description'] = trim($desc);
-        } elseif (preg_match("|Description:\\s*(.+)|", $plugin_data, $val)) {
-            $plugin['description'] = trim($val[1]);
-        }
-        if (preg_match("|Author:\\s*(.+)|", $plugin_data, $val)) {
-            $plugin['author'] = trim($val[1]);
-        }
-        if (preg_match("|Author URI:\\s*(https?:\\/\\/.+)|", $plugin_data, $val)) {
-            $plugin['author uri'] = trim($val[1]);
-        }
-
-        if (!empty($plugin['uri']) && ($pos = strpos($plugin['uri'], 'extension_view.php?eid=')) !== false) {
-            list(, $extension) = explode('extension_view.php?eid=', $plugin['uri']);
+        $plugin_data = Yaml::parse(file_get_contents($config_file));
+        if (!empty($plugin_data['uri']) && ($pos = strpos($plugin_data['uri'], 'extension_view.php?eid=')) !== false) {
+            list(, $extension) = explode('extension_view.php?eid=', $plugin_data['uri']);
             if (is_numeric($extension)) {
-                $plugin['extension'] = $extension;
+                $plugin_data['extension'] = $extension;
             }
         }
-        $this->fs_plugins[$plugin_id] = $plugin;
 
-        return $plugin;
+        $plugin = array_merge($plugin, $plugin_data);
+        $this->fs_plugins[$plugin_id] = $plugin;
     }
 
     /**
@@ -320,7 +299,7 @@ class Plugins extends Extensions
     public function getServerPlugins($new = false, string $pem_category, string $core_version)
     {
         if (!$this->server_plugins_retrieved) {
-            $versions_to_check = $this->getVersionsToCheck($core_version, $pem_category);
+            $versions_to_check = $this->getVersionsToCheck($pem_category, $core_version);
             if (empty($versions_to_check)) {
                 return [];
             }
@@ -468,7 +447,7 @@ class Plugins extends Extensions
 
         $extract_path = $this->plugins_root_path;
         try {
-            $this->extractZipFiles($archive, 'main.inc.php', $extract_path);
+            $this->extractZipFiles($archive, self::CONFIG_FILE, $extract_path);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         } finally {

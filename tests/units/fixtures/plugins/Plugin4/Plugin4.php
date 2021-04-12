@@ -9,8 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Phyxo\Extension;
+namespace Plugins\Plugin4;
 
-class Extension
+use Phyxo\Extension\AbstractPlugin;
+
+class Plugin4 extends AbstractPlugin
 {
+    public static function getSubscribedEvents()
+    {
+        return [];
+    }
 }

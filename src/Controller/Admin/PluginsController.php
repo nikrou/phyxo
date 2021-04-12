@@ -59,11 +59,11 @@ class PluginsController extends AbstractController
                 'VERSION' => $fs_plugin['version'],
                 'DESC' => $fs_plugin['description'],
                 'AUTHOR' => $fs_plugin['author'],
-                'AUTHOR_URL' => isset($fs_plugin['author uri']) ? $fs_plugin['author uri'] : '',
+                'AUTHOR_URL' => isset($fs_plugin['author_uri']) ? $fs_plugin['author_uri'] : '',
             ];
 
             if (isset($plugins->getDbPlugins()[$plugin_id])) {
-                $tpl_plugin['state'] = $plugins->getDbPlugins()[$plugin_id]['state'];
+                $tpl_plugin['state'] = $plugins->getDbPlugins()[$plugin_id]->getState();
             } else {
                 $tpl_plugin['state'] = 'inactive';
             }

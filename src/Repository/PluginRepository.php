@@ -27,7 +27,7 @@ class PluginRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('p');
 
         if ($state !== '') {
-            $qb->where('state', ':state');
+            $qb->where('p.state = :state');
             $qb->setParameter('state', $state);
         }
 
@@ -44,8 +44,8 @@ class PluginRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('p');
         $qb->update();
-        $qb->set('version', ':version');
-        $qb->where('id = :id');
+        $qb->set('p.version', ':version');
+        $qb->where('p.id = :id');
         $qb->setParameter('id', $plugin_id);
         $qb->setParameter('version', $version);
 
@@ -56,8 +56,8 @@ class PluginRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('p');
         $qb->update();
-        $qb->set('state', ':state');
-        $qb->where('id = :id');
+        $qb->set('p.state', ':state');
+        $qb->where('p.id = :id');
         $qb->setParameter('id', $plugin_id);
         $qb->setParameter('state', $state);
 
@@ -68,8 +68,8 @@ class PluginRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('p');
         $qb->update();
-        $qb->set('state', Plugin::INACTIVE);
-        $qb->where('state = :state');
+        $qb->set('p.state', Plugin::INACTIVE);
+        $qb->where('p.state = :state');
         $qb->setParameter('state', Plugin::ACTIVE);
 
         return $qb->getQuery()->getResult();
@@ -78,7 +78,7 @@ class PluginRepository extends ServiceEntityRepository
     public function deleteById(string $plugin_id)
     {
         $qb = $this->createQueryBuilder('p');
-        $qb->where('id', ':id');
+        $qb->where('p.id = :id');
         $qb->setParameter('id', $plugin_id);
         $qb->delete();
 

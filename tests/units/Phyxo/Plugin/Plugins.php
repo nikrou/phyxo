@@ -143,12 +143,13 @@ class Plugins extends atoum
         $pluginRepository = $prophet->prophesize('App\Repository\PluginRepository');
 
         $plugins = new \Phyxo\Plugin\Plugins($pluginRepository->reveal(), $userMapper->reveal());
+        $plugins->setExtensionsURL('http://localhost');
         $plugins->setRootPath($workspace);
 
-        $this->calling($plugins)->download = function ($get_data, $archive) {
+        $plugins->download([], 'my')->will(function ($get_data, $archive) {
             // copy archive in right place
             copy(PHPWG_ZIP_PATH . '/myPlugin1-0.1.0.zip', $archive);
-        };
+        });
 
         $plugin_id = 'myPlugin1';
         $plugins->extractPluginFiles('install', 10, 'myPlugin1', $plugin_id);
@@ -238,52 +239,60 @@ class Plugins extends atoum
     protected function testSortPluginsDataProvider()
     {
         return [
-            ['author', ['plugin2', 'plugin3', 'plugin4', 'plugin1']],
-            ['id', ['plugin1', 'plugin2', 'plugin3', 'plugin4']],
-            ['status', ['plugin1', 'plugin3', 'plugin4', 'plugin2']],
-            ['name', ['plugin1', 'plugin3', 'plugin4', 'plugin2']]
+            ['author', ['Plugin2', 'Plugin3', 'Plugin4', 'plugin_lowercase', 'Plugin1']],
+            ['id', ['Plugin1', 'Plugin2', 'Plugin3', 'Plugin4', 'plugin_lowercase']],
+            ['status', ['Plugin1', 'plugin_lowercase', 'Plugin3', 'Plugin4', 'Plugin2']],
+            ['name', ['Plugin1', 'plugin_lowercase', 'Plugin3', 'Plugin4', 'Plugin2']]
         ];
     }
 
     private function getLocalPlugins()
     {
         return [
-            'plugin1' => [
+            'Plugin1' => [
                 'name' => 'A simple plugin',
                 'version' => '0.1.0',
-                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=10',
+                'uri' => 'https://ext.phyxo.net/extension_view.php?eid=10',
                 'description' => 'My first plugin',
                 'author' => 'Nicolas',
-                'author uri' => 'http://www.phyxo.net/',
+                'author_uri' => 'https://www.nikrou.net/',
                 'extension' => '10'
             ],
-            'plugin2' => [
+            'Plugin2' => [
                 'name' => 'ZZ Plugin',
                 'version' => '1.0.0',
-                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=20',
+                'uri' => 'https://ext.phyxo.net/extension_view.php?eid=20',
                 'description' => 'My second plugin',
                 'author' => 'Arthur',
                 'extension' => '20'
             ],
-            'plugin3' => [
+            'Plugin3' => [
                 'name' => 'My Plugin',
                 'version' => '2.1.0',
-                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=30',
-                'description' => 'A simple description',
+                'uri' => 'https://ext.phyxo.net/extension_view.php?eid=30',
+                'description' => 'Fake description replace by ones in description.txt file',
                 'author' => 'Jean',
-                'author uri' => 'http://www.phyxo.net/',
+                'author_uri' => 'https://www.phyxo.net/',
                 'extension' => '30'
             ],
-            'plugin4' => [
+            'Plugin4' => [
                 'name' => 'Photos Plugin',
                 'version' => '3.1.3',
-                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=40',
+                'uri' => 'https://ext.phyxo.net/extension_view.php?eid=40',
                 'description' => 'The best plugin',
                 'author' => 'Jean',
-                'author uri' => 'http://www.phyxo.net/',
+                'author_uri' => 'https://www.phyxo.net/',
                 'extension' => '40'
             ],
-
+            'plugin_lowercase' => [
+                'name' => 'Awesome plugin',
+                'version' => '0.4.0',
+                'uri' => 'https://ext.phyxo.net/extension_view.php?eid=50',
+                'description' => 'Another plugin',
+                'author' => 'Momo',
+                'author_uri' => 'https://www.momo.net/',
+                'extension' => '50'
+            ],
         ];
     }
 }

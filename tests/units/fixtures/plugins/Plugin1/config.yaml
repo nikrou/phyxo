@@ -1,0 +1,6 @@
+name: A simple plugin
+version: 0.1.0
+author: Nicolas
+author_uri: https://www.nikrou.net/
+uri: https://ext.phyxo.net/extension_view.php?eid=10
+description: My first plugin

@@ -20,18 +20,20 @@ use Phyxo\Image\SizingParams;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\Mime\FileinfoMimeTypeGuesser;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Component\Mime\MimeTypeGuesserInterface;
 
 class MediaController extends CommonController
 {
     protected $image_std_params;
-    private $rotation_angle, $original_size;
+    private $rotation_angle, $original_size, $mimeTypes;
 
-    public function index(Request $request, string $path, string $derivative, string $sizes, string $image_extension, string $mediaCacheDir, string $uploadDir, Conf $conf,
-                        LoggerInterface $logger, ImageStandardParams $image_std_params, ImageRepository $imageRepository, string $rootProjectDir)
+    public function index(Request $request, string $path, string $derivative, string $sizes, string $image_extension, string $mediaCacheDir, Conf $conf,
+                        LoggerInterface $logger, ImageStandardParams $image_std_params, ImageRepository $imageRepository, string $rootProjectDir, MimeTypeGuesserInterface $mimeTypes)
     {
+        $this->mimeTypes = $mimeTypes;
+
         $image_path = sprintf('%s.%s', $path, $image_extension);
         if (!empty($sizes)) {
             $derivative_path = sprintf('%s-%s%s.%s', $path, $derivative, $sizes, $image_extension);
@@ -338,16 +340,10 @@ class MediaController extends CommonController
     {
         $response = new BinaryFileResponse($image_path);
         $response->setEtag(md5_file($image_path));
-        $response->setAutoLastModified((new \DateTime())->setTimestamp(filemtime($image_path)));
+        $response->setLastModified((new \DateTime())->setTimestamp(filemtime($image_path)));
         $response->setMaxAge(3600); //@TODO : read from conf
         $response->setPublic();
-
-        $mimeTypeGuesser = new FileinfoMimeTypeGuesser();
-        if ($mimeTypeGuesser->isGuesserSupported()) {
-            $response->headers->set('Content-Type', $mimeTypeGuesser->guessMimeType($image_path));
-        } else {
-            $response->headers->set('Content-Type', 'text/plain');
-        }
+        $response->headers->set('Content-Type', $this->mimeTypes->guessMimeType($image_path));
 
         return $response;
     }

@@ -33,6 +33,7 @@
 	{% block stylesheets %}
 	    <link rel="stylesheet" href="{{asset('theme.css')}}">
 	{% endblock %}
+	{{publicHeadContent()}}
     </head>
     <body>
 	<div id="wrapper">
@@ -56,12 +57,12 @@
 				    </div>
 				</form>
 			    {% endif %}
-			        {% block menubar %}
-				        {{ include('_menubar.html.twig') }}
-			        {% endblock %}
-			      </div>
-		      </div>
-		    </nav>
+			    {% block menubar %}
+				{{include('_menubar.html.twig')}}
+			    {% endblock %}
+			</div>
+		    </div>
+		</nav>
 	    {% endif %}
 
 	    <div class="main-content">
@@ -69,17 +70,18 @@
 	    </div>
 
 	    <div class="copyright container">
-		    <div class="text-center">
-		      {{'Powered by'|trans}}&nbsp;<a href="{{PHYXO_URL}}">Phyxo</a>&nbsp;{{PHYXO_VERSION}}
-		    </div>
+		<div class="text-center">
+		    {{'Powered by'|trans}}&nbsp;<a href="{{PHYXO_URL}}">Phyxo</a>&nbsp;{{PHYXO_VERSION}}
+		</div>
 	    </div>
 	    {% block html_footer %}{% endblock %}
 	    {% block javascripts %}
-		    <script src="{{asset('theme.js')}}"></script>
-		    <script>
-		      var phyxo_root_url = "{{app.request.basepath}}/";
-		    </script>
+		<script src="{{asset('theme.js')}}"></script>
+		<script>
+		 var phyxo_root_url = "{{app.request.basepath}}/";
+		</script>
 	    {% endblock %}
-	  </div>
-  </body>
+	    {{publicFooterContent()}}
+	</div>
+    </body>
 </html>

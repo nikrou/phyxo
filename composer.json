@@ -62,10 +62,11 @@
 	"bin-dir": "bin"
     },
     "autoload": {
-	"psr-4": {
-	    "Phyxo\\": "src/Phyxo/",
-	    "App\\": "src/"
-	}
+        "psr-4": {
+            "Phyxo\\": "src/Phyxo/",
+            "App\\": "src/",
+            "Plugins\\": "plugins/"
+        }
     },
     "autoload-dev": {
         "psr-4": {
