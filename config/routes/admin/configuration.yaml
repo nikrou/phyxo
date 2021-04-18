@@ -1,11 +1,11 @@
 admin_configuration_sizes_restore:
   path: /configuration/sizes/restore
-  controller: App\Controller\Admin\ConfigurationController:sizeRestore
+  controller: App\Controller\Admin\AdminConfigurationController:sizeRestore
 
 # options
 admin_configuration:
   path: /configuration/{section}
-  controller: App\Controller\Admin\ConfigurationController:index
+  controller: App\Controller\Admin\AdminConfigurationController:index
   defaults:
     section: main
   requirements:
@@ -13,7 +13,7 @@ admin_configuration:
 
 admin_configuration_update:
   path: /configuration/{section}/update
-  controller: App\Controller\Admin\ConfigurationController:update
+  controller: App\Controller\Admin\AdminConfigurationController:update
   defaults:
     section: main
   requirements:

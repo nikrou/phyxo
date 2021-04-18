@@ -1,6 +1,6 @@
 admin_photo:
   path: /photo/{image_id}/{category_id}
-  controller: App\Controller\Admin\PhotoController:edit
+  controller: App\Controller\Admin\AdminPhotoController:edit
   defaults:
     category_id: null
   requirements:
@@ -9,7 +9,7 @@ admin_photo:
 
 admin_photo_delete:
   path: /photo/{image_id}/delete/{category_id}
-  controller: App\Controller\Admin\PhotoController:delete
+  controller: App\Controller\Admin\AdminPhotoController:delete
   methods: ['POST']
   defaults:
     category_id: null
@@ -19,7 +19,7 @@ admin_photo_delete:
 
 admin_photo_sync_metadata:
   path: /photo/{image_id}/sync/{category_id}
-  controller: App\Controller\Admin\PhotoController:syncMetadata
+  controller: App\Controller\Admin\AdminPhotoController:syncMetadata
   defaults:
     category_id: null
   requirements:
@@ -28,7 +28,7 @@ admin_photo_sync_metadata:
 
 admin_photo_coi:
   path: /photo/{image_id}/coi/{category_id}
-  controller: App\Controller\Admin\PhotoController:coi
+  controller: App\Controller\Admin\AdminPhotoController:coi
   defaults:
     category_id: null
   requirements:

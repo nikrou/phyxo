@@ -1,6 +1,6 @@
 admin_album:
   path: /album/{album_id}/edit/{parent_id}
-  controller: App\Controller\Admin\AlbumController:properties
+  controller: App\Controller\Admin\AdminAlbumController:properties
   defaults:
     parent_id: null
   requirements:
@@ -9,7 +9,7 @@ admin_album:
 
 admin_album_sort_order:
   path: /album/{album_id}/sort_order/{parent_id}
-  controller: App\Controller\Admin\AlbumController:sort_order
+  controller: App\Controller\Admin\AdminAlbumController:sort_order
   defaults:
     parent_id: null
   requirements:
@@ -18,7 +18,7 @@ admin_album_sort_order:
 
 admin_album_permissions:
   path: /album/{album_id}/permissions/{parent_id}
-  controller: App\Controller\Admin\AlbumController:permissions
+  controller: App\Controller\Admin\AdminAlbumController:permissions
   defaults:
     parent_id: null
   requirements:
@@ -27,7 +27,7 @@ admin_album_permissions:
 
 admin_album_notification:
   path: /album/{album_id}/notification/{parent_id}
-  controller: App\Controller\Admin\AlbumController:notification
+  controller: App\Controller\Admin\AdminAlbumController:notification
   defaults:
     parent_id: null
   requirements:
@@ -36,7 +36,7 @@ admin_album_notification:
 
 admin_album_create:
   path: /album/create/{parent_id}
-  controller: App\Controller\Admin\AlbumController:create
+  controller: App\Controller\Admin\AdminAlbumController:create
   methods: ['POST']
   defaults:
     parent_id: null
@@ -45,7 +45,7 @@ admin_album_create:
 
 admin_album_delete:
   path: /album/{album_id}/delete/{parent_id}
-  controller: App\Controller\Admin\AlbumController:delete
+  controller: App\Controller\Admin\AdminAlbumController:delete
   defaults:
     parent_id: null
   requirements:

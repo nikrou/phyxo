@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class NotificationController extends AbstractController
+class AdminNotificationController extends AbstractController
 {
     private $translator, $authorizationChecker;
     private $conf_types = [

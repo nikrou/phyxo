@@ -12,29 +12,29 @@ admin_upgrade:
 
 admin_check_upgrade:
   path: /check_upgrade
-  controller: App\Controller\Admin\DashboardController::index
+  controller: App\Controller\Admin\AdminDashboardController::index
   defaults:
     check_upgrade: true
 
 admin_home:
   path: /
-  controller: App\Controller\Admin\DashboardController::index
+  controller: App\Controller\Admin\AdminDashboardController::index
   defaults:
     check_upgrade: false
 
 admin_menubar:
   path: /menubar
-  controller: App\Controller\Admin\MenubarController:index
+  controller: App\Controller\Admin\AdminMenubarController:index
 
 admin_menubar_update:
   path: /menubar/update
-  controller: App\Controller\Admin\MenubarController:update
+  controller: App\Controller\Admin\AdminMenubarController:update
   methods: POST
 
 admin_menubar_navigation:
   path: /menubar_navigation
-  controller: App\Controller\Admin\MenubarController:navigation
+  controller: App\Controller\Admin\AdminMenubarController:navigation
 
 api:
   path: /api
-  controller: App\Controller\Admin\ApiController:index
+  controller: App\Controller\Admin\AdminApiController:index

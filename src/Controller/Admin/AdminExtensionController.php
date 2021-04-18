@@ -22,7 +22,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class ExtensionController extends AbstractController
+class AdminExtensionController extends AbstractController
 {
     protected $params, $conf;
 

@@ -36,7 +36,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class BatchManagerController extends AbstractController
+class AdminBatchManagerController extends AbstractController
 {
     private $translator, $derivativeService;
 

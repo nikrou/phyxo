@@ -21,7 +21,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class SiteController extends AbstractController
+class AdminSiteController extends AbstractController
 {
     public function index(Request $request, KernelInterface $kernel, CsrfTokenManagerInterface $csrfTokenManager,
                         AlbumMapper $albumMapper, TranslatorInterface $translator, SiteRepository $siteRepository)

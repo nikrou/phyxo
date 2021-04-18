@@ -31,7 +31,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class HistoryController extends AbstractController
+class AdminHistoryController extends AbstractController
 {
     private $image_std_params, $types, $display_thumbnails, $translator;
 

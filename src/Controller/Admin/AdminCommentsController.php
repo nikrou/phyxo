@@ -23,7 +23,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class CommentsController  extends AbstractController
+class AdminCommentsController  extends AbstractController
 {
     private $translator;
 

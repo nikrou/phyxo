@@ -1,9 +1,9 @@
 admin_users:
   path: /users
-  controller: App\Controller\Admin\UsersController:list
+  controller: App\Controller\Admin\AdminUsersController:list
 
 admin_user_perm:
   path: /user/{user_id}/perm
-  controller: App\Controller\Admin\UsersController:perm
+  controller: App\Controller\Admin\AdminUsersController:perm
   requirements:
     user_id: \d+

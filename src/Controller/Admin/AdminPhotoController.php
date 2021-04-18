@@ -30,7 +30,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class PhotoController extends AbstractController
+class AdminPhotoController extends AbstractController
 {
     private $translator;
 

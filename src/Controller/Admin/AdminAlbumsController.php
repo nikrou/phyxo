@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class AlbumsController extends AbstractController
+class AdminAlbumsController extends AbstractController
 {
     private $translator;
 

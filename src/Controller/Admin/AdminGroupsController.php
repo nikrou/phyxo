@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class GroupsController extends AbstractController
+class AdminGroupsController extends AbstractController
 {
     private $translator;
 

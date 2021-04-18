@@ -35,7 +35,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class AlbumController extends AbstractController
+class AdminAlbumController extends AbstractController
 {
     private $translator;
 

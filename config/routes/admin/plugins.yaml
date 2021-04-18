@@ -1,18 +1,18 @@
 # plugins
 admin_plugins_installed:
   path: /plugins
-  controller: App\Controller\Admin\PluginsController::installed
+  controller: App\Controller\Admin\AdminPluginsController::installed
 
 admin_plugins_new:
   path: /plugins/new
-  controller: App\Controller\Admin\PluginsController::new
+  controller: App\Controller\Admin\AdminPluginsController::new
 
 admin_plugins_update:
   path: /plugins/update
-  controller: App\Controller\Admin\PluginsController::update
+  controller: App\Controller\Admin\AdminPluginsController::update
 
 admin_plugins_install:
   path: /plugins/install/{revision}
-  controller: App\Controller\Admin\PluginsController::install
+  controller: App\Controller\Admin\AdminPluginsController::install
   requirements:
     revision: \d+

@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class LanguagesController extends AbstractController
+class AdminLanguagesController extends AbstractController
 {
     private $translator;
 

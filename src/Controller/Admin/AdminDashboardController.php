@@ -29,7 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class DashboardController extends AbstractController
+class AdminDashboardController extends AbstractController
 {
     public function index(Request $request, bool $check_upgrade = false, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
                           UserRepository $userRepository, GroupRepository $groupRepository, HttpClientInterface $client, AlbumRepository $albumRepository,

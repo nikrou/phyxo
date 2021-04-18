@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class UpdateController extends AbstractController
+class AdminUpdateController extends AbstractController
 {
     private $translator, $defaultTheme;
 

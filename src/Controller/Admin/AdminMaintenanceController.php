@@ -33,7 +33,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class MaintenanceController extends AbstractController
+class AdminMaintenanceController extends AbstractController
 {
     public function index(Request $request, ?string $action, Conf $conf, ParameterBagInterface $params, HistoryRepository $historyRepository, KernelInterface $kernel,
                         HistorySummaryRepository $historySummaryRepository, UserMapper $userMapper, RateMapper $rateMapper, TagMapper $tagMapper,

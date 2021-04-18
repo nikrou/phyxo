@@ -16,7 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
-class ApiController extends AbstractController
+class AdminApiController extends AbstractController
 {
     public function index(Request $request, CsrfTokenManagerInterface $csrfTokenManager)
     {

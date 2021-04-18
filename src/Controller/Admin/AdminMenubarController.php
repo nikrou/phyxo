@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class MenubarController extends AbstractController
+class AdminMenubarController extends AbstractController
 {
     public function index(Request $request, Conf $conf)
     {

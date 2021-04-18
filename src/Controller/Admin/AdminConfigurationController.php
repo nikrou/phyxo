@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class ConfigurationController extends AbstractController
+class AdminConfigurationController extends AbstractController
 {
     private $main_checkboxes, $sizes_checkboxes, $comments_checkboxes, $display_checkboxes, $display_info_checkboxes, $sort_fields, $comments_order, $mail_themes;
     private $translator;

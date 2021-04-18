@@ -20,7 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class AlbumsOptionsController extends AbstractController
+class AdminAlbumsOptionsController extends AbstractController
 {
     private $translator;
 

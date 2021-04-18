@@ -202,7 +202,7 @@ class SecurityController extends CommonController
                     }
                 }
 
-                // @TODO: check language is in existing language ; same in ConfigurationController::default
+                // @TODO: check language is in existing language ; same in AdminConfigurationController::default
                 if ($request->request->get('language')) {
                     $request->getSession()->set('_locale', $request->request->get('language'));
                     $this->getUser()->getUserInfos()->setLanguage($request->request->get('language'));

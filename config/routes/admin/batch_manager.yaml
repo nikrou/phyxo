@@ -1,6 +1,6 @@
 admin_batch_manager_global:
   path: /batch/global/{filter}/{value}
-  controller: App\Controller\Admin\BatchManagerController:global
+  controller: App\Controller\Admin\AdminBatchManagerController:global
   defaults:
     filter: null
     value: null
@@ -10,7 +10,7 @@ admin_batch_manager_global:
 
 admin_batch_manager_global__start:
   path: /batch/global/{start}/{filter}/{value}
-  controller: App\Controller\Admin\BatchManagerController:global
+  controller: App\Controller\Admin\AdminBatchManagerController:global
   defaults:
     filter: null
     value: null
@@ -20,7 +20,7 @@ admin_batch_manager_global__start:
 
 admin_batch_manager_global_empty_caddie:
   path: /batch/global/empty_caddie/{start}
-  controller: App\Controller\Admin\BatchManagerController:emptyCaddie
+  controller: App\Controller\Admin\AdminBatchManagerController:emptyCaddie
   defaults:
     start: 0
   requirements:
@@ -28,7 +28,7 @@ admin_batch_manager_global_empty_caddie:
 
 admin_batch_manager_unit:
   path: /batch/unit/{filter}/{value}
-  controller: App\Controller\Admin\BatchManagerController:unit
+  controller: App\Controller\Admin\AdminBatchManagerController:unit
   defaults:
     filter: null
     value: null
@@ -38,7 +38,7 @@ admin_batch_manager_unit:
 
 admin_batch_manager_unit__start:
   path: /batch/unit/{start}/{filter}/{value}
-  controller: App\Controller\Admin\BatchManagerController:unit
+  controller: App\Controller\Admin\AdminBatchManagerController:unit
   defaults:
     filter: null
     value: null
