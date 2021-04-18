@@ -66,7 +66,7 @@ class Extension
 
         try {
             if ($type === 'plugins') {
-                if (isset($extension->getDbPlugins()[$extension_id]) && $extension->getDbPlugins()[$extension_id]['state'] === 'active') {
+                if (isset($extension->getDbPlugins()[$extension_id]) && $extension->getDbPlugins()[$extension_id]->getState() === Plugin::ACTIVE) {
                     $extension->performAction('deactivate', $extension_id);
 
                     return;

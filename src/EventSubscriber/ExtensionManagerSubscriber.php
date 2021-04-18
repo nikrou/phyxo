@@ -54,8 +54,13 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $request = $event->getRequest();
+        if ($request->attributes->get('_route') === 'admin_plugins_installed') {
+            return;
+        }
+
         foreach ($this->plugins->getDbPlugins(Plugin::ACTIVE) as $plugin) {
-            $className = sprintf(AbstractPlugin::CLASSNAME_FORMAT, $plugin->getId(), ucfirst($plugin->getId()));
+            $className = AbstractPlugin::getClassName($plugin->getId());
 
             if (class_exists($className) && method_exists($className, 'getSubscribedEvents')) {
                 $this->eventDispatcher->addSubscriber(new $className($this->assetsManager));

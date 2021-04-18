@@ -47,5 +47,11 @@ class PluginAssetExtension extends AbstractExtension
 
     public function publicFooterContent()
     {
+        $scripts = [];
+        foreach ($this->assetsManager->getScripts() as $script) {
+            $scripts[] = sprintf('<script src="%s"></script>', $this->router->generate('plugin_asset', ['id' => $script['id'], 'path' => $script['path']]));
+        }
+
+        return implode('', $scripts);
     }
 }

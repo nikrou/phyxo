@@ -25,18 +25,38 @@ abstract class AbstractPlugin implements EventSubscriberInterface
         $this->assetsManager = $assetsManager;
     }
 
-    public function addPluginCss(string $plugin_id, string $css)
+    public static function getClassName(string $plugin_id): string
+    {
+        return sprintf(self::CLASSNAME_FORMAT, $plugin_id, ucfirst($plugin_id));
+    }
+
+    public function addPluginCss(string $plugin_id, string $css): void
     {
         $this->addCss('plugin', $plugin_id, $css);
     }
 
-    public function addThemeCss(string $theme_id, string $css)
+    public function addThemeCss(string $theme_id, string $css): void
     {
         $this->addCss('theme', $theme_id, $css);
     }
 
-    private function addCss(string $extension_type, string $extension_id, string $css)
+    private function addCss(string $extension_type, string $extension_id, string $css): void
     {
         $this->assetsManager->addStylesheet($extension_type, $extension_id, $css);
+    }
+
+    public function addPluginScript(string $plugin_id, string $js): void
+    {
+        $this->addJs('plugin', $plugin_id, $js);
+    }
+
+    public function addThemeScript(string $theme_id, string $js): void
+    {
+        $this->addJs('theme', $theme_id, $js);
+    }
+
+    private function addJs(string $extension_type, string $extension_id, string $js): void
+    {
+        $this->assetsManager->addScript($extension_type, $extension_id, $js);
     }
 }

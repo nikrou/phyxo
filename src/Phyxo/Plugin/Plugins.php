@@ -109,12 +109,8 @@ class Plugins extends Extensions
 
                     $this->getFsPlugin($plugin_id); // refresh plugins list
                     $new_version = $this->fs_plugins[$plugin_id]['version'];
-
-                    $plugin_maintain = $this->buildMaintainClass($plugin_id);
                     $plugin_maintain->update($previous_version, $new_version, $error);
-                    if ($new_version !== 'auto') {
-                        $this->pluginRepository->updateVersion($plugin_id, $new_version);
-                    }
+                    $this->pluginRepository->updateVersion($plugin_id, $new_version);
                 } catch (\Exception $e) {
                     $error = $e->getMessage();
                 }
@@ -123,7 +119,7 @@ class Plugins extends Extensions
             case 'activate':
                 if (!isset($crt_db_plugin)) {
                     $error = $this->performAction('install', $plugin_id);
-                    $this->getDbPlugins(null, $plugin_id);
+                    $this->getDbPlugins('', $plugin_id);
                 } elseif ($crt_db_plugin->getState() === 'active') {
                     break;
                 }
@@ -229,7 +225,7 @@ class Plugins extends Extensions
      * @param string $id returns only data about given plugin
      * @return array
      */
-    public function getDbPlugins($state = '', $id = '')
+    public function getDbPlugins(string $state = '', string $id = ''): array
     {
         if (!$this->db_plugins_retrieved) {
             $this->db_plugins = [];
