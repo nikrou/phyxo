@@ -210,7 +210,7 @@ class Updates
         $get_data = array_merge($get_data, [
             'last_revision_only' => 'true',
             'version' => implode(',', $versions_to_check),
-            'lang' => substr($this->userMapper->getUser()->getLanguage(), 0, 2),
+            'lang' => $this->userMapper->getUser()->getLang(),
             'get_nb_downloads' => 'true',
             'format' => 'json'
         ]);

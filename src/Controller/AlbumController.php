@@ -40,7 +40,7 @@ class AlbumController extends CommonController
 
         $album = $albumMapper->getRepository()->find($category_id);
 
-        if (in_array($category_id, $this->getUser()->getForbiddenCategories())) {
+        if (in_array($category_id, $this->getUser()->getUserInfos()->getForbiddenCategories())) {
             throw new AccessDeniedHttpException("Access denied to that album");
         }
 
@@ -178,12 +178,12 @@ class AlbumController extends CommonController
         }
 
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum($album->getId(), $this->getUser()->getForbiddenCategories(), $order_by) as $image) {
+        foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum($album->getId(), $this->getUser()->getUserInfos()->getForbiddenCategories(), $order_by) as $image) {
             $tpl_params['items'][] = $image['id'];
         }
 
         if (count($tpl_params['items']) > 0) {
-            $nb_image_page = $this->getUser()->getNbImagePage();
+            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
             if (count($tpl_params['items']) > $nb_image_page) {
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
@@ -235,17 +235,17 @@ class AlbumController extends CommonController
 
         $album = $albumMapper->getRepository()->find($category_id);
         $subcat_ids[] = $album->getId();
-        foreach ($albumMapper->getRepository()->findAllowedSubAlbums($album->getUppercats(), $this->getUser()->getForbiddenCategories()) as $sub_album) {
+        foreach ($albumMapper->getRepository()->findAllowedSubAlbums($album->getUppercats(), $this->getUser()->getUserInfos()->getForbiddenCategories()) as $sub_album) {
             $subcat_ids[] = $sub_album->getId();
         }
 
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum($album->getId(), $this->getUser()->getForbiddenCategories(), $conf['order_by']) as $image) {
+        foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum($album->getId(), $this->getUser()->getUserInfos()->getForbiddenCategories(), $conf['order_by']) as $image) {
             $tpl_params['items'][] = $image['id'];
         }
 
         if (count($tpl_params['items']) > 0) {
-            $nb_image_page = $this->getUser()->getNbImagePage();
+            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
             if (count($tpl_params['items']) > $nb_image_page) {
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
@@ -296,12 +296,12 @@ class AlbumController extends CommonController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
 
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->searchDistinctId($this->getUser()->getForbiddenCategories(), $conf['order_by']) as $image) {
+        foreach ($imageMapper->getRepository()->searchDistinctId($this->getUser()->getUserInfos()->getForbiddenCategories(), $conf['order_by']) as $image) {
             $tpl_params['items'][] = $image['id'];
         }
 
         if (count($tpl_params['items']) > 0) {
-            $nb_image_page = $this->getUser()->getNbImagePage();
+            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
             if (count($tpl_params['items']) > $nb_image_page) {
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
@@ -335,9 +335,8 @@ class AlbumController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function albums(Request $request, Conf $conf, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
-                            ImageStandardParams $image_std_params, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator,
-                            AlbumMapper $albumMapper, ImageAlbumRepository $imageAlbumRepository)
+    public function albums(Request $request, Conf $conf, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository, ImageStandardParams $image_std_params,
+                            ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator, AlbumMapper $albumMapper)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -473,7 +472,7 @@ class AlbumController extends CommonController
         $user_representative_updates_for = [];
 
         $recent_date = new \DateTime();
-        $recent_date->sub(new \DateInterval(sprintf('P%dD', $this->getUser()->getRecentPeriod())));
+        $recent_date->sub(new \DateInterval(sprintf('P%dD', $this->getUser()->getUserInfos()->getRecentPeriod())));
         $infos_of_images = [];
 
         list($is_child_date_last, $albums, $image_ids) = $albumMapper->getAlbumThumbnails($this->getUser(), $albumMapper->getRepository()->findRecentAlbums($recent_date));

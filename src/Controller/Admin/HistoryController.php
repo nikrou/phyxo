@@ -557,7 +557,7 @@ class HistoryController extends AbstractController
     protected function dateFormat(int $timestamp, string $format): string
     {
         $date_time = (new \DateTime())->setTimestamp($timestamp);
-        $intl_date_formatter = new \IntlDateFormatter($this->getUser()->getLanguage(), \IntlDateFormatter::FULL, \IntlDateFormatter::NONE, null, null, $format);
+        $intl_date_formatter = new \IntlDateFormatter($this->getUser()->getUserInfos()->getLanguage(), \IntlDateFormatter::FULL, \IntlDateFormatter::NONE, null, null, $format);
 
         return $intl_date_formatter->format($date_time);
     }

@@ -593,7 +593,7 @@ class BatchManagerController extends AbstractController
 
                 case 'favorites':
                     $user_favorites = [];
-                    foreach ($favoriteRepository->findUserFavorites($this->getUser()->getId(), $this->getUser()->getForbiddenCategories()) as $favorite) {
+                    foreach ($favoriteRepository->findUserFavorites($this->getUser()->getId(), $this->getUser()->getUserInfos()->getForbiddenCategories()) as $favorite) {
                         $user_favorites[] = $favorite->getImage()->geId();
                     }
                     $filter_sets[] = $user_favorites;
@@ -718,7 +718,7 @@ class BatchManagerController extends AbstractController
         if (!empty($bulk_manager_filter['tags'])) {
             $image_ids = [];
             foreach ($imageMapper->getRepository()->getImageIdsForTags(
-                $this->getUser()->getForbiddenCategories(), $bulk_manager_filter['tags'], $bulk_manager_filter['tag_mode']) as $image) {
+                $this->getUser()->getUserInfos()->getForbiddenCategories(), $bulk_manager_filter['tags'], $bulk_manager_filter['tag_mode']) as $image) {
                 $image_ids[] = $image->getId();
             }
             $filter_sets[] = $image_ids;

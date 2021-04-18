@@ -403,7 +403,7 @@ class ConfigurationController extends AbstractController
             $themes[$theme->getId()] = $theme->getName();
         }
 
-        $guestUserInfos = $userMapper->getDefaultUser();
+        $guestUserInfos = $userMapper->getDefaultUser()->getUserInfos();
 
         $tpl_params['radio_options'] = [
             'true' => $this->translator->trans('Yes', [], 'admin'),
@@ -414,7 +414,7 @@ class ConfigurationController extends AbstractController
             'GUEST_ACTIVATE_COMMENTS' => $conf['activate_comments'],
             'GUEST_NB_IMAGE_PAGE' => $guestUserInfos->getNbImagePage(),
             'GUEST_RECENT_PERIOD' => $guestUserInfos->getRecentPeriod(),
-            'GUEST_EXPAND' => $guestUserInfos->getExpand() ? 'true' : 'false',
+            'GUEST_EXPAND' => $guestUserInfos->wantExpand(),
             'GUEST_NB_COMMENTS' => $guestUserInfos->getShowNbComments() ? 'true' : 'false',
             'GUEST_NB_HITS' => $guestUserInfos->getShowNbHits() ? 'true' : 'false',
         ]);

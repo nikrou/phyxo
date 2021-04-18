@@ -44,7 +44,7 @@ class SearchMapper
 
         if (isset($rules['fields']['tags'])) {
             foreach ($this->imageMapper->getRepository()->getImageIdsForTags(
-                        $user->getForbiddenCategories(),
+                        $user->getUserInfos()->getForbiddenCategories(),
                         $rules['fields']['tags']['words'],
                         $rules['fields']['tags']['mode']) as $image) {
                 $tag_items[] = $image->getId();
@@ -55,7 +55,7 @@ class SearchMapper
             $rules['fields']['cat']['words'] = array_merge(array_values($rules['fields']['cat']['words']), $this->albumRepository->getSubcatIds($rules['fields']['cat']['words']));
         }
 
-        foreach ($this->imageMapper->getRepository()->searchImages($user->getForbiddenCategories(), $rules) as $image) {
+        foreach ($this->imageMapper->getRepository()->searchImages($user->getUserInfos()->getForbiddenCategories(), $rules) as $image) {
             $items[] = $image->getId();
         }
 
@@ -81,7 +81,7 @@ class SearchMapper
     {
         $items = [];
 
-        foreach ($this->imageMapper->getRepository()->qSearchImages($user->getForbiddenCategories(), $q) as $image) {
+        foreach ($this->imageMapper->getRepository()->qSearchImages($user->getUserInfos()->getForbiddenCategories(), $q) as $image) {
             $items[] = $image->getId();
         }
 

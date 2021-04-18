@@ -155,12 +155,12 @@ class TagController extends CommonController
         $tpl_params['TITLE'] = $this->getTagsContentTitle($tpl_params['tags'], $translator);
 
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->getImageIdsForTags($this->getUser()->getForbiddenCategories(), $requested_tag_ids) as $image) {
+        foreach ($imageMapper->getRepository()->getImageIdsForTags($this->getUser()->getUserInfos()->getForbiddenCategories(), $requested_tag_ids) as $image) {
             $tpl_params['items'][] = $image->getId();
         }
 
         if (count($tpl_params['items']) > 0) {
-            $nb_image_page = $this->getUser()->getNbImagePage();
+            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                 $this->get('router'),

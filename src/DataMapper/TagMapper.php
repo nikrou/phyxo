@@ -112,7 +112,7 @@ class TagMapper
     public function getAvailableTags(User $user)
     {
         $tags = [];
-        $available_tags = $this->imageTagRepository->getAvailableTags($user->getId(), $user->getForbiddenCategories(), $this->conf['show_pending_added_tags'] ?? false);
+        $available_tags = $this->imageTagRepository->getAvailableTags($user->getId(), $user->getUserInfos()->getForbiddenCategories(), $this->conf['show_pending_added_tags'] ?? false);
         foreach ($available_tags as $row) {
             $tag = $row[0]->getTag();
             if (isset($tags[$tag->getId()])) {

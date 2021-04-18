@@ -16,6 +16,7 @@ use App\Entity\ImageAlbum;
 use App\Entity\User;
 use App\Entity\UserCacheAlbum;
 use App\Entity\UserInfos;
+use App\Repository\UserCacheAlbumRepository;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\Server;
 use Phyxo\Image\DerivativeImage;
@@ -40,7 +41,7 @@ class Category
         //------------------------------------------------- get the related categories
         $album_ids = [];
 
-        $forbidden_categories = $service->getUserMapper()->getUser()->getForbiddenCategories();
+        $forbidden_categories = $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories();
         $albumsList = null;
 
         if ($params['recursive']) {
@@ -88,7 +89,7 @@ class Category
         if ($params['public']) {
             $public_and_visible = true;
         } elseif ($service->getUserMapper()->isAdmin()) {
-            $forbidden_categories = $service->getUserMapper()->getUser()->getForbiddenCategories();
+            $forbidden_categories = $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories();
         }
 
         $albumsList = null;
@@ -129,8 +130,9 @@ class Category
          * or else the real guest may see thumbnail that he should not
          */
         if (!$params['public'] && count($user_representative_updates_for)) {
+            $managerRegistry = $service->getManagerRegistry();
             foreach ($user_representative_updates_for as $album_id => $image_id) {
-                $service->getManagerRegistry()->getRepository(UserCacheAlbum::class)->updateUserRepresentativePicture($service->getUserMapper()->getUser()->getId(), $album_id, $image_id);
+                $managerRegistry->getRepository(UserCacheAlbum::class)->updateUserRepresentativePicture($service->getUserMapper()->getUser()->getId(), $album_id, $image_id);
             }
         }
 

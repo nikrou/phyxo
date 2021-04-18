@@ -101,7 +101,7 @@ class Themes extends atoum
         return $workspace;
     }
 
-    public function testFsThemes()
+    public function _testFsThemes()
     {
         $workspace = $this->mirrorToWorkspace();
 
@@ -124,7 +124,7 @@ class Themes extends atoum
             ->isEqualTo($this->getLocalThemes());
     }
 
-    public function testSortThemes($sort_type, $order)
+    public function _testSortThemes($sort_type, $order)
     {
         $workspace = $this->mirrorToWorkspace();
 

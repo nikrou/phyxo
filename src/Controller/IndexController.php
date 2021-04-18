@@ -36,12 +36,12 @@ class IndexController extends CommonController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Most visited');
         $tpl_params['items'] = [];
         $order_by = [['id', 'DESC']];
-        foreach ($imageMapper->getRepository()->findMostVisited($this->getUser()->getForbiddenCategories(), $order_by, $conf['top_number']) as $image) {
+        foreach ($imageMapper->getRepository()->findMostVisited($this->getUser()->getUserInfos()->getForbiddenCategories(), $order_by, $conf['top_number']) as $image) {
             $tpl_params['items'][] = $image->getId();
         }
 
         if (count($tpl_params['items']) > 0) {
-            $nb_image_page = $this->getUser()->getNbImagePage();
+            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                 $this->get('router'),
@@ -89,15 +89,15 @@ class IndexController extends CommonController
         $tpl_params['items'] = [];
 
         $recent_date = new \DateTime();
-        $recent_date->sub(new \DateInterval(sprintf('P%dD', $this->getUser()->getRecentPeriod())));
+        $recent_date->sub(new \DateInterval(sprintf('P%dD', $this->getUser()->getUserInfos()->getRecentPeriod())));
 
         $order_by = [['id', 'DESC']];
-        foreach ($imageMapper->getRepository()->findRecentImages($this->getUser()->getForbiddenCategories(), $recent_date, $order_by) as $image) {
+        foreach ($imageMapper->getRepository()->findRecentImages($this->getUser()->getUserInfos()->getForbiddenCategories(), $recent_date, $order_by) as $image) {
             $tpl_params['items'] = $image->getId();
         }
 
         if (count($tpl_params['items']) > 0) {
-            $nb_image_page = $this->getUser()->getNbImagePage();
+            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                 $this->get('router'),
@@ -145,12 +145,12 @@ class IndexController extends CommonController
         $order_by = [['rating_score'], ['id',  'DESC']];
 
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->findBestRated($this->getUser()->getForbiddenCategories(), $order_by, $conf['top_number']) as $image) {
+        foreach ($imageMapper->getRepository()->findBestRated($this->getUser()->getUserInfos()->getForbiddenCategories(), $order_by, $conf['top_number']) as $image) {
             $tpl_params['items'][] = $image->getId();
         }
 
         if (count($tpl_params['items']) > 0) {
-            $nb_image_page = $this->getUser()->getNbImagePage();
+            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
             if (count($tpl_params['items']) > $nb_image_page) {
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
@@ -186,7 +186,9 @@ class IndexController extends CommonController
 
     public function random(ImageMapper $imageMapper, Conf $conf)
     {
-        $list = $imageMapper->getRepository()->findRandomImages($this->getUser()->getForbiddenCategories(), min(50, $conf['top_number'], $this->getUser()->getNbImagePage()));
+        $list = $imageMapper->getRepository()->findRandomImages(
+            $this->getUser()->getUserInfos()->getForbiddenCategories(), min(50, $conf['top_number'], $this->getUser()->getUserInfos()->getNbImagePage())
+        );
 
         if (count($list) === 0) {
             return $this->redirectToRoute('homepage');
@@ -209,12 +211,12 @@ class IndexController extends CommonController
 
         $tpl_params['TITLE'] = $translator->trans('Random photos');
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->getList(explode(',', $list), $this->getUser()->getForbiddenCategories()) as $image) {
+        foreach ($imageMapper->getRepository()->getList(explode(',', $list), $this->getUser()->getUserInfos()->getForbiddenCategories()) as $image) {
             $tpl_params['items'][] = $image->getId();
         }
 
         if (count($tpl_params['items']) > 0) {
-            $nb_image_page = $this->getUser()->getNbImagePage();
+            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params = array_merge(
                 $tpl_params,

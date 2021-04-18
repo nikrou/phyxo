@@ -208,7 +208,7 @@ class UserInfos
         return $this->nb_total_images ?? null;
     }
 
-    public function getExpand(): ?bool
+    public function wantExpand(): bool
     {
         return $this->expand;
     }
@@ -297,7 +297,7 @@ class UserInfos
         return [
             'nb_image_page' => $this->getNbImagePage(),
             'language' => $this->getLanguage(),
-            'expand' => $this->getExpand(),
+            'expand' => $this->wantExpand(),
             'show_nb_comments' => $this->getShowNbComments(),
             'show_nb_hits' => $this->getShowNbHits(),
             'recent_period' => $this->getRecentPeriod(),

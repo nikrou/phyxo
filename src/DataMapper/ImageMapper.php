@@ -130,7 +130,7 @@ class ImageMapper
                     ]
                 );
             }
-            if ($this->conf['activate_comments'] && $this->userMapper->getUser()->getShowNbComments()) {
+            if ($this->conf['activate_comments'] && $this->userMapper->getUser()->getUserInfos()->getShowNbComments()) {
                 $nb_comments_of = [];
                 foreach ($this->commentRepository->countGroupByImage($selection) as $comment) {
                     $nb_comments_of[$comment['image_id']] = $comment['nb_comments'];
@@ -198,14 +198,14 @@ class ImageMapper
                 //$tpl_var['icon_ts'] = $this->em->getRepository(BaseRepository::class)->getIcon($row['date_available'], $this->userMapper->getUser());
             }
 
-            if ($this->userMapper->getUser()->getShowNbHits()) {
+            if ($this->userMapper->getUser()->getUserInfos()->getShowNbHits()) {
                 $tpl_var['NB_HITS'] = $row['hit'];
             }
 
             if ($section === 'best_rated') {
                 $name = '(' . $row['rating_score'] . ') ' . $name;
             } elseif ($section === 'most_visited') {
-                if (!$this->userMapper->getUser()->getShowNbHits()) {
+                if (!$this->userMapper->getUser()->getUserInfos()->getShowNbHits()) {
                     $name = '(' . $row['hit'] . ') ' . $name;
                 }
             }

@@ -64,7 +64,7 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
 
         $languages = [];
         foreach ($this->userMapper->getRepository()->getUsersByGroup($event->getGroup()) as $user) {
-            $languages[$user->getLanguage()][] = $user;
+            $languages[$user->getUserInfos()->getLanguage()][] = $user;
         }
 
         $message = (new TemplatedEmail())->subject($subject);

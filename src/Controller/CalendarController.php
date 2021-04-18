@@ -78,7 +78,7 @@ class CalendarController extends CommonController
         $calendar->setConf($conf);
         $calendar->setViewType($view_type);
         $calendar->setImageStandardParams($image_std_params);
-        $calendar->findByCondition($this->getUser()->getForbiddenCategories());
+        $calendar->findByCondition($this->getUser()->getUserInfos()->getForbiddenCategories());
 
         $category_content = $calendar->generateCategoryContent();
         if (!empty($category_content)) {
@@ -90,7 +90,7 @@ class CalendarController extends CommonController
             $tpl_params['items'] = $calendar->getItems($this->orderByToSorts($conf['order_by']));
 
             if (count($tpl_params['items']) > 0) {
-                $nb_image_page = $this->getUser()->getNbImagePage();
+                $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                     $this->get('router'),
@@ -190,7 +190,7 @@ class CalendarController extends CommonController
         $calendar->setConf($conf);
         $calendar->setViewType('list');
         $calendar->setImageStandardParams($image_std_params);
-        $calendar->findByCondition($this->getUser()->getForbiddenCategories());
+        $calendar->findByCondition($this->getUser()->getUserInfos()->getForbiddenCategories());
 
         $category_content = $calendar->generateCategoryContent();
         if (!empty($category_content)) {
@@ -202,7 +202,7 @@ class CalendarController extends CommonController
             $tpl_params['items'] = $calendar->getItems($this->orderByToSorts($conf['order_by']));
 
             if (count($tpl_params['items']) > 0) {
-                $nb_image_page = $this->getUser()->getNbImagePage();
+                $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                     $this->get('router'),
@@ -285,7 +285,7 @@ class CalendarController extends CommonController
         $calendar->setConf($conf);
         $calendar->setViewType($view_type);
         $calendar->setImageStandardParams($image_std_params);
-        $calendar->findByConditionAndCategory($category_id, $this->getUser()->getForbiddenCategories());
+        $calendar->findByConditionAndCategory($category_id, $this->getUser()->getUserInfos()->getForbiddenCategories());
 
 
         $category_content = $calendar->generateCategoryContent();
@@ -298,7 +298,7 @@ class CalendarController extends CommonController
             $tpl_params['items'] = $calendar->getItems($this->orderByToSorts($conf['order_by']));
 
             if (count($tpl_params['items']) > 0) {
-                $nb_image_page = $this->getUser()->getNbImagePage();
+                $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                     $this->get('router'),
@@ -409,7 +409,7 @@ class CalendarController extends CommonController
         $calendar->setConf($conf);
         $calendar->setViewType('list');
         $calendar->setImageStandardParams($image_std_params);
-        $calendar->findByConditionAndCategory($category_id, $this->getUser()->getForbiddenCategories());
+        $calendar->findByConditionAndCategory($category_id, $this->getUser()->getUserInfos()->getForbiddenCategories());
 
         if ($chronology_params = $calendar->generateCategoryContent()) {
             $tpl_params['items'] = [];
@@ -418,7 +418,7 @@ class CalendarController extends CommonController
             $tpl_params['items'] = $calendar->getItems($this->orderByToSorts($conf['order_by']));
 
             if (count($tpl_params['items']) > 0) {
-                $nb_image_page = $this->getUser()->getNbImagePage();
+                $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                     $this->get('router'),

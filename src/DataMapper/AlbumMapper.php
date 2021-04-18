@@ -88,7 +88,7 @@ class AlbumMapper
     protected function getAlbumsMenu(User $user, array $selected_category = []): array
     {
         $albums = [];
-        foreach ($this->getRepository()->getAlbumsForMenu($user->getId(), $user->getForbiddenCategories()) as $album) {
+        foreach ($this->getRepository()->getAlbumsForMenu($user->getId(), $user->getUserInfos()->getForbiddenCategories()) as $album) {
             $album_infos = array_merge(
                 $album->toArray(),
                 [
@@ -1054,7 +1054,7 @@ class AlbumMapper
             } elseif ($album->getRepresentativePictureId()) { // if a representative picture is set, it has priority
                 $image_id = $album->getRepresentativePictureId();
             } elseif ($this->conf['allow_random_representative']) { // searching a random representant among elements in sub-categories
-                if ($random_image = $this->getRepository()->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getForbiddenCategories())) {
+                if ($random_image = $this->getRepository()->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenCategories())) {
                     $image_id = $random_image->getId();
                 }
             } elseif ($userCacheAlbum->getCountAlbums() > 0 && $userCacheAlbum->getCountImages() > 0) { // searching a random representant among representant of sub-categories
@@ -1086,7 +1086,7 @@ class AlbumMapper
         $new_image_ids = [];
 
         foreach ($imageMapper->getRepository()->findBy(['id' => $image_ids]) as $image) {
-            if ($image->getLevel() <= $user->getLevel()) {
+            if ($image->getLevel() <= $user->getUserInfos()->getLevel()) {
                 $infos_of_images[$image->getId()] = $image->toArray();
             } else {
                 // problem: we must not display the thumbnail of a photo which has a
@@ -1100,7 +1100,7 @@ class AlbumMapper
                 foreach ($albums as $album) {
                     if ($image->getId() === $album->getRepresentativePictureId()) {
                         // searching a random representant among elements in sub-categories
-                        if ($random_image = $this->getRepository()->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getForbiddenCategories())) {
+                        if ($random_image = $this->getRepository()->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenCategories())) {
                             $image_id = $random_image->getId();
                         }
 

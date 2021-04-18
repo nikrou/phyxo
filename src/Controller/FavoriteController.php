@@ -38,14 +38,14 @@ class FavoriteController extends CommonController
         $tpl_params['TITLE'] = $translator->trans('Your favorites');
 
         $tpl_params['items'] = [];
-        foreach ($favoriteRepository->findUserFavorites($this->getUser()->getId(), $this->getUser()->getForbiddenCategories()) as $favorite) {
+        foreach ($favoriteRepository->findUserFavorites($this->getUser()->getId(), $this->getUser()->getUserInfos()->getForbiddenCategories()) as $favorite) {
             $tpl_params['items'][] = $favorite->getImage()->getId();
         }
 
         if (count($tpl_params['items']) > 0) {
             $tpl_params['favorite'] = ['U_FAVORITE' => $this->generateUrl('remove_all_favorites')];
 
-            $nb_image_page = $this->getUser()->getNbImagePage();
+            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params = array_merge(
                 $tpl_params,
@@ -57,14 +57,14 @@ class FavoriteController extends CommonController
                 )
             );
 
-            if (count($tpl_params['items']) > $this->getUser()->getNbImagePage()) {
+            if (count($tpl_params['items']) > $this->getUser()->getUserInfos()->getNbImagePage()) {
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                     $this->get('router'),
                     'favorites',
                     [],
                     count($tpl_params['items']),
                     $start,
-                    $this->getUser()->getNbImagePage(),
+                    $this->getUser()->getUserInfos()->getNbImagePage(),
                     $conf['paginate_pages_around']
                 );
             }

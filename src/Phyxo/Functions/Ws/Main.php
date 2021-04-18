@@ -204,7 +204,7 @@ class Main
         $src_image = new \Phyxo\Image\SrcImage($image_row, $service->getConf()['picture_ext']);
 
         if ($src_image->is_original()) { // we have a photo
-            if ($service->getUserMapper()->getUser()->hasEnabledHigh()) {
+            if ($service->getUserMapper()->getUser()->getUserInfos()->hasEnabledHigh()) {
                 $ret['element_url'] = $src_image->getUrl();
             }
         } else {

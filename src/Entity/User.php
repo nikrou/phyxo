@@ -202,6 +202,7 @@ class User implements UserInterface, EquatableInterface, \Serializable
     public function getSalt()
     {
         // not needed when using bcrypt or argon
+        return null;
     }
 
     public function isEqualTo(UserInterface $user)
@@ -249,26 +250,6 @@ class User implements UserInterface, EquatableInterface, \Serializable
         }
 
         return self::STATUS_GUEST;
-    }
-
-    public function __call($method, $parameters)
-    {
-        $userInfos = $this->getUserInfos();
-        if (method_exists($userInfos, $method)) {
-            return call_user_func_array([$userInfos, $method], $parameters);
-        }
-
-        throw new \RuntimeException(sprintf('The "%s()" method does not exist in UserInfos class.', $method));
-    }
-
-    public function getLocale(): ?string
-    {
-        return $this->getUserInfos()->getLanguage();
-    }
-
-    public function getLang(): ?string
-    {
-        return preg_replace('`_.*`', '', $this->getUserInfos()->getLanguage());
     }
 
     // to remove ?
@@ -514,11 +495,6 @@ class User implements UserInterface, EquatableInterface, \Serializable
         return $this;
     }
 
-    public function getForbiddenCategories(): array
-    {
-        return $this->userInfos->getForbiddenCategories();
-    }
-
     public function serialize()
     {
         return serialize([
@@ -537,5 +513,21 @@ class User implements UserInterface, EquatableInterface, \Serializable
             $this->password,
             $this->roles
         ) = unserialize($serialized);
+    }
+
+    // proxy methods
+    public function getLocale(): ?string
+    {
+        return $this->getUserInfos()->getLanguage();
+    }
+
+    public function getLang(): ?string
+    {
+        return preg_replace('`_.*`', '', $this->getUserInfos()->getLanguage());
+    }
+
+    public function getTheme(): ?string
+    {
+        return $this->userInfos->getTheme();
     }
 }

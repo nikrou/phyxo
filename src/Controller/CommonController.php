@@ -11,11 +11,11 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use Phyxo\Conf;
 use App\Security\UserProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 
 abstract class CommonController extends AbstractController
 {
@@ -32,10 +32,10 @@ abstract class CommonController extends AbstractController
         $this->session = $session;
     }
 
-    public function getUser()
+    public function getUser(): ?User
     {
         if (($token = $this->container->get('security.token_storage')->getToken()) === null) {
-            return;
+            return null;
         }
 
         return $this->userProvider->fromToken($token);

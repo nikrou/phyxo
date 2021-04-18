@@ -82,7 +82,7 @@ class SearchController extends CommonController
         // authors
         $authors = [];
         $author_counts = [];
-        foreach ($imageMapper->getRepository()->findGroupByAuthor($this->getUser()->getForbiddenCategories()) as $image) {
+        foreach ($imageMapper->getRepository()->findGroupByAuthor($this->getUser()->getUserInfos()->getForbiddenCategories()) as $image) {
             if (!isset($author_counts[$image->getAuthor()])) {
                 $author_counts[$image->getAuthor()] = 0;
             }
@@ -107,7 +107,7 @@ class SearchController extends CommonController
         $tpl_params['month_list'] = $month_list;
 
         $albums = [];
-        foreach ($albumMapper->getRepository()->findAllowedAlbums($this->getUser()->getForbiddenCategories()) as $album) {
+        foreach ($albumMapper->getRepository()->findAllowedAlbums($this->getUser()->getUserInfos()->getForbiddenCategories()) as $album) {
             $albums[] = $album;
         }
         $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_options', true));
@@ -299,7 +299,7 @@ class SearchController extends CommonController
         }
 
         if (count($tpl_params['items']) > 0) {
-            $nb_image_page = $this->getUser()->getNbImagePage();
+            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                 $this->get('router'),

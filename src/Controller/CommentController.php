@@ -40,7 +40,7 @@ class CommentController extends CommonController
         $tpl_params['PAGE_TITLE'] = $translator->trans('User comments');
 
         $albums = [];
-        foreach ($albumMapper->getRepository()->findAllowedAlbums($this->getUser()->getForbiddenCategories()) as $album) {
+        foreach ($albumMapper->getRepository()->findAllowedAlbums($this->getUser()->getUserInfos()->getForbiddenCategories()) as $album) {
             $albums[] = $album;
         }
 
@@ -93,7 +93,7 @@ class CommentController extends CommonController
         $album_ids = [];
 
         $filter_params = [];
-        $filter_params['forbidden_categories'] = $this->getUser()->getForbiddenCategories();
+        $filter_params['forbidden_categories'] = $this->getUser()->getUserInfos()->getForbiddenCategories();
 
         if ($tpl_params['category'] !== null) {
             $filter_params['album_ids'] = $albumMapper->getRepository()->getSubcatIds([$tpl_params['category']]);

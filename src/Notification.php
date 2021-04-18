@@ -68,7 +68,7 @@ class Notification
      */
     public function nb_new_comments(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
     {
-        return $this->commentRepository->getNewComments($this->userMapper->getUser()->getForbiddenCategories(), $start, $end, $count_only = true);
+        return $this->commentRepository->getNewComments($this->userMapper->getUser()->getUserInfos()->getForbiddenCategories(), $start, $end, $count_only = true);
     }
 
     /**
@@ -76,7 +76,7 @@ class Notification
      */
     public function new_comments(\DateTimeInterface $start = null, \DateTimeInterface $end = null): array
     {
-        return $this->commentRepository->getNewComments($this->userMapper->getUser()->getForbiddenCategories(), $start, $end);
+        return $this->commentRepository->getNewComments($this->userMapper->getUser()->getUserInfos()->getForbiddenCategories(), $start, $end);
     }
 
     /**
@@ -92,7 +92,7 @@ class Notification
      */
     public function nb_new_elements(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
     {
-        return $this->imageMapper->getRepository()->getNewElements($this->userMapper->getUser()->getForbiddenCategories(), $start, $end, $count_only = true);
+        return $this->imageMapper->getRepository()->getNewElements($this->userMapper->getUser()->getUserInfos()->getForbiddenCategories(), $start, $end, $count_only = true);
     }
 
     /**
@@ -100,7 +100,7 @@ class Notification
      */
     public function new_elements(\DateTimeInterface $start = null, \DateTimeInterface $end = null): array
     {
-        return $this->imageMapper->getRepository()->getNewElements($this->userMapper->getUser()->getForbiddenCategories(), $start, $end);
+        return $this->imageMapper->getRepository()->getNewElements($this->userMapper->getUser()->getUserInfos()->getForbiddenCategories(), $start, $end);
     }
 
     /**
@@ -108,7 +108,7 @@ class Notification
      */
     public function nb_updated_categories(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
     {
-        return $this->imageMapper->getRepository()->getUpdatedAlbums($this->userMapper->getUser()->getForbiddenCategories(), $start, $end, $count_only = true);
+        return $this->imageMapper->getRepository()->getUpdatedAlbums($this->userMapper->getUser()->getUserInfos()->getForbiddenCategories(), $start, $end, $count_only = true);
     }
 
     /**
@@ -116,7 +116,7 @@ class Notification
      */
     public function updated_categories(\DateTimeInterface $start = null, \DateTimeInterface $end = null): array
     {
-        return $this->imageMapper->getRepository()->getUpdatedAlbums($this->userMapper->getUser()->getForbiddenCategories(), $start, $end);
+        return $this->imageMapper->getRepository()->getUpdatedAlbums($this->userMapper->getUser()->getUserInfos()->getForbiddenCategories(), $start, $end);
     }
 
     /**
@@ -246,12 +246,12 @@ class Notification
      */
     public function get_recent_post_dates(int $max_dates, int $max_elements, int $max_cats): array
     {
-        $dates = $this->imageMapper->getRepository()->getRecentPostedImages($this->userMapper->getUser()->getForbiddenCategories(), $max_dates);
+        $dates = $this->imageMapper->getRepository()->getRecentPostedImages($this->userMapper->getUser()->getUserInfos()->getForbiddenCategories(), $max_dates);
 
         for ($i = 0; $i < count($dates); $i++) {
             if ($max_elements > 0) { // get some thumbnails ...
                 $ids = [];
-                foreach ($this->imageMapper->getRepository()->findRandomImages($this->userMapper->getUser()->getForbiddenCategories(), $max_elements) as $id) {
+                foreach ($this->imageMapper->getRepository()->findRandomImages($this->userMapper->getUser()->getUserInfos()->getForbiddenCategories(), $max_elements) as $id) {
                     $ids[] = $id;
                 }
                 $elements = [];
@@ -262,7 +262,7 @@ class Notification
             }
 
             if ($max_cats > 0) { // get some albums ...
-                $dates[$i]['categories'] = $this->imageMapper->getRepository()->getRecentImages($this->userMapper->getUser()->getForbiddenCategories(), $dates[$i]['date_available'], $max_cats);
+                $dates[$i]['categories'] = $this->imageMapper->getRepository()->getRecentImages($this->userMapper->getUser()->getUserInfos()->getForbiddenCategories(), $dates[$i]['date_available'], $max_cats);
             }
         }
 

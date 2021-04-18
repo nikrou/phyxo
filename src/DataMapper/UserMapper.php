@@ -105,7 +105,7 @@ class UserMapper
      */
     public function getDefaultTheme(): string
     {
-        $theme = is_null($this->getDefaultUser()) ? $this->defaultTheme : $this->getDefaultUser()->getTheme();
+        $theme = is_null($this->getDefaultUser()) ? $this->defaultTheme : $this->getDefaultUser()->getUserInfos()->getTheme();
         if (is_readable($this->themesDir . '/' . $theme . '/' . 'themeconf.inc.php')) {
             return $theme;
         }
@@ -121,7 +121,7 @@ class UserMapper
      */
     public function getDefaultLanguage(): string
     {
-        return is_null($this->getDefaultUser()) ? $this->defaultLanguage : $this->getDefaultUser()->getLanguage();
+        return is_null($this->getDefaultUser()) ? $this->defaultLanguage : $this->getDefaultUser()->getUserInfos()->getLanguage();
     }
 
     public function isGuest(): bool
@@ -197,7 +197,7 @@ class UserMapper
      */
     public function getNumberAvailableComments(): int
     {
-        $number_of_available_comments = $this->commentRepository->countAvailableComments($this->getUser()->getForbiddenCategories(), $this->isAdmin());
+        $number_of_available_comments = $this->commentRepository->countAvailableComments($this->getUser()->getUserInfos()->getForbiddenCategories(), $this->isAdmin());
 
         $this->userCacheRepository->invalidateNumberAvailableComments($this->getUser()->getId());
 

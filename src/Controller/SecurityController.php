@@ -242,19 +242,20 @@ class SecurityController extends CommonController
             }
         }
 
+        $userInfos = $this->getUser()->getUserInfos();
         $tpl_params = array_merge($tpl_params, [
             'ALLOW_USER_CUSTOMIZATION' => $this->conf['allow_user_customization'],
             'ACTIVATE_COMMENTS' => $this->conf['activate_comments'],
 
             'USERNAME' => $this->getUser()->getUsername(),
             'EMAIL' => $this->getUser()->getMailAddress(),
-            'NB_IMAGE_PAGE' => $this->getUser()->getNbImagePage(),
-            'RECENT_PERIOD' => $this->getUser()->getRecentPeriod(),
-            'EXPAND' => $this->getUser()->getExpand() ? 'true' : 'false',
-            'NB_COMMENTS' => $this->getUser()->getShowNbComments() ? 'true' : 'false',
-            'NB_HITS' => $this->getUser()->getShowNbHits() ? 'true': 'false',
-            'THEME' => $this->getUser()->getTheme(),
-            'LANGUAGE' => $this->getUser()->getLanguage(),
+            'NB_IMAGE_PAGE' => $userInfos->getNbImagePage(),
+            'RECENT_PERIOD' => $userInfos->getRecentPeriod(),
+            'EXPAND' => $userInfos->wantExpand(),
+            'NB_COMMENTS' => $userInfos->getShowNbComments() ? 'true' : 'false',
+            'NB_HITS' => $userInfos->getShowNbHits() ? 'true': 'false',
+            'THEME' => $userInfos->getTheme(),
+            'LANGUAGE' => $userInfos->getLanguage(),
             'radio_options' => [
                 'true' => $translator->trans('Yes'),
                 'false' => $translator->trans('No'),

@@ -191,7 +191,7 @@ class PhotoController extends AbstractController
             $image_albums[] = $image_album->getAlbum()->getId();
         }
 
-        $authorizeds = array_diff($image_albums, $this->getUser()->getForbiddenCategories());
+        $authorizeds = array_diff($image_albums, $this->getUser()->getUserInfos()->getForbiddenCategories());
 
         $url_img = '';
         if ($category_id && in_array($category_id, $authorizeds)) {
@@ -247,7 +247,7 @@ class PhotoController extends AbstractController
             $image_albums[] = $image_album->getAlbum()->getId();
         }
 
-        $authorizeds = array_diff($image_albums, $this->getUser()->getForbiddenCategories());
+        $authorizeds = array_diff($image_albums, $this->getUser()->getUserInfos()->getForbiddenCategories());
 
         if (count($authorizeds) > 0) {
             return $this->redirectToRoute('admin_album', ['album_id' => $authorizeds[0]]);

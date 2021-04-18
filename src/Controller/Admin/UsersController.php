@@ -89,20 +89,21 @@ class UsersController extends AbstractController
             $languages[$language->getId()] = $language->getName();
         }
 
+        $guestUserInfos = $guestUser->getUserInfos();
         $dummy_user = 9999;
         $tpl_params = array_merge($tpl_params, [
             'F_ADD_ACTION' => $this->generateUrl('admin_users'),
             'F_USER_PERM' => $this->generateUrl('admin_user_perm', ['user_id' => $dummy_user]),
             'F_USER_PERM_DUMMY_USER' => $dummy_user,
-            'NB_IMAGE_PAGE' => $guestUser->getNbImagePage(),
-            'RECENT_PERIOD' => $guestUser->getRecentPeriod(),
+            'NB_IMAGE_PAGE' => $guestUserInfos->getNbImagePage(),
+            'RECENT_PERIOD' => $guestUserInfos->getRecentPeriod(),
             'theme_options' => $themes,
-            'theme_selected' => $guestUser->getTheme(),
+            'theme_selected' => $guestUserInfos->getTheme(),
             'language_options' => $languages,
-            'language_selected' => $guestUser->getLanguage(),
+            'language_selected' => $guestUserInfos->getLanguage(),
             'association_options' => $groups,
             'protected_users' => implode(',', array_unique($protected_users)),
-            'guest_user' => $guestUser->getUser()->getId(),
+            'guest_user' => $guestUser->getId(),
         ]);
 
         // Status options
@@ -131,7 +132,7 @@ class UsersController extends AbstractController
             $level_options[$level] = $translator->trans(sprintf('Level %d', $level), [], 'admin');
         }
         $tpl_params['level_options'] = $level_options;
-        $tpl_params['level_selected'] = $guestUser->getLevel();
+        $tpl_params['level_selected'] = $guestUser->getUserInfos()->getLevel();
 
         $tpl_params['ws'] = $this->generateUrl('ws');
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');

@@ -109,7 +109,7 @@ class MenuBar
     {
         if (($block = $this->menu->getBlock('mbCategories')) != null) {
             $block->data = [
-                'NB_PICTURE' => $this->userMapper->getUser()->getNbTotalImages(),
+                'NB_PICTURE' => $this->userMapper->getUser()->getUserInfos()->getNbTotalImages(),
                 'MENU_CATEGORIES' => $this->albumMapper->getRecursiveAlbumsMenu($this->userMapper->getUser()),
                 'U_CATEGORIES' => $this->router->generate('albums_flat'),
             ];

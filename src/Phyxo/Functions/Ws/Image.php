@@ -42,7 +42,7 @@ class Image
      */
     public static function addComment($params, Server $service)
     {
-        if (!$service->getImageMapper()->getRepository()->isAuthorizedToUser($service->getUserMapper()->getUser()->getForbiddenCategories(), $params['image_id'])) {
+        if (!$service->getImageMapper()->getRepository()->isAuthorizedToUser($service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories(), $params['image_id'])) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid image_id or access denied');
         }
 
@@ -91,7 +91,7 @@ class Image
         //-------------------------------------------------------- related categories
         $is_commentable = false;
         $related_categories = [];
-        foreach ($service->getAlbumMapper()->getRepository()->findRelative($service->getUserMapper()->getUser()->getForbiddenCategories(), $image->getId()) as $album) {
+        foreach ($service->getAlbumMapper()->getRepository()->findRelative($service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories(), $image->getId()) as $album) {
             $is_commentable = $album->isCommentable();
             $album_infos = array_merge(
                 $album->toArray(),
@@ -192,7 +192,7 @@ class Image
      */
     public static function rate($params, Server $service)
     {
-        if (!$service->getImageMapper()->getRepository()->isAuthorizedToUser($service->getUserMapper()->getUser()->getForbiddenCategories(), $params['image_id'])) {
+        if (!$service->getImageMapper()->getRepository()->isAuthorizedToUser($service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories(), $params['image_id'])) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid image_id or access denied');
         }
 

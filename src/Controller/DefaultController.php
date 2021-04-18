@@ -34,14 +34,14 @@ class DefaultController extends CommonController
         /* $filter['visible_categories'] and $filter['visible_images']
         /* are not used because it's not necessary (filter <> restriction)
          */
-        if (!$albumMapper->getRepository()->hasAccessToImage($this->getUser()->getForbiddenCategories(), $image_id)) {
+        if (!$albumMapper->getRepository()->hasAccessToImage($this->getUser()->getUserInfos()->getForbiddenCategories(), $image_id)) {
             throw new AccessDeniedException('Access denied');
         }
 
         $file = '';
         switch ($part) {
             case 'e':
-                if (!$this->getUser()->hasEnabledHigh()) {
+                if (!$this->getUser()->getUserInfos()->hasEnabledHigh()) {
                     $deriv = new DerivativeImage(new SrcImage($image->toArray(), $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_XXLARGE), $image_std_params);
                     if (!$deriv->same_as_source()) {
                         throw new AccessDeniedException('Access denied');

@@ -13,6 +13,7 @@ namespace App\Tests\Controller;
 
 use App\Entity\Image;
 use App\Entity\User;
+use App\Entity\UserInfos;
 use App\Repository\ImageRepository;
 use App\Security\UserProvider;
 use Prophecy\Argument;
@@ -50,8 +51,10 @@ class MediaContollerTest extends WebTestCase
         $this->imageRepository->getForbiddenImages()->willReturn([]);
         $this->imageRepository->isAuthorizedToUser(Argument::any(), Argument::any())->willReturn(true);
 
+        $userInfos = new UserInfos();
+        $userInfos->setForbiddenCategories([]);
         $user = $this->prophesize(User::class);
-        $user->getForbiddenCategories()->willReturn([]);
+        $user->getUserInfos()->willReturn($userInfos);
 
         $this->userProvider = $this->prophesize(UserProvider::class);
         $this->userProvider->fromToken(Argument::any())->willReturn($user->reveal());

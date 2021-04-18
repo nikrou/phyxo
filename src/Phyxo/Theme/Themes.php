@@ -239,7 +239,7 @@ class Themes extends Extensions
                 if (preg_match("|Theme URI:\\s*(https?:\\/\\/.+)|", $theme_data, $val)) {
                     $theme['uri'] = trim($val[1]);
                 }
-                if ($desc = \Phyxo\Functions\Language::loadLanguageFile('description.' . $this->userMapper->getUser()->getLanguage() . '.txt', dirname($themeconf))) {
+                if ($desc = \Phyxo\Functions\Language::loadLanguageFile('description.' . $this->userMapper->getUser()->getUserInfos()->getLanguage() . '.txt', dirname($themeconf))) {
                     $theme['description'] = trim($desc);
                 } elseif (preg_match("|Description:\\s*(.+)|", $theme_data, $val)) {
                     $theme['description'] = trim($val[1]);
@@ -358,7 +358,7 @@ class Themes extends Extensions
                 [
                     'last_revision_only' => 'true',
                     'version' => implode(',', $versions_to_check),
-                    'lang' => substr($this->userMapper->getUser()->getLanguage(), 0, 2),
+                    'lang' => $this->userMapper->getUser()->getLang(),
                     'get_nb_downloads' => 'true',
                 ]
             );
