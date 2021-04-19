@@ -183,8 +183,6 @@ class DerivativeImage
 
     /**
      * Returns the size as CSS rule.
-     *
-     * @return string
      */
     public function get_size_css()
     {
@@ -196,8 +194,6 @@ class DerivativeImage
 
     /**
      * Returns the size as HTML attributes.
-     *
-     * @return string
      */
     public function get_size_htm()
     {
@@ -209,8 +205,6 @@ class DerivativeImage
 
     /**
      * Returns literal size: $widthx$height.
-     *
-     * @return string
      */
     public function get_size_hr()
     {
@@ -220,12 +214,7 @@ class DerivativeImage
         }
     }
 
-    /**
-     * @param int $maxw
-     * @param int $mawh
-     * @return int[]
-     */
-    public function get_scaled_size($maxw, $maxh)
+    public function get_scaled_size(int $maxw, int $maxh): array
     {
         $size = $this->get_size();
         if ($size) {
@@ -241,6 +230,7 @@ class DerivativeImage
                 }
             }
         }
+
         return $size;
     }
 
@@ -253,12 +243,8 @@ class DerivativeImage
 
     /**
      * Returns the scaled size as HTML attributes.
-     *
-     * @param int $maxw
-     * @param int $mawh
-     * @return string
      */
-    public function get_scaled_size_htm($maxw = 9999, $maxh = 9999)
+    public function get_scaled_size_htm(int $maxw = 9999, int $maxh = 9999)
     {
         $size = $this->get_scaled_size($maxw, $maxh);
         if ($size) {
@@ -266,10 +252,7 @@ class DerivativeImage
         }
     }
 
-    /**
-     * @return bool
-     */
-    public function is_cached()
+    public function is_cached(): bool
     {
         return true;
     }

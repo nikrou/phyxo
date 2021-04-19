@@ -132,7 +132,7 @@ class AdminPhotoController extends AbstractController
         $tpl_params['DESCRIPTION'] = $image->getComment();
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_photo', ['image_id' => $image_id]);
 
-        $added_by = $userRepository->findOneById($image->getAddedBy());
+        $added_by = $userRepository->findOneBy(['id' => $image->getAddedBy()]);
 
         $intro_vars = [
             'file' => $translator->trans('Original file : {file}', ['file' => $image->getFile()], 'admin'),

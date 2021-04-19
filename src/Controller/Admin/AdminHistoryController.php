@@ -303,7 +303,7 @@ class AdminHistoryController extends AbstractController
 
         if (count($category_ids) > 0) {
             $uppercats_of = [];
-            foreach ($albumMapper->getRepository()->findById($category_ids) as $album) {
+            foreach ($albumMapper->getRepository()->findBy(['id' => $category_ids]) as $album) {
                 $uppercats_of[$album->getId()] = $album->getUppercats();
             }
 

@@ -20,7 +20,7 @@ use Phyxo\Ws\Server;
 abstract class ResponseEncoder
 {
     /** encodes the web service response to the appropriate output format
-     * @param response mixed the unencoded result of a service method call
+     * response mixed the unencoded result of a service method call
      */
     public abstract function encodeResponse($response);
 

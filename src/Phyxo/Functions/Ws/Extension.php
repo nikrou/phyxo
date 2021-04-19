@@ -82,7 +82,7 @@ class Extension
                 $extension->extractLanguageFiles('upgrade', $revision);
                 $extension_name = $extension->getFsLanguages()[$extension_id]['name'];
             } else { // themes
-                $extension->extractThemeFiles('upgrade', $revision, $extension_id);
+                $extension->extractThemeFiles('upgrade', $revision);
                 $extension_name = $extension->getFsThemes()[$extension_id]['name'];
             }
 
@@ -153,7 +153,11 @@ class Extension
     public static function checkupdates($params, Server $service)
     {
         $result = [];
-        $update = new Updates($service->getUserMapper(), $service->getCoreVersion());
+        $plugins = new Plugins($service->getManagerRegistry()->getRepository(Plugin::class), $service->getUserMapper());
+        $languages = new Languages($service->getManagerRegistry()->getRepository(Language::class), $service->getUserMapper());
+        $themes = new Themes($service->getManagerRegistry()->getRepository(Theme::class), $service->getUserMapper());
+
+        $update = new Updates($service->getUserMapper(), $service->getCoreVersion(), $plugins, $themes, $languages);
         $update->setExtensionsURL($service->getExtensionsURL());
         $update->setUpdateUrl($service->getParams()->get('update_url'));
         $update->checkCoreUpgrade();

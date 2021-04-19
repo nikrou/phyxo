@@ -37,11 +37,8 @@ class Languages extends Extensions
 
     /**
      * Perform requested actions
-     * @param string - action
-     * @param string - language id
-     * @param array - errors
      */
-    public function performAction(string $action, string $language_id)
+    public function performAction(string $action, string $language_id, string $revision_id = null)
     {
         if (!$this->db_languages_retrieved) {
             $this->getDbLanguages();
@@ -270,11 +267,8 @@ class Languages extends Extensions
 
     /**
      * Extract language files from archive
-     *
-     * @param string - install or upgrade
-     * @param string - remote revision identifier (numeric)
      */
-    public function extractLanguageFiles($action, $revision)
+    public function extractLanguageFiles(string $action, string $revision)
     {
         $archive = tempnam($this->languages_root_path, 'zip');
         $get_data = [

@@ -39,9 +39,8 @@ class Themes extends Extensions
     /**
      * Returns the maintain class of a theme
      * or build a new class with the procedural methods
-     * @param string $theme_id
      */
-    private function buildMaintainClass($theme_id)
+    private function buildMaintainClass(string $theme_id)
     {
         $file_to_include = $this->themes_root_path . '/' . $theme_id . '/admin/maintain.inc.php';
         $classname = $theme_id . '_maintain';
@@ -413,12 +412,8 @@ class Themes extends Extensions
 
     /**
      * Extract theme files from archive
-     *
-     * @param string - install or upgrade
-     * @param string - remote revision identifier (numeric)
-     * @param string - theme id or extension id
      */
-    public function extractThemeFiles($action, $revision)
+    public function extractThemeFiles(string $action, string $revision)
     {
         $archive = tempnam($this->themes_root_path, 'zip');
         $get_data = [

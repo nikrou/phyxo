@@ -391,7 +391,7 @@ class SearchController extends CommonController
             }
 
             $albums = [];
-            foreach ($albumMapper->getRepository()->findById($album_ids) as $album) {
+            foreach ($albumMapper->getRepository()->findBy(['id' => $album_ids]) as $album) {
                 $albums[] = $album;
             }
             usort($albums, [AlbumMapper::class, 'globalRankCompare']);

@@ -25,13 +25,17 @@ class Updates
     private $versions = [], $version = [], $core_version;
     private $types = [];
     private $default_themes = [], $default_plugins = [], $default_languages = [];
+    private $plugins, $themes, $languages;
     private $update_url, $pem_url, $missing = [];
     private $userMapper, $core_need_update = false, $extensions_need_update = [];
 
-    public function __construct(UserMapper $userMapper, string $core_version)
+    public function __construct(UserMapper $userMapper, string $core_version, Plugins $plugins, Themes $themes, Languages $languages)
     {
         $this->userMapper = $userMapper;
         $this->core_version = $core_version;
+        $this->plugins = $plugins;
+        $this->themes = $themes;
+        $this->languages = $languages;
 
         $this->types = ['plugins' => 'plugins', 'themes' => 'themes', 'languages' => 'language'];
 
@@ -52,8 +56,13 @@ class Updates
 
     protected function getType(string $type): ?Extensions
     {
-        // @TODO need to inject Plugins, Languages and Themes
-        return null;
+        switch ($type) {
+            case 'plugins': return $this->plugins;break;
+            case 'themes': return $this->themes;break;
+            case 'languages': return $this->languages;break;
+
+            default: return null;
+        }
     }
 
     public function getAllVersions()
@@ -140,10 +149,10 @@ class Updates
                 continue;
             }
         }
-        if (!empty($not_writable)) {
-            $e = new \Exception('Some files or directories are not writable');
-            $e->not_writable = $not_writable;
-            throw $e;
+        if (count($not_writable) > 0) {
+            $message = 'Some files or directories are not writable';
+            $message .= '<pre>' . implode("\n", $not_writable) . '</pre>';
+            throw new \Exception($message);
         }
 
         // @TODO: remove arobase ; extract try to make a touch on every file but sometimes failed.

@@ -109,12 +109,9 @@ class CommentMapper
 
     /**
      * Tries to insert a user comment and returns action to perform.
-     *
-     * @param array &$comm
-     * @param array &$infos output array of error messages
-     * @return string validate, moderate, reject
+     * return string validate, moderate, reject
      */
-    public function insertUserComment(&$comm, &$infos)
+    public function insertUserComment(array &$comm, array &$infos): string
     {
         $infos = [];
         if (!$this->conf['comments_validation'] || $this->userMapper->isAdmin()) {
@@ -225,11 +222,10 @@ class CommentMapper
      *    only admin can update all comments
      *    users can edit their own comments if admin allow them
      *
-     * @param array $comment
      * @param string $post_key secret key sent back to the browser
      * @return string validate, moderate, reject
      */
-    public function updateUserComment(array $comment_infos, $post_key)
+    public function updateUserComment(array $comment_infos, string $post_key): string
     {
         $comment_action = 'validate';
 

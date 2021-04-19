@@ -29,19 +29,6 @@ class Utils
         return is_readable($config_file);
     }
 
-    /** no option for mkgetdir() */
-    const MKGETDIR_NONE = 0;
-    /** sets mkgetdir() recursive */
-    const MKGETDIR_RECURSIVE = 1;
-    /** sets mkgetdir() exit script on error */
-    const MKGETDIR_DIE_ON_ERROR = 2;
-    /** sets mkgetdir() add a index.htm file */
-    const MKGETDIR_PROTECT_INDEX = 4;
-    /** sets mkgetdir() add a .htaccess file*/
-    const MKGETDIR_PROTECT_HTACCESS = 8;
-    /** default options for mkgetdir() = MKGETDIR_RECURSIVE | MKGETDIR_DIE_ON_ERROR | MKGETDIR_PROTECT_INDEX */
-    const MKGETDIR_DEFAULT = self::MKGETDIR_RECURSIVE | self::MKGETDIR_DIE_ON_ERROR | self::MKGETDIR_PROTECT_INDEX;
-
     /**
      * Returns the path to use for the Phyxo cookie.
      * If Phyxo is installed on :
@@ -591,11 +578,8 @@ class Utils
      * a category.
      * Directories named ".svn", "thumbnail", "pwg_high" or "pwg_representative"
      * are omitted.
-     *
-     * @param string $basedir (eg: ./galleries)
-     * @return string[]
      */
-    public static function get_fs_directories($path, $recursive = true, $sync_exclude_folders = [])
+    public static function get_fs_directories(string $path, bool $recursive = true, array $sync_exclude_folders = []): array
     {
         $dirs = [];
         $path = rtrim($path, '/');
@@ -625,12 +609,8 @@ class Utils
      * Returns the argument_ids array with new sequenced keys based on related
      * names. Sequence is not case sensitive.
      * Warning: By definition, this function breaks original keys.
-     *
-     * @param int[] $elements_ids
-     * @param string[] $name - names of elements, indexed by ids
-     * @return int[]
      */
-    public static function order_by_name($element_ids, $name)
+    public static function order_by_name(array $element_ids, array $name): array
     {
         $ordered_element_ids = [];
         foreach ($element_ids as $k_id => $element_id) {
@@ -646,7 +626,7 @@ class Utils
      * last modification timestamp and the total of items (separated by a _).
      * Additionally returns the hash of root path.
      * Used to invalidate LocalStorage cache on admin pages.
-     * @param string|string[] list of keys to retrieve (categories,groups,images,tags,users)
+     * list of keys to retrieve (categories,groups,images,tags,users)
      */
     public static function getAdminClientCacheKeys(array $requested = [], ManagerRegistry $managerRegistry, string $base_url = ''): array
     {
@@ -670,6 +650,7 @@ class Utils
 
         foreach ($returned as $repository) {
             if (isset($tables[$repository])) {
+                /** @phpstan-ignore-next-line */
                 $tableInfos = $managerRegistry->getRepository($tables[$repository])->getMaxLastModified();
 
                 $keys[$repository] = sprintf('%s_%s', (new \Datetime($tableInfos['max']))->getTimestamp(), $tableInfos['count']);
@@ -721,17 +702,17 @@ class Utils
         $suffix = substr($value, -1);
         $multiply_by = null;
 
-        if ('K' == $suffix) {
+        if ($suffix === 'K') {
             $multiply_by = 1024;
-        } elseif ('M' == $suffix) {
+        } elseif ($suffix === 'M') {
             $multiply_by = 1024 * 1024;
-        } elseif ('G' == $suffix) {
+        } elseif ($suffix === 'G') {
             $multiply_by = 1024 * 1024 * 1024;
         }
 
-        if (isset($multiply_by)) {
-            $value = substr($value, 0, -1);
-            $value *= $multiply_by;
+        if (!is_null($multiply_by)) {
+            $value = (int) substr($value, 0, -1);
+            $value = $value * $multiply_by;
         }
 
         return $value;

@@ -311,12 +311,6 @@ class AlbumMapper
         return $output;
     }
 
-    /**
-     * @param [Album] $albums
-     * @param int[] $selected ids of selected items
-     * @param string $blockname variable name in template
-     * @param bool $fullname full breadcrumb or not
-     */
     public function displaySelectAlbums(array $albums, array $selecteds, string $blockname, bool $fullname = true)
     {
         $tpl_cats = [];
@@ -588,8 +582,6 @@ class AlbumMapper
     /**
      * Create an album.
      *
-     * @param string $category_name
-     * @param int $parent_id
      * @param array $options
      *    - boolean commentable
      *    - boolean visible
@@ -597,7 +589,7 @@ class AlbumMapper
      *    - string comment
      *    - boolean inherit
      */
-    public function createAlbum(string $name, ? Album $parent = null, int $user_id, array $admin_ids = [], array $options = []): Album
+    public function createAlbum(string $name, ?Album $parent = null, int $user_id, array $admin_ids = [], array $options = []): Album
     {
         $album = new Album();
         $album->setName($name);
@@ -778,7 +770,7 @@ class AlbumMapper
             $uppercats_of[$album->getId()] = $album;
         }
 
-        foreach ([$uppercats_of] as $album_id) {
+        foreach ($uppercats_of as $album_id) {
             // find the subcats
             $subcat_ids = [];
 
@@ -1007,7 +999,6 @@ class AlbumMapper
         $current_rank_for_id_uppercat = [];
         $current_rank = 0;
 
-        $datas = [];
         foreach ($categories as $category) {
             if (is_array($category)) {
                 $id = $category['id'];
@@ -1030,7 +1021,7 @@ class AlbumMapper
     }
 
     /**
-     * @param $albums resource (array or null) return by method repository
+     * param $albums resource (array or null) return by method repository
      */
     public function getAlbumThumbnails(User $user, $albums)
     {

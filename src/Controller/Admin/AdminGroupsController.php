@@ -117,7 +117,7 @@ class AdminGroupsController extends AbstractController
             } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && count($request->request->get('cat_false')) > 0) {
                 $uppercats = $albumMapper->getUppercatIds($request->request->get('cat_false'));
 
-                foreach ($albumMapper->getRepository()->findByIdsAndStatus($uppercats, Album::STATUS_PRIVATE) as $album) {
+                foreach ($albumMapper->getRepository()->findBy(['id' => $uppercats, 'status' => Album::STATUS_PRIVATE]) as $album) {
                     $album->addGroupAccess($group);
                     $albumMapper->getRepository()->addOrUpdateAlbum($album);
                 }
@@ -209,7 +209,7 @@ class AdminGroupsController extends AbstractController
             $group = new Group();
             $group->setName($request->request->get('merge'));
 
-            foreach ($groupRepository->findById($group_selection) as $group_to_merge) {
+            foreach ($groupRepository->findBy(['id' => $group_selection]) as $group_to_merge) {
                 if ($group_to_merge->getUsers()->count() > 0) {
                     foreach ($group_to_merge->getUsers() as $user) {
                         $group->addUser($user);

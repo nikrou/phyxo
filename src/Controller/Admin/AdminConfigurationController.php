@@ -526,7 +526,7 @@ class AdminConfigurationController extends AbstractController
 
                 $error = false;
                 $needFlush = false;
-                $guestUserInfos = $userMapper->getDefaultUser();
+                $guestUserInfos = $userMapper->getDefaultUser()->getUserInfos();
 
                 if ($request->request->get('nb_image_page')) {
                     if ((int) $request->request->get('nb_image_page') === 0) {
@@ -572,7 +572,7 @@ class AdminConfigurationController extends AbstractController
 
                 if (!$error && $needFlush) {
                     $guestUserInfos->setLastModified(new \DateTime());
-                    $userInfosRepository->updateInfos($guestUserInfos->getUserInfos());
+                    $userInfosRepository->updateInfos($guestUserInfos);
                 }
 
                 $this->addFlash('info', $this->translator->trans('Your configuration settings have been saved', [], 'admin'));

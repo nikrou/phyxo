@@ -237,7 +237,7 @@ class AdminThemesController extends AbstractController
         if ($action === 'set_default') {
             // first we need to know which users are using the current default theme
             $user_ids = [];
-            foreach ($userInfosRepository->findByTheme($userMapper->getDefaultTheme()) as $user) {
+            foreach ($userInfosRepository->findBy(['theme' => $userMapper->getDefaultTheme()]) as $user) {
                 $user_ids[] = $user->getUser()->getId();
             }
             $userInfosRepository->updateFieldForUsers('theme', $theme, $user_ids);

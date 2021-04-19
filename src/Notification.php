@@ -152,15 +152,8 @@ class Notification
 
     /**
      * Formats a news line and adds it to the array (e.g. '5 new elements')
-     *
-     * @param array &$news
-     * @param int $count
-     * @param string $singular_key
-     * @param string $plural_key
-     * @param string $url
-     * @param bool $add_url
      */
-    public function add_news_line(&$news, $count, string $lang_key, string $url = '', bool $add_url = false)
+    public function add_news_line(array &$news, int $count, string $lang_key, string $url = '', bool $add_url = false)
     {
         if ($count > 0) {
             $line = $this->translator->trans($lang_key, ['count' => $count]);

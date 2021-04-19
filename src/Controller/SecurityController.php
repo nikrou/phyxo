@@ -159,7 +159,7 @@ class SecurityController extends CommonController
         // @TODO: use symfony forms
         if ($request->isMethod('POST')) {
             if ($request->request->get('reset_to_default')) {
-                $guestUserInfos = $userInfosRepository->findOneByStatus(User::STATUS_GUEST);
+                $guestUserInfos = $userInfosRepository->findOneBy(['status' => User::STATUS_GUEST]);
                 $this->getUser()->getUserInfos()->fromArray($guestUserInfos->toArray());
                 $userRepository->updateUser($this->getUser());
             } else {
@@ -300,7 +300,7 @@ class SecurityController extends CommonController
                     $user->getUserInfos()->setActivationKeyExpire((new \DateTime())->add(new \DateInterval('PT1H')));
                     $userRepository->updateUser($user);
 
-                    $webmaster = $userInfosRepository->findOneByStatus(User::STATUS_WEBMASTER);
+                    $webmaster = $userInfosRepository->findOneBy(['status' => User::STATUS_WEBMASTER]);
                     $webmaster_mail_address = $webmaster->getUser()->getMailAddress();
 
                     $mail_params = [
@@ -378,8 +378,8 @@ class SecurityController extends CommonController
             if ($request->request->get('_password') && $request->request->get('_password_confirmation') &&
                 $request->request->get('_password') != $request->request->get('_password_confirm')) {
                 $user->setPassword($passwordEncoder->encodePassword(new User(), $request->request->get('_password')));
-                $user->setActivationKey(null);
-                $user->setActivationKeyExpire(null);
+                $user->getUserInfos()->setActivationKey(null);
+                $user->getUserInfos()->setActivationKeyExpire(null);
                 $userRepository->updateUser($user);
                 $infos[] = $translator->trans('Your password has been reset');
             } else {

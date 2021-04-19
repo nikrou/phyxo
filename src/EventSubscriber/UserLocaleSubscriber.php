@@ -11,12 +11,12 @@
 
 namespace App\EventSubscriber;
 
+use App\Entity\User;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernel;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Security\Http\SecurityEvents;
@@ -34,6 +34,7 @@ class UserLocaleSubscriber implements EventSubscriberInterface
 
     public function onInteractiveLogin(InteractiveLoginEvent $event, string $eventName, EventDispatcherInterface $dispatcher)
     {
+        /** @var User $user */
         $user = $event->getAuthenticationToken()->getUser();
 
         if ($user->getLocale() !== null) {
@@ -44,7 +45,7 @@ class UserLocaleSubscriber implements EventSubscriberInterface
                 $this->session->set('_dispatch_remember_me', true);
                 $request->setLocale($user->getLocale());
 
-                $dispatcher->dispatch(new RequestEvent($this->kernel, $request, HttpKernel::MASTER_REQUEST), KernelEvents::REQUEST);
+                $dispatcher->dispatch(new RequestEvent($this->kernel, $request, HttpKernel::MASTER_REQUEST));
             }
         }
     }

@@ -45,6 +45,10 @@ class Extensions
         return $this->pem_url;
     }
 
+    public function getFsExtensions()
+    {
+    }
+
     public function download($params = [], $filename)
     {
         $url = $this->pem_url . '/download.php';

@@ -37,11 +37,9 @@ class Language
 
     /**
      * finds out if a string is in ASCII, UTF-8 or other encoding
-     *
-     * @param string $str
      * @return int *0* if _$str_ is ASCII, *1* if UTF-8, *-1* otherwise
      */
-    public static function qualify_utf8($Str)
+    public static function qualify_utf8(string $Str): int
     {
         $ret = 0;
         for ($i = 0; $i < strlen($Str); $i++) {

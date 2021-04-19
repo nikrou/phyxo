@@ -18,7 +18,8 @@ class RegisteredBlock
 {
     private $id, $name, $owner;
 
-    public function __construct(string $id, string $name, string $owner) {
+    public function __construct(string $id, string $name, string $owner)
+    {
         $this->id = $id;
         $this->name = $name;
         $this->owner = $owner;

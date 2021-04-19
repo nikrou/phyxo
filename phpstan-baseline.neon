@@ -1,4 +1,13 @@
 parameters:
   ignoreErrors:
-    - message: '#^Service "[^"]+" is private.$#'
-      path: '%rootDir%/../../../tests/'
+    # need refactoring
+    - message: '#Access to an undefined property object::\$template\.#'
+      path: src/Phyxo/MenuBar.php
+
+    # need refactoring
+    - message: '#Access to an undefined property object::\$min_size\.#'
+      path: src/Phyxo/Image/ImageStandardParams.php
+
+    # need refactoring
+    - message: '#Call to an undefined method Phyxo\\Image\\Image::.*#'
+      path: src/Controller/MediaController.php

@@ -38,9 +38,9 @@ class URL
 
     /**
      * returns the absolute url to the root of PWG
-     * @param boolean with_scheme if false - does not add http://toto.com
+     * with_scheme if false - does not add http://toto.com
      */
-    public static function get_absolute_root_url($with_scheme = false)
+    public static function get_absolute_root_url(bool $with_scheme = false)
     {
         // @TODO - add HERE the possibility to call PWG functions from external scripts
         $url = '';
@@ -82,11 +82,8 @@ class URL
 
     /**
      * Embellish the url argument
-     *
-     * @param $url
-     * @return $url embellished
      */
-    public static function embellish_url($url)
+    public static function embellish_url(string $url): string
     {
         $url = str_replace('/./', '/', $url);
         while (($dotdot = strpos($url, '/../', 1)) !== false) {
@@ -103,11 +100,8 @@ class URL
 
     /**
      * returns true if the url is absolute (begins with http)
-     *
-     * @param string $url
-     * @returns boolean
      */
-    public static function url_is_remote($url)
+    public static function url_is_remote(string $url): bool
     {
         return (strncmp($url, 'http://', 7) == 0 or strncmp($url, 'https://', 8) == 0);
     }

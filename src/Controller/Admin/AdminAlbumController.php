@@ -175,7 +175,7 @@ class AdminAlbumController extends AbstractController
             $uppercats = $album->getUppercats();
             $upper_array = explode(',', $uppercats);
             $database_dirs = [];
-            foreach ($albumMapper->getRepository()->findById($uppercats) as $uppercat_album) {
+            foreach ($albumMapper->getRepository()->findBy(['id' => $uppercats]) as $uppercat_album) {
                 $database_dirs[$uppercat_album->getId()] = $uppercat_album->getDir();
             }
 
@@ -465,7 +465,7 @@ class AdminAlbumController extends AbstractController
         if (count($tpl_params['groups_selected']) > 0) {
             $granted_groups = [];
 
-            foreach ($groupRepository->findById($tpl_params['groups_selected']) as $group) {
+            foreach ($groupRepository->findBy(['id' => $tpl_params['groups_selected']]) as $group) {
                 if (!isset($granted_groups[$group->getId()])) {
                     $granted_groups[$group->getId()] = [];
                 }

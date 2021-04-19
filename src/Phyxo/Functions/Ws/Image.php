@@ -140,7 +140,7 @@ class Image
 
         $nb_comments = $service->getManagerRegistry()->getRepository(Comment::class)->countForImage($image->getId(), $service->getUserMapper()->isAdmin());
         if ($nb_comments > 0 && $params['comments_per_page'] > 0) {
-            foreach ($service->getManagerRegistry()->getRepository(Comment::class)->getCommentsByImagePerPage(
+            foreach ($service->getManagerRegistry()->getRepository(Comment::class)->getCommentsForImagePerPage(
                 $image->getId(), $params['comments_per_page'], $params['comments_per_page'] * $params['comments_page']) as $comment) {
                 $related_comments[] = [
                     'id' => $comment->getId(),

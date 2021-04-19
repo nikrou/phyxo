@@ -151,7 +151,7 @@ class Group
             return new Error(Server::WS_ERR_INVALID_PARAM, 'This group does not exist.');
         }
 
-        foreach ($service->getManagerRegistry()->getRepository(User::class)->findById($params['user_id']) as $user) {
+        foreach ($service->getManagerRegistry()->getRepository(User::class)->findBy(['id' => $params['user_id']]) as $user) {
             $group->addUser($user);
         }
 
@@ -180,7 +180,7 @@ class Group
             return new Error(Server::WS_ERR_INVALID_PARAM, 'This group does not exist.');
         }
 
-        foreach ($service->getManagerRegistry()->getRepository(User::class)->findById($params['user_id']) as $user) {
+        foreach ($service->getManagerRegistry()->getRepository(User::class)->findBy(['id' => $params['user_id']]) as $user) {
             $group->removeUser($user);
         }
 

@@ -387,11 +387,11 @@ class User
         // manage association to groups
         if (!empty($params['group_id'])) {
             $groups = [];
-            foreach ($service->getManagerRegistry()->getRepository(Group::class)->findById($params['group_id']) as $group) {
+            foreach ($service->getManagerRegistry()->getRepository(Group::class)->findBy(['id' => $params['group_id']]) as $group) {
                 $groups[] = $group;
             }
 
-            foreach ($service->getManagerRegistry()->getRepository(EntityUser::class)->findById($params['user_id']) as $user) {
+            foreach ($service->getManagerRegistry()->getRepository(EntityUser::class)->findBy(['id' => $params['user_id']]) as $user) {
                 $user->setGroups($groups);
             }
         }

@@ -207,7 +207,7 @@ class Metadata
         }
         unset($i);
 
-        $v = $raw[0] + $raw[1] / 60 + $raw[2] / 3600;
+        $v = (int) $raw[0] + (int) $raw[1] / 60 + (int) $raw[2] / 3600;
 
         $ref = strtoupper($ref);
         if ($ref == 'S' or $ref == 'W') {

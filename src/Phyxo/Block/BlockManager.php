@@ -140,23 +140,4 @@ class BlockManager
 
         return $this->display_blocks;
     }
-
-    /**
-     * Parse the menu and assign the result in a template variable.
-     *
-     * @param string $var
-     * @param string $file
-     */
-    public function apply($template, $var_menubar, $var_blocks)
-    {
-        foreach ($this->display_blocks as $id => $block) {
-            if (empty($block->raw_content) && empty($block->template)) {
-                $this->hideBlock($id);
-            }
-        }
-        $this->sortBlocks();
-
-        $template->assign($var_blocks, $this->display_blocks);
-        $template->assign($var_menubar, true);
-    }
 }

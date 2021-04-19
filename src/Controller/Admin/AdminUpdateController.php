@@ -16,7 +16,10 @@ use App\Repository\PluginRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UpgradeRepository;
 use App\Repository\UserInfosRepository;
+use Phyxo\Language\Languages;
+use Phyxo\Plugin\Plugins;
 use Phyxo\TabSheet\TabSheet;
+use Phyxo\Theme\Themes;
 use Phyxo\Update\Updates;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -42,7 +45,8 @@ class AdminUpdateController extends AbstractController
 
     public function core(Request $request, int $step = 0, string $version = null, UserMapper $userMapper, string $defaultTheme,
                         ParameterBagInterface $params, TranslatorInterface $translator, PluginRepository $pluginRepository, ThemeRepository $themeRepository,
-                         UpgradeRepository $upgradeRepository, UserInfosRepository $userInfosRepository, TokenStorageInterface $tokenStorage, SessionInterface $session)
+                         UpgradeRepository $upgradeRepository, UserInfosRepository $userInfosRepository, TokenStorageInterface $tokenStorage, SessionInterface $session,
+                         Plugins $plugins, Themes $themes, Languages $languages)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -63,7 +67,7 @@ class AdminUpdateController extends AbstractController
         // +-----------------------------------------------------------------------+
         // |                                Step 0                                 |
         // +-----------------------------------------------------------------------+
-        $updater = new Updates($userMapper, $params->get('core_version'));
+        $updater = new Updates($userMapper, $params->get('core_version'), $plugins, $themes, $languages);
         $updater->setUpdateUrl($params->get('update_url'));
 
         if ($step === 0) {
@@ -146,12 +150,7 @@ class AdminUpdateController extends AbstractController
                     return $this->redirectToRoute('admin_home');
                 } catch (\Exception $e) {
                     $step = 0;
-                    $message = $e->getMessage();
-                    $message .= '<pre>';
-                    $message .= implode("\n", $e->not_writable);
-                    $message .= '</pre>';
-
-                    $tpl_params['UPGRADE_ERROR'] = $message;
+                    $tpl_params['UPGRADE_ERROR'] = $e->getMessage();
                 }
             }
         }
@@ -181,7 +180,7 @@ class AdminUpdateController extends AbstractController
 
                     // if the default theme has just been deactivated, let's set another core theme as default
                     if (in_array($userMapper->getDefaultTheme(), array_keys($themes_deactivated))) {
-                        $userInfosRepository->updateFieldForUser('theme', $userMapper->getDefaultTheme(), $userMapper->getDefaultUser()->getId());
+                        $userInfosRepository->updateFieldForUsers('theme', $userMapper->getDefaultTheme(), [$userMapper->getDefaultUser()->getId()]);
                     }
 
                     // @TODO : schema upgrade will be done with DoctrineMigrations
@@ -232,14 +231,7 @@ class AdminUpdateController extends AbstractController
                     return $this->redirectToRoute('admin_home');
                 } catch (\Exception $e) {
                     $step = 0;
-                    $message = $e->getMessage();
-                    if (isset($e->not_writable)) {
-                        $message .= '<pre>';
-                        $message .= implode("\n", $e->not_writable);
-                        $message .= '</pre>';
-                    }
-
-                    $tpl_params['UPGRADE_ERROR'] = $message;
+                    $tpl_params['UPGRADE_ERROR'] = $e->getMessage();
                 }
             }
         }

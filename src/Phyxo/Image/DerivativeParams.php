@@ -37,20 +37,15 @@ class DerivativeParams
         $this->sizing = $sizing;
     }
 
-    /**
-     * @return array
-     */
-    public function __sleep()
+    public function __sleep(): array
     {
         return ['last_mod_time', 'sizing', 'sharpen'];
     }
 
     /**
      * Adds tokens depending on sizing configuration.
-     *
-     * @param array &$tokens
      */
-    public function add_url_tokens(&$tokens)
+    public function add_url_tokens(array &$tokens)
     {
         $this->sizing->add_url_tokens($tokens);
     }
@@ -60,7 +55,7 @@ class DerivativeParams
      */
     public function compute_final_size($in_size)
     {
-        $this->sizing->compute($in_size, null, $crop_rect, $scale_size);
+        $this->sizing->compute($in_size, '', $crop_rect, $scale_size);
         return $scale_size != null ? $scale_size : $in_size;
     }
 
@@ -132,34 +127,23 @@ class DerivativeParams
         return $s[0] . 'x' . $s[1];
     }
 
-    /**
-     * @param int[] $s1
-     * @param int[] $s2
-     * @return bool
-     */
-    public static function size_equals($s1, $s2)
+    public static function size_equals(array $s1, array $s2): bool
     {
         return ($s1[0] == $s2[0] && $s1[1] == $s2[1]);
     }
 
     /**
      * Converts a char a-z into a float.
-     *
-     * @param string
-     * @return float
      */
-    public static function char_to_fraction($c)
+    public static function char_to_fraction(string $c): float
     {
         return (ord($c) - ord('a')) / 25;
     }
 
     /**
      * Converts a float into a char a-z.
-     *
-     * @param float
-     * @return string
      */
-    public static function fraction_to_char($f)
+    public static function fraction_to_char(float $f): string
     {
         return chr(ord('a') + round($f * 25));
     }

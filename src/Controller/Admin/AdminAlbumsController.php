@@ -173,7 +173,7 @@ class AdminAlbumsController extends AbstractController
                     $ref_dates = $albumMapper->getAlbumsRefDate($category_ids, $order_by_field, 'ASC' == $order_by_asc ? 'min' : 'max');
                 }
 
-                foreach ($albumRepository->findById($category_ids) as $album) {
+                foreach ($albumRepository->findBy(['id' => $category_ids]) as $album) {
                     if ($order_by_date) {
                         $sort[] = $ref_dates[$album->getId()];
                     } else {

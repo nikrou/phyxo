@@ -322,9 +322,9 @@ class Server
 
     /**
      * Registers a web service method.
-     * @param methodName string - the name of the method as seen externally
-     * @param callback mixed - php method to be invoked internally
-     * @param params array - map of allowed parameter names with options
+     * methodName string -name of the method as seen externally
+     * callback mixed - php method to be invoked internally
+     * params array - map of allowed parameter names with options
      *    @option mixed default (optional)
      *    @option int flags (optional)
      *      possible values: WS_PARAM_ALLOW_ARRAY, WS_PARAM_FORCE_ARRAY, WS_PARAM_OPTIONAL
@@ -332,13 +332,13 @@ class Server
      *      possible values: WS_TYPE_BOOL, WS_TYPE_INT, WS_TYPE_FLOAT, WS_TYPE_ID
      *                       WS_TYPE_POSITIVE, WS_TYPE_NOTNULL
      *    @option int|float maxValue (optional)
-     * @param description string - a description of the method.
-     * @param options array
+     * description string - a description of the method.
+     * options array
      *    @option bool hidden (optional) - if true, this method won't be visible by reflection.getMethodList
      *    @option bool admin_only (optional)
      *    @option bool post_only (optional)
      */
-    public function addMethod($methodName, $callback, $params = [], $description = '', $options = [])
+    public function addMethod(string $methodName, callable $callback, array $params = [], string $description = '', array $options = [])
     {
         if (!is_array($params)) {
             $params = [];
@@ -484,10 +484,8 @@ class Server
     /**
      *  Invokes a registered method. Returns the return of the method (or
      *  a Error object if the method is not found)
-     *  @param methodName string the name of the method to invoke
-     *  @param params array array of parameters to pass to the invoked method
      */
-    public function invoke($methodName, $params)
+    public function invoke(string $methodName, array $params)
     {
         $method = @$this->_methods[$methodName];
 

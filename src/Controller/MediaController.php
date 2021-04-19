@@ -117,7 +117,7 @@ class MediaController extends CommonController
             return $response;
         }
 
-        $coi = null;
+        $coi = '';
         try {
             if ($image->getWidth() > 0 && $image->getHeight()) {
                 $this->original_size = [$image->getWidth(), $image->getHeight()];
@@ -177,7 +177,7 @@ class MediaController extends CommonController
             $wm_size = [$wm_image->get_width(), $wm_image->get_height()];
             if ($d_size[0] < $wm_size[0] or $d_size[1] < $wm_size[1]) {
                 $wm_scaling_params = SizingParams::classic($d_size[0], $d_size[1]);
-                $wm_scaling_params->compute($wm_size, null, $tmp, $wm_scaled_size);
+                $wm_scaling_params->compute($wm_size, '', $tmp, $wm_scaled_size);
                 $wm_size = $wm_scaled_size;
                 $wm_image->resize($wm_scaled_size[0], $wm_scaled_size[1]);
             }

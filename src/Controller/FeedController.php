@@ -31,7 +31,7 @@ class FeedController extends CommonController
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params['PAGE_TITLE'] = $translator->trans('Notification');
 
-        $feed = $userFeedRepository->findOneByUser($this->getUser());
+        $feed = $userFeedRepository->findOneBy(['user' => $this->getUser()]);
         if (is_null($feed)) {
             $feed = new UserFeed();
             $feed->setUser($this->getUser());
@@ -64,7 +64,7 @@ class FeedController extends CommonController
 
     public function feed(string $feed_id, bool $image_only = false, Conf $conf, UserFeedRepository $userFeedRepository, string $cacheDir, Notification $notification, TranslatorInterface $translator)
     {
-        $feed = $userFeedRepository->findOneByUuid($feed_id);
+        $feed = $userFeedRepository->findOneBy(['uuid' => $feed_id]);
         if (is_null($feed)) {
             throw $this->createNotFoundException($translator->trans('Unknown feed identifier'));
         }

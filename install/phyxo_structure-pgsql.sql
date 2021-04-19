@@ -371,9 +371,10 @@ CREATE TABLE "phyxo_user_cache_categories"
 DROP TABLE IF EXISTS "phyxo_user_feed";
 CREATE TABLE "phyxo_user_feed"
 (
-  "id" VARCHAR(50) DEFAULT '' NOT NULL,
+  "id" serial NOT NULL,
   "user_id" INTEGER DEFAULT 0 NOT NULL,
   "last_check" TIMESTAMP,
+  "uuid" VARCHAR(36) NOT NULL,
   PRIMARY KEY ("id")
 );
 
