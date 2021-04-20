@@ -15,7 +15,6 @@
         "atoum/atoum": "4",
         "composer/package-versions-deprecated": "^1.11",
         "doctrine/doctrine-bundle": "^2.1",
-        "doctrine/doctrine-migrations-bundle": "^3.0",
         "doctrine/orm": "^2.7",
         "openpsa/universalfeedcreator": "^1.8",
         "pclzip/pclzip": "^2.8",
