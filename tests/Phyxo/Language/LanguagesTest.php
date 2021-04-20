@@ -9,16 +9,29 @@
  * file that was distributed with this source code.
  */
 
-namespace tests\units\Phyxo\Language;
+namespace App\Tests\Phyxo\Language;
 
-require_once __DIR__ . '/../../bootstrap.php';
+use App\DataMapper\UserMapper;
+use App\Repository\LanguageRepository;
+use PHPUnit\Framework\TestCase;
+use Phyxo\Language\Languages;
 
-use atoum;
-use Prophecy\Prophet;
-
-class Languages extends atoum
+class LanguagesTest extends TestCase
 {
-    private $languages_path = __DIR__ . '/../../fixtures/translations/';
+    const LANGUAGES_PATH = __DIR__ . '/../../fixtures/translations/';
+
+    public function testFsLanguages()
+    {
+        $userMapper = $this->prophesize(UserMapper::class);
+        $userMapper->getDefaultLanguage()->willReturn('en_GB');
+
+        $languageRepository = $this->prophesize(LanguageRepository::class);
+
+        $languages = new Languages($languageRepository->reveal(), $userMapper->reveal()->getDefaultLanguage());
+        $languages->setRootPath(self::LANGUAGES_PATH);
+
+        $this->assertEquals($this->getLocalLanguages(), $languages->getFsLanguages());
+    }
 
     private function getLocalLanguages()
     {
@@ -67,21 +80,5 @@ class Languages extends atoum
                 'extension' => '61'
             ]
         ];
-    }
-
-    public function testFsLanguages()
-    {
-        $prophet = new Prophet();
-        $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
-        $userMapper->getDefaultLanguage()->willReturn('en_GB');
-
-        $languageRepository = $prophet->prophesize('App\Repository\LanguageRepository');
-
-        $languages = new \Phyxo\Language\Languages($languageRepository->reveal(), $userMapper->reveal()->getDefaultLanguage());
-        $languages->setRootPath($this->languages_path);
-
-        $this
-            ->array($languages->getFsLanguages())
-            ->isEqualTo($this->getLocalLanguages());
     }
 }

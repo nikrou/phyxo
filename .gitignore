@@ -53,9 +53,6 @@
 ;; plugins
 /plugins
 
-;; atoum
-/coverage
-
 /behat.yml
 
 ###> symfony/framework-bundle ###
@@ -82,4 +79,5 @@ behat.yml
 .phpunit
 .phpunit.result.cache
 /phpunit.xml
+/coverage
 ###< symfony/phpunit-bridge ###

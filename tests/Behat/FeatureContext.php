@@ -13,17 +13,15 @@ namespace App\Tests\Behat;
 
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Symfony2Extension\Context\KernelDictionary;
-use atoum\atoum\asserter\generator;
 
 class FeatureContext extends BaseContext
 {
     use KernelDictionary;
 
-    private $assert, $storage;
+    private $storage;
 
     public function __construct(Storage $storage)
     {
-        $this->assert = new generator();
         $this->storage = $storage;
     }
 
@@ -195,9 +193,9 @@ class FeatureContext extends BaseContext
     public function iShouldSeeDescriptionForAlbum(string $description, string $album_name)
     {
         $album = $this->getPage()->find('css', sprintf('*[data-id="%d"]', $this->storage->get('album_' . $album_name)->getId()));
-        $this->assert
-            ->string($description)
-            ->isEqualTo($this->findByDataTestid('album-description', $album)->getText());
+        if ($description !== $this->findByDataTestid('album-description', $album)->getText()) {
+            throw new \Exception(sprintf('Description "%s" for album "%s" not found but should be', $description, $album_name));
+        }
     }
 
     /**
@@ -213,9 +211,9 @@ class FeatureContext extends BaseContext
         //     throw new \Exception('Number of images exists but it is not visible');
         // }
 
-        $this->assert
-            ->string($nb_images)
-            ->isEqualTo($element->getText());
+        if ($nb_images !== $element->getText()) {
+            throw new \Exception(sprintf('Number of images "%s" for album "%s" not found but should be', $nb_images, $album_name));
+        }
     }
 
     /**
@@ -227,9 +225,9 @@ class FeatureContext extends BaseContext
         $div_album = $this->getPage()->find('css', sprintf('#album-%d', $this->storage->get('album_' . $album_name)->getId()));
         $element = $div_album->find('css', '*[data-testid="number_of_photos"]');
 
-        $this->assert
-            ->string($nb_images)
-            ->isEqualTo($element->getText());
+        if ($nb_images !== $element->getText()) {
+            throw new \Exception(sprintf('Number of images "%s" for album "%s" not found but should be', $nb_images, $album_name));
+        }
     }
 
     /**

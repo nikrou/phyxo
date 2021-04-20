@@ -9,37 +9,39 @@
  * file that was distributed with this source code.
  */
 
-namespace tests\units\Phyxo\Plugin;
+namespace App\Tests\Phyxo\Plugin;
 
-require_once __DIR__ . '/../../bootstrap.php';
-
-use atoum;
-use Prophecy\Prophet;
+use App\DataMapper\UserMapper;
+use App\Repository\PluginRepository;
+use PHPUnit\Framework\TestCase;
+use Phyxo\Plugin\Plugins;
+use Prophecy\Argument;
 use Symfony\Component\Filesystem\Filesystem;
 
-class Plugins extends atoum
+class PluginsTest extends TestCase
 {
-    private $plugins_path = __DIR__ . '/../../fixtures/plugins';
-    protected  $plugins_dir = PHPWG_TMP_PATH . '/plugins';
+    const PLUGINS_PATH = __DIR__ . '/../../fixtures/plugins';
+    const PLUGINS_DIR = __DIR__ . '/../../tmp/plugins';
+    const PLUGINS_ZIP_PATH = __DIR__ . '/../../fixtures/zip';
 
-    public function setUp()
+    public function setUp(): void
     {
         $fs = new Filesystem();
-        $fs->mkdir($this->plugins_dir);
+        $fs->mkdir(self::PLUGINS_DIR);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $fs = new Filesystem();
-        $fs->remove($this->plugins_dir);
+        $fs->remove(self::PLUGINS_DIR);
     }
 
     private function mirrorToWorkspace(): string
     {
-        $workspace = $this->plugins_dir . '/' . md5(random_bytes(15));
+        $workspace = self::PLUGINS_DIR . '/' . md5(random_bytes(15));
         $fs = new Filesystem();
         $fs->mkdir($workspace);
-        $fs->mirror($this->plugins_path, $workspace);
+        $fs->mirror(self::PLUGINS_PATH, $workspace);
 
         return $workspace;
     }
@@ -48,9 +50,7 @@ class Plugins extends atoum
     {
         $workspace = $this->mirrorToWorkspace();
 
-        $prophet = new Prophet();
-        $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
-
+        $userMapper = $this->prophesize(UserMapper::class);
         $userMapper->getUser()->willReturn(new class {
             function getLanguage()
             {
@@ -58,23 +58,21 @@ class Plugins extends atoum
             }
         });
 
-        $pluginRepository = $prophet->prophesize('App\Repository\PluginRepository');
-
-        $plugins = new \Phyxo\Plugin\Plugins($pluginRepository->reveal(), $userMapper->reveal());
+        $pluginRepository = $this->prophesize(PluginRepository::class);
+        $plugins = new Plugins($pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
 
-        $this
-            ->array($plugins->getFsPlugins())
-            ->isEqualTo($this->getLocalPlugins());
+        $this->assertEquals($this->getLocalPlugins(), $plugins->getFsPlugins());
     }
 
-    public function testSortPlugins($sort_type, $order)
+    /**
+     * @dataProvider sortPluginsDataProvider
+     */
+    public function testSortPlugins(string $sort_type, array $order)
     {
         $workspace = $this->mirrorToWorkspace();
 
-        $prophet = new Prophet();
-        $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
-
+        $userMapper = $this->prophesize(UserMapper::class);
         $userMapper->getUser()->willReturn(new class {
             function getLanguage()
             {
@@ -82,27 +80,21 @@ class Plugins extends atoum
             }
         });
 
-        $pluginRepository = $prophet->prophesize('App\Repository\PluginRepository');
-
-        $plugins = new \Phyxo\Plugin\Plugins($pluginRepository->reveal(), $userMapper->reveal());
+        $pluginRepository = $this->prophesize(PluginRepository::class);
+        $plugins = new Plugins($pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
 
         $plugins->sortFsPlugins($sort_type);
 
-        $this
-            ->array($plugins->getFsPlugins())
-            ->isEqualTo($this->getLocalPlugins())
-            ->and()
-            ->array($plugins->getFsPlugins())
-            ->keys->isEqualTo($order);
+        $this->assertEquals($this->getLocalPlugins(), $plugins->getFsPlugins());
+        $this->assertEquals($order, array_keys($plugins->getFsPlugins()));
     }
 
-    public function testExtractPluginWithEmptyOrInvalidArchive()
+    public function _testExtractPluginWithEmptyOrInvalidArchive()
     {
         $workspace = $this->mirrorToWorkspace();
 
-        $prophet = new Prophet();
-        $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
+        $userMapper = $this->prophesize(UserMapper::class);
 
         $userMapper->getUser()->willReturn(new class {
             function getLanguage()
@@ -111,28 +103,20 @@ class Plugins extends atoum
             }
         });
 
-        $pluginRepository = $prophet->prophesize('App\Repository\PluginRepository');
-
-        $plugins = new \Phyxo\Plugin\Plugins($pluginRepository->reveal(), $userMapper->reveal());
+        $pluginRepository = $this->prophesize(PluginRepository::class);
+        $plugins = new Plugins($pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
 
         $plugin_id = 'myPlugin';
-        $this->exception(
-            function () use ($plugins, $plugin_id) {
-                $plugins->extractPluginFiles('install', 10, 'myPlugin', $plugin_id);
-            }
-        )
-            ->hasMessage("Cannot download plugin file");
+        $this->expectExceptionMessage("Cannot download plugin file");
+        $plugins->extractPluginFiles('install', 10);
     }
 
-    // @TODO : need to update that test using Prophecy
     public function _testExtractPlugin()
     {
         $workspace = $this->mirrorToWorkspace();
 
-        $prophet = new Prophet();
-        $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
-
+        $userMapper = $this->prophesize(UserMapper::class);
         $userMapper->getUser()->willReturn(new class {
             function getLanguage()
             {
@@ -140,19 +124,17 @@ class Plugins extends atoum
             }
         });
 
-        $pluginRepository = $prophet->prophesize('App\Repository\PluginRepository');
-
-        $plugins = new \Phyxo\Plugin\Plugins($pluginRepository->reveal(), $userMapper->reveal());
+        $pluginRepository = $this->prophesize(PluginRepository::class);
+        $plugins = new Plugins($pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setExtensionsURL('http://localhost');
         $plugins->setRootPath($workspace);
-
-        $plugins->download([], 'my')->will(function ($get_data, $archive) {
+        $plugins->download(Argument::any(), Argument::any())->will(function ($i, $j) {
             // copy archive in right place
-            copy(PHPWG_ZIP_PATH . '/myPlugin1-0.1.0.zip', $archive);
+            copy(self::PLUGINS_ZIP_PATH . '/myPlugin1-0.1.0.zip', 'my');
         });
 
         $plugin_id = 'myPlugin1';
-        $plugins->extractPluginFiles('install', 10, 'myPlugin1', $plugin_id);
+        $plugins->extractPluginFiles('install', 10);
         $plugins->getFsPlugin($plugin_id); // refresh plugins list
 
         $myPlugin1 = [
@@ -168,9 +150,7 @@ class Plugins extends atoum
         ];
         // tests
         $plugins->sortFsPlugins('id');
-        $this
-            ->array($plugins->getFsPlugins())
-            ->isEqualTo(array_merge($myPlugin1, $this->getLocalPlugins()));
+        $this->assertEquals(array_merge($myPlugin1, $this->getLocalPlugins()), $plugins->getFsPlugins());
     }
 
     // @TODO : need to update that test using Prophecy
@@ -178,9 +158,7 @@ class Plugins extends atoum
     {
         $workspace = $this->mirrorToWorkspace();
 
-        $prophet = new Prophet();
-        $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
-
+        $userMapper = $this->prophesize(UserMapper::class);
         $userMapper->getUser()->willReturn(new class {
             function getLanguage()
             {
@@ -188,9 +166,8 @@ class Plugins extends atoum
             }
         });
 
-        $pluginRepository = $prophet->prophesize('App\Repository\PluginRepository');
-
-        $plugins = new \Phyxo\Plugin\Plugins($pluginRepository->reveal(), $userMapper->reveal());
+        $pluginRepository = $this->prophesize(PluginRepository::class);
+        $plugins = new Plugins($pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
 
         $this->calling($plugins)->download = function ($get_data, $archive) {
@@ -236,7 +213,7 @@ class Plugins extends atoum
             ->isEqualTo(array_merge($new_plugin, $this->getLocalPlugins()));
     }
 
-    protected function testSortPluginsDataProvider()
+    public function sortPluginsDataProvider()
     {
         return [
             ['author', ['Plugin2', 'Plugin3', 'Plugin4', 'plugin_lowercase', 'Plugin1']],

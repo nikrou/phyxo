@@ -23,7 +23,7 @@ Open your website and install database and first user through web interface.
 
 ### From source
 
-Clone this repository :
+Clone this repository:
 
 ```sh
 $ git clone git@github.com:nikrou/phyxo.git
@@ -36,7 +36,7 @@ $ curl -sS https://getcomposer.org/installer | php
 $ mv composer.phar composer
 ```
 
-Update dependencies via composer :
+Update dependencies via composer:
 
 ```
 $ composer install
@@ -44,13 +44,13 @@ $ composer install
 
 Install Phyxo through web interface.
 
-For both methods you can make installation process from command line :
+For both methods you can make installation process from command line:
 
 ```sh
 $ ./bin/console phyxo:install
 ```
 
-And create first user :
+And create first user:
 
 ```sh
 $ ./bin/console phyxo:user:create
@@ -66,23 +66,35 @@ a pull request, or feel free to use any other way you'd prefer.
 You must have install phyxo first, and update base_url in behat.yml.dist
 
 phyxo is tested using a BDD framework - [Behat](http://www.behat.org).
-To run test :
+To run test:
 
 ```
 $ ./bin/behat
 ```
 
-But there's also unit tests in phyxo runned with [Atoum](http://atoum.org).
-To run tests :
+But there's also unit tests in phyxo runned with [PHPUnit](https://phpunit.de/).
+To run tests:
 
-```
-$ ./bin/atoum
+```sh
+$ ./bin/simple-phpunit --testdox
 ```
 
-You can also get coverage report for tests by running :
+or
 
+```sh
+$ make unit-test
 ```
-$ ./bin/atoum -ebpc -c .atoum.coverage.php
+
+You can also get coverage report for tests by running:
+
+```sh
+$ ./bin/simple-phpunit --testdox --coverage-html=coverage
+```
+
+or
+
+```sh
+$ make unit-test-coverage
 ```
 
 ## Static code analysis

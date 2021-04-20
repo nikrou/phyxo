@@ -9,14 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace tests\units\Phyxo\Calendar;
+namespace App\Tests\Phyxo\Calendar;
 
-use atoum;
-use Prophecy\Prophet;
+use App\Repository\AlbumRepository;
+use App\Repository\ImageRepository;
+use PHPUnit\Framework\TestCase;
 
-class CalendarMonthly extends atoum
+class CalendarMonthlyTest extends TestCase
 {
-    public function testCalendar()
+    public function testCalendar(): void
     {
         $calendarLevels = [
             [
@@ -33,9 +34,8 @@ class CalendarMonthly extends atoum
             ]
         ];
 
-        $prophet = new Prophet();
-        $image_repository = $prophet->prophesize('App\Repository\ImageRepository');
-        $album_repository = $prophet->prophesize('App\Repository\AlbumRepository');
+        $image_repository = $this->prophesize(ImageRepository::class);
+        $album_repository = $this->prophesize(AlbumRepository::class);
 
         $calendar = new \Phyxo\Calendar\CalendarMonthly($image_repository->reveal(), $album_repository->reveal(), 'created');
         $calendar->setViewType('list'); // or calendar
@@ -44,11 +44,7 @@ class CalendarMonthly extends atoum
         $chronology_date[] = 20;
         $calendar->setChronologyDate($chronology_date);
 
-        $this
-            ->string($calendar->date_field)
-            ->isIdenticalTo('date_creation')
-
-            ->array($calendar->getCalendarLevels())
-            ->isIdenticalTo($calendarLevels);
+        $this->assertEquals($calendar->date_field, 'date_creation');
+        $this->assertEquals($calendar->getCalendarLevels(), $calendarLevels);
     }
 }

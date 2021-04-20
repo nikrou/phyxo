@@ -2,6 +2,7 @@
 
 - no more database config file in local/config. Use config/database.yaml instead.
 - move back index.php in public directory
+- replace atoum by phpunit for tests
 
 # Phyxo 2.1.0 - 2021-02-20
 

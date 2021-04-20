@@ -78,7 +78,6 @@ config: clean ## prepare environment for building archive
 	find $(DIST) -name '.env.local*' -o -name '.env.*.local' -exec rm \{\} \;
 	echo 'APP_ENV=prod' > $(DIST)/$(APP_NAME)/.env.local
 
-	rm -fr $(DIST)/$(APP_NAME)/vendor/atoum
 	rm -fr $(DIST)/$(APP_NAME)/vendor/symfony/phpunit-bridge
 	find ./$(DIST)/ -type d -name '.git' | xargs -r rm -rf
 	find ./$(DIST)/ -type f -name '.*ignore' | xargs -r rm -rf
@@ -173,10 +172,10 @@ behat: ## execute behat tests
 	fi
 
 unit-tests: ## execute unit tests
-	@./bin/atoum
+	@./bin/simple-phpunit --testdox
 
 unit-tests-coverage: ## execute unit tests with coverage
-	@./bin/atoum -ebpc -c .atoum.coverage.php
+	@./bin/simple-phpunit --testdox --coverage-html=coverage
 
 chrome: ## launch google-chrome in headless mode to run behat tests
 	@google-chrome-stable --disable-gpu --headless --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222
