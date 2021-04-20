@@ -64,6 +64,7 @@ class Image
             case 'validate':
             case 'moderate':
                 $ret = [
+                    /** @phpstan-ignore-next-line Offset 'id' does not exist on array - $comm is modify by insertUserComment */
                     'id' => $comm['id'],
                     'validation' => $comment_action == 'validate',
                 ];

@@ -636,7 +636,7 @@ class AdminConfigurationController extends AbstractController
                 }
                 $conf['picture_informations'] = $picture_informations;
             } elseif ($section === 'watermark') {
-                $watermark = [];
+                $watermark = ['file' => '', 'xpos' => '', 'ypos' => '', 'xrepeat' => '', 'opacity' => '', 'minh' => '', 'minw' => ''];
                 if ($request->files->get('watermarkImage')) {
                     $watermarkImage = $request->files->get('watermarkImage');
 

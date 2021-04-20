@@ -50,81 +50,59 @@ class DerivativeParams
         $this->sizing->add_url_tokens($tokens);
     }
 
-    /**
-     * @return int[]
-     */
-    public function compute_final_size($in_size)
+    public function compute_final_size($in_size): array
     {
         $this->sizing->compute($in_size, '', $crop_rect, $scale_size);
-        return $scale_size != null ? $scale_size : $in_size;
+
+        return $scale_size !== null ? $scale_size : $in_size;
     }
 
-    /**
-     * @return int
-     */
-    public function max_width()
+    public function max_width(): int
     {
         return $this->sizing->ideal_size[0];
     }
 
-    /**
-     * @return int
-     */
-    public function max_height()
+    public function max_height(): int
     {
         return $this->sizing->ideal_size[1];
     }
 
     /**
-     * @todo : description of DerivativeParams::is_identity
-     *
-     * @return bool
+     * @TODO : description of DerivativeParams::is_identity
      */
-    public function is_identity($in_size)
+    public function is_identity(array $in_size): bool
     {
-        if ($in_size[0] > $this->sizing->ideal_size[0] || $in_size[1] > $this->sizing->ideal_size[1]) {
-            return false;
-        }
-        return true;
+        return !($in_size[0] > $this->sizing->ideal_size[0] || $in_size[1] > $this->sizing->ideal_size[1]);
     }
 
-    /**
-     * @return bool
-     */
-    public function will_watermark($out_size, ImageStandardParams $image_std_params)
+    public function will_watermark($out_size, ImageStandardParams $image_std_params): bool
     {
         if ($this->use_watermark) {
             $min_size = $image_std_params->getWatermark()->min_size;
             return $min_size[0] <= $out_size[0] || $min_size[1] <= $out_size[1];
         }
+
         return false;
     }
 
-    //
-
     /**
      * Formats a size name into a 2 chars identifier usable in filename.
-     *
-     * @param string $t one of IMG_*
-     * @return string
      */
-    public static function derivative_to_url($t)
+    public static function derivative_to_url(string $t): string
     {
         return substr($t, 0, 2);
     }
 
     /**
      * Formats a size array into a identifier usable in filename.
-     *
-     * @param int[] $s
-     * @return string
      */
-    public static function size_to_url($s)
+    public static function size_to_url(array $s): string
     {
         if ($s[0] == $s[1]) {
-            return $s[0];
+            return (string) $s[0];
         }
-        return $s[0] . 'x' . $s[1];
+
+        return (string) $s[0] . 'x' . $s[1];
     }
 
     public static function size_equals(array $s1, array $s2): bool

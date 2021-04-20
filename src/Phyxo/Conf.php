@@ -106,7 +106,7 @@ class Conf implements \ArrayAccess
         }
     }
 
-    protected function confToDb($value, string $type = 'string'): string
+    protected function confToDb($value, string $type = 'string'): ?string
     {
         if (is_null($value)) {
             return null;

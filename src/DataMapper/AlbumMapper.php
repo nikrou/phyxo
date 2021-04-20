@@ -804,34 +804,6 @@ class AlbumMapper
     }
 
     /**
-     * Returns the fulldir for each given album id.
-     */
-    public function getFulldirs(array $ids): array
-    {
-        if (count($ids) == 0) {
-            return [];
-        }
-
-        $fulldirs = [];
-        foreach ($this->albumRepository->findPhysicalAlbums($ids) as $album) {
-            $albums[$album->getId()] = $album;
-        }
-
-        $albums = [];
-        $dirs_callback = function ($m) use ($albums) {
-            return $albums[$m[1]]->getDir();
-        };
-
-        foreach ($albums as $album) {
-            $uppercats = str_replace(',', '/', $album->getUppercats());
-            $fulldirs[$album->getId()] = $album->getSite()->getGalleriesUrl();
-            $fulldirs[$album->getId()] .= preg_replace('/(\d+)/', $dirs_callback, $uppercats);
-        }
-
-        return $fulldirs;
-    }
-
-    /**
      * Set a new random representant to the albums.
      */
     public function setRandomRepresentant(array $album_ids)

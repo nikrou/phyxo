@@ -44,13 +44,13 @@ class SrcImage
         $ext = Utils::get_extension($infos['path']);
         if (in_array($ext, $picture_ext)) {
             $this->rel_path = $infos['path'];
-            $this->flags |= self::IS_ORIGINAL;
+            $this->flags = self::IS_ORIGINAL;
         } elseif (!empty($infos['representative_ext'])) {
             $this->rel_path = \Phyxo\Functions\Utils::original_to_representative($infos['path'], $infos['representative_ext']);
         } else {
             $ext = strtolower($ext);
             $this->rel_path = 'themes/treflez/icon' . $ext . '.png';
-            $this->flags |= self::IS_MIMETYPE;
+            $this->flags = self::IS_MIMETYPE;
             if (($size = @getimagesize(__DIR__ . '/../../../' . $this->rel_path)) === false) {
                 $this->rel_path = 'themes/treflez/icon/mimetypes/unknown.png';
                 $size = getimagesize(__DIR__ . '/../../../' . $this->rel_path);
@@ -73,51 +73,36 @@ class SrcImage
 
                 $this->size = [$width, $height];
             } elseif (!array_key_exists('width', $infos)) {
-                $this->flags |= self::DIM_NOT_GIVEN;
+                $this->flags = self::DIM_NOT_GIVEN;
             }
         }
     }
 
-    /**
-     * @return bool
-     */
-    public function is_original()
+    public function is_original(): bool
     {
-        return $this->flags & self::IS_ORIGINAL;
+        return $this->flags === self::IS_ORIGINAL;
     }
 
-    /**
-     * @return bool
-     */
-    public function is_mimetype()
+    public function is_mimetype(): bool
     {
-        return $this->flags & self::IS_MIMETYPE;
+        return $this->flags === self::IS_MIMETYPE;
     }
 
-    /**
-     * @return string
-     */
-    public function get_path()
+    public function get_path(): string
     {
         return __DIR__ . '/../../../' . $this->rel_path;
     }
 
-    /**
-     * @return string
-     */
-    public function getUrl()
+    public function getUrl(): string
     {
         $url = \Phyxo\Functions\URL::get_root_url() . $this->rel_path;
 
         return \Phyxo\Functions\URL::embellish_url($url);
     }
 
-    /**
-     * @return bool
-     */
-    public function has_size()
+    public function has_size(): bool
     {
-        return $this->size != null;
+        return $this->size !== null;
     }
 
     /**
@@ -126,7 +111,7 @@ class SrcImage
     public function get_size()
     {
         if ($this->size == null) {
-            if ($this->flags & self::DIM_NOT_GIVEN) {
+            if ($this->flags === self::DIM_NOT_GIVEN) {
                 throw new \Exception('SrcImage dimensions required but not provided');
             }
         }

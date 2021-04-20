@@ -90,14 +90,14 @@ class WsController extends AbstractController
         $this->service->addMethod(
             'pwg.getVersion',
             '\Phyxo\Functions\Ws\Main::getVersion',
-            null,
+            [],
             'Returns the Phyxo version.'
         );
 
         $this->service->addMethod(
             'pwg.getInfos',
             '\Phyxo\Functions\Ws\Main::getInfos',
-            null,
+            [],
             'Returns general informations.',
             ['admin_only' => true]
         );
@@ -239,7 +239,7 @@ class WsController extends AbstractController
         $this->service->addMethod(
             'pwg.session.getStatus',
             '\Phyxo\Functions\Ws\Session::getStatus',
-            null,
+            [],
             'Gets information about the current session. Also provides a token useable with admin methods.'
         );
 
@@ -254,7 +254,7 @@ class WsController extends AbstractController
         $this->service->addMethod(
             'pwg.session.logout',
             '\Phyxo\Functions\Ws\Session::logout',
-            null,
+            [],
             'Ends the current session.'
         );
 
@@ -380,7 +380,7 @@ class WsController extends AbstractController
         $this->service->addMethod(
             'pwg.categories.getAdminList',
             '\Phyxo\Functions\Ws\Category::getAdminList',
-            null,
+            [],
             'Get albums list as displayed on admin page.',
             ['admin_only' => true]
         );
@@ -440,7 +440,7 @@ class WsController extends AbstractController
         $this->service->addMethod(
             'pwg.tags.getAdminList',
             '\Phyxo\Functions\Ws\Tag::getAdminList',
-            null,
+            [],
             '<b>Admin only.</b>',
             ['admin_only' => true]
         );
@@ -482,7 +482,7 @@ class WsController extends AbstractController
         $this->service->addMethod(
             'pwg.images.checkUpload',
             '\Phyxo\Functions\Ws\Image::checkUpload',
-            null,
+            [],
             'Checks if Phyxo is ready for upload.',
             ['admin_only' => true]
         );
@@ -542,7 +542,7 @@ class WsController extends AbstractController
         $this->service->addMethod(
             'pwg.plugins.getList',
             '\Phyxo\Functions\Ws\Plugin::getList',
-            null,
+            [],
             'Gets the list of plugins with id, name, version, state and description.',
             ['admin_only' => true]
         );
@@ -555,7 +555,7 @@ class WsController extends AbstractController
                 'plugin' => [],
                 'pwg_token' => [],
             ],
-            null,
+            '',
             ['admin_only' => true]
         );
 
@@ -567,7 +567,7 @@ class WsController extends AbstractController
                 'theme' => [],
                 'pwg_token' => [],
             ],
-            null,
+            '',
             ['admin_only' => true]
         );
 
@@ -600,7 +600,7 @@ class WsController extends AbstractController
         $this->service->addMethod(
             'pwg.extensions.checkUpdates',
             '\Phyxo\Functions\Ws\Extension::checkupdates',
-            null,
+            [],
             'Checks if phyxo or extensions are up to date.',
             ['admin_only' => true]
         );

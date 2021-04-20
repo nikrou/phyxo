@@ -128,7 +128,7 @@ class InstallCommand extends Command
             $this->db_params['db_prefix'] = $input->getOption('db_prefix') ? $input->getOption('db_prefix') : $this->default_prefix;
         } else {
             if (!$io->askQuestion(new ConfirmationQuestion("Install Phyxo using these settings?", true))) {
-                return;
+                return 0;
             }
         }
 

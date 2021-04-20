@@ -293,7 +293,7 @@ class Metadata
         $fs = @filesize($file);
 
         if ($fs === false) {
-            return false;
+            return [];
         }
 
         $infos['filesize'] = floor($fs / 1024);

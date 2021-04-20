@@ -36,10 +36,8 @@ class LocalSiteReader
 
     /**
      * Is this local site ok ?
-     *
-     * @return true on success, false otherwise
      */
-    public function open()
+    public function open(): bool
     {
         if (!is_dir($this->site_url)) {
             $errors[] = [

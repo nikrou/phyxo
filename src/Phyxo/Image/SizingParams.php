@@ -80,7 +80,7 @@ class SizingParams
      * ImageRect &$crop_rect - ImageRect containing the cropping rectangle or null if cropping is not required
      * int[] &$scale_size - two element array containing width and height of the scaled image
      */
-    public function compute(array $in_size, string $coi, &$crop_rect, &$scale_size)
+    public function compute(array $in_size, ?string $coi, &$crop_rect, &$scale_size)
     {
         $destCrop = new ImageRect($in_size);
 

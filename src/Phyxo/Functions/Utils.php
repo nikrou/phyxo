@@ -242,55 +242,6 @@ class Utils
         }
     }
 
-    /**
-     * log the visit into history table
-     *
-     * @param int $image_id
-     * @param string $image_type
-     * @return bool
-     */
-    public static function log($image_id = null, $image_type = null)
-    {
-        // no more log. @TODO: use monolog
-        return;
-
-        // global $conf, $user, $page, $conn, $services;
-
-        // $do_log = $conf['log'];
-        // if ($services['users']->isAdmin()) {
-        //     $do_log = $conf['history_admin'];
-        // }
-        // if ($services['users']->isGuest()) {
-        //     $do_log = $conf['history_guest'];
-        // }
-
-
-        // if (!$do_log) {
-        //     return false;
-        // }
-
-        // $tags_string = null;
-        // if (!empty($page['section']) && $page['section'] == 'tags') {
-        //     $tags_string = implode(',', $page['tag_ids']);
-        // }
-
-        // (new HistoryRepository($conn))->addHistory(
-        //     [
-        //         'date' => 'CURRENT_DATE',
-        //         'time' => 'CURRENT_TIME',
-        //         'user_id' => $user['id'],
-        //         'IP' => $_SERVER['REMOTE_ADDR'],
-        //         'section' => $page['section'] ?? null,
-        //         'category_id' => $page['category']['id'] ?? '',
-        //         'image_id' => $image_id ?? '',
-        //         'image_type' => $image_type ?? '',
-        //         'tag_ids' => $tags_string ?? ''
-        //     ]
-        // );
-
-        // return true;
-    }
-
     // first/prev/next/last/current
     public static function createNavigationBar(RouterInterface $router, string $route, array $query_params, int $nb_elements, int $start, int $nb_element_page, int $pages_around = 2): array
     {

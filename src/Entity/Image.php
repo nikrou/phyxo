@@ -82,7 +82,7 @@ class Image
     /**
      * @ORM\Column(type="string", length=4, nullable=true)
      */
-    private $coi = '';
+    private $coi;
 
     /**
      * @ORM\Column(type="string", length=4, nullable=true)
@@ -297,7 +297,7 @@ class Image
         return $this;
     }
 
-    public function getCoi(): string
+    public function getCoi(): ?string
     {
         return $this->coi;
     }

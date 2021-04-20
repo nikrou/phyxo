@@ -272,7 +272,7 @@ class InstallController extends AbstractController
     protected function userStep(Request $request)
     {
         $errors = [];
-        $db_params = [];
+        $db_params = ['username' => '', 'password' => '', 'mail_address' => ''];
         $tpl_params = [
             '_username' => '',
             '_mail_address' => '',
@@ -306,7 +306,7 @@ class InstallController extends AbstractController
                 }
             }
 
-            if (empty($errors)) {
+            if (count($errors) === 0) {
                 $database_params = Yaml::parseFile($this->databaseYamlFile . '.tmp');
                 $config = new \Doctrine\DBAL\Configuration();
                 $connectionParams = [

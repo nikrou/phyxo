@@ -465,7 +465,7 @@ class TagMapper
         foreach ($this->imageRepository->findBy(['id' => $ids]) as $image) {
             $metadata = $this->metadata->getSyncMetadata($image->toArray());
 
-            if ($metadata === false) {
+            if (count($metadata) === 0) {
                 continue;
             }
 

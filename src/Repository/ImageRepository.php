@@ -733,7 +733,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findMaxDateAvailable() : \DateTimeInterface
+    public function findMaxDateAvailable() : ?\DateTimeInterface
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('MAX(i.date_available) AS max_date');
@@ -747,7 +747,7 @@ class ImageRepository extends ServiceEntityRepository
         return null;
     }
 
-    public function findMinDateAvailable():\DateTimeInterface
+    public function findMinDateAvailable(): ?\DateTimeInterface
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('MIN(i.date_available) AS min_date');

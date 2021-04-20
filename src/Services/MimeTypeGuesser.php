@@ -20,7 +20,7 @@ class MimeTypeGuesser implements MimeTypeGuesserInterface
         return \function_exists('finfo_open');
     }
 
-    public function guessMimeType(string $path): ?string
+    public function guessMimeType(string $path): string
     {
         $extension = pathinfo($path, PATHINFO_EXTENSION);
 
@@ -32,9 +32,7 @@ class MimeTypeGuesser implements MimeTypeGuesserInterface
             $mime_type = 'application/javascript';
             break;
           default:
-            if (($finfo = new \finfo(\FILEINFO_MIME_TYPE)) === false) {
-                return null;
-            }
+            $finfo = new \finfo(\FILEINFO_MIME_TYPE);
             $mime_type = $finfo->file($path);
             if (!$mime_type) {
                 $mime_type = 'text/plain';
