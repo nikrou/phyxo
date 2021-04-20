@@ -19,7 +19,6 @@
         "doctrine/orm": "^2.7",
         "openpsa/universalfeedcreator": "^1.8",
         "pclzip/pclzip": "^2.8",
-        "pelago/emogrifier": "^4.0",
         "ramsey/uuid-doctrine": "^1.6",
         "symfony/asset": "4.4.*",
         "symfony/console": "4.4.*",
@@ -35,6 +34,7 @@
         "symfony/twig-bundle": "4.4.*",
         "symfony/validator": "4.4.*",
         "symfony/yaml": "4.4.*",
+        "twig/cssinliner-extra": "^3.3",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0"
     },

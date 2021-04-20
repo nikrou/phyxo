@@ -1,45 +1,50 @@
 {% trans_default_domain 'admin' %}
 <!DOCTYPE html>
 <html>
-    <head>
-	<meta charset="utf-8">
-	<title>{{MAIL_TITLE}}</title>
-    </head>
-    <body>
-	<style type="text/css">
-	 {{ include('mail/global.css.twig') }}
-	 {{ include('mail/mail-' ~ MAIL_THEME ~ '.css.twig') }}
-	</style>
-
-	<table id="bodyTable" cellspacing="0" cellpadding="10" border="0">
-	    <tr>
-		<td align="center" valign="top">
-		    <table id="contentTable" cellspacing="0" cellpadding="0" border="0">
+	<head>
+		<meta charset="utf-8">
+		<title>{{MAIL_TITLE}}</title>
+	</head>
+	<body>
+		{% apply inline_css(source('mail/global.css.twig'), source('mail/mail-' ~ MAIL_THEME ~ '.css.twig')) %}
+		<table id="bodyTable" cellspacing="0" cellpadding="10" border="0">
 			<tr>
-			    <td id="header">
-				<div id="title">{{MAIL_TITLE}}</div>
-				{% if MAIL_SUBTITLE is defined %}<div id="subtitle">{{MAIL_SUBTITLE}}</div>{% endif %}
-			    </td>
+				<td align="center" valign="top">
+					<table id="contentTable" cellspacing="0" cellpadding="0" border="0">
+						<tr>
+							<td id="header">
+								<div id="title">{{MAIL_TITLE}}</div>
+								{% if MAIL_SUBTITLE is defined %}
+									<div id="subtitle">{{MAIL_SUBTITLE}}</div>
+								{% endif %}
+							</td>
+						</tr>
+						<tr>
+							<td id="content">
+								<div id="topSpacer"></div>
+								{% block content %}{% endblock %}
+							</td>
+						</tr>
+					</table>
+				</td>
 			</tr>
 			<tr>
-			    <td id="content">
-				<div id="topSpacer"></div>
-				{% block content %}{% endblock %}
-			    </td>
-			</tr>
-		    </table>
-		</td>
-	    </tr>
-            <tr>
-		<td id="footer">
-		    {{'Sent by'|trans}} <a href="{{GALLERY_URL}}">{{GALLERY_TITLE}}</a>
-		    - {{'Powered by'|trans}} <a href="{{PHYXO_URL}}">Phyxo</a>
-		    {% if PHYXO_VERSION %}{{PHYXO_VERSION}}{% endif %}
+				<td id="footer">
+					{{'Sent by'|trans}}
+					<a href="{{GALLERY_URL}}">{{GALLERY_TITLE}}</a>
+					-
+					{{'Powered by'|trans}}
+					<a href="{{PHYXO_URL}}">Phyxo</a>
+					{% if PHYXO_VERSION %}
+						{{PHYXO_VERSION}}
+					{% endif %}
 
-		    - {{'Contact'|trans}}
-		    <a href="mailto:{{CONTACT_MAIL}}?subject={{'A comment on your site'|trans}}">{{'Webmaster'|trans}}</a>
-		</td>
-	    </tr>
-	</table>
-    </body>
+					-
+					{{'Contact'|trans}}
+					<a href="mailto:{{CONTACT_MAIL}}?subject={{'A comment on your site'|trans}}">{{'Webmaster'|trans}}</a>
+				</td>
+			</tr>
+		</table>
+		{% endapply %}
+	</body>
 </html>
