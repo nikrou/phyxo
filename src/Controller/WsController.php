@@ -18,8 +18,6 @@ use App\DataMapper\CommentMapper;
 use App\DataMapper\UserMapper;
 use App\DataMapper\ImageMapper;
 use Phyxo\Ws\Server;
-use Phyxo\Ws\Protocols\RestRequestHandler;
-use Phyxo\Ws\Protocols\JsonEncoder;
 use Phyxo\Conf;
 use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\RateMapper;
@@ -52,8 +50,6 @@ class WsController extends AbstractController
         $this->service->addRateMapper($rateMapper);
         $this->service->addSearchMapper($searchMapper);
         $this->service->addImageMapper($imageMapper);
-        $this->service->setHandler(new RestRequestHandler());
-        $this->service->setEncoder(new JsonEncoder());
         $this->service->setCoreVersion($phyxoVersion);
         $this->service->setConf($conf);
         $this->service->setRouter($router);
@@ -68,7 +64,7 @@ class WsController extends AbstractController
 
         $this->addDefaultMethods();
 
-        return new Response($this->service->run());
+        return new Response(json_encode($this->service->run($request)));
     }
 
     protected function addDefaultMethods()

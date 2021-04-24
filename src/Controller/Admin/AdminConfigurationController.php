@@ -215,7 +215,7 @@ class AdminConfigurationController extends AbstractController
             $tpl_params['ORDER_BY_IS_CUSTOM'] = true;
         } else {
             $order_by = trim($conf['order_by_inside_category']);
-            $order_by = str_replace('ORDER BY ', null, $order_by);
+            $order_by = str_replace('ORDER BY ', '', $order_by);
             $order_by = explode(', ', $order_by);
         }
 
@@ -348,43 +348,40 @@ class AdminConfigurationController extends AbstractController
         }
         $tpl_params['watermark_files'] = $watermark_filemap;
 
-        $existing_watermark = false;
+        $wm = $image_std_params->getWatermark();
 
-        if (!$existing_watermark) {
-            $wm = $image_std_params->getWatermark();
-
-            $position = 'custom';
-            if ($wm->xpos == 0 and $wm->ypos == 0) {
-                $position = 'topleft';
-            }
-            if ($wm->xpos == 100 and $wm->ypos == 0) {
-                $position = 'topright';
-            }
-            if ($wm->xpos == 50 and $wm->ypos == 50) {
-                $position = 'middle';
-            }
-            if ($wm->xpos == 0 and $wm->ypos == 100) {
-                $position = 'bottomleft';
-            }
-            if ($wm->xpos == 100 and $wm->ypos == 100) {
-                $position = 'bottomright';
-            }
-
-            if ($wm->xrepeat != 0) {
-                $position = 'custom';
-            }
-
-            $tpl_params['watermark'] = [
-                'file' => $wm->file,
-                'minw' => $wm->min_size[0],
-                'minh' => $wm->min_size[1],
-                'xpos' => $wm->xpos,
-                'ypos' => $wm->ypos,
-                'xrepeat' => $wm->xrepeat,
-                'opacity' => $wm->opacity,
-                'position' => $position,
-            ];
+        $position = 'custom';
+        if ($wm->xpos == 0 and $wm->ypos == 0) {
+            $position = 'topleft';
         }
+        if ($wm->xpos == 100 and $wm->ypos == 0) {
+            $position = 'topright';
+        }
+        if ($wm->xpos == 50 and $wm->ypos == 50) {
+            $position = 'middle';
+        }
+        if ($wm->xpos == 0 and $wm->ypos == 100) {
+            $position = 'bottomleft';
+        }
+        if ($wm->xpos == 100 and $wm->ypos == 100) {
+            $position = 'bottomright';
+        }
+
+        if ($wm->xrepeat != 0) {
+            $position = 'custom';
+        }
+
+        $tpl_params['watermark'] = [
+            'file' => $wm->file,
+            'minw' => $wm->min_size[0],
+            'minh' => $wm->min_size[1],
+            'xpos' => $wm->xpos,
+            'ypos' => $wm->ypos,
+            'xrepeat' => $wm->xrepeat,
+            'opacity' => $wm->opacity,
+            'position' => $position,
+        ];
+
 
         return $tpl_params;
     }
@@ -470,7 +467,7 @@ class AdminConfigurationController extends AbstractController
                             $this->addFlash('error', $this->translator->trans('No order field selected', [], 'admin'));
                         } else {
                             // limit to the number of available parameters
-                            $order_by = $order_by_inside_category = array_slice($order_by, 0, ceil(count($this->sort_fields) / 2));
+                            $order_by = $order_by_inside_category = array_slice($order_by, 0, (int) ceil(count($this->sort_fields) / 2));
 
                             // there is no rank outside categories
                             if (($i = array_search('rank ASC', $order_by)) !== false) {

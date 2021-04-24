@@ -149,7 +149,7 @@ class InstallCommand extends Command
             ];
             $output = new NullOutput();
 
-            return $command->run(new ArrayInput($arguments), $output);
+            $command->run(new ArrayInput($arguments), $output);
         } catch (\Exception $e) {
             $io->error($e->getMessage());
             return 1;

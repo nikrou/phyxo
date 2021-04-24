@@ -123,7 +123,7 @@ class MediaController extends CommonController
                 $this->original_size = [$image->getWidth(), $image->getHeight()];
             }
 
-            $coi = $image->getCoi();
+            $coi = (string) $image->getCoi();
             if (!$image->getRotation()) {
                 $this->rotation_angle = Image::getRotationAngle($image_src);
                 $image->setRotation(Image::getRotationCodeFromAngle($this->rotation_angle));
@@ -162,7 +162,7 @@ class MediaController extends CommonController
         }
 
         if ($scaled_size) {
-            $changes;
+            $changes++;
             $image->resize($scaled_size[0], $scaled_size[1]);
             $d_size = $scaled_size;
         }

@@ -69,9 +69,9 @@ class UserProvider implements UserProviderInterface
         return $this->user;
     }
 
-    public function fromToken(TokenInterface $token): ?User
+    public function fromToken(?TokenInterface $token): ?User
     {
-        if (!$token) {
+        if (is_null($token)) {
             return null;
         }
 

@@ -80,7 +80,7 @@ class SizingParams
      * ImageRect &$crop_rect - ImageRect containing the cropping rectangle or null if cropping is not required
      * int[] &$scale_size - two element array containing width and height of the scaled image
      */
-    public function compute(array $in_size, ?string $coi, &$crop_rect, &$scale_size)
+    public function compute(array $in_size, string $coi = '', &$crop_rect, &$scale_size)
     {
         $destCrop = new ImageRect($in_size);
 
@@ -91,15 +91,15 @@ class SizingParams
                 if ($ratio_w > $ratio_h) {
                     $h = $destCrop->height() / $ratio_w;
                     if ($h < $this->min_size[1]) {
-                        $idealCropPx = $destCrop->width() - floor($destCrop->height() * $this->ideal_size[0] / $this->min_size[1]);
-                        $maxCropPx = round($this->max_crop * $destCrop->width());
+                        $idealCropPx = (int) $destCrop->width() - floor($destCrop->height() * $this->ideal_size[0] / $this->min_size[1]);
+                        $maxCropPx = (int) round($this->max_crop * $destCrop->width());
                         $destCrop->crop_h(min($idealCropPx, $maxCropPx), $coi);
                     }
                 } else {
                     $w = $destCrop->width() / $ratio_h;
                     if ($w < $this->min_size[0]) {
-                        $idealCropPx = $destCrop->height() - floor($destCrop->width() * $this->ideal_size[1] / $this->min_size[0]);
-                        $maxCropPx = round($this->max_crop * $destCrop->height());
+                        $idealCropPx = (int) $destCrop->height() - floor($destCrop->width() * $this->ideal_size[1] / $this->min_size[0]);
+                        $maxCropPx = (int) round($this->max_crop * $destCrop->height());
                         $destCrop->crop_v(min($idealCropPx, $maxCropPx), $coi);
                     }
                 }

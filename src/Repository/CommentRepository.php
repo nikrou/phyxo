@@ -256,7 +256,7 @@ class CommentRepository extends ServiceEntityRepository
         }
     }
 
-    public function getUnvalidatedComments(\DateTimeInterface $start = null, \DateTimeInterface $end, bool $count_only)
+    public function getUnvalidatedComments(\DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only)
     {
         $qb = $this->createQueryBuilder('c');
 

@@ -58,14 +58,14 @@ class ImageRect
      * @param int $pixels - the amount to substract from the width
      * @param string $coi - a 4 character string (or null) containing the center of interest
      */
-    public function crop_h($pixels, $coi)
+    public function crop_h(int $pixels, string $coi = '')
     {
         if ($this->width() <= $pixels) {
             return;
         }
         $tlcrop = floor($pixels / 2);
 
-        if (!empty($coi)) {
+        if ($coi !== '') {
             $coil = floor($this->r * DerivativeParams::char_to_fraction($coi[0]));
             $coir = ceil($this->r * DerivativeParams::char_to_fraction($coi[2]));
             $availableL = $coil > $this->l ? $coil - $this->l : 0;
@@ -88,14 +88,14 @@ class ImageRect
      * @param int $pixels - the amount to substract from the height
      * @param string $coi - a 4 character string (or null) containing the center of interest
      */
-    public function crop_v($pixels, $coi)
+    public function crop_v(int $pixels, string $coi = '')
     {
         if ($this->height() <= $pixels) {
             return;
         }
         $tlcrop = floor($pixels / 2);
 
-        if (!empty($coi)) {
+        if ($coi !== '') {
             $coit = floor($this->b * DerivativeParams::char_to_fraction($coi[1]));
             $coib = ceil($this->b * DerivativeParams::char_to_fraction($coi[3]));
             $availableT = $coit > $this->t ? $coit - $this->t : 0;

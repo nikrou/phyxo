@@ -123,6 +123,6 @@ class DerivativeParams
      */
     public static function fraction_to_char(float $f): string
     {
-        return chr(ord('a') + round($f * 25));
+        return chr(ord('a') + (int) round($f * 25));
     }
 }

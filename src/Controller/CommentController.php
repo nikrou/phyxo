@@ -115,7 +115,7 @@ class CommentController extends CommonController
         $filter_params['sort_order'] = $tpl_params['sort_order'];
 
         $nb_comments = $commentRepository->getLastComments($filter_params, 0, 0, $count_only = true);
-        foreach ($commentRepository->getLastComments($filter_params, $start, $tpl_params['items_number'], 0) as $comment) {
+        foreach ($commentRepository->getLastComments($filter_params, $start, $tpl_params['items_number'], $count_only = false) as $comment) {
             $comments[] = $comment;
             $images[$comment->getImage()->getId()] = $comment->getImage();
             foreach ($comment->getImage()->getImageAlbums() as $image_album) {

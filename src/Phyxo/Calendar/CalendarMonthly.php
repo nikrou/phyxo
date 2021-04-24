@@ -251,10 +251,8 @@ class CalendarMonthly extends CalendarBase
             if (($year % 4 == 0) && (($year % 100 != 0) || ($year % 400 != 0))) {
                 $nb_days++;
             }
-        } elseif (is_numeric($month)) {
-            $nb_days = $days_in_month[$month];
         } else {
-            $nb_days = 31;
+            $nb_days = $days_in_month[$month];
         }
 
         return $nb_days;

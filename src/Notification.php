@@ -172,13 +172,11 @@ class Notification
      * unvalidated comments, number of new users.
      * @todo number of unvalidated elements
      *
-     * @param string $start (mysql datetime format)
-     * @param string $end (mysql datetime format)
      * @param bool $exclude_img_cats if true, no info about new images/categories
      * @param bool $add_url add html link around news
      * @return array
      */
-    public function news($start = null, $end = null, $exclude_img_cats = false, $add_url = false)
+    public function news(\DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $exclude_img_cats = false, bool $add_url = false): array
     {
         $news = [];
 

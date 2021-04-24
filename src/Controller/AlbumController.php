@@ -91,7 +91,7 @@ class AlbumController extends CommonController
         $user_representative_updates_for = [];
         $infos_of_images = [];
 
-        list($is_child_date_last, $albums, $image_ids) = $albumMapper->getAlbumThumbnails(
+        list($is_child_date_last, $albums, $image_ids, $user_representative_updates_for) = $albumMapper->getAlbumThumbnails(
             $this->getUser(),
             $albumMapper->getRepository()->findByParentId($category_id, $this->getUser()->getId())
         );
@@ -353,7 +353,7 @@ class AlbumController extends CommonController
         $image_ids = [];
         $user_representative_updates_for = [];
 
-        list($is_child_date_last, $albums, $image_ids) = $albumMapper->getAlbumThumbnails(
+        list($is_child_date_last, $albums, $image_ids, $user_representative_updates_for) = $albumMapper->getAlbumThumbnails(
             $this->getUser(),
             $albumMapper->getRepository()->findParentAlbums($this->getUser()->getId())
         );
@@ -475,7 +475,7 @@ class AlbumController extends CommonController
         $recent_date->sub(new \DateInterval(sprintf('P%dD', $this->getUser()->getUserInfos()->getRecentPeriod())));
         $infos_of_images = [];
 
-        list($is_child_date_last, $albums, $image_ids) = $albumMapper->getAlbumThumbnails($this->getUser(), $albumMapper->getRepository()->findRecentAlbums($recent_date));
+        list($is_child_date_last, $albums, $image_ids, $user_representative_updates_for) = $albumMapper->getAlbumThumbnails($this->getUser(), $albumMapper->getRepository()->findRecentAlbums($recent_date));
 
         if (count($albums) > 0) {
             $infos_of_images = $albumMapper->getInfosOfImages($this->getUser(), $albums, $image_ids, $imageMapper);

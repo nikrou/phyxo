@@ -11,3 +11,43 @@ parameters:
     # need refactoring
     - message: '#Call to an undefined method Phyxo\\Image\\Image::.*#'
       path: src/Controller/MediaController.php
+    - message: '#If condition is always false.#'
+      path: src/Controller/MediaController.php
+
+    # need refactoring
+    - message: '#Unreachable statement - code above always terminates.#'
+      path: src/Phyxo/Update/Updates.php
+
+    - message: '#Result of && is always false#'
+      path: src/DataMapper/AlbumMapper.php
+
+    - message: '#Right side of && is always false.#'
+      path: src/Phyxo/Functions/Ws/Category.php
+
+    - message: "#Strict comparison using === between mixed and '[^']*' will always evaluate to false.#"
+      path: src/Controller/Admin/AdminBatchManagerController.php
+    - message: '#Result of && is always false.#'
+      path: src/Controller/Admin/AdminBatchManagerController.php
+
+    - message: '#Call to function is_null\(\) with mixed will always evaluate to false.#'
+      path: src/Controller/FeedController.php
+
+    - message: '#Empty array passed to foreach.#'
+      path: src/Controller/Admin/AdminRatingController.php
+
+    - message: '#Call to function is_null\(\) with Symfony\\Component\\HttpFoundation\\RequestStack will always evaluate to false.#'
+      path: src/Asset/PathVersionStrategy.php
+
+    # need refactoring
+    - message: '#Left side of && is always false.#'
+      path: src/Controller/Admin/AdminNotificationController.php
+    - message: '#Negated boolean expression is always true.#'
+      path: src/Controller/Admin/AdminNotificationController.php
+    - message: '#Result of \|\| is always true.#'
+      path: src/Controller/Admin/AdminNotificationController.php
+
+    # need refactoring
+    - message: '#Result of && is always false#'
+      path: src/Controller/PictureController.php
+    - message: "#Strict comparison using === between \\*NEVER\\* and 'reject' will always evaluate to false.#"
+      path: src/Controller/PictureController.php

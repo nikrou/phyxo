@@ -276,9 +276,10 @@ class AlbumMapper
      */
     public function getAlbumsDisplayNameCache(string $uppercats, string $url = '', bool $single_link = false, string $link_class = ''): string
     {
+        $all_albums = explode(',', $uppercats);
         $output = '';
         if ($single_link) {
-            $single_url = $this->router->generate('album', ['category_id' => array_pop(explode(',', $uppercats)) ]);
+            $single_url = $this->router->generate('album', ['category_id' => $all_albums[count($all_albums) - 1] ]);
             $output .= '<a href="' . $single_url . '"';
             if (!empty($link_class)) {
                 $output .= ' class="' . $link_class . '"';
@@ -288,7 +289,7 @@ class AlbumMapper
 
         // @TODO: refactoring with getAlbumDisplayName
         $is_first = true;
-        foreach (explode(',', $uppercats) as $album_id) {
+        foreach ($all_albums as $album_id) {
             $album = $this->getCacheAlbums()[$album_id];
 
             if ($is_first) {
@@ -998,6 +999,7 @@ class AlbumMapper
     public function getAlbumThumbnails(User $user, $albums)
     {
         $album_thumbnails = [];
+        $user_representative_updates_for = [];
         $image_ids = [];
         $is_child_date_last = false;
 
@@ -1040,7 +1042,7 @@ class AlbumMapper
 
         usort($album_thumbnails, [$this, 'globalRankCompare']);
 
-        return [$is_child_date_last, $album_thumbnails, $image_ids];
+        return [$is_child_date_last, $album_thumbnails, $image_ids, $user_representative_updates_for];
     }
 
     public function getInfosOfImages(User $user, array $albums, array $image_ids, ImageMapper $imageMapper)

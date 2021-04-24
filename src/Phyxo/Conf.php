@@ -79,12 +79,15 @@ class Conf implements \ArrayAccess
      */
     public function addOrUpdateParam(string $param, $value, string $type = 'string'): void
     {
-        $config = new Config();
-        $config->setParam($param);
+        $config = $this->configRepository->findOneBy(['param' => $param]);
+        if (is_null($config)) {
+            $config = new Config();
+            $config->setParam($param);
+        }
         $config->setValue($this->confToDb($value, $type));
         $config->setType($type);
 
-        $this->configRepository->addOrUpdate($config);
+        $this->configRepository->addOrUpdateConfig($config);
 
         $this->keys[self::DB_PREFIX . $param]['value'] = $value;
     }
@@ -115,7 +118,7 @@ class Conf implements \ArrayAccess
         } elseif ($type === 'base64') {
             return base64_encode(serialize($value));
         } elseif ($type === 'json' || is_array($value) || is_object($value)) {
-            return json_encode($value, true);
+            return json_encode($value);
         } else {
             return $value;
         }

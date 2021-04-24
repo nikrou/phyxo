@@ -268,7 +268,7 @@ class Languages extends Extensions
     /**
      * Extract language files from archive
      */
-    public function extractLanguageFiles(string $action, string $revision)
+    public function extractLanguageFiles(string $action, int $revision)
     {
         $archive = tempnam($this->languages_root_path, 'zip');
         $get_data = [

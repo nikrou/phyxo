@@ -67,7 +67,6 @@ class DerivativeService
      * Deletes derivatives of a particular element
      *
      * @param array $infos ('path'[, 'representative_ext'])
-     * @param 'all'|int $type
      */
     public function deleteForElement(array $infos, $type = 'all')
     {

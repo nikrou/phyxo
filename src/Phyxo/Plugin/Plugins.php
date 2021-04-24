@@ -396,8 +396,6 @@ class Plugins extends Extensions
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
-
-        return [];
     }
 
     /**

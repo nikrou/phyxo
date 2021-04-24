@@ -23,7 +23,7 @@ class DerivativeImage
 {
     private $src_image, $params, $rel_path, $rel_url, $image_std_params;
 
-    public function __construct(SrcImage $src_image, DerivativeParams $params, ImageStandardParams $image_std_params)
+    public function __construct(SrcImage $src_image, $params, ImageStandardParams $image_std_params)
     {
         $this->src_image = $src_image;
         $this->params = $params;

@@ -22,11 +22,9 @@ class ConfigRepository extends ServiceEntityRepository
         parent::__construct($registry, Config::class);
     }
 
-    public function addOrUpdate(Config $config): void
+    public function addOrUpdateConfig(Config $config): void
     {
-        $_config = $this->find($config->getParam());
-        $_config = $this->_em->merge($config);
-        $this->_em->persist($_config);
+        $this->_em->persist($config);
         $this->_em->flush();
     }
 

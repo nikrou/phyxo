@@ -761,9 +761,10 @@ class ImageRepository extends ServiceEntityRepository
         return null;
     }
 
-    public function findImagesFromLastImport(\DateTime $max_date)
+    public function findImagesFromLastImport(\DateTimeInterface $max_date)
     {
-        $max_date_one_day_before = clone $max_date;
+        $max_date_one_day_before = new \DateTime();
+        $max_date_one_day_before->setTimestamp($max_date->getTimestamp());
         $max_date_one_day_before->sub(new \DateInterval('P1D'));
 
         $qb = $this->createQueryBuilder('i');

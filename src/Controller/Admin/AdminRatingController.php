@@ -174,7 +174,7 @@ class AdminRatingController extends AbstractController
         return $this->render('rating_photos.html.twig', $tpl_params);
     }
 
-    public function users(Request $request, Conf $conf, ParameterBagInterface $params, UserMapper $userMapper, ImageStandardParams $image_std_params,
+    public function users(Request $request, Conf $conf, UserMapper $userMapper, ImageStandardParams $image_std_params,
                             TranslatorInterface $translator, UserRepository $userRepository, ImageMapper $imageMapper, RateRepository $rateRepository)
     {
         $tpl_params = [];

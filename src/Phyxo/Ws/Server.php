@@ -27,6 +27,7 @@ use App\Utils\UserManager;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Security;
 
@@ -34,11 +35,6 @@ class Server
 {
     private $upload_dir, $tagMapper, $commentMapper, $userMapper, $albumMapper, $rateMapper, $searchMapper, $imageMapper, $phyxoVersion,
             $conf, $router, $image_std_params, $userManager, $passwordEncoder, $pem_url, $security, $params, $userProvider, $request, $managerRegistry;
-
-    private $_requestHandler;
-    private $_requestFormat;
-    private $_responseEncoder;
-    private $_responseFormat = 'json';
 
     private $_methods = [];
 
@@ -260,45 +256,16 @@ class Server
     }
 
     /**
-     *  Initializes the request handler.
+     * Runs the web service call (handler and response encoder should have been created)
      */
-    public function setHandler($requestHandler)
+    public function run(Request $request)
     {
-        $this->_requestHandler = $requestHandler;
-    }
-
-    /**
-     *  Initializes the request handler.
-     */
-    public function setEncoder($encoder)
-    {
-        $this->_responseEncoder = $encoder;
-    }
-
-    /**
-     * Runs the web service call (handler and response encoder should have been
-     * created)
-     */
-    public function run()
-    {
-        if (is_null($this->_responseEncoder)) {
-            \Phyxo\Functions\HTTP::set_status_header(400);
-            @header("Content-Type: text/plain");
-            echo ("Cannot process your request. Unknown response format. Request format: " . @$this->_requestFormat . " Response format: " . @$this->_responseFormat . "\n");
-            var_export($this);
-            die(0);
-        }
-
-        if (is_null($this->_requestHandler)) {
-            $this->sendResponse(new Error(400, 'Unknown request format'));
-            return;
-        }
-
         // add reflection methods
         $this->addMethod(
             'reflection.getMethodList',
             ['Phyxo\Ws\Server', 'getMethodList']
         );
+
         $this->addMethod(
             'reflection.getMethodDetails',
             ['Phyxo\Ws\Server', 'getMethodDetails'],
@@ -307,17 +274,47 @@ class Server
 
         uksort($this->_methods, 'strnatcmp');
 
-        return $this->_requestHandler->handleRequest($this);
-    }
+        $method = null;
+        $request_params = [];
+        $params = [];
 
-    /**
-     * Encodes a response and sends it back to the browser.
-     */
-    public function sendResponse($response)
-    {
-        $encodedResponse = $this->_responseEncoder->encodeResponse($response);
+        if ($request->getContentType() === $request->getMimeType('json')) {
+            $request_params = json_decode($request->getContent(), true);
 
-        return $encodedResponse;
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new BadRequestHttpException('invalid json body: ' . json_last_error_msg());
+            }
+        } else {
+            if ($request->isMethod('POST')) {
+                $request_params = $request->request->all();
+            } else {
+                $request_params = $request->query->all();
+            }
+        }
+
+        foreach ($request_params as $name => $value) {
+            if ($name === 'method') {
+                $method = $value;
+            } else {
+                $params[$name] = $value;
+            }
+        }
+
+        if (is_null($method)) {
+            $method = $request->get('method');
+        }
+
+        if (is_null($method)) {
+            return  new Error(self::WS_ERR_INVALID_METHOD, 'Missing "method" name');
+        }
+
+        try {
+            $response = $this->invoke($method, $params);
+
+            return ['stat' => 'ok', 'result' => $response];
+        } catch (\Exception $e) {
+            return ['stat' => 'fail', 'err' => 9999, 'message' => $e->getMessage()];
+        }
     }
 
     /**
@@ -338,7 +335,7 @@ class Server
      *    @option bool admin_only (optional)
      *    @option bool post_only (optional)
      */
-    public function addMethod(string $methodName, callable $callback, array $params = [], string $description = '', array $options = [])
+    public function addMethod(string $methodName, $callback, array $params = [], string $description = '', array $options = [])
     {
         if (!is_array($params)) {
             $params = [];

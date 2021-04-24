@@ -87,13 +87,13 @@ class AdminHistoryController extends AbstractController
         }
 
         if (!is_null($month)) {
-            $month_title = $this->dateFormat(mktime(12, null, null, $month, 1, $year), 'LLLL');
+            $month_title = $this->dateFormat(mktime(12, 0, 0, $month, 1, $year), 'LLLL');
             $title_parts[] = '<a href="' . $this->generateUrl('admin_history_year_month', ['year' => $year, 'month' => sprintf('%02d', $month)]) . '">' . $month_title . '</a>';
             $period_label = $this->translator->trans('Day', [], 'admin');
         }
 
         if (!is_null($day)) {
-            $day_title = $this->dateFormat(mktime(12, null, null, $month, $day, $year), 'd (cccc)');
+            $day_title = $this->dateFormat(mktime(12, 0, 0, $month, $day, $year), 'd (cccc)');
             $title_parts[] = '<a href="' . $this->generateUrl('admin_history_year_month_day', ['year' => $year, 'month' => sprintf('%02d', $month), 'day' => sprintf('%02d', $day)]) . '">' . $day_title . '</a>';
             $period_label = $this->translator->trans('Hour', [], 'admin');
         }
@@ -149,10 +149,10 @@ class AdminHistoryController extends AbstractController
                     $value = sprintf('%02u', $i);
                 } elseif (!is_null($month)) {
                     $url = $this->generateUrl('admin_history_year_month_day', ['year' => $year, 'month' => sprintf('%02d', $month), 'day' => sprintf('%02d', $i)]);
-                    $value = $this->dateFormat(mktime(12, null, null, $month, $i, $year), 'd (cccc)');
+                    $value = $this->dateFormat(mktime(12, 0, 0, $month, $i, $year), 'd (cccc)');
                 } elseif (!is_null($year)) {
                     $url = $this->generateUrl('admin_history_year_month', ['year' => $year, 'month' => sprintf('%02d', $i)]);
-                    $value = $this->dateFormat(mktime(12, null, null, $i, 1, $year), 'LLLL');
+                    $value = $this->dateFormat(mktime(12, 0, 0, $i, 1, $year), 'LLLL');
                 } else { // at least the year is defined
                     $url = $this->generateUrl('admin_history_year', ['year' => $i]);
                     $value = $i;
@@ -620,7 +620,7 @@ class AdminHistoryController extends AbstractController
         $updates = [];
 
         if (isset($first_time_key)) {
-            foreach ($historySummaryRepository->getSummaryToUpdate(...explode('-', $first_time_key)) as $historySummary) {
+            foreach ($historySummaryRepository->getSummaryToUpdate(...array_map('intval', explode('-', $first_time_key))) as $historySummary) {
                 $key = sprintf('%4u', $historySummary->getYear());
                 if ($historySummary->getMonth()) {
                     $key .= sprintf('-%02u', $historySummary->getMonth());
@@ -641,7 +641,7 @@ class AdminHistoryController extends AbstractController
         }
 
         foreach ($need_update as $time_key => $nb_pages) {
-            $time_tokens = explode('-', $time_key);
+            $time_tokens = array_map('intval', explode('-', $time_key));
 
             $historySummary = new HistorySummary();
             $historySummary->setYear($time_tokens[0]);

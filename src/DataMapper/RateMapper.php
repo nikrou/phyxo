@@ -38,7 +38,7 @@ class RateMapper
      */
     public function ratePicture(int $image_id, int $note, string $anonymous_id): array
     {
-        if (!$this->conf['rate'] || !preg_match('/^[0-9]+$/', $note) || !in_array($note, $this->conf['rate_items'])) {
+        if (!$this->conf['rate'] || !in_array($note, $this->conf['rate_items'])) {
             return [];
         }
 

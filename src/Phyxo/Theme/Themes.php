@@ -413,7 +413,7 @@ class Themes extends Extensions
     /**
      * Extract theme files from archive
      */
-    public function extractThemeFiles(string $action, string $revision)
+    public function extractThemeFiles(string $action, int $revision)
     {
         $archive = tempnam($this->themes_root_path, 'zip');
         $get_data = [
