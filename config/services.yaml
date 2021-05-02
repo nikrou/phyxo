@@ -49,6 +49,14 @@ services:
     resource: '../src/*'
     exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,UpdateKernel.php,InstallKernel.php,Phyxo}'
 
+  # Plugins command
+  Plugins\:
+    resource: '../plugins/*/Command/*'
+    tags: ['phyxo.console_command']
+
+  Phyxo\Extension\ExtensionCollection:
+    arguments: [!tagged_iterator 'phyxo.console_command']
+
   # controllers are imported separately to make sure services can be injected
   # as action arguments even if you don't extend any base controller class
   App\Controller\:

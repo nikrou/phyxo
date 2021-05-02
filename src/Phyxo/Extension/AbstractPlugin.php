@@ -17,6 +17,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 abstract class AbstractPlugin implements EventSubscriberInterface
 {
     const CLASSNAME_FORMAT = '\\Plugins\\%s\\%s';
+    const COMMAND_CLASSNAME_FORMAT = 'Plugins\%s\Command';
 
     protected $assetsManager;
 
@@ -28,6 +29,11 @@ abstract class AbstractPlugin implements EventSubscriberInterface
     public static function getClassName(string $plugin_id): string
     {
         return sprintf(self::CLASSNAME_FORMAT, $plugin_id, ucfirst($plugin_id));
+    }
+
+    public static function getCommandClassName(string $plugin_id): string
+    {
+        return sprintf(self::COMMAND_CLASSNAME_FORMAT, $plugin_id);
     }
 
     public function addPluginCss(string $plugin_id, string $css): void

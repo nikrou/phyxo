@@ -16,7 +16,10 @@ use App\Entity\Plugin;
 use App\Repository\PluginRepository;
 use App\Services\AssetsManager;
 use Phyxo\Extension\AbstractPlugin;
+use Phyxo\Extension\ExtensionCollection;
 use Phyxo\Plugin\Plugins;
+use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -24,14 +27,14 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ExtensionManagerSubscriber implements EventSubscriberInterface
 {
-    private $plugins, $eventDispatcher, $assetsManager;
+    private $plugins, $eventDispatcher, $assetsManager, $extensionCollection;
 
     /**
      * @TODO: change Plugins interface to only accept language instead of UserMapper
      * event better : make Plugins a service
      */
     public function __construct(PluginRepository $pluginRepository, UserMapper $userMapper, AssetsManager $assetsManager, string $pluginsDir, string $pemURL,
-                                EventDispatcherInterface $eventDispatcher)
+                                EventDispatcherInterface $eventDispatcher, ExtensionCollection $extensionCollection)
     {
         $this->plugins = new Plugins($pluginRepository, $userMapper);
         $this->plugins->setRootPath($pluginsDir);
@@ -39,12 +42,14 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
 
         $this->assetsManager = $assetsManager;
         $this->eventDispatcher = $eventDispatcher;
+        $this->extensionCollection = $extensionCollection;
     }
 
     public static function getSubscribedEvents()
     {
         return [
             KernelEvents::REQUEST => ['registerPlugins'],
+            ConsoleEvents::COMMAND => ['checkAvailability']
         ];
     }
 
@@ -64,6 +69,31 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
 
             if (class_exists($className) && method_exists($className, 'getSubscribedEvents')) {
                 $this->eventDispatcher->addSubscriber(new $className($this->assetsManager));
+            }
+        }
+    }
+
+    public function checkAvailability(ConsoleCommandEvent $event)
+    {
+        $command = $event->getCommand();
+        $application = $command->getApplication();
+
+        if ($command->getName() === 'list') {
+            foreach ($this->plugins->getDbPlugins(Plugin::INACTIVE) as $plugin) {
+                foreach ($this->extensionCollection->getExtensionsByClass()[$plugin->getId()] as $command_name) {
+                    $application->get($command_name)->setHidden(true);
+                }
+            }
+        } else {
+            if (isset($this->extensionCollection->getExtensionsByName()[$command->getName()])) {
+                $command_name = $this->extensionCollection->getExtensionsByName()[$command->getName()];
+                $pluginsForCommand = array_filter($this->plugins->getDbPlugins(Plugin::INACTIVE), function($p) use ($command_name) {
+                    return $p->getId() === $command_name;
+                });
+
+                if (count($pluginsForCommand) > 0) {
+                    $event->disableCommand();
+                }
             }
         }
     }

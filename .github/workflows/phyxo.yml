@@ -54,9 +54,6 @@ jobs:
       - name: Run PHPStan
         run: composer phpstan
 
-      - name: Unit tests
-        run: ./bin/simple-phpunit --testdox
-
       - name: Create database
         run: ./bin/console doctrine:database:create -vvv
 
@@ -65,6 +62,9 @@ jobs:
 
       - name: Create guest user
         run: ./bin/console phyxo:user:create --username guest --password '' --mail_address '' --status guest
+
+      - name: Unit tests
+        run: ./bin/simple-phpunit --testdox
 
       - name: Run Behat tests
         run: ./bin/behat --colors --no-interaction -vvv -c behat.yml.dist --suite=web
