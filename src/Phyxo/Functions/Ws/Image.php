@@ -893,7 +893,7 @@ class Image
                     if (isset($service->getConf()['publish_tags_immediately']) && $service->getConf()['publish_tags_immediately'] == 0) {
                         $service->getTagMapper()->toBeValidatedTags($image, $new_tags_ids, $service->getUserMapper()->getUser(), ImageTag::STATUS_TO_ADD);
                     } else {
-                        $service->getTagMapper()->associateTags($new_tags_ids, $params['image_id']);
+                        $service->getTagMapper()->associateTags($new_tags_ids, $params['image_id'], $service->getUserMapper()->getUser());
                     }
                 }
             }

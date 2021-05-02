@@ -370,7 +370,7 @@ class TagMapper
         }
     }
 
-    public function associateTags(array $tag_ids, int $image_id)
+    public function associateTags(array $tag_ids, int $image_id, User $user)
     {
         if (count($tag_ids) === 0) {
             return;
@@ -379,6 +379,7 @@ class TagMapper
         $image = $this->imageRepository->find($image_id);
         foreach ($this->getRepository()->findBy(['id' => array_unique($tag_ids)]) as $tag) {
             $image_tag = new ImageTag();
+            $image_tag->setCreatedBy($user);
             $image_tag->setImage($image);
             $image_tag->setTag($tag);
             $image->addImageTag($image_tag);

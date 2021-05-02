@@ -224,7 +224,7 @@ class AdminTagsController extends AbstractController
         return $this->redirectToRoute('admin_tags');
     }
 
-    public function add(Request $request, TagMapper $tagMapper)
+    public function add(Request $request, TagMapper $tagMapper, TranslatorInterface $translator)
     {
         if ($request->request->get('add_tag')) {
             if (!is_null($tagMapper->getRepository()->findOneBy(['name' => $request->request->get('add_tag')]))) {
@@ -236,7 +236,7 @@ class AdminTagsController extends AbstractController
                 $tag->setLastModified(new \DateTime());
                 $tagMapper->getRepository()->addOrUpdateTag($tag);
 
-                $this->addFlash('info', $this->translator->trans('Tag "{tag}" was added', ['tag' => $tag->getName()], 'admin'));
+                $this->addFlash('info', $translator->trans('Tag "{tag}" was added', ['tag' => $tag->getName()], 'admin'));
             }
         }
 
