@@ -84,7 +84,9 @@ class AdminPhotoController extends AbstractController
             $tagMapper->setTags($tag_ids, $image_id, $this->getUser());
 
             // association to albums
-            $albumMapper->moveImagesToAlbums([$image_id], $request->request->get('associate') ?? []);
+            if ($request->request->get('associate')) {
+                $albumMapper->associateImagesToAlbums([$image_id], $request->request->get('associate'));
+            }
 
             $userMapper->invalidateUserCache();
 
@@ -197,8 +199,10 @@ class AdminPhotoController extends AbstractController
         if ($category_id && in_array($category_id, $authorizeds)) {
             $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'category', 'element_id' => $category_id]);
         } else {
-            $album_id = isset($authorizeds[0]) ? $authorizeds[0] : 1;
-            $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'category', 'element_id' => $cache_albums[$album_id]->getId()]);
+            if (count($authorizeds) > 0) {
+                $album_id = $authorizeds[0];
+                $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'category', 'element_id' => $cache_albums[$album_id]->getId()]);
+            }
         }
 
         if (!empty($url_img)) {

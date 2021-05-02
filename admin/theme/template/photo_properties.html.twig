@@ -49,7 +49,7 @@
 	</ul>
 
 	<div>
-	    {% if U_JUMPTO %}
+	    {% if U_JUMPTO is defined %}
 		<p><a href="{{U_JUMPTO}}"><i class="fa fa-eye"></i> {{'jump to photo'|trans}}</a></p>
 	    {% endif %}
 	    {#  % if not remote PATH % #}
