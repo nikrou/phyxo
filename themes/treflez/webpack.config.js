@@ -14,7 +14,7 @@ const webpack = require('webpack');
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
+const WebpackAssetsManifest = require('webpack-assets-manifest');
 
 const HOST = process.env.HOST ? process.env.HOST : 'localhost';
 const PORT = process.env.PORT ? process.env.PORT : 8080;
@@ -121,9 +121,10 @@ module.exports = {
   },
 
   plugins: [
-    new WebpackManifestPlugin({
+    new WebpackAssetsManifest({
+      output: 'manifest.json',
       publicPath: PUBLIC_PATH,
-      writeToFileEmit: true,
+      writeToDisk: true,
     }),
 
     new webpack.ProvidePlugin({

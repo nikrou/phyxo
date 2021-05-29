@@ -13,7 +13,7 @@ const path = require('path')
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const WebpackManifestPlugin = require('webpack-manifest-plugin')
+const WebpackAssetsManifest = require('webpack-assets-manifest')
 
 const HOST = process.env.HOST ? process.env.HOST : 'localhost'
 const PORT = process.env.PORT ? process.env.PORT : 8080
@@ -48,7 +48,7 @@ module.exports = {
   },
 
   output: {
-    filename: path.join('js', IS_DEV ? '[name].js' : '[name]-[hash].js'),
+    filename: path.join('js', IS_DEV ? '[name].js' : '[name]-[fullhash].js'),
     path: PATHS.target,
     publicPath: PUBLIC_PATH,
   },
@@ -106,9 +106,10 @@ module.exports = {
   },
 
   plugins: [
-    new WebpackManifestPlugin({
+    new WebpackAssetsManifest({
+      output: 'manifest.json',
       publicPath: PUBLIC_PATH,
-      writeToFileEmit: true,
+      writeToDisk: true,
     }),
 
     new webpack.ProvidePlugin({
@@ -122,8 +123,8 @@ module.exports = {
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // both options are optional
-      filename: IS_DEV ? '[name].css' : '[name].[hash].css',
-      chunkFilename: IS_DEV ? '[id].css' : '[id].[hash].css', // @TODO: find a way to inject [hash] in templates
+      filename: IS_DEV ? '[name].css' : '[name].[fullhash].css',
+      chunkFilename: IS_DEV ? '[id].css' : '[id].[fullhash].css', // @TODO: find a way to inject [hash] in templates
     }),
 
     new webpack.HotModuleReplacementPlugin(),
