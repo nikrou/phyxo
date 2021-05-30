@@ -262,7 +262,7 @@ class AlbumRepository extends ServiceEntityRepository
     /**
      * Find a random photo among all photos inside an album (including sub-albums)
      */
-    public function getRandomImageInAlbum(int $album_id, string $uppercats = '', array $forbidden_categories, bool $recursive = true)
+    public function getRandomImageInAlbum(int $album_id, string $uppercats = '', array $forbidden_categories = [], bool $recursive = true)
     {
         // avoid rand() in sql query
         $qb = $this->createQueryBuilder('a');
@@ -399,7 +399,7 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findRelative(array $forbidden_categories = [], int $image_id)
+    public function findRelative(int $image_id, array $forbidden_categories = [])
     {
         $qb = $this->createQueryBuilder('a');
         $qb->leftJoin('a.imageAlbums', 'ia');
@@ -578,7 +578,7 @@ class AlbumRepository extends ServiceEntityRepository
         return $results;
     }
 
-    public function hasAccessToImage(array $forbidden_categories = [], int $image_id) : bool
+    public function hasAccessToImage(int $image_id, array $forbidden_categories = []) : bool
     {
         $qb = $this->createQueryBuilder('a');
         $qb->select('COUNT(1)');

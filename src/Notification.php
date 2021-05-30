@@ -237,12 +237,12 @@ class Notification
      */
     public function get_recent_post_dates(int $max_dates, int $max_elements, int $max_cats): array
     {
-        $dates = $this->imageMapper->getRepository()->getRecentPostedImages($this->userMapper->getUser()->getUserInfos()->getForbiddenCategories(), $max_dates);
+        $dates = $this->imageMapper->getRepository()->getRecentPostedImages($max_dates, $this->userMapper->getUser()->getUserInfos()->getForbiddenCategories());
 
         for ($i = 0; $i < count($dates); $i++) {
             if ($max_elements > 0) { // get some thumbnails ...
                 $ids = [];
-                foreach ($this->imageMapper->getRepository()->findRandomImages($this->userMapper->getUser()->getUserInfos()->getForbiddenCategories(), $max_elements) as $id) {
+                foreach ($this->imageMapper->getRepository()->findRandomImages($max_elements, $this->userMapper->getUser()->getUserInfos()->getForbiddenCategories()) as $id) {
                     $ids[] = $id;
                 }
                 $elements = [];
@@ -253,7 +253,7 @@ class Notification
             }
 
             if ($max_cats > 0) { // get some albums ...
-                $dates[$i]['categories'] = $this->imageMapper->getRepository()->getRecentImages($this->userMapper->getUser()->getUserInfos()->getForbiddenCategories(), $dates[$i]['date_available'], $max_cats);
+                $dates[$i]['categories'] = $this->imageMapper->getRepository()->getRecentImages($dates[$i]['date_available'], $max_cats, $this->userMapper->getUser()->getUserInfos()->getForbiddenCategories());
             }
         }
 

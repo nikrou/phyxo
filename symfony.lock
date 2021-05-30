@@ -1,4 +1,10 @@
 {
+    "amphp/amp": {
+        "version": "v2.5.2"
+    },
+    "amphp/byte-stream": {
+        "version": "v1.8.1"
+    },
     "behat/behat": {
         "version": "v3.7.0"
     },
@@ -49,6 +55,9 @@
     },
     "dmore/chrome-mink-driver": {
         "version": "2.7.0"
+    },
+    "dnoegel/php-xdg-base-dir": {
+        "version": "v0.1.1"
     },
     "doctrine/annotations": {
         "version": "1.0",
@@ -119,6 +128,12 @@
     "egulias/email-validator": {
         "version": "2.1.19"
     },
+    "felixfbecker/advanced-json-rpc": {
+        "version": "v3.2.0"
+    },
+    "felixfbecker/language-server-protocol": {
+        "version": "1.5.1"
+    },
     "friendsofphp/php-cs-fixer": {
         "version": "2.2",
         "recipe": {
@@ -134,11 +149,17 @@
     "monolog/monolog": {
         "version": "1.25.5"
     },
+    "netresearch/jsonmapper": {
+        "version": "v2.1.0"
+    },
     "nikic/php-parser": {
         "version": "v4.9.1"
     },
     "ocramius/proxy-manager": {
         "version": "2.2.3"
+    },
+    "openlss/lib-array2xml": {
+        "version": "1.0.0"
     },
     "openpsa/universalfeedcreator": {
         "version": "v1.8.4"
@@ -560,8 +581,14 @@
     "twig/twig": {
         "version": "v3.0.5"
     },
+    "vimeo/psalm": {
+        "version": "4.7.3"
+    },
     "webmozart/assert": {
         "version": "1.9.1"
+    },
+    "webmozart/path-util": {
+        "version": "2.3.0"
     },
     "zendframework/zend-code": {
         "version": "3.4.1"

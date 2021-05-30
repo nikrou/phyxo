@@ -40,7 +40,7 @@ class AdminRatingController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function photos(Request $request, int $start = 0, Conf $conf, ParameterBagInterface $params, ImageStandardParams $image_std_params,
+    public function photos(Request $request, int $start = 0, Conf $conf, ImageStandardParams $image_std_params,
                             TranslatorInterface $translator, UserMapper $userMapper, UserRepository $userRepository, RateRepository $rateRepository)
     {
         $tpl_params = [];
@@ -61,7 +61,7 @@ class AdminRatingController extends AbstractController
             $navbar_params['order_by'] = $order_by_index;
         }
 
-        $operator_user_filter = '';
+        $operator_user_filter = null;
         $guest_id = 0;
         if ($request->get('users')) {
             $guest_id = $userMapper->getDefaultUser()->getId();

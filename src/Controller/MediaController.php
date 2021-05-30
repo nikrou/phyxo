@@ -60,7 +60,7 @@ class MediaController extends CommonController
             return new Response('Db file path not found ', 404);
         }
 
-        if (!$imageRepository->isAuthorizedToUser($this->getUser()->getUserInfos()->getForbiddenCategories(), $image->getId())) {
+        if (!$imageRepository->isAuthorizedToUser($image->getId(), $this->getUser()->getUserInfos()->getForbiddenCategories())) {
             return new Response('User not allowed to see that image ', 403);
         }
 

@@ -130,7 +130,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findRecentImages(array $forbidden_categories = [], \DateTimeInterface $recent_date, array $sorts = [])
+    public function findRecentImages(\DateTimeInterface $recent_date, array $forbidden_categories = [], array $sorts = [])
     {
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
@@ -160,7 +160,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findBestRated(array $forbidden_categories = [], array $sorts = [], int $limit)
+    public function findBestRated(int $limit, array $forbidden_categories = [], array $sorts = [])
     {
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
@@ -181,7 +181,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findRandomImages(array $forbidden_categories = [], int $max): array
+    public function findRandomImages(int $max, array $forbidden_categories = []): array
     {
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
@@ -255,7 +255,7 @@ class ImageRepository extends ServiceEntityRepository
         return $this->getNewElements($forbidden_categories, $start, $end, $count_only);
     }
 
-    public function getRecentImages(array $forbidden_categories = [], \DateTimeInterface $date_available = null, int $limit)
+    public function getRecentImages(\DateTimeInterface $date_available = null, int $limit, array $forbidden_categories = [])
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('DISTINCT(a.uppercats) AS upp, COUNT(i.id) AS img_count');
@@ -280,7 +280,7 @@ class ImageRepository extends ServiceEntityRepository
         return $results;
     }
 
-    public function getRecentPostedImages(array $forbidden_categories = [], int $limit)
+    public function getRecentPostedImages(int $limit, array $forbidden_categories = [])
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('i.date_available, COUNT(DISTINCT(i.id)) AS nb_elements');
@@ -302,7 +302,7 @@ class ImageRepository extends ServiceEntityRepository
         return $results;
     }
 
-    public function searchDistinctId(array $forbidden_categories = [], string $order_by, ?int $limit = null)
+    public function searchDistinctId(array $forbidden_categories = [], ?string $order_by = null, ?int $limit = null)
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('DISTINCT(i.id) AS id');
@@ -321,7 +321,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function searchDistinctIdInAlbum(int $album_id, array $forbidden_categories = [], string $order_by, ?int $limit = null)
+    public function searchDistinctIdInAlbum(int $album_id, array $forbidden_categories = [], ?string $order_by = null, ?int $limit = null)
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('DISTINCT(i.id) AS id');
@@ -378,7 +378,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findNextPrevPeriodByIds(array $ids = [], array $date_elements, array $calendar_levels, string $date_field = '')
+    public function findNextPrevPeriodByIds(array $date_elements, array $calendar_levels, array $ids = [], string $date_field = '')
     {
         $sub_queries = [];
         $nb_elements = count($date_elements);
@@ -460,7 +460,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findDayOfMonthPeriodAndImagesCountByIds(string $date_field, string $date_where = '', array $ids)
+    public function findDayOfMonthPeriodAndImagesCountByIds(array $ids, string $date_field, string $date_where = '')
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id)) as count');
@@ -499,7 +499,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findYYYYMMPeriodAndImagesCountByIds(string $date_field, string $date_where = '', array $ids)
+    public function findYYYYMMPeriodAndImagesCountByIds(array $ids, string $date_field, string $date_where = '')
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id)) as count');
@@ -538,7 +538,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findMMDDPeriodAndImagesCountByIds(string $date_field, string $date_where = '', array $ids)
+    public function findMMDDPeriodAndImagesCountByIds(array $ids, string $date_field, string $date_where = '')
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id)) as count');
@@ -577,7 +577,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findOneRandomInWeekByIds(string $date_where = '', array $ids)
+    public function findOneRandomInWeekByIds(array $ids, string $date_where = '')
     {
         // avoid rand() in sql query
         $qb = $this->createQueryBuilder('i');
@@ -635,7 +635,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getOneOrNullResult();
     }
 
-    public function findList(array $ids, array $forbidden_categories = [], string $order_by)
+    public function findList(array $ids, array $forbidden_categories = [], ?string $order_by = null)
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('DISTINCT(i.id)');
@@ -879,7 +879,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function qSearchImages(array $forbidden_categories = [], string $words)
+    public function qSearchImages(string $words, array $forbidden_categories = [])
     {
         $search_value = '%' . str_replace(' ', '%', trim(strtolower($words))) . '%';
 
@@ -899,7 +899,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function searchImages(array $forbidden_categories = [], array $rules)
+    public function searchImages(array $rules, array $forbidden_categories = [])
     {
         $whereMethod = $rules['mode'] === 'AND' ? 'andWhere' : 'orWhere';
 
@@ -1003,7 +1003,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getSingleScalarResult();
     }
 
-    public function isAuthorizedToUser(array $forbidden_categories = [], int $image_id)
+    public function isAuthorizedToUser(int $image_id, array $forbidden_categories = [])
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('COUNT(1)');

@@ -92,7 +92,7 @@ class Image
         //-------------------------------------------------------- related categories
         $is_commentable = false;
         $related_categories = [];
-        foreach ($service->getAlbumMapper()->getRepository()->findRelative($service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories(), $image->getId()) as $album) {
+        foreach ($service->getAlbumMapper()->getRepository()->findRelative($image->getId(), $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories()) as $album) {
             $is_commentable = $album->isCommentable();
             $album_infos = array_merge(
                 $album->toArray(),

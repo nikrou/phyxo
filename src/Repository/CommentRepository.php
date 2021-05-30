@@ -92,7 +92,7 @@ class CommentRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function getCommentsOnImages(int $limit, int $offset = 0, bool $validated)
+    public function getCommentsOnImages(bool $validated, int $limit, int $offset = 0)
     {
         $qb = $this->createQueryBuilder('c');
         $qb->leftJoin('c.user', 'u');

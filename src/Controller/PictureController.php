@@ -568,7 +568,7 @@ class PictureController extends CommonController
     public function rate(Request $request, ImageMapper $imageMapper, Conf $conf, RateMapper $rateMapper)
     {
         if ($request->isMethod('POST')) {
-            if (!$imageMapper->getRepository()->isAuthorizedToUser($this->getUser()->getUserInfos()->getForbiddenCategories(), $request->request->get('image_id'))) {
+            if (!$imageMapper->getRepository()->isAuthorizedToUser($request->request->get('image_id'), $this->getUser()->getUserInfos()->getForbiddenCategories())) {
                 return new AccessDeniedException("Cannot rate that image");
             }
 

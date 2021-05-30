@@ -269,7 +269,7 @@ class CalendarMonthly extends CalendarBase
         }
 
         if ($this->find_by_items) {
-            $rowImages = $this->imageRepository->findYYYYMMPeriodAndImagesCountByIds($this->date_field, $this->getDateWhere(), $this->items);
+            $rowImages = $this->imageRepository->findYYYYMMPeriodAndImagesCountByIds($this->items, $this->date_field, $this->getDateWhere());
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
@@ -348,7 +348,7 @@ class CalendarMonthly extends CalendarBase
         }
 
         if ($this->find_by_items) {
-            $rowIamges = $this->imageRepository->findMMDDPeriodAndImagesCountByIds($this->date_field, $this->getDateWhere(), $this->items);
+            $rowIamges = $this->imageRepository->findMMDDPeriodAndImagesCountByIds($this->items, $this->date_field, $this->getDateWhere());
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
@@ -420,7 +420,7 @@ class CalendarMonthly extends CalendarBase
     {
         $tpl_params = [];
         if ($this->find_by_items) {
-            $rowImages = $this->imageRepository->findDayOfMonthPeriodAndImagesCountByIds($this->date_field, $this->getDateWhere(), $this->items);
+            $rowImages = $this->imageRepository->findDayOfMonthPeriodAndImagesCountByIds($this->items, $this->date_field, $this->getDateWhere());
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
@@ -443,7 +443,7 @@ class CalendarMonthly extends CalendarBase
             $this->chronology_date[self::CDAY] = $day;
 
             if ($this->find_by_items) {
-                $image = $this->imageRepository->findOneRandomInWeekByIds($this->getDateWhere(), $this->items);
+                $image = $this->imageRepository->findOneRandomInWeekByIds($this->items, $this->getDateWhere());
             } else {
                 if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                     $sub_ids = array_diff(

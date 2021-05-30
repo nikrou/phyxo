@@ -56,7 +56,7 @@ class AdminCommentsController  extends AbstractController
             }
         }
 
-        foreach ($commentRepository->getCommentsOnImages($conf['comments_page_nb_comments'], $start, $validated = $section === 'pending' ? false : true) as $comment) {
+        foreach ($commentRepository->getCommentsOnImages($validated = $section === 'pending' ? false : true, $conf['comments_page_nb_comments'], $start) as $comment) {
             $thumb = (new DerivativeImage(new SrcImage($comment->getImage()->toArray(), $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
             if (!is_null($comment->getUser())) {
                 $author_name = $comment->getUser()->getUsername();

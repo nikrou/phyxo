@@ -28,7 +28,7 @@ class ImageAlbumRepository extends ServiceEntityRepository
         $this->_em->flush();
     }
 
-    public function countTotalImages(array $forbidden_categories = [], string $access_type, array $image_ids = []) : int
+    public function countTotalImages(string $access_type, array $forbidden_categories = [], array $image_ids = []) : int
     {
         $qb = $this->createQueryBuilder('ia');
         $qb->select('count(distinct(ia.image))');

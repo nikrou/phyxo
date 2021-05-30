@@ -34,7 +34,7 @@ class DefaultController extends CommonController
         /* $filter['visible_categories'] and $filter['visible_images']
         /* are not used because it's not necessary (filter <> restriction)
          */
-        if (!$albumMapper->getRepository()->hasAccessToImage($this->getUser()->getUserInfos()->getForbiddenCategories(), $image_id)) {
+        if (!$albumMapper->getRepository()->hasAccessToImage($image_id, $this->getUser()->getUserInfos()->getForbiddenCategories())) {
             throw new AccessDeniedException('Access denied');
         }
 

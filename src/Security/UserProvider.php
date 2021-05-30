@@ -86,7 +86,6 @@ class UserProvider implements UserProviderInterface
                 }
             }
 
-
             try {
                 if ($token instanceof AnonymousToken) {
                     $token->setUser('guest');
@@ -125,12 +124,6 @@ class UserProvider implements UserProviderInterface
 
     public function refreshUser(UserInterface $user): User
     {
-        if (!$user instanceof UserInterface) {
-            throw new UnsupportedUserException(
-                sprintf('Instances of "%s" are not supported.', get_class($user))
-            );
-        }
-
         $user = $this->fetchUser($user->getUsername(), $force_refresh = true);
         $this->populateSession($user);
 
@@ -202,7 +195,7 @@ class UserProvider implements UserProviderInterface
             }
             $userCache->setImageAccessType(UserCache::ACCESS_NOT_IN);
             $userCache->setImageAccessList($forbidden_image_ids);
-            $userCache->setNbTotalImages($this->imageAlbumRepository->countTotalImages($forbidden_categories, UserCache::ACCESS_NOT_IN, $forbidden_image_ids));
+            $userCache->setNbTotalImages($this->imageAlbumRepository->countTotalImages(UserCache::ACCESS_NOT_IN, $forbidden_categories, $forbidden_image_ids));
 
             // now we update user cache albums
             $user_cache_albums = $this->albumMapper->getComputedAlbums($user->getUserInfos()->getLevel(), $forbidden_categories);

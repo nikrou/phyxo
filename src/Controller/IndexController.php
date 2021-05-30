@@ -92,7 +92,7 @@ class IndexController extends CommonController
         $recent_date->sub(new \DateInterval(sprintf('P%dD', $this->getUser()->getUserInfos()->getRecentPeriod())));
 
         $order_by = [['id', 'DESC']];
-        foreach ($imageMapper->getRepository()->findRecentImages($this->getUser()->getUserInfos()->getForbiddenCategories(), $recent_date, $order_by) as $image) {
+        foreach ($imageMapper->getRepository()->findRecentImages($recent_date, $this->getUser()->getUserInfos()->getForbiddenCategories(), $order_by) as $image) {
             $tpl_params['items'] = $image->getId();
         }
 
@@ -145,7 +145,7 @@ class IndexController extends CommonController
         $order_by = [['rating_score'], ['id',  'DESC']];
 
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->findBestRated($this->getUser()->getUserInfos()->getForbiddenCategories(), $order_by, $conf['top_number']) as $image) {
+        foreach ($imageMapper->getRepository()->findBestRated($conf['top_number'], $this->getUser()->getUserInfos()->getForbiddenCategories(), $order_by) as $image) {
             $tpl_params['items'][] = $image->getId();
         }
 
@@ -187,7 +187,8 @@ class IndexController extends CommonController
     public function random(ImageMapper $imageMapper, Conf $conf)
     {
         $list = $imageMapper->getRepository()->findRandomImages(
-            $this->getUser()->getUserInfos()->getForbiddenCategories(), min(50, $conf['top_number'], $this->getUser()->getUserInfos()->getNbImagePage())
+            min(50, $conf['top_number'], $this->getUser()->getUserInfos()->getNbImagePage()),
+            $this->getUser()->getUserInfos()->getForbiddenCategories()
         );
 
         if (count($list) === 0) {

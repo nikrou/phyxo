@@ -327,7 +327,7 @@ abstract class CalendarBase
         }
 
         if ($this->find_by_items) {
-            $rowImages = $this->imageRepository->findNextPrevPeriodByIds($this->items, $this->chronology_date, $this->getCalendarLevels(), $this->date_field);
+            $rowImages = $this->imageRepository->findNextPrevPeriodByIds($this->chronology_date, $this->getCalendarLevels(), $this->items, $this->date_field);
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(

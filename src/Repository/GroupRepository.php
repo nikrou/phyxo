@@ -91,7 +91,7 @@ class GroupRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function findByNameOrGroupIds(?string $name = null, array $group_ids = [], string $order, int $limit, int $offset = 0)
+    public function findByNameOrGroupIds(?string $name = null, array $group_ids = [], ?string $order = null, ?int $limit = null, int $offset = 0)
     {
         $qb = $this->createQueryBuilder('g');
         $qb->leftJoin('g.users', 'u'); // @TODO : no lazy because of count
@@ -105,12 +105,18 @@ class GroupRepository extends ServiceEntityRepository
             $qb->andWhere($qb->expr()->in('g.id', $group_ids));
         }
 
-        if (!preg_match('`^g\.`', $order)) {
-            $order = 'g.' . $order;
+        if (!is_null($order)) {
+            if (!preg_match('`^g\.`', $order)) {
+                $order = 'g.' . $order;
+            }
+            $qb->orderBy($order);
         }
-        $qb->orderBy($order);
+
         $qb->setFirstResult($offset);
-        $qb->setMaxResults($limit);
+
+        if (!is_null($limit)) {
+            $qb->setMaxResults($limit);
+        }
 
         return $qb->getQuery()->getResult();
     }

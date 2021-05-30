@@ -71,7 +71,7 @@ class DerivativeExtension extends AbstractExtension
             if (is_bool($params['crop'])) {
                 $crop = $params['crop'] ? 1 : 0;
             } else {
-                $crop = round($params['crop'] / 100, 2);
+                $crop = (int) round($params['crop'] / 100, 2);
             }
 
             if ($crop) {

@@ -52,7 +52,7 @@ class RateRepository extends ServiceEntityRepository
         return $qb->getQuery()->getSingleScalarResult();
     }
 
-    public function getRatePerImage(int $user_id, string $operator = '', string $order, int $limit, int $offset = 0)
+    public function getRatePerImage(int $user_id, string $operator = null, string $order, int $limit, int $offset = 0)
     {
         $qb = $this->createQueryBuilder('r');
         $qb->leftJoin('r.image', 'i');
