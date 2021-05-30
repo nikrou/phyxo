@@ -10,6 +10,7 @@ This project use severals librairies that need at least PHP 7.3.0
 
 [![Phyxo](https://github.com/nikrou/phyxo/actions/workflows/phyxo.yml/badge.svg)](https://github.com/nikrou/phyxo/actions/workflows/phyxo.yml)
 ![PHPSTan level](https://img.shields.io/badge/PHPStan-level%205-brightgreen.svg?style=flat)
+![PHP 8](./tools/php-8-ready.svg)
 
 This project uses a database and support all database engines managed by [DBAL](https://www.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/platforms.html#platforms) like Mysql, PostgreSQL and SQLite engines.
 
