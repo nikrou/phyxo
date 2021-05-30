@@ -37,8 +37,8 @@ class AdminCommentsController  extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function index(Request $request, string $section = 'all', int $start = 0, ImageStandardParams $image_std_params, Conf $conf,
-                        TranslatorInterface $translator, CommentRepository $commentRepository)
+    public function index(Request $request, ImageStandardParams $image_std_params, Conf $conf,
+                        TranslatorInterface $translator, CommentRepository $commentRepository, string $section = 'all', int $start = 0)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -111,7 +111,7 @@ class AdminCommentsController  extends AbstractController
         return $this->render('comments.html.twig', $tpl_params);
     }
 
-    public function update(Request $request, string $section = 'all', int $start = 0, CommentMapper $commentMapper, TranslatorInterface $translator)
+    public function update(Request $request, CommentMapper $commentMapper, TranslatorInterface $translator, string $section = 'all', int $start = 0)
     {
         if ($request->isMethod('POST')) {
             if (!$request->request->get('comments')) {

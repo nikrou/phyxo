@@ -22,7 +22,6 @@ use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -40,8 +39,8 @@ class AdminRatingController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function photos(Request $request, int $start = 0, Conf $conf, ImageStandardParams $image_std_params,
-                            TranslatorInterface $translator, UserMapper $userMapper, UserRepository $userRepository, RateRepository $rateRepository)
+    public function photos(Request $request, Conf $conf, ImageStandardParams $image_std_params, TranslatorInterface $translator, UserMapper $userMapper,
+                            UserRepository $userRepository, RateRepository $rateRepository, int $start = 0)
     {
         $tpl_params = [];
         $this->translator = $translator;

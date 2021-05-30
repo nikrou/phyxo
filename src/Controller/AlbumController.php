@@ -18,7 +18,6 @@ use Phyxo\MenuBar;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\ImageMapper;
 use App\Entity\UserCacheAlbum;
-use App\Repository\ImageAlbumRepository;
 use App\Repository\UserCacheAlbumRepository;
 use Phyxo\Functions\Utils;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -27,7 +26,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AlbumController extends CommonController
 {
     public function album(Request $request, Conf $conf, ImageStandardParams $image_std_params, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
-                            ImageMapper $imageMapper, int $start = 0, int $category_id = 0, TranslatorInterface $translator, AlbumMapper $albumMapper)
+                            ImageMapper $imageMapper, TranslatorInterface $translator, AlbumMapper $albumMapper, int $start = 0, int $category_id = 0)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -222,7 +221,7 @@ class AlbumController extends CommonController
     }
 
     public function albumFlat(Request $request, Conf $conf, MenuBar $menuBar, ImageStandardParams $image_std_params,
-                                AlbumMapper $albumMapper, ImageMapper $imageMapper, int $category_id, int $start = 0, TranslatorInterface $translator)
+                                AlbumMapper $albumMapper, ImageMapper $imageMapper, int $category_id, TranslatorInterface $translator, int $start = 0)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -282,7 +281,7 @@ class AlbumController extends CommonController
     }
 
     public function albumsFlat(Request $request, Conf $conf, MenuBar $menuBar,
-        ImageStandardParams $image_std_params, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
+        ImageStandardParams $image_std_params, ImageMapper $imageMapper, TranslatorInterface $translator, int $start = 0)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -336,7 +335,7 @@ class AlbumController extends CommonController
     }
 
     public function albums(Request $request, Conf $conf, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository, ImageStandardParams $image_std_params,
-                            ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator, AlbumMapper $albumMapper)
+                            ImageMapper $imageMapper, TranslatorInterface $translator, AlbumMapper $albumMapper, int $start = 0)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -453,8 +452,8 @@ class AlbumController extends CommonController
     }
 
     public function recentCats(Request $request, Conf $conf, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
-                                ImageStandardParams $image_std_params, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator,
-                                AlbumMapper $albumMapper, ImageAlbumRepository $imageAlbumRepository)
+                                ImageStandardParams $image_std_params, ImageMapper $imageMapper, TranslatorInterface $translator,
+                                AlbumMapper $albumMapper, int $start = 0)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;

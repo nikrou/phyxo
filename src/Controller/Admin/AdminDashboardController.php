@@ -31,10 +31,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminDashboardController extends AbstractController
 {
-    public function index(Request $request, bool $check_upgrade = false, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
+    public function index(Request $request, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
                           UserRepository $userRepository, GroupRepository $groupRepository, HttpClientInterface $client, AlbumRepository $albumRepository,
                           ImageMapper $imageMapper, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository, RateRepository $rateRepository,
-                          TagRepository $tagRepository, ImageTagRepository $imageTagRepository)
+                          TagRepository $tagRepository, ImageTagRepository $imageTagRepository, bool $check_upgrade = false)
     {
         $tpl_params = [];
 

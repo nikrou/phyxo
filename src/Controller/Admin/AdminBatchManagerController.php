@@ -70,10 +70,10 @@ class AdminBatchManagerController extends AbstractController
         return $filter;
     }
 
-    public function global(Request $request, string $filter = null, int $start = 0, Conf $conf, AlbumMapper $albumMapper, DerivativeService $derivativeService,
-                          ImageStandardParams $image_std_params, SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper, CaddieRepository $caddieRepository,
-                          UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator, AlbumRepository $albumRepository, ImageTagRepository $imageTagRepository,
-                          ImageAlbumRepository $imageAlbumRepository, FavoriteRepository $favoriteRepository, TagRepository $tagRepository)
+    public function global(Request $request, Conf $conf, AlbumMapper $albumMapper, DerivativeService $derivativeService, ImageStandardParams $image_std_params,
+                            SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper, CaddieRepository $caddieRepository, UserMapper $userMapper, Metadata $metadata,
+                            TranslatorInterface $translator, AlbumRepository $albumRepository, ImageTagRepository $imageTagRepository, ImageAlbumRepository $imageAlbumRepository,
+                            FavoriteRepository $favoriteRepository, TagRepository $tagRepository, string $filter = null, int $start = 0)
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -364,7 +364,7 @@ class AdminBatchManagerController extends AbstractController
                 $collection = $request->request->get('selection');
             }
 
-            $this->actionOnCollection($request, $collection, $tagMapper, $imageMapper, $userMapper, $imageAlbumRepository, $albumMapper, $caddieRepository, $imageTagRepository);
+            $this->actionOnCollection($request, $tagMapper, $imageMapper, $userMapper, $imageAlbumRepository, $albumMapper, $caddieRepository, $imageTagRepository, $collection);
         }
 
         $tpl_params['START'] = $start;
@@ -403,9 +403,9 @@ class AdminBatchManagerController extends AbstractController
         return $this->redirectToRoute('admin_batch_manager_global', ['start' => $request->get('start')]);
     }
 
-    protected function actionOnCollection(Request $request, array $collection = [], TagMapper $tagMapper, ImageMapper $imageMapper,
+    protected function actionOnCollection(Request $request, TagMapper $tagMapper, ImageMapper $imageMapper,
                                         UserMapper $userMapper, ImageAlbumRepository $imageAlbumRepository, AlbumMapper $albumMapper,
-                                        CaddieRepository $caddieRepository, ImageTagRepository $imageTagRepository)
+                                        CaddieRepository $caddieRepository, ImageTagRepository $imageTagRepository, array $collection = [])
     {
         // if the user tries to apply an action, it means that there is at least 1 photo in the selection
         if (count($collection) === 0 && !$request->request->get('submitFilter')) {
@@ -908,9 +908,9 @@ class AdminBatchManagerController extends AbstractController
         return $tpl_params;
     }
 
-    public function unit(Request $request, string $filter = null, int $start = 0, Conf $conf, SearchMapper $searchMapper, TagMapper $tagMapper,
-                        ImageStandardParams $image_std_params, AlbumMapper $albumMapper, UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator,
-                        ImageMapper $imageMapper, AlbumRepository $albumRepository, ImageAlbumRepository $imageAlbumRepository, FavoriteRepository $favoriteRepository)
+    public function unit(Request $request, Conf $conf, SearchMapper $searchMapper, TagMapper $tagMapper, ImageStandardParams $image_std_params, AlbumMapper $albumMapper,
+                        UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator, ImageMapper $imageMapper, AlbumRepository $albumRepository,
+                        ImageAlbumRepository $imageAlbumRepository, FavoriteRepository $favoriteRepository, string $filter = null, int $start = 0)
     {
         $tpl_params = [];
         $this->translator = $translator;

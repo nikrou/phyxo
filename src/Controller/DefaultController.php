@@ -27,7 +27,7 @@ class DefaultController extends CommonController
         return $this->forward('App\Controller\AlbumController::albums');
     }
 
-    public function action(ImageMapper $imageMapper, int $image_id, string $part, $download = false, AlbumMapper $albumMapper, Conf $conf, ImageStandardParams $image_std_params)
+    public function action(ImageMapper $imageMapper, int $image_id, string $part, AlbumMapper $albumMapper, Conf $conf, ImageStandardParams $image_std_params, $download = false)
     {
         $image = $imageMapper->getRepository()->find($image_id);
 

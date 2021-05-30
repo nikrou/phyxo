@@ -22,7 +22,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class IndexController extends CommonController
 {
     public function mostVisited(Request $request, Conf $conf, MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params,
-                                int $start = 0, TranslatorInterface $translator)
+                                TranslatorInterface $translator, int $start = 0)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -74,7 +74,7 @@ class IndexController extends CommonController
     }
 
     public function recentPics(Request $request, Conf $conf, MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params,
-                                 int $start = 0, TranslatorInterface $translator)
+                                TranslatorInterface $translator, int $start = 0)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -130,7 +130,7 @@ class IndexController extends CommonController
     }
 
     public function bestRated(Request $request, Conf $conf, MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params,
-                             int $start = 0, TranslatorInterface $translator)
+                             TranslatorInterface $translator, int $start = 0)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -198,8 +198,8 @@ class IndexController extends CommonController
         }
     }
 
-    public function randomList(Request $request, string $list, Conf $conf, ImageMapper $imageMapper, MenuBar $menuBar, int $start = 0,
-                                ImageStandardParams $image_std_params, TranslatorInterface $translator)
+    public function randomList(Request $request, string $list, Conf $conf, ImageMapper $imageMapper, MenuBar $menuBar,
+                                ImageStandardParams $image_std_params, TranslatorInterface $translator, int $start = 0)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;

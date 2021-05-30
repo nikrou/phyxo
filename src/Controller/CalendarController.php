@@ -26,7 +26,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class CalendarController extends CommonController
 {
     public function categoriesMonthly(Request $request, string $date_type, string $view_type, Conf $conf, ImageRepository $imageRepository, AlbumRepository $albumRepository,
-                                    MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0, TranslatorInterface $translator)
+                                    MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator, int $start = 0)
     {
         $tpl_params = [];
         $tpl_params['START_ID'] = $start;
@@ -135,8 +135,8 @@ class CalendarController extends CommonController
         return $this->render('month_calendar.html.twig', $tpl_params);
     }
 
-    public function categoriesWeekly(Request $request, string $date_type, int $week = 0, Conf $conf, MenuBar $menuBar, ImageRepository $imageRepository, AlbumRepository $albumRepository,
-                                    ImageStandardParams $image_std_params, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
+    public function categoriesWeekly(Request $request, string $date_type, Conf $conf, MenuBar $menuBar, ImageRepository $imageRepository, AlbumRepository $albumRepository,
+                                    ImageStandardParams $image_std_params, ImageMapper $imageMapper, TranslatorInterface $translator, int $start = 0, int $week = 0)
     {
         $tpl_params = [];
         $tpl_params['START_ID'] = $start;
@@ -237,7 +237,7 @@ class CalendarController extends CommonController
     }
 
     public function categoryMonthly(Request $request, int $category_id, string $date_type, string $view_type, Conf $conf, MenuBar $menuBar, ImageRepository $imageRepository,
-                            AlbumRepository $albumRepository, ImageStandardParams $image_std_params, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
+                            AlbumRepository $albumRepository, ImageStandardParams $image_std_params, ImageMapper $imageMapper, TranslatorInterface $translator, int $start = 0)
     {
         $tpl_params = [];
         $tpl_params['START_ID'] = $start;
@@ -337,7 +337,7 @@ class CalendarController extends CommonController
     }
 
     public function categoryWeekly(Request $request, int $category_id, string $date_type, int $week, Conf $conf, ImageRepository $imageRepository, AlbumRepository $albumRepository,
-                                    MenuBar $menuBar, ImageStandardParams $image_std_params, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
+                                    MenuBar $menuBar, ImageStandardParams $image_std_params, ImageMapper $imageMapper, TranslatorInterface $translator, int $start = 0)
     {
         $tpl_params = [];
         $tpl_params['START_ID'] = $start;

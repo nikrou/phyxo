@@ -268,7 +268,7 @@ class PictureController extends CommonController
         }
 
         if (($conf['show_exif'] || $conf['show_iptc']) && !$picture['src_image']->is_mimetype()) {
-            $tpl_params = array_merge($tpl_params, $this->addMetadataInfos($picture, $metadata));
+            $tpl_params = array_merge($tpl_params, $this->addMetadataInfos($metadata, $picture));
         }
 
         if ($conf['activate_comments']) {
@@ -585,7 +585,7 @@ class PictureController extends CommonController
         );
     }
 
-    protected function addMetadataInfos(array $picture = [], Metadata $metadata): array
+    protected function addMetadataInfos(Metadata $metadata, array $picture = []): array
     {
         $tpl_params = [];
 

@@ -129,7 +129,7 @@ class TagController extends CommonController
     }
 
     public function imagesByTags(Request $request, ImageMapper $imageMapper, ImageStandardParams $image_std_params, string $tag_ids,
-                                    Conf $conf, MenuBar $menuBar, int $start = 0, TranslatorInterface $translator, TagRepository $tagRepository)
+                                TranslatorInterface $translator, TagRepository $tagRepository, Conf $conf, MenuBar $menuBar, int $start = 0)
     {
         $tpl_params = [];
 
@@ -152,7 +152,7 @@ class TagController extends CommonController
             $tpl_params['tags'][] = $tag;
         }
 
-        $tpl_params['TITLE'] = $this->getTagsContentTitle($tpl_params['tags'], $translator);
+        $tpl_params['TITLE'] = $this->getTagsContentTitle($translator, $tpl_params['tags']);
 
         $tpl_params['items'] = [];
         foreach ($imageMapper->getRepository()->getImageIdsForTags($this->getUser()->getUserInfos()->getForbiddenCategories(), $requested_tag_ids) as $image) {
@@ -203,7 +203,7 @@ class TagController extends CommonController
     /**
      * Returns the breadcrumb to be displayed above thumbnails on tag page.
      */
-    protected function getTagsContentTitle(array $tags = [], TranslatorInterface $translator): string
+    protected function getTagsContentTitle(TranslatorInterface $translator, array $tags = []): string
     {
         $title = '<li class="breadcrumb-item">';
         $title .= '<a href="' . $this->generateUrl('tags') . '" title="' . $translator->trans('display available tags') . '">';

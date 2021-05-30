@@ -43,10 +43,10 @@ class AdminUpdateController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function core(Request $request, int $step = 0, string $version = null, UserMapper $userMapper, string $defaultTheme,
+    public function core(Request $request, string $version = null, UserMapper $userMapper, string $defaultTheme,
                         ParameterBagInterface $params, TranslatorInterface $translator, PluginRepository $pluginRepository, ThemeRepository $themeRepository,
                          UpgradeRepository $upgradeRepository, UserInfosRepository $userInfosRepository, TokenStorageInterface $tokenStorage, SessionInterface $session,
-                         Plugins $plugins, Themes $themes, Languages $languages)
+                         Plugins $plugins, Themes $themes, Languages $languages, int $step = 0)
     {
         $tpl_params = [];
         $this->translator = $translator;

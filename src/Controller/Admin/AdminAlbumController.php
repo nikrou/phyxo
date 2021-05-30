@@ -39,7 +39,7 @@ class AdminAlbumController extends AbstractController
 {
     private $translator;
 
-    protected function setTabsheet(string $section = 'properties', int $album_id, int $parent_id = null): array
+    protected function setTabsheet(int $album_id, string $section = 'properties', int $parent_id = null): array
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('properties', $this->translator->trans('Properties', [], 'admin'), $this->generateUrl('admin_album', ['album_id' => $album_id, 'parent_id' => $parent_id]), 'fa-pencil');
@@ -225,7 +225,7 @@ class AdminAlbumController extends AbstractController
         $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($this->getDoctrine(), ['categories'], $this->generateUrl('homepage'));
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('properties', $album_id, $parent_id), $tpl_params);
+        $tpl_params = array_merge($this->setTabsheet($album_id, 'properties', $parent_id), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
@@ -358,7 +358,7 @@ class AdminAlbumController extends AbstractController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
         $tpl_params['ALBUM_ID'] = $album_id;
-        $tpl_params = array_merge($this->setTabsheet('sort_order', $album_id, $parent_id), $tpl_params);
+        $tpl_params = array_merge($this->setTabsheet($album_id, 'sort_order', $parent_id), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
@@ -511,7 +511,7 @@ class AdminAlbumController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('permissions', $album_id, $parent_id), $tpl_params);
+        $tpl_params = array_merge($this->setTabsheet($album_id, 'permissions', $parent_id), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
@@ -596,7 +596,7 @@ class AdminAlbumController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('notification', $album_id, $parent_id), $tpl_params);
+        $tpl_params = array_merge($this->setTabsheet($album_id, 'notification', $parent_id), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');

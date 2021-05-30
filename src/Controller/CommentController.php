@@ -28,9 +28,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentController extends CommonController
 {
-    public function index(int $start = 0, int $comment_id = 0, Request $request, Conf $conf, MenuBar $menuBar, AlbumMapper $albumMapper,
+    public function index(Request $request, Conf $conf, MenuBar $menuBar, AlbumMapper $albumMapper,
                         UserMapper $userMapper, CsrfTokenManagerInterface $csrfTokenManager, ImageStandardParams $image_std_params,
-                        TranslatorInterface $translator, CommentRepository $commentRepository)
+                        TranslatorInterface $translator, CommentRepository $commentRepository, int $start = 0, int $comment_id = 0)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;

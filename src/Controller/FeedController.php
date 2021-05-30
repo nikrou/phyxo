@@ -62,7 +62,7 @@ class FeedController extends CommonController
         return new Response('Not yet');
     }
 
-    public function feed(string $feed_id, bool $image_only = false, Conf $conf, UserFeedRepository $userFeedRepository, string $cacheDir, Notification $notification, TranslatorInterface $translator)
+    public function feed(string $feed_id, Conf $conf, UserFeedRepository $userFeedRepository, string $cacheDir, Notification $notification, TranslatorInterface $translator, bool $image_only = false)
     {
         $feed = $userFeedRepository->findOneBy(['uuid' => $feed_id]);
         if (is_null($feed)) {

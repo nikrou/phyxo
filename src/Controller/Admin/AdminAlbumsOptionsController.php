@@ -24,7 +24,7 @@ class AdminAlbumsOptionsController extends AbstractController
 {
     private $translator;
 
-    protected function setTabsheet(string $section = 'status', Conf $conf): array
+    protected function setTabsheet(Conf $conf, string $section = 'status'): array
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('status', $this->translator->trans('Public / Private', [], 'admin'), $this->generateUrl('admin_albums_options'), 'fa-lock');
@@ -85,7 +85,7 @@ class AdminAlbumsOptionsController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums_options', ['section' => $section]);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $this->translator->trans('Public / Private', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet($section, $conf), $tpl_params);
+        $tpl_params = array_merge($this->setTabsheet($conf, $section), $tpl_params);
 
         return $this->render('albums_options.html.twig', $tpl_params);
     }

@@ -247,7 +247,7 @@ class SearchController extends CommonController
     }
 
     public function searchResults(Request $request, SearchMapper $searchMapper, AlbumMapper $albumMapper, ImageMapper $imageMapper, Conf $conf,
-                        SearchRepository $searchRepository, ImageStandardParams $image_std_params, MenuBar $menuBar, $search_id, int $start = 0, TranslatorInterface $translator
+                        SearchRepository $searchRepository, ImageStandardParams $image_std_params, MenuBar $menuBar, $search_id, TranslatorInterface $translator, int $start = 0
     ) {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;

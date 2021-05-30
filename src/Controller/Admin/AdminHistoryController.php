@@ -382,7 +382,7 @@ class AdminHistoryController extends AbstractController
                 );
             }
 
-            $image_string = $this->getImageString($line, $image_infos, $rules, $conf, $this->image_std_params);
+            $image_string = $this->getImageString($conf, $this->image_std_params, $line, $image_infos, $rules);
 
             $search_results[] = [
                 'DATE' => $line['date'],
@@ -430,7 +430,7 @@ class AdminHistoryController extends AbstractController
         ];
     }
 
-    protected function getImageString(array $line = [], array $image_infos = [], array $search = [], Conf $conf, ImageStandardParams $image_std_params): string
+    protected function getImageString(Conf $conf, ImageStandardParams $image_std_params, array $line = [], array $image_infos = [], array $search = []): string
     {
         $image_string = '';
         $element = [];

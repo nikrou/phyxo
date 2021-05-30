@@ -24,8 +24,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FavoriteController extends CommonController
 {
-    public function index(Request $request, int $start = 0, MenuBar $menuBar, Conf $conf,
-                          FavoriteRepository $favoriteRepository, ImageMapper $imageMapper, TranslatorInterface $translator)
+    public function index(Request $request, MenuBar $menuBar, Conf $conf, FavoriteRepository $favoriteRepository, ImageMapper $imageMapper,
+                            TranslatorInterface $translator, int $start = 0)
     {
         $tpl_params = [];
 
