@@ -189,7 +189,7 @@ class Languages extends Extensions
     /**
      * Retrieve PEM server datas to $server_languages
      */
-    public function getServerLanguages($new = false, string $pem_category, string $phyxo_version = ''): array
+    public function getServerLanguages(string $pem_category, string $phyxo_version, $new = false): array
     {
         if (!$this->server_languages_retrieved) {
             $get_data = [
@@ -278,7 +278,7 @@ class Languages extends Extensions
 
         $this->directory_pattern = '/^$/';
         try {
-            $this->download($get_data, $archive);
+            $this->download($archive, $get_data);
         } catch (\Exception $e) {
             throw new \Exception("Cannot download language archive");
         }

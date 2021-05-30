@@ -50,8 +50,8 @@ class FavoriteController extends CommonController
             $tpl_params = array_merge(
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
-                    array_slice($tpl_params['items'], $start, $nb_image_page),
                     '',
+                    array_slice($tpl_params['items'], $start, $nb_image_page),
                     'favorites',
                     $start
                 )

@@ -117,7 +117,7 @@ class AdminPhotosController extends AbstractController
 
         // image level options
         $selected_level = $request->request->get('level') ? (int) $request->request->get('level') : 0;
-        $tpl_params['level_options'] = Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator, 'admin');
+        $tpl_params['level_options'] = Utils::getPrivacyLevelOptions($translator, $conf['available_permission_levels'], 'admin');
         $tpl_params['level_options_selected'] = $selected_level;
 
         if (!function_exists('gd_info')) {
@@ -138,7 +138,7 @@ class AdminPhotosController extends AbstractController
               'admin'
             );
         }
-        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['categories'], $this->getDoctrine(), $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($this->getDoctrine(), ['categories'], $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');

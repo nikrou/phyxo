@@ -61,7 +61,7 @@ class ImageMapper
         return $this->imageRepository;
     }
 
-    public function getPicturesFromSelection(array $selection = [], $element_id, string $section = '', int $start_id = 0): array
+    public function getPicturesFromSelection($element_id, array $selection = [], string $section = '', int $start_id = 0): array
     {
         $tpl_params = [];
 

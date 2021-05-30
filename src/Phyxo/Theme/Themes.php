@@ -311,7 +311,7 @@ class Themes extends Extensions
     /**
      * Retrieve PEM server datas to $server_themes
      */
-    public function getServerThemes($new = false, string $pem_category, string $phyxo_version = '')
+    public function getServerThemes(string $pem_category, string $phyxo_version, $new = false)
     {
         if (!$this->server_themes_retrieved) {
             $get_data = [
@@ -422,7 +422,7 @@ class Themes extends Extensions
         ];
 
         try {
-            $this->download($get_data, $archive);
+            $this->download($archive, $get_data);
         } catch (\Exception $e) {
             throw new \Exception("Cannot download theme archive");
         }

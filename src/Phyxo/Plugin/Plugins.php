@@ -292,7 +292,7 @@ class Plugins extends Extensions
     /**
      * Retrieve PEM server datas to $server_plugins
      */
-    public function getServerPlugins($new = false, string $pem_category, string $core_version)
+    public function getServerPlugins(string $pem_category, string $core_version, $new = false)
     {
         if (!$this->server_plugins_retrieved) {
             $versions_to_check = $this->getVersionsToCheck($pem_category, $core_version);
@@ -434,7 +434,7 @@ class Plugins extends Extensions
         ];
 
         try {
-            $this->download($get_data, $archive);
+            $this->download($archive, $get_data);
         } catch (\Exception $e) {
             throw new \Exception("Cannot download plugin file");
         }

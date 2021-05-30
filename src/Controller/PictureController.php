@@ -92,7 +92,7 @@ class PictureController extends CommonController
         if (count($tpl_params['items']) > 0) {
             $tpl_params = array_merge(
                 $tpl_params,
-                $imageMapper->getPicturesFromSelection($tpl_params['items'], $element_id, $type)
+                $imageMapper->getPicturesFromSelection($element_id, $tpl_params['items'], $type)
             );
 
             $tpl_params['derivative_params_square'] = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
@@ -218,7 +218,7 @@ class PictureController extends CommonController
             $tpl_params['U_CADDIE'] = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id, 'action' => 'add_to_caddie']);
             $tpl_params['U_PHOTO_ADMIN'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'category_id' => (int) $element_id]);
 
-            $tpl_params['available_permission_levels'] = Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator);
+            $tpl_params['available_permission_levels'] = Utils::getPrivacyLevelOptions($translator, $conf['available_permission_levels']);
         }
 
         if (!$this->getUser()->isGuest() && $conf['picture_favorite_icon']) {

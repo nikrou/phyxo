@@ -49,7 +49,7 @@ class Extensions
     {
     }
 
-    public function download($params = [], $filename)
+    public function download($filename, $params = [])
     {
         $url = $this->pem_url . '/download.php';
 

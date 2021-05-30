@@ -175,8 +175,8 @@ class TagController extends CommonController
             $tpl_params = array_merge(
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
-                    array_slice($tpl_params['items'], $start, $nb_image_page),
                     $tag_ids,
+                    array_slice($tpl_params['items'], $start, $nb_image_page),
                     'tags',
                     $start
                 )

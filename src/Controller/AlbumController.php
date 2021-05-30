@@ -200,8 +200,8 @@ class AlbumController extends CommonController
             $tpl_params = array_merge(
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
-                    array_slice($tpl_params['items'], $start, $nb_image_page),
                     $category_id,
+                    array_slice($tpl_params['items'], $start, $nb_image_page),
                     'category',
                     $start
                 )
@@ -262,8 +262,8 @@ class AlbumController extends CommonController
             $tpl_params = array_merge(
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
-                    array_slice($tpl_params['items'], $start, $nb_image_page),
                     $category_id,
+                    array_slice($tpl_params['items'], $start, $nb_image_page),
                     'category',
                     $start
                 )
@@ -318,8 +318,8 @@ class AlbumController extends CommonController
             $tpl_params = array_merge(
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
-                    array_slice($tpl_params['items'], $start, $nb_image_page),
                     'flat',
+                    array_slice($tpl_params['items'], $start, $nb_image_page),
                     'categories',
                     $start
                 )

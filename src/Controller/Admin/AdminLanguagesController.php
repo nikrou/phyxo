@@ -150,7 +150,7 @@ class AdminLanguagesController extends AbstractController
         $languages->setRootPath($params->get('translator.default_path'));
         $languages->setExtensionsURL($params->get('pem_url'));
 
-        foreach ($languages->getServerLanguages($new = true, $conf['pem_languages_category'], $params->get('core_version')) as $language) {
+        foreach ($languages->getServerLanguages($conf['pem_languages_category'], $params->get('core_version'), $new = true) as $language) {
             list($date, ) = explode(' ', $language['revision_date']);
 
             $tpl_params['languages'][] = [
@@ -229,7 +229,7 @@ class AdminLanguagesController extends AbstractController
         $languages->setRootPath($params->get('translator.default_path'));
         $languages->setExtensionsURL($params->get('pem_url'));
 
-        $server_languages = $languages->getServerLanguages($new = false, $conf['pem_languages_category'], $params->get('core_version'));
+        $server_languages = $languages->getServerLanguages($conf['pem_languages_category'], $params->get('core_version'), $new = false);
         $tpl_params['update_languages'] = [];
 
         if (count($server_languages) > 0) {

@@ -105,8 +105,8 @@ class CalendarController extends CommonController
                 $tpl_params = array_merge(
                     $tpl_params,
                     $imageMapper->getPicturesFromSelection(
-                        array_slice($tpl_params['items'], $start, $nb_image_page),
                         '',
+                        array_slice($tpl_params['items'], $start, $nb_image_page),
                         'calendar_categories',
                         $start
                     )
@@ -217,8 +217,8 @@ class CalendarController extends CommonController
                 $tpl_params = array_merge(
                     $tpl_params,
                     $imageMapper->getPicturesFromSelection(
-                        array_slice($tpl_params['items'], $start, $nb_image_page),
                         3,
+                        array_slice($tpl_params['items'], $start, $nb_image_page),
                         'calendar_categories',
                         $start
                     )
@@ -313,8 +313,8 @@ class CalendarController extends CommonController
                 $tpl_params = array_merge(
                     $tpl_params,
                     $imageMapper->getPicturesFromSelection(
-                        array_slice($tpl_params['items'], $start, $nb_image_page),
                         '',
+                        array_slice($tpl_params['items'], $start, $nb_image_page),
                         'calendar_category',
                         $start
                     )
@@ -433,8 +433,8 @@ class CalendarController extends CommonController
                 $tpl_params = array_merge(
                     $tpl_params,
                     $imageMapper->getPicturesFromSelection(
-                        array_slice($tpl_params['items'], $start, $nb_image_page),
                         3,
+                        array_slice($tpl_params['items'], $start, $nb_image_page),
                         'calendar_category',
                         $start
                     )

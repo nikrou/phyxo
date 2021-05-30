@@ -177,7 +177,7 @@ class AdminThemesController extends AbstractController
             $updates_ignored = ['plugins' => [], 'themes' => [], 'languages' => []];
         }
 
-        $server_themes = $themes->getServerThemes($new = false, $conf['pem_themes_category'], $params->get('core_version'));
+        $server_themes = $themes->getServerThemes($conf['pem_themes_category'], $params->get('core_version'), $new = false);
         $tpl_params['update_themes'] = [];
 
         if (count($server_themes) > 0) {
@@ -289,7 +289,7 @@ class AdminThemesController extends AbstractController
 
         $tpl_params['themes'] = [];
 
-        foreach ($themes->getServerThemes(true, $conf['pem_themes_category'], $params->get('core_version')) as $theme) {
+        foreach ($themes->getServerThemes($conf['pem_themes_category'], $params->get('core_version'), $new = true) as $theme) {
             $tpl_params['themes'][] = [
                 'id' => $theme['extension_id'],
                 'name' => $theme['extension_name'],

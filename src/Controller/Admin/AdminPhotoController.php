@@ -161,7 +161,7 @@ class AdminPhotoController extends AbstractController
 
         // image level options
         $selected_level = $image->getLevel();
-        $tpl_params['level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator, 'admin');
+        $tpl_params['level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($translator, $conf['available_permission_levels'], 'admin');
         $tpl_params['level_options_selected'] = $selected_level;
 
         // associate to albums
@@ -212,7 +212,7 @@ class AdminPhotoController extends AbstractController
         $tpl_params['associated_albums'] = $associated_albums;
         $tpl_params['represented_albums'] = $represented_albums;
         $tpl_params['STORAGE_ALBUM'] = $storage_category_id;
-        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys(['tags', 'categories'], $this->getDoctrine(), $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($this->getDoctrine(), ['tags', 'categories'], $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);

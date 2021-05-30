@@ -154,7 +154,7 @@ class AdminPluginsController extends AbstractController
         $plugins->setRootPath($params->get('plugins_dir'));
         $plugins->setExtensionsURL($params->get('pem_url'));
 
-        foreach ($plugins->getServerPlugins($new = true, $conf['pem_plugins_category'], $params->get('core_version')) as $plugin) {
+        foreach ($plugins->getServerPlugins($conf['pem_plugins_category'], $params->get('core_version'), $new = true) as $plugin) {
             $ext_desc = trim($plugin['extension_description'], " \n\r");
             list($small_desc) = explode("\n", wordwrap($ext_desc, 200));
 
@@ -210,7 +210,7 @@ class AdminPluginsController extends AbstractController
         $plugins->setRootPath($params->get('plugins_dir'));
         $plugins->setExtensionsURL($params->get('pem_url'));
 
-        $server_plugins = $plugins->getServerPlugins($new = false, $conf['pem_plugins_category'], $params->get('core_version'));
+        $server_plugins = $plugins->getServerPlugins($conf['pem_plugins_category'], $params->get('core_version'), $new = false);
         $tpl_params['update_plugins'] = [];
 
         if (count($server_plugins) > 0) {

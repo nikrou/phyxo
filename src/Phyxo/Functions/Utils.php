@@ -285,7 +285,7 @@ class Utils
     /**
      * get localized privacy level values
      */
-    public static function getPrivacyLevelOptions(array $available_permission_levels = [], TranslatorInterface $translator, string $domain = 'messages'): array
+    public static function getPrivacyLevelOptions(TranslatorInterface $translator, array $available_permission_levels = [], string $domain = 'messages'): array
     {
         $options = [];
         $label = '';
@@ -579,7 +579,7 @@ class Utils
      * Used to invalidate LocalStorage cache on admin pages.
      * list of keys to retrieve (categories,groups,images,tags,users)
      */
-    public static function getAdminClientCacheKeys(array $requested = [], ManagerRegistry $managerRegistry, string $base_url = ''): array
+    public static function getAdminClientCacheKeys(ManagerRegistry $managerRegistry, array $requested = [], string $base_url = ''): array
     {
         $tables = [
             'categories' => Album::class,

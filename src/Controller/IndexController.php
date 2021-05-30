@@ -56,8 +56,8 @@ class IndexController extends CommonController
             $tpl_params = array_merge(
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
-                    array_slice($tpl_params['items'], $start, $nb_image_page),
                     '',
+                    array_slice($tpl_params['items'], $start, $nb_image_page),
                     'most_visited',
                     $start
                 )
@@ -112,10 +112,10 @@ class IndexController extends CommonController
             $tpl_params = array_merge(
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
-                array_slice($tpl_params['items'], $start, $nb_image_page),
-                '',
-                'recent_pics',
-                $start
+                    '',
+                    array_slice($tpl_params['items'], $start, $nb_image_page),
+                    'recent_pics',
+                    $start
                 )
             );
         }
@@ -167,10 +167,10 @@ class IndexController extends CommonController
             $tpl_params = array_merge(
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
-                array_slice($tpl_params['items'], $start, $nb_image_page),
-                '',
-                'best_rated',
-                $start
+                    '',
+                    array_slice($tpl_params['items'], $start, $nb_image_page),
+                    'best_rated',
+                    $start
                 )
             );
         }
@@ -222,8 +222,8 @@ class IndexController extends CommonController
             $tpl_params = array_merge(
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
-                    array_slice($tpl_params['items'], $start, $nb_image_page),
                     $list,
+                    array_slice($tpl_params['items'], $start, $nb_image_page),
                     'list',
                     $start
                 )
