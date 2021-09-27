@@ -725,7 +725,7 @@ class AlbumMapper
             }
             $current_rank++;
             $albums[$id] = [
-                'rank' => $current_rank,
+                'rank' => $album->getRank(),
                 'rank_changed' => $current_rank !== $album->getRank(),
                 'global_rank' => $album->getGlobalRank(),
                 'uppercats' => $album->getUppercats(),

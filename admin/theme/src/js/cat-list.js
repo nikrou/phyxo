@@ -13,7 +13,7 @@ $(function () {
     $('#categoryOrdering').submit(function () {
       const ar = $('.albums').sortable('toArray')
       for (let i = 0; i < ar.length; i++) {
-        let cat = ar[i].split('cat_')
+        let cat = ar[i].split('album-')
         document.getElementsByName('catOrd[' + cat[1] + ']')[0].value = i
       }
     })

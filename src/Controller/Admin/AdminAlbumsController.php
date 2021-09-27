@@ -58,7 +58,7 @@ class AdminAlbumsController extends AbstractController
         $tpl_params['sort_order_checked'] = array_shift($sort_orders_checked);
 
         $albums = [];
-        foreach ($albumRepository->findBy(['parent' => $parent_id]) as $album) {
+        foreach ($albumRepository->findBy(['parent' => $parent_id], ['rank' => 'asc']) as $album) {
             $albums[$album->getId()] = $album;
         }
 
@@ -67,7 +67,7 @@ class AdminAlbumsController extends AbstractController
             $nb_photos_in = $imageAlbumRepository->countImagesByAlbum();
 
             $all_albums = [];
-            foreach ($albumRepository->findAll() as $album) {
+            foreach ($albumRepository->findBy([], ['rank' => 'asc']) as $album) {
                 $all_albums[$album->getId()] = $album->getUppercats();
             }
             $subcats_of = [];
@@ -124,7 +124,6 @@ class AdminAlbumsController extends AbstractController
             $tpl_params['categories'][] = $tpl_cat;
         }
 
-
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
@@ -150,7 +149,12 @@ class AdminAlbumsController extends AbstractController
             if ($request->request->get('submitManualOrder')) { // save manual category ordering
                 $categoriesOrder = $request->request->get('catOrd');
                 asort($categoriesOrder, SORT_NUMERIC);
-                $albumMapper->saveAlbumsOrder(array_keys($categoriesOrder));
+
+                $albums = [];
+                foreach (array_keys($categoriesOrder) as $catId) {
+                    $albums[] = ['id' => $catId, 'id_uppercat' => null];
+                }
+                $albumMapper->saveAlbumsOrder($albums);
 
                 $this->addFlash('info', $translator->trans('Album manual order was saved', [], 'admin'));
             } elseif ($request->request->get('submitAutoOrder')) {
