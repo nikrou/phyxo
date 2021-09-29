@@ -19,7 +19,7 @@
     "bootstrap-slider": "^11.0.2",
     "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^5.2.6",
-    "datatables.net": "^1.10.24",
+    "datatables.net": "^1.11.3",
     "datatables.net-bs4": "^1.10.24",
     "datatables.net-buttons": "^1.7.0",
     "datatables.net-dt": "^1.10.24",
