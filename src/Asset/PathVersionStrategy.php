@@ -49,10 +49,8 @@ class PathVersionStrategy implements VersionStrategyInterface
         return $this->getManifestPath($path) ?: $path;
     }
 
-    private function getManifestPath($path)
+    private function getManifestPath($path): ?string
     {
-        \App\Log::getInstance()->debug('getManifestPath', $path, $this->manifestData);
-
         return isset($this->manifestData[$path]) ? $this->manifestData[$path] : null;
     }
 
@@ -67,7 +65,6 @@ class PathVersionStrategy implements VersionStrategyInterface
             throw new \RuntimeException(sprintf('Error parsing JSON from asset manifest file "%s" - %s', $path, json_last_error_msg()));
         }
     }
-
 
     private function getPublicDirectory(KernelInterface $kernel): string
     {
