@@ -1,5 +1,14 @@
 {
-    "php-cs-fixer.config": "/var/projets/git/phyxo/.php_cs.dist",
+    "php-cs-fixer.exclude": [],
+    "php-cs-fixer.executablePath": "${workspaceFolder}/bin/php-cs-fixer",
+    "php-cs-fixer.config": "${workspaceFolder}/.php_cs.dist",
+    "php-cs-fixer.allowRisky": true,
+    "php-cs-fixer.lastDownload": 0,
+    "[php]": {
+        "editor.defaultFormatter": "junstyle.php-cs-fixer",
+        "editor.formatOnSave": true
+    },
+    "php-cs-fixer.onsave": true,
     "files.exclude": {
         "**/.dist": true,
         "**/_data": true,

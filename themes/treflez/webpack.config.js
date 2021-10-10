@@ -8,17 +8,17 @@
  * file that was distributed with this source code.
  */
 
-const path = require('path');
-const merge = require('webpack-merge');
-const webpack = require('webpack');
+const path = require('path')
+const merge = require('webpack-merge')
+const webpack = require('webpack')
 
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const WebpackAssetsManifest = require('webpack-assets-manifest');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const WebpackAssetsManifest = require('webpack-assets-manifest')
 
-const HOST = process.env.HOST ? process.env.HOST : 'localhost';
-const PORT = process.env.PORT ? process.env.PORT : 8080;
-const IS_DEV = process.env.NODE_ENV !== 'production';
+const HOST = process.env.HOST ? process.env.HOST : 'localhost'
+const PORT = process.env.PORT ? process.env.PORT : 8080
+const IS_DEV = process.env.NODE_ENV !== 'production'
 
 /**
  * PATH_PREFIX is used to add a prefix to phyxo urls.
@@ -26,16 +26,17 @@ const IS_DEV = process.env.NODE_ENV !== 'production';
  * PATH_PREFIX=/photos/ npm run build
  *
  */
-const PATH_PREFIX = process.env.PATH_PREFIX ? process.env.PATH_PREFIX : '';
+const PATH_PREFIX = process.env.PATH_PREFIX ? process.env.PATH_PREFIX : ''
 
-const TARGET_NAME = 'build';
+const TARGET_NAME = 'build'
 const PUBLIC_PATH = IS_DEV
   ? `http://${HOST}:${PORT}/`
-  : `${PATH_PREFIX}themes/treflez/${TARGET_NAME}/`;
-const ASSETS_PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : './';
+  : `${PATH_PREFIX}themes/treflez/${TARGET_NAME}/`
+const ASSETS_PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : './'
 
 const PATHS = {
   theme: path.join(__dirname, 'src', 'js'),
+  admin: path.join(__dirname, 'src', 'admin', 'js'),
   target: path.join(
     __dirname,
     '..',
@@ -45,7 +46,7 @@ const PATHS = {
     'treflez',
     TARGET_NAME
   ),
-};
+}
 
 /**
  * bootswatch themes available
@@ -59,7 +60,8 @@ module.exports = {
   devtool: 'source-map',
 
   entry: {
-    theme: './src/js',
+    theme: PATHS.theme,
+    admin: PATHS.admin,
   },
 
   output: {
@@ -157,4 +159,4 @@ module.exports = {
     overlay: true,
     headers: { 'Access-Control-Allow-Origin': '*' },
   },
-};
+}

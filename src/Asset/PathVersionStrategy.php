@@ -17,18 +17,25 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class PathVersionStrategy implements VersionStrategyInterface
 {
-    private $manifestPath, $manifestData;
+    private $manifestData = [];
 
     public function __construct(RequestStack $request, string $defaultTheme, KernelInterface $kernel)
     {
         if (is_null($request) || is_null($request->getCurrentRequest())) {
             return;
         }
+
         if (preg_match('`^/admin/`', $request->getCurrentRequest()->getPathInfo())) { // Do not add public themes on admin URLs
-            $this->manifestPath = sprintf('%s/%s/admin/theme/build/manifest.json', $kernel->getProjectDir(), $this->getPublicDirectory($kernel));
+            $this->readManifestPath(sprintf('%s/%s/admin/theme/build/manifest.json', $kernel->getProjectDir(), $this->getPublicDirectory($kernel)));
+
+            // need append not replace
+            if (preg_match('`^/admin/theme/`', $request->getCurrentRequest()->getPathInfo())) {
+                $theme = $request->getCurrentRequest()->attributes->get('_theme', $defaultTheme);
+                $this->readManifestPath(sprintf('%s/%s/themes/%s/build/manifest.json', $kernel->getProjectDir(), $this->getPublicDirectory($kernel), $theme));
+            }
         } else {
             $theme = $request->getCurrentRequest()->attributes->get('_theme', $defaultTheme);
-            $this->manifestPath = sprintf('%s/%s/themes/%s/build/manifest.json', $kernel->getProjectDir(), $this->getPublicDirectory($kernel), $theme);
+            $this->readManifestPath(sprintf('%s/%s/themes/%s/build/manifest.json', $kernel->getProjectDir(), $this->getPublicDirectory($kernel), $theme));
         }
     }
 
@@ -44,19 +51,23 @@ class PathVersionStrategy implements VersionStrategyInterface
 
     private function getManifestPath($path)
     {
-        if ($this->manifestData === null) {
-            if (!is_readable($this->manifestPath)) {
-                return null;
-            }
-
-            $this->manifestData = json_decode(file_get_contents($this->manifestPath), true);
-            if (json_last_error() > 0) {
-                throw new \RuntimeException(sprintf('Error parsing JSON from asset manifest file "%s" - %s', $this->manifestPath, json_last_error_msg()));
-            }
-        }
+        \App\Log::getInstance()->debug('getManifestPath', $path, $this->manifestData);
 
         return isset($this->manifestData[$path]) ? $this->manifestData[$path] : null;
     }
+
+    private function readManifestPath(string $path): void
+    {
+        if (!is_readable($path)) {
+            return;
+        }
+
+        $this->manifestData = array_merge($this->manifestData, json_decode(file_get_contents($path), true));
+        if (json_last_error() > 0) {
+            throw new \RuntimeException(sprintf('Error parsing JSON from asset manifest file "%s" - %s', $path, json_last_error_msg()));
+        }
+    }
+
 
     private function getPublicDirectory(KernelInterface $kernel): string
     {

@@ -1,0 +1,8 @@
+.tab-content {
+  display: none;
+  padding: 15px;
+}
+
+.tab-content.active {
+  display: inherit;
+}
