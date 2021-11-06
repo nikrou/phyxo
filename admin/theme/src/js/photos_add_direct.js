@@ -30,8 +30,13 @@ $(function () {
   })
 
   uploader.bind('Init', function (up, res) {
-    uploadingErrorArea.parent().hide()
-    uploadedPhotosArea.parent().hide()
+    uploadingErrorArea.hide()
+    uploadedPhotosArea.hide()
+
+    $('.infos').hide()
+    $('.hide-before-upload').hide()
+    $('.show-before-upload').show()
+
     startUploadButton.prop('disabled', true)
     $('#uploadingActions').hide()
 
@@ -84,8 +89,8 @@ $(function () {
   uploader.bind('BeforeUpload', function (up, file) {
     startUploadButton.hide()
     addFilesButton.hide()
-    uploadingErrorArea.parent().show()
-    uploadedPhotosArea.parent().show()
+    uploadingErrorArea.show()
+    uploadedPhotosArea.show()
     $('#uploadingActions').show()
 
     $('select[name="level"]').attr('disabled', 'disabled')
@@ -106,7 +111,7 @@ $(function () {
     )}"><img src="${data.result.src}" class="thumbnail" title="${
       data.result.name
     }" alt=""></a>`
-    uploadedPhotosArea.prepend(image)
+    uploadedPhotosArea.find('.photos').prepend(image)
 
     uploadedPhotos.push(parseInt(data.result.image_id))
     uploadCategory = data.result.category
@@ -130,7 +135,6 @@ $(function () {
   })
 
   uploader.bind('UploadComplete', function (up, files) {
-    // $('.selectAlbum, .selectFiles, #permissions, .showFieldset').hide()
     $('.infos').append(
       `<ul><li>${sprintf(
         phyxo_msg.photosUploaded_label,
@@ -153,9 +157,14 @@ $(function () {
     $('.infos').show()
 
     $('#batch_photos').val(uploadedPhotos.join(','))
+
     $('.afterUploadActions')
       .find('input[type="submit"]')
-      .attr('value', sprintf(phyxo_msg.batch_Label, uploadedPhotos.length))
+      .attr('value', sprintf(phyxo_msg.batch_label, uploadedPhotos.length))
+
+    $('.show-after-upload').show()
+    $('.hide-after-upload').hide()
+
     $('#uploadingActions').hide()
     $(document).off('beforeunload')
   })
@@ -187,7 +196,7 @@ $(function () {
         .attr('title', message)
     }
 
-    uploadingErrorArea.append(`<p>${message}</p>`)
+    uploadingErrorArea.find('.messages').append(`<p>${message}</p>`)
   })
 
   startUploadButton.on('click', function (e) {
