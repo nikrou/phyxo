@@ -38,7 +38,7 @@ config: clean ## prepare environment for building archive
 	rm -f $(DIST)/$(APP_NAME)/bin/phpunit $(DIST)/$(APP_NAME)/bin/simple-phpunit $(DIST)/$(APP_NAME)/phpunit.xml.dist
 	rm -fr $(DIST)/$(APP_NAME)/config/packages/dev $(DIST)/$(APP_NAME)/config/packages/test $(DIST)/$(APP_NAME)/config/routes/dev $(DIST)/$(APP_NAME)/config/database.yaml
 	rm -f $(DIST)/$(APP_NAME)/config/services_dev.yaml $(DIST)/$(APP_NAME)/config/services_test.yaml
-	rm -f $(DIST)/$(APP_NAME)/src/Log.php
+	rm -f $(DIST)/$(APP_NAME)/src/Log.php $(DIST)/$(APP_NAME)/config/services_prod.yaml $(DIST)/$(APP_NAME)/config/parameters_test.yaml
 
 	# remove doc and useless stuff
 	find $(DIST)/$(APP_NAME)/vendor -path '*/.git/*' | xargs rm -fr ;
@@ -63,15 +63,15 @@ config: clean ## prepare environment for building archive
 		$(DIST)/$(APP_NAME)/vendor/twig/twig/doc
 
 	# empty dirs
-	mkdir -p $(DIST)/$(APP_NAME)/_data $(DIST)/$(APP_NAME)/upload	\
-	$(DIST)/$(APP_NAME)/galleries $(DIST)/$(APP_NAME)/local/config	\
-	$(DIST)/$(APP_NAME)/themes $(DIST)/$(APP_NAME)/plugins		\
+	mkdir -p $(DIST)/$(APP_NAME)/upload $(DIST)/$(APP_NAME)/media							\
+	$(DIST)/$(APP_NAME)/local/config										\
+	$(DIST)/$(APP_NAME)/themes $(DIST)/$(APP_NAME)/plugins								\
 	$(DIST)/$(APP_NAME)/var/cache/prod $(DIST)/$(APP_NAME)/var/cache/install/prod $(DIST)/$(APP_NAME)/var/log
 
 	# add empty files in emty dirs
-	touch $(DIST)/$(APP_NAME)/_data/.gitkeep $(DIST)/$(APP_NAME)/upload/.gitkeep							\
-	$(DIST)/$(APP_NAME)/galleries/.gitkeep $(DIST)/$(APP_NAME)/local/config/.gitkeep						\
-	$(DIST)/$(APP_NAME)/themes/.gitkeep $(DIST)/$(APP_NAME)/plugins/.gitkeep							\
+	touch $(DIST)/$(APP_NAME)/upload/.gitkeep $(DIST)/$(APP_NAME)/media/.gitkeep								\
+	$(DIST)/$(APP_NAME)/local/config/.gitkeep												\
+	$(DIST)/$(APP_NAME)/themes/.gitkeep $(DIST)/$(APP_NAME)/plugins/.gitkeep								\
 	$(DIST)/$(APP_NAME)/var/cache/prod/.gitkeep $(DIST)/$(APP_NAME)/var/cache/install/prod/.gitkeep $(DIST)/$(APP_NAME)/var/log/.gitkeep
 
 	find $(DIST) -name '*~' -exec rm \{\} \;

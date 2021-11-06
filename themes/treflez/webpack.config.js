@@ -150,12 +150,8 @@ module.exports = {
   ],
 
   devServer: {
-    contentBase: path.target,
-    disableHostCheck: true,
     hot: true,
     port: PORT,
-    inline: true,
-    overlay: true,
     headers: { 'Access-Control-Allow-Origin': '*' },
   },
 }

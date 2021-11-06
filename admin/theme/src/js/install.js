@@ -11,6 +11,10 @@ const ready = (callback) => {
 ready(() => {
   const dblayer = document.getElementById('dblayer')
 
+  if (!dblayer) {
+    return
+  }
+
   if (dblayer.value === 'sqlite') {
     document
       .querySelectorAll('.no-sqlite')
