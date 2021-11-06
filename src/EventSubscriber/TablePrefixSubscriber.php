@@ -41,7 +41,7 @@ class TablePrefixSubscriber implements EventSubscriberInterface
         if ($classMetadata->isIdGeneratorSequence()) {
             $newDefinition = $classMetadata->sequenceGeneratorDefinition;
             $newDefinition['sequenceName'] = $this->prefix . $newDefinition['sequenceName'];
-            /** @phpstan-ignore-next-line */
+
             $classMetadata->setSequenceGeneratorDefinition($newDefinition);
             $em = $event->getEntityManager();
             if (isset($classMetadata->idGenerator)) {
@@ -49,8 +49,9 @@ class TablePrefixSubscriber implements EventSubscriberInterface
                     $em->getConfiguration()->getQuoteStrategy()->getSequenceName(
                         $newDefinition,
                         $classMetadata,
-                        $em->getConnection()->getDatabasePlatform()),
-                    $newDefinition['allocationSize']
+                        $em->getConnection()->getDatabasePlatform()
+                    ),
+                    (int) $newDefinition['allocationSize']
                 );
                 $classMetadata->setIdGenerator($sequenceGenerator);
             }

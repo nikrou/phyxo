@@ -32,6 +32,9 @@ parameters:
     - message: '#Call to function is_null\(\) with mixed will always evaluate to false.#'
       path: src/Controller/FeedController.php
 
+    - message: '#Call to function is_null\(\) with object will always evaluate to false.#'
+      path: src/Controller/FeedController.php
+
     - message: '#Empty array passed to foreach.#'
       path: src/Controller/Admin/AdminRatingController.php
 
@@ -51,3 +54,19 @@ parameters:
       path: src/Controller/PictureController.php
     - message: "#Strict comparison using === between \\*NEVER\\* and 'reject' will always evaluate to false.#"
       path: src/Controller/PictureController.php
+
+    # need refactoring
+    - message: '#Method App\\EventSubscriber\\TablePrefixSubscriber::getSubscribedEvents\(\) should return array<string, mixed> but returns array<int, string>\.#'
+      path: src/EventSubscriber/TablePrefixSubscriber.php
+
+    # need refactoring
+    - message: "#Offset '.*' does not exist on array#"
+      path: src/Controller/PictureController.php
+
+    # need refactoring
+    - message: '#Call to an undefined method object::getFilesize\(\)\.#'
+      path: src/Controller/Admin/AdminHistoryController.php
+
+    # need refactoring
+    - message: '#Right side of && is always true\.#'
+      path: src/Controller/Admin/AdminConfigurationController.php

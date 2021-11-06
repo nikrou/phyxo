@@ -33,24 +33,70 @@ use Symfony\Component\Security\Core\Security;
 
 class Server
 {
-    private $upload_dir, $tagMapper, $commentMapper, $userMapper, $albumMapper, $rateMapper, $searchMapper, $imageMapper, $phyxoVersion,
-            $conf, $router, $image_std_params, $userManager, $passwordEncoder, $pem_url, $security, $params, $userProvider, $request, $managerRegistry;
+    private $upload_dir;
+
+    private $tagMapper;
+
+    private $commentMapper;
+
+    private $userMapper;
+
+    private $albumMapper;
+
+    private $rateMapper;
+
+    private $searchMapper;
+
+    private $imageMapper;
+
+    private $phyxoVersion;
+
+    private $conf;
+
+    private $router;
+
+    private $image_std_params;
+
+    private $userManager;
+
+    private $passwordEncoder;
+
+    private $pem_url;
+
+    private $security;
+
+    private $params;
+
+    private $userProvider;
+
+    private $request;
+
+    private $managerRegistry;
 
     private $_methods = [];
 
     const WS_PARAM_ACCEPT_ARRAY = 0x010000;
+
     const WS_PARAM_FORCE_ARRAY = 0x030000;
+
     const WS_PARAM_OPTIONAL = 0x040000;
 
     const WS_TYPE_BOOL = 0x01;
+
     const WS_TYPE_INT = 0x02;
+
     const WS_TYPE_FLOAT = 0x04;
+
     const WS_TYPE_POSITIVE = 0x10;
+
     const WS_TYPE_NOTNULL = 0x20;
+
     const WS_TYPE_ID = self::WS_TYPE_INT | self::WS_TYPE_POSITIVE | self::WS_TYPE_NOTNULL;
 
     const WS_ERR_INVALID_METHOD = 501;
+
     const WS_ERR_MISSING_PARAM = 1002;
+
     const WS_ERR_INVALID_PARAM = 1003;
 
     const WS_XML_ATTRIBUTES = 'attributes_xml_';
@@ -387,7 +433,7 @@ class Server
         return isset($signature) ? $signature : [];
     }
 
-    function getMethodOptions($methodName)
+    public function getMethodOptions($methodName)
     {
         $options = @$this->_methods[$methodName]['options'];
         return isset($options) ? $options : [];
@@ -577,7 +623,7 @@ class Server
         $methods = array_filter(
             $service->_methods,
             function ($m) {
-                return empty($m['options']['hidden']) || !$m['options']['hidden'];
+                return !isset($m['options']['hidden']) || !$m['options']['hidden'];
             }
         );
         return ['methods' => array_keys($methods)];
