@@ -1,8 +1,9 @@
-# Phyxo 2.2.0 - YYYY-MM-DD
+# Phyxo 2.2.0 - 2021-11-06
 
 - no more database config file in local/config. Use config/database.yaml instead.
 - move back index.php in public directory
 - replace atoum by phpunit for tests
+- add plugin system
 
 # Phyxo 2.1.0 - 2021-02-20
 
