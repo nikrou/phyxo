@@ -1,3 +1,7 @@
+# Phyxo 2.3.0 - YYYY-MM-DD
+
+- nothing yet
+
 # Phyxo 2.2.0 - 2021-11-06
 
 - no more database config file in local/config. Use config/database.yaml instead.
