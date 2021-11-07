@@ -9,8 +9,9 @@
  * file that was distributed with this source code.
  */
 
-use Phyxo\Upgrade;
+use App\Entity\Upgrade as UpgradeEntity;
 use App\Repository\UpgradeRepository;
+use Phyxo\Upgrade;
 
 $release_from = '2.0.0';
 $release_to = '2.1.0';
@@ -18,36 +19,6 @@ $first_id = 150;
 $last_id = 150;
 
 $default_prefix = 'phyxo_';
-
-$load = (function ($path) use ($default_prefix) {
-    $conf = [];
-
-    include $path;
-
-    return [
-        'dblayer' => $conf['dblayer'],
-        'db_host' => isset($conf['db_host']) ? $conf['db_host']: '',
-        'db_user' => isset($conf['db_user']) ? $conf['db_user'] : '',
-        'db_password' => isset($conf['db_password']) ? $conf['db_password'] : '',
-        'db_base' => $conf['db_base'],
-        'db_prefix' => isset($conf['db_prefix']) ? $conf['db_prefix'] : $default_prefix,
-    ];
-});
-
-$db_params = $load(__DIR__ . '/../local/config/database.inc.php');
-
-$file_content = 'parameters:' . "\n";
-$file_content .= '  database_driver: \'pdo_' . $db_params['dblayer'] . "'\n";
-$file_content .= '  database_name: \'' . $db_params['db_base'] . "'\n";
-if ($db_params['dblayer'] !== 'sqlite') {
-    $file_content .= '  database_host: \'' . $db_params['db_host'] . "'\n";
-    $file_content .= '  database_user: \'' . $db_params['db_user'] . "'\n";
-    $file_content .= '  database_password: \'' . $db_params['db_password'] . "'\n";
-}
-$file_content .= '  database_prefix: \'' . $db_params['db_prefix'] . "'\n\n";
-
-$database_yaml = __DIR__ . '/../config/database.yaml';
-file_put_contents($database_yaml, $file_content);
 
 // retrieve existing upgrades
 $existing = Upgrade::getAvailableUpgradeIds(dirname(__DIR__));
@@ -96,7 +67,11 @@ for ($upgrade_id = $first_id; $upgrade_id <= $last_id; $upgrade_id++) {
     include($upgrade_file);
 
     // notify upgrade (TODO change on each release)
-    (new UpgradeRepository($conn))->addUpgrade("$upgrade_id", '[migration from ' . $release_from . ' to ' . $release_to . '] ' . $upgrade_description);
+    $upgrade = new UpgradeEntity();
+    $upgrade->setId($upgrade_id);
+    $upgrade->setApplied(new \DateTime());
+    $upgrade->setDescription('[migration from ' . $release_from . ' to ' . $release_to . '] ' . $upgrade_description);
+    $upgradeRepository->addUpgrade($upgrade);
 }
 
 echo '</pre>';

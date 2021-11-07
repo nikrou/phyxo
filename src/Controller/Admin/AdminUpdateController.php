@@ -31,7 +31,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminUpdateController extends AbstractController
 {
-    private $translator, $defaultTheme;
+    private $translator;
+    private $defaultTheme;
 
     protected function setTabsheet(string $section = 'core'): array
     {
@@ -43,12 +44,27 @@ class AdminUpdateController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function core(Request $request, string $version = null, UserMapper $userMapper, string $defaultTheme,
-                        ParameterBagInterface $params, TranslatorInterface $translator, PluginRepository $pluginRepository, ThemeRepository $themeRepository,
-                         UpgradeRepository $upgradeRepository, UserInfosRepository $userInfosRepository, TokenStorageInterface $tokenStorage, SessionInterface $session,
-                         Plugins $plugins, Themes $themes, Languages $languages, int $step = 0)
-    {
+    public function core(
+        Request $request,
+        string $version = null,
+        UserMapper $userMapper,
+        string $defaultTheme,
+        ParameterBagInterface $params,
+        TranslatorInterface $translator,
+        PluginRepository $pluginRepository,
+        ThemeRepository $themeRepository,
+        UpgradeRepository $upgradeRepository,
+        UserInfosRepository $userInfosRepository,
+        TokenStorageInterface $tokenStorage,
+        SessionInterface $session,
+        Plugins $plugins,
+        Themes $themes,
+        Languages $languages,
+        int $step = 0
+    ) {
         $tpl_params = [];
+
+        $tpl_params['missing'] = ['plugins' => '', 'themes' => '', 'languages' => ''];
         $this->translator = $translator;
         $this->defaultTheme = $defaultTheme;
 

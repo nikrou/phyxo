@@ -18,8 +18,11 @@ use App\DataMapper\UserMapper;
 use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
 use App\Repository\SearchRepository;
+use App\Repository\UpgradeRepository;
 use App\Repository\UserFeedRepository;
 use App\Services\DerivativeService;
+use Doctrine\DBAL\Connection;
+use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -35,10 +38,27 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminMaintenanceController extends AbstractController
 {
-    public function index(Request $request, ?string $action, Conf $conf, ParameterBagInterface $params, HistoryRepository $historyRepository, KernelInterface $kernel,
-                        HistorySummaryRepository $historySummaryRepository, UserMapper $userMapper, RateMapper $rateMapper, TagMapper $tagMapper,
-                        ImageStandardParams $image_std_params, TranslatorInterface $translator, SearchRepository $searchRepository, UserFeedRepository $userFeedRepository, AlbumMapper $albumMapper)
-    {
+    public function index(
+        Request $request,
+        ?string $action,
+        Conf $conf,
+        ParameterBagInterface $params,
+        HistoryRepository $historyRepository,
+        KernelInterface $kernel,
+        HistorySummaryRepository $historySummaryRepository,
+        UserMapper $userMapper,
+        RateMapper $rateMapper,
+        TagMapper $tagMapper,
+        ImageStandardParams $image_std_params,
+        TranslatorInterface $translator,
+        SearchRepository $searchRepository,
+        UserFeedRepository $userFeedRepository,
+        AlbumMapper $albumMapper,
+        UpgradeRepository $upgradeRepository,
+        ManagerRegistry $registry
+    ) {
+        $conn = $registry->getConnection();
+
         $tpl_params = [];
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -119,15 +139,42 @@ class AdminMaintenanceController extends AbstractController
                   $userFeedRepository->deleteUserFeedNotChecked();
                 return  $this->redirectToRoute('admin_maintenance');
               }
-        //   case 'database':
-        //       {
-        //           if ($em->getConnection()->do_maintenance_all_tables()) {
-        //               $this->addFlash('info', $translator->trans('All optimizations have been successfully completed.', [], 'admin'));
-        //           } else {
-        //               $this->addFlash('error', $translator->trans('Optimizations have been completed with some errors.', [], 'admin'));
-        //           }
-        //           return  $this->redirectToRoute('admin_maintenance');
-        //       }
+          case 'database':
+              {
+                $applied_upgrades = [];
+                foreach ($upgradeRepository->findAll() as $upgrade) {
+                    $applied_upgrades[] = $upgrade->getId();
+                }
+
+                if (!in_array(142, $applied_upgrades)) {
+                    $current_release = '1.0.0';
+                } elseif (!in_array(144, $applied_upgrades)) {
+                    $current_release = '1.1.0';
+                } elseif (!in_array(145, $applied_upgrades)) {
+                    $current_release = '1.2.0';
+                // } elseif (in_array('validated', $columns_of[$em->getConnection()->getPrefix() . 'tags'])) {
+                //     $current_release = '1.3.0';
+                } elseif (!in_array(146, $applied_upgrades)) {
+                    $current_release = '1.5.0';
+                } elseif (!in_array(147, $applied_upgrades)) {
+                    $current_release = '1.6.0';
+                } elseif (!in_array(148, $applied_upgrades)) {
+                    $current_release = '1.8.0';
+                } elseif (!in_array(149, $applied_upgrades)) {
+                    $current_release = '1.9.0';
+                } else {
+                    $current_release = '2.0.0';
+                }
+
+                $upgrade_file = $params->get('kernel.project_dir') . '/install/upgrade_' . $current_release . '.php';
+                if (is_readable($upgrade_file)) {
+                    // ob_start();
+                    include($upgrade_file);
+                    // ob_end_clean();
+                }
+
+                return  $this->redirectToRoute('admin_maintenance');
+              }
           case 'search':
               {
                   $searchRepository->purge();
@@ -192,7 +239,7 @@ class AdminMaintenanceController extends AbstractController
             'U_MAINT_HISTORY_DETAIL' => $this->generateUrl('admin_maintenance', ['action' => 'history_detail']),
             'U_MAINT_HISTORY_SUMMARY' => $this->generateUrl('admin_maintenance', ['action' => 'history_summary']),
             'U_MAINT_FEEDS' => $this->generateUrl('admin_maintenance', ['action' => 'feeds']),
-            // 'U_MAINT_DATABASE' => $this->generateUrl('admin_maintenance', ['action' => 'database']),
+            'U_MAINT_DATABASE' => $this->generateUrl('admin_maintenance', ['action' => 'database']),
             'U_MAINT_SEARCH' => $this->generateUrl('admin_maintenance', ['action' => 'search']),
             'U_MAINT_DERIVATIVES' => $this->generateUrl('admin_maintenance', ['action' => 'derivatives']),
             'U_MAINT_OBSOLETE' => $this->generateUrl('admin_maintenance', ['action' => 'obsolete']),

@@ -11,12 +11,29 @@
 
 $upgrade_description = 'Update database schema to used with Doctrine';
 
-function updateType($conn, string $type, array $values)
+ function in(array $params)
+ {
+     if (empty($params)) {
+         return '';
+     }
+     if (!is_array($params)) {
+         if (strpos($params, ',') !== false) {
+             $params = explode(',', $params);
+         } else {
+             $params = [$params];
+         }
+     }
+
+     return ' IN(\'' . implode('\',\'', $params) . '\') ';
+ }
+
+function updateType($conn, $table, string $type, array $values)
 {
-    $query = 'UPDATE ' . App\Repository\BaseRepository::CONFIG_TABLE;
+    $query = 'UPDATE ' . $table;
     $query .= sprintf(' SET type="%s"', $type);
-    $query .= ' WHERE param ' . $conn->in($values);
-    $conn->db_query($query);
+    $query .= ' WHERE param ' . in($values);
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
 }
 
 /**
@@ -33,7 +50,8 @@ function convertEnumToBoolean($conn, $table, $fields)
         $columns[] = sprintf(' ADD COLUMN tmp_%s TINYINT(1) NOT NULL DEFAULT IF(%s = \'true\', 1, 0)', $field, $field);
     }
     $query .= implode(', ', $columns);
-    $conn->db_query($query);
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
 
     $query = 'ALTER TABLE ' . $table;
     $columns = [];
@@ -45,7 +63,8 @@ function convertEnumToBoolean($conn, $table, $fields)
         }
     }
     $query .= implode(', ', $columns);
-    $conn->db_query($query);
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
 
     $query = 'ALTER TABLE ' . $table;
     $columns = [];
@@ -53,7 +72,8 @@ function convertEnumToBoolean($conn, $table, $fields)
         $columns[] = sprintf(' DROP COLUMN %s', $field);
     }
     $query .= implode(', ', $columns);
-    $conn->db_query($query);
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
 
     $query = 'ALTER TABLE ' . $table;
     $columns = [];
@@ -61,7 +81,8 @@ function convertEnumToBoolean($conn, $table, $fields)
         $columns[] = sprintf(' RENAME COLUMN tmp_%s TO %s', $field, $field);
     }
     $query .= implode(', ', $columns);
-    $conn->db_query($query);
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
 }
 
 /**
@@ -74,7 +95,8 @@ function convertEnumToString($conn, $table, $field, $size, $default_value = null
 {
     $query = 'ALTER TABLE ' . $table;
     $query .= sprintf(' ADD COLUMN tmp_%s VARCHAR(%d) NOT NULL DEFAULT %s', $field, $size, $field);
-    $conn->db_query($query);
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
 
     $query = 'ALTER TABLE ' . $table;
     if (is_null($default_value)) {
@@ -82,32 +104,66 @@ function convertEnumToString($conn, $table, $field, $size, $default_value = null
     } else {
         $query .= sprintf(' CHANGE COLUMN tmp_%s tmp_%s VARCHAR(%d) NOT NULL DEFAULT \'%s\'', $field, $field, $size, $default_value);
     }
-    $conn->db_query($query);
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
 
     $query = 'ALTER TABLE ' . $table;
     $query .= sprintf(' DROP COLUMN %s', $field);
-    $conn->db_query($query);
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
 
     $query = 'ALTER TABLE ' . $table;
     $query .= sprintf(' RENAME COLUMN tmp_%s TO %s', $field, $field);
-    $conn->db_query($query);
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
+}
+
+/**
+ * Add new temporary fields
+ * Populate temporary fields with values from current fields
+ * Delete current fields
+ * Rename temporary fields
+ */
+function convertTypeToString($conn, $table, $field, $size, $default_value = null)
+{
+    $query = 'ALTER TABLE ' . $table;
+    $query .= sprintf(' ADD COLUMN tmp_%s VARCHAR(%d) NOT NULL DEFAULT \'%s\'', $field, $size, $default_value);
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
+
+    $query = 'UPDATE ' . $table;
+    $query .= sprintf(' SET tmp_%s = %s', $field, $field);
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
+
+    $query = 'ALTER TABLE ' . $table;
+    $query .= sprintf(' DROP COLUMN %s', $field);
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
+
+    $query = 'ALTER TABLE ' . $table;
+    $query .= sprintf(' RENAME COLUMN tmp_%s TO %s', $field, $field);
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
 }
 
 function addConstraint($conn, $table, $key, $foreing_key, $reference_key)
 {
     $query = 'ALTER TABLE ' . $table;
     $query .= sprintf(' ADD CONSTRAINT `%s` FOREIGN KEY (`%s`) REFERENCES `%s` (`id`)', $key, $foreing_key, $reference_key);
-    $conn->db_query($query);
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
 }
 
-if (in_array($conn->getLayer(), ['mysql', 'pgsql', 'sqlite'])) {
-    $query = 'ALTER TABLE ' . App\Repository\BaseRepository::CONFIG_TABLE;
+if (in_array($conn->getDriver()->getName(), ['pdo_mysql', 'pdo_pgsql', 'pdo_sqlite'])) {
+    $query = 'ALTER TABLE ' . "{$default_prefix}config";
     $query .= ' ADD COLUMN type VARCHAR(15) DEFAULT "string"';
-    $conn->db_query($query);
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
 
-    updateType($conn, 'json', ['blk_menubar', 'picture_informations', 'treflez']);
-    updateType($conn, 'base64', ['derivatives']);
-    updateType($conn, 'integer', ['nb_categories_page', 'nb_comment_page', 'original_resize_maxheight', 'original_resize_maxwidth', 'original_resize_quality']);
+    updateType($conn, "{$default_prefix}config", 'json', ['blk_menubar', 'picture_informations', 'treflez']);
+    updateType($conn, "{$default_prefix}config", 'base64', ['derivatives']);
+    updateType($conn, "{$default_prefix}config", 'integer', ['nb_categories_page', 'nb_comment_page', 'original_resize_maxheight', 'original_resize_maxwidth', 'original_resize_quality']);
 
     $boolean_types = [
         'activate_comments', 'allow_user_customization', 'allow_user_registration', 'comments_author_mandatory', 'comments_email_mandatory',
@@ -118,98 +174,108 @@ if (in_array($conn->getLayer(), ['mysql', 'pgsql', 'sqlite'])) {
         'picture_menu', 'picture_metadata_icon', 'picture_navigation_icons', 'picture_navigation_thumb', 'picture_slideshow_icon', 'rate', 'rate_anonymous',
         'user_can_delete_comment', 'user_can_edit_comment'
     ];
-    updateType($conn, 'boolean', $boolean_types);
+    updateType($conn, "{$default_prefix}config", 'boolean', $boolean_types);
 }
 
-if ($conn->getLayer() === 'mysql') {
-    $tables = [
-        APP\Repository\BaseRepository::CATEGORIES_TABLE,
-        APP\Repository\BaseRepository::COMMENTS_TABLE,
-        APP\Repository\BaseRepository::CONFIG_TABLE,
-        APP\Repository\BaseRepository::FAVORITES_TABLE,
-        APP\Repository\BaseRepository::GROUP_ACCESS_TABLE,
-        APP\Repository\BaseRepository::GROUPS_TABLE,
-        APP\Repository\BaseRepository::HISTORY_TABLE,
-        APP\Repository\BaseRepository::HISTORY_SUMMARY_TABLE,
-        APP\Repository\BaseRepository::IMAGE_CATEGORY_TABLE,
-        APP\Repository\BaseRepository::IMAGES_TABLE,
-        APP\Repository\BaseRepository::SITES_TABLE,
-        APP\Repository\BaseRepository::USER_ACCESS_TABLE,
-        APP\Repository\BaseRepository::USER_GROUP_TABLE,
-        APP\Repository\BaseRepository::USERS_TABLE,
-        APP\Repository\BaseRepository::USER_INFOS_TABLE,
-        APP\Repository\BaseRepository::USER_FEED_TABLE,
-        APP\Repository\BaseRepository::RATE_TABLE,
-        APP\Repository\BaseRepository::USER_CACHE_TABLE,
-        APP\Repository\BaseRepository::USER_CACHE_CATEGORIES_TABLE,
-        APP\Repository\BaseRepository::CADDIE_TABLE,
-        APP\Repository\BaseRepository::UPGRADE_TABLE,
-        APP\Repository\BaseRepository::SEARCH_TABLE,
-        APP\Repository\BaseRepository::USER_MAIL_NOTIFICATION_TABLE,
-        APP\Repository\BaseRepository::TAGS_TABLE,
-        APP\Repository\BaseRepository::IMAGE_TAG_TABLE,
-        APP\Repository\BaseRepository::PLUGINS_TABLE,
-        APP\Repository\BaseRepository::OLD_PERMALINKS_TABLE,
-        APP\Repository\BaseRepository::THEMES_TABLE,
-        APP\Repository\BaseRepository::LANGUAGES_TABLE
-    ];
 
-    convertEnumToBoolean($conn, App\Repository\BaseRepository::CATEGORIES_TABLE, ['visible' => 1, 'commentable' => 1]);
-    convertEnumToBoolean($conn, App\Repository\BaseRepository::COMMENTS_TABLE, ['validated' => 0]);
-    convertEnumToBoolean($conn, App\Repository\BaseRepository::GROUPS_TABLE, ['is_default' => 0]);
-    convertEnumToBoolean($conn, App\Repository\BaseRepository::HISTORY_TABLE, ['summarized' => 0]);
-    convertEnumToBoolean($conn, App\Repository\BaseRepository::IMAGE_TAG_TABLE, ['validated' => 1]);
-    convertEnumToBoolean($conn, App\Repository\BaseRepository::USER_CACHE_TABLE, ['need_update' => 1]);
-    convertEnumToBoolean($conn, App\Repository\BaseRepository::USER_INFOS_TABLE, ['expand' => 0, 'show_nb_comments' => 0, 'show_nb_hits' => 0, 'enabled_high' => 1]);
-    convertEnumToBoolean($conn, App\Repository\BaseRepository::USER_MAIL_NOTIFICATION_TABLE, ['enabled' => 0]);
+$tables = [
+    "${default_prefix}categories",
+    "${default_prefix}comments",
+    "${default_prefix}config",
+    "${default_prefix}favorites",
+    "${default_prefix}group_access",
+    "${default_prefix}groups",
+    "${default_prefix}history",
+    "${default_prefix}history_summary",
+    "${default_prefix}image_category",
+    "${default_prefix}images",
+    "${default_prefix}sites",
+    "${default_prefix}user_access",
+    "${default_prefix}user_group",
+    "${default_prefix}users",
+    "${default_prefix}user_infos",
+    "${default_prefix}user_feed",
+    "${default_prefix}rate",
+    "${default_prefix}user_cache",
+    "${default_prefix}user_cache_categories",
+    "${default_prefix}caddie",
+    "${default_prefix}upgrade",
+    "${default_prefix}search",
+    "${default_prefix}user_mail_notification",
+    "${default_prefix}tags",
+    "${default_prefix}image_tag",
+    "${default_prefix}plugins",
+    "${default_prefix}old_permalinks",
+    "${default_prefix}themes",
+    "${default_prefix}languages"
+];
+if ($conn->getDriver()->getName() === 'pdo_mysql') {
+    convertEnumToBoolean($conn, "${default_prefix}categories", ['visible' => 1, 'commentable' => 1]);
+    convertEnumToBoolean($conn, "${default_prefix}comments", ['validated' => 0]);
+    convertEnumToBoolean($conn, "${default_prefix}groups", ['is_default' => 0]);
+    convertEnumToBoolean($conn, "${default_prefix}history", ['summarized' => 0]);
+    convertEnumToBoolean($conn, "${default_prefix}image_tag", ['validated' => 1]);
+    convertEnumToBoolean($conn, "${default_prefix}user_cache", ['need_update' => 1]);
+    convertEnumToBoolean($conn, "${default_prefix}user_infos", ['expand' => 0, 'show_nb_comments' => 0, 'show_nb_hits' => 0, 'enabled_high' => 1]);
+    convertEnumToBoolean($conn, "${default_prefix}user_mail_notification", ['enabled' => 0]);
 
-    convertEnumToString($conn, App\Repository\BaseRepository::CATEGORIES_TABLE, 'status', 25, 'public');
-    convertEnumToString($conn, App\Repository\BaseRepository::HISTORY_TABLE, 'section', 255);
-    convertEnumToString($conn, App\Repository\BaseRepository::HISTORY_TABLE, 'image_type', 255);
-    convertEnumToString($conn, App\Repository\BaseRepository::PLUGINS_TABLE, 'state', 25, 'inactive');
-    convertEnumToString($conn, App\Repository\BaseRepository::USER_CACHE_TABLE, 'image_access_type', 25, 'NOT IN');
-    convertEnumToString($conn, App\Repository\BaseRepository::USER_INFOS_TABLE, 'status', 50, 'guest');
+    convertEnumToString($conn, "${default_prefix}categories", 'status', 25, 'public');
+    convertEnumToString($conn, "${default_prefix}history", 'section', 255);
+    convertEnumToString($conn, "${default_prefix}history", 'image_type', 255);
+    convertEnumToString($conn, "${default_prefix}plugins", 'state', 25, 'inactive');
+    convertEnumToString($conn, "${default_prefix}user_cache", 'image_access_type', 25, 'NOT IN');
+    convertEnumToString($conn, "${default_prefix}user_infos", 'status', 50, 'guest');
 
     // add integrity constraints
-    addConstraint($conn, App\Repository\BaseRepository::COMMENTS_TABLE, 'FK_259D537BF675F31B', 'author_id', App\Repository\BaseRepository::USERS_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::COMMENTS_TABLE, 'FK_259D537B3DA5256D', 'image_id', App\Repository\BaseRepository::IMAGES_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::USER_MAIL_NOTIFICATION_TABLE, 'FK_6E424936A76ED395', 'user_id', App\Repository\BaseRepository::USERS_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::USER_INFOS_TABLE, 'FK_44A6591CA76ED395', 'user_id', App\Repository\BaseRepository::USERS_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::FAVORITES_TABLE, 'FK_F87F0252A76ED395', 'user_id', App\Repository\BaseRepository::USERS_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::FAVORITES_TABLE, 'FK_F87F02523DA5256D', 'image_id', App\Repository\BaseRepository::IMAGES_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::USER_CACHE_TABLE, 'FK_EB2BB096A76ED395', 'user_id', App\Repository\BaseRepository::USERS_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::CADDIE_TABLE, 'FK_70B6B1A8A76ED395', 'user_id', App\Repository\BaseRepository::USERS_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::CADDIE_TABLE, 'FK_70B6B1A81F1F2A24', 'element_id', App\Repository\BaseRepository::IMAGES_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::USER_GROUP_TABLE, 'FK_C7AC9FB4FE54D947', 'group_id', App\Repository\BaseRepository::GROUPS_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::USER_GROUP_TABLE, 'FK_C7AC9FB4A76ED395', 'user_id', App\Repository\BaseRepository::USERS_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::GROUP_ACCESS_TABLE, 'FK_AAC70409FE54D947', 'group_id', App\Repository\BaseRepository::GROUPS_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::GROUP_ACCESS_TABLE, 'FK_AAC70409E6ADA943', 'cat_id', App\Repository\BaseRepository::CATEGORIES_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::IMAGE_TAG_TABLE, 'FK_477505773DA5256D', 'image_id', App\Repository\BaseRepository::IMAGES_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::IMAGE_TAG_TABLE, 'FK_47750577BAD26311', 'tag_id', App\Repository\BaseRepository::TAGS_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::IMAGE_TAG_TABLE, 'FK_47750577DE12AB56', 'created_by', App\Repository\BaseRepository::USERS_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::IMAGE_CATEGORY_TABLE, 'FK_244869F83DA5256D', 'image_id', App\Repository\BaseRepository::IMAGES_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::IMAGE_CATEGORY_TABLE, 'FK_244869F812469DE2', 'category_id', App\Repository\BaseRepository::CATEGORIES_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::HISTORY_TABLE, 'FK_4E2589C0A76ED395', 'user_id', App\Repository\BaseRepository::USERS_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::HISTORY_TABLE, 'FK_4E2589C012469DE2', 'category_id', App\Repository\BaseRepository::CATEGORIES_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::HISTORY_TABLE, 'FK_4E2589C03DA5256D', 'image_id', App\Repository\BaseRepository::IMAGES_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::USER_ACCESS_TABLE, 'FK_21C10625A76ED395', 'user_id', App\Repository\BaseRepository::USERS_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::USER_ACCESS_TABLE, 'FK_21C10625E6ADA943', 'cat_id', App\Repository\BaseRepository::CATEGORIES_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::CATEGORIES_TABLE, 'FK_725D6641C7F87B72', 'id_uppercat', App\Repository\BaseRepository::CATEGORIES_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::CATEGORIES_TABLE, 'FK_725D6641F6BD1646', 'site_id', App\Repository\BaseRepository::SITES_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::RATE_TABLE, 'FK_23A9DF15A76ED395', 'user_id', App\Repository\BaseRepository::USERS_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::RATE_TABLE, 'FK_23A9DF151F1F2A24', 'element_id', App\Repository\BaseRepository::IMAGES_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::USER_FEED_TABLE, 'FK_45D76AC5A76ED395', 'user_id', App\Repository\BaseRepository::USERS_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::USER_CACHE_CATEGORIES_TABLE, 'FK_38F22377A76ED395', 'user_id', App\Repository\BaseRepository::USERS_TABLE);
-    addConstraint($conn, App\Repository\BaseRepository::USER_CACHE_CATEGORIES_TABLE, 'FK_38F22377E6ADA943', 'cat_id', App\Repository\BaseRepository::CATEGORIES_TABLE);
+    addConstraint($conn, "${default_prefix}comments", 'FK_259D537BF675F31B', 'author_id', "${default_prefix}users");
+    addConstraint($conn, "${default_prefix}comments", 'FK_259D537B3DA5256D', 'image_id', "${default_prefix}images");
+    addConstraint($conn, "${default_prefix}user_mail_notification", 'FK_6E424936A76ED395', 'user_id', "${default_prefix}users");
+    addConstraint($conn, "${default_prefix}user_infos", 'FK_44A6591CA76ED395', 'user_id', "${default_prefix}users");
+    addConstraint($conn, "${default_prefix}favorites", 'FK_F87F0252A76ED395', 'user_id', "${default_prefix}users");
+    addConstraint($conn, "${default_prefix}favorites", 'FK_F87F02523DA5256D', 'image_id', "${default_prefix}images");
+    addConstraint($conn, "${default_prefix}user_cache", 'FK_EB2BB096A76ED395', 'user_id', "${default_prefix}users");
+    addConstraint($conn, "${default_prefix}caddie", 'FK_70B6B1A8A76ED395', 'user_id', "${default_prefix}users");
+    addConstraint($conn, "${default_prefix}caddie", 'FK_70B6B1A81F1F2A24', 'element_id', "${default_prefix}images");
+    addConstraint($conn, "${default_prefix}user_group", 'FK_C7AC9FB4FE54D947', 'group_id', "${default_prefix}groups");
+    addConstraint($conn, "${default_prefix}user_group", 'FK_C7AC9FB4A76ED395', 'user_id', "${default_prefix}users");
+    addConstraint($conn, "${default_prefix}group_access", 'FK_AAC70409FE54D947', 'group_id', "${default_prefix}groups");
+    addConstraint($conn, "${default_prefix}group_access", 'FK_AAC70409E6ADA943', 'cat_id', "${default_prefix}categories");
+    addConstraint($conn, "${default_prefix}image_tag", 'FK_477505773DA5256D', 'image_id', "${default_prefix}images");
+    addConstraint($conn, "${default_prefix}image_tag", 'FK_47750577BAD26311', 'tag_id', "${default_prefix}tags");
+    addConstraint($conn, "${default_prefix}image_tag", 'FK_47750577DE12AB56', 'created_by', "${default_prefix}users");
+    addConstraint($conn, "${default_prefix}image_category", 'FK_244869F83DA5256D', 'image_id', "${default_prefix}images");
+    addConstraint($conn, "${default_prefix}image_category", 'FK_244869F812469DE2', 'category_id', "${default_prefix}categories");
+    addConstraint($conn, "${default_prefix}history", 'FK_4E2589C0A76ED395', 'user_id', "${default_prefix}users");
+    addConstraint($conn, "${default_prefix}history", 'FK_4E2589C012469DE2', 'category_id', "${default_prefix}categories");
+    addConstraint($conn, "${default_prefix}history", 'FK_4E2589C03DA5256D', 'image_id', "${default_prefix}images");
+    addConstraint($conn, "${default_prefix}user_access", 'FK_21C10625A76ED395', 'user_id', "${default_prefix}users");
+    addConstraint($conn, "${default_prefix}user_access", 'FK_21C10625E6ADA943', 'cat_id', "${default_prefix}categories");
+    addConstraint($conn, "${default_prefix}categories", 'FK_725D6641C7F87B72', 'id_uppercat', "${default_prefix}categories");
+    addConstraint($conn, "${default_prefix}categories", 'FK_725D6641F6BD1646', 'site_id', "${default_prefix}sites");
+    addConstraint($conn, "${default_prefix}rate", 'FK_23A9DF15A76ED395', 'user_id', "${default_prefix}users");
+    addConstraint($conn, "${default_prefix}rate", 'FK_23A9DF151F1F2A24', 'element_id', "${default_prefix}images");
+    addConstraint($conn, "${default_prefix}user_feed", 'FK_45D76AC5A76ED395', 'user_id', "${default_prefix}users");
+    addConstraint($conn, "${default_prefix}user_cache_categories", 'FK_38F22377A76ED395', 'user_id', "${default_prefix}users");
+    addConstraint($conn, "${default_prefix}user_cache_categories", 'FK_38F22377E6ADA943', 'cat_id', "${default_prefix}categories");
 
     foreach ($tables as $table) {
         $query = sprintf('ALTER TABLE %s ENGINE=InnoDB', $table);
-        $conn->db_query($query);
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
     }
 }
 
-if (in_array($conn->getLayer(), ['mysql', 'pgsql', 'sqlite'])) {
-    (new App\Repository\UserCacheRepository($conn))->deleteUserCache();
+if (in_array($conn->getDriver()->getName(), ['pdo_pgsql', 'pdo_sqlite'])) {
+    convertTypeToString($conn, "${default_prefix}categories", 'status', 25, 'public');
+    convertTypeToString($conn, "${default_prefix}history", 'section', 255);
+    convertTypeToString($conn, "${default_prefix}history", 'image_type', 255);
+    convertTypeToString($conn, "${default_prefix}plugins", 'state', 25, 'inactive');
+    convertTypeToString($conn, "${default_prefix}user_cache", 'image_access_type', 25, 'NOT IN');
+    convertTypeToString($conn, "${default_prefix}user_infos", 'status', 50, 'guest');
 }
+
+// if (in_array($conn->getDriver()->getName(), ['pdo_mysql', 'pdo_pgsql', 'pdo_sqlite'])) {
+//     (new App\Repository\UserCacheRepository($conn))->deleteUserCache();
+// }
 
 echo "\n" . $upgrade_description . "\n";
