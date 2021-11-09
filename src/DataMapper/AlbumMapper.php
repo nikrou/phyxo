@@ -29,9 +29,16 @@ class AlbumMapper
 {
     private $conf, $albumRepository, $router, $cache = [], $albums_retrieved = false, $translator, $userRepository, $userCacheAlbumRepository, $imageAlbumRepository, $imageRepository;
 
-    public function __construct(Conf $conf, AlbumRepository $albumRepository, RouterInterface $router, TranslatorInterface $translator, UserRepository $userRepository,
-                                UserCacheAlbumRepository $userCacheAlbumRepository, ImageAlbumRepository $imageAlbumRepository, ImageRepository $imageRepository)
-    {
+    public function __construct(
+        Conf $conf,
+        AlbumRepository $albumRepository,
+        RouterInterface $router,
+        TranslatorInterface $translator,
+        UserRepository $userRepository,
+        UserCacheAlbumRepository $userCacheAlbumRepository,
+        ImageAlbumRepository $imageAlbumRepository,
+        ImageRepository $imageRepository
+    ) {
         $this->conf = $conf;
         $this->albumRepository = $albumRepository;
         $this->router = $router;
@@ -93,9 +100,13 @@ class AlbumMapper
                 $album->toArray(),
                 [
                     'NAME' => $album->getName(),
-                    'TITLE' => $this->getDisplayImagesCount($album->getUserCacheAlbums()->first()->getNbImages(), $album->getUserCacheAlbums()->first()->getCountImages(),
-                                    $album->getUserCacheAlbums()->first()->getCountAlbums(), false, ' / '
-                                ),
+                    'TITLE' => $this->getDisplayImagesCount(
+                        $album->getUserCacheAlbums()->first()->getNbImages(),
+                        $album->getUserCacheAlbums()->first()->getCountImages(),
+                        $album->getUserCacheAlbums()->first()->getCountAlbums(),
+                        false,
+                        ' / '
+                    ),
                     'URL' => $this->router->generate('album', ['category_id' => $album->getId()]),
                     'LEVEL' => substr_count($album->getGlobalRank(), '.') + 1,
                     'SELECTED' => isset($selected_category['id']) && $selected_category['id'] === $album->getId() ? true : false,
@@ -104,9 +115,9 @@ class AlbumMapper
                     'icon_ts' => ''
                 ]
             );
-            if ($this->conf['index_new_icon'] && !empty($row['max_date_last'])) { // @FIX : cf BUGS
-                // $row['icon_ts'] = $this->em->getRepository(BaseRepository::class)->getIcon($row['max_date_last'], $user, $child_date_last);
-            }
+            // if ($this->conf['index_new_icon'] && !empty($row['max_date_last'])) { // @FIX : cf BUGS
+            //     $row['icon_ts'] = $this->em->getRepository(BaseRepository::class)->getIcon($row['max_date_last'], $user, $child_date_last);
+            // }
             $albums[$album->getId()] = $album_infos;
         }
         uasort($albums, '\Phyxo\Functions\Utils::global_rank_compare');
@@ -279,7 +290,7 @@ class AlbumMapper
         $all_albums = explode(',', $uppercats);
         $output = '';
         if ($single_link) {
-            $single_url = $this->router->generate('album', ['category_id' => $all_albums[count($all_albums) - 1] ]);
+            $single_url = $this->router->generate('album', ['category_id' => $all_albums[count($all_albums) - 1]]);
             $output .= '<a href="' . $single_url . '"';
             if (!empty($link_class)) {
                 $output .= ' class="' . $link_class . '"';

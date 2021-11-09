@@ -21,7 +21,7 @@ use Phyxo\Functions\Utils;
  */
 class DerivativeImage
 {
-    private $src_image, $params, $rel_path, $rel_url, $image_std_params;
+    private $src_image, $params, $image_std_params;
 
     public function __construct(SrcImage $src_image, $params, ImageStandardParams $image_std_params)
     {
@@ -145,11 +145,6 @@ class DerivativeImage
         }
         $loc = substr_replace($loc, '-' . implode('_', $tokens), strrpos($loc, '.'), 0);
         $rel_url = 'media' . '/' . $loc;
-    }
-
-    public function get_path(): string
-    {
-        return __DIR__ . '/../../../' . $this->rel_path;
     }
 
     public function same_as_source(): bool

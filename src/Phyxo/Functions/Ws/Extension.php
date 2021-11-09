@@ -172,14 +172,10 @@ class Extension
 
         if (!$update->isExtensionsNeedUpdate()) {
             $service->getConf()->addOrUpdateParam('updates_ignored', $update->checkExtensions($updates_ignored));
-        } else {
-            $service->getConf()->addOrUpdateParam('updates_ignored', $update->checkUpdatedExtensions($updates_ignored));
-        }
-
-        if (!$update->isExtensionsNeedUpdate()) {
             $result['ext_need_update'] = false;
         } else {
-            $result['ext_need_update'] = !$update->isExtensionsNeedUpdate();
+            $service->getConf()->addOrUpdateParam('updates_ignored', $update->checkUpdatedExtensions($updates_ignored));
+            $result['ext_need_update'] = true;
         }
 
         return $result;

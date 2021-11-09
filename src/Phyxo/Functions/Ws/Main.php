@@ -81,9 +81,9 @@ class Main
                     if ($type != $derivative->get_type()) {
                         continue;
                     }
-                    if (@filemtime($derivative->get_path()) === false) {
-                        $urls[] = $derivative->getUrl() . $uid;
-                    }
+                    // if (@filemtime($derivative->get_path()) === false) {
+                    //     $urls[] = $derivative->getUrl() . $uid;
+                    // }
                 }
 
                 if (count($urls) >= $max_urls) {
@@ -215,6 +215,7 @@ class Main
         $derivatives_arr = [];
         foreach ($derivatives as $type => $derivative) {
             $size = $derivative->get_size();
+            /** @phpstan-ignore-next-line */
             $size != null or $size = [null, null];
             $derivatives_arr[$type] = ['url' => $derivative->getUrl(), 'width' => $size[0], 'height' => $size[1]];
         }

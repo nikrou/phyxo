@@ -60,9 +60,16 @@ class SearchController extends CommonController
         return $this->redirectToRoute('search_results', ['search_id' => $search_id]);
     }
 
-    public function search(Request $request, TagMapper $tagMapper, AlbumMapper $albumMapper, Conf $conf,
-        SearchRepository $searchRepository, MenuBar $menuBar, TranslatorInterface $translator, ImageMapper $imageMapper)
-    {
+    public function search(
+        Request $request,
+        TagMapper $tagMapper,
+        AlbumMapper $albumMapper,
+        Conf $conf,
+        SearchRepository $searchRepository,
+        MenuBar $menuBar,
+        TranslatorInterface $translator,
+        ImageMapper $imageMapper
+    ) {
         $tpl_params = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -153,6 +160,7 @@ class SearchController extends CommonController
                 ];
             }
 
+            /** @phpstan-ignore-next-line */
             if ($request->request->get('authors') && is_array($request->request->get('authors')) && count($request->request->get('authors')) > 0) {
                 $authors = [];
 
@@ -246,8 +254,18 @@ class SearchController extends CommonController
         return $this->render('search.html.twig', $tpl_params);
     }
 
-    public function searchResults(Request $request, SearchMapper $searchMapper, AlbumMapper $albumMapper, ImageMapper $imageMapper, Conf $conf,
-                        SearchRepository $searchRepository, ImageStandardParams $image_std_params, MenuBar $menuBar, $search_id, TranslatorInterface $translator, int $start = 0
+    public function searchResults(
+        Request $request,
+        SearchMapper $searchMapper,
+        AlbumMapper $albumMapper,
+        ImageMapper $imageMapper,
+        Conf $conf,
+        SearchRepository $searchRepository,
+        ImageStandardParams $image_std_params,
+        MenuBar $menuBar,
+        $search_id,
+        TranslatorInterface $translator,
+        int $start = 0
     ) {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -272,6 +290,7 @@ class SearchController extends CommonController
             $tpl_params['items'] = $searchMapper->getSearchResults($rules, $this->getUser());
         }
 
+        /** @phpstan-ignore-next-line */
         if (!empty($search_results['qsearch_details'])) {
             $cats = [];
             if (!empty($search_results['qsearch_details']['matching_cats_no_image'])) {
@@ -321,10 +340,12 @@ class SearchController extends CommonController
                 )
             );
 
+            /** @phpstan-ignore-next-line */
             if (!empty($search_results['qsearch_details']) && !empty($search_results['qsearch_details']['unmatched_terms'])) {
                 $tpl_params['no_search_results'] = $search_results['qsearch_details']['unmatched_terms'];
             }
         } else {
+            /** @phpstan-ignore-next-line */
             if (!empty($search_results['qsearch_details']) && !empty($search_results['qsearch_details']['q'])) {
                 $tpl_params['no_search_results'] = $search_results['qsearch_details']['q'];
             }
@@ -340,9 +361,16 @@ class SearchController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function searchRules(Request $request, AlbumMapper $albumMapper, Conf $conf, TagRepository $tagRepository,
-                                SearchRepository $searchRepository, int $search_id, MenuBar $menuBar, TranslatorInterface $translator)
-    {
+    public function searchRules(
+        Request $request,
+        AlbumMapper $albumMapper,
+        Conf $conf,
+        TagRepository $tagRepository,
+        SearchRepository $searchRepository,
+        int $search_id,
+        MenuBar $menuBar,
+        TranslatorInterface $translator
+    ) {
         $tpl_params = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();

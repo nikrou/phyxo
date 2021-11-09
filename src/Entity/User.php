@@ -38,6 +38,7 @@ class User implements UserInterface, EquatableInterface, \Serializable
         self::STATUS_GUEST => 'ROLE_USER'
     ];
 
+    /** @phpstan-ignore-next-line */
     private $salt;
 
     /**

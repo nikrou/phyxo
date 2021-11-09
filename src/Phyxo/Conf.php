@@ -53,7 +53,8 @@ class Conf implements \ArrayAccess
         require $conf_file;
         ob_end_clean();
 
-        if (!empty($conf)) {
+        /** @phpstan-ignore-next-line */
+        if (count($conf) > 0) {
             foreach ($conf as $key => $value) {
                 $this->keys[self::FILE_PREFIX . $key] = ['value' => $value, 'type' => null];
             }

@@ -13,11 +13,10 @@ namespace Phyxo\TabSheet;
 
 class TabSheet implements \IteratorAggregate
 {
-    private $elements = [], $position;
+    private $elements = [];
 
     public function __construct()
     {
-        $this->position = 0;
     }
 
     public function add($name, $caption, $url, $icon = '')

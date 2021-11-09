@@ -37,10 +37,18 @@ class Notification
 
     private $infos = [], $errors = [];
 
-    public function __construct(Conf $conf, UserMapper $userMapper, AlbumMapper $albumMapper, RouterInterface $router, ImageMapper $imageMapper,
-                                MailerInterface $mailer, TranslatorInterface $translator, CommentRepository $commentRepository,
-                                UserMailNotificationRepository $userMailNotificationRepository, UserInfosRepository $userInfosRepository)
-    {
+    public function __construct(
+        Conf $conf,
+        UserMapper $userMapper,
+        AlbumMapper $albumMapper,
+        RouterInterface $router,
+        ImageMapper $imageMapper,
+        MailerInterface $mailer,
+        TranslatorInterface $translator,
+        CommentRepository $commentRepository,
+        UserMailNotificationRepository $userMailNotificationRepository,
+        UserInfosRepository $userInfosRepository
+    ) {
         $this->conf = $conf;
         $this->userMapper = $userMapper;
         $this->albumMapper = $albumMapper;
@@ -58,6 +66,7 @@ class Notification
             'is_sendmail_timeout' => false
         ];
 
+        /** @phpstan-ignore-next-line */
         if ((!isset($this->env['sendmail_timeout'])) || (!is_numeric($this->env['sendmail_timeout'])) || ($this->env['sendmail_timeout'] <= 0)) {
             $this->env['sendmail_timeout'] = $conf['nbm_treatment_timeout_default'];
         }
@@ -213,7 +222,8 @@ class Notification
                 $news,
                 $this->nb_unvalidated_comments($start, $end),
                 'number_of_new_comments_to_validate',
-                $this->router->generate('admin_comments', [], UrlGeneratorInterface::ABSOLUTE_URL), $add_url
+                $this->router->generate('admin_comments', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                $add_url
             );
 
             $this->add_news_line(
@@ -748,8 +758,8 @@ class Notification
 
                             if ($this->conf['nbm_send_html_mail'] && $this->conf['nbm_send_recent_post_dates']) {
                                 $recent_post_dates = $this->get_recent_post_dates_array(
-                                        $this->conf['recent_post_dates']['NBM']
-                                    );
+                                    $this->conf['recent_post_dates']['NBM']
+                                );
                                 foreach ($recent_post_dates as $date_detail) {
                                     $tpl_params['recent_posts'][] = [
                                         'TITLE' => $this->get_title_recent_post_date($date_detail),

@@ -44,6 +44,7 @@ class TablePrefixSubscriber implements EventSubscriberInterface
 
             $classMetadata->setSequenceGeneratorDefinition($newDefinition);
             $em = $event->getEntityManager();
+            /** @phpstan-ignore-next-line */
             if (isset($classMetadata->idGenerator)) {
                 $sequenceGenerator = new \Doctrine\ORM\Id\SequenceGenerator(
                     $em->getConfiguration()->getQuoteStrategy()->getSequenceName(

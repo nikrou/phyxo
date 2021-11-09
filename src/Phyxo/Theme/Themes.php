@@ -93,7 +93,7 @@ class Themes extends Extensions
 
                 $theme_maintain->activate($this->fs_themes[$theme_id]['version'], $error);
 
-                if (empty($error)) {
+                if ($error === '') {
                     $theme = new Theme();
                     $theme->setId($theme_id);
                     $theme->setVersion($this->fs_themes[$theme_id]['version']);

@@ -32,14 +32,13 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 {
     use TargetPathTrait;
 
-    private $router, $passwordEncoder, $csrfTokenManager, $userProvider;
+    private $router, $passwordEncoder, $csrfTokenManager;
 
-    public function __construct(RouterInterface $router, UserPasswordEncoderInterface $passwordEncoder, CsrfTokenManagerInterface $crsfTokenManager, UserProvider $userProvider)
+    public function __construct(RouterInterface $router, UserPasswordEncoderInterface $passwordEncoder, CsrfTokenManagerInterface $crsfTokenManager)
     {
         $this->router = $router;
         $this->passwordEncoder = $passwordEncoder;
         $this->csrfTokenManager = $crsfTokenManager;
-        $this->userProvider = $userProvider;
     }
 
     public function start(Request $request, AuthenticationException $authException = null)

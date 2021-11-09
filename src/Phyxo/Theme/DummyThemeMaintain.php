@@ -15,6 +15,7 @@ use Phyxo\Theme\ThemeMaintain;
 
 class DummyThemeMaintain implements ThemeMaintain
 {
+    /** @phpstan-ignore-next-line */
     private $theme_id;
 
     public function __construct(string $id)

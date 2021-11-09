@@ -94,7 +94,7 @@ class Plugins extends Extensions
 
                 $plugin_maintain->install($this->fs_plugins[$plugin_id]['version'], $error);
 
-                if (empty($error)) {
+                if ($error === '') {
                     $plugin = new Plugin();
                     $plugin->setId($plugin_id);
                     $plugin->setVersion($this->fs_plugins[$plugin_id]['version']);
@@ -124,7 +124,7 @@ class Plugins extends Extensions
                     break;
                 }
 
-                if (empty($errors)) {
+                if ($error === '') {
                     $this->pluginRepository->updateState($plugin_id, Plugin::ACTIVE);
                 }
                 break;

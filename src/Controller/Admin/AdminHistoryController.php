@@ -63,9 +63,15 @@ class AdminHistoryController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function stats(Request $request, int $year = null, int $month = null, int $day = null, Conf $conf, HistorySummaryRepository $historySummaryRepository,
-                        HistoryRepository $historyRepository)
-    {
+    public function stats(
+        Request $request,
+        int $year = null,
+        int $month = null,
+        int $day = null,
+        Conf $conf,
+        HistorySummaryRepository $historySummaryRepository,
+        HistoryRepository $historyRepository
+    ) {
         $tpl_params = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -186,10 +192,19 @@ class AdminHistoryController extends AbstractController
         return $this->render('history_stats.html.twig', $tpl_params);
     }
 
-    public function search(Request $request, SearchRepository $searchRepository, int $start, int $search_id = null, AlbumMapper $albumMapper, Conf $conf,
-                            UserRepository $userRepository, UserMapper $userMapper, ImageMapper $imageMapper,
-                            TagRepository $tagRepository, HistoryRepository $historyRepository)
-    {
+    public function search(
+        Request $request,
+        SearchRepository $searchRepository,
+        int $start,
+        int $search_id = null,
+        AlbumMapper $albumMapper,
+        Conf $conf,
+        UserRepository $userRepository,
+        UserMapper $userMapper,
+        ImageMapper $imageMapper,
+        TagRepository $tagRepository,
+        HistoryRepository $historyRepository
+    ) {
         $tpl_params = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -205,8 +220,15 @@ class AdminHistoryController extends AbstractController
             }
 
             $tpl_params['search_results'] = $this->getElementFromSearchRules(
-                $rules, $start, $conf, $historyRepository,
-                $albumMapper, $userMapper, $imageMapper, $userRepository, $tagRepository
+                $rules,
+                $start,
+                $conf,
+                $historyRepository,
+                $albumMapper,
+                $userMapper,
+                $imageMapper,
+                $userRepository,
+                $tagRepository
             );
             $tpl_params['search_summary'] = $tpl_params['search_results']['search_summary'];
             $nb_lines = $tpl_params['search_results']['nb_lines'];
@@ -218,7 +240,7 @@ class AdminHistoryController extends AbstractController
                 $nb_lines,
                 $start,
                 $conf['nb_logs_page']
-              );
+            );
         }
 
         $tpl_params['display_thumbnail_selected'] = $request->request->get('display_thumbnail') ?? '';
@@ -247,9 +269,17 @@ class AdminHistoryController extends AbstractController
         return $this->render('history_search.html.twig', $tpl_params);
     }
 
-    protected function getElementFromSearchRules(array $rules, int $start, Conf $conf, HistoryRepository $historyRepository, AlbumMapper $albumMapper, UserMapper $userMapper,
-                                            ImageMapper $imageMapper, UserRepository $userRepository, TagRepository $tagRepository): array
-    {
+    protected function getElementFromSearchRules(
+        array $rules,
+        int $start,
+        Conf $conf,
+        HistoryRepository $historyRepository,
+        AlbumMapper $albumMapper,
+        UserMapper $userMapper,
+        ImageMapper $imageMapper,
+        UserRepository $userRepository,
+        TagRepository $tagRepository
+    ): array {
         $search_results = [];
 
         if (isset($rules['fields']['filename'])) {
@@ -540,12 +570,14 @@ class AdminHistoryController extends AbstractController
             setcookie('display_thumbnail', $cookie_val, strtotime('+1 month'), $request->getBasePath());
 
             // TODO manage inconsistency of having $_POST['image_id'] and $_POST['filename'] simultaneously
-            if (!empty($rules)) {
+            /** @phpstan-ignore-next-line */
+            if (count($rules) > 0) {
                 $search = new Search();
                 $search->setRules(base64_encode(serialize($rules)));
                 $searchRepository->addSearch($search);
 
                 return $this->redirectToRoute('admin_history_search', ['search_id' => $search->getId()]);
+            /** @phpstan-ignore-next-line */
             } else {
                 $this->addFlash('error', $this->translator->trans('Empty query. No criteria has been entered.', [], 'admin'));
                 return $this->redirectToRoute('admin_history_search');

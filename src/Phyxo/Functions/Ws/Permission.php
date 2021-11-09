@@ -83,21 +83,27 @@ class Permission
         // filter by group and user
         foreach ($permissions as $album_id => &$album) {
             if (!empty($params['group_id'])) {
+                /** @phpstan-ignore-next-line */
                 if (empty($album['groups']) || count(array_intersect($album['groups'], $params['group_id'])) === 0) {
                     unset($permissions[$album_id]);
                     continue;
                 }
             }
             if (!empty($params['user_id'])) {
-                if ((empty($albul['users_indirect']) || count(array_intersect($album['users_indirect'], $params['user_id'])) === 0)
+                /** @phpstan-ignore-next-line */
+                if ((empty($album['users_indirect']) || count(array_intersect($album['users_indirect'], $params['user_id'])) === 0)
+                    /** @phpstan-ignore-next-line */
                     && (empty($album['users']) || count(array_intersect($album['users'], $params['user_id'])) === 0)) {
                     unset($permissions[$album_id]);
                     continue;
                 }
             }
 
+            /** @phpstan-ignore-next-line */
             $album['groups'] = !empty($album['groups']) ? array_values(array_unique($album['groups'])) : [];
+            /** @phpstan-ignore-next-line */
             $album['users'] = !empty($album['users']) ? array_values(array_unique($album['users'])) : [];
+            /** @phpstan-ignore-next-line */
             $album['users_indirect'] = !empty($album['users_indirect']) ? array_values(array_unique($album['users_indirect'])) : [];
         }
 

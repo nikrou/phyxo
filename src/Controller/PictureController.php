@@ -42,12 +42,27 @@ class PictureController extends CommonController
     private $userMapper, $translator;
     private const VALID_COMMENT = 'valid_comment';
 
-    public function picture(Request $request, int $image_id, string $type, string $element_id, Conf $conf, AlbumMapper $albumMapper,
-                            MenuBar $menuBar, ImageStandardParams $image_std_params, TagMapper $tagMapper,
-                            UserMapper $userMapper, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager,
-                            ImageMapper $imageMapper, Metadata $metadata, TranslatorInterface $translator, RateRepository $rateRepository,
-                            FavoriteRepository $favoriteRepository, ImageAlbumRepository $imageAlbumRepository, EventDispatcherInterface $eventDispatcher)
-    {
+    public function picture(
+        Request $request,
+        int $image_id,
+        string $type,
+        string $element_id,
+        Conf $conf,
+        AlbumMapper $albumMapper,
+        MenuBar $menuBar,
+        ImageStandardParams $image_std_params,
+        TagMapper $tagMapper,
+        UserMapper $userMapper,
+        CommentMapper $commentMapper,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        ImageMapper $imageMapper,
+        Metadata $metadata,
+        TranslatorInterface $translator,
+        RateRepository $rateRepository,
+        FavoriteRepository $favoriteRepository,
+        ImageAlbumRepository $imageAlbumRepository,
+        EventDispatcherInterface $eventDispatcher
+    ) {
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $this->translator = $translator;
         $tpl_params = [];
@@ -106,7 +121,7 @@ class PictureController extends CommonController
 
         if ($conf['picture_download_icon']) {
             if ($picture['src_image']->is_original()) { // we have a photo
-                if (!empty(['enabled_high'])) {
+                if ($this->getUser()->getUserInfos()->hasEnabledHigh()) {
                     $picture['element_url'] = $picture['src_image']->getUrl();
                     $picture['U_DOWNLOAD'] = $this->generateUrl('action', ['image_id' => $image_id, 'part' => 'e', 'download' => 'download']);
                 }
@@ -190,20 +205,23 @@ class PictureController extends CommonController
             'url' => $this->generateUrl('calendar_categories_monthly', ['date_type' => 'created', 'view_type' => 'calendar'])
         ];
 
+        /** @phpstan-ignore-next-line */
         if (!empty($picture['author'])) {
             $tpl_params['INFO_AUTHOR'] = $picture['author'];
         }
 
+        /** @phpstan-ignore-next-line */
         if (!empty($picture['comment'])) {
             $tpl_params['COMMENT_IMG'] = $picture['comment'];
         }
 
-
         $tpl_params['INFO_VISITS'] = $picture['hit'];
         $tpl_params['INFO_FILE'] = $picture['file'];
+        /** @phpstan-ignore-next-line */
         if (!empty($picture['filesize'])) {
             $tpl_params['INFO_FILESIZE'] = $translator->trans('{size} Kb', ['size' => $picture['filesize']]);
         }
+        /** @phpstan-ignore-next-line */
         if ($picture['src_image']->is_original() && isset($picture['width'])) {
             $tpl_params['INFO_DIMENSIONS'] = $picture['width'] . '*' . $picture['height'];
         }
@@ -240,7 +258,7 @@ class PictureController extends CommonController
                         'URL' => $this->generateUrl('images_by_tags', ['tag_ids' => $tag->toUrl()]),
                         'U_TAG_IMAGE' => $this->generateUrl('images_by_tags', ['tag_ids' => $tag->toUrl()]),
                     ]
-               );
+                );
             }
         }
 
@@ -438,7 +456,7 @@ class PictureController extends CommonController
                     'KEY' => $csrfTokenManager->getToken(self::VALID_COMMENT),
                 ];
 
-                if (!empty($comment_action) && $comment_action === 'reject') {
+                if (!is_null($comment_action) && $comment_action === 'reject') {
                     foreach (['content', 'author', 'website_url', 'email'] as $k) {
                         $tpl_var[strtoupper($k)] = htmlspecialchars(stripslashes($request->request->get($k)));
                     }

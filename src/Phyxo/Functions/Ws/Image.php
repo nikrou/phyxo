@@ -142,7 +142,10 @@ class Image
         $nb_comments = $service->getManagerRegistry()->getRepository(Comment::class)->countForImage($image->getId(), $service->getUserMapper()->isAdmin());
         if ($nb_comments > 0 && $params['comments_per_page'] > 0) {
             foreach ($service->getManagerRegistry()->getRepository(Comment::class)->getCommentsForImagePerPage(
-                $image->getId(), $params['comments_per_page'], $params['comments_per_page'] * $params['comments_page']) as $comment) {
+                $image->getId(),
+                $params['comments_per_page'],
+                $params['comments_per_page'] * $params['comments_page']
+            ) as $comment) {
                 $related_comments[] = [
                     'id' => $comment->getId(),
                     'content' => $comment->getContent(),
@@ -156,6 +159,7 @@ class Image
         }
 
         $comment_post_data = null;
+        /** @phpstan-ignore-next-line */
         if ($is_commentable && (!$service->getUserMapper()->isGuest() || ($service->getUserMapper()->isGuest() && $service->getConf()['comments_forall']))) {
             $comment_post_data['author'] = $service->getUserMapper()->getUser()->getUsername();
         }
@@ -779,6 +783,7 @@ class Image
 
             foreach ($filenames as $filename) {
                 $res[$filename] = null;
+                /** @phpstan-ignore-next-line */
                 if (isset($id_of_filename[$filename])) {
                     $res[$filename] = $id_of_filename[$filename];
                 }
@@ -860,12 +865,12 @@ class Image
         $new_tags = array_diff($params['tags'], $current_tags);
 
         if (count($removed_tags) > 0) {
-            if (!$service->getSecurity()->isGranted(TagVoter::DELETE, $image)) {
+            if ($service->getSecurity()->isGranted(TagVoter::DELETE, $image) == false) {
                 return new Error(403, 'You are not allowed to delete tags');
             }
         }
         if (count($new_tags) > 0) {
-            if (!$service->getSecurity()->isGranted(TagVoter::ADD, $image)) {
+            if ($service->getSecurity()->isGranted(TagVoter::ADD, $image) == false) {
                 return new Error(403, 'You are not allowed to add tags');
             }
         }

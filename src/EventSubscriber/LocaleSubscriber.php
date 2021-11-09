@@ -18,12 +18,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class LocaleSubscriber implements EventSubscriberInterface
 {
-    private $defaultLocale, $translator;
+    private $defaultLocale;
 
-    public function __construct(string $defaultLanguage, TranslatorInterface $translator)
+    public function __construct(string $defaultLanguage)
     {
         $this->defaultLocale = $defaultLanguage;
-        $this->translator = $translator;
     }
 
     public function onKernelRequest(RequestEvent $event)
