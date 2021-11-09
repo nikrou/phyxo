@@ -39,9 +39,16 @@ class AdminRatingController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function photos(Request $request, Conf $conf, ImageStandardParams $image_std_params, TranslatorInterface $translator, UserMapper $userMapper,
-                            UserRepository $userRepository, RateRepository $rateRepository, int $start = 0)
-    {
+    public function photos(
+        Request $request,
+        Conf $conf,
+        ImageStandardParams $image_std_params,
+        TranslatorInterface $translator,
+        UserMapper $userMapper,
+        UserRepository $userRepository,
+        RateRepository $rateRepository,
+        int $start = 0
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -111,7 +118,7 @@ class AdminRatingController extends AbstractController
 
         $tpl_params['images'] = [];
         foreach ($rateRepository->getRatePerImage($guest_id, $operator_user_filter, $available_order_by[$order_by_index][1], $elements_per_page, $start) as $image) {
-            $tpl_params['images'][] = $image;
+            // $tpl_params['images'][] = $image;
 
             $thumbnail_src = (new DerivativeImage(new SrcImage($image, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
             $image_url = $this->generateUrl('admin_photo', ['image_id' => $image['id']]);
@@ -144,6 +151,7 @@ class AdminRatingController extends AbstractController
 
                 $tpl_image['rates'][] = [
                     'USER' => $user_rate,
+                    'user_id' => $rate->getUser()->getId(),
                     'md5sum' => md5($rate->getUser()->getId() . $rate->getImage()->getId() . $rate->getAnonymousId()),
                     'element_id' => $rate->getImage()->getId(),
                     'anonymous_id' => $rate->getAnonymousId(),
@@ -151,7 +159,7 @@ class AdminRatingController extends AbstractController
                     'date' => $rate->getDate()
                 ];
             }
-            $tpl_params['images'][] = $tpl_image;
+            $tpl_params['images'][] = array_merge($tpl_image, $image);
         }
 
         $tpl_params['navbar'] = Utils::createNavigationBar($this->get('router'), 'admin_rating', $navbar_params, $nb_images, $start, $elements_per_page);
@@ -173,9 +181,16 @@ class AdminRatingController extends AbstractController
         return $this->render('rating_photos.html.twig', $tpl_params);
     }
 
-    public function users(Request $request, Conf $conf, UserMapper $userMapper, ImageStandardParams $image_std_params,
-                            TranslatorInterface $translator, UserRepository $userRepository, ImageMapper $imageMapper, RateRepository $rateRepository)
-    {
+    public function users(
+        Request $request,
+        Conf $conf,
+        UserMapper $userMapper,
+        ImageStandardParams $image_std_params,
+        TranslatorInterface $translator,
+        UserRepository $userRepository,
+        ImageMapper $imageMapper,
+        RateRepository $rateRepository
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
 

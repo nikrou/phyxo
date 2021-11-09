@@ -22,7 +22,7 @@ class UpgradeRepository extends ServiceEntityRepository
         parent::__construct($registry, Upgrade::class);
     }
 
-    public function addUpgrade(Upgrade $upgrade): int
+    public function addUpgrade(Upgrade $upgrade): string
     {
         $this->_em->persist($upgrade);
         $this->_em->flush();
