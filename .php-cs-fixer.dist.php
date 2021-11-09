@@ -27,36 +27,50 @@ $config = new PhpCsFixer\Config();
 
 return $config
     ->setRules([
-        'blank_line_after_opening_tag' => true,
-        'align_multiline_comment' => ['comment_type' => 'all_multiline'],
-        'array_syntax' => ['syntax' => 'short'], // long
-        'whitespace_after_comma_in_array' => true,
-        'no_whitespace_before_comma_in_array' => true,
-        'binary_operator_spaces' => ['operators' => ['=>' => 'single_space', '=' => 'single_space']],
+        '@PSR1' => true,
+
+        // arrays
         'array_indentation' => true,
-        'blank_line_after_namespace' => true,
-        'combine_consecutive_issets' => true,
-        'combine_consecutive_unsets' => true,
-        'concat_space' => ['spacing' => 'one'],
-        'elseif' => true,
-        'encoding' => true,
-        'full_opening_tag' => true,
-        'header_comment' => ['comment_type' => 'comment', 'header' => $header, 'location' => 'after_open', 'separate' => 'bottom'],
-        'heredoc_to_nowdoc' => true,
-        'lowercase_cast' => true,
-        'constant_case' => true,
-        'lowercase_keywords' => true,
+        'array_syntax' => ['syntax' => 'short'],
+        'no_multiline_whitespace_around_double_arrow' => true,
+        'no_whitespace_before_comma_in_array' => true,
+        'trim_array_spaces' => true,
+        'whitespace_after_comma_in_array' => true,
+
+        // class
+        'class_attributes_separation' => ['elements' => ['method' => 'one']],
+        'class_definition' => ['single_line' => true],
         'method_argument_space' => true,
-        'class_attributes_separation' => true,
-        'no_closing_tag' => true,
-        'no_leading_import_slash' => true,
-        'no_spaces_inside_parenthesis' => true,
+
+        // comments
+        'align_multiline_comment' => ['comment_type' => 'all_multiline'],
+        'header_comment' => ['comment_type' => 'comment', 'header' => $header, 'location' => 'after_open', 'separate' => 'bottom'],
         'no_trailing_whitespace' => true,
-        'single_blank_line_at_eof' => true,
         'single_line_comment_style' => true,
+
+        // spaces
+        'binary_operator_spaces' => ['operators' => ['=>' => 'single_space', '=' => 'single_space']],
+        'concat_space' => ['spacing' => 'one'],
+        'no_spaces_inside_parenthesis' => true,
+
+        // global
+        'blank_line_after_opening_tag' => true,
+        'blank_line_after_namespace' => true,
         'braces' => [
             'position_after_control_structures' => 'same',
-            'position_after_functions_and_oop_constructs' => 'next'
-        ]
+            'position_after_functions_and_oop_constructs' => 'next',
+        ],
+        'constant_case' => true,
+        'combine_consecutive_issets' => true,
+        'combine_consecutive_unsets' => true,
+        // 'encoding' => true,
+        'elseif' => true,
+        // 'full_opening_tag' => true,
+        'heredoc_to_nowdoc' => true,
+        'lowercase_cast' => true,
+        'lowercase_keywords' => true,
+        'no_closing_tag' => true,
+        'no_leading_import_slash' => true,
+        'single_blank_line_at_eof' => true,
     ])
     ->setFinder($finder);
