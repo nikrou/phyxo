@@ -22,7 +22,6 @@ CREATE TABLE `phyxo_categories` (
   `dir` VARCHAR(255) DEFAULT NULL,
   `rank` INT DEFAULT NULL,
   `status` VARCHAR(25) NOT NULL DEFAULT 'public',
-  `site_id` INT DEFAULT NULL,
   `visible` TINYINT(1) NOT NULL DEFAULT 1,
   `representative_picture_id` INT DEFAULT NULL,
   `uppercats` VARCHAR(255) NOT NULL DEFAULT '',
@@ -277,16 +276,6 @@ CREATE TABLE `phyxo_sessions` (
   `sess_lifetime` INTEGER UNSIGNED NOT NULL
 ) ENGINE=InnoDB;
 
---
--- Table structure for table `phyxo_sites`
---
-
-DROP TABLE IF EXISTS `phyxo_sites`;
-CREATE TABLE `phyxo_sites` (
-  `id` INT AUTO_INCREMENT NOT NULL,
-  `galleries_url` VARCHAR(255) NOT NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB;
 
 --
 -- Table structure for table `phyxo_tags`

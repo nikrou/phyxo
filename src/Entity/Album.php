@@ -109,11 +109,6 @@ class Album
     private $last_modified;
 
     /**
-     * @ORM\OneToOne(targetEntity=Site::class, cascade={"persist", "remove"})
-     */
-    private $site;
-
-    /**
      * @ORM\ManyToMany(targetEntity=Group::class, mappedBy="group_access", cascade={"persist", "remove"})
      */
     private $group_access;
@@ -299,18 +294,6 @@ class Album
     public function setLastModified(?\DateTimeInterface $last_modified): self
     {
         $this->last_modified = $last_modified;
-
-        return $this;
-    }
-
-    public function getSite(): ?Site
-    {
-        return $this->site;
-    }
-
-    public function setSite(?Site $site): self
-    {
-        $this->site = $site;
 
         return $this;
     }

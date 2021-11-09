@@ -1,7 +1,6 @@
 ;; data
 /_data
 /upload
-/galleries
 /db/*
 !/db/index.php
 /media/*

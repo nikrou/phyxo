@@ -1,6 +1,6 @@
 # Phyxo 2.3.0 - YYYY-MM-DD
 
-- nothing yet
+- Remove site Entity. Not used anymore.
 
 # Phyxo 2.2.0 - 2021-11-06
 

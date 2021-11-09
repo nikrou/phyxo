@@ -25,7 +25,6 @@ CREATE TABLE "phyxo_categories"
   "dir" VARCHAR(255),
   "rank" INTEGER,
   "status" VARCHAR(25) NOT NULL DEFAULT 'public',
-  "site_id" INTEGER DEFAULT 1,
   "visible" BOOLEAN DEFAULT true,
   "representative_picture_id" INTEGER,
   "uppercats" VARCHAR(255) DEFAULT '' NOT NULL,
@@ -250,19 +249,6 @@ CREATE TABLE "phyxo_sessions"
   "sess_data" BYTEA NOT NULL,
   "sess_time" INTEGER NOT NULL,
   "sess_lifetime" INTEGER NOT NULL
-);
-
-
------------------------------------------------------------------------------
--- phyxo_sites
------------------------------------------------------------------------------
-
-DROP TABLE IF EXISTS "phyxo_sites";
-CREATE TABLE "phyxo_sites"
-(
-  "id" serial  NOT NULL,
-  "galleries_url" VARCHAR(255) DEFAULT '' NOT NULL,
-  PRIMARY KEY ("id")
 );
 
 

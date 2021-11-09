@@ -96,20 +96,30 @@ class Category
         if (!$params['recursive']) {
             if ($params['cat_id'] > 0) {
                 $albumsList = $service->getAlbumMapper()->getRepository()->findAuthorizedAlbumsAndParents(
-                    $service->getUserMapper()->getUser()->getId(), $params['cat_id'], $forbidden_categories, $public_and_visible
+                    $service->getUserMapper()->getUser()->getId(),
+                    $params['cat_id'],
+                    $forbidden_categories,
+                    $public_and_visible
                 );
             } else {
                 $albumsList = $service->getAlbumMapper()->getRepository()->findNoParentsAuthorizedAlbums(
-                    $service->getUserMapper()->getUser()->getId(), $forbidden_categories, $public_and_visible
+                    $service->getUserMapper()->getUser()->getId(),
+                    $forbidden_categories,
+                    $public_and_visible
                 );
             }
         } elseif ($params['cat_id'] > 0) {
             $albumsList = $service->getAlbumMapper()->getRepository()->findAuthorizedAlbumsInSubAlbums(
-                $service->getUserMapper()->getUser()->getId(), $params['cat_id'], $forbidden_categories, $public_and_visible
+                $service->getUserMapper()->getUser()->getId(),
+                $params['cat_id'],
+                $forbidden_categories,
+                $public_and_visible
             );
         } else {
             $albumsList = $service->getAlbumMapper()->getRepository()->findUnauthorizedAlbums(
-                $service->getUserMapper()->getUser()->getId(), $forbidden_categories, $public_and_visible
+                $service->getUserMapper()->getUser()->getId(),
+                $forbidden_categories,
+                $public_and_visible
             );
         }
 
@@ -198,7 +208,6 @@ class Category
                 'dir' => $album->getDir(),
                 'rank' => $album->getRank(),
                 'status' => $album->getStatus(),
-                'site_id' => $album->getSite() ? $album->getSite()->getId() : null,
                 'visible' => $album->isVisible(),
                 'representative_picture_id' => $album->getRepresentativePictureId(),
                 'uppercats' => $album->getUppercats(),
