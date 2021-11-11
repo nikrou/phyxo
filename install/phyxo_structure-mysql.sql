@@ -470,7 +470,6 @@ ALTER TABLE `phyxo_history` ADD CONSTRAINT `FK_4E2589C03DA5256D` FOREIGN KEY (`i
 ALTER TABLE `phyxo_user_access` ADD CONSTRAINT `FK_21C10625A76ED395` FOREIGN KEY (`user_id`) REFERENCES `phyxo_users` (`id`);
 ALTER TABLE `phyxo_user_access` ADD CONSTRAINT `FK_21C10625E6ADA943` FOREIGN KEY (`cat_id`) REFERENCES `phyxo_categories` (`id`);
 ALTER TABLE `phyxo_categories` ADD CONSTRAINT `FK_725D6641C7F87B72` FOREIGN KEY (`id_uppercat`) REFERENCES `phyxo_categories` (`id`);
-ALTER TABLE `phyxo_categories` ADD CONSTRAINT `FK_725D6641F6BD1646` FOREIGN KEY (`site_id`) REFERENCES `phyxo_sites` (`id`);
 ALTER TABLE `phyxo_rate` ADD CONSTRAINT `FK_23A9DF15A76ED395` FOREIGN KEY (`user_id`) REFERENCES `phyxo_users` (`id`);
 ALTER TABLE `phyxo_rate` ADD CONSTRAINT `FK_23A9DF151F1F2A24` FOREIGN KEY (`element_id`) REFERENCES `phyxo_images` (`id`);
 ALTER TABLE `phyxo_user_feed` ADD CONSTRAINT `FK_45D76AC5A76ED395` FOREIGN KEY (`user_id`) REFERENCES `phyxo_users` (`id`);

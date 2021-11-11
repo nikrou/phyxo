@@ -119,9 +119,7 @@ class AdminMenubarController extends AbstractController
         $tpl_params = [
             'USERNAME' => $this->getUser()->getUsername(),
             'ENABLE_SYNCHRONIZATION' => $conf['enable_synchronization'],
-            'U_SITE_MANAGER' => $this->generateUrl('admin_site'),
             'U_HISTORY_STAT' => $this->generateUrl('admin_history'),
-            'U_SITES' => $this->generateUrl('admin_site'),
             'U_MAINTENANCE' => $this->generateUrl('admin_maintenance'),
             'U_CONFIG_GENERAL' => $this->generateUrl('admin_configuration'),
             'U_CONFIG_MENUBAR' => $this->generateUrl('admin_menubar'),
