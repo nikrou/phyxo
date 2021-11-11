@@ -693,6 +693,8 @@ class AlbumMapper
     protected function getCacheAlbums()
     {
         if (!$this->albums_retrieved) {
+            $this->albums_retrieved = true;
+
             foreach ($this->albumRepository->findAll() as $album) {
                 $this->cache[$album->getId()] = $album;
             }
