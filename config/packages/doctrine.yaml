@@ -1,5 +1,6 @@
 doctrine:
     dbal:
+        url: '%env(DATABASE_URL)%'
         driver: '%database_driver%'
         host: '%database_host%'
         port: '%database_port%'
