@@ -190,7 +190,7 @@ class User implements UserInterface, EquatableInterface, \Serializable
         $this->roles[] = $role;
     }
 
-    public function getRoles()
+    public function getRoles(): array
     {
         return array_unique($this->roles);
     }

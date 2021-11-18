@@ -23,6 +23,7 @@ use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use App\Exception\MissingGuestUserException;
+use App\Form\UserRegistrationType;
 use App\Repository\UserRepository;
 use App\Security\UserProvider;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -84,68 +85,57 @@ class SecurityController extends CommonController
         return $this->render('identification.html.twig', $tpl_params, new Response('', $status_code));
     }
 
-    public function register(Request $request, UserManager $user_manager, UserPasswordEncoderInterface $passwordEncoder, LoginFormAuthenticator $loginAuthenticator,
-                                CsrfTokenManagerInterface $csrfTokenManager, GuardAuthenticatorHandler $guardHandler, TranslatorInterface $translator)
-    {
+    public function register(
+        Request $request,
+        UserManager $user_manager,
+        UserPasswordEncoderInterface $passwordEncoder,
+        LoginFormAuthenticator $loginAuthenticator,
+        GuardAuthenticatorHandler $guardHandler
+    ) {
         $tpl_params = $this->init();
-
-        $errors = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $token = $csrfTokenManager->getToken('authenticate');
+        $form = $this->createForm(UserRegistrationType::class);
+        $form->handleRequest($request);
 
-        $tpl_params['register_action'] = $this->generateUrl('register');
-        $tpl_params['last_username'] = '';
-        $tpl_params['mail_address'] = '';
-        $tpl_params['csrf_token'] = $token;
+        if ($form->isSubmitted() && $form->isValid()) {
+            $userModel = $form->getData();
 
-        if ($request->isMethod('POST')) {
-            if (!$request->request->get('_username')) {
-                $errors[] = $translator->trans('Username is missing. Please enter the username.');
-            } else {
-                $tpl_params['last_username'] = $request->request->get('_username');
-            }
+            $user = new User();
+            $user->setUsername($userModel->getUsername());
+            $user->setPassword($passwordEncoder->encodePassword($user, $userModel->getPassword()));
+            $user->setMailAddress($userModel->getMailAddress());
+            $user->addRole('ROLE_NORMAL');
 
-            if ($request->request->get('_mail_address')) {
-                $tpl_params['mail_address'] = $request->request->get('_mail_address');
-            }
+            try {
+                $user_manager->register($user);
 
-            if (!$request->request->get('_password')) {
-                $errors[] = $translator->trans('Password is missing. Please enter the password.');
-            } elseif (!$request->request->get('_password_confirm')) {
-                $errors[] = $translator->trans('Password confirmation is missing. Please confirm the chosen password.');
-            } elseif ($request->request->get('_password') != $request->request->get('_password_confirm')) {
-                $errors[] = $translator->trans('The passwords do not match');
-            }
-
-            if (count($errors) === 0) {
-                $user = new User();
-                $user->setUsername($request->request->get('_username'));
-                $user->setMailAddress($request->request->get('_mail_address'));
-                $user->setPassword($passwordEncoder->encodePassword($user, $request->request->get('_password')));
-                $user->addRole('ROLE_NORMAL');
-
-                try {
-                    $user_manager->register($user);
-
-                    return $guardHandler->authenticateUserAndHandleSuccess($user, $request, $loginAuthenticator, 'main');
-                } catch (\Exception $e) {
-                    $tpl_params['errors'] = $e->getMessage();
-                }
-            } else {
-                $tpl_params['errors'] = $errors;
+                return $guardHandler->authenticateUserAndHandleSuccess($user, $request, $loginAuthenticator, 'main');
+            } catch (\Exception $e) {
+                $tpl_params['errors'] = $e->getMessage();
             }
         }
+
+
+        $tpl_params['form'] = $form->createView();
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $this->conf));
 
         return $this->render('register.html.twig', $tpl_params);
     }
 
-    public function profile(Request $request, UserPasswordEncoderInterface $passwordEncoder, MenuBar $menuBar, LanguageRepository $languageRepository,
-                            UserProvider $userProvider, TranslatorInterface $translator, CsrfTokenManagerInterface $csrfTokenManager, ThemeRepository $themeRepository,
-                            UserInfosRepository $userInfosRepository, UserRepository $userRepository)
-    {
+    public function profile(
+        Request $request,
+        UserPasswordEncoderInterface $passwordEncoder,
+        MenuBar $menuBar,
+        LanguageRepository $languageRepository,
+        UserProvider $userProvider,
+        TranslatorInterface $translator,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        ThemeRepository $themeRepository,
+        UserInfosRepository $userInfosRepository,
+        UserRepository $userRepository
+    ) {
         $this->userProvider = $userProvider;
         $tpl_params = $this->init();
 
@@ -275,9 +265,15 @@ class SecurityController extends CommonController
         return $this->render('profile.html.twig', $tpl_params);
     }
 
-    public function forgotPassword(Request $request, UserManager $user_manager, MailerInterface $mailer, CsrfTokenManagerInterface $csrfTokenManager,
-                                    TranslatorInterface $translator, UserRepository $userRepository, UserInfosRepository $userInfosRepository)
-    {
+    public function forgotPassword(
+        Request $request,
+        UserManager $user_manager,
+        MailerInterface $mailer,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        TranslatorInterface $translator,
+        UserRepository $userRepository,
+        UserInfosRepository $userInfosRepository
+    ) {
         $tpl_params = $this->init();
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -361,9 +357,15 @@ class SecurityController extends CommonController
         $mailer->send($message);
     }
 
-    public function resetPassword(Request $request, string $activation_key, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder,
-                                    UserProvider $userProvider, TranslatorInterface $translator, UserRepository $userRepository)
-    {
+    public function resetPassword(
+        Request $request,
+        string $activation_key,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        UserPasswordEncoderInterface $passwordEncoder,
+        UserProvider $userProvider,
+        TranslatorInterface $translator,
+        UserRepository $userRepository
+    ) {
         $token = $csrfTokenManager->getToken('authenticate');
         $errors = [];
         $infos = [];
