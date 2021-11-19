@@ -88,19 +88,6 @@ class Utils
     }
 
     /**
-     * returns the number of seconds (with 3 decimals precision)
-     * between the start time and the end time given
-     *
-     * @param float $start
-     * @param float $end
-     * @return string "$TIME s"
-     */
-    public static function get_elapsed_time($start, $end)
-    {
-        return number_format(($end - $start) * 1000, 2, '.', ' ') . ' ms';
-    }
-
-    /**
      * returns the part of the string after the last "."
      *
      * @param string $filename
@@ -164,26 +151,6 @@ class Utils
             $path = __DIR__ . '/../../../' . $path;
         }
         return $path;
-    }
-
-    /**
-     * Prepends and appends strings at each value of the given array.
-     *
-     * @param array $array
-     * @param string $prepend_str
-     * @param string $append_str
-     * @return array
-     */
-    public static function prepend_append_array_items($array, $prepend_str, $append_str)
-    {
-        array_walk(
-            $array,
-            function (&$s) use ($prepend_str, $append_str) {
-                $s = $prepend_str . $s . $append_str;
-            }
-        );
-
-        return $array;
     }
 
     /**
@@ -313,47 +280,6 @@ class Utils
     public static function get_branch_from_version($version)
     {
         return implode('.', array_slice(explode('.', $version), 0, 2));
-    }
-
-    // http
-
-    /**
-     * Redirects to the given URL (HTTP method).
-     * once this function called, the execution doesn't go further
-     * (presence of an exit() instruction.
-     *
-     * @param string $url
-     * @return void
-     */
-    public static function redirect_http($url)
-    {
-        if (ob_get_length() !== false) {
-            ob_clean();
-        }
-
-        // default url is on html format
-        $url = html_entity_decode($url);
-        header('Request-URI: ' . $url);
-        header('Content-Location: ' . $url);
-        header('Location: ' . $url);
-        exit();
-    }
-
-    /**
-     * Redirects to the given URL
-     * once this function called, the execution doesn't go further
-     * (presence of an exit() instruction.
-     *
-     * @param string $url
-     * @param string $msg
-     * @param integer $refresh_time
-     * @return void
-     */
-    public static function redirect($url, $msg = '', $refresh_time = 0)
-    {
-        if (!headers_sent()) {
-            self::redirect_http($url);
-        }
     }
 
     /**
@@ -522,38 +448,6 @@ class Utils
             0,
             $size
         );
-    }
-
-    /**
-     * Returns an array containing sub-directories which are potentially
-     * a category.
-     * Directories named ".svn", "thumbnail", "pwg_high" or "pwg_representative"
-     * are omitted.
-     */
-    public static function get_fs_directories(string $path, bool $recursive = true, array $sync_exclude_folders = []): array
-    {
-        $dirs = [];
-        $path = rtrim($path, '/');
-
-        $exclude_folders = array_merge($sync_exclude_folders, ['.', '..', '.svn', 'thumbnail', 'pwg_high', 'pwg_representative']);
-        $exclude_folders = array_flip($exclude_folders);
-
-        // @TODO: use glob !!!
-        if (is_dir($path)) {
-            if ($contents = opendir($path)) {
-                while (($node = readdir($contents)) !== false) {
-                    if (is_dir($path . '/' . $node) and !isset($exclude_folders[$node])) {
-                        $dirs[] = $path . '/' . $node;
-                        if ($recursive) {
-                            $dirs = array_merge($dirs, self::get_fs_directories($path . '/' . $node, $recursive, $sync_exclude_folders));
-                        }
-                    }
-                }
-                closedir($contents);
-            }
-        }
-
-        return $dirs;
     }
 
     /**

@@ -30,7 +30,6 @@ use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
-use Phyxo\LocalSiteReader;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -70,11 +69,27 @@ class AdminBatchManagerController extends AbstractController
         return $filter;
     }
 
-    public function global(Request $request, Conf $conf, AlbumMapper $albumMapper, DerivativeService $derivativeService, ImageStandardParams $image_std_params,
-                            SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper, CaddieRepository $caddieRepository, UserMapper $userMapper, Metadata $metadata,
-                            TranslatorInterface $translator, AlbumRepository $albumRepository, ImageTagRepository $imageTagRepository, ImageAlbumRepository $imageAlbumRepository,
-                            FavoriteRepository $favoriteRepository, TagRepository $tagRepository, string $filter = null, int $start = 0)
-    {
+    public function global(
+        Request $request,
+        Conf $conf,
+        AlbumMapper $albumMapper,
+        DerivativeService $derivativeService,
+        ImageStandardParams $image_std_params,
+        SearchMapper $searchMapper,
+        TagMapper $tagMapper,
+        ImageMapper $imageMapper,
+        CaddieRepository $caddieRepository,
+        UserMapper $userMapper,
+        Metadata $metadata,
+        TranslatorInterface $translator,
+        AlbumRepository $albumRepository,
+        ImageTagRepository $imageTagRepository,
+        ImageAlbumRepository $imageAlbumRepository,
+        FavoriteRepository $favoriteRepository,
+        TagRepository $tagRepository,
+        string $filter = null,
+        int $start = 0
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
         $this->derivativeService = $derivativeService;
@@ -278,11 +293,6 @@ class AdminBatchManagerController extends AbstractController
         $tpl_params['level_options'] = Utils::getPrivacyLevelOptions($translator, $conf['available_permission_levels'], 'admin');
         $tpl_params['level_options_selected'] = 0;
 
-        // metadata
-        $site_reader = new LocalSiteReader('./', $conf, $metadata); // @TODO : in conf or somewhere else but no direct path here
-        $used_metadata = implode(', ', $site_reader->get_metadata_attributes());
-        $tpl_params['used_metadata'] = $used_metadata;
-
         //derivatives
         $del_deriv_map = [];
         foreach ($image_std_params->getDefinedTypeMap() as $derivative_params) {
@@ -333,8 +343,12 @@ class AdminBatchManagerController extends AbstractController
 
             // template thumbnail initialization
             foreach ($imageMapper->getRepository()->findByImageIdsAndAlbumId(
-                $current_set, $is_category ? ($this->getFilter()['category'] ?? null) : null,
-                $conf['order_by'] ?? '  ', $nb_images, $start) as $image) {
+                $current_set,
+                $is_category ? ($this->getFilter()['category'] ?? null) : null,
+                $conf['order_by'] ?? '  ',
+                $nb_images,
+                $start
+            ) as $image) {
                 $nb_thumbs_page++;
                 $src_image = new SrcImage($image->toArray(), $conf['picture_ext']);
 
@@ -403,10 +417,17 @@ class AdminBatchManagerController extends AbstractController
         return $this->redirectToRoute('admin_batch_manager_global', ['start' => $request->get('start')]);
     }
 
-    protected function actionOnCollection(Request $request, TagMapper $tagMapper, ImageMapper $imageMapper,
-                                        UserMapper $userMapper, ImageAlbumRepository $imageAlbumRepository, AlbumMapper $albumMapper,
-                                        CaddieRepository $caddieRepository, ImageTagRepository $imageTagRepository, array $collection = [])
-    {
+    protected function actionOnCollection(
+        Request $request,
+        TagMapper $tagMapper,
+        ImageMapper $imageMapper,
+        UserMapper $userMapper,
+        ImageAlbumRepository $imageAlbumRepository,
+        AlbumMapper $albumMapper,
+        CaddieRepository $caddieRepository,
+        ImageTagRepository $imageTagRepository,
+        array $collection = []
+    ) {
         // if the user tries to apply an action, it means that there is at least 1 photo in the selection
         if (count($collection) === 0 && !$request->request->get('submitFilter')) {
             $this->addFlash('error', $this->translator->trans('Select at least one photo', [], 'admin'));
@@ -574,9 +595,13 @@ class AdminBatchManagerController extends AbstractController
         }
     }
 
-    protected function getFilterSetsFromFilter(SearchMapper $searchMapper, ImageMapper $imageMapper, AlbumRepository $albumRepository,
-                                                FavoriteRepository $favoriteRepository, TagRepository $tagRepository)
-    {
+    protected function getFilterSetsFromFilter(
+        SearchMapper $searchMapper,
+        ImageMapper $imageMapper,
+        AlbumRepository $albumRepository,
+        FavoriteRepository $favoriteRepository,
+        TagRepository $tagRepository
+    ) {
         $filter_sets = [];
 
         $bulk_manager_filter = $this->getFilter();
@@ -718,7 +743,10 @@ class AdminBatchManagerController extends AbstractController
         if (!empty($bulk_manager_filter['tags'])) {
             $image_ids = [];
             foreach ($imageMapper->getRepository()->getImageIdsForTags(
-                $this->getUser()->getUserInfos()->getForbiddenCategories(), $bulk_manager_filter['tags'], $bulk_manager_filter['tag_mode']) as $image) {
+                $this->getUser()->getUserInfos()->getForbiddenCategories(),
+                $bulk_manager_filter['tags'],
+                $bulk_manager_filter['tag_mode']
+            ) as $image) {
                 $image_ids[] = $image->getId();
             }
             $filter_sets[] = $image_ids;
@@ -908,10 +936,23 @@ class AdminBatchManagerController extends AbstractController
         return $tpl_params;
     }
 
-    public function unit(Request $request, Conf $conf, SearchMapper $searchMapper, TagMapper $tagMapper, ImageStandardParams $image_std_params, AlbumMapper $albumMapper,
-                        UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator, ImageMapper $imageMapper, AlbumRepository $albumRepository,
-                        ImageAlbumRepository $imageAlbumRepository, FavoriteRepository $favoriteRepository, string $filter = null, int $start = 0)
-    {
+    public function unit(
+        Request $request,
+        Conf $conf,
+        SearchMapper $searchMapper,
+        TagMapper $tagMapper,
+        ImageStandardParams $image_std_params,
+        AlbumMapper $albumMapper,
+        UserMapper $userMapper,
+        Metadata $metadata,
+        TranslatorInterface $translator,
+        ImageMapper $imageMapper,
+        AlbumRepository $albumRepository,
+        ImageAlbumRepository $imageAlbumRepository,
+        FavoriteRepository $favoriteRepository,
+        string $filter = null,
+        int $start = 0
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -1016,11 +1057,6 @@ class AdminBatchManagerController extends AbstractController
         $tpl_params['level_options'] = Utils::getPrivacyLevelOptions($translator, $conf['available_permission_levels'], 'admin');
         $tpl_params['level_options_selected'] = 0;
 
-        // metadata
-        $site_reader = new LocalSiteReader('./', $conf, $metadata); // @TODO : in conf or somewhere else but no direct path here
-        $used_metadata = implode(', ', $site_reader->get_metadata_attributes());
-        $tpl_params['used_metadata'] = $used_metadata;
-
         //derivatives
         $del_deriv_map = [];
         foreach ($image_std_params->getDefinedTypeMap() as $derivative_params) {
@@ -1066,12 +1102,12 @@ class AdminBatchManagerController extends AbstractController
 
             // template thumbnail initialization
             foreach ($imageMapper->getRepository()->findByImageIdsAndAlbumId(
-                    $current_set,
-                    $this->getFilter()['category'] ?? null,
-                    $conf['order_by'] ?? '  ',
-                    $nb_images,
-                    $start
-                ) as $image) {
+                $current_set,
+                $this->getFilter()['category'] ?? null,
+                $conf['order_by'] ?? '  ',
+                $nb_images,
+                $start
+            ) as $image) {
                 $element_ids[] = $image->getId();
 
                 $src_image = new SrcImage($image->toArray(), $conf['picture_ext']);
