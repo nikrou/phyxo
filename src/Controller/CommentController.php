@@ -23,15 +23,23 @@ use Phyxo\Functions\Utils;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Phyxo\Image\ImageStandardParams;
-use Phyxo\Image\SrcImage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentController extends CommonController
 {
-    public function index(Request $request, Conf $conf, MenuBar $menuBar, AlbumMapper $albumMapper,
-                        UserMapper $userMapper, CsrfTokenManagerInterface $csrfTokenManager, ImageStandardParams $image_std_params,
-                        TranslatorInterface $translator, CommentRepository $commentRepository, int $start = 0, int $comment_id = 0)
-    {
+    public function index(
+        Request $request,
+        Conf $conf,
+        MenuBar $menuBar,
+        AlbumMapper $albumMapper,
+        UserMapper $userMapper,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        ImageStandardParams $image_std_params,
+        TranslatorInterface $translator,
+        CommentRepository $commentRepository,
+        int $start = 0,
+        int $comment_id = 0
+    ) {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -150,9 +158,6 @@ class CommentController extends CommonController
                     $name = Utils::get_name_from_file($images[$comment->getImage()->getId()]->getFile());
                 }
 
-                // source of the thumbnail picture
-                $src_image = new SrcImage($images[$comment->getImage()->getId()]->toArray(), $conf['picture_ext']);
-
                 // link to the full size picture
                 $picture_url = $this->generateUrl(
                     'picture',
@@ -173,7 +178,7 @@ class CommentController extends CommonController
                 $tpl_comment = [
                     'ID' => $comment->getId(),
                     'U_PICTURE' => $picture_url,
-                    'src_image' => $src_image,
+                    'image' => $images[$comment->getImage()->getId()],
                     'ALT' => $name,
                     'AUTHOR' => $comment->getAuthor(),
                     'WEBSITE_URL' => $comment->getWebsiteUrl(),

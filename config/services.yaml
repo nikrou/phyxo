@@ -41,6 +41,7 @@ services:
       $defaultTheme: '%default_theme%'
       $startParam: '%start_param%'
       $adminThemeDir: '%admin_theme_dir%'
+      $graphicsLibrary: '%graphics_library%'
       $prefix: '%database_prefix%'
 
   # makes classes in src/ available to be used as services

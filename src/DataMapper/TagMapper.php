@@ -23,7 +23,6 @@ use App\Repository\ImageTagRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\ImageRepository;
 use Phyxo\Functions\Language;
-use Phyxo\Image\SrcImage;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -31,9 +30,16 @@ class TagMapper
 {
     private $conf, $image_std_params, $router, $metadata, $userCacheRepository, $imageRepository, $tagRepository, $imageTagRepository;
 
-    public function __construct(Conf $conf, ImageStandardParams $image_std_params, RouterInterface $router, Metadata $metadata, ImageTagRepository $imageTagRepository,
-                                UserCacheRepository $userCacheRepository, ImageRepository $imageRepository, TagRepository $tagRepository)
-    {
+    public function __construct(
+        Conf $conf,
+        ImageStandardParams $image_std_params,
+        RouterInterface $router,
+        Metadata $metadata,
+        ImageTagRepository $imageTagRepository,
+        UserCacheRepository $userCacheRepository,
+        ImageRepository $imageRepository,
+        TagRepository $tagRepository
+    ) {
         $this->conf = $conf;
         $this->image_std_params = $image_std_params;
         $this->router = $router;
@@ -85,13 +91,17 @@ class TagMapper
         $params = $this->image_std_params->getByType(ImageStandardParams::IMG_THUMB);
         foreach ($this->imageTagRepository->getPendingTags() as $image_tag) {
             $image = $image_tag->getImage();
+            $derivative = new DerivativeImage($image, $params, $this->image_std_params);
             $tags[] = array_merge(
                 $image_tag->getTag()->toArray(),
                 [
                     'image_id' => $image->getId(),
                     'created_by' => $image_tag->getCreatedBy(),
                     'status' => $image_tag->getStatus(),
-                    'thumb_src' => (new DerivativeImage(new SrcImage($image->toArray(), $this->conf['picture_ext']), $params, $this->image_std_params))->getUrl(),
+                    'thumb_src' => $this->router->generate(
+                        'media',
+                        ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtnsion()]
+                    ),
                     'picture_url' => $this->router->generate('admin_photo', ['image_id' => $image->getId()]),
                 ]
             );
@@ -130,7 +140,9 @@ class TagMapper
     {
         $tags = [];
         $related_tags = $this->getRepository()->getRelatedTags(
-            $user->getId(), $image_id, $max_tags,
+            $user->getId(),
+            $image_id,
+            $max_tags,
             $this->conf['show_pending_added_tags'] ?? false,
             $this->conf['show_pending_deleted_tags'] ?? false
         );
@@ -490,7 +502,8 @@ class TagMapper
                     $metadata,
                     function($m) use ($update_fields) {
                         return in_array($m, $update_fields);
-                    }, ARRAY_FILTER_USE_KEY
+                    },
+                    ARRAY_FILTER_USE_KEY
                 )
             );
 

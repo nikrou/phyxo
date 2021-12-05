@@ -11,11 +11,14 @@
 
 namespace Phyxo\Image;
 
+use App\Entity\Image;
 use Phyxo\Conf;
 
 class ImageStandardParams
 {
     private $conf_key = 'derivatives';
+
+    const IMG_ORIGINAL = 'original';
 
     const IMG_SQUARE = 'square';
     const IMG_THUMB = 'thumb';
@@ -148,12 +151,12 @@ class ImageStandardParams
      * the XLARGE is disabled.
      *
      */
-    public function getAll(SrcImage $src_image): array
+    public function getAll(Image $image): array
     {
         $ret = [];
         // build enabled types
         foreach ($this->getDefinedTypeMap() as $type => $params) {
-            $derivative = new DerivativeImage($src_image, $params, $this);
+            $derivative = new DerivativeImage($image, $params, $this);
             $ret[$type] = $derivative;
         }
 
@@ -172,16 +175,16 @@ class ImageStandardParams
      * @param string $type standard derivative param type (e.g. IMG_*)
      * @return DerivativeImage|null null if $type not found
      */
-    public function getOne($type, SrcImage $src_image)
+    public function getOne($type, Image $image)
     {
         $defined = $this->getDefinedTypeMap();
         if (isset($defined[$type])) {
-            return new DerivativeImage($src_image, $defined[$type], $this);
+            return new DerivativeImage($image, $defined[$type], $this);
         }
 
         $undefined = $this->getUndefinedTypeMap();
         if (isset($undefined[$type])) {
-            return new DerivativeImage($src_image, $defined[$undefined[$type]], $this);
+            return new DerivativeImage($image, $defined[$undefined[$type]], $this);
         }
 
         return null;

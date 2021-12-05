@@ -16,7 +16,6 @@ use App\DataMapper\ImageMapper;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
-use Phyxo\Image\SrcImage;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 
@@ -42,7 +41,7 @@ class DefaultController extends CommonController
         switch ($part) {
             case 'e':
                 if (!$this->getUser()->getUserInfos()->hasEnabledHigh()) {
-                    $deriv = new DerivativeImage(new SrcImage($image->toArray(), $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_XXLARGE), $image_std_params);
+                    $deriv = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_XXLARGE), $image_std_params);
                     if (!$deriv->same_as_source()) {
                         throw new AccessDeniedException('Access denied');
                     }

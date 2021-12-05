@@ -17,7 +17,6 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
 use Phyxo\Image\ImageStandardParams;
-use Phyxo\Image\SrcImage;
 use App\Repository\FavoriteRepository;
 use App\DataMapper\TagMapper;
 use App\Repository\RateRepository;
@@ -116,23 +115,17 @@ class PictureController extends CommonController
             $tpl_params['derivative_params_xxlarge'] = $image_std_params->getByType(ImageStandardParams::IMG_XXLARGE);
         }
 
-        $picture = $imageMapper->getRepository()->find($image_id)->toArray();
-        $picture['src_image'] = new SrcImage($picture, $conf['picture_ext']);
+        $image = $imageMapper->getRepository()->find($image_id);
+        $picture = $image->toArray();
+        $picture['image'] = $image;
 
         if ($conf['picture_download_icon']) {
-            if ($picture['src_image']->is_original()) { // we have a photo
-                if ($this->getUser()->getUserInfos()->hasEnabledHigh()) {
-                    $picture['element_url'] = $picture['src_image']->getUrl();
-                    $picture['U_DOWNLOAD'] = $this->generateUrl('action', ['image_id' => $image_id, 'part' => 'e', 'download' => 'download']);
-                }
-            } else { // not a pic - need download link
-                $picture['download_url'] = $picture['element_url'] = \Phyxo\Functions\URL::get_element_url($picture);
-            }
+            $picture['U_DOWNLOAD'] = $this->generateUrl('action', ['image_id' => $image_id, 'part' => 'e', 'download' => 'download']);
         }
 
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('comment');
         $tpl_params['current'] = $picture;
-        $tpl_params['current']['derivatives'] = $image_std_params->getAll($picture['src_image']);
+        $tpl_params['current']['derivatives'] = $image_std_params->getAll($image);
         $tpl_params['type'] = $type;
         $tpl_params['element_id'] = $element_id;
 
@@ -155,7 +148,6 @@ class PictureController extends CommonController
                 ];
             }
 
-            $tpl_params['U_UP_SIZE_CSS'] = $tpl_params['current']['derivatives']['square']->get_size_css();
             $tpl_params['DISPLAY_NAV_BUTTONS'] = $conf['picture_navigation_icons'];
             $tpl_params['DISPLAY_NAV_THUMB'] = $conf['picture_navigation_thumb'];
         }
@@ -165,30 +157,18 @@ class PictureController extends CommonController
         } else {
             $tpl_params['U_UP'] = $this->generateUrl('album', ['category_id' => (int) $element_id]);
         }
-        $deriv_type = $this->get('session')->has('picture_deriv') ? $this->get('session')->get('picture_deriv') : $conf['derivative_default_size'];
+        $deriv_type = $request->cookies->has('picture_deriv') ? $request->cookies->get('picture_deriv') : $conf['derivative_default_size'];
         $tpl_params['current']['selected_derivative'] = $tpl_params['current']['derivatives'][$deriv_type];
 
         $unique_derivatives = [];
-        $show_original = isset($picture['element_url']);
-        $added = [];
         foreach ($tpl_params['current']['derivatives'] as $_type => $derivative) {
-            if ($_type == ImageStandardParams::IMG_SQUARE || $_type == ImageStandardParams::IMG_THUMB) {
+            if ($_type === ImageStandardParams::IMG_SQUARE || $_type === ImageStandardParams::IMG_THUMB) {
                 continue;
             }
             if (!array_key_exists($_type, $image_std_params->getDefinedTypeMap())) {
                 continue;
             }
-            $url = $derivative->getUrl();
-            if (isset($added[$url])) {
-                continue;
-            }
-            $added[$url] = 1;
-            $show_original &= !($derivative->same_as_source());
             $unique_derivatives[$_type] = $derivative;
-        }
-
-        if ($show_original) {
-            $tpl_params['U_ORIGINAL'] = $picture['element_url'];
         }
 
         $tpl_params['U_METADATA'] = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id, 'metadata' => '']);
@@ -222,7 +202,7 @@ class PictureController extends CommonController
             $tpl_params['INFO_FILESIZE'] = $translator->trans('{size} Kb', ['size' => $picture['filesize']]);
         }
         /** @phpstan-ignore-next-line */
-        if ($picture['src_image']->is_original() && isset($picture['width'])) {
+        if (isset($picture['width'], $picture['height'])) {
             $tpl_params['INFO_DIMENSIONS'] = $picture['width'] . '*' . $picture['height'];
         }
         $tpl_params['display_info'] = $conf['picture_informations'];
@@ -285,8 +265,8 @@ class PictureController extends CommonController
             $tpl_params = array_merge($tpl_params, $this->addRateInfos($rateRepository, $picture, $request));
         }
 
-        if (($conf['show_exif'] || $conf['show_iptc']) && !$picture['src_image']->is_mimetype()) {
-            $tpl_params = array_merge($tpl_params, $this->addMetadataInfos($metadata, $picture));
+        if (($conf['show_exif'] || $conf['show_iptc'])) {
+            $tpl_params = array_merge($tpl_params, $this->addMetadataInfos($metadata, $picture['path']));
         }
 
         if ($conf['activate_comments']) {
@@ -603,7 +583,7 @@ class PictureController extends CommonController
         );
     }
 
-    protected function addMetadataInfos(Metadata $metadata, array $picture = []): array
+    protected function addMetadataInfos(Metadata $metadata, string $path): array
     {
         $tpl_params = [];
 
@@ -613,7 +593,7 @@ class PictureController extends CommonController
                 $exif_mapping[$field] = $field;
             }
 
-            $exif = $metadata->getExifData($picture['src_image']->get_path(), $exif_mapping);
+            $exif = $metadata->getExifData($path, $exif_mapping);
 
             if (count($exif) > 0) {
                 $tpl_meta = [
@@ -645,7 +625,7 @@ class PictureController extends CommonController
         }
 
         if ($this->conf['show_iptc']) {
-            $iptc = $metadata->getIptcData($picture['src_image']->get_path(), $this->conf['show_iptc_mapping'], ', ');
+            $iptc = $metadata->getIptcData($path, $this->conf['show_iptc_mapping'], ', ');
 
             if (count($iptc) > 0) {
                 $tpl_meta = [

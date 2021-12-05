@@ -157,7 +157,10 @@ class Category
                         $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB),
                         $service->getImageStandardParams()
                     );
-                    $thumbnail_url = $derivative_image->getUrl();
+                    $thumbnail_url = $service->getRouter()->generate(
+                        'media',
+                        ['path' => $image_infos['image'], $derivative_image->getUrlType(), $image_infos['image']->getExtension()]
+                    );
                 }
 
                 $result[] = [

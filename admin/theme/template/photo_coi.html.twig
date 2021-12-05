@@ -20,8 +20,8 @@
     <form method="post">
 	<div class="fieldset">
 	    <h3>{{'Photo sizes with crop'|trans}}</h3>
-	    {% for deriv in cropped_derivatives %}
-		<img src="{{deriv.U_IMG}}" alt="{{ALT}}" {{deriv.HTM_SIZE}}>
+	    {% for derivative in cropped_derivatives %}
+		<img src="{{ media_path(derivative) }}" alt="{{ALT}}">
 	    {% endfor %}
 	</div>
 

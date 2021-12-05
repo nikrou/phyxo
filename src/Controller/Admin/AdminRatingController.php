@@ -19,7 +19,6 @@ use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
-use Phyxo\Image\SrcImage;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -118,16 +117,18 @@ class AdminRatingController extends AbstractController
 
         $tpl_params['images'] = [];
         foreach ($rateRepository->getRatePerImage($guest_id, $operator_user_filter, $available_order_by[$order_by_index][1], $elements_per_page, $start) as $image) {
-            // $tpl_params['images'][] = $image;
+            $derivative = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
+            $thumbnail_src = $this->generateUrl(
+                'media',
+                ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()]
+            );
+            $image_url = $this->generateUrl('admin_photo', ['image_id' => $image->getId()]);
 
-            $thumbnail_src = (new DerivativeImage(new SrcImage($image, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
-            $image_url = $this->generateUrl('admin_photo', ['image_id' => $image['id']]);
-
-            $rates = $rateRepository->findBy(['image' => $image['id']]);
+            $rates = $rateRepository->findBy(['image' => $image->getId()]);
             $nb_rates = count($rates);
 
             $tpl_image = [
-                'id' => $image['id'],
+                'id' => $image->getId(),
                 'U_THUMB' => $thumbnail_src,
                 'U_URL' => $image_url,
                 'SCORE_RATE' => $image['score'],
@@ -257,8 +258,11 @@ class AdminRatingController extends AbstractController
         if (count($image_ids) > 0) {
             $d_params = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
             foreach ($imageMapper->getRepository()->findBy(['id' => array_keys($image_ids)]) as $image) {
+                $derivative = new DerivativeImage($image, $d_params, $image_std_params);
                 $image_urls[$image->getId()] = [
-                    'tn' => (new DerivativeImage(new SrcImage($image->toArray(), $conf['picture_ext']), $d_params, $image_std_params))->getUrl(),
+                    'tn' => $this->generateUrl('media', [
+                        'path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()
+                    ]),
                     'page' => $this->generateUrl('picture', ['image_id' => $image->getId(), 'type' => 'file', 'element_id' => $image->getFile()]),
                 ];
             }

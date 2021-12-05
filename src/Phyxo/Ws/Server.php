@@ -25,6 +25,7 @@ use App\DataMapper\SearchMapper;
 use App\Security\UserProvider;
 use App\Utils\UserManager;
 use Doctrine\Persistence\ManagerRegistry;
+use Imagine\Image\ImagineInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -72,6 +73,8 @@ class Server
     private $request;
 
     private $managerRegistry;
+
+    private $imageLibrary;
 
     private $_methods = [];
 
@@ -299,6 +302,16 @@ class Server
     public function getManagerRegistry(): ManagerRegistry
     {
         return $this->managerRegistry;
+    }
+
+    public function setImageLibrary(ImagineInterface $imageLibrary)
+    {
+        $this->imageLibrary = $imageLibrary;
+    }
+
+    public function getImageLibrary(): ImagineInterface
+    {
+        return $this->imageLibrary;
     }
 
     /**

@@ -13,16 +13,18 @@ namespace App\Twig;
 
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 class DerivativeExtension extends AbstractExtension
 {
-    private $image_std_params;
+    private $image_std_params, $urlGenerator;
 
-    public function __construct(ImageStandardParams $image_std_params)
+    public function __construct(ImageStandardParams $image_std_params, UrlGeneratorInterface $urlGenerator)
     {
         $this->image_std_params = $image_std_params;
+        $this->urlGenerator = $urlGenerator;
     }
 
     public function getFunctions()
@@ -30,7 +32,8 @@ class DerivativeExtension extends AbstractExtension
         return [
             new TwigFunction('define_derivative', [$this, 'defineDerivative']),
             new TwigFunction('define_derivative_square', [$this, 'defineDerivativeSquare']),
-            new TwigFunction('derivative_from_image', [$this, 'derivativeFromImage'])
+            new TwigFunction('derivative_from_image', [$this, 'derivativeFromImage']),
+            new TwigFunction('media_path', [$this, 'mediaPath'])
         ];
     }
 
@@ -93,15 +96,38 @@ class DerivativeExtension extends AbstractExtension
 
     public function defineDerivativeSquare()
     {
-        return $this->image_std_params->getByType(\Phyxo\Image\ImageStandardParams::IMG_SQUARE);
+        return $this->image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
     }
 
-    public function derivativeFromImage(array $params = [])
+    public function derivativeFromImage(array $params = []): ?DerivativeImage
     {
         if (empty($params['image']) || empty($params['params'])) {
-            return;
+            return null;
         }
 
         return new DerivativeImage($params['image'], $params['params'], $this->image_std_params);
+    }
+
+    public function mediaPath(DerivativeImage $derivative, bool $relative = false)
+    {
+        if ($derivative->getType() === ImageStandardParams::IMG_CUSTOM) {
+            return $this->urlGenerator->generate(
+                'media_custom',
+                ['path' => $derivative->getPathBasename(), 'sizes' => $derivative->getUrlSize(), 'image_extension' => $derivative->getExtension()],
+                $relative ? UrlGeneratorInterface::RELATIVE_PATH : UrlGeneratorInterface::ABSOLUTE_PATH
+            );
+        } elseif ($derivative->getType() === ImageStandardParams::IMG_ORIGINAL) {
+            return $this->urlGenerator->generate(
+                'media_original',
+                ['path' => $derivative->getPathBasename(), 'image_extension' => $derivative->getExtension()],
+                $relative ? UrlGeneratorInterface::RELATIVE_PATH : UrlGeneratorInterface::ABSOLUTE_PATH
+            );
+        } else {
+            return $this->urlGenerator->generate(
+                'media',
+                ['path' => $derivative->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $derivative->getExtension()],
+                $relative ? UrlGeneratorInterface::RELATIVE_PATH : UrlGeneratorInterface::ABSOLUTE_PATH
+            );
+        }
     }
 }

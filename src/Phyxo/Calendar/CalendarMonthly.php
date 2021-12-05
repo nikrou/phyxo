@@ -12,7 +12,6 @@
 namespace Phyxo\Calendar;
 
 use Phyxo\Calendar\CalendarBase;
-use Phyxo\Image\SrcImage;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 
@@ -458,8 +457,11 @@ class CalendarMonthly extends CalendarBase
 
             unset($this->chronology_date[self::CDAY]);
 
-            $derivative = new DerivativeImage(new SrcImage($image->toArray(), $this->conf['picture_ext']), $this->image_std_params->getByType(ImageStandardParams::IMG_SQUARE), $this->image_std_params);
-            $items[$day]['derivative'] = $derivative;
+            $derivative = new DerivativeImage($image, $this->image_std_params->getByType(ImageStandardParams::IMG_SQUARE), $this->image_std_params);
+            $items[$day]['image'] = $this->router->generate(
+                'media',
+                ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()]
+            );
             $items[$day]['file'] = $image->getFile();
             $items[$day]['dow'] = $image->getDateAvailable()->format('N');
         }
@@ -525,7 +527,7 @@ class CalendarMonthly extends CalendarBase
                         'DAY' => $day,
                         'DOW' => $dow,
                         'NB_ELEMENTS' => $items[$day]['nb_images'],
-                        'IMAGE' => $items[$day]['derivative']->getUrl(),
+                        'IMAGE' => $items[$day]['image'],
                         'U_IMG_LINK' => $url,
                         'IMAGE_ALT' => $items[$day]['file'],
                     ];

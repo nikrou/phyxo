@@ -13,13 +13,14 @@ namespace Phyxo\Functions\Ws;
 
 use App\Entity\Comment;
 use App\Entity\Group;
+use App\Entity\Image;
 use App\Entity\ImageAlbum;
 use App\Entity\ImageTag;
 use App\Entity\User;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use Phyxo\Image\DerivativeImage;
-use Phyxo\Image\SrcImage;
+use Phyxo\Image\DerivativeParams;
 
 class Main
 {
@@ -55,11 +56,6 @@ class Main
             $start_id = $max_id;
         }
 
-        $uid = '&b=' . time();
-
-        $conf['question_mark_in_urls'] = $service->getConf()['php_extension_in_urls'] = true;
-        $conf['derivative_url_style'] = 2; //script
-
         $qlimit = min(5000, ceil(max($image_count / 500, $max_urls / count($types))));
         $where_clauses[] = self::stdImageSqlFilter($params, '');
 
@@ -71,19 +67,11 @@ class Main
         do {
             foreach ($service->getImageMapper()->getRepository()->findBy(['id' => $params['ids']], null, $start_id, $qlimit) as $image) {
                 $start_id = $image->getId();
-                $src_image = new SrcImage($image->toArray(), $service->getConf()['picture_ext']);
-                if ($src_image->is_mimetype()) {
-                    continue;
-                }
-
                 foreach ($types as $type) {
-                    $derivative = new DerivativeImage($src_image, $type, $service->getImageStandardParams());
-                    if ($type != $derivative->get_type()) {
+                    $derivative = new DerivativeImage($image, $type, $service->getImageStandardParams());
+                    if ($derivative->getType() !== $type) {
                         continue;
                     }
-                    // if (@filemtime($derivative->get_path()) === false) {
-                    //     $urls[] = $derivative->getUrl() . $uid;
-                    // }
                 }
 
                 if (count($urls) >= $max_urls) {
@@ -197,27 +185,30 @@ class Main
      * returns an array map of urls (thumb/element) for image_row - to be returned
      * in a standard way by different web service methods
      */
-    public static function stdGetUrls(array $image_row, Server $service)
+    public static function stdGetUrls(Image $image, Server $service)
     {
         $ret = [];
-        $ret['page_url'] = $service->getRouter()->generate('picture', ['image_id' => $image_row['id'], 'type' => 'file', 'element_id' => $image_row['file']]);
-        $src_image = new \Phyxo\Image\SrcImage($image_row, $service->getConf()['picture_ext']);
+        $ret['page_url'] = $service->getRouter()->generate('picture', ['image_id' => $image->getId(), 'type' => 'file', 'element_id' => $image->getFile()]);
 
-        if ($src_image->is_original()) { // we have a photo
+        if (in_array($image->getExtension(), $service->getConf()['picture_ext'])) { // we have a photo
             if ($service->getUserMapper()->getUser()->getUserInfos()->hasEnabledHigh()) {
-                $ret['element_url'] = $src_image->getUrl();
+                $ret['element_url'] = $service->getRouter()->generate('media', ['path' => $image->getPath(), 'derivative' => '', 'image_extension' => $image->getExtension()]);
             }
         } else {
-            $ret['element_url'] = \Phyxo\Functions\URL::get_element_url($image_row);
+            $ret['element_url'] = $image->getPath();
         }
 
-        $derivatives = $service->getImageStandardParams()->getAll($src_image);
+        $derivatives = $service->getImageStandardParams()->getAll($image);
         $derivatives_arr = [];
         foreach ($derivatives as $type => $derivative) {
-            $size = $derivative->get_size();
+            $size = $derivative->getSize();
             /** @phpstan-ignore-next-line */
             $size != null or $size = [null, null];
-            $derivatives_arr[$type] = ['url' => $derivative->getUrl(), 'width' => $size[0], 'height' => $size[1]];
+            $derivatives_arr[$type] = [
+                'url' => $service->getRouter()->generate('media', ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()]),
+                'width' => $size[0],
+                'height' => $size[1]
+            ];
         }
         $ret['derivatives'] = $derivatives_arr;
 

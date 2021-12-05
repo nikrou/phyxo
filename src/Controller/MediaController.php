@@ -11,11 +11,12 @@
 
 namespace App\Controller;
 
+use App\ImageLibraryGuesser;
 use App\Repository\ImageRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Phyxo\Conf;
 use Phyxo\Image\DerivativeParams;
-use Phyxo\Image\Image;
+use Phyxo\Image\ImageOptimizer;
 use Phyxo\Image\SizingParams;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -29,9 +30,21 @@ class MediaController extends CommonController
     protected $image_std_params;
     private $rotation_angle, $original_size, $mimeTypes;
 
-    public function index(Request $request, string $path, string $derivative, string $sizes, string $image_extension, string $mediaCacheDir, Conf $conf,
-                        LoggerInterface $logger, ImageStandardParams $image_std_params, ImageRepository $imageRepository, string $rootProjectDir, MimeTypeGuesserInterface $mimeTypes)
-    {
+    public function index(
+        Request $request,
+        string $path,
+        string $derivative,
+        string $sizes,
+        string $image_extension,
+        string $mediaCacheDir,
+        Conf $conf,
+        LoggerInterface $logger,
+        ImageStandardParams $image_std_params,
+        ImageRepository $imageRepository,
+        string $rootProjectDir,
+        MimeTypeGuesserInterface $mimeTypes,
+        ImageLibraryGuesser $imageLibraryGuesser
+    ) {
         $this->mimeTypes = $mimeTypes;
 
         $image_path = sprintf('%s.%s', $path, $image_extension);
@@ -67,6 +80,10 @@ class MediaController extends CommonController
         if (!isset($derivative_type)) {
             if (DerivativeParams::derivative_to_url(ImageStandardParams::IMG_CUSTOM) === $derivative) {
                 $derivative_type = ImageStandardParams::IMG_CUSTOM;
+            } elseif ($derivative === 'original') {
+                $this->original_size = [$image->getWidth(), $image->getHeight()];
+                $derivative_params = new DerivativeParams(new SizingParams($this->original_size));
+                $derivative_type = ImageStandardParams::IMG_ORIGINAL;
             } else {
                 return new Response('Unknown parsing type', 400);
             }
@@ -110,6 +127,7 @@ class MediaController extends CommonController
             }
         }
 
+
         if (!$need_generate) {
             $response = $this->makeDerivativeResponse($mediaCacheDir . '/' . $derivative_path);
             $response->isNotModified($request);
@@ -125,11 +143,11 @@ class MediaController extends CommonController
 
             $coi = (string) $image->getCoi();
             if (!$image->getRotation()) {
-                $this->rotation_angle = Image::getRotationAngle($image_src);
-                $image->setRotation(Image::getRotationCodeFromAngle($this->rotation_angle));
+                $this->rotation_angle = ImageOptimizer::getRotationAngle($image_src);
+                $image->setRotation(ImageOptimizer::getRotationCodeFromAngle($this->rotation_angle));
                 $imageRepository->addOrUpdateImage($image);
             } else {
-                $this->rotation_angle = Image::getRotationAngleFromCode($image->getRotation());
+                $this->rotation_angle = ImageOptimizer::getRotationAngleFromCode($image->getRotation());
             }
         } catch (\Exception $e) {
             return new Response($e->getMessage());
@@ -143,38 +161,38 @@ class MediaController extends CommonController
             $params->sharpen = round($sharpen / count($this->image_std_params->getDefinedTypeMap()));
         }
 
-        $image = new Image($image_src);
+        $imageOptimizer = new ImageOptimizer($image_src, $imageLibraryGuesser->getLibrary());
         $changes = 0;
 
         // rotate
         if (isset($this->rotation_angle) && $this->rotation_angle !== 0) {
             $changes++;
-            $image->rotate($this->rotation_angle);
+            $imageOptimizer->rotate($this->rotation_angle);
         }
 
         // Crop & scale
         $crop_rect = $scaled_size = null;
-        $o_size = $d_size = [$image->get_width(), $image->get_height()];
+        $o_size = $d_size = [$imageOptimizer->getWidth(), $imageOptimizer->getHeight()];
         $params->sizing->compute($o_size, $coi, $crop_rect, $scaled_size);
         if ($crop_rect) {
             $changes++;
-            $image->crop($crop_rect->width(), $crop_rect->height(), $crop_rect->l, $crop_rect->t);
+            $imageOptimizer->crop($crop_rect->width(), $crop_rect->height(), $crop_rect->l, $crop_rect->t);
         }
 
         if ($scaled_size) {
             $changes++;
-            $image->resize($scaled_size[0], $scaled_size[1]);
+            $imageOptimizer->resize($scaled_size[0], $scaled_size[1]);
             $d_size = $scaled_size;
         }
 
         if ($params->sharpen) {
-            $changes += $image->sharpen($params->sharpen);
+            $changes += (int) $imageOptimizer->sharpen($params->sharpen);
         }
 
         if ($params->will_watermark($d_size, $this->image_std_params)) {
             $wm = $this->image_std_params->getWatermark();
-            $wm_image = new Image(__DIR__ . '/../../' . $wm->file);
-            $wm_size = [$wm_image->get_width(), $wm_image->get_height()];
+            $wm_image = new ImageOptimizer(__DIR__ . '/../../' . $wm->file, $imageLibraryGuesser->getLibrary());
+            $wm_size = [$wm_image->getWidth(), $wm_image->getHeight()];
             if ($d_size[0] < $wm_size[0] or $d_size[1] < $wm_size[1]) {
                 $wm_scaling_params = SizingParams::classic($d_size[0], $d_size[1]);
                 $wm_scaling_params->compute($wm_size, '', $tmp, $wm_scaled_size);
@@ -183,7 +201,7 @@ class MediaController extends CommonController
             }
             $x = round(($wm->xpos / 100) * ($d_size[0] - $wm_size[0]));
             $y = round(($wm->ypos / 100) * ($d_size[1] - $wm_size[1]));
-            if ($image->compose($wm_image, $x, $y, $wm->opacity)) {
+            if ($imageOptimizer->compose($wm_image, $x, $y, $wm->opacity)) {
                 $changes++;
                 if ($wm->xrepeat) {
                     // todo
@@ -194,7 +212,7 @@ class MediaController extends CommonController
                         }
                         $x2 = $x + $i * $pad;
                         if ($x2 >= 0 && $x2 + $wm_size[0] < $d_size[0]) {
-                            if (!$image->compose($wm_image, $x2, $y, $wm->opacity)) {
+                            if (!$imageOptimizer->compose($wm_image, $x2, $y, $wm->opacity)) {
                                 break;
                             }
                         }
@@ -207,18 +225,16 @@ class MediaController extends CommonController
         $logger->info(sprintf('When generating derivative image, changes ? %d', $changes));
 
         if ($d_size[0] * $d_size[1] < $conf['derivatives_strip_metadata_threshold']) {// strip metadata for small images
-            $image->strip();
+            $imageOptimizer->strip();
         }
 
         $fs = new Filesystem();
         $fs->mkdir(dirname($mediaCacheDir . '/' . $derivative_path));
-        $image->set_compression_quality($this->image_std_params->getQuality());
+        $imageOptimizer->setCompressionQuality($this->image_std_params->getQuality());
         $logger->info(sprintf('WRITE %s', $mediaCacheDir . '/' . $derivative_path));
-        $image->write($mediaCacheDir . '/' . $derivative_path);
-        $image->destroy();
+        $imageOptimizer->write($mediaCacheDir . '/' . $derivative_path);
+        $imageOptimizer->destroy();
         chmod($mediaCacheDir . '/' . $derivative_path, 0644);
-
-        $f = filemtime($mediaCacheDir . '/' . $derivative_path);
 
         return $this->makeDerivativeResponse($mediaCacheDir . '/' . $derivative_path);
     }

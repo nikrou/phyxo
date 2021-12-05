@@ -32,7 +32,7 @@
 	    </p>
 	</div>
 
-	{% if navbar is defined %}
+	{% if navbar.pages is defined %}
 	    {{ include('_navigation_bar.html.twig') }}
 	{% endif %}
 
@@ -87,7 +87,7 @@
 		</div>
 	    {% endfor %}
 
-	    {% if navbar is defined %}
+	    {% if navbar.pages is defined %}
 		{{ include('_navigation_bar.html.twig') }}
 	    {% endif %}
 

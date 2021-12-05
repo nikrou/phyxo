@@ -29,7 +29,6 @@ use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
-use Phyxo\Image\SrcImage;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -350,19 +349,27 @@ class AdminBatchManagerController extends AbstractController
                 $start
             ) as $image) {
                 $nb_thumbs_page++;
-                $src_image = new SrcImage($image->toArray(), $conf['picture_ext']);
 
                 $ttitle = Utils::render_element_name($image->toArray());
                 if ($ttitle != Utils::get_name_from_file($image->getFile())) { // @TODO: simplify. code difficult to read
                     $ttitle .= ' (' . $image->getFile() . ')';
                 }
 
+                $derivative_thumb = new DerivativeImage($image, $thumb_params, $image_std_params);
+                $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params);
+
                 $tpl_params['thumbnails'][] = array_merge(
                     $image->toArray(),
                     [
-                        'thumb' => new DerivativeImage($src_image, $thumb_params, $image_std_params),
+                        'thumb' => $this->generateUrl(
+                            'media',
+                            ['path' => $image->getPathBasename(), 'derivative' => $derivative_thumb->getUrlType(), 'image_extension' => $image->getExtension()]
+                        ),
                         'TITLE' => $ttitle,
-                        'FILE_SRC' => (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params))->getUrl(),
+                        'FILE_SRC' => $this->generateUrl(
+                            'media',
+                            ['path' => $image->getPathBasename(), 'derivative' => $derivative_large->getUrlType(), 'image_extension' => $image->getExtension()]
+                        ),
                         'U_EDIT' => $this->generateUrl('admin_photo', ['image_id' => $image->getId()])
                     ]
                 );
@@ -1110,8 +1117,6 @@ class AdminBatchManagerController extends AbstractController
             ) as $image) {
                 $element_ids[] = $image->getId();
 
-                $src_image = new SrcImage($image->toArray(), $conf['picture_ext']);
-
                 $tags = [];
                 foreach ($tagMapper->getRepository()->getTagsByImage($image->getId()) as $tag) {
                     $tags[] = $tag;
@@ -1123,12 +1128,21 @@ class AdminBatchManagerController extends AbstractController
                     $legend .= ' (' . $image->getFile() . ')';
                 }
 
+                $derivative_thumb = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
+                $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params);
+
                 $tpl_params['elements'][] = array_merge(
                     $image->toArray(),
                     [
                         'ID' => $image->getId(),
-                        'TN_SRC' => (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl(),
-                        'FILE_SRC' => (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params))->getUrl(),
+                        'TN_SRC' => $this->generateUrl(
+                            'media',
+                            ['path' => $image->getPathBasename(), 'derivative' => $derivative_thumb->getUrlType(), 'image_extension' => $image->getExtension()]
+                        ),
+                        'FILE_SRC' => $this->generateUrl(
+                            'media',
+                            ['path' => $image->getPathBasename(), 'derivative' => $derivative_large->getUrlType(), 'image_extension' => $image->getExtension()]
+                        ),
                         'LEGEND' => $legend,
                         'U_EDIT' => $this->generateUrl('admin_photo', ['image_id' => $image->getId()]),
                         'NAME' => $image->getName(),

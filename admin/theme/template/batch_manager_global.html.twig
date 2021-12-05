@@ -2,83 +2,83 @@
 {% extends "__layout.html.twig" %}
 
 {% block breadcrumb_items %}
-    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Batch Manager'|trans}}</a></li>
+    <li class="breadcrumb-item">
+	<a href="{{U_PAGE}}">{{'Batch Manager'|trans}}</a>
+    </li>
     <li class="breadcrumb-item">{{'global mode'|trans}}</li>
 {% endblock %}
 
 {% block javascripts %}
     <script>
-     var ws_url = '{{ws}}';
+     var ws_url = '{{ ws }}';
      var phyxo_msg = phyxo_msg || {};
-     phyxo_msg.cancel = "{{'Cancel'|trans}}";
-     phyxo_msg.areyousure = "{{'Are you sure?'|trans}}";
+     phyxo_msg.cancel = "{{ 'Cancel'|trans }}";
+     phyxo_msg.areyousure = "{{ 'Are you sure?'|trans }}";
 
      var phyxo = phyxo || {};
      phyxo.tagsCache = {
-	 serverKey: '{{CACHE_KEYS.tags}}',
-	 serverId: '{{CACHE_KEYS._hash}}',
-	 rootUrl: '{{app.request.basepath}}/'
+	 serverKey: '{{ CACHE_KEYS.tags }}',
+	 serverId: '{{ CACHE_KEYS._hash }}',
+	 rootUrl: '{{ app.request.basepath }}/'
      };
      phyxo.categoriesCache = {
-	 serverKey: '{{CACHE_KEYS.categories}}',
-	 serverId: '{{CACHE_KEYS._hash}}',
-	 rootUrl: '{{app.request.basepath}}/'
+	 serverKey: '{{ CACHE_KEYS.categories }}',
+	 serverId: '{{ CACHE_KEYS._hash }}',
+	 rootUrl: '{{ app.request.basepath }}/'
      };
 
      var sliders = {
 	 widths: {
-	     values: [{{dimensions.widths}}],
+	     values: [{{ dimensions.widths }}],
 	     selected: {
-		 min: {{dimensions.selected.min_width}},
-		 max: {{dimensions.selected.max_width}},
+		 min: {{ dimensions.selected.min_width }},
+		 max: {{ dimensions.selected.max_width }}
 	     },
-	     text: '{{'between %d and %d pixels'|trans}}'
+	     text: '{{ ' between % d and % d pixels '|trans }}'
 	 },
 
 	 heights: {
-	     values: [{{dimensions.heights}}],
+	     values: [{{ dimensions.heights }}],
 	     selected: {
-		 min: {{dimensions.selected.min_height}},
-		 max: {{dimensions.selected.max_height}},
+		 min: {{ dimensions.selected.min_height }},
+		 max: {{ dimensions.selected.max_height }}
 	     },
-	     text: '{{'between %d and %d pixels'|trans}}'
+	     text: '{{ ' between % d and % d pixels '|trans }}'
 	 },
 
 	 ratios: {
-	     values: [{{dimensions.ratios}}],
+	     values: [{{ dimensions.ratios }}],
 	     selected: {
-		 min: {{dimensions.selected.min_ratio}},
-		 max: {{dimensions.selected.max_ratio}},
+		 min: {{ dimensions.selected.min_ratio }},
+		 max: {{ dimensions.selected.max_ratio }}
 	     },
-	     text: '{{'between %.2f and %.2f'|trans}}'
+	     text: '{{ ' between % .2 f and % .2 f '|trans }}'
 	 },
 
 	 filesizes: {
-	     values: [{{filesize.list}}],
+	     values: [{{ filesize.list }}],
 	     selected: {
-		 min: {{filesize.selected.min}},
-		 max: {{filesize.selected.max}},
+		 min: {{ filesize.selected.min }},
+		 max: {{ filesize.selected.max }}
 	     },
-	     text: '{{'between %s and %s MB'|trans}}'
+	     text: '{{ ' between % s and % s MB '|trans }}'
 	 }
      };
 
-     var nb_thumbs_page = {{nb_thumbs_page}};
-     var nb_thumbs_set = {{nb_thumbs_set}};
-     var applyOnDetails_pattern = "{{'on the %d selected photos'|trans}}";
-     var all_elements = [{% if all_elements %}{{all_elements|join(',')}}{% endif %}];
+     var nb_thumbs_page = {{ nb_thumbs_page }};
+     var nb_thumbs_set = {{ nb_thumbs_set }};
+     var applyOnDetails_pattern = "{{ 'on the %d selected photos'|trans }}";
+     var all_elements = [{% if all_elements %}{{ all_elements|join(',') }}{% endif %}];
 
-     var selectedMessage_pattern = "{{'%d of %d photos selected'|trans}}";
-     var selectedMessage_none = "{{'No photo selected, %d photos in current set'|trans}}";
-     var selectedMessage_all = "{{'All %d photos are selected'|trans}}";
+     var selectedMessage_pattern = "{{ '%d of %d photos selected'|trans }}";
+     var selectedMessage_none = "{{ 'No photo selected, %d photos in current set'|trans }}";
+     var selectedMessage_all = "{{ 'All %d photos are selected'|trans }}";
 
-     var associated_categories = {{associated_categories|default('')|json_encode|raw}};
-    </script>
-    {{parent()}}
+     var associated_categories = {{ associated_categories|default('')|json_encode|raw }};
+    </script> {{parent()}}
 {% endblock %}
 
-{% block content %}
-    {{ include('include/_add_album.inc.html.twig') }}
+{% block content %} {{ include('include/_add_album.inc.html.twig') }}
     <div id="batchManagerGlobal">
 	<form action="{{F_ACTION}}" method="post">
 	    <input type="hidden" name="start" value="{{START}}">
@@ -87,117 +87,117 @@
 		<h3>{{'Filter'|trans}}</h3>
 
 		<ul id="filterList">
-		    <li id="filter_prefilter" {% if not filter.prefilter %}class="collapse"{% endif %}>
-			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}"><i class="fa fa-times"></i></button>
-			<input type="checkbox" name="filter_prefilter_use" class="useFilterCheckbox" {% if filter.prefilter %}checked="checked"{% endif %}>
-			{{'Predefined filter'|trans}}
+		    <li id="filter_prefilter" {% if not filter.prefilter %} class="collapse" {% endif %}>
+			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}">
+			    <i class="fa fa-times"></i>
+			</button>
+			<input type="checkbox" name="filter_prefilter_use" class="useFilterCheckbox" {% if filter.prefilter %} checked="checked" {% endif %}> {{'Predefined filter'|trans}}
 			<select class="custom-select" name="filter_prefilter">
 			    {% for prefilter in prefilters %}
-				<option value="{{prefilter.id}}" {% if filter.prefilter and filter.prefilter == prefilter.id %}selected="selected"{% endif %}>{{prefilter.name}}</option>
+				<option value="{{prefilter.id}}" {% if filter.prefilter and filter.prefilter == prefilter.id %} selected="selected" {% endif %}>{{prefilter.name}}</option>
 			    {% endfor %}
 			</select>
 			{% if thumbnails is defined %}
-			    <a id="empty_caddie" href="{{U_EMPTY_CADDIE}}"
-			       class="btn btn-success {% if not filter.prefilter or not filter.prefilter == 'caddie' %}visually-hidden{% endif %}">{{'Empty caddie'|trans}}
+			    <a id="empty_caddie" href="{{U_EMPTY_CADDIE}}" class="btn btn-success {% if not filter.prefilter or not filter.prefilter == 'caddie' %}visually-hidden{% endif %}">{{'Empty caddie'|trans}}
 			    </a>
 			{% endif %}
 
-			<span id="duplicates_options" class="{% if not filter.prefilter or not filter.prefilter == 'duplicates' %}visually-hidden{% endif %}">
-			    {{'based on'|trans}}
+			<span id="duplicates_options" class="{% if not filter.prefilter or not filter.prefilter == 'duplicates' %}visually-hidden{% endif %}"> {{'based on'|trans}}
 			    <input type="checkbox" checked="checked" disabled="disabled"> {{'Filename'|trans}}
-			    <label><input type="checkbox" name="filter_duplicates_date" {% if filter.duplicates_date is defined or (filter.prefilter and not filter.prefilter == 'duplicates') %}checked="checked"{% endif %}> {{'date & time'|trans}}</label>
-			    <label><input type="checkbox" name="filter_duplicates_dimensions" {% if filter.duplicates_dimensions is defined %}checked="checked"{% endif %}> {{'width & height'|trans}}</label>
+			    <label><input type="checkbox" name="filter_duplicates_date" {% if filter.duplicates_date is defined or (filter.prefilter and not filter.prefilter == 'duplicates') %} checked="checked" {% endif %}> {{'date & time'|trans}}</label>
+			    <label><input type="checkbox" name="filter_duplicates_dimensions" {% if filter.duplicates_dimensions is defined %} checked="checked" {% endif %}> {{'width & height'|trans}}</label>
 			</span>
 		    </li>
 
-		    <li id="filter_category" {% if not filter.category is defined %}class="collapse"{% endif %}>
-			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}"><i class="fa fa-times"></i></button>
-			<input type="checkbox" name="filter_category_use" class="useFilterCheckbox" {% if filter.category is defined %}checked="checked"{% endif %}>
-			{{'Album'|trans}}
-			<select data-selectize="categories" data-value="{{filter_category_selected|json_encode}}"
-						data-default="first" name="filter_category" style="width:600px"></select>
-			<label><input type="checkbox" name="filter_category_recursive" {% if filter.category_recursive is defined %}checked="checked"{% endif %}> {{'include child albums'|trans}}</label>
+		    <li id="filter_category" {% if not filter.category is defined %} class="collapse" {% endif %}>
+			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}">
+			    <i class="fa fa-times"></i>
+			</button>
+			<input type="checkbox" name="filter_category_use" class="useFilterCheckbox" {% if filter.category is defined %} checked="checked" {% endif %}> {{'Album'|trans}}
+			<select data-selectize="categories" data-value="{{filter_category_selected|json_encode}}" data-default="first" name="filter_category" style="width:600px"></select>
+			<label><input type="checkbox" name="filter_category_recursive" {% if filter.category_recursive is defined %} checked="checked" {% endif %}> {{'include child albums'|trans}}</label>
 		    </li>
 
-		    <li id="filter_tags" {% if not filter.tags is defined %}class="collapse"{% endif %}>
-			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}"><i class="fa fa-times"></i></button>
-			<input type="checkbox" name="filter_tags_use" class="useFilterCheckbox" {% if filter.tags is defined %}checked="checked"{% endif %}>
-			{{'Tags'|trans}}
-			<select data-selectize="tags" data-value="{{filter_tags|json_encode}}"
-				placeholder="{{'Type in a search term'|trans}}" name="filter_tags[]" multiple></select>
+		    <li id="filter_tags" {% if not filter.tags is defined %} class="collapse" {% endif %}>
+			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}">
+			    <i class="fa fa-times"></i>
+			</button>
+			<input type="checkbox" name="filter_tags_use" class="useFilterCheckbox" {% if filter.tags is defined %} checked="checked" {% endif %}> {{'Tags'|trans}}
+			<select data-selectize="tags" data-value="{{filter_tags|json_encode}}" placeholder="{{'Type in a search term'|trans}}" name="filter_tags[]" multiple></select>
 			<label>
-			    <input type="radio" name="tag_mode" value="AND" {% if not filter.tag_mode is defined or filter.tag_mode == 'AND' %}checked="checked"{% endif %}>
-			    {{'All tags'|trans}}
+			    <input type="radio" name="tag_mode" value="AND" {% if not filter.tag_mode is defined or filter.tag_mode == 'AND' %} checked="checked" {% endif %}> {{'All tags'|trans}}
 			</label>
 			<label>
-			    <input type="radio" name="tag_mode" value="OR" {% if filter.tag_mode is defined and filter.tag_mode == 'OR' %}checked="checked"{% endif %}>
-			    {{'Any tag'|trans}}
+			    <input type="radio" name="tag_mode" value="OR" {% if filter.tag_mode is defined and filter.tag_mode == 'OR' %} checked="checked" {% endif %}> {{'Any tag'|trans}}
 			</label>
 		    </li>
 
-		    <li id="filter_level" {% if not filter.level is defined %}class="collapse"{% endif %}>
-			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}"><i class="fa fa-times"></i></button>
-			<input type="checkbox" name="filter_level_use" class="useFilterCheckbox" {% if filter.level is defined %}checked="checked"{% endif %}>
-			{{'Privacy level'|trans}}
+		    <li id="filter_level" {% if not filter.level is defined %} class="collapse" {% endif %}>
+			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}">
+			    <i class="fa fa-times"></i>
+			</button>
+			<input type="checkbox" name="filter_level_use" class="useFilterCheckbox" {% if filter.level is defined %} checked="checked" {% endif %}> {{'Privacy level'|trans}}
 			<select class="custom-select" name="filter_level" size="1">
 			    {% for option, label in filter_level_options %}
-				<option value="{{option}}" {% if option == filter_level_options_selected %}selected="selected"{% endif %}>{{label}}</option>
+				<option value="{{option}}" {% if option == filter_level_options_selected %} selected="selected" {% endif %}>{{label}}</option>
 			    {% endfor %}
 			</select>
 			<label>
-			    <input type="checkbox" name="filter_level_include_lower" {% if filter.level_include_lower is defined %}checked="checked"{% endif %}>
-			    {{'include photos with lower privacy level'|trans}}
+			    <input type="checkbox" name="filter_level_include_lower" {% if filter.level_include_lower is defined %} checked="checked" {% endif %}> {{'include photos with lower privacy level'|trans}}
 			</label>
 		    </li>
 
-		    <li id="filter_dimension" {% if not filter.dimension is defined %}class="collapse"{% endif %}>
-			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}"><i class="fa fa-times"></i></button>
-			<input type="checkbox" name="filter_dimension_use" class="useFilterCheckbox" {% if filter.dimension is defined %}checked="checked"{% endif %}>
-			{{'Dimensions'|trans}}
+		    <li id="filter_dimension" {% if not filter.dimension is defined %} class="collapse" {% endif %}>
+			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}">
+			    <i class="fa fa-times"></i>
+			</button>
+			<input type="checkbox" name="filter_dimension_use" class="useFilterCheckbox" {% if filter.dimension is defined %} checked="checked" {% endif %}> {{'Dimensions'|trans}}
 
 			<blockquote>
-			    <div data-slider="widths">
-				{{'Width'|trans}}
-				<span class="slider-info">
-				    {{'between {min} and {max} {unit}'|trans({'min': dimensions.selected.min_width, 'max': dimensions.selected.max_width, 'unit': 'pixels'})}}
+			    <div data-slider="widths"> {{'Width'|trans}}
+				<span class="slider-info"> {{'between {min} and {max} {unit}'|trans({'min': dimensions.selected.min_width, 'max': dimensions.selected.max_width, 'unit': 'pixels'})}}
 				</span>
-				| <a class="slider-choice" data-min="{{dimensions.bounds.min_width}}" data-max="{{dimensions.bounds.max_width}}">{{'Reset'|trans}}</a>
+				|
+				<a class="slider-choice" data-min="{{dimensions.bounds.min_width}}" data-max="{{dimensions.bounds.max_width}}">{{'Reset'|trans}}</a>
 				<div class="slider-slider"></div>
 
 				<input type="hidden" data-input="min" name="filter_dimension_min_width" value="{{dimensions.selected.min_width}}">
 				<input type="hidden" data-input="max" name="filter_dimension_max_width" value="{{dimensions.selected.max_width}}">
 			    </div>
 
-			    <div data-slider="heights">
-				{{'Height'|trans}}
-				<span class="slider-info">
-				    {{'between {min} and {max} {unit}'|trans({'min': dimensions.selected.min_height, 'max': dimensions.selected.max_height, 'unit': 'pixels'})}}
+			    <div data-slider="heights"> {{'Height'|trans}}
+				<span class="slider-info"> {{'between {min} and {max} {unit}'|trans({'min': dimensions.selected.min_height, 'max': dimensions.selected.max_height, 'unit': 'pixels'})}}
 				</span>
-				| <a class="slider-choice" data-min="{{dimensions.bounds.min_height}}" data-max="{{dimensions.bounds.max_height}}">{{'Reset'|trans}}</a>
+				|
+				<a class="slider-choice" data-min="{{dimensions.bounds.min_height}}" data-max="{{dimensions.bounds.max_height}}">{{'Reset'|trans}}</a>
 				<div class="slider-slider"></div>
 
 				<input type="hidden" data-input="min" name="filter_dimension_min_height" value="{{dimensions.selected.min_height}}">
 				<input type="hidden" data-input="max" name="filter_dimension_max_height" value="{{dimensions.selected.max_height}}">
 			    </div>
 
-			    <div data-slider="ratios">
-				{{'Ratio'|trans}} ({{'Width'|trans}}/{{'Height'|trans}})
-				<span class="slider-info">
-				    {{'between {min} and {max} {unit}'|trans({'min': dimensions.selected.min_ratio, 'max': dimensions.selected.max_ratio, 'unit': ''})}}
+			    <div data-slider="ratios"> {{'Ratio'|trans}}
+				({{'Width'|trans}}/{{'Height'|trans}})
+				<span class="slider-info"> {{'between {min} and {max} {unit}'|trans({'min': dimensions.selected.min_ratio, 'max': dimensions.selected.max_ratio, 'unit': ''})}}
 				</span>
 				{% if dimensions.ratio_portrait is defined %}
-				    | <a class="slider-choice" data-min="{{dimensions.ratio_portrait.min}}" data-max="{{dimensions.ratio_portrait.max}}">{{'Portrait'|trans}}</a>
+				    |
+				    <a class="slider-choice" data-min="{{dimensions.ratio_portrait.min}}" data-max="{{dimensions.ratio_portrait.max}}">{{'Portrait'|trans}}</a>
 				{% endif %}
 				{% if dimensions.ratio_square is defined %}
-				    | <a class="slider-choice" data-min="{{dimensions.ratio_square.min}}" data-max="{{dimensions.ratio_square.max}}">{{'square'|trans}}</a>
+				    |
+				    <a class="slider-choice" data-min="{{dimensions.ratio_square.min}}" data-max="{{dimensions.ratio_square.max}}">{{'square'|trans}}</a>
 				{% endif %}
 				{% if dimensions.ratio_landscape is defined %}
-				    | <a class="slider-choice" data-min="{{dimensions.ratio_landscape.min}}" data-max="{{dimensions.ratio_landscape.max}}">{{'Landscape'|trans}}</a>
+				    |
+				    <a class="slider-choice" data-min="{{dimensions.ratio_landscape.min}}" data-max="{{dimensions.ratio_landscape.max}}">{{'Landscape'|trans}}</a>
 				{% endif %}
 				{% if dimensions.ratio_panorama is defined %}
-				    | <a class="slider-choice" data-min="{{dimensions.ratio_panorama.min}}" data-max="{{dimensions.ratio_panorama.max}}">{{'Panorama'|trans}}</a>
+				    |
+				    <a class="slider-choice" data-min="{{dimensions.ratio_panorama.min}}" data-max="{{dimensions.ratio_panorama.max}}">{{'Panorama'|trans}}</a>
 				{% endif %}
-				| <a class="slider-choice" data-min="{{dimensions.bounds.min_ratio}}" data-max="{{dimensions.bounds.max_ratio}}">{{'Reset'|trans}}</a>
+				|
+				<a class="slider-choice" data-min="{{dimensions.bounds.min_ratio}}" data-max="{{dimensions.bounds.max_ratio}}">{{'Reset'|trans}}</a>
 				<div class="slider-slider"></div>
 
 				<input type="hidden" data-input="min" name="filter_dimension_min_ratio" value="{{dimensions.selected.min_ratio}}">
@@ -206,32 +206,39 @@
 			</blockquote>
 		    </li>
 
-		    <li id="filter_search"{% if not filter.search is defined %} class="collapse"{% endif %}>
-			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}"><i class="fa fa-times"></i></button>
-			<input type="checkbox" name="filter_search_use" class="useFilterCheckbox"{% if filter.search is defined %} checked="checked"{% endif %}>
-			{{'Search'|trans}}
-			<input name="q" size=40 value="{{filter.search.q|default('')}}">
+		    <li id="filter_search" {% if not filter.search is defined %} class="collapse" {% endif %}>
+			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}">
+			    <i class="fa fa-times"></i>
+			</button>
+			<input type="checkbox" name="filter_search_use" class="useFilterCheckbox" {% if filter.search is defined %} checked="checked" {% endif %}> {{'Search'|trans}}
+			<input name="q" size="40" value="{{filter.search.q|default('')}}">
 			{% if no_search_results is defined %}
-			    <div>{{'No results for'|trans}} :
-				<em><strong>
-				    {% for rest in no_search_results %}
-					{% if not loop.first %} &mdash; {% endif %}
-					{{res}}
-				    {% endfor %}
-				</strong></em>
+			    <div>{{'No results for'|trans}}
+				:
+				<em>
+				    <strong>
+					{% for rest in no_search_results %}
+					    {% if not loop.first %}
+						&mdash;
+					    {% endif %} {{res}}
+					{% endfor %}
+				    </strong>
+				</em>
 			    </div>
 			{% endif %}
 		    </li>
 
-		    <li id="filter_filesize" {% if not filter.filesize is defined %}class="collapse"{% endif %}>
-			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}"><i class="fa fa-times"></i></button>
-			<input type="checkbox" name="filter_filesize_use" class="useFilterCheckbox" {% if filter.filesize is defined %}checked="checked"{% endif %}>
-			{{'Filesize'|trans}}
+		    <li id="filter_filesize" {% if not filter.filesize is defined %} class="collapse" {% endif %}>
+			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{{'remove this filter'|trans}}">
+			    <i class="fa fa-times"></i>
+			</button>
+			<input type="checkbox" name="filter_filesize_use" class="useFilterCheckbox" {% if filter.filesize is defined %} checked="checked" {% endif %}> {{'Filesize'|trans}}
 
 			<blockquote>
 			    <div data-slider="filesizes">
 				<span class="slider-info">{{'between {min} and {max} {unit}'|trans({'min': filesize.selected.min, 'max': filesize.selected.max, 'unit': 'MB'})}}</span>
-				| <a class="slider-choice" data-min="{{filesize.bounds.min}}" data-max="{{filesize.bounds.max}}">{{'Reset'|trans}}</a>
+				|
+				<a class="slider-choice" data-min="{{filesize.bounds.min}}" data-max="{{filesize.bounds.max}}">{{'Reset'|trans}}</a>
 				<div class="slider-slider"></div>
 
 				<input type="hidden" data-input="min" name="filter_filesize_min" value="{{filesize.selected.min}}">
@@ -245,13 +252,13 @@
 		    <select class="custom-select" id="addFilter">
 			<option value="-1">{{'Add a filter'|trans}}</option>
 			<option disabled="disabled">------------------</option>
-			<option value="filter_prefilter" {% if filter.prefilter is defined %}disabled="disabled"{% endif %}>{{'Predefined filter'|trans}}</option>
-			<option value="filter_category" {% if filter.category is defined %}disabled="disabled"{% endif %}>{{'Album'|trans}}</option>
-			<option value="filter_tags" {% if filter.tags is defined %}disabled="disabled"{% endif %}>{{'Tags'|trans}}</option>
-			<option value="filter_level" {% if filter.level is defined %}disabled="disabled"{% endif %}>{{'Privacy level'|trans}}</option>
-			<option value="filter_dimension" {% if filter.dimension is defined %}disabled="disabled"{% endif %}>{{'Dimensions'|trans}}</option>
-			<option value="filter_filesize" {% if filter.filesize is defined %}disabled="disabled"{% endif %}>{{'Filesize'|trans}}</option>
-			<option value="filter_search"{% if filter.search is defined %} disabled="disabled"{% endif %}>{{'Search'|trans}}</option>
+			<option value="filter_prefilter" {% if filter.prefilter is defined %} disabled="disabled" {% endif %}>{{'Predefined filter'|trans}}</option>
+			<option value="filter_category" {% if filter.category is defined %} disabled="disabled" {% endif %}>{{'Album'|trans}}</option>
+			<option value="filter_tags" {% if filter.tags is defined %} disabled="disabled" {% endif %}>{{'Tags'|trans}}</option>
+			<option value="filter_level" {% if filter.level is defined %} disabled="disabled" {% endif %}>{{'Privacy level'|trans}}</option>
+			<option value="filter_dimension" {% if filter.dimension is defined %} disabled="disabled" {% endif %}>{{'Dimensions'|trans}}</option>
+			<option value="filter_filesize" {% if filter.filesize is defined %} disabled="disabled" {% endif %}>{{'Filesize'|trans}}</option>
+			<option value="filter_search" {% if filter.search is defined %} disabled="disabled" {% endif %}>{{'Search'|trans}}</option>
 		    </select>
 		</p>
 		<p>
@@ -267,8 +274,7 @@
 		<h3>{{'Selection'|trans}}</h3>
 
 		{% if thumbnails is defined %}
-		    <p id="checkActions">
-			{{'Select:'|trans}}
+		    <p id="checkActions"> {{'Select:'|trans}}
 			{% if nb_thumbs_set > nb_thumbs_page %}
 			    <a href="#" id="selectAll">{{'The whole page'|trans}}</a>,
 			    <a href="#" id="selectSet">{{'The whole set'|trans}}</a>,
@@ -280,7 +286,7 @@
 
 			<span id="selectedMessage"></span>
 
-			<input type="checkbox" name="setSelected" style="display:none" {% if selection|length == nb_thumbs_set %}checked="checked"{% endif %}>
+			<input type="checkbox" name="setSelected" style="display:none" {% if selection|length == nb_thumbs_set %} checked="checked" {% endif %}>
 		    </p>
 
 		    <div class="thumbnails">
@@ -288,17 +294,23 @@
 			    <div class="thumbnail{% if selection[thumbnail.id] is defined %} thumbSelected{% endif %}" data-testid="image-{{thumbnail.id}}">
 				<span class="wrapper-label">
 				    <label>
-					<input type="checkbox" name="selection[]" value="{{thumbnail.id}}" {% if selection[thumbnail.id] is defined %}checked="checked"{% endif %}>
+					<input type="checkbox" name="selection[]" value="{{thumbnail.id}}" {% if selection[thumbnail.id] is defined %} checked="checked" {% endif %}>
 					<span class="wrapper-thumbnail">
 					    <div class="actions">
-						<a href="{{thumbnail.FILE_SRC}}" class="preview-box"><i class="fa fa-search-plus"></i><span class="visually-hidden">{{'Zoom'|trans}}</span></a>
-						<a href="{{thumbnail.U_EDIT}}"><i class="fa fa-pencil"></i><span class="visually-hidden">{{'Edit'|trans}}</span></a>
+						<a href="{{thumbnail.FILE_SRC}}" class="preview-box">
+						    <i class="fa fa-search-plus"></i>
+						    <span class="visually-hidden">{{'Zoom'|trans}}</span>
+						</a>
+						<a href="{{thumbnail.U_EDIT}}">
+						    <i class="fa fa-pencil"></i>
+						    <span class="visually-hidden">{{'Edit'|trans}}</span>
+						</a>
 					    </div>
 					    {% if thumbnail.level > 0 %}
 						<em class="levelIndicatorB">{{"Level #{thumbnail.level}"|trans}}</em>
 						<em class="levelIndicatorF" title="{{'Who can see these photos?'|trans}}">{{"Level #{thumbnail.level}"|trans}}</em>
 					    {% endif %}
-					    <img src="{{thumbnail.thumb.getUrl()}}" alt="{{thumbnail.file}}" title="{{thumbnail.TITLE}}" {{thumbnail.thumb.get_size_htm()}}>
+					    <img src="{{thumbnail.thumb}}" alt="{{thumbnail.file}}" title="{{thumbnail.TITLE}}">
 					</span>
 				    </label>
 				</span>
@@ -306,16 +318,16 @@
 			{% endfor %}
 		    </div>
 
-		    {% if navbar is defined and not(navbar is empty) %}
-			{{ include('_navigation_bar.html.twig') }}
+		    {% if navbar is defined and not(navbar is empty) %} {{ include('_navigation_bar.html.twig') }}
 
-			<div>
-			    {{'display'|trans}}
+			<div> {{'display'|trans}}
 			    <a href="{{F_ACTION}}?display=20">20</a>
-			    &middot; <a href="{{F_ACTION}}?display=50">50</a>
-			    &middot; <a href="{{F_ACTION}}?display=100">100</a>
-			    &middot; <a href="{{F_ACTION}}?display=all">{{'all'|trans}}</a>
-			    {{'photos per page'|trans}}
+			    &middot;
+			    <a href="{{F_ACTION}}?display=50">50</a>
+			    &middot;
+			    <a href="{{F_ACTION}}?display=100">100</a>
+			    &middot;
+			    <a href="{{F_ACTION}}?display=all">{{'all'|trans}}</a> {{'photos per page'|trans}}
 			</div>
 		    {% endif %}
 
@@ -326,8 +338,8 @@
 
 	    <div class="fieldset" id="action">
 		<h3>{{'Action'|trans}}</h3>
-		<div id="forbidAction"{% if not selection %} style="display:none"{% endif %}>{{'No photo selected, no action possible.'|trans}}</div>
-		<div id="permitAction"{% if not selection %} style="display:none"{% endif %}>
+		<div id="forbidAction" {% if not selection %} style="display:none" {% endif %}>{{'No photo selected, no action possible.'|trans}}</div>
+		<div id="permitAction" {% if not selection %} style="display:none" {% endif %}>
 		    <p>
 			<select class="custom-select" name="selectAction">
 			    <option value="-1">{{'Choose an action'|trans}}</option>
@@ -461,14 +473,13 @@
 		    <div id="action_level">
 			<select class="custom-select" name="level" size="1">
 			    {% for option, label in level_options %}
-				<option value="{{option}}" {% if option == level_options_selected %}selected="selected"{% endif %}>{{label}}</option>
+				<option value="{{option}}" {% if option == level_options_selected %} selected="selected" {% endif %}>{{label}}</option>
 			    {% endfor %}
 			</select>
 		    </div>
 
 		    <!-- metadata -->
-		    <div id="action_metadata">
-		    </div>
+		    <div id="action_metadata"></div>
 
 		    <!-- generate derivatives -->
 		    <div id="action_generate_derivatives">
@@ -513,16 +524,20 @@
 		    {% if element_set_global_plugins_actions is defined %}
 			{% for action in element_set_global_plugins_actions %}
 			    <div id="action_{{action.ID}}" class="bulkAction">
-				{% if action.CONTENT %}{{action.CONTENT}}{% endif %}
+				{% if action.CONTENT %} {{action.CONTENT}}
+				{% endif %}
 			    </div>
 			{% endfor %}
 		    {% endif %}
 
 		    <p id="applyActionBlock" style="display:none" class="actionButtons">
-			<input id="applyAction" class="btn btn-submit" type="submit" value="{{'Apply action'|trans}}" name="submit"> <span id="applyOnDetails"></span>
+			<input id="applyAction" class="btn btn-submit" type="submit" value="{{'Apply action'|trans}}" name="submit">
+			<span id="applyOnDetails"></span>
 		    </p>
-		</div> <!-- #permitAction -->
+		</div>
+		<!-- #permitAction -->
 	    </div>
 	</form>
-    </div> <!-- #batchManagerGlobal -->
+    </div>
+    <!-- #batchManagerGlobal -->
 {% endblock %}

@@ -24,7 +24,6 @@ use App\Repository\RateRepository;
 use App\Services\DerivativeService;
 use Phyxo\Functions\URL;
 use Phyxo\Functions\Utils;
-use Phyxo\Image\SrcImage;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -34,11 +33,23 @@ class ImageMapper
     private $router, $conf, $userMapper, $image_std_params, $albumMapper, $imageRepository, $imageTagRepository, $historyRepository;
     private $translator, $imageAlbumRepository, $commentRepository, $caddieRepository, $favoriteRepository, $rateRepository, $derivativeService;
 
-    public function __construct(RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, AlbumMapper $albumMapper, HistoryRepository $historyRepository,
-                                TranslatorInterface $translator, ImageRepository $imageRepository, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository,
-                                CaddieRepository $caddieRepository, FavoriteRepository $favoriteRepository, RateRepository $rateRepository, ImageTagRepository $imageTagRepository,
-                                DerivativeService $derivativeService)
-    {
+    public function __construct(
+        RouterInterface $router,
+        UserMapper $userMapper,
+        Conf $conf,
+        ImageStandardParams $image_std_params,
+        AlbumMapper $albumMapper,
+        HistoryRepository $historyRepository,
+        TranslatorInterface $translator,
+        ImageRepository $imageRepository,
+        ImageAlbumRepository $imageAlbumRepository,
+        CommentRepository $commentRepository,
+        CaddieRepository $caddieRepository,
+        FavoriteRepository $favoriteRepository,
+        RateRepository $rateRepository,
+        ImageTagRepository $imageTagRepository,
+        DerivativeService $derivativeService
+    ) {
         $this->router = $router;
         $this->userMapper = $userMapper;
         $this->conf = $conf;
@@ -74,6 +85,7 @@ class ImageMapper
 
         foreach ($this->imageRepository->findBy(['id' => $selection]) as $image) {
             $image_infos = $image->toArray();
+            $image_infos['image'] = $image;
             $image_infos['rank'] = $rank_of[$image->getId()];
             $pictures[] = $image_infos;
         }
@@ -190,7 +202,6 @@ class ImageMapper
                 'TN_TITLE' => $this->getThumbnailTitle($row, $name, $desc),
                 'URL' => $url,
                 'DESCRIPTION' => $desc,
-                'src_image' => new SrcImage($row, $this->conf['picture_ext']),
                 'icon_ts' => '',
             ]);
 

@@ -14,9 +14,9 @@
 			</button>
 			<div class="dropdown-menu dropdown-menu-right" role="menu" data-testid="picture.derivatives">
 			    {% for derivative_type, derivative in current.unique_derivatives %}
-				<button type="button" id="derivative{{derivative.get_type()}}" class="dropdown-item derivative-li{% if derivative.get_type() == current.selected_derivative.get_type() %} active{% endif %}" data-action="changeImgSrc" data-url="{{derivative.getUrl()}}" data-type-save="{{derivative_type}}" data-type-map="{{derivative.get_type()}}">
-                                    {{derivative.get_type()|trans}}
-				    <span class="derivativeSizeDetails"> ({{derivative.get_size_hr()}})</span>
+				<button type="button" id="derivative{{derivative.getType()}}" class="dropdown-item derivative-li{% if derivative.getType() == current.selected_derivative.getType() %} active{% endif %}" data-action="changeImgSrc" data-url="{{ media_path(derivative) }}" data-type-save="{{derivative_type}}" data-type-map="{{derivative.getType()}}">
+                                    {{derivative.getType()|trans}}
+				    <span class="derivativeSizeDetails"> ({{derivative.getLiteralSize()}})</span>
 				</button>
 			    {% endfor %}
 			</div>

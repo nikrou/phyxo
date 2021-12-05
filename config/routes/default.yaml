@@ -53,6 +53,16 @@ media_custom:
   defaults:
     derivative: cu
 
+media_original:
+  path: /media/{path}.{image_extension}
+  controller: App\Controller\MediaController::index
+  requirements:
+    path: '[^_]*'
+    image_extension: jpg|jpeg|png
+  defaults:
+    derivative: 'original'
+    sizes: ''
+
 plugin_asset:
   path: /asset/plugin/{id}/{path}
   controller: App\Controller\ExtensionAssetController::pluginAsset

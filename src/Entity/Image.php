@@ -453,6 +453,16 @@ class Image
         return $this;
     }
 
+    public function getPathBasename(): string
+    {
+        return (($pos = strrpos($this->getPath(), '.')) === false) ? $this->getPath() : substr($this->getPath(), 0, $pos);
+    }
+
+    public function getExtension(): string
+    {
+        return (($pos = strrpos($this->getPath(), '.')) === false) ? '' : substr($this->getPath(), $pos + 1);
+    }
+
     /**
      * @return Collection|ImageAlbum[]
      */

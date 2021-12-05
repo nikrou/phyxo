@@ -16,6 +16,7 @@
         "doctrine/doctrine-bundle": "^2.1",
         "doctrine/orm": "^2.9",
         "friendsofphp/php-cs-fixer": "^3.2",
+        "imagine/imagine": "^1.2",
         "openpsa/universalfeedcreator": "^1.8",
         "pclzip/pclzip": "^2.8",
         "phpstan/phpstan": "^1.1",

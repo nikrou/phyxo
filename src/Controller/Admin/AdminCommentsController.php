@@ -17,13 +17,12 @@ use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
-use Phyxo\Image\SrcImage;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class AdminCommentsController  extends AbstractController
+class AdminCommentsController extends AbstractController
 {
     private $translator;
 
@@ -37,9 +36,15 @@ class AdminCommentsController  extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function index(Request $request, ImageStandardParams $image_std_params, Conf $conf,
-                        TranslatorInterface $translator, CommentRepository $commentRepository, string $section = 'all', int $start = 0)
-    {
+    public function index(
+        Request $request,
+        ImageStandardParams $image_std_params,
+        Conf $conf,
+        TranslatorInterface $translator,
+        CommentRepository $commentRepository,
+        string $section = 'all',
+        int $start = 0
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -57,7 +62,7 @@ class AdminCommentsController  extends AbstractController
         }
 
         foreach ($commentRepository->getCommentsOnImages($validated = $section === 'pending' ? false : true, $conf['comments_page_nb_comments'], $start) as $comment) {
-            $thumb = (new DerivativeImage(new SrcImage($comment->getImage()->toArray(), $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
+            $derivative = new DerivativeImage($comment->getImage(), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
             if (!is_null($comment->getUser())) {
                 $author_name = $comment->getUser()->getUsername();
             } else {
@@ -67,7 +72,7 @@ class AdminCommentsController  extends AbstractController
             $tpl_params['comments'][] = [
                 'U_PICTURE' => $this->generateUrl('admin_photo', ['image_id' => $comment->getImage()->getId()]),
                 'ID' => $comment->getId(),
-                'TN_SRC' => $thumb,
+                'TN_SRC' => $this->generateUrl('media', ['path' => $comment->getImage(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $comment->getImage()->getExtension()]),
                 'AUTHOR' => $author_name,
                 'DATE' => $comment->getDate()->format('c'), // ['day_name', 'day', 'month', 'year', 'time']),
                 'CONTENT' => $comment->getContent(),
@@ -81,12 +86,12 @@ class AdminCommentsController  extends AbstractController
         $tpl_params = array_merge($this->setTabsheet($section), $tpl_params);
 
         $tpl_params['navbar'] = Utils::createNavigationBar(
-          $this->get('router'),
-          'admin_comments',
-          ['section' => $section],
-           ('pending' == $section ? $nb_pending : $nb_total - $nb_pending),
-           $start,
-           $conf['comments_page_nb_comments']
+            $this->get('router'),
+            'admin_comments',
+            ['section' => $section],
+            ('pending' == $section ? $nb_pending : $nb_total - $nb_pending),
+            $start,
+            $conf['comments_page_nb_comments']
         );
 
         if ($section === 'all') {
@@ -122,8 +127,8 @@ class AdminCommentsController  extends AbstractController
                     $commentMapper->validateUserComment($request->request->get('comments'));
 
                     $this->addFlash(
-                      'info',
-                      $translator->trans('number_of_comments_validated', ['count' => count($request->request->get('comments'))], 'admin')
+                        'info',
+                        $translator->trans('number_of_comments_validated', ['count' => count($request->request->get('comments'))], 'admin')
                     );
                 }
 
@@ -131,8 +136,8 @@ class AdminCommentsController  extends AbstractController
                     $commentMapper->deleteUserComment($request->request->get('comments'));
 
                     $this->addFlash(
-                      'info',
-                      $translator->trans('number_of_comments_rejected', ['count' => count($request->request->get('comments'))], 'admin')
+                        'info',
+                        $translator->trans('number_of_comments_rejected', ['count' => count($request->request->get('comments'))], 'admin')
                     );
                 }
             }

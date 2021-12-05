@@ -11,23 +11,99 @@
 
 namespace Phyxo\Image;
 
-use Phyxo\Image\SrcImage;
-use Phyxo\Functions\Utils;
+use App\Entity\Image;
 
 /**
  * Holds information (path, url, dimensions) about a derivative image.
- * A derivative image is constructed from a source image (SrcImage class)
+ * A derivative image is constructed from a source image (Image class)
  * and derivative parameters (DerivativeParams class).
  */
 class DerivativeImage
 {
-    private $src_image, $params, $image_std_params;
+    private $image, $params, $image_std_params;
 
-    public function __construct(SrcImage $src_image, $params, ImageStandardParams $image_std_params)
+    // @TODO $params is DerivativeParams but problem in Ws/Main
+    public function __construct(Image $image, $params, ImageStandardParams $image_std_params)
     {
-        $this->src_image = $src_image;
+        $this->image = $image;
         $this->params = $params;
         $this->image_std_params = $image_std_params;
+    }
+
+    public function getExtension(): string
+    {
+        return $this->image->getExtension();
+    }
+
+    public function getPathBasename(): string
+    {
+        return $this->image->getPathBasename();
+    }
+
+    public function getType(): string
+    {
+        if (is_null($this->params)) {
+            return ImageStandardParams::IMG_ORIGINAL;
+        }
+
+        return $this->params->type;
+    }
+
+    public function getUrlType(): string
+    {
+        if (is_null($this->params)) {
+            return ImageStandardParams::IMG_ORIGINAL;
+        }
+
+        return DerivativeParams::derivative_to_url($this->params->type);
+    }
+
+    public function getSize(): array
+    {
+        if (!$this->image->getWidth() || !$this->image->getHeight()) {
+            return [];
+        }
+
+        $width = $this->image->getWidth();
+        $height = $this->image->getHeight();
+
+        $rotation = intval($this->image->getRotation()) % 4;
+        // 1 or 5 =>  90 clockwise
+        // 3 or 7 => 270 clockwise
+        if ($rotation % 2) {
+            $width = $this->image->getHeight();
+            $height = $this->image->getWidth();
+        }
+
+        if ($this->params == null) {
+            return [$width, $height];
+        }
+
+        return $this->params->compute_final_size([$width, $height]);
+    }
+
+    public function getUrlSize(): string
+    {
+        $tokens = [];
+
+        if ($this->params->type === ImageStandardParams::IMG_CUSTOM) {
+            $this->params->add_url_tokens($tokens);
+        }
+
+        return sprintf('%s', implode('', $tokens));
+    }
+
+    /**
+     * Returns literal size: $widthx$height.
+     */
+    public function getLiteralSize(): string
+    {
+        $size = $this->getSize();
+        if (!$size) {
+            return '';
+        }
+
+        return $size[0] . ' x ' . $size[1];
     }
 
     /**
@@ -40,15 +116,15 @@ class DerivativeImage
 
     private function buildInfos(): array
     {
-        if ($this->src_image->has_size() && $this->params->is_identity($this->src_image->get_size())) {
+        if (count($this->getSize()) > 0 && $this->params->is_identity($this->getSize())) {
             // the source image is smaller than what we should do - we do not upsample
-            if (!$this->params->will_watermark($this->src_image->get_size(), $this->image_std_params) && !$this->src_image->rotation) {
+            if (!$this->params->will_watermark($this->getSize(), $this->image_std_params) && !$this->image->getRotation()) {
                 // no watermark, no rotation required -> we will use the source image
                 return [
-                    'path' => Utils::get_filename_wo_extension($this->src_image->rel_path),
+                    'path' => $this->getPathBasename(),
                     'derivative' => substr($this->params->type, 0, 2),
                     'sizes' => '',
-                    'image_extension' => Utils::get_extension($this->src_image->rel_path)
+                    'image_extension' => $this->getExtension()
                 ];
             }
 
@@ -57,13 +133,13 @@ class DerivativeImage
                 if ($defined_types[$i] == $this->params->type) {
                     for ($i--; $i >= 0; $i--) {
                         $smaller = $this->image_std_params->getByType($defined_types[$i]);
-                        if ($smaller->sizing->max_crop === $this->params->sizing->max_crop && $smaller->is_identity($this->src_image->get_size())) {
+                        if ($smaller->sizing->max_crop === $this->params->sizing->max_crop && $smaller->is_identity($this->getSize())) {
                             $this->params = $smaller;
                             return [
-                                'path' => Utils::get_filename_wo_extension($this->src_image->rel_path),
+                                'path' => $this->getPathBasename(),
                                 'derivative' => substr($this->params->type, 0, 2),
                                 'sizes' => '',
-                                'image_extension' => Utils::get_extension($this->src_image->rel_path)
+                                'image_extension' => $this->getExtension()
                             ];
                         }
                     }
@@ -80,38 +156,24 @@ class DerivativeImage
         }
 
         return [
-            'path' => Utils::get_filename_wo_extension($this->src_image->rel_path),
+            'path' => $this->getPathBasename(),
             'derivative' => substr($this->params->type, 0, 2),
             'sizes' => '',
-            'image_extension' => Utils::get_extension($this->src_image->rel_path)
+            'image_extension' => $this->getExtension()
         ];
-    }
-
-    /**
-     * Generates the url for a particular photo size.
-     */
-    public function getUrl(): string
-    {
-        if (empty($this->params)) { //@TODO: why params can be empty ?
-            return $this->src_image->getUrl();
-        }
-
-        $this->build($this->src_image, $this->params, $rel_path, $rel_url);
-
-        return \Phyxo\Functions\URL::embellish_url(\Phyxo\Functions\URL::get_absolute_root_url() . $rel_url);
     }
 
     /**
      * @TODO : documentation of DerivativeImage::build
      */
-    private function build($src, &$params, &$rel_path, &$rel_url, &$is_cached = null)
+    private function build(&$params, &$rel_path, &$rel_url)
     {
-        if ($src->has_size() && $params->is_identity($src->get_size())) {
+        if (count($this->getSize()) > 0 && $params->is_identity($this->getSize())) {
             // the source image is smaller than what we should do - we do not upsample
-            if (!$params->will_watermark($src->get_size(), $this->image_std_params) && !$src->rotation) {
+            if (!$params->will_watermark($this->getSize(), $this->image_std_params) && !$this->image->getRotation()) {
                 // no watermark, no rotation required -> we will use the source image
                 $params = null;
-                $rel_path = $rel_url = $src->rel_path;
+                $rel_path = $rel_url = $this->image->getPath();
                 return;
             }
             $defined_types = array_keys($this->image_std_params->getDefinedTypeMap());
@@ -119,9 +181,9 @@ class DerivativeImage
                 if ($defined_types[$i] == $params->type) {
                     for ($i--; $i >= 0; $i--) {
                         $smaller = $this->image_std_params->getByType($defined_types[$i]);
-                        if ($smaller->sizing->max_crop == $params->sizing->max_crop && $smaller->is_identity($src->get_size())) {
+                        if ($smaller->sizing->max_crop == $params->sizing->max_crop && $smaller->is_identity($this->getSize())) {
                             $params = $smaller;
-                            $this->build($src, $params, $rel_path, $rel_url, $is_cached);
+                            $this->build($params, $rel_path, $rel_url);
                             return;
                         }
                     }
@@ -137,7 +199,7 @@ class DerivativeImage
             $params->add_url_tokens($tokens);
         }
 
-        $loc = $src->rel_path;
+        $loc = $this->image->getPath();
         if (substr_compare($loc, './', 0, 2) == 0) {
             $loc = substr($loc, 2);
         } elseif (substr_compare($loc, '../', 0, 3) == 0) {
@@ -150,101 +212,6 @@ class DerivativeImage
     public function same_as_source(): bool
     {
         return $this->params == null;
-    }
-
-    /**
-     * @return string one if IMG_* or 'Original'
-     */
-    public function get_type()
-    {
-        if ($this->params == null) {
-            return 'Original';
-        }
-
-        return $this->params->type;
-    }
-
-    /**
-     * @return int[]
-     */
-    public function get_size()
-    {
-        if ($this->params == null) {
-            return $this->src_image->get_size();
-        }
-
-        return $this->params->compute_final_size($this->src_image->get_size());
-    }
-
-    /**
-     * Returns the size as CSS rule.
-     */
-    public function get_size_css()
-    {
-        $size = $this->get_size();
-        if ($size) {
-            return 'width:' . $size[0] . 'px; height:' . $size[1] . 'px';
-        }
-    }
-
-    /**
-     * Returns the size as HTML attributes.
-     */
-    public function get_size_htm()
-    {
-        $size = $this->get_size();
-        if ($size) {
-            return 'width="' . $size[0] . '" height="' . $size[1] . '"';
-        }
-    }
-
-    /**
-     * Returns literal size: $widthx$height.
-     */
-    public function get_size_hr()
-    {
-        $size = $this->get_size();
-        if ($size) {
-            return $size[0] . ' x ' . $size[1];
-        }
-    }
-
-    public function get_scaled_size(int $maxw, int $maxh): array
-    {
-        $size = $this->get_size();
-        if ($size) {
-            $ratio_w = $size[0] / $maxw;
-            $ratio_h = $size[1] / $maxh;
-            if ($ratio_w > 1 || $ratio_h > 1) {
-                if ($ratio_w > $ratio_h) {
-                    $size[0] = $maxw;
-                    $size[1] = floor($size[1] / $ratio_w);
-                } else {
-                    $size[0] = floor($size[0] / $ratio_h);
-                    $size[1] = $maxh;
-                }
-            }
-        }
-
-        return $size;
-    }
-
-    public function get_ratio()
-    {
-        $size = $this->get_size();
-
-        return $size[0] / $size[1];
-    }
-
-    /**
-     * Returns the scaled size as HTML attributes.
-     */
-    public function get_scaled_size_htm(int $maxw = 9999, int $maxh = 9999)
-    {
-        $size = $this->get_scaled_size($maxw, $maxh);
-        if ($size) {
-            return 'width="' . $size[0] . '" height="' . $size[1] . '"';
-        }
     }
 
     public function is_cached(): bool

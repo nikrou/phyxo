@@ -19,7 +19,6 @@ use App\Repository\UserInfosRepository;
 use App\DataMapper\UserMapper;
 use App\Entity\UserMailNotification;
 use Phyxo\Image\DerivativeImage;
-use Phyxo\Image\SrcImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
@@ -308,7 +307,8 @@ class Notification
         $params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
 
         foreach ($date_detail['elements'] as $element) {
-            $tn_src = (new DerivativeImage(new SrcImage($element->toArray(), $picture_ext), $params, $image_std_params))->getUrl();
+            $derivative = new DerivativeImage($element, $params, $image_std_params);
+            $tn_src = $this->router->generate('media', ['path' => $element->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $element->getExtension()]);
             $description .= '<a href="';
             $description .= $this->router->generate(
                 'picture',

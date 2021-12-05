@@ -8,7 +8,7 @@
     {% if category_thumbnails is defined %}
 	{% for cat in category_thumbnails %}
 	    {% if theme_config.category_wells == 'never' %}
-		{% set album_derivative = derivative_from_image({image: cat.representative.src_image, params: album_derivative_params}) %}
+		{% set album_derivative = derivative_from_image({image: cat.representative.image, params: album_derivative_params}) %}
 
 
 		{# this needs a fixed size else it messes up the grid on tablets #}
@@ -16,7 +16,7 @@
 		    <div class="card card-thumbnail" data-id="{{cat.id}}">
 			<div class="h-100">
 			    <a href="{{cat.URL}}" class="ripple{% if category_view != 'list' %} d-block{% endif %}">
-				<img class="{% if category_view == 'list' %}card-img-left{% else %}card-img-top{% endif %}" {% if album_derivative.is_cached() %}src="{{album_derivative.getUrl()}}"{% else %}src="{{asset('themes/treflez/img/transparent.png')}}" data-src="{{album_derivative.getUrl()}}"{% endif %} alt="{{cat.TN_ALT}}" title="{{cat.name}} - {{'display this album'|trans}}">
+				<img class="{% if category_view == 'list' %}card-img-left{% else %}card-img-top{% endif %}" src="{{ media_path(album_derivative) }}" alt="{{cat.TN_ALT}}" title="{{cat.name}} - {{'display this album'|trans}}">
 			    </a>
 			    <div class="card-body">
 				<h5 class="card-title ellipsis {% if not cat.icon_ts is empty %} recent{% endif %}">
@@ -38,13 +38,13 @@
 		    </div>
 		</div>
 	    {% else %}
-		{% set album_derivative_square = derivative_from_image({ image: cat.representative.src_image, params: album_derivative_params_square}) %}
+		{% set album_derivative_square = derivative_from_image({ image: cat.representative.image, params: album_derivative_params_square}) %}
 		<div class="col-outer col-12">
 		    <div class="card">
 			<div class="card-body p-0">
 			    <a href="{{cat.URL}}">
 				<div class="media h-100">
-				    <img class="d-flex mr-3" {% if album_derivative_square.is_cached() %}src="{{album_derivative_square.getUrl()}}"{% else %}src="{{asset('themes/treflez/img/transparent.png')}}" data-src="{{album_derivative_square.getUrl()}}"{% endif %} alt="{{cat.TN_ALT}}">
+				    <img class="d-flex mr-3" src="{{ media_path(album_derivative_square) }}" alt="{{cat.TN_ALT}}">
 				    <div class="media-body pt-2">
 					<h4 data-testid="album-name" class="mt-0 mb-1">{{cat.NAME}}</h4>
 					{% if not cat.DESCRIPTION is empty %}

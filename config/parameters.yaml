@@ -26,6 +26,7 @@ parameters:
   media_cache_dir: '%kernel.project_dir%/media'
   root_project_dir: '%kernel.project_dir%'
   update_mode: '%kernel.project_dir%/.update.mode'
+  graphics_library: 'auto' #  auto ; gd, gmagick or imagick
 
   start_param: 'start'
   locale: 'en'

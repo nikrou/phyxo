@@ -9,8 +9,6 @@ parameters:
       path: src/Phyxo/Image/ImageStandardParams.php
 
     # need refactoring
-    - message: '#Call to an undefined method Phyxo\\Image\\Image::.*#'
-      path: src/Controller/MediaController.php
     - message: '#If condition is always false.#'
       path: src/Controller/MediaController.php
 

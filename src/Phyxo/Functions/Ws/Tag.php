@@ -85,7 +85,8 @@ class Tag
         foreach ($service->getImageMapper()->getRepository()->getImageIdsForTags(
             $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories(),
             $tag_ids,
-            $params['tag_mode_and'] ? 'AND' : 'OR') as $image) {
+            $params['tag_mode_and'] ? 'AND' : 'OR'
+        ) as $image) {
             $image_ids[] = $image->getId();
         }
 
@@ -108,7 +109,7 @@ class Tag
             foreach ($service->getImageMapper()->getRepository()->findBy(['id' => $image_ids]) as $image) {
                 $image_infos = $image->toArray();
                 $image_infos['rank'] = $rank_of[$image->getId()];
-                $image_infos = array_merge($image_infos, Main::stdGetUrls($image->toArray(), $service));
+                $image_infos = array_merge($image_infos, Main::stdGetUrls($image, $service));
 
                 $image_tag_ids = ($params['tag_mode_and']) ? $tag_ids : $image_tag_map[$image->getId()];
                 $image_tags = [];

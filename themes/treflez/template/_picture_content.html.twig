@@ -10,17 +10,17 @@
 	    <div id="video-modal" class="col-lg-3 col-md-5 col-sm-6 col-xs-8 mx-auto">
 		<div class="embed-responsive embed-responsive-9by16">
     {% endif %}
-    <video id="video" class="embed-responsive-item" width="100%" height="auto" controls preload="auto" poster="{{current.selected_derivative.getUrl()}}">
+    <video id="video" class="embed-responsive-item" width="100%" height="auto" controls preload="auto" poster="{{ media_path(current.selected_derivative) }}">
 	<source src="{{asset('themes/treflez/' ~ current.path)}}" type="video/mp4"></source>
     </video>
 		</div>
 	    </div>
 {% else %}
-	    <img {% if current.selected_derivative.is_cached() %}src="{{current.selected_derivative.getUrl()}}" {{current.selected_derivative.get_size_htm()|raw('html')}}{% else %}src="{{asset('themes/treflez/img/transparent.png')}}" data-src="{{current.selected_derivative.getUrl()}}"{% endif %} alt="{% if ALT_IMG is defined %}ALT_IMG{% endif %}" id="theMainImage" usemap="#map{{current.selected_derivative.get_type()}}" title="{% if COMMENT_IMG is defined %}{{COMMENT_IMG|raw('html')}}{% else %}{% if current.TITLE_ESC is defined %}{{current.TITLE_ESC}}{% endif %}{% if ALT_IMG is defined %} - {{ALT_IMG}}{% endif %}{% endif %}">
+	    <img src="{{ media_path(current.selected_derivative) }}" alt="{% if ALT_IMG is defined %}ALT_IMG{% endif %}" id="theMainImage" usemap="#map{{current.selected_derivative.getType()}}" title="{% if COMMENT_IMG is defined %}{{COMMENT_IMG|raw('html')}}{% else %}{% if current.TITLE_ESC is defined %}{{current.TITLE_ESC}}{% endif %}{% if ALT_IMG is defined %} - {{ALT_IMG}}{% endif %}{% endif %}">
 
 	    {% for derivative in current.unique_derivatives %}
-		<map name="map{{derivative.get_type()}}">
-		    {% set size = derivative.get_size() %}
+		<map name="map{{derivative.getType()}}">
+		    {% set size = derivative.getSize() %}
 		    {% if previous is defined %}
 			<area shape=rect coords="0,0,{{(size[0]/4)|number_format}},{{size[1]|number_format}}" href="{{previous.U_IMG}}" title="{{'Previous'|trans}}{% if previous.TITLE_ESC is defined %} : {{previous.TITLE_ESC}}{% endif %}" alt="{% if previous.TITLE_ESC is defined %}{{previous.TITLE_ESC}}{% endif %}">
 		    {% endif %}

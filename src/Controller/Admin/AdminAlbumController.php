@@ -26,7 +26,6 @@ use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
-use Phyxo\Image\SrcImage;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -51,9 +50,17 @@ class AdminAlbumController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function properties(Request $request, int $album_id, int $parent_id = null, Conf $conf, ImageStandardParams $image_std_params, AlbumMapper $albumMapper,
-                                TranslatorInterface $translator, ImageAlbumRepository $imageAlbumRepository, ImageMapper $imageMapper)
-    {
+    public function properties(
+        Request $request,
+        int $album_id,
+        int $parent_id = null,
+        Conf $conf,
+        ImageStandardParams $image_std_params,
+        AlbumMapper $albumMapper,
+        TranslatorInterface $translator,
+        ImageAlbumRepository $imageAlbumRepository,
+        ImageMapper $imageMapper
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -158,7 +165,7 @@ class AdminAlbumController extends AbstractController
                         'max_date' => $max_date->format('l d M Y')
                     ],
                     'admin'
-                    );
+                );
             }
         } else {
             $tpl_params['INTRO'] = $translator->trans('This album contains no photo.', [], 'admin');
@@ -198,8 +205,8 @@ class AdminAlbumController extends AbstractController
             if ($album->getRepresentativePictureId()) {
                 $representative_picture = $imageMapper->getRepository()->find($album->getRepresentativePictureId());
                 if (!is_null($representative_picture)) {
-                    $src = $representative_picture->toArray();
-                    $src = (new DerivativeImage(new SrcImage($src, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
+                    $derivative = new DerivativeImage($representative_picture, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
+                    $src = $this->generateUrl('media', ['path' => $representative_picture->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $representative_picture->getExtension()]);
                     $url = $this->generateUrl('admin_photo', ['image_id' => $album->getRepresentativePictureId()]);
 
                     $tpl_params['representant']['picture'] = [
@@ -238,9 +245,16 @@ class AdminAlbumController extends AbstractController
         return $this->render('album_properties.html.twig', $tpl_params);
     }
 
-    public function sort_order(Request $request, int $album_id, int $parent_id = null, Conf $conf,
-                                ImageMapper $imageMapper, AlbumMapper $albumMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator)
-    {
+    public function sort_order(
+        Request $request,
+        int $album_id,
+        int $parent_id = null,
+        Conf $conf,
+        ImageMapper $imageMapper,
+        AlbumMapper $albumMapper,
+        ImageStandardParams $image_std_params,
+        TranslatorInterface $translator
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -306,7 +320,7 @@ class AdminAlbumController extends AbstractController
         $current_rank = 1;
         $derivativeParams = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
         foreach ($imageMapper->getRepository()->findImagesInAlbum($album_id, 'ORDER BY RANK') as $image) {
-            $derivative = new DerivativeImage(new SrcImage($image->toArray(), $conf['picture_ext']), $derivativeParams, $image_std_params);
+            $derivative = new DerivativeImage($image, $derivativeParams, $image_std_params);
 
             if ($image->getName()) {
                 $thumbnail_name = $image->getName();
@@ -318,9 +332,9 @@ class AdminAlbumController extends AbstractController
             $tpl_params['thumbnails'][] = [
                 'ID' => $image->getId(),
                 'NAME' => $thumbnail_name,
-                'TN_SRC' => $derivative->getUrl(),
+                'TN_SRC' => $this->generateUrl('media', ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()]),
                 'RANK' => $current_rank * 10,
-                'SIZE' => $derivative->get_size(),
+                'SIZE' => $derivative->getSize(),
             ];
         }
 
@@ -371,9 +385,18 @@ class AdminAlbumController extends AbstractController
         return $this->render('album_sort_order.html.twig', $tpl_params);
     }
 
-    public function permissions(Request $request, int $album_id, int $parent_id = null, Conf $conf, UserCacheRepository $userCacheRepository, CsrfTokenManagerInterface $tokenManager,
-                                AlbumMapper $albumMapper, TranslatorInterface $translator, UserRepository $userRepository, GroupRepository $groupRepository)
-    {
+    public function permissions(
+        Request $request,
+        int $album_id,
+        int $parent_id = null,
+        Conf $conf,
+        UserCacheRepository $userCacheRepository,
+        CsrfTokenManagerInterface $tokenManager,
+        AlbumMapper $albumMapper,
+        TranslatorInterface $translator,
+        UserRepository $userRepository,
+        GroupRepository $groupRepository
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -524,10 +547,18 @@ class AdminAlbumController extends AbstractController
         return $this->render('album_permissions.html.twig', $tpl_params);
     }
 
-    public function notification(Request $request, int $album_id, int $parent_id = null, Conf $conf,
-                                AlbumMapper $albumMapper, ImageStandardParams $image_std_params, EventDispatcherInterface $eventDispatcher,
-                                GroupRepository $groupRepository, ImageMapper $imageMapper, TranslatorInterface $translator)
-    {
+    public function notification(
+        Request $request,
+        int $album_id,
+        int $parent_id = null,
+        Conf $conf,
+        AlbumMapper $albumMapper,
+        ImageStandardParams $image_std_params,
+        EventDispatcherInterface $eventDispatcher,
+        GroupRepository $groupRepository,
+        ImageMapper $imageMapper,
+        TranslatorInterface $translator
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -540,10 +571,14 @@ class AdminAlbumController extends AbstractController
             if ($album->getRepresentativePictureId()) {
                 $element = $imageMapper->getRepository()->find($album->getRepresentativePictureId());
                 if (!is_null($element)) {
-                    $src_image = new SrcImage($element->toArray(), $conf['picture_ext']);
-
+                    $derivative = new DerivativeImage($element, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
+                    $img_src = $this->generateUrl('media', [
+                        'path' => $element->getPathBasename(),
+                        'derivative' => $derivative->getUrlType(),
+                        'image_extension' => $element->getExtension()
+                    ]);
                     $img_url = '<a href="' . $this->generateUrl('picture', ['image_id' => $element->getId(), 'type' => 'category', 'element_id' => $album_id], UrlGeneratorInterface::ABSOLUTE_URL);
-                    $img_url .= '"><img src="' . (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl() . '" alt="X"></a>';
+                    $img_url .= '"><img src="' . $img_src . '" alt="X"></a>';
                 }
             }
 

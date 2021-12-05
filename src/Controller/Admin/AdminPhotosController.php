@@ -40,8 +40,15 @@ class AdminPhotosController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function direct(Request $request, int $album_id = null, Conf $conf, CsrfTokenManagerInterface $tokenManager,
-                            AlbumMapper $albumMapper, TranslatorInterface $translator, ImageMapper $imageMapper)
+    public function direct(
+        Request $request,
+        int $album_id = null,
+        Conf $conf,
+        CsrfTokenManagerInterface $tokenManager,
+        AlbumMapper $albumMapper,
+        TranslatorInterface $translator,
+        ImageMapper $imageMapper
+    )
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -49,8 +56,8 @@ class AdminPhotosController extends AbstractController
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $upload_max_filesize = min(
-          \Phyxo\Functions\Utils::get_ini_size('upload_max_filesize'),
-          \Phyxo\Functions\Utils::get_ini_size('post_max_size')
+            \Phyxo\Functions\Utils::get_ini_size('upload_max_filesize'),
+            \Phyxo\Functions\Utils::get_ini_size('post_max_size')
         );
 
         if ($upload_max_filesize == \Phyxo\Functions\Utils::get_ini_size('upload_max_filesize')) {
@@ -63,25 +70,24 @@ class AdminPhotosController extends AbstractController
         $tpl_params['upload_max_filesize_shorthand'] = $upload_max_filesize_shorthand;
 
         // what is the maximum number of pixels permitted by the memory_limit?
-        if (\Phyxo\Image\Image::getLibrary(null, null, $conf['ext_imagick_dir']) === 'GD') {
-            $fudge_factor = 1.7;
-            $available_memory = \Phyxo\Functions\Utils::get_ini_size('memory_limit') - memory_get_usage();
-            $max_upload_width = round(sqrt($available_memory / (2 * $fudge_factor)));
-            $max_upload_height = round(2 * $max_upload_width / 3);
+        $fudge_factor = 1.7;
+        $available_memory = \Phyxo\Functions\Utils::get_ini_size('memory_limit') - memory_get_usage();
+        $max_upload_width = round(sqrt($available_memory / (2 * $fudge_factor)));
+        $max_upload_height = round(2 * $max_upload_width / 3);
 
-            // we don't want dimensions like 2995x1992 but 3000x2000
-            $max_upload_width = round($max_upload_width / 100) * 100;
-            $max_upload_height = round($max_upload_height / 100) * 100;
+        // we don't want dimensions like 2995x1992 but 3000x2000
+        $max_upload_width = round($max_upload_width / 100) * 100;
+        $max_upload_height = round($max_upload_height / 100) * 100;
 
-            $max_upload_resolution = floor($max_upload_width * $max_upload_height / (1000000));
+        $max_upload_resolution = floor($max_upload_width * $max_upload_height / (1000000));
 
-            // no need to display a limitation warning if the limitation is huge like 20MP
-            if ($max_upload_resolution < 25) {
-                $tpl_params['max_upload_width'] = $max_upload_width;
-                $tpl_params['max_upload_height'] = $max_upload_height;
-                $tpl_params['max_upload_resolution'] = $max_upload_resolution;
-            }
+        // no need to display a limitation warning if the limitation is huge like 20MP
+        if ($max_upload_resolution < 25) {
+            $tpl_params['max_upload_width'] = $max_upload_width;
+            $tpl_params['max_upload_height'] = $max_upload_height;
+            $tpl_params['max_upload_resolution'] = $max_upload_resolution;
         }
+
 
         //warn the user if the picture will be resized after upload
         if ($conf['original_resize']) {
@@ -131,11 +137,11 @@ class AdminPhotosController extends AbstractController
 
         if (Utils::get_ini_size('upload_max_filesize') > Utils::get_ini_size('post_max_size')) {
             $tpl_params['setup_warnings'][] = $translator->trans(
-              'In your php.ini file, the upload_max_filesize ({upload_max_filesize}B) is bigger than post_max_size ({post_max_size}B), you should change this setting',
-              ['upload_max_filesize' => Utils::get_ini_size('upload_max_filesize', false),
-                  'post_max_size' => Utils::get_ini_size('post_max_size', false)
-              ],
-              'admin'
+                'In your php.ini file, the upload_max_filesize ({upload_max_filesize}B) is bigger than post_max_size ({post_max_size}B), you should change this setting',
+                ['upload_max_filesize' => Utils::get_ini_size('upload_max_filesize', false),
+                    'post_max_size' => Utils::get_ini_size('post_max_size', false)
+                ],
+                'admin'
             );
         }
         $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($this->getDoctrine(), ['categories'], $this->generateUrl('homepage'));

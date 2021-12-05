@@ -23,6 +23,7 @@ use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\RateMapper;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
+use App\ImageLibraryGuesser;
 use App\Security\UserProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Utils\UserManager;
@@ -36,10 +37,28 @@ class WsController extends AbstractController
 {
     private $service;
 
-    public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, Conf $conf, UserProvider $userProvider,
-                           UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, RateMapper $rateMapper, SearchMapper $searchMapper, RouterInterface $router,
-                           string $phyxoVersion, ImageStandardParams $image_std_params, string $pemURL, Security $security, ParameterBagInterface $params,
-                           ImageMapper $imageMapper, Request $request, ManagerRegistry $managerRegistry, AlbumMapper $albumMapper)
+    public function index(
+        UserMapper $userMapper,
+        TagMapper $tagMapper,
+        CommentMapper $commentMapper,
+        Conf $conf,
+        UserProvider $userProvider,
+        UserManager $userManager,
+        UserPasswordEncoderInterface $passwordEncoder,
+        RateMapper $rateMapper,
+        SearchMapper $searchMapper,
+        RouterInterface $router,
+        string $phyxoVersion,
+        ImageStandardParams $image_std_params,
+        string $pemURL,
+        Security $security,
+        ParameterBagInterface $params,
+        ImageMapper $imageMapper,
+        Request $request,
+        ManagerRegistry $managerRegistry,
+        AlbumMapper $albumMapper,
+        ImageLibraryGuesser $imageLibraryGuesser
+    )
     {
         $this->service = new Server($params->get('upload_dir'));
         $this->service->setRequest($request);
@@ -60,6 +79,7 @@ class WsController extends AbstractController
         $this->service->setSecurity($security);
         $this->service->setManagerRegistry($managerRegistry);
         $this->service->setUserProvider($userProvider);
+        $this->service->setImageLibrary($imageLibraryGuesser->getLibrary());
         $this->service->setParams($params);
 
         $this->addDefaultMethods();

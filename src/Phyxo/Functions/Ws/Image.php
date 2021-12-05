@@ -22,12 +22,10 @@ use App\Security\TagVoter;
 use Phyxo\Functions\Utils;
 use Phyxo\Functions\URL;
 use Phyxo\Image\DerivativeImage;
-use Phyxo\Image\SrcImage;
+use Phyxo\Image\ImageOptimizer;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\Routing\RouterInterface;
 
 class Image
 {
@@ -235,7 +233,7 @@ class Image
             $image_ids = array_flip($image_ids);
             foreach ($service->getImageMapper()->getRepository()->findBy(['id' => $image_ids]) as $image) {
                 $image_infos = $image->toArray();
-                $image_infos = array_merge($image_infos, \Phyxo\Functions\Ws\Main::stdGetUrls($image_infos, $service));
+                $image_infos = array_merge($image_infos, \Phyxo\Functions\Ws\Main::stdGetUrls($image, $service));
                 $images[$image_ids[$image['id']]] = $image_infos;
             }
             ksort($images, SORT_NUMERIC);
@@ -703,13 +701,12 @@ class Image
             );
             $service->getTagMapper()->sync_metadata([$image_id], $service->getUserMapper()->getUser());
 
-            $image_infos = $service->getImageMapper()->getRepository()->find($image_id)->toArray();
-            $src_image = new SrcImage($image_infos, $service->getConf()['picture_ext']);
+            $image = $service->getImageMapper()->getRepository()->find($image_id);
 
             $nb_photos_in = $service->getManagerRegistry()->getRepository(ImageAlbum::class)->countImagesByAlbum();
             $category_name = $service->getAlbumMapper()->getRepository()->find($params['category'][0])->getName();
             $derivative_image = new DerivativeImage(
-                $src_image,
+                $image,
                 $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB),
                 $service->getImageStandardParams()
             );
@@ -717,7 +714,7 @@ class Image
             return [
                 'image_id' => $image_id,
                 'src' => $service->getRouter()->generate('media', $derivative_image->relativeThumbInfos()),
-                'name' => $image_infos['name'],
+                'name' => $image->getName(),
                 'category' => [
                     'id' => $params['category'][0],
                     'nb_photos' => $nb_photos_in[$params['category'][0]],
@@ -1230,8 +1227,8 @@ class Image
             $md5sum = md5_file($source_filepath);
         }
 
+        $fs = new Filesystem();
         $file_path = null;
-        $is_tiff = false;
         $now = new \DateTime();
         $upload_dir = $service->getUploadDir();
 
@@ -1260,14 +1257,11 @@ class Image
 
             list($width, $height, $type) = getimagesize($source_filepath);
 
-            if (IMAGETYPE_PNG == $type) {
+            if ($type === IMAGETYPE_PNG) {
                 $file_path .= 'png';
-            } elseif (IMAGETYPE_GIF == $type) {
+            } elseif ($type === IMAGETYPE_GIF) {
                 $file_path .= 'gif';
-            } elseif (IMAGETYPE_TIFF_MM == $type or IMAGETYPE_TIFF_II == $type) {
-                $is_tiff = true;
-                $file_path .= 'tif';
-            } elseif (IMAGETYPE_JPEG == $type) {
+            } elseif ($type === IMAGETYPE_JPEG) {
                 $file_path .= 'jpg';
             } elseif (isset($service->getConf()['upload_form_all_types']) && $service->getConf()['upload_form_all_types']) {
                 $original_extension = strtolower(\Phyxo\Functions\Utils::get_extension($original_filename));
@@ -1281,7 +1275,6 @@ class Image
                 throw new \Exception('forbidden file type');
             }
 
-            $fs = new Filesystem();
             $fs->mkdir($filename_dir);
         }
 
@@ -1290,132 +1283,32 @@ class Image
         } else {
             rename($source_filepath, $file_path);
         }
-        @chmod($file_path, 0644);
+        $fs->chmod($file_path, 0644);
 
-        $fs = new Filesystem();
-
-        if ($is_tiff && \Phyxo\Image\Image::getLibrary(null, null, $service->getConf()['ext_image_dir']) === 'ExtImagick') {
-            // move the uploaded file to pwg_representative sub-directory
-            $representative_file_path = dirname($file_path) . '/pwg_representative/';
-            $representative_file_path .= \Phyxo\Functions\Utils::get_filename_wo_extension(basename($file_path)) . '.';
-
-            $representative_ext = $service->getConf()['tiff_representative_ext'];
-            $representative_file_path .= $representative_ext;
-
-            $fs->mkdir(dirname($representative_file_path));
-
-            $exec = $service->getConf()['ext_imagick_dir'] . 'convert';
-
-            if ('jpg' == $service->getConf()['tiff_representative_ext']) {
-                $exec .= ' -quality 98';
-            }
-
-            $exec .= ' "' . realpath($file_path) . '"';
-
-            $dest = pathinfo($representative_file_path);
-            $exec .= ' "' . realpath($dest['dirname']) . '/' . $dest['basename'] . '"';
-
-            $exec .= ' 2>&1';
-            @exec($exec, $returnarray);
-
-            // sometimes ImageMagick creates file-0.jpg (full size) + file-1.jpg
-            // (thumbnail). I don't know how to avoid it.
-            $representative_file_abspath = realpath($dest['dirname']) . '/' . $dest['basename'];
-            if (!file_exists($representative_file_abspath)) {
-                $first_file_abspath = preg_replace(
-                    '/\.' . $representative_ext . '$/',
-                    '-0.' . $representative_ext,
-                    $representative_file_abspath
-                );
-
-                if (file_exists($first_file_abspath)) {
-                    rename($first_file_abspath, $representative_file_abspath);
-                }
-            }
-        }
-
-        // generate pwg_representative in case of video
-        $ffmpeg_video_exts = [ // extensions tested with FFmpeg
-            'wmv', 'mov', 'mkv', 'mp4', 'mpg', 'flv', 'asf', 'xvid', 'divx', 'mpeg',
-            'avi', 'rm',
-        ];
-
-        $fs = new Filesystem();
-
-        if (isset($original_extension) && in_array($original_extension, $ffmpeg_video_exts)) {
-            $representative_file_path = dirname($file_path) . '/pwg_representative/';
-            $representative_file_path .= \Phyxo\Functions\Utils::get_filename_wo_extension(basename($file_path)) . '.';
-
-            $representative_ext = 'jpg';
-            $representative_file_path .= $representative_ext;
-
-            $fs->mkdir(dirname($representative_file_path));
-
-            $second = 1;
-
-            $ffmpeg = $service->getConf()['ffmpeg_dir'] . 'ffmpeg';
-            $ffmpeg .= ' -i "' . $file_path . '"';
-            $ffmpeg .= ' -an -ss ' . $second;
-            $ffmpeg .= ' -t 1 -r 1 -y -vcodec mjpeg -f mjpeg';
-            $ffmpeg .= ' "' . $representative_file_path . '"';
-            @exec($ffmpeg);
-
-            if (!file_exists($representative_file_path)) {
-                $representative_ext = null;
-            }
-        }
-
-        if (isset($original_extension) && 'pdf' == $original_extension && \Phyxo\Image\Image::getLibrary(null, null, $service->getConf()['ext_image_dir']) === 'ExtImagick') {
-            $representative_file_path = dirname($file_path) . '/pwg_representative/';
-            $representative_file_path .= \Phyxo\Functions\Utils::get_filename_wo_extension(basename($file_path)) . '.';
-
-            $representative_ext = 'jpg';
-            $representative_file_path .= $representative_ext;
-
-            $fs->mkdir(dirname($representative_file_path));
-
-            $exec = $service->getConf()['ext_imagick_dir'] . 'convert';
-            $exec .= ' -quality 98';
-            $exec .= ' "' . realpath($file_path) . '"[0]';
-
-            $dest = pathinfo($representative_file_path);
-            $exec .= ' "' . realpath($dest['dirname']) . '/' . $dest['basename'] . '"';
-            $exec .= ' 2>&1';
-            @exec($exec, $returnarray);
-        }
-
-        if (\Phyxo\Image\Image::getLibrary(null, null, $service->getConf()['ext_image_dir']) !== 'GD') {
-            if ($service->getConf()['original_resize']) {
-                if (Utils::need_resize($file_path, $service->getConf()['original_resize_maxwidth'], $service->getConf()['original_resize_maxheight'])) {
-                    $img = new \Phyxo\Image\Image($file_path);
-
-                    $img->mainResize(
-                        $file_path,
-                        $service->getConf()['original_resize_maxwidth'],
-                        $service->getConf()['original_resize_maxheight'],
-                        $service->getConf()['original_resize_quality'],
-                        $service->getConf()['upload_form_automatic_rotation'],
-                        false
-                    );
-
-                    $img->destroy();
-                }
-            }
-        }
+        $imageOptimizer = new ImageOptimizer($file_path, $service->getImageLibrary());
+        $imageOptimizer->mainResize(
+            $file_path,
+            $service->getConf()['original_resize_maxwidth'],
+            $service->getConf()['original_resize_maxheight'],
+            $service->getConf()['original_resize_quality'],
+            $service->getConf()['upload_form_automatic_rotation'],
+            false
+        );
 
         // we need to save the rotation angle in the database to compute
         // width/height of "multisizes"
-        $rotation_angle = \Phyxo\Image\Image::getRotationAngle($file_path);
-        $rotation = \Phyxo\Image\Image::getRotationCodeFromAngle($rotation_angle);
+        $rotation_angle = ImageOptimizer::getRotationAngle($file_path);
+        $rotation = ImageOptimizer::getRotationCodeFromAngle($rotation_angle);
 
-        $file_infos = Utils::image_infos($file_path);
+        list($width, $height) = getimagesize($file_path);
+        $filesize = (int) floor(filesize($file_path) / 1024);
 
         if (isset($image_id)) {
             $image = $service->getImageMapper()->getRepository()->find($image_id);
             $image->setFile(!empty($original_filename) ? $original_filename : basename($file_path));
-            $image->setFilesize($file_infos['filesize']);
-            $image->setWidth($file_infos['width']);
-            $image->setHeight($file_infos['height']);
+            $image->setFilesize($filesize);
+            $image->setWidth($width);
+            $image->setHeight($height);
             $image->setMd5sum($md5sum);
             $image->setAddedBy($service->getUserMapper()->getUser()->getId());
             $image->setRotation($rotation);
@@ -1430,9 +1323,9 @@ class Image
             $image->setName(Utils::get_name_from_file($image->getFile()));
             $image->setDateAvailable($now);
             $image->setPath(preg_replace('#^' . preg_quote(dirname($upload_dir)) . '#', '.', realpath($file_path)));
-            $image->setFilesize($file_infos['filesize']);
-            $image->setWidth($file_infos['width']);
-            $image->setHeight($file_infos['height']);
+            $image->setFilesize($filesize);
+            $image->setWidth($width);
+            $image->setHeight($height);
             $image->setMd5sum($md5sum);
             $image->setAddedBy($service->getUserMapper()->getUser()->getId());
             $image->setRotation($rotation);
@@ -1441,9 +1334,9 @@ class Image
                 $image->setLevel($level);
             }
 
-            if (isset($representative_ext)) {
-                $image->setRepresentativeExt($representative_ext);
-            }
+            // if (isset($representative_ext)) {
+            //     $image->setRepresentativeExt($representative_ext);
+            // }
 
             $image_id = $service->getImageMapper()->getRepository()->addOrUpdateImage($image);
         }
@@ -1458,13 +1351,6 @@ class Image
         }
 
         $service->getUserMapper()->invalidateUserCache();
-
-        $src_image = new SrcImage($image->toArray(), $service->getConf()['picture_ext']);
-        $derivative_image = new DerivativeImage($src_image, $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB), $service->getImageStandardParams());
-
-        // force cache generation
-        $client = HttpClient::create(['headers' => ['http_errors' => false]]);
-        $client->request('GET', $service->getRouter()->generate('media', $derivative_image->relativeThumbInfos(), RouterInterface::ABSOLUTE_URL));
 
         return $image_id;
     }

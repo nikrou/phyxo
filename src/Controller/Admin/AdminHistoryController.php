@@ -25,7 +25,6 @@ use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
-use Phyxo\Image\SrcImage;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -412,7 +411,7 @@ class AdminHistoryController extends AbstractController
                 );
             }
 
-            $image_string = $this->getImageString($conf, $this->image_std_params, $line, $image_infos, $rules);
+            $image_string = $this->getImageString($this->image_std_params, $line, $image_infos, $rules);
 
             $search_results[] = [
                 'DATE' => $line['date'],
@@ -460,21 +459,14 @@ class AdminHistoryController extends AbstractController
         ];
     }
 
-    protected function getImageString(Conf $conf, ImageStandardParams $image_std_params, array $line = [], array $image_infos = [], array $search = []): string
+    protected function getImageString(ImageStandardParams $image_std_params, array $line = [], array $image_infos = [], array $search = []): string
     {
         $image_string = '';
-        $element = [];
 
         if (isset($line['image_id'])) {
             $picture_url = $this->generateUrl('picture', ['image_id' => $line['image_id']]); // @FIX: missing other param
 
             if (isset($image_infos[$line['image_id']])) {
-                $element = [
-                    'id' => $line['image_id'],
-                    'file' => $image_infos[$line['image_id']]->getFile(),
-                    'path' => $image_infos[$line['image_id']]->getPath(),
-                    'representative_ext' => $image_infos[$line['image_id']]->getRepresentativeExt(),
-                ];
                 $thumbnail_display = $search['fields']['display_thumbnail'];
             } else {
                 $thumbnail_display = 'no_display_thumbnail';
@@ -492,9 +484,12 @@ class AdminHistoryController extends AbstractController
             $thumb_url = '';
 
             if ($thumbnail_display === 'display_thumbnail_classic' || $thumbnail_display === 'display_thumbnail_hoverbox') {
-                $src_image = new SrcImage($element, $conf['picture_ext']);
                 $params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
-                $thumb_url = (new DerivativeImage($src_image, $params, $image_std_params))->getUrl();
+                $derivative = new DerivativeImage($image_infos[$line['image_id']], $params, $image_std_params);
+                $thumb_url = $this->generateUrl(
+                    'media',
+                    ['path' => $image_infos[$line['image_id']]->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image_infos[$line['image_id']]]
+                );
             }
 
             switch ($thumbnail_display) {

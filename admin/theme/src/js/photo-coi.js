@@ -8,31 +8,42 @@ function to_coi(v, total) {
   return v / total
 }
 
-if ($('#jcrop').length > 0) {
-  const stage = jcrop.attach('jcrop')
-  if (phyxo !== undefined && phyxo.coi !== undefined) {
-    var $img = $('#jcrop')
-    const rect = jcrop.Rect.create(
-      from_coi(phyxo.coi.l, $img.width()),
-      from_coi(phyxo.coi.t, $img.height()),
-      from_coi(phyxo.coi.r, $img.width()),
-      from_coi(phyxo.coi.b, $img.height())
-    )
-    const options = {}
-    stage.newWidget(rect, options)
+function new_widget(stage, width, height) {
+  const rect = jcrop.Rect.create(
+    from_coi(phyxo.coi.l, width),
+    from_coi(phyxo.coi.t, height),
+    from_coi(phyxo.coi.r, width),
+    from_coi(phyxo.coi.b, height)
+  )
+  stage.newWidget(rect, {})
+}
+
+$(function () {
+  if (phyxo === undefined || phyxo.coi === undefined) {
+    return
   }
 
-  stage.listen('crop.change', (widget, e) => {
-    const pos = widget.pos
+  const $img = $('#jcrop')
 
-    var $img = $('#jcrop')
-    $('#l').val(to_coi(pos.x, $img.width()))
-    $('#t').val(to_coi(pos.y, $img.height()))
-    $('#r').val(to_coi(pos.w, $img.width()))
-    $('#b').val(to_coi(pos.h, $img.height()))
-  })
+  if ($img.length > 0) {
+    const stage = jcrop.attach('jcrop')
 
-  stage.listen('crop.remove', (widget, e) => {
-    $('#l,#t,#r,#b').val('')
-  })
-}
+    $img.on('load', function () {
+      new_widget(stage, this.width, this.height)
+    })
+
+    new_widget(stage, $img.width(), $img.height())
+
+    stage.listen('crop.change', (widget, e) => {
+      const pos = widget.pos
+      $('#l').val(to_coi(pos.x, $img.width()))
+      $('#t').val(to_coi(pos.y, $img.height()))
+      $('#r').val(to_coi(pos.w, $img.width()))
+      $('#b').val(to_coi(pos.h, $img.height()))
+    })
+
+    stage.listen('crop.remove', (widget, e) => {
+      $('#l,#t,#r,#b').val('')
+    })
+  }
+})

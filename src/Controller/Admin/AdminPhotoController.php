@@ -24,7 +24,6 @@ use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\DerivativeParams;
 use Phyxo\Image\ImageStandardParams;
-use Phyxo\Image\SrcImage;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,10 +43,21 @@ class AdminPhotoController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function edit(Request $request, int $image_id, int $category_id = null, Conf $conf, TagMapper $tagMapper,
-                        ImageStandardParams $image_std_params, UserMapper $userMapper, TranslatorInterface $translator, ImageMapper $imageMapper,
-                        UserRepository $userRepository, AlbumMapper $albumMapper, ImageAlbumRepository $imageAlbumRepository, RateRepository $rateRepository)
-    {
+    public function edit(
+        Request $request,
+        int $image_id,
+        int $category_id = null,
+        Conf $conf,
+        TagMapper $tagMapper,
+        ImageStandardParams $image_std_params,
+        UserMapper $userMapper,
+        TranslatorInterface $translator,
+        ImageMapper $imageMapper,
+        UserRepository $userRepository,
+        AlbumMapper $albumMapper,
+        ImageAlbumRepository $imageAlbumRepository,
+        RateRepository $rateRepository
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -116,14 +126,16 @@ class AdminPhotoController extends AbstractController
 
         // retrieving direct information about picture
         $storage_category_id = $image->getStorageCategoryId();
-        $src_image = new SrcImage($image->toArray(), $conf['picture_ext']);
+
+        $derivative_thumb = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
+        $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params);
 
         $tpl_params['tag_selection'] = $tag_selection;
         $tpl_params['U_SYNC'] = $this->generateUrl('admin_photo_sync_metadata', ['image_id' => $image_id, 'category_id' => $category_id]);
         $tpl_params['U_DELETE'] = $this->generateUrl('admin_photo_delete', ['image_id' => $image_id, 'category_id' => $category_id]);
         $tpl_params['PATH'] = $image->getPath();
-        $tpl_params['TN_SRC'] = (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
-        $tpl_params['FILE_SRC'] = (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params))->getUrl();
+        $tpl_params['TN_SRC'] = $this->generateUrl('media', ['path' => $image->getPathBasename(), 'derivative' => $derivative_thumb->getUrlType(), 'image_extension' => $image->getExtension()]);
+        $tpl_params['FILE_SRC'] = $this->generateUrl('media', ['path' => $image->getPathBasename(), 'derivative' => $derivative_large->getUrlType(), 'image_extension' => $image->getExtension()]);
         $tpl_params['NAME'] = $image->getName();
         $tpl_params['TITLE'] = Utils::render_element_name($image->toArray());
         $tpl_params['DIMENSIONS'] = $image->getWidth() . ' * ' . $image->getHeight();
@@ -270,9 +282,16 @@ class AdminPhotoController extends AbstractController
         return $this->redirectToRoute('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);
     }
 
-    public function coi(Request $request, int $image_id, int $category_id = null, ImageStandardParams $image_std_params, Conf $conf,
-                        ImageMapper $imageMapper, TranslatorInterface $translator, DerivativeService $derivativeService)
-    {
+    public function coi(
+        Request $request,
+        int $image_id,
+        int $category_id = null,
+        ImageStandardParams $image_std_params,
+        Conf $conf,
+        ImageMapper $imageMapper,
+        TranslatorInterface $translator,
+        DerivativeService $derivativeService
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -284,7 +303,8 @@ class AdminPhotoController extends AbstractController
             if (strlen($request->request->get('l')) === 0) {
                 $image->setCoi('');
             } else {
-                $image->setCoi(DerivativeParams::fraction_to_char($request->request->get('l'))
+                $image->setCoi(
+                    DerivativeParams::fraction_to_char($request->request->get('l'))
                             . DerivativeParams::fraction_to_char($request->request->get('t'))
                             . DerivativeParams::fraction_to_char($request->request->get('r'))
                             . DerivativeParams::fraction_to_char($request->request->get('b'))
@@ -302,10 +322,14 @@ class AdminPhotoController extends AbstractController
             return $this->redirectToRoute('admin_photo_coi', ['image_id' => $image_id, 'category_id' => $category_id]);
         }
 
-        $src_image = new SrcImage($image->toArray(), $conf['picture_ext']);
         $tpl_params['TITLE'] = Utils::render_element_name($image->toArray());
         $tpl_params['ALT'] = $image->getFile();
-        $tpl_params['U_IMG'] = (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params))->getUrl();
+
+        $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params);
+        $tpl_params['U_IMG'] = $this->generateUrl(
+            'media',
+            ['path' => $image->getPathBasename(), 'derivative' => $derivative_large->getUrlType(), 'image_extension' => $image->getExtension()]
+        );
 
         if ($image->getCoi()) {
             $tpl_params['coi'] = [
@@ -318,11 +342,8 @@ class AdminPhotoController extends AbstractController
 
         foreach ($image_std_params->getDefinedTypeMap() as $std_params) {
             if ($std_params->sizing->max_crop != 0) {
-                $derivative = new DerivativeImage($src_image, $std_params, $image_std_params);
-                $tpl_params['cropped_derivatives'][] = [
-                    'U_IMG' => $derivative->getUrl(),
-                    'HTM_SIZE' => $derivative->get_size_htm(),
-                ];
+                $derivative = new DerivativeImage($image, $std_params, $image_std_params);
+                $tpl_params['cropped_derivatives'][] = $derivative;
             }
         }
 

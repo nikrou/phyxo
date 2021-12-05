@@ -1,6 +1,7 @@
 # Phyxo 2.3.0 - YYYY-MM-DD
 
 - Remove site Entity. Not used anymore.
+- Use abstraction to manipulate images (imagine/imagine library)
 
 # Phyxo 2.2.0 - 2021-11-06
 

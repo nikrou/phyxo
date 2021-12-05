@@ -17,7 +17,6 @@ use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use App\Services\DerivativeService;
 use Phyxo\Conf;
-use Phyxo\Image\Image;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\WatermarkParams;
 use Phyxo\TabSheet\TabSheet;
@@ -141,9 +140,17 @@ class AdminConfigurationController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function index(Request $request, string $section, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager,
-                        ThemeRepository $themeRepository, LanguageRepository $languageRepository, ImageStandardParams $image_std_params, UserMapper $userMapper)
-    {
+    public function index(
+        Request $request,
+        string $section,
+        Conf $conf,
+        ParameterBagInterface $params,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        ThemeRepository $themeRepository,
+        LanguageRepository $languageRepository,
+        ImageStandardParams $image_std_params,
+        UserMapper $userMapper
+    ) {
         $tpl_params = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -271,7 +278,6 @@ class AdminConfigurationController extends AbstractController
     {
         $tpl_params = [];
 
-        $tpl_params['is_gd'] = Image::getLibrary(null, null, $conf['ext_imagick_dir']) === 'GD';
         $tpl_params['sizes'] = [
             'original_resize_maxwidth' => $conf['original_resize_maxwidth'],
             'original_resize_maxheight' => $conf['original_resize_maxheight'],
@@ -426,9 +432,18 @@ class AdminConfigurationController extends AbstractController
         return $tpl_params;
     }
 
-    public function update(Request $request, string $section, Conf $conf, ThemeRepository $themeRepository, string $localDir, ImageStandardParams $image_std_params,
-                            UserMapper $userMapper, UserInfosRepository $userInfosRepository, LanguageRepository $languageRepository, DerivativeService $derivativeService)
-    {
+    public function update(
+        Request $request,
+        string $section,
+        Conf $conf,
+        ThemeRepository $themeRepository,
+        string $localDir,
+        ImageStandardParams $image_std_params,
+        UserMapper $userMapper,
+        UserInfosRepository $userInfosRepository,
+        LanguageRepository $languageRepository,
+        DerivativeService $derivativeService
+    ) {
         $conf_updated = false;
         $error = false;
 

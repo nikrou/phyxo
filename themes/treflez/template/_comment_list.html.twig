@@ -8,9 +8,9 @@
 		    {% else %}
 			{% set cropped_derivative_params = define_derivative({width: derivative_params.sizing.ideal_size[0], height: derivative_params.sizing.ideal_size[0], crop: true}) %}
 		    {% endif %}
-		    {% set derivative = derivative_from_image({image: comment.src_image, params: cropped_derivative_params}) %}
+		    {% set derivative = derivative_from_image({image: comment.image, params: cropped_derivative_params}) %}
 		    <a href="{{comment.U_PICTURE}}">
-			<img {% if derivative.is_cached() %}src="{{derivative.getUrl()}}"{% else %}src="{{asset('themes/treflez/img/img_small.png')}}" data-src="{{derivative.getUrl()}}"{% endif %} alt="{{comment.ALT}}">
+			<img src="{{ media_path(derivative) }}" alt="{{comment.ALT}}">
 		    </a>
 		</div>
 	    {% endif %}

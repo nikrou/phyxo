@@ -21,7 +21,6 @@ use App\Repository\ImageRepository;
 use App\Repository\UserCacheAlbumRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
-use Phyxo\Image\SrcImage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -1065,7 +1064,7 @@ class AlbumMapper
 
         foreach ($imageMapper->getRepository()->findBy(['id' => $image_ids]) as $image) {
             if ($image->getLevel() <= $user->getUserInfos()->getLevel()) {
-                $infos_of_images[$image->getId()] = $image->toArray();
+                $infos_of_images[$image->getId()] = [$image->toArray(), 'image' => $image];
             } else {
                 // problem: we must not display the thumbnail of a photo which has a
                 // higher privacy level than user privacy level
@@ -1103,12 +1102,6 @@ class AlbumMapper
                 $infos_of_images[$image->getId()] = $image->toArray();
             }
         }
-
-
-        foreach ($infos_of_images as &$info) {
-            $info['src_image'] = new SrcImage($info, $this->conf['picture_ext']);
-        }
-        unset($info);
 
         return $infos_of_images;
     }
