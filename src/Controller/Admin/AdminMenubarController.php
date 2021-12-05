@@ -22,11 +22,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminMenubarController extends AbstractController
 {
-    public function index(Request $request, Conf $conf)
+    public function index(Conf $conf)
     {
         $tpl_params = [];
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if (is_null($conf['blk_menubar'])) {
             $mb_conf = [];

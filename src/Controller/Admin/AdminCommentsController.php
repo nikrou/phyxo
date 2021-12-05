@@ -48,8 +48,6 @@ class AdminCommentsController extends AbstractController
         $tpl_params = [];
         $this->translator = $translator;
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
         $nb_total = 0;
         $nb_pending = 0;
 

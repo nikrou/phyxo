@@ -48,12 +48,9 @@ class AdminPhotosController extends AbstractController
         AlbumMapper $albumMapper,
         TranslatorInterface $translator,
         ImageMapper $imageMapper
-    )
-    {
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $upload_max_filesize = min(
             \Phyxo\Functions\Utils::get_ini_size('upload_max_filesize'),

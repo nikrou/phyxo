@@ -38,13 +38,17 @@ class AdminThemesController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function installed(Request $request, ThemeRepository $themeRepository, UserMapper $userMapper, ParameterBagInterface $params,
-                            TranslatorInterface $translator, CsrfTokenManagerInterface $tokenManager)
+    public function installed(
+        Request $request,
+        ThemeRepository $themeRepository,
+        UserMapper $userMapper,
+        ParameterBagInterface $params,
+        TranslatorInterface $translator,
+        CsrfTokenManagerInterface $tokenManager
+    )
     {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $themes = new Themes($themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
@@ -158,13 +162,18 @@ class AdminThemesController extends AbstractController
         return $this->render('themes_installed.html.twig', $tpl_params);
     }
 
-    public function update(Request $request, UserMapper $userMapper, Conf $conf, CsrfTokenManagerInterface $tokenManager,
-                            ThemeRepository $themeRepository, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function update(
+        Request $request,
+        UserMapper $userMapper,
+        Conf $conf,
+        CsrfTokenManagerInterface $tokenManager,
+        ThemeRepository $themeRepository,
+        ParameterBagInterface $params,
+        TranslatorInterface $translator
+    )
     {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $themes = new Themes($themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
@@ -228,8 +237,14 @@ class AdminThemesController extends AbstractController
         return $this->render('themes_update.html.twig', $tpl_params);
     }
 
-    public function action(string $theme, string $action, UserMapper $userMapper, ThemeRepository $themeRepository,
-                        UserInfosRepository $userInfosRepository, ParameterBagInterface $params)
+    public function action(
+        string $theme,
+        string $action,
+        UserMapper $userMapper,
+        ThemeRepository $themeRepository,
+        UserInfosRepository $userInfosRepository,
+        ParameterBagInterface $params
+    )
     {
         $themes = new Themes($themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
@@ -276,12 +291,10 @@ class AdminThemesController extends AbstractController
         }
     }
 
-    public function new(Request $request, ThemeRepository $themeRepository, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function new(ThemeRepository $themeRepository, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $themes = new Themes($themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));

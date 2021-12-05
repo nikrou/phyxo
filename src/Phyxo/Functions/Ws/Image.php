@@ -20,7 +20,6 @@ use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use App\Security\TagVoter;
 use Phyxo\Functions\Utils;
-use Phyxo\Functions\URL;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageOptimizer;
 use Phyxo\Image\ImageStandardParams;
@@ -111,8 +110,8 @@ class Image
         //-------------------------------------------------------------- related tags
         $related_tags = $service->getTagMapper()->getCommonTags($service->getUserMapper()->getUser(), [$image->getId()], -1);
         foreach ($related_tags as $i => $tag) {
-            $tag['url'] = $service->getRouter()->generate('images_by_tags', ['tag_ids' => URL::tagToUrl($tag)]);
-            $tag['page_url'] = $service->getRouter()->generate('picture', ['image_id' => $image->getId(), 'type' => 'tags', 'element_id' => URL::tagToUrl($tag)]);
+            $tag['url'] = $service->getRouter()->generate('images_by_tags', ['tag_ids' => Utils::tagToUrl($tag)]);
+            $tag['page_url'] = $service->getRouter()->generate('picture', ['image_id' => $image->getId(), 'type' => 'tags', 'element_id' => Utils::tagToUrl($tag)]);
 
             unset($tag['counter']);
             $tag['id'] = (int)$tag['id'];

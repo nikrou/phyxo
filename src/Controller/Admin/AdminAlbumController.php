@@ -72,8 +72,6 @@ class AdminAlbumController extends AbstractController
             ['id' => 'false', 'label' => $translator->trans('No', [], 'admin')]
         ];
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
         if ($request->isMethod('POST')) {
             if ($request->request->get('submit')) {
                 $need_update = false;
@@ -249,7 +247,6 @@ class AdminAlbumController extends AbstractController
         Request $request,
         int $album_id,
         int $parent_id = null,
-        Conf $conf,
         ImageMapper $imageMapper,
         AlbumMapper $albumMapper,
         ImageStandardParams $image_std_params,
@@ -257,8 +254,6 @@ class AdminAlbumController extends AbstractController
     ) {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $album = $albumMapper->getRepository()->find($album_id);
 
@@ -399,8 +394,6 @@ class AdminAlbumController extends AbstractController
     ) {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $album = $albumMapper->getRepository()->find($album_id);
 
@@ -561,8 +554,6 @@ class AdminAlbumController extends AbstractController
     ) {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $album = $albumMapper->getRepository()->find($album_id);
 

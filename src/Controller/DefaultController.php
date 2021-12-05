@@ -46,10 +46,10 @@ class DefaultController extends CommonController
                         throw new AccessDeniedException('Access denied');
                     }
                 }
-                $file = Utils::get_element_path($image->toArray());
+                $file = $image->getPath();
                 break;
             case 'r':
-                $file = Utils::original_to_representative(Utils::get_element_path($image->toArray()), $image->getRepresentativeExt());
+                $file = Utils::original_to_representative($image->getPath(), $image->getRepresentativeExt());
                 break;
         }
 

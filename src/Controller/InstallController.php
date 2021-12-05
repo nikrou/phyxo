@@ -34,9 +34,23 @@ class InstallController extends AbstractController
     private $rootProjectDir, $translator, $databaseYamlFile, $phyxoInstaller, $pluginsDir, $themesDir, $uploadDir, $varDir, $configDir;
     private $default_prefix = 'phyxo_';
 
-    public function __construct(string $translationsDir, string $defaultLanguage, string $defaultTheme, PhyxoInstaller $phyxoInstaller, string $mediaCacheDir,
-                                string $themesDir, string $pluginsDir, string $databaseYamlFile, UserPasswordEncoderInterface $passwordEncoder, string $uploadDir,
-                                TranslatorInterface $translator, string $rootProjectDir, string $varDir, string $configDir, string $localDir)
+    public function __construct(
+        string $translationsDir,
+        string $defaultLanguage,
+        string $defaultTheme,
+        PhyxoInstaller $phyxoInstaller,
+        string $mediaCacheDir,
+        string $themesDir,
+        string $pluginsDir,
+        string $databaseYamlFile,
+        UserPasswordEncoderInterface $passwordEncoder,
+        string $uploadDir,
+        TranslatorInterface $translator,
+        string $rootProjectDir,
+        string $varDir,
+        string $configDir,
+        string $localDir
+    )
     {
         $this->translationsDir = $translationsDir;
         $this->databaseYamlFile = $databaseYamlFile;
@@ -63,8 +77,6 @@ class InstallController extends AbstractController
         if (is_readable($this->databaseYamlFile) && ($step !== 'success')) {
             return  $this->redirectToRoute('homepage', []);
         }
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $languages = new Languages(null);
         $languages->setRootPath($this->translationsDir);

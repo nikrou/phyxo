@@ -25,13 +25,21 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CalendarController extends CommonController
 {
-    public function categoriesMonthly(Request $request, string $date_type, string $view_type, Conf $conf, ImageRepository $imageRepository, AlbumRepository $albumRepository,
-                                    MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator, int $start = 0)
-    {
+    public function categoriesMonthly(
+        Request $request,
+        string $date_type,
+        string $view_type,
+        Conf $conf,
+        ImageRepository $imageRepository,
+        AlbumRepository $albumRepository,
+        MenuBar $menuBar,
+        ImageMapper $imageMapper,
+        ImageStandardParams $image_std_params,
+        TranslatorInterface $translator,
+        int $start = 0
+    ) {
         $tpl_params = [];
         $tpl_params['START_ID'] = $start;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $this->image_std_params = $image_std_params;
 
@@ -135,15 +143,23 @@ class CalendarController extends CommonController
         return $this->render('month_calendar.html.twig', $tpl_params);
     }
 
-    public function categoriesWeekly(Request $request, string $date_type, Conf $conf, MenuBar $menuBar, ImageRepository $imageRepository, AlbumRepository $albumRepository,
-                                    ImageStandardParams $image_std_params, ImageMapper $imageMapper, TranslatorInterface $translator, int $start = 0, int $week = 0)
-    {
+    public function categoriesWeekly(
+        Request $request,
+        string $date_type,
+        Conf $conf,
+        MenuBar $menuBar,
+        ImageRepository $imageRepository,
+        AlbumRepository $albumRepository,
+        ImageStandardParams $image_std_params,
+        ImageMapper $imageMapper,
+        TranslatorInterface $translator,
+        int $start = 0,
+        int $week = 0
+    ) {
         $tpl_params = [];
         $tpl_params['START_ID'] = $start;
 
         $this->image_std_params = $image_std_params;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -236,17 +252,26 @@ class CalendarController extends CommonController
         return $this->render('month_calendar.html.twig', $tpl_params);
     }
 
-    public function categoryMonthly(Request $request, int $category_id, string $date_type, string $view_type, Conf $conf, MenuBar $menuBar, ImageRepository $imageRepository,
-                            AlbumRepository $albumRepository, ImageStandardParams $image_std_params, ImageMapper $imageMapper, TranslatorInterface $translator, int $start = 0)
-    {
+    public function categoryMonthly(
+        Request $request,
+        int $category_id,
+        string $date_type,
+        string $view_type,
+        Conf $conf,
+        MenuBar $menuBar,
+        ImageRepository $imageRepository,
+        AlbumRepository $albumRepository,
+        ImageStandardParams $image_std_params,
+        ImageMapper $imageMapper,
+        TranslatorInterface $translator,
+        int $start = 0
+    ) {
         $tpl_params = [];
         $tpl_params['START_ID'] = $start;
 
         $this->image_std_params = $image_std_params;
 
         $tpl_params['PAGE_TITLE'] = 'Calendar';
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $tpl_params['chronology_views'] = [
             [
@@ -336,17 +361,26 @@ class CalendarController extends CommonController
         return $this->render('month_calendar.html.twig', $tpl_params);
     }
 
-    public function categoryWeekly(Request $request, int $category_id, string $date_type, int $week, Conf $conf, ImageRepository $imageRepository, AlbumRepository $albumRepository,
-                                    MenuBar $menuBar, ImageStandardParams $image_std_params, ImageMapper $imageMapper, TranslatorInterface $translator, int $start = 0)
-    {
+    public function categoryWeekly(
+        Request $request,
+        int $category_id,
+        string $date_type,
+        int $week,
+        Conf $conf,
+        ImageRepository $imageRepository,
+        AlbumRepository $albumRepository,
+        MenuBar $menuBar,
+        ImageStandardParams $image_std_params,
+        ImageMapper $imageMapper,
+        TranslatorInterface $translator,
+        int $start = 0
+    ) {
         $tpl_params = [];
         $tpl_params['START_ID'] = $start;
 
         $this->image_std_params = $image_std_params;
 
         $tpl_params['PAGE_TITLE'] = 'Calendar';
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');

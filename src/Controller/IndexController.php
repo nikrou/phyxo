@@ -21,13 +21,18 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class IndexController extends CommonController
 {
-    public function mostVisited(Request $request, Conf $conf, MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params,
-                                TranslatorInterface $translator, int $start = 0)
+    public function mostVisited(
+        Request $request,
+        Conf $conf,
+        MenuBar $menuBar,
+        ImageMapper $imageMapper,
+        ImageStandardParams $image_std_params,
+        TranslatorInterface $translator,
+        int $start = 0
+    )
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -73,13 +78,18 @@ class IndexController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function recentPics(Request $request, Conf $conf, MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params,
-                                TranslatorInterface $translator, int $start = 0)
+    public function recentPics(
+        Request $request,
+        Conf $conf,
+        MenuBar $menuBar,
+        ImageMapper $imageMapper,
+        ImageStandardParams $image_std_params,
+        TranslatorInterface $translator,
+        int $start = 0
+    )
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -129,13 +139,18 @@ class IndexController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function bestRated(Request $request, Conf $conf, MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params,
-                             TranslatorInterface $translator, int $start = 0)
+    public function bestRated(
+        Request $request,
+        Conf $conf,
+        MenuBar $menuBar,
+        ImageMapper $imageMapper,
+        ImageStandardParams $image_std_params,
+        TranslatorInterface $translator,
+        int $start = 0
+    )
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -198,13 +213,19 @@ class IndexController extends CommonController
         }
     }
 
-    public function randomList(Request $request, string $list, Conf $conf, ImageMapper $imageMapper, MenuBar $menuBar,
-                                ImageStandardParams $image_std_params, TranslatorInterface $translator, int $start = 0)
+    public function randomList(
+        Request $request,
+        string $list,
+        Conf $conf,
+        ImageMapper $imageMapper,
+        MenuBar $menuBar,
+        ImageStandardParams $image_std_params,
+        TranslatorInterface $translator,
+        int $start = 0
+    )
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');

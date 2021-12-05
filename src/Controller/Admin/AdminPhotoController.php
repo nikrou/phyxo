@@ -61,8 +61,6 @@ class AdminPhotoController extends AbstractController
         $tpl_params = [];
         $this->translator = $translator;
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
         $represented_albums = [];
         foreach ($albumMapper->getRepository()->findBy(['representative_picture_id' => $image_id]) as $album) {
             $represented_albums[] = $album->getId();
@@ -287,15 +285,12 @@ class AdminPhotoController extends AbstractController
         int $image_id,
         int $category_id = null,
         ImageStandardParams $image_std_params,
-        Conf $conf,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
         DerivativeService $derivativeService
     ) {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $image = $imageMapper->getRepository()->find($image_id);
 

@@ -38,13 +38,15 @@ class AdminLanguagesController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function installed(Request $request, UserMapper $userMapper, ParameterBagInterface $params, TranslatorInterface $translator,
-                            LanguageRepository $languageRepository, UserInfosRepository $userInfosRepository)
-    {
+    public function installed(
+        UserMapper $userMapper,
+        ParameterBagInterface $params,
+        TranslatorInterface $translator,
+        LanguageRepository $languageRepository,
+        UserInfosRepository $userInfosRepository
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $default_language = $userMapper->getDefaultLanguage();
 
@@ -119,9 +121,14 @@ class AdminLanguagesController extends AbstractController
         return $this->render('languages_installed.html.twig', $tpl_params);
     }
 
-    public function action(string $language, string $action, UserMapper $userMapper, LanguageRepository $languageRepository,
-                        UserInfosRepository $userInfosRepository, ParameterBagInterface $params)
-    {
+    public function action(
+        string $language,
+        string $action,
+        UserMapper $userMapper,
+        LanguageRepository $languageRepository,
+        UserInfosRepository $userInfosRepository,
+        ParameterBagInterface $params
+    ) {
         $languages = new Languages($languageRepository, $userMapper->getDefaultLanguage());
         $languages->setRootPath($params->get('translator.default_path'));
 
@@ -138,13 +145,10 @@ class AdminLanguagesController extends AbstractController
         return $this->redirectToRoute('admin_languages_installed');
     }
 
-    public function new(Request $request, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
-                        LanguageRepository $languageRepository)
+    public function new(UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator, LanguageRepository $languageRepository)
     {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $languages = new Languages($languageRepository, $userMapper->getDefaultLanguage());
         $languages->setRootPath($params->get('translator.default_path'));
@@ -179,9 +183,13 @@ class AdminLanguagesController extends AbstractController
         return $this->render('languages_new.html.twig', $tpl_params);
     }
 
-    public function install(int $revision, ParameterBagInterface $params, UserMapper $userMapper, TranslatorInterface $translator,
-                            LanguageRepository $languageRepository)
-    {
+    public function install(
+        int $revision,
+        ParameterBagInterface $params,
+        UserMapper $userMapper,
+        TranslatorInterface $translator,
+        LanguageRepository $languageRepository
+    ) {
         if (!$userMapper->isWebmaster()) {
             $this->addFlash('error', $translator->trans('Webmaster status is required.', [], 'admin'));
 
@@ -204,9 +212,14 @@ class AdminLanguagesController extends AbstractController
         }
     }
 
-    public function update(Request $request, UserMapper $userMapper, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
-                            ParameterBagInterface $params, TranslatorInterface $translator, LanguageRepository $languageRepository)
-    {
+    public function update(
+        UserMapper $userMapper,
+        Conf $conf,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        ParameterBagInterface $params,
+        TranslatorInterface $translator,
+        LanguageRepository $languageRepository
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -215,8 +228,6 @@ class AdminLanguagesController extends AbstractController
 
             return $this->redirectToRoute('admin_languages_new');
         }
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $tpl_params['SHOW_RESET'] = 0;
         if (!empty($conf['updates_ignored'])) {

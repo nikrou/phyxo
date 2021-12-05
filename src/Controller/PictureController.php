@@ -62,7 +62,6 @@ class PictureController extends CommonController
         ImageAlbumRepository $imageAlbumRepository,
         EventDispatcherInterface $eventDispatcher
     ) {
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $this->translator = $translator;
         $tpl_params = [];
         $this->conf = $conf;

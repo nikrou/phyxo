@@ -40,7 +40,6 @@ class AdminRatingController extends AbstractController
 
     public function photos(
         Request $request,
-        Conf $conf,
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
         UserMapper $userMapper,
@@ -50,8 +49,6 @@ class AdminRatingController extends AbstractController
     ) {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $navbar_params = [];
         $elements_per_page = 10;
@@ -194,8 +191,6 @@ class AdminRatingController extends AbstractController
     ) {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $filter_min_rates = 2;
         if ($request->get('f_min_rates') && is_numeric($request->get('f_min_rates'))) {

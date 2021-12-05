@@ -25,13 +25,21 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AlbumController extends CommonController
 {
-    public function album(Request $request, Conf $conf, ImageStandardParams $image_std_params, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
-                            ImageMapper $imageMapper, TranslatorInterface $translator, AlbumMapper $albumMapper, int $start = 0, int $category_id = 0)
+    public function album(
+        Request $request,
+        Conf $conf,
+        ImageStandardParams $image_std_params,
+        MenuBar $menuBar,
+        UserCacheAlbumRepository $userCacheAlbumRepository,
+        ImageMapper $imageMapper,
+        TranslatorInterface $translator,
+        AlbumMapper $albumMapper,
+        int $start = 0,
+        int $category_id = 0
+    )
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -128,8 +136,11 @@ class AlbumController extends CommonController
                     'TN_TITLE' => $imageMapper->getThumbnailTitle(['rating_score' => '', 'nb_comments' => ''], $currentAlbum->getName(), $currentAlbum->getComment()),
                     'URL' => $this->generateUrl('album', ['category_id' => $currentAlbum->getId(), 'start' => $start]),
                     'CAPTION_NB_IMAGES' => $albumMapper->getDisplayImagesCount(
-                        $userCacheAlbum->getNbImages(), $userCacheAlbum->getCountImages(),
-                        $userCacheAlbum->getCountAlbums(), true, '<br>'
+                        $userCacheAlbum->getNbImages(),
+                        $userCacheAlbum->getCountImages(),
+                        $userCacheAlbum->getCountAlbums(),
+                        true,
+                        '<br>'
                     ),
                     'DESCRIPTION' => $currentAlbum->getComment() ?? '',
                     'NAME' => $name,
@@ -220,13 +231,20 @@ class AlbumController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function albumFlat(Request $request, Conf $conf, MenuBar $menuBar, ImageStandardParams $image_std_params,
-                                AlbumMapper $albumMapper, ImageMapper $imageMapper, int $category_id, TranslatorInterface $translator, int $start = 0)
+    public function albumFlat(
+        Request $request,
+        Conf $conf,
+        MenuBar $menuBar,
+        ImageStandardParams $image_std_params,
+        AlbumMapper $albumMapper,
+        ImageMapper $imageMapper,
+        int $category_id,
+        TranslatorInterface $translator,
+        int $start = 0
+    )
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -280,13 +298,18 @@ class AlbumController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function albumsFlat(Request $request, Conf $conf, MenuBar $menuBar,
-        ImageStandardParams $image_std_params, ImageMapper $imageMapper, TranslatorInterface $translator, int $start = 0)
+    public function albumsFlat(
+        Request $request,
+        Conf $conf,
+        MenuBar $menuBar,
+        ImageStandardParams $image_std_params,
+        ImageMapper $imageMapper,
+        TranslatorInterface $translator,
+        int $start = 0
+    )
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -334,13 +357,20 @@ class AlbumController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function albums(Request $request, Conf $conf, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository, ImageStandardParams $image_std_params,
-                            ImageMapper $imageMapper, TranslatorInterface $translator, AlbumMapper $albumMapper, int $start = 0)
+    public function albums(
+        Request $request,
+        Conf $conf,
+        MenuBar $menuBar,
+        UserCacheAlbumRepository $userCacheAlbumRepository,
+        ImageStandardParams $image_std_params,
+        ImageMapper $imageMapper,
+        TranslatorInterface $translator,
+        AlbumMapper $albumMapper,
+        int $start = 0
+    )
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -392,8 +422,11 @@ class AlbumController extends CommonController
                         'TN_TITLE' => $imageMapper->getThumbnailTitle(['rating_score' => '', 'nb_comments' => ''], $album->getName(), $album->getComment()),
                         'URL' => $this->generateUrl('album', ['category_id' => $album->getId(), 'start' => $start]),
                         'CAPTION_NB_IMAGES' => $albumMapper->getDisplayImagesCount(
-                            $userCacheAlbum->getNbImages(), $userCacheAlbum->getCountImages(),
-                            $userCacheAlbum->getCountAlbums(), true, '<br>'
+                            $userCacheAlbum->getNbImages(),
+                            $userCacheAlbum->getCountImages(),
+                            $userCacheAlbum->getCountAlbums(),
+                            true,
+                            '<br>'
                         ),
                         'DESCRIPTION' => $album->getComment() ?? '',
                         'NAME' => $name,
@@ -451,14 +484,20 @@ class AlbumController extends CommonController
         return $this->render('mainpage_categories.html.twig', $tpl_params);
     }
 
-    public function recentCats(Request $request, Conf $conf, MenuBar $menuBar, UserCacheAlbumRepository $userCacheAlbumRepository,
-                                ImageStandardParams $image_std_params, ImageMapper $imageMapper, TranslatorInterface $translator,
-                                AlbumMapper $albumMapper, int $start = 0)
+    public function recentCats(
+        Request $request,
+        Conf $conf,
+        MenuBar $menuBar,
+        UserCacheAlbumRepository $userCacheAlbumRepository,
+        ImageStandardParams $image_std_params,
+        ImageMapper $imageMapper,
+        TranslatorInterface $translator,
+        AlbumMapper $albumMapper,
+        int $start = 0
+    )
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -508,8 +547,11 @@ class AlbumController extends CommonController
                     'TN_TITLE' => $imageMapper->getThumbnailTitle(['rating_score' => '', 'nb_comments' => ''], $album->getName(), $album->getComment()),
                     'URL' => $this->generateUrl('album', ['category_id' => $album->getId(), 'start' => $start]),
                     'CAPTION_NB_IMAGES' => $albumMapper->getDisplayImagesCount(
-                        $userCacheAlbum->getNbImages(), $userCacheAlbum->getCountImages(),
-                        $userCacheAlbum->getCountAlbums(), true, '<br>'
+                        $userCacheAlbum->getNbImages(),
+                        $userCacheAlbum->getCountImages(),
+                        $userCacheAlbum->getCountAlbums(),
+                        true,
+                        '<br>'
                     ),
                     'DESCRIPTION' => $album->getComment() ?? '',
                     'NAME' => $name,

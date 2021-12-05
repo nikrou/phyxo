@@ -306,12 +306,8 @@ class ImageMapper
 
         $new_ids = [];
         foreach ($this->imageRepository->findBy(['id' => $ids]) as $image) {
-            if (URL::url_is_remote($image->getPath())) {
-                continue;
-            }
-
             $files = [];
-            $files[] = Utils::get_element_path($image->toArray());
+            $files[] = $image->getPath();
 
             if ($image->getRepresentativeExt()) {
                 $files[] = \Phyxo\Functions\Utils::original_to_representative($files[0], $image->getRepresentativeExt());

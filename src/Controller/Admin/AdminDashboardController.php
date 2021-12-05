@@ -31,14 +31,24 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminDashboardController extends AbstractController
 {
-    public function index(Request $request, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator,
-                          UserRepository $userRepository, GroupRepository $groupRepository, HttpClientInterface $client, AlbumRepository $albumRepository,
-                          ImageMapper $imageMapper, ImageAlbumRepository $imageAlbumRepository, CommentRepository $commentRepository, RateRepository $rateRepository,
-                          TagRepository $tagRepository, ImageTagRepository $imageTagRepository, bool $check_upgrade = false)
-    {
+    public function index(
+        Conf $conf,
+        ParameterBagInterface $params,
+        TranslatorInterface $translator,
+        UserRepository $userRepository,
+        GroupRepository $groupRepository,
+        HttpClientInterface $client,
+        AlbumRepository $albumRepository,
+        ImageMapper $imageMapper,
+        ImageAlbumRepository $imageAlbumRepository,
+        CommentRepository $commentRepository,
+        RateRepository $rateRepository,
+        TagRepository $tagRepository,
+        ImageTagRepository $imageTagRepository,
+        bool $check_upgrade = false
+    ) {
         $tpl_params = [];
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $tpl_params['DEV'] = preg_match('/.*-dev$/', $params->get('core_version'));
 
         if ($check_upgrade) {
@@ -75,7 +85,8 @@ class AdminDashboardController extends AbstractController
         $nb_groups = $groupRepository->count([]);
         $nb_rates = $rateRepository->count([]);
 
-        $tpl_params = array_merge($tpl_params,
+        $tpl_params = array_merge(
+            $tpl_params,
             [
                 'OS' => PHP_OS,
                 'PHP_VERSION' => \PHP_VERSION,

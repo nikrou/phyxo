@@ -141,7 +141,6 @@ class AdminConfigurationController extends AbstractController
     }
 
     public function index(
-        Request $request,
         string $section,
         Conf $conf,
         ParameterBagInterface $params,
@@ -152,8 +151,6 @@ class AdminConfigurationController extends AbstractController
         UserMapper $userMapper
     ) {
         $tpl_params = [];
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_configuration', ['section' => $section]);
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_configuration_update', ['section' => $section]);

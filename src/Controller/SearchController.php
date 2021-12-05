@@ -23,7 +23,6 @@ use App\DataMapper\ImageMapper;
 use App\Entity\Search;
 use App\Repository\TagRepository;
 use Phyxo\Functions\Utils;
-use Phyxo\Functions\URL;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SearchController extends CommonController
@@ -31,8 +30,6 @@ class SearchController extends CommonController
     public function qsearch(Request $request, Conf $conf, MenuBar $menuBar, SearchRepository $searchRepository)
     {
         $tpl_params = [];
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if (!$request->get('q')) {
             return $this->createNotFoundException();
@@ -71,8 +68,6 @@ class SearchController extends CommonController
         ImageMapper $imageMapper
     ) {
         $tpl_params = [];
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
@@ -270,8 +265,6 @@ class SearchController extends CommonController
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
@@ -311,7 +304,7 @@ class SearchController extends CommonController
 
             if (!empty($search_results['qsearch_details']['matching_tags'])) {
                 foreach ($search_results['qsearch_details']['matching_tags'] as $tag) {
-                    $tag['URL'] = $this->generateUrl('images_by_tags', ['tag_ids' => URL::tagToUrl($tag)]);
+                    $tag['URL'] = $this->generateUrl('images_by_tags', ['tag_ids' => Utils::tagToUrl($tag)]);
                     $tpl_params['tag_search_results'] = $tag;
                 }
             }
@@ -372,8 +365,6 @@ class SearchController extends CommonController
         TranslatorInterface $translator
     ) {
         $tpl_params = [];
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search rules');
 

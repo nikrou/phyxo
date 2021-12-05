@@ -59,8 +59,6 @@ class SecurityController extends CommonController
         $error = $authenticationUtils->getLastAuthenticationError();
         $last_username = $authenticationUtils->getLastUsername();
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
         $token = $csrfTokenManager->getToken('authenticate');
 
         $tpl_params = array_merge($tpl_params, [
@@ -93,8 +91,6 @@ class SecurityController extends CommonController
         GuardAuthenticatorHandler $guardHandler
     ) {
         $tpl_params = $this->init();
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $form = $this->createForm(UserRegistrationType::class);
         $form->handleRequest($request);
@@ -140,8 +136,6 @@ class SecurityController extends CommonController
         $tpl_params = $this->init();
 
         $errors = [];
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $languages = $languageRepository->findAll();
         $themes = $themeRepository->findAll();
@@ -276,8 +270,6 @@ class SecurityController extends CommonController
     ) {
         $tpl_params = $this->init();
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
         $errors = [];
         $infos = [];
         $token = $csrfTokenManager->getToken('authenticate');
@@ -369,8 +361,6 @@ class SecurityController extends CommonController
         $token = $csrfTokenManager->getToken('authenticate');
         $errors = [];
         $infos = [];
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $user = $userProvider->loadByActivationKey($activation_key);
         $tpl_params = $this->init();

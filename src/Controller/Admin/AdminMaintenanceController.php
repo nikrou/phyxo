@@ -21,8 +21,6 @@ use App\Repository\SearchRepository;
 use App\Repository\UpgradeRepository;
 use App\Repository\UserFeedRepository;
 use App\Services\DerivativeService;
-use Doctrine\DBAL\Connection;
-use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -54,13 +52,9 @@ class AdminMaintenanceController extends AbstractController
         SearchRepository $searchRepository,
         UserFeedRepository $userFeedRepository,
         AlbumMapper $albumMapper,
-        UpgradeRepository $upgradeRepository,
-        ManagerRegistry $registry
+        UpgradeRepository $upgradeRepository
     ) {
-        $conn = $registry->getConnection();
-
         $tpl_params = [];
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         switch ($action) {
           case 'lock_gallery':

@@ -43,8 +43,6 @@ class AdminGroupsController extends AbstractController
         $tpl_params = [];
         $this->translator = $translator;
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
         if ($request->isMethod('POST')) {
             if ($groupname = $request->request->get('groupname')) {
                 if ($groupRepository->isGroupNameExists($groupname)) {
@@ -97,13 +95,17 @@ class AdminGroupsController extends AbstractController
         return $this->render('groups_list.html.twig', $tpl_params);
     }
 
-    public function perm(Request $request, int $group_id, AlbumMapper $albumMapper, UserMapper $userMapper, TranslatorInterface $translator,
-                        GroupRepository $groupRepository, CsrfTokenManagerInterface $tokenManager)
-    {
+    public function perm(
+        Request $request,
+        int $group_id,
+        AlbumMapper $albumMapper,
+        UserMapper $userMapper,
+        TranslatorInterface $translator,
+        GroupRepository $groupRepository,
+        CsrfTokenManagerInterface $tokenManager
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->isMethod('POST')) {
             $group = $groupRepository->find($group_id);

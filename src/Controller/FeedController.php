@@ -26,7 +26,6 @@ class FeedController extends CommonController
     public function notification(Request $request, Conf $conf, MenuBar $menuBar, TranslatorInterface $translator, UserFeedRepository $userFeedRepository)
     {
         $tpl_params = [];
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params['PAGE_TITLE'] = $translator->trans('Notification');

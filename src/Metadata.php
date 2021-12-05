@@ -247,7 +247,7 @@ class Metadata
                     }
                 }
 
-                $value = \Phyxo\Functions\Utils::convert_charset($value, $input_encoding, \Phyxo\Functions\Utils::get_charset());
+                $value = \Phyxo\Functions\Utils::convert_charset($value, $input_encoding, 'utf-8');
             }
         }
 
@@ -264,18 +264,18 @@ class Metadata
         if ($this->conf['use_exif']) {
             $update_fields =
                 array_merge(
-                $update_fields,
-                array_keys($this->conf['use_exif_mapping']),
-                ['latitude', 'longitude']
-            );
+                    $update_fields,
+                    array_keys($this->conf['use_exif_mapping']),
+                    ['latitude', 'longitude']
+                );
         }
 
         if ($this->conf['use_iptc']) {
             $update_fields =
                 array_merge(
-                $update_fields,
-                array_keys($this->conf['use_iptc_mapping'])
-            );
+                    $update_fields,
+                    array_keys($this->conf['use_iptc_mapping'])
+                );
         }
 
         return array_unique($update_fields);

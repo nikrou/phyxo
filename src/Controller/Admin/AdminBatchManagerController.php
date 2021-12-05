@@ -93,7 +93,6 @@ class AdminBatchManagerController extends AbstractController
         $this->translator = $translator;
         $this->derivativeService = $derivativeService;
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
 
         $collection = [];
@@ -962,8 +961,6 @@ class AdminBatchManagerController extends AbstractController
     ) {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->isMethod('POST')) {
             $collection = explode(',', $request->request->get('element_ids'));

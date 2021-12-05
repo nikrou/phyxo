@@ -40,16 +40,19 @@ class AdminUsersController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function list(Request $request, Conf $conf, UserMapper $userMapper, CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator,
-                        ThemeRepository $themeRepository, LanguageRepository $languageRepository,
-                        UserRepository $userRepository, UserInfosRepository $userInfosRepository, GroupRepository $groupRepository)
-    {
+    public function list(
+        Conf $conf,
+        UserMapper $userMapper,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        TranslatorInterface $translator,
+        ThemeRepository $themeRepository,
+        LanguageRepository $languageRepository,
+        UserRepository $userRepository,
+        UserInfosRepository $userInfosRepository,
+        GroupRepository $groupRepository
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
-        $groups = [];
 
         $groups = [];
         foreach ($groupRepository->findAll() as $group) {
@@ -149,8 +152,6 @@ class AdminUsersController extends AbstractController
     {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $user = $userRepository->find($user_id);
 

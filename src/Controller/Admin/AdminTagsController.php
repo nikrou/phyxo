@@ -38,13 +38,16 @@ class AdminTagsController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function list(Request $request, CsrfTokenManagerInterface $csrfTokenManager,
-                        TranslatorInterface $translator, TagMapper $tagMapper, ImageTagRepository $imageTagRepository)
+    public function list(
+        Request $request,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        TranslatorInterface $translator,
+        TagMapper $tagMapper,
+        ImageTagRepository $imageTagRepository
+    )
     {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $orphan_tag_names = [];
         foreach ($tagMapper->getRepository()->getOrphanTags() as $tag) {
@@ -53,10 +56,10 @@ class AdminTagsController extends AbstractController
 
         if (count($orphan_tag_names) > 0) {
             $tpl_params['warnings'][] = sprintf(
-              $translator->trans('You have %d orphan tags: %s.', [], 'admin') . ' <a href="%s">' . $translator->trans('Delete orphan tags', [], 'admin') . '</a>',
-              count($orphan_tag_names),
-              implode(', ', $orphan_tag_names),
-              $this->generateUrl('admin_tags_delete_orphans')
+                $translator->trans('You have %d orphan tags: %s.', [], 'admin') . ' <a href="%s">' . $translator->trans('Delete orphan tags', [], 'admin') . '</a>',
+                count($orphan_tag_names),
+                implode(', ', $orphan_tag_names),
+                $this->generateUrl('admin_tags_delete_orphans')
             );
         }
 
@@ -200,9 +203,10 @@ class AdminTagsController extends AbstractController
 
                     $this->addFlash(
                         'info',
-                        $translator->trans('Tags <em>{tags_deleted}</em> merged into tag <em>{destination_tag}</em>',
-                                            ['tags_deleted' => implode(', ', $tags_deleted), 'destination_tag' => $destination_tag->getName()],
-                                            'admin'
+                        $translator->trans(
+                            'Tags <em>{tags_deleted}</em> merged into tag <em>{destination_tag}</em>',
+                            ['tags_deleted' => implode(', ', $tags_deleted), 'destination_tag' => $destination_tag->getName()],
+                            'admin'
                         )
                     );
                 }
@@ -255,8 +259,6 @@ class AdminTagsController extends AbstractController
     {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $status_options[null] = '';
         foreach (User::ALL_STATUS as $status) {
@@ -322,8 +324,6 @@ class AdminTagsController extends AbstractController
     {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->isMethod('POST') && $request->request->get('tag_ids')) {
             if ($request->request->get('validate')) {

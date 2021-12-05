@@ -43,8 +43,6 @@ class CommentController extends CommonController
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
         $tpl_params['PAGE_TITLE'] = $translator->trans('User comments');
 
         $albums = [];

@@ -13,7 +13,7 @@ namespace Phyxo\Functions\Ws;
 
 use App\Entity\Tag as EntityTag;
 use Phyxo\Ws\Error;
-use Phyxo\Functions\URL;
+use Phyxo\Functions\Utils;
 use Phyxo\Ws\Server;
 
 class Tag
@@ -114,8 +114,8 @@ class Tag
                 $image_tag_ids = ($params['tag_mode_and']) ? $tag_ids : $image_tag_map[$image->getId()];
                 $image_tags = [];
                 foreach ($image_tag_ids as $tag_id) {
-                    $url = $service->getRouter()->generate('images_by_tags', ['tag_ids' => URL::tagToUrl($tags_by_id[$tag_id])]);
-                    $page_url = $service->getRouter()->generate('picture', ['image_id' => $image->getId(), 'type' => 'tags', 'element_id' => URL::tagToUrl($tags_by_id[$tag_id])]);
+                    $url = $service->getRouter()->generate('images_by_tags', ['tag_ids' => Utils::tagToUrl($tags_by_id[$tag_id])]);
+                    $page_url = $service->getRouter()->generate('picture', ['image_id' => $image->getId(), 'type' => 'tags', 'element_id' => Utils::tagToUrl($tags_by_id[$tag_id])]);
                     $image_tags[] = [
                         'id' => (int)$tag_id,
                         'url' => $url,

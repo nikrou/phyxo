@@ -45,8 +45,6 @@ class AdminAlbumsOptionsController extends AbstractController
         $tpl_params = [];
         $this->translator = $translator;
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
         if ($request->isMethod('POST')) {
             if ($request->request->get('falsify') && $request->request->get('cat_true') && count($request->request->get('cat_true')) > 0) {
                 if ($section === 'comments') {

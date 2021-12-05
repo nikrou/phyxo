@@ -73,8 +73,6 @@ class AdminHistoryController extends AbstractController
     ) {
         $tpl_params = [];
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
         $this->refreshSummary($historyRepository, $historySummaryRepository);
 
         $summary_lines = [];
@@ -205,8 +203,6 @@ class AdminHistoryController extends AbstractController
         HistoryRepository $historyRepository
     ) {
         $tpl_params = [];
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $tpl_params['type_option_values'] = $this->types;
         $tpl_params['display_thumbnails'] = $this->display_thumbnails;

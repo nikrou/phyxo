@@ -36,13 +36,16 @@ class AdminAlbumsController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function list(Request $request, int $parent_id = null, Conf $conf, AlbumRepository $albumRepository, CsrfTokenManagerInterface $csrfTokenManager,
-                        TranslatorInterface $translator, ImageAlbumRepository $imageAlbumRepository)
-    {
+    public function list(
+        int $parent_id = null,
+        Conf $conf,
+        AlbumRepository $albumRepository,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        TranslatorInterface $translator,
+        ImageAlbumRepository $imageAlbumRepository
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $sort_orders = [
             'name ASC' => $translator->trans('Album name, A &rarr; Z', [], 'admin'),
@@ -204,8 +207,6 @@ class AdminAlbumsController extends AbstractController
     {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->isMethod('POST')) {
             if ($request->request->get('selection')) {

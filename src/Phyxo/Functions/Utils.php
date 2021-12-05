@@ -29,6 +29,17 @@ class Utils
         return is_readable($config_file);
     }
 
+    public static function tagToUrl(array $tag, string $tag_url_style = 'id-tag'): string
+    {
+        $url_tag = $tag['id'];
+
+        if (($tag_url_style === 'id-tag') && !empty($tag['url_name'])) {
+            $url_tag .= '-' . $tag['url_name'];
+        }
+
+        return $url_tag;
+    }
+
     /**
      * Returns the path to use for the Phyxo cookie.
      * If Phyxo is installed on :
@@ -136,35 +147,6 @@ class Utils
         $path = substr_replace($path, 'pwg_representative/', $pos + 1, 0);
         $pos = strrpos($path, '.');
         return substr_replace($path, $representative_ext, $pos + 1);
-    }
-
-    /**
-     * get the full path of an image
-     *
-     * @param array $element_info element information from db (at least 'path')
-     * @return string
-     */
-    public static function get_element_path($element_info)
-    {
-        $path = $element_info['path'];
-        if (!\Phyxo\Functions\URL::url_is_remote($path)) {
-            $path = __DIR__ . '/../../../' . $path;
-        }
-        return $path;
-    }
-
-    /**
-     * return the character set used by Phyxo
-     * @return string
-     */
-    public static function get_charset()
-    {
-        $pwg_charset = 'utf-8';
-        if (defined('PWG_CHARSET')) {
-            $pwg_charset = PWG_CHARSET;
-        }
-
-        return $pwg_charset;
     }
 
     /**

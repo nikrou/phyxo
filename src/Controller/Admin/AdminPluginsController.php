@@ -37,13 +37,16 @@ class AdminPluginsController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function installed(Request $request, UserMapper $userMapper, PluginRepository $pluginRepository, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
-                            ParameterBagInterface $params, TranslatorInterface $translator)
-    {
+    public function installed(
+        UserMapper $userMapper,
+        PluginRepository $pluginRepository,
+        Conf $conf,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        ParameterBagInterface $params,
+        TranslatorInterface $translator
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $plugins = new Plugins($pluginRepository, $userMapper);
         $plugins->setRootPath($params->get('plugins_dir'));
@@ -142,13 +145,16 @@ class AdminPluginsController extends AbstractController
         }
     }
 
-    public function new(Request $request, UserMapper $userMapper, PluginRepository $pluginRepository, Conf $conf, ParameterBagInterface $params,
-                        TranslatorInterface $translator, CsrfTokenManagerInterface $tokenManager)
-    {
+    public function new(
+        UserMapper $userMapper,
+        PluginRepository $pluginRepository,
+        Conf $conf,
+        ParameterBagInterface $params,
+        TranslatorInterface $translator,
+        CsrfTokenManagerInterface $tokenManager
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $plugins = new Plugins($pluginRepository, $userMapper);
         $plugins->setRootPath($params->get('plugins_dir'));
@@ -185,9 +191,14 @@ class AdminPluginsController extends AbstractController
         return $this->render('plugins_new.html.twig', $tpl_params);
     }
 
-    public function update(Request $request, UserMapper $userMapper, PluginRepository $pluginRepository, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
-                        ParameterBagInterface $params, TranslatorInterface $translator)
-    {
+    public function update(
+        UserMapper $userMapper,
+        PluginRepository $pluginRepository,
+        Conf $conf,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        ParameterBagInterface $params,
+        TranslatorInterface $translator
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -196,8 +207,6 @@ class AdminPluginsController extends AbstractController
 
             return $this->redirectToRoute('admin_languages_new');
         }
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $tpl_params['SHOW_RESET'] = 0;
         if (!empty($conf['updates_ignored'])) {

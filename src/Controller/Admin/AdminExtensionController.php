@@ -26,14 +26,18 @@ class AdminExtensionController extends AbstractController
 {
     protected $params, $conf;
 
-    public function theme(Request $request, string $theme, ThemeRepository $themeRepository, UserMapper $userMapper, string $themesDir, Conf $conf,
-                            ThemeLoader $themeLoader, ParameterBagInterface $params)
-    {
+    public function theme(
+        string $theme,
+        ThemeRepository $themeRepository,
+        UserMapper $userMapper,
+        string $themesDir,
+        Conf $conf,
+        ThemeLoader $themeLoader,
+        ParameterBagInterface $params
+    ) {
         $tpl_params = [];
         $this->conf = $conf;
         $this->params = $params;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $themes = new Themes($themeRepository, $userMapper);
         $themes->setRootPath($themesDir);
@@ -78,13 +82,11 @@ class AdminExtensionController extends AbstractController
         return $this->render($themeResponse['template_filename'], $tpl_params);
     }
 
-    public function plugin(Request $request, string $plugin, PluginRepository $pluginRepository, UserMapper $userMapper, string $pluginsDir, Conf $conf, ParameterBagInterface $params)
+    public function plugin(string $plugin, PluginRepository $pluginRepository, UserMapper $userMapper, string $pluginsDir, Conf $conf, ParameterBagInterface $params)
     {
         $tpl_params = [];
         $this->conf = $conf;
         $this->params = $params;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $plugins = new Plugins($pluginRepository, $userMapper);
         $plugins->setRootPath($pluginsDir);

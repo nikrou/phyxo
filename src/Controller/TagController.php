@@ -29,8 +29,6 @@ class TagController extends CommonController
     {
         $tpl_params = [];
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
         $tpl_params['PAGE_TITLE'] = $translator->trans('Tags');
 
         $display_mode = $conf['tags_default_display_mode'];
@@ -128,12 +126,19 @@ class TagController extends CommonController
         return $this->render('tags.html.twig', $tpl_params);
     }
 
-    public function imagesByTags(Request $request, ImageMapper $imageMapper, ImageStandardParams $image_std_params, string $tag_ids,
-                                TranslatorInterface $translator, TagRepository $tagRepository, Conf $conf, MenuBar $menuBar, int $start = 0)
-    {
+    public function imagesByTags(
+        Request $request,
+        ImageMapper $imageMapper,
+        ImageStandardParams $image_std_params,
+        string $tag_ids,
+        TranslatorInterface $translator,
+        TagRepository $tagRepository,
+        Conf $conf,
+        MenuBar $menuBar,
+        int $start = 0
+    ) {
         $tpl_params = [];
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $this->image_std_params = $image_std_params;
 
         if ($request->cookies->has('category_view')) {

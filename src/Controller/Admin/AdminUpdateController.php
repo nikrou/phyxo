@@ -68,8 +68,6 @@ class AdminUpdateController extends AbstractController
         $this->translator = $translator;
         $this->defaultTheme = $defaultTheme;
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
         /*
         STEP:
         0 = check is needed. If version is latest or check fail, we stay on step 0
@@ -281,12 +279,10 @@ class AdminUpdateController extends AbstractController
         return $this->render('updates_core.html.twig', $tpl_params);
     }
 
-    public function extensions(Request $request, TranslatorInterface $translator)
+    public function extensions(TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->translator = $translator;
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_update');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_update_extensions');
