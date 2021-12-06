@@ -31,7 +31,9 @@ use App\Metadata;
 use App\Repository\ImageAlbumRepository;
 use App\Security\TagVoter;
 use IntlDateFormatter;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -564,22 +566,39 @@ class PictureController extends CommonController
 
     public function rate(Request $request, ImageMapper $imageMapper, Conf $conf, RateMapper $rateMapper)
     {
+        $result['score'] = null;
+
         if ($request->isMethod('POST')) {
             if (!$imageMapper->getRepository()->isAuthorizedToUser($request->request->get('image_id'), $this->getUser()->getUserInfos()->getForbiddenCategories())) {
                 return new AccessDeniedException("Cannot rate that image");
             }
 
-            $result = $rateMapper->ratePicture($request->request->get('image_id'), $request->request->get('rating'), $request->getClientIp());
+            if (!$this->getUser()->isGuest() || $this->conf['rate_anonymous']) {
+                $result = $rateMapper->ratePicture(
+                    $request->request->get('image_id'),
+                    $request->request->get('rating'),
+                    $request->getClientIp(),
+                    $request->cookies->has('anonymous_rater') ? $request->cookies->get('anonymous_rater') : $request->getClientIp()
+                );
+            }
 
             if (is_null($result['score'])) {
                 return new AccessDeniedException('Forbidden or rate not in ' . implode(',', $conf['rate_items']));
             }
         }
 
-        return $this->redirectToRoute(
-            'picture',
-            ['image_id' => $request->request->get('image_id'), 'type' => $request->request->get('type'), 'element_id' => $request->request->get('element_id')]
+        $response = new RedirectResponse(
+            $this->generateUrl(
+                'picture',
+                ['image_id' => $request->request->get('image_id'), 'type' => $request->request->get('type'), 'element_id' => $request->request->get('element_id')]
+            )
         );
+        if (!is_null($result['score']) && $this->getUser()->isGuest()) {
+            $cookie = Cookie::create('anonymous_rater', $request->getClientIp(), strtotime('+1year'));
+            $response->headers->setCookie($cookie);
+        }
+
+        return $response;
     }
 
     protected function addMetadataInfos(Metadata $metadata, string $path): array

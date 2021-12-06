@@ -36,7 +36,7 @@ class RateMapper
     /**
      * Rate a picture by the current user.
      */
-    public function ratePicture(int $image_id, int $note, string $anonymous_id): array
+    public function ratePicture(int $image_id, int $note, string $anonymous_id, string $save_anonymous_id = ''): array
     {
         if (!$this->conf['rate'] || !in_array($note, $this->conf['rate_items'])) {
             return [];
@@ -44,13 +44,7 @@ class RateMapper
 
         $user_anonymous = $this->userMapper->isGuest();
 
-        if ($user_anonymous && !$this->conf['rate_anonymous']) {
-            return [];
-        }
-
         if ($user_anonymous) {
-            $save_anonymous_id = isset($_COOKIE['anonymous_rater']) ? $_COOKIE['anonymous_rater'] : $anonymous_id;
-
             if ($anonymous_id !== $save_anonymous_id) { // client has changed his IP address or he's trying to fool us
                 $rate = $this->getRepository()->findOneBy([
                     'user' => $this->userMapper->getUser()->getId(),
@@ -63,8 +57,6 @@ class RateMapper
 
                 $this->getRepository()->updateAnonymousIdField($anonymous_id, $this->userMapper->getUser()->getId(), $save_anonymous_id);
             }
-
-            setcookie('anonymous_rater', $anonymous_id, strtotime('+1year'), Utils::cookie_path());
         }
 
         $this->getRepository()->deleteImageRateForUser($this->userMapper->getUser()->getId(), $image_id, $user_anonymous ? $anonymous_id : null);

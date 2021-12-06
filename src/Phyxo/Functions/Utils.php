@@ -41,64 +41,6 @@ class Utils
     }
 
     /**
-     * Returns the path to use for the Phyxo cookie.
-     * If Phyxo is installed on :
-     * http://domain.org/meeting/gallery/
-     * it will return : "/meeting/gallery"
-     *
-     * @return string
-     */
-    public static function cookie_path()
-    {
-        if (!empty($_SERVER['PUBLIC_BASE_PATH'])) {
-            $path = $_SERVER['PUBLIC_BASE_PATH'];
-
-            // add a trailing '/' if needed
-            if ((strlen($path) === 0) || ($path[strlen($path) - 1] !== '/')) {
-                $path .= '/';
-            }
-
-            return $path;
-        } elseif (!empty($_SERVER['REDIRECT_SCRIPT_NAME'])) {
-            $path = $_SERVER['REDIRECT_SCRIPT_NAME'];
-        } elseif (!empty($_SERVER['REDIRECT_URL'])) {
-            // mod_rewrite is activated for upper level directories. we must set the
-            // cookie to the path shown in the browser otherwise it will be discarded.
-            if (
-                !empty($_SERVER['PATH_INFO']) && ($_SERVER['REDIRECT_URL'] !== $_SERVER['PATH_INFO'])
-                && (substr($_SERVER['REDIRECT_URL'], -strlen($_SERVER['PATH_INFO'])) == $_SERVER['PATH_INFO'])
-            ) {
-                $path = substr($_SERVER['REDIRECT_URL'], 0, strlen($_SERVER['REDIRECT_URL']) - strlen($_SERVER['PATH_INFO']));
-            } else {
-                $path = $_SERVER['REDIRECT_URL'];
-            }
-        } else {
-            $path = $_SERVER['SCRIPT_NAME'];
-        }
-
-        $path = substr($path, 0, strrpos($path, '/'));
-
-        // add a trailing '/' if needed
-        if ((strlen($path) === 0) || ($path[strlen($path) - 1] !== '/')) {
-            $path .= '/';
-        }
-
-        if (substr(__DIR__ . '/../../../', 0, 3) == '../') { // this is maybe a plugin inside pwg directory
-            // @TODO - what if it is an external script outside PWG ?
-            $path = $path . __DIR__ . '/../../../';
-            while (1) {
-                $new = preg_replace('#[^/]+/\.\.(/|$)#', '', $path);
-                if ($new == $path) {
-                    break;
-                }
-                $path = $new;
-            }
-        }
-
-        return $path;
-    }
-
-    /**
      * returns the part of the string after the last "."
      *
      * @param string $filename

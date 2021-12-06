@@ -27,6 +27,8 @@ use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -558,7 +560,7 @@ class AdminHistoryController extends AbstractController
                     $cookie_val = $display_thumbnail;
                 }
             }
-            setcookie('display_thumbnail', $cookie_val, strtotime('+1 month'), $request->getBasePath());
+
 
             // TODO manage inconsistency of having $_POST['image_id'] and $_POST['filename'] simultaneously
             /** @phpstan-ignore-next-line */
@@ -567,13 +569,22 @@ class AdminHistoryController extends AbstractController
                 $search->setRules(base64_encode(serialize($rules)));
                 $searchRepository->addSearch($search);
 
-                return $this->redirectToRoute('admin_history_search', ['search_id' => $search->getId()]);
+                $redirect_url = $this->generateUrl('admin_history_search', ['search_id' => $search->getId()]);
+
             /** @phpstan-ignore-next-line */
             } else {
                 $this->addFlash('error', $this->translator->trans('Empty query. No criteria has been entered.', [], 'admin'));
-                return $this->redirectToRoute('admin_history_search');
+
+                $redirect_url = $this->generateUrl('admin_history_search');
             }
+
+            $cookie = Cookie::create('display_thumbnail', $cookie_val, strtotime('+1 month'), $request->getBasePath());
+            $response = new RedirectResponse($redirect_url);
+            $response->headers->setCookie($cookie);
+
+            return $response;
         }
+
         return $this->redirectToRoute('admin_history_search');
     }
 
