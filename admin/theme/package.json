@@ -36,7 +36,7 @@
     "lozad": "^1.16.0",
     "mini-css-extract-plugin": "^2.4.4",
     "normalize.css": "^8.0.1",
-    "plupload": "~2.3.7",
+    "plupload": "~2.3.9",
     "popper.js": "^1.16.1",
     "postcss-loader": "^6.2.0",
     "precss": "^4.0.0",
