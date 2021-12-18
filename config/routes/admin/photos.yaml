@@ -1,6 +1,6 @@
 admin_photos_add:
   path: /photos/add/{album_id}
-  controller: App\Controller\Admin\AdminPhotosController:direct
+  controller: App\Controller\Admin\AdminPhotosController::direct
   defaults:
     album_id: null
   requirements:
@@ -8,7 +8,7 @@ admin_photos_add:
 
 admin_photos_add_batch:
   path: /photos/batch/{album_id}
-  controller: App\Controller\Admin\AdminPhotosController:batch
+  controller: App\Controller\Admin\AdminPhotosController::batch
   methods: ['POST']
   defaults:
     album_id: null

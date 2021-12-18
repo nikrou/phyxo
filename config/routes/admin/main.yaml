@@ -24,17 +24,17 @@ admin_home:
 
 admin_menubar:
   path: /menubar
-  controller: App\Controller\Admin\AdminMenubarController:index
+  controller: App\Controller\Admin\AdminMenubarController::index
 
 admin_menubar_update:
   path: /menubar/update
-  controller: App\Controller\Admin\AdminMenubarController:update
+  controller: App\Controller\Admin\AdminMenubarController::update
   methods: POST
 
 admin_menubar_navigation:
   path: /menubar_navigation
-  controller: App\Controller\Admin\AdminMenubarController:navigation
+  controller: App\Controller\Admin\AdminMenubarController::navigation
 
 api:
   path: /api
-  controller: App\Controller\Admin\AdminApiController:index
+  controller: App\Controller\Admin\AdminApiController::index

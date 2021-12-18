@@ -16,10 +16,13 @@ use App\Repository\PluginRepository;
 use PHPUnit\Framework\TestCase;
 use Phyxo\Plugin\Plugins;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Component\Filesystem\Filesystem;
 
 class PluginsTest extends TestCase
 {
+    use ProphecyTrait;
+
     const PLUGINS_PATH = __DIR__ . '/../../fixtures/plugins';
     const PLUGINS_DIR = __DIR__ . '/../../tmp/plugins';
     const PLUGINS_ZIP_PATH = __DIR__ . '/../../fixtures/zip';

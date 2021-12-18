@@ -1,6 +1,6 @@
 admin_comments:
   path: /comments/{section}
-  controller: App\Controller\Admin\AdminCommentsController:index
+  controller: App\Controller\Admin\AdminCommentsController::index
   defaults:
     section: all
     start: 0
@@ -9,7 +9,7 @@ admin_comments:
 
 admin_comments__start:
   path: /comments/{section}/{start}
-  controller: App\Controller\Admin\AdminCommentsController:index
+  controller: App\Controller\Admin\AdminCommentsController::index
   defaults:
     section: all
   requirements:
@@ -18,7 +18,7 @@ admin_comments__start:
 
 admin_comments_update:
   path: /comments/update/{section}/{start}
-  controller: App\Controller\Admin\AdminCommentsController:update
+  controller: App\Controller\Admin\AdminCommentsController::update
   defaults:
     section: all
     start: 0

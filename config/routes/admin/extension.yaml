@@ -1,7 +1,7 @@
 admin_theme:
   path: /theme/{theme}
-  controller: App\Controller\Admin\AdminExtensionController:theme
+  controller: App\Controller\Admin\AdminExtensionController::theme
 
 admin_plugin:
   path: /plugin/{plugin}
-  controller: App\Controller\Admin\AdminExtensionController:plugin
+  controller: App\Controller\Admin\AdminExtensionController::plugin

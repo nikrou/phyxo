@@ -15,10 +15,13 @@ use App\DataMapper\UserMapper;
 use App\Repository\ThemeRepository;
 use PHPUnit\Framework\TestCase;
 use Phyxo\Theme\Themes;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ThemesTest extends TestCase
 {
+    use ProphecyTrait;
+
     const THEMES_PATH = __DIR__ . '/../../fixtures/themes';
     const THEMES_DIR = __DIR__ . '/../../tmp/themes';
 

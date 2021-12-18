@@ -13,12 +13,8 @@ framework:
 services:
   # default configuration for services in *this* file
   _defaults:
-    autowire: true # Automatically injects dependencies in your services.
+    autowire: true      # Automatically injects dependencies in your services.
     autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-    public:
-      false # Allows optimizing the container by removing unused services; this also means
-      # fetching services directly from the container via $container->get() won't work.
-      # The best practice is to be explicit about your dependencies anyway.
 
     bind:
       $rememberMeCookie: '%remember_cookie%'
@@ -47,8 +43,16 @@ services:
   # makes classes in src/ available to be used as services
   # this creates a service per class whose id is the fully-qualified class name
   App\:
-    resource: '../src/*'
-    exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,UpdateKernel.php,InstallKernel.php,Phyxo}'
+    resource: '../src/'
+    exclude:
+      - '../src/DependencyInjection/'
+      - '../src/Entity/'
+      - '../src/Kernel.php'
+      - '../src/InstallKernel.php'
+      - '../src/Migrations'
+      - '../src/UpdateKernel.php'
+      - '../src/Tests/'
+      - '../src/Phyxo/'
 
   # Plugins command
   Plugins\:
@@ -58,11 +62,15 @@ services:
   Phyxo\Extension\ExtensionCollection:
     arguments: [!tagged_iterator 'phyxo.console_command']
 
+
   # controllers are imported separately to make sure services can be injected
   # as action arguments even if you don't extend any base controller class
   App\Controller\:
-    resource: '../src/Controller'
+    resource: '../src/Controller/'
     tags: ['controller.service_arguments']
+
+  # add more service definitions when explicit configuration is needed
+  # please note that last definitions always *replace* previous ones
 
   App\EventSubscriber\UserStatusSubscriber:
     tags:
@@ -73,8 +81,6 @@ services:
     tags:
       - { name: doctrine.event_listener, event: loadClassMetadata, method: loadClassMetadata }
 
-  # add more service definitions when explicit configuration is needed
-  # please note that last definitions always *replace* previous ones
   Phyxo\Plugin\Plugins: ~
 
   Phyxo\Theme\Themes: ~

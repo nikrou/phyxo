@@ -1,25 +1,25 @@
 admin_tags:
   path: /tags
-  controller: App\Controller\Admin\AdminTagsController:list
+  controller: App\Controller\Admin\AdminTagsController::list
 
 admin_tags_actions:
   path: /tags/actions
-  controller: App\Controller\Admin\AdminTagsController:actions
+  controller: App\Controller\Admin\AdminTagsController::actions
   methods: ['POST']
 
 admin_tags_add:
   path: /tags/add
-  controller: App\Controller\Admin\AdminTagsController:add
+  controller: App\Controller\Admin\AdminTagsController::add
   methods: ['POST']
 
 admin_tags_permissions:
   path: /tags/permissons
-  controller: App\Controller\Admin\AdminTagsController:permissions
+  controller: App\Controller\Admin\AdminTagsController::permissions
 
 admin_tags_pending:
   path: /tags/pending
-  controller: App\Controller\Admin\AdminTagsController:pending
+  controller: App\Controller\Admin\AdminTagsController::pending
 
 admin_tags_delete_orphans:
   path: /tags/delete_orphans
-  controller: App\Controller\Admin\AdminTagsController:deleteOrphans
+  controller: App\Controller\Admin\AdminTagsController::deleteOrphans

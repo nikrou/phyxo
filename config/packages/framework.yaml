@@ -1,15 +1,18 @@
+# see https://symfony.com/doc/current/reference/configuration/framework.html
 framework:
   secret: '%env(APP_SECRET)%'
   default_locale: en_GB
-  csrf_protection: ~
+  csrf_protection: true
   #http_method_override: true
 
   assets:
     version_strategy: 'App\Asset\PathVersionStrategy'
 
   # Enables session support. Note that the session will ONLY be started if you read or write from it.
-  # Remove or comment this section to explicitly disable session support.
-  session: ~
+  session:
+    handler_id: null
+    cookie_secure: auto
+    cookie_samesite: lax
 
   esi: true
   fragments: true
@@ -19,15 +22,3 @@ framework:
   http_client:
     default_options:
       max_redirects: 5
-
-  cache:
-    # Put the unique name of your app here: the prefix seed
-    # is used to compute stable namespaces for cache keys.
-    #prefix_seed: your_vendor_name/app_name
-    # The app cache caches to the filesystem by default.
-    # Other options include:
-    # Redis
-    #app: cache.adapter.redis
-    #default_redis_provider: redis://localhost
-    # APCu (not recommended with heavy random-write workloads as memory fragmentation can cause perf issues)
-    #app: cache.adapter.apcu

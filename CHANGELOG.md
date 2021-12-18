@@ -2,6 +2,7 @@
 
 - Remove site Entity. Not used anymore.
 - Use abstraction to manipulate images (imagine/imagine library)
+- Move to Symfony 5
 
 # Phyxo 2.2.0 - 2021-11-06
 

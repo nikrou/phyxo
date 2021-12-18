@@ -1,6 +1,6 @@
 admin_albums:
   path: /albums/{parent_id}
-  controller: App\Controller\Admin\AdminAlbumsController:list
+  controller: App\Controller\Admin\AdminAlbumsController::list
   defaults:
     parent_id: null
   requirements:
@@ -8,7 +8,7 @@ admin_albums:
 
 admin_albums_update:
   path: /albums/update/{parent_id}
-  controller: App\Controller\Admin\AdminAlbumsController:update
+  controller: App\Controller\Admin\AdminAlbumsController::update
   methods: ['POST']
   defaults:
     parent_id: null
@@ -17,7 +17,7 @@ admin_albums_update:
 
 admin_albums_move:
   path: /albums/move/{parent_id}
-  controller: App\Controller\Admin\AdminAlbumsController:move
+  controller: App\Controller\Admin\AdminAlbumsController::move
   defaults:
     parent_id: null
   requirements:
@@ -25,7 +25,7 @@ admin_albums_move:
 
 admin_albums_options:
   path: /albums/options/{section}
-  controller: App\Controller\Admin\AdminAlbumsOptionsController:index
+  controller: App\Controller\Admin\AdminAlbumsOptionsController::index
   defaults:
     section: status
   requirements:

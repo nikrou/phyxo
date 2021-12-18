@@ -14,9 +14,12 @@ namespace App\Tests\Phyxo\Calendar;
 use App\Repository\AlbumRepository;
 use App\Repository\ImageRepository;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 class CalendarMonthlyTest extends TestCase
 {
+    use ProphecyTrait;
+
     public function testCalendar(): void
     {
         $calendarLevels = [

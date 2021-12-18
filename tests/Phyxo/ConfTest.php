@@ -14,9 +14,12 @@ namespace App\Tests\Phyxo;
 use App\Repository\ConfigRepository;
 use PHPUnit\Framework\TestCase;
 use Phyxo\Conf;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 class ConfTest extends TestCase
 {
+    use ProphecyTrait;
+
     const TESTS_CONFIG_PATH = __DIR__ . '/../fixtures/config';
 
     public function testLoadFile(): void

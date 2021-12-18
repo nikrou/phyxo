@@ -1,10 +1,10 @@
 admin_groups:
   path: /groups
-  controller: App\Controller\Admin\AdminGroupsController:list
+  controller: App\Controller\Admin\AdminGroupsController::list
 
 admin_groups_action:
   path: /groups/{action}
-  controller: App\Controller\Admin\AdminGroupsController:action
+  controller: App\Controller\Admin\AdminGroupsController::action
   defaults:
     action: null
   methods: POST
@@ -13,6 +13,6 @@ admin_groups_action:
 
 admin_group_perm:
   path: /group/{group_id}/perm
-  controller: App\Controller\Admin\AdminGroupsController:perm
+  controller: App\Controller\Admin\AdminGroupsController::perm
   requirements:
     group_id: \d+

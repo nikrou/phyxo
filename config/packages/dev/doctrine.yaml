@@ -1,5 +1,0 @@
-doctrine:
-  dbal:
-    connections:
-      default:
-        profiling_collect_backtrace: true

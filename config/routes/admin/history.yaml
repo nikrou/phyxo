@@ -1,6 +1,6 @@
 admin_history_search:
   path: /history/search/{search_id}
-  controller: App\Controller\Admin\AdminHistoryController:search
+  controller: App\Controller\Admin\AdminHistoryController::search
   defaults:
     search_id: null
     start: 0
@@ -9,7 +9,7 @@ admin_history_search:
 
 admin_history_search__start:
   path: /history/search/{search_id}/{start}
-  controller: App\Controller\Admin\AdminHistoryController:search
+  controller: App\Controller\Admin\AdminHistoryController::search
   defaults:
     search_id: null
   requirements:
@@ -18,29 +18,29 @@ admin_history_search__start:
 
 admin_history_search_save:
   path: /history/search/save
-  controller: App\Controller\Admin\AdminHistoryController:saveSearch
+  controller: App\Controller\Admin\AdminHistoryController::saveSearch
   methods: [POST]
 
 admin_history:
   path: /history
-  controller: App\Controller\Admin\AdminHistoryController:stats
+  controller: App\Controller\Admin\AdminHistoryController::stats
 
 admin_history_year:
   path: /history/{year}
-  controller: App\Controller\Admin\AdminHistoryController:stats
+  controller: App\Controller\Admin\AdminHistoryController::stats
   requirements:
     year: \d{4}
 
 admin_history_year_month:
   path: /history/{year}/{month}
-  controller: App\Controller\Admin\AdminHistoryController:stats
+  controller: App\Controller\Admin\AdminHistoryController::stats
   requirements:
     year: \d{4}
     month: \d{2}
 
 admin_history_year_month_day:
   path: /history/{year}/{month}/{day}
-  controller: App\Controller\Admin\AdminHistoryController:stats
+  controller: App\Controller\Admin\AdminHistoryController::stats
   requirements:
     year: \d{4}
     month: \d{2}

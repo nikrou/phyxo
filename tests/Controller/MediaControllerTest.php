@@ -17,11 +17,14 @@ use App\Entity\UserInfos;
 use App\Repository\ImageRepository;
 use App\Security\UserProvider;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
 class MediaControllerTest extends WebTestCase
 {
+    use ProphecyTrait;
+
     private $fixtures_dir = __DIR__ . '/../fixtures/media', $sample_image = 'sample.jpg', $image_paths = '', $derivative_path = '';
     private $imageRepository, $userProvider;
 

@@ -15,9 +15,12 @@ use App\DataMapper\UserMapper;
 use App\Repository\LanguageRepository;
 use PHPUnit\Framework\TestCase;
 use Phyxo\Language\Languages;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 class LanguagesTest extends TestCase
 {
+    use ProphecyTrait;
+
     const LANGUAGES_PATH = __DIR__ . '/../../fixtures/translations/';
 
     public function testFsLanguages()
