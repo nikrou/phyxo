@@ -12,17 +12,23 @@
 namespace App\Tests\Behat;
 
 use Behat\Gherkin\Node\PyStringNode;
-use Behat\Symfony2Extension\Context\KernelDictionary;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class FeatureContext extends BaseContext
 {
-    use KernelDictionary;
+    private $kernel, $storage;
 
-    private $storage;
-
-    public function __construct(Storage $storage)
+    public function __construct(KernelInterface $kernel, Storage $storage)
     {
+        $this->kernel = $kernel;
         $this->storage = $storage;
+    }
+
+    protected function getContainer():  ContainerInterface
+    {
+        /** @phpstan-ignore-next-line */
+        return $this->kernel->getContainer()->get('test.service_container');
     }
 
     /**

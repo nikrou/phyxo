@@ -20,7 +20,7 @@ use Prophecy\Argument;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
-class MediaContollerTest extends WebTestCase
+class MediaControllerTest extends WebTestCase
 {
     private $fixtures_dir = __DIR__ . '/../fixtures/media', $sample_image = 'sample.jpg', $image_paths = '', $derivative_path = '';
     private $imageRepository, $userProvider;
@@ -81,8 +81,8 @@ class MediaContollerTest extends WebTestCase
         self::ensureKernelShutdown();
         $client = static::createClient();
         $container = self::$container;
-        $container->set('phyxo.image.repository', $this->imageRepository->reveal());
-        $container->set('phyxo.user.provider', $this->userProvider->reveal());
+        $container->set('App\Repository\ImageRepository', $this->imageRepository->reveal());
+        $container->set('App\Security\UserProvider', $this->userProvider->reveal());
         $client->request('GET', sprintf('/media/%s', $this->image_paths['sq']));
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
@@ -93,8 +93,8 @@ class MediaContollerTest extends WebTestCase
         self::ensureKernelShutdown();
         $client = static::createClient();
         $container = self::$container;
-        $container->set('phyxo.image.repository', $this->imageRepository->reveal());
-        $container->set('phyxo.user.provider', $this->userProvider->reveal());
+        $container->set('App\Repository\ImageRepository', $this->imageRepository->reveal());
+        $container->set('App\Security\UserProvider', $this->userProvider->reveal());
         $client->request('GET', sprintf('/media/%s', $this->image_paths['sq']));
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
@@ -109,8 +109,8 @@ class MediaContollerTest extends WebTestCase
         self::ensureKernelShutdown();
         $client = static::createClient();
         $container = self::$container;
-        $container->set('phyxo.image.repository', $this->imageRepository->reveal());
-        $container->set('phyxo.user.provider', $this->userProvider->reveal());
+        $container->set('App\Repository\ImageRepository', $this->imageRepository->reveal());
+        $container->set('App\Security\UserProvider', $this->userProvider->reveal());
 
         // same path, image not changed so http status code must be 304
         $client->request(
@@ -133,8 +133,8 @@ class MediaContollerTest extends WebTestCase
         self::ensureKernelShutdown();
         $client = static::createClient();
         $container = self::$container;
-        $container->set('phyxo.image.repository', $this->imageRepository->reveal());
-        $container->set('phyxo.user.provider', $this->userProvider->reveal());
+        $container->set('App\Repository\ImageRepository', $this->imageRepository->reveal());
+        $container->set('App\Security\UserProvider', $this->userProvider->reveal());
         $client->request('GET', sprintf('/media/%s', $this->image_paths['unknown']));
 
         $this->assertEquals(403, $client->getResponse()->getStatusCode());
@@ -149,8 +149,8 @@ class MediaContollerTest extends WebTestCase
         self::ensureKernelShutdown();
         $client = static::createClient();
         $container = self::$container;
-        $container->set('phyxo.image.repository', $this->imageRepository->reveal());
-        $container->set('phyxo.user.provider', $this->userProvider->reveal());
+        $container->set('App\Repository\ImageRepository', $this->imageRepository->reveal());
+        $container->set('App\Security\UserProvider', $this->userProvider->reveal());
 
         $image_std_params = $container->get('Phyxo\Image\ImageStandardParams');
         $image_std_params->makeCustom($width, $height, 1, $width, $height);

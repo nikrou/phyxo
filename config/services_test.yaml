@@ -7,34 +7,15 @@ services:
     autoconfigure: true
     public: true # Only for tests
 
-  phyxo.conf:
-    alias: 'Phyxo\Conf'
+    bind:
+      $sql_init_file: '%kernel.project_dir%/features/sql/db_init.sql'
+      $sql_cleanup_file: '%kernel.project_dir%/features/sql/db_cleanup.sql'
 
-  phyxo.user.provider:
-    alias: 'App\Security\UserProvider'
+  App\Tests\Behat\:
+    resource: '../tests/Behat/*'
 
-  phyxo.user.manager:
-    alias: 'App\Utils\UserManager'
+  App\Security\UserProvider:
+    public: true
 
-  phyxo.user.mapper:
-    alias: 'App\DataMapper\UserMapper'
-
-  phyxo.tests.storage:
-    alias: 'App\Tests\Behat\Storage'
-
-  App\Tests\Behat\Storage: ~
-
-  phyxo.album.mapper:
-    alias: 'App\DataMapper\AlbumMapper'
-
-  phyxo.image.mapper:
-    alias: 'App\DataMapper\ImageMapper'
-
-  phyxo.tag.mapper:
-    alias: 'App\DataMapper\TagMapper'
-
-  phyxo.comment.mapper:
-    alias: 'App\DataMapper\CommentMapper'
-
-  phyxo.image.repository:
-    alias: 'App\Repository\ImageRepository'
+  App\Repository\ImageRepository:
+    public: true

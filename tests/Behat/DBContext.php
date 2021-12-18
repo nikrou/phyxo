@@ -27,31 +27,31 @@ use Behat\Gherkin\Node\TableNode;
 use App\Entity\User;
 use App\Utils\UserManager;
 use Behat\Behat\Tester\Exception\PendingException;
-use Behat\Symfony2Extension\Context\KernelDictionary;
 use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\Conf;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class DBContext implements Context
 {
-    private $sqlInitFile, $sqlCleanupFile;
-
-    use KernelDictionary;
+    private $sqlInitFile, $sqlCleanupFile, $kernel;
 
     private $storage;
 
-    public function __construct(string $sql_init_file, string $sql_cleanup_file, Storage $storage)
+    public function __construct(string $sql_init_file, string $sql_cleanup_file, Storage $storage, KernelInterface $kernel)
     {
         $this->sqlInitFile = $sql_init_file;
         $this->sqlCleanupFile = $sql_cleanup_file;
         $this->storage = $storage;
+
+        $this->kernel = $kernel;
     }
 
     protected function getContainer():  ContainerInterface
     {
         /** @phpstan-ignore-next-line */
-        return $this->getKernel()->getContainer()->get('test.service_container');
+        return $this->kernel->getContainer()->get('test.service_container');
     }
 
     /**

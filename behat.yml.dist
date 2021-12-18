@@ -3,29 +3,17 @@ default:
     locale: en
 
   extensions:
-    Behat\Symfony2Extension:
-      kernel:
-        env: test
-        debug: true
-        bootstrap: config/bootstrap.php
-        class: App\Kernel
-
-    DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension: ~
+    FriendsOfBehat\SymfonyExtension: ~
 
     Behat\MinkExtension:
       base_url: 'http://localhost:1080/'
       show_auto: false
       show_cmd: 'google-chrome %s'
       default_session: symfony
-      javascript_session: selenium2
 
       sessions:
         symfony:
-          symfony2: ~
-
-        selenium2:
-          chrome:
-            api_url: 'http://localhost:9222'
+          symfony: ~
 
   suites:
     web:
@@ -33,16 +21,8 @@ default:
         - '%paths.base%/features/web'
 
       contexts:
-        - App\Tests\Behat\FeatureContext:
-            - '@storage'
+        - App\Tests\Behat\FeatureContext: ~
 
-        - App\Tests\Behat\DBContext:
-            - features/sql/db_init.sql
-            - features/sql/db_cleanup.sql
-            - '@storage'
+        - App\Tests\Behat\DBContext: ~
 
         - Behat\MinkExtension\Context\MinkContext: ~
-
-      services:
-        storage:
-          class: 'App\Tests\Behat\Storage'
