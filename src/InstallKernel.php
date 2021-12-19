@@ -24,7 +24,12 @@ class InstallKernel extends Kernel
     {
         $container->import('../config/{packages}/*.yaml');
         $container->import('../config/{packages}/' . $this->environment . '/*.yaml');
-        $container->import('../config/services_install.yaml');
-        $container->import('../config/services_install_' . $this->environment . '.yaml');
+
+        if (is_file(\dirname(__DIR__) . '/config/services_install.yaml')) {
+            $container->import('../config/services_install.yaml');
+            if (is_file(\dirname(__DIR__) . '/config/services_install_' . $this->environment . '.yaml')) {
+                $container->import('../config/services_install_' . $this->environment . '.yaml');
+            }
+        }
     }
 }

@@ -1,82 +1,45 @@
-;; data
-/_data
-/upload
-/db/*
-!/db/index.php
-/media/*
-/public/*
-!/public/index.php
-/tests/media
-/tests/upload
+;; build
+/.dist
+/target
 
-
-;; conf
-/config/services_dev.yaml
+;; config
 /config/database.yaml
+/config/services_dev.yaml
 /local/config/config.inc.php
 /local/config/database.*.php
-/local/watermarks
-
-;; external libraries
-/vendor/*
-/bin
-!/bin/console
-
-;; other stuff
-/target
-/.dist
-/rsync_exclude
-
-;; multisites
-/sites
-
-;; tests
-/tests/units/tmp/
-
-;;
-/admin/theme/build
-/admin/theme/node_modules
-/admin/theme/*.log
-
-;;
-/themes/**/build
-/themes/**/node_modules
-/themes/**/*.log
-/themes/**/watermarks
-
-;;
-/languages/*
-!/languages/fr_FR
-!/languages/en_GB
-
-;; plugins
-/plugins
-
-/behat.yml
-
-###> symfony/framework-bundle ###
+/local/watermarks/
 /.env.local
 /.env.local.php
 /.env.*.local
 /config/secrets/prod/prod.decrypt.private.php
-/public/bundles/
-/var/
-/vendor/
-###< symfony/framework-bundle ###
 
-###> behat/symfony2-extension ###
-behat.yml
-###< behat/symfony2-extension ###
-
-###> friendsofphp/php-cs-fixer ###
+;; tests
+/coverage
+/tests/media/
+/tests/upload/
+/.phpunit
+/.phpunit.result.cache
+/phpunit.xml
 /.php_cs
 /.php_cs.cache
-###< friendsofphp/php-cs-fixer ###
 
+;; data
+/media/*
+/upload/*
+/plugins/*
 
-###> symfony/phpunit-bridge ###
-.phpunit
-.phpunit.result.cache
-/phpunit.xml
-/coverage
-###< symfony/phpunit-bridge ###
+;; others
+/var/*
+/bin/*
+!/bin/console
+/vendor/*
+/db/*
+/rsync_exclude
+
+;; themes
+/themes/*/node_modules
+/themes/*/build
+/public/themes/
+/admin/theme/node_modules
+/admin/theme/build
+/public/admin/
