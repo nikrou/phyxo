@@ -114,7 +114,7 @@ class AdminAlbumController extends AbstractController
                     $albumMapper->moveAlbums([$album_id], $parent);
                 }
 
-                $this->addFlash('info', $translator->trans('Album updated successfully', [], 'admin'));
+                $this->addFlash('success', $translator->trans('Album updated successfully', [], 'admin'));
             } elseif ($request->request->get('set_random_representant')) {
                 $albumMapper->setRandomRepresentant([$album_id]);
             } elseif ($request->request->get('delete_representant')) {
@@ -232,14 +232,6 @@ class AdminAlbumController extends AbstractController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet($album_id, 'properties', $parent_id), $tpl_params);
 
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
         return $this->render('album_properties.html.twig', $tpl_params);
     }
 
@@ -270,7 +262,7 @@ class AdminAlbumController extends AbstractController
                 }
                 $albumMapper->getRepository()->addOrUpdateAlbum($album);
 
-                $this->addFlash('info', $translator->trans('Images manual order was saved', [], 'admin'));
+                $this->addFlash('success', $translator->trans('Images manual order was saved', [], 'admin'));
 
                 return $this->redirectToRoute('admin_album_sort_order', ['album_id' => $album_id, 'parent_id' => $parent_id]);
             }
@@ -298,7 +290,7 @@ class AdminAlbumController extends AbstractController
                 $albumMapper->getRepository()->updateAlbums(['image_order' => $image_order], explode(',', $album->getUppercats()));
             }
 
-            $this->addFlash('info', $translator->trans('Your configuration settings have been saved', [], 'admin'));
+            $this->addFlash('success', $translator->trans('Your configuration settings have been saved', [], 'admin'));
 
             return $this->redirectToRoute('admin_album_sort_order', ['album_id' => $album_id, 'parent_id' => $parent_id]);
         }
@@ -368,14 +360,6 @@ class AdminAlbumController extends AbstractController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
         $tpl_params['ALBUM_ID'] = $album_id;
         $tpl_params = array_merge($this->setTabsheet($album_id, 'sort_order', $parent_id), $tpl_params);
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
 
         return $this->render('album_sort_order.html.twig', $tpl_params);
     }
@@ -450,7 +434,7 @@ class AdminAlbumController extends AbstractController
                 $userCacheRepository->deleteAll();
             }
 
-            $this->addFlash('info', $translator->trans('Album updated successfully', [], 'admin'));
+            $this->addFlash('success', $translator->trans('Album updated successfully', [], 'admin'));
 
             return $this->redirectToRoute('admin_album_permissions', ['album_id' => $album_id, 'parent_id' => $parent_id]);
         }
@@ -529,14 +513,6 @@ class AdminAlbumController extends AbstractController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet($album_id, 'permissions', $parent_id), $tpl_params);
 
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
         return $this->render('album_permissions.html.twig', $tpl_params);
     }
 
@@ -581,7 +557,7 @@ class AdminAlbumController extends AbstractController
 
             $group = $groupRepository->find($request->request->get('group'));
 
-            $this->addFlash('info', $translator->trans('An information email was sent to group "{group}"', ['group' => $group->getName()], 'admin'));
+            $this->addFlash('success', $translator->trans('An information email was sent to group "{group}"', ['group' => $group->getName()], 'admin'));
 
             return $this->redirectToRoute('admin_album_notification', ['album_id' => $album_id, 'parent_id' => $parent_id]);
         }
@@ -624,14 +600,6 @@ class AdminAlbumController extends AbstractController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet($album_id, 'notification', $parent_id), $tpl_params);
 
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
         return $this->render('album_notification.html.twig', $tpl_params);
     }
 
@@ -660,7 +628,7 @@ class AdminAlbumController extends AbstractController
                 $albumMapper->createAlbum($virtual_name, $parent, $this->getUser()->getId(), $admin_ids, $params);
                 $userMapper->invalidateUserCache();
 
-                $this->addFlash('info', $translator->trans('Virtual album added', [], 'admin'));
+                $this->addFlash('success', $translator->trans('Virtual album added', [], 'admin'));
             }
         }
 
@@ -678,7 +646,7 @@ class AdminAlbumController extends AbstractController
         }
         $imageMapper->deleteElements($element_ids);
 
-        $this->addFlash('info', $translator->trans('Virtual album deleted', [], 'admin'));
+        $this->addFlash('success', $translator->trans('Virtual album deleted', [], 'admin'));
         $albumMapper->updateGlobalRank();
         $userMapper->invalidateUserCache();
 

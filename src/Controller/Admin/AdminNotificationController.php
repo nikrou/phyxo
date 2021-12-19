@@ -63,7 +63,7 @@ class AdminNotificationController extends AbstractController
                 }
             }
 
-            $this->addFlash('info', $translator->trans('Your configuration settings have been saved', [], 'admin'));
+            $this->addFlash('success', $translator->trans('Your configuration settings have been saved', [], 'admin'));
 
             return $this->redirectToRoute('admin_notification');
         } else {
@@ -82,14 +82,6 @@ class AdminNotificationController extends AbstractController
         $tpl_params = array_merge($this->setTabsheet('params'), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_notification');
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
 
         return $this->render('notification_by_mail_params.html.twig', $tpl_params);
     }
@@ -145,14 +137,6 @@ class AdminNotificationController extends AbstractController
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_notification');
 
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
         return $this->render('notification_by_mail_subscribe.html.twig', $tpl_params);
     }
 
@@ -202,14 +186,6 @@ class AdminNotificationController extends AbstractController
         $tpl_params = array_merge($this->setTabsheet('send'), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_notification');
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
 
         return $this->render('notification_by_mail_send.html.twig', $tpl_params);
     }

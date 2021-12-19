@@ -85,7 +85,7 @@ class AdminMaintenanceController extends AbstractController
           case 'delete_orphan_tags':
               {
                   $tagMapper->deleteOrphanTags();
-                  $this->addFlash('info', $translator->trans('Orphan tags deleted', [], 'admin'));
+                  $this->addFlash('success', $translator->trans('Orphan tags deleted', [], 'admin'));
 
                   return  $this->redirectToRoute('admin_maintenance');
               }
@@ -97,7 +97,7 @@ class AdminMaintenanceController extends AbstractController
                 $input = new ArrayInput(['command' => 'cache:clear']);
                 $output = new NullOutput();
 
-                $this->addFlash('info', $translator->trans('Application cache has been clear.', [], 'admin'));
+                $this->addFlash('success', $translator->trans('Application cache has been clear.', [], 'admin'));
 
                 $result = $application->run($input, $output);
 
@@ -202,7 +202,7 @@ class AdminMaintenanceController extends AbstractController
                         }
                     }
                     if ($count_files > 0) {
-                        $this->addFlash('info', $translator->trans('All old files ({count}) have been removed.', ['count' => $count_files], 'admin'));
+                        $this->addFlash('success', $translator->trans('All old files ({count}) have been removed.', ['count' => $count_files], 'admin'));
                     }
 
                     if ($not_writable_files > 0) {
@@ -251,14 +251,6 @@ class AdminMaintenanceController extends AbstractController
             $tpl_params['U_MAINT_UNLOCK_GALLERY'] = $this->generateUrl('admin_maintenance', ['action' => 'unlock_gallery']);
         } else {
             $tpl_params['U_MAINT_LOCK_GALLERY'] = $this->generateUrl('admin_maintenance', ['action' => 'lock_gallery']);
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
 
         return $this->render('maintenance.html.twig', $tpl_params);

@@ -110,7 +110,7 @@ class AdminPhotoController extends AbstractController
             }
 
             $represented_albums = $request->request->get('represent') ?? [];
-            $this->addFlash('info', $translator->trans('Photo informations updated', [], 'admin'));
+            $this->addFlash('success', $translator->trans('Photo informations updated', [], 'admin'));
 
             return $this->redirectToRoute('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);
         }
@@ -231,14 +231,6 @@ class AdminPhotoController extends AbstractController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Photo', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('properties', ['image_id' => $image_id, 'category_id' => $category_id]), $tpl_params);
 
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
         return $this->render('photo_properties.html.twig', $tpl_params);
     }
 
@@ -267,7 +259,7 @@ class AdminPhotoController extends AbstractController
             return $this->redirectToRoute('admin_album', ['album_id' => $authorizeds[0]]);
         }
 
-        $this->addFlash('info', $translator->trans('Photo deleted', [], 'admin'));
+        $this->addFlash('success', $translator->trans('Photo deleted', [], 'admin'));
 
         return $this->redirectToRoute('admin_home');
     }
@@ -275,7 +267,7 @@ class AdminPhotoController extends AbstractController
     public function syncMetadata(int $image_id, int $category_id = null, TagMapper $tagMapper, TranslatorInterface $translator)
     {
         $tagMapper->sync_metadata([$image_id], $this->getUser());
-        $this->addFlash('info', $translator->trans('Metadata synchronized from file', [], 'admin'));
+        $this->addFlash('success', $translator->trans('Metadata synchronized from file', [], 'admin'));
 
         return $this->redirectToRoute('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);
     }
@@ -347,14 +339,6 @@ class AdminPhotoController extends AbstractController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Photo', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('coi', ['image_id' => $image_id, 'category_id' => $category_id]), $tpl_params);
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
 
         return $this->render('photo_coi.html.twig', $tpl_params);
     }

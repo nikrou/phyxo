@@ -29,11 +29,6 @@ class AboutController extends CommonController
         $tpl_params['THEME_ABOUT'] = Language::loadLanguageFile('about.html', $themesDir . '/' . $this->getUser()->getTheme() . '/languages/' . $this->getUser()->getLocale());
 
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('about.html.twig', $tpl_params);

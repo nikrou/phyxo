@@ -127,14 +127,6 @@ class AdminAlbumsController extends AbstractController
             $tpl_params['categories'][] = $tpl_cat;
         }
 
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
         $tpl_params['F_ACTION_UPDATE'] = $this->generateUrl('admin_albums_update', ['parent_id' => $parent_id]);
         $tpl_params['F_ACTION_CREATE'] = $this->generateUrl('admin_album_create', ['parent_id' => $parent_id]);
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
@@ -159,7 +151,7 @@ class AdminAlbumsController extends AbstractController
                 }
                 $albumMapper->saveAlbumsOrder($albums);
 
-                $this->addFlash('info', $translator->trans('Album manual order was saved', [], 'admin'));
+                $this->addFlash('success', $translator->trans('Album manual order was saved', [], 'admin'));
             } elseif ($request->request->get('submitAutoOrder')) {
                 $category_ids = $albumMapper->getUppercatIds([$parent_id]);
 
@@ -196,7 +188,7 @@ class AdminAlbumsController extends AbstractController
                 array_multisort($sort, SORT_REGULAR, 'ASC' == $order_by_asc ? SORT_ASC : SORT_DESC, $categories);
 
                 $albumMapper->saveAlbumsOrder($categories);
-                $this->addFlash('info', $translator->trans('Albums automatically sorted', [], 'admin'));
+                $this->addFlash('success', $translator->trans('Albums automatically sorted', [], 'admin'));
             }
         }
 

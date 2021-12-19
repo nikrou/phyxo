@@ -127,14 +127,6 @@ class AdminDashboardController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_home');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
 
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
         return $this->render('dashboard.html.twig', $tpl_params);
     }
 }

@@ -101,38 +101,16 @@
 			{% endif %}
 		    {% endblock %}
 
-		    {% if errors is defined %}
-			<div class="alert alert-danger alert-dismissible fade show" role="alert">
-			    {% for error in errors %}
-				<p>{{error|raw}}</p>
-			    {% endfor %}
-			    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-				<i class="fa fa-times"></i>
-			    </button>
-			</div>
-		    {% endif %}
-
-		    {% if infos is defined %}
-			<div class="alert alert-success alert-dismissible fade show" role="alert">
-			    {% for info in infos %}
-				<p>{{info|raw}}</p>
-			    {% endfor %}
-			    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-				<i class="fa fa-times"></i>
-			    </button>
-			</div>
-		    {% endif %}
-
-		    {% if warnings is defined %}
-			<div class="alert alert-warning alert-dismissible fade show" role="alert">
-			    {% for warning in warnings %}
-				<p>{{warning|raw}}</p>
-			    {% endfor %}
-			    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-				<i class="fa fa-times"></i>
-			    </button>
-			</div>
-		    {% endif %}
+		    {% for label, messages in app.flashes(['success', 'info', 'error', 'warning']) %}
+			{% for message in messages %}
+			    <div class="alert alert-{{label}} alert-dismissible fade show" role="alert">
+				<p>{{message}}</p>
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				    <i class="fa fa-times"></i>
+				</button>
+			    </div>
+			{% endfor %}
+		    {% endfor %}
 
 		    {% block content %}{% endblock %}
 		</section>

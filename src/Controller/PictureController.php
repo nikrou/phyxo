@@ -77,7 +77,7 @@ class PictureController extends CommonController
             $edit_comment = $request->get('comment_to_edit');
         } elseif ($request->get('action') === 'delete_comment' && $request->get('comment_to_delete')) {
             if ($commentMapper->deleteUserComment([(int) $request->get('comment_to_delete')])) {
-                $this->addFlash('info', $translator->trans('The comment has been deleted'));
+                $this->addFlash('success', $translator->trans('The comment has been deleted'));
 
                 return $this->redirectToRoute($request->get('_route'), ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id]);
             }
@@ -300,9 +300,9 @@ class PictureController extends CommonController
 
                 switch ($comment_action) {
                     case 'moderate':
-                        $this->addFlash('info', $translator->trans('An administrator must authorize your comment before it is visible.'));
+                        $this->addFlash('success', $translator->trans('An administrator must authorize your comment before it is visible.'));
                     case 'validate':
-                        $this->addFlash('info', $translator->trans('Your comment has been registered'));
+                        $this->addFlash('success', $translator->trans('Your comment has been registered'));
                         break;
                     case 'reject':
                         $this->addFlash('error', $translator->trans('Your comment has NOT been registered because it did not pass the validation rules'));
@@ -318,9 +318,9 @@ class PictureController extends CommonController
             if ($tpl_params['COMMENT_COUNT'] > 0) {
                 // comments order (get, session, conf)
                 if ($request->get('comments_order') && in_array(strtoupper($request->get('comments_order')), ['ASC', 'DESC'])) {
-                    $this->get('session')->set('comments_order', $request->get('comments_order'));
+                    $request->getSession()->set('comments_order', $request->get('comments_order'));
                 }
-                $comments_order = $this->get('session')->has('comments_order') ? $this->get('session')->get('comments_order') : $conf['comments_order'];
+                $comments_order = $request->getSession()->has('comments_order') ? $request->getSession()->get('comments_order') : $conf['comments_order'];
 
                 $tpl_params['COMMENTS_ORDER_URL'] = $this->generateUrl(
                     'picture',
@@ -473,14 +473,6 @@ class PictureController extends CommonController
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
 
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 

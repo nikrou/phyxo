@@ -158,14 +158,6 @@ class AdminConfigurationController extends AbstractController
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_configuration');
 
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
         switch ($section) {
             case 'main':
                 $tpl_params = array_merge($tpl_params, $this->mainConfiguration($conf));
@@ -204,7 +196,7 @@ class AdminConfigurationController extends AbstractController
     {
         $image_std_params->setAndSave($image_std_params->getDefaultSizes());
         $derivativeService->clearCache($image_std_params->getAllTypes(), $image_std_params->getAllTypes());
-        $this->addFlash('info', $translator->trans('Your configuration settings have been saved', [], 'admin'));
+        $this->addFlash('success', $translator->trans('Your configuration settings have been saved', [], 'admin'));
         unset($conf['disabled_derivatives']);
 
         return $this->redirectToRoute('admin_configuration', ['section' => 'sizes']);
@@ -584,7 +576,7 @@ class AdminConfigurationController extends AbstractController
                     $userInfosRepository->updateInfos($guestUserInfos);
                 }
 
-                $this->addFlash('info', $this->translator->trans('Your configuration settings have been saved', [], 'admin'));
+                $this->addFlash('success', $this->translator->trans('Your configuration settings have been saved', [], 'admin'));
             } elseif ($section === 'comments') {
                 if ($request->request->get('nb_comment_page')) {
                     $nb_comments = (int) $request->request->get('nb_comment_page');
@@ -781,7 +773,7 @@ class AdminConfigurationController extends AbstractController
                         $derivativeService->clearCache($changed_types, $image_std_params->getAllTypes());
                     }
 
-                    $this->addFlash('info', $this->translator->trans('Your configuration settings have been saved', [], 'admin'));
+                    $this->addFlash('success', $this->translator->trans('Your configuration settings have been saved', [], 'admin'));
                 }
             } elseif ($section === 'sizes') {
                 // original resize
@@ -970,7 +962,7 @@ class AdminConfigurationController extends AbstractController
             }
 
             if ($conf_updated && !$error) {
-                $this->addFlash('info', $this->translator->trans('Your configuration settings have been saved', [], 'admin'));
+                $this->addFlash('success', $this->translator->trans('Your configuration settings have been saved', [], 'admin'));
             }
         }
 

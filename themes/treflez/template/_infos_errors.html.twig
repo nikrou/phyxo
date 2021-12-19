@@ -1,21 +1,10 @@
-{% if errors is defined %}
-    <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
-	{% for error in errors %}
-	    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-		<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-		{{error}}
-	    </div>
-	{% endfor %}
-    </div>
-{% endif %}
-
-{% if infos is defined %}
-    <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
-	{% for info in infos %}
-	    <div class="alert alert-info alert-dismissible fade show" role="alert">
-		<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-		{{info}}
-	    </div>
-	{% endfor %}
-    </div>
-{% endif %}
+{% for label, messages in app.flashes(['success', 'info', 'error', 'warning']) %}
+    {% for message in messages %}
+	<div class="alert alert-{{label}} alert-dismissible fade show" role="alert">
+	    <p>{{message}}</p>
+	    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		<i class="fa fa-times"></i>
+	    </button>
+	</div>
+    {% endfor %}
+{% endfor %}

@@ -103,14 +103,6 @@ class AdminCommentsController extends AbstractController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_comments');
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_comments_update', ['section' => $section, 'start' => $start]);
 
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
         return $this->render('comments.html.twig', $tpl_params);
     }
 

@@ -162,14 +162,6 @@ class AdminRatingController extends AbstractController
 
         $tpl_params['navbar'] = Utils::createNavigationBar($this->get('router'), 'admin_rating', $navbar_params, $nb_images, $start, $elements_per_page);
 
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_rating');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_rating');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Rating', [], 'admin');
@@ -346,14 +338,6 @@ class AdminRatingController extends AbstractController
         $tpl_params['ratings'] = $by_user_ratings;
         $tpl_params['image_urls'] = $image_urls;
         $tpl_params['TN_WIDTH'] = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE)->sizing->ideal_size[0];
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_rating');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_rating');

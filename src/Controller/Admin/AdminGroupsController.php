@@ -50,7 +50,7 @@ class AdminGroupsController extends AbstractController
                     $group->setName($groupname);
                     $groupRepository->addOrUpdateGroup($group);
 
-                    $this->addFlash('info', $translator->trans('group "{group}" added', ['group' => $groupname], 'admin'));
+                    $this->addFlash('success', $translator->trans('group "{group}" added', ['group' => $groupname], 'admin'));
                 }
             } else {
                 $this->addFlash('error', $translator->trans('The name of a group must not be empty.', [], 'admin'));
@@ -81,14 +81,6 @@ class AdminGroupsController extends AbstractController
         $tpl_params = array_merge($this->setTabsheet('list'), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_groups');
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
 
         return $this->render('groups_list.html.twig', $tpl_params);
     }
@@ -158,10 +150,6 @@ class AdminGroupsController extends AbstractController
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_groups');
 
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
         return $this->render('groups_perm.html.twig', $tpl_params);
     }
 
@@ -196,7 +184,7 @@ class AdminGroupsController extends AbstractController
         } elseif ($action === 'delete' && $request->request->get('confirm_deletion')) {
             $groupRepository->deleteByGroupIds($group_selection);
 
-            $this->addFlash('info', $translator->trans('group(s) deleted', [], 'admin'));
+            $this->addFlash('success', $translator->trans('group(s) deleted', [], 'admin'));
 
             return $this->redirectToRoute('admin_groups');
         } elseif ($action === 'merge' && count($group_selection) > 1) {
@@ -226,7 +214,7 @@ class AdminGroupsController extends AbstractController
             $group_id = $groupRepository->addOrUpdateGroup($group);
             $groupRepository->deleteByGroupIds($group_selection);
 
-            $this->addFlash('info', $translator->trans('group "{group}" added', ['group' => $request->request->get('merge')], 'admin'));
+            $this->addFlash('success', $translator->trans('group "{group}" added', ['group' => $request->request->get('merge')], 'admin'));
 
             return $this->redirectToRoute('admin_groups');
         } elseif ($action === 'duplicate') {
@@ -253,14 +241,14 @@ class AdminGroupsController extends AbstractController
                 }
                 $group_id = $groupRepository->addOrUpdateGroup($new_group);
 
-                $this->addFlash('info', $translator->trans('group "{group}" added', ['group' => $request->request->get('duplicate_' . $group)], 'admin'));
+                $this->addFlash('success', $translator->trans('group "{group}" added', ['group' => $request->request->get('duplicate_' . $group)], 'admin'));
 
                 return $this->redirectToRoute('admin_groups');
             }
         } elseif ($action === 'toggle_default') {
             $groupRepository->toggleIsDefault($group_selection);
 
-            $this->addFlash('info', $translator->trans('groups "{groups}" updated', ['groups' => implode(', ', $group_selection)], 'admin'));
+            $this->addFlash('success', $translator->trans('groups "{groups}" updated', ['groups' => implode(', ', $group_selection)], 'admin'));
 
             return $this->redirectToRoute('admin_groups');
         }

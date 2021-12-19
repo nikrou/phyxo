@@ -36,8 +36,7 @@ class AlbumController extends CommonController
         AlbumMapper $albumMapper,
         int $start = 0,
         int $category_id = 0
-    )
-    {
+    ) {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -70,12 +69,12 @@ class AlbumController extends CommonController
         ];
 
         $order_index = 0;
-        if ($this->get('session')->has('image_order_index')) {
-            $order_index = $this->get('session')->get('image_order_index');
+        if ($request->getSession()->has('image_order_index')) {
+            $order_index = $request->getSession()->get('image_order_index');
         }
         if ($request->get('order')) {
             $order_index = (int) $request->get('order');
-            $this->get('session')->set('image_order_index', $order_index);
+            $request->getSession()->set('image_order_index', $order_index);
         }
         $order_by = $conf['order_by'];
         $tpl_params['image_orders'] = [];
@@ -241,8 +240,7 @@ class AlbumController extends CommonController
         int $category_id,
         TranslatorInterface $translator,
         int $start = 0
-    )
-    {
+    ) {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -306,8 +304,7 @@ class AlbumController extends CommonController
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
         int $start = 0
-    )
-    {
+    ) {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -367,8 +364,7 @@ class AlbumController extends CommonController
         TranslatorInterface $translator,
         AlbumMapper $albumMapper,
         int $start = 0
-    )
-    {
+    ) {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -494,8 +490,7 @@ class AlbumController extends CommonController
         TranslatorInterface $translator,
         AlbumMapper $albumMapper,
         int $start = 0
-    )
-    {
+    ) {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 

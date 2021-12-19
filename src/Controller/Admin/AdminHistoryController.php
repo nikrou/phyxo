@@ -180,14 +180,6 @@ class AdminHistoryController extends AbstractController
         $tpl_params['PAGE_TITLE'] = $this->translator->trans('History', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('stats'), $tpl_params);
 
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
         return $this->render('history_stats.html.twig', $tpl_params);
     }
 
@@ -254,14 +246,6 @@ class AdminHistoryController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_history_search');
         $tpl_params['PAGE_TITLE'] = $this->translator->trans('History', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('search'), $tpl_params);
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
 
         return $this->render('history_search.html.twig', $tpl_params);
     }

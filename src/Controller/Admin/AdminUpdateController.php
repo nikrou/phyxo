@@ -159,7 +159,7 @@ class AdminUpdateController extends AbstractController
 
                     $fs->remove($params->get('cache_dir') . '/../main');
 
-                    $this->addFlash('info', $translator->trans('Update complete.', [], 'admin'));
+                    $this->addFlash('success', $translator->trans('Update complete.', [], 'admin'));
 
                     return $this->redirectToRoute('admin_home');
                 } catch (\Exception $e) {
@@ -234,7 +234,7 @@ class AdminUpdateController extends AbstractController
                     }
 
                     $updater->removeObsoleteFiles($obsolete_file, $params->get('root_project_dir'));
-                    $this->addFlash('info', $translator->trans('Upgrade complete.', [], 'admin'));
+                    $this->addFlash('success', $translator->trans('Upgrade complete.', [], 'admin'));
 
                     $tokenStorage->setToken(null);
                     $session->invalidate();
@@ -268,14 +268,6 @@ class AdminUpdateController extends AbstractController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Updates', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('core'), $tpl_params);
 
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
         return $this->render('updates_core.html.twig', $tpl_params);
     }
 
@@ -288,14 +280,6 @@ class AdminUpdateController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_update_extensions');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Updates', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('extensions'), $tpl_params);
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
 
         return $this->render('updates_ext.html.twig', $tpl_params);
     }

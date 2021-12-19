@@ -100,14 +100,6 @@ class AdminTagsController extends AbstractController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Tags', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('all'), $tpl_params);
 
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
         return $this->render('tags_all.html.twig', $tpl_params);
     }
 
@@ -172,7 +164,7 @@ class AdminTagsController extends AbstractController
                         }
 
                         $this->addFlash(
-                            'info',
+                            'success',
                             $translator->trans('Tag "{tag}" is now a duplicate of "{duplicate_tag}"', ['tag' => $tag_name, 'duplicate_tag' => $current_name_of[$tag_id]->getName()], 'admin')
                         );
                     }
@@ -201,7 +193,7 @@ class AdminTagsController extends AbstractController
                     $tagMapper->getRepository()->addOrUpdateTag($destination_tag);
 
                     $this->addFlash(
-                        'info',
+                        'sucess',
                         $translator->trans(
                             'Tags <em>{tags_deleted}</em> merged into tag <em>{destination_tag}</em>',
                             ['tags_deleted' => implode(', ', $tags_deleted), 'destination_tag' => $destination_tag->getName()],
@@ -217,9 +209,9 @@ class AdminTagsController extends AbstractController
                 $tagMapper->deleteTags($request->request->all()['tags']);
 
                 if (count($request->request->all()['tags']) > 1) {
-                    $this->addFlash('info', $translator->trans('The tags were deleted', [], 'admin'));
+                    $this->addFlash('success', $translator->trans('The tags were deleted', [], 'admin'));
                 } else {
-                    $this->addFlash('info', $translator->trans('The tag was deleted', [], 'admin'));
+                    $this->addFlash('success', $translator->trans('The tag was deleted', [], 'admin'));
                 }
             }
         }
@@ -239,7 +231,7 @@ class AdminTagsController extends AbstractController
                 $tag->setLastModified(new \DateTime());
                 $tagMapper->getRepository()->addOrUpdateTag($tag);
 
-                $this->addFlash('info', $translator->trans('Tag "{tag}" was added', ['tag' => $tag->getName()], 'admin'));
+                $this->addFlash('success', $translator->trans('Tag "{tag}" was added', ['tag' => $tag->getName()], 'admin'));
             }
         }
 
@@ -249,7 +241,7 @@ class AdminTagsController extends AbstractController
     public function deleteOrphans(TagMapper $tagMapper, TranslatorInterface $translator)
     {
         $tagMapper->deleteOrphanTags();
-        $this->addFlash('info', $translator->trans('Orphan tags deleted', [], 'admin'));
+        $this->addFlash('success', $translator->trans('Orphan tags deleted', [], 'admin'));
 
         return $this->redirectToRoute('admin_tags');
     }
@@ -284,7 +276,7 @@ class AdminTagsController extends AbstractController
             $conf['show_pending_deleted_tags'] = $request->request->get('show_pending_deleted_tags') ? 1 : 0;
 
             $tagMapper->invalidateUserCacheNbTags();
-            $this->addFlash('info', $translator->trans('Settings have been updated', [], 'admin'));
+            $this->addFlash('success', $translator->trans('Settings have been updated', [], 'admin'));
 
             $this->redirectToRoute('admin_tags_permissions');
         }
@@ -308,14 +300,6 @@ class AdminTagsController extends AbstractController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Tags', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('permissions'), $tpl_params);
 
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
         return $this->render('tags_permissions.html.twig', $tpl_params);
     }
 
@@ -327,10 +311,10 @@ class AdminTagsController extends AbstractController
         if ($request->isMethod('POST') && $request->request->get('tag_ids')) {
             if ($request->request->get('validate')) {
                 $tagMapper->validateTags($request->request->all()['tag_ids']);
-                $this->addFlash('info', $translator->trans('Tags have been validated', [], 'admin'));
+                $this->addFlash('success', $translator->trans('Tags have been validated', [], 'admin'));
             } elseif ($request->request->get('reject')) {
                 $tagMapper->rejectTags($request->request->all()['tag_ids']);
-                $this->addFlash('info', $translator->trans('Tags have been rejected', [], 'admin'));
+                $this->addFlash('success', $translator->trans('Tags have been rejected', [], 'admin'));
             }
 
             $this->redirectToRoute('admin_tags_pending');
@@ -343,14 +327,6 @@ class AdminTagsController extends AbstractController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_tags');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Tags', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('pending'), $tpl_params);
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
 
         return $this->render('tags_pending.html.twig', $tpl_params);
     }

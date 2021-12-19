@@ -51,10 +51,6 @@ class AdminMenubarController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_menubar');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_menubar');
 
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
         return $this->render('menubar.html.twig', $tpl_params);
     }
 
@@ -82,7 +78,7 @@ class AdminMenubarController extends AbstractController
             $mb_conf = $this->makeConsecutive($reg_blocks, $mb_conf);
             $conf->addOrUpdateParam('blk_' . $menu->getId(), $mb_conf, 'json');
 
-            $this->addFlash('info', $translator->trans('Order of menubar items has been updated successfully.', [], 'admin'));
+            $this->addFlash('success', $translator->trans('Order of menubar items has been updated successfully.', [], 'admin'));
         }
 
         return $this->redirectToRoute('admin_menubar');

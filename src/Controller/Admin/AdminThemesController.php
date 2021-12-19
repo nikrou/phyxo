@@ -45,8 +45,7 @@ class AdminThemesController extends AbstractController
         ParameterBagInterface $params,
         TranslatorInterface $translator,
         CsrfTokenManagerInterface $tokenManager
-    )
-    {
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -155,10 +154,6 @@ class AdminThemesController extends AbstractController
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
 
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
         return $this->render('themes_installed.html.twig', $tpl_params);
     }
 
@@ -170,8 +165,7 @@ class AdminThemesController extends AbstractController
         ThemeRepository $themeRepository,
         ParameterBagInterface $params,
         TranslatorInterface $translator
-    )
-    {
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -230,10 +224,6 @@ class AdminThemesController extends AbstractController
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
 
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
         return $this->render('themes_update.html.twig', $tpl_params);
     }
 
@@ -244,8 +234,7 @@ class AdminThemesController extends AbstractController
         ThemeRepository $themeRepository,
         UserInfosRepository $userInfosRepository,
         ParameterBagInterface $params
-    )
-    {
+    ) {
         $themes = new Themes($themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
 
@@ -281,7 +270,7 @@ class AdminThemesController extends AbstractController
 
         try {
             $themes->extractThemeFiles('install', $revision);
-            $this->addFlash('info', $translator->trans('Theme has been successfully installed', [], 'admin'));
+            $this->addFlash('success', $translator->trans('Theme has been successfully installed', [], 'admin'));
 
             return $this->redirectToRoute('admin_themes_installed');
         } catch (\Exception $e) {
@@ -319,9 +308,6 @@ class AdminThemesController extends AbstractController
         $tpl_params = array_merge($this->setTabsheet('new'), $tpl_params);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
 
         return $this->render('themes_new.html.twig', $tpl_params);
     }

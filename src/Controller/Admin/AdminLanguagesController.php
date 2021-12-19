@@ -104,14 +104,6 @@ class AdminLanguagesController extends AbstractController
             $userInfosRepository->updateLanguageForLanguages($userMapper->getDefaultLanguage(), $missing_language_ids);
         }
 
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_languages_installed');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('installed'), $tpl_params);
@@ -174,10 +166,6 @@ class AdminLanguagesController extends AbstractController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('new'), $tpl_params);
 
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_languages_installed');
 
         return $this->render('languages_new.html.twig', $tpl_params);
@@ -202,7 +190,7 @@ class AdminLanguagesController extends AbstractController
 
         try {
             $languages->extractLanguageFiles('install', $revision);
-            $this->addFlash('info', $translator->trans('Language has been successfully installed', [], 'admin'));
+            $this->addFlash('success', $translator->trans('Language has been successfully installed', [], 'admin'));
 
             return $this->redirectToRoute('admin_languages_installed');
         } catch (\Exception $e) {
@@ -283,9 +271,6 @@ class AdminLanguagesController extends AbstractController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('update'), $tpl_params);
 
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_languages_installed');
         $tpl_params['INSTALL_URL'] = $this->generateUrl('admin_languages_installed');
 

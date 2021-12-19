@@ -26,14 +26,6 @@ class AdminApiController extends AbstractController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('api');
         $tpl_params['PAGE_TITLE'] = 'API';
 
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
         return $this->render('api.html.twig', $tpl_params);
     }
 }

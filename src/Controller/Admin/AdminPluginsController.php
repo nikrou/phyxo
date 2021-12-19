@@ -94,14 +94,6 @@ class AdminPluginsController extends AbstractController
             }
         }
 
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
         try {
             $tpl_params['incompatible_plugins'] = $plugins->getIncompatiblePlugins($conf['pem_plugins_category'], $params->get('core_version'));
         } catch (\Exception $e) {
@@ -135,7 +127,7 @@ class AdminPluginsController extends AbstractController
 
         try {
             $plugins->extractPluginFiles('install', $revision);
-            $this->addFlash('info', $translator->trans('Plugin has been successfully installed', [], 'admin'));
+            $this->addFlash('success', $translator->trans('Plugin has been successfully installed', [], 'admin'));
 
             return $this->redirectToRoute('admin_plugins_installed');
         } catch (\Exception $e) {
@@ -252,10 +244,6 @@ class AdminPluginsController extends AbstractController
             if (!empty($updates_ignored['plugins'])) {
                 $tpl_params['SHOW_RESET'] = count($updates_ignored['plugins']);
             }
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
 
         $tpl_params['ws'] = $this->generateUrl('ws');

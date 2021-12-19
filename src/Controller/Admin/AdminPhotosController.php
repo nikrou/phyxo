@@ -104,10 +104,10 @@ class AdminPhotosController extends AbstractController
             $album = $albumMapper->getRepository()->find($album_id);
             if (!is_null($album)) {
                 $selected_category = [$album_id];
-                $this->addFlash('selected_category', json_encode($selected_category));
+                $request->getSession()->set('selected_category', json_encode($selected_category));
             }
-        } elseif ($this->get('session')->getFlashBag()->has('selected_category')) {
-            $selected_category = json_decode($this->get('session')->getFlashBag()->get('selected_category'), true);
+        } elseif ($request->getSession()->has('selected_category')) {
+            $selected_category = json_decode($request->getSession()->get('selected_category'), true);
         } else {
             // we need to know the category in which the last photo was added
             if ($last_album = $imageMapper->getRepository()->findAlbumWithLastImageAdded()) {
@@ -153,14 +153,6 @@ class AdminPhotosController extends AbstractController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_photos_add');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Photo', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('direct', $conf['enable_synchronization']), $tpl_params);
-
-        if ($this->get('session')->getFlashBag()->has('info')) {
-            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
-        }
-
-        if ($this->get('session')->getFlashBag()->has('error')) {
-            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
-        }
 
         return $this->render('photos_add_direct.html.twig', $tpl_params);
     }
