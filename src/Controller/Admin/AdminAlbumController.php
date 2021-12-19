@@ -262,7 +262,7 @@ class AdminAlbumController extends AbstractController
 
         if ($request->isMethod('POST')) {
             if ($request->request->get('rank_of_image')) {
-                $rank_of_image = $request->request->get('rank_of_image');
+                $rank_of_image = $request->request->all()['rank_of_image'];
                 asort($rank_of_image, SORT_NUMERIC);
 
                 foreach ($album->getImageAlbums() as $image_album) {

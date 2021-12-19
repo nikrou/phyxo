@@ -122,20 +122,20 @@ class AdminCommentsController extends AbstractController
                 $error = true;
             } else {
                 if ($request->request->get('validate')) {
-                    $commentMapper->validateUserComment($request->request->get('comments'));
+                    $commentMapper->validateUserComment($request->request->all()['comments']);
 
                     $this->addFlash(
                         'info',
-                        $translator->trans('number_of_comments_validated', ['count' => count($request->request->get('comments'))], 'admin')
+                        $translator->trans('number_of_comments_validated', ['count' => count($request->request->all()['comments'])], 'admin')
                     );
                 }
 
                 if ($request->request->get('reject')) {
-                    $commentMapper->deleteUserComment($request->request->get('comments'));
+                    $commentMapper->deleteUserComment($request->request->all()['comments']);
 
                     $this->addFlash(
                         'info',
-                        $translator->trans('number_of_comments_rejected', ['count' => count($request->request->get('comments'))], 'admin')
+                        $translator->trans('number_of_comments_rejected', ['count' => count($request->request->all()['comments'])], 'admin')
                     );
                 }
             }

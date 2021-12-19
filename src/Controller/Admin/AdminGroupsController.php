@@ -16,10 +16,8 @@ use App\DataMapper\UserMapper;
 use App\Entity\Album;
 use App\Entity\Group;
 use App\Repository\GroupRepository;
-use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -110,14 +108,14 @@ class AdminGroupsController extends AbstractController
         if ($request->isMethod('POST')) {
             $group = $groupRepository->find($group_id);
 
-            if ($request->request->get('falsify') && $request->request->get('cat_true') && count($request->request->get('cat_true')) > 0) {
+            if ($request->request->get('falsify') && $request->request->get('cat_true') && count($request->request->all()['cat_true']) > 0) {
                 // if you forbid access to a category, all sub-categories become automatically forbidden
-                foreach ($albumMapper->getRepository()->getSubAlbums($request->request->get('cat_true')) as $album) {
+                foreach ($albumMapper->getRepository()->getSubAlbums($request->request->all()['cat_true']) as $album) {
                     $album->removeGroupAccess($group);
                     $albumMapper->getRepository()->addOrUpdateAlbum($album);
                 }
-            } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && count($request->request->get('cat_false')) > 0) {
-                $uppercats = $albumMapper->getUppercatIds($request->request->get('cat_false'));
+            } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && count($request->request->all()['cat_false']) > 0) {
+                $uppercats = $albumMapper->getUppercatIds($request->request->all()['cat_false']);
 
                 foreach ($albumMapper->getRepository()->findBy(['id' => $uppercats, 'status' => Album::STATUS_PRIVATE]) as $album) {
                     $album->addGroupAccess($group);
@@ -169,7 +167,7 @@ class AdminGroupsController extends AbstractController
 
     public function action(Request $request, string $action, GroupRepository $groupRepository, TranslatorInterface $translator)
     {
-        $group_selection = $request->request->get('group_selection');
+        $group_selection = $request->request->all()['group_selection'];
         if (count($group_selection) === 0) {
             $this->addFlash('error', $translator->trans('Select at least one group', [], 'admin'));
 

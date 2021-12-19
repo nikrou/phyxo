@@ -458,10 +458,10 @@ class AdminBatchManagerController extends AbstractController
                 }
             }
         } elseif ($action === 'del_tags') {
-            if ($request->request->get('del_tags') && count($request->request->get('del_tags')) > 0) {
-                $imageTagRepository->deleteByImagesAndTags($collection, $request->request->get('del_tags'));
+            if ($request->request->get('del_tags') && count($request->request->all()['del_tags']) > 0) {
+                $imageTagRepository->deleteByImagesAndTags($collection, $request->request->all()['del_tags']);
 
-                if (!empty($this->getFilter()['tags']) && count(array_intersect($this->getFilter()['tags'], $request->request->get('del_tags'))) > 0) {
+                if (!empty($this->getFilter()['tags']) && count(array_intersect($this->getFilter()['tags'], $request->request->all()['del_tags'])) > 0) {
                     $redirect = true;
                 }
             } else {
@@ -572,7 +572,7 @@ class AdminBatchManagerController extends AbstractController
             $this->addFlash('info', $this->translator->trans('Metadata synchronized from file', [], 'admin'));
         } elseif ($action === 'delete_derivatives' && $request->request->get('del_derivatives_type')) {
             foreach ($imageMapper->getRepository()->find($collection) as $image) {
-                foreach ($request->request->get('del_derivatives_type') as $type) {
+                foreach ($request->request->all()['del_derivatives_type'] as $type) {
                     $this->derivativeService->deleteForElement($image->toArray(), $type);
                 }
             }

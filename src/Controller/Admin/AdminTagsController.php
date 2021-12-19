@@ -44,8 +44,7 @@ class AdminTagsController extends AbstractController
         TranslatorInterface $translator,
         TagMapper $tagMapper,
         ImageTagRepository $imageTagRepository
-    )
-    {
+    ) {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -152,7 +151,7 @@ class AdminTagsController extends AbstractController
             }
 
             // we must not rename tag with an already existing name
-            foreach ($request->request->get('tags') as $tag_id) {
+            foreach ($request->request->all()['tags'] as $tag_id) {
                 $tag_name = $request->request->get('tag_name-' . $tag_id);
 
                 if ($tag_name != $current_name_of[$tag_id]->getName()) {
@@ -184,7 +183,7 @@ class AdminTagsController extends AbstractController
                 $this->addFlash('error', $translator->trans('No destination tag selected', [], 'admin'));
             } else {
                 $destination_tag = $tagMapper->getRepository()->find($request->request->get('destination_tag'));
-                $tag_ids = $request->request->get('tags');
+                $tag_ids = $request->request->all()['tags'];
 
                 if (is_array($tag_ids) && count($tag_ids) > 1) {
                     $tags_deleted = [];
@@ -215,9 +214,9 @@ class AdminTagsController extends AbstractController
             if (!$request->request->get('confirm_deletion')) {
                 $this->addFlash('error', $translator->trans('You need to confirm deletion', [], 'admin'));
             } else {
-                $tagMapper->deleteTags($request->request->get('tags'));
+                $tagMapper->deleteTags($request->request->all()['tags']);
 
-                if (count($request->request->get('tags')) > 1) {
+                if (count($request->request->all()['tags']) > 1) {
                     $this->addFlash('info', $translator->trans('The tags were deleted', [], 'admin'));
                 } else {
                     $this->addFlash('info', $translator->trans('The tag was deleted', [], 'admin'));
@@ -327,10 +326,10 @@ class AdminTagsController extends AbstractController
 
         if ($request->isMethod('POST') && $request->request->get('tag_ids')) {
             if ($request->request->get('validate')) {
-                $tagMapper->validateTags($request->request->get('tag_ids'));
+                $tagMapper->validateTags($request->request->all()['tag_ids']);
                 $this->addFlash('info', $translator->trans('Tags have been validated', [], 'admin'));
             } elseif ($request->request->get('reject')) {
-                $tagMapper->rejectTags($request->request->get('tag_ids'));
+                $tagMapper->rejectTags($request->request->all()['tag_ids']);
                 $this->addFlash('info', $translator->trans('Tags have been rejected', [], 'admin'));
             }
 

@@ -120,7 +120,7 @@ class SearchController extends CommonController
         $rules = [];
         if ($request->isMethod('POST')) {
             if ($request->request->get('search_allwords') && !preg_match('/^\s*$/', $request->request->get('search_allwords'))) {
-                $fields = array_intersect($request->request->get('fields'), ['name', 'comment', 'file']);
+                $fields = array_intersect($request->request->all()['fields'], ['name', 'comment', 'file']);
 
                 $drop_char_match = [
                     '-', '^', '$', ';', '#', '&', '(', ')', '<', '>', '`', '\'', '"', '|', ',', '@', '_',
@@ -156,10 +156,10 @@ class SearchController extends CommonController
             }
 
             /** @phpstan-ignore-next-line */
-            if ($request->request->get('authors') && is_array($request->request->get('authors')) && count($request->request->get('authors')) > 0) {
+            if ($request->request->get('authors') && is_array($request->request->get('authors')) && count($request->request->all()['authors']) > 0) {
                 $authors = [];
 
-                foreach ($request->request->get('authors') as $author) {
+                foreach ($request->request->all()['authors'] as $author) {
                     $authors[] = $author;
                 }
 

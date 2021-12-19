@@ -93,7 +93,7 @@ class AdminPhotoController extends AbstractController
 
             // association to albums
             if ($request->request->get('associate')) {
-                $albumMapper->associateImagesToAlbums([$image_id], $request->request->get('associate'));
+                $albumMapper->associateImagesToAlbums([$image_id], $request->request->all()['associate']);
             }
 
             $userMapper->invalidateUserCache();

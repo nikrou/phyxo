@@ -46,26 +46,26 @@ class AdminAlbumsOptionsController extends AbstractController
         $this->translator = $translator;
 
         if ($request->isMethod('POST')) {
-            if ($request->request->get('falsify') && $request->request->get('cat_true') && count($request->request->get('cat_true')) > 0) {
+            if ($request->request->get('falsify') && $request->request->get('cat_true') && count($request->request->all()['cat_true']) > 0) {
                 if ($section === 'comments') {
-                    $albumRepository->updateAlbums(['commentable' => false], $request->request->get('cat_true'));
+                    $albumRepository->updateAlbums(['commentable' => false], $request->request->all()['cat_true']);
                 } elseif ($section === 'lock') {
-                    $albumMapper->setAlbumsVisibility($request->request->get('cat_true'), false);
+                    $albumMapper->setAlbumsVisibility($request->request->all()['cat_true'], false);
                 } elseif ($section === 'status') {
-                    $albumMapper->setAlbumsStatus($request->request->get('cat_true'), Album::STATUS_PRIVATE);
+                    $albumMapper->setAlbumsStatus($request->request->all()['cat_true'], Album::STATUS_PRIVATE);
                 } elseif ($section === 'representative') {
-                    $albumRepository->updateAlbums(['representative_picture_id' => null], $request->request->get('cat_true'));
+                    $albumRepository->updateAlbums(['representative_picture_id' => null], $request->request->all()['cat_true']);
                 }
-            } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && count($request->request->get('cat_false')) > 0) {
+            } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && count($request->request->all()['cat_false']) > 0) {
                 if ($section === 'comments') {
-                    $albumRepository->updateAlbums(['commentable' => true], $request->request->get('cat_false'));
+                    $albumRepository->updateAlbums(['commentable' => true], $request->request->all()['cat_false']);
                 } elseif ($section === 'lock') {
-                    $albumMapper->setAlbumsVisibility($request->request->get('cat_false'), true);
+                    $albumMapper->setAlbumsVisibility($request->request->all()['cat_false'], true);
                 } elseif ($section === 'status') {
-                    $albumMapper->setAlbumsStatus($request->request->get('cat_false'), Album::STATUS_PUBLIC);
+                    $albumMapper->setAlbumsStatus($request->request->all()['cat_false'], Album::STATUS_PUBLIC);
                 } elseif ($section === 'representative') {
                     // theoretically, all categories in $_POST['cat_false'] contain at least one element, so Phyxo can find a representant.
-                    $albumMapper->setRandomRepresentant($request->request->get('cat_false'));
+                    $albumMapper->setRandomRepresentant($request->request->all()['cat_false']);
                 }
             }
 
