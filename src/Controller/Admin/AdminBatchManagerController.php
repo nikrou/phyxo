@@ -23,7 +23,9 @@ use App\Repository\FavoriteRepository;
 use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\TagRepository;
+use App\Security\AppUserService;
 use App\Services\DerivativeService;
+use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
@@ -32,11 +34,17 @@ use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminBatchManagerController extends AbstractController
 {
-    private $translator, $derivativeService;
+    private $translator, $derivativeService, $user;
+
+    public function __construct(AppUserService $appUserService)
+    {
+        $this->user = $appUserService->getUser();
+    }
 
     protected function setTabsheet(string $section = 'global')
     {
@@ -85,6 +93,8 @@ class AdminBatchManagerController extends AbstractController
         ImageAlbumRepository $imageAlbumRepository,
         FavoriteRepository $favoriteRepository,
         TagRepository $tagRepository,
+        RouterInterface $router,
+        ManagerRegistry $managerRegistry,
         string $filter = null,
         int $start = 0
     ) {
@@ -280,7 +290,7 @@ class AdminBatchManagerController extends AbstractController
             }
 
             // remove tags
-            $tpl_params['associated_tags'] = $tagMapper->getCommonTags($this->getUser(), $current_set, -1);
+            $tpl_params['associated_tags'] = $tagMapper->getCommonTags($this->user, $current_set, -1);
         }
 
         // creation date
@@ -317,7 +327,7 @@ class AdminBatchManagerController extends AbstractController
         $nb_thumbs_page = 0;
 
         if (count($current_set) > 0) {
-            $tpl_params['navbar'] = Utils::createNavigationBar($this->get('router'), 'admin_batch_manager_global', ['filter' => $filter], count($current_set), $start, $nb_images);
+            $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_global', ['filter' => $filter], count($current_set), $start, $nb_images);
 
             $is_category = false;
             if (isset($this->getFilter($request->getSession())['category']) && !isset($this->getFilter($request->getSession())['category_recursive'])) {
@@ -395,7 +405,7 @@ class AdminBatchManagerController extends AbstractController
         $tpl_params['all_elements'] = $current_set;
         $tpl_params['nb_thumbs_page'] = $nb_thumbs_page;
         $tpl_params['nb_thumbs_set'] = count($current_set);
-        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($this->getDoctrine(), ['tags', 'categories'], $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($managerRegistry, ['tags', 'categories'], $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_batch_manager_global');
@@ -408,7 +418,7 @@ class AdminBatchManagerController extends AbstractController
 
     public function emptyCaddie(Request $request, CaddieRepository $caddieRepository, TranslatorInterface $translator)
     {
-        $caddieRepository->emptyCaddies($this->getUser()->getId());
+        $caddieRepository->emptyCaddies($this->user->getId());
         $this->addFlash('success', $translator->trans('Caddie has been emptied', [], 'admin'));
 
         return $this->redirectToRoute('admin_batch_manager_global', ['start' => $request->get('start')]);
@@ -435,14 +445,14 @@ class AdminBatchManagerController extends AbstractController
         $action = $request->request->get('selectAction');
 
         if ($action === 'remove_from_caddie') {
-            $caddieRepository->deleteElements($collection, $this->getUser()->getId());
+            $caddieRepository->deleteElements($collection, $this->user->getId());
             $redirect = true;
         } elseif ($action === 'add_tags') {
             if (!$request->request->get('add_tags')) {
                 $this->addFlash('error', $this->translator->trans('Select at least one tag', [], 'admin'));
             } else {
                 $tag_ids = $tagMapper->getTagsIds($request->request->get('add_tags'));
-                $tagMapper->addTags($tag_ids, $collection, $this->getUser());
+                $tagMapper->addTags($tag_ids, $collection, $this->user);
 
                 if ($this->getFilter($request->getSession())['prefilter'] === 'no_tag') {
                     $redirect = true;
@@ -538,11 +548,11 @@ class AdminBatchManagerController extends AbstractController
                 }
             }
         } elseif ($action === 'add_to_caddie') {
-            $userCaddies = $this->getUser()->getCaddies();
+            $userCaddies = $this->user->getCaddies();
 
             foreach ($imageMapper->getRepository()->findBy(['id' => $collection]) as $image) {
                 $caddie = new Caddie();
-                $caddie->setUser($this->getUser());
+                $caddie->setUser($this->user);
                 $caddie->setImage($image);
                 $userCaddies->add($caddie);
             }
@@ -559,7 +569,7 @@ class AdminBatchManagerController extends AbstractController
                 $this->addFlash('error', $this->translator->trans('You need to confirm deletion', [], 'admin'));
             }
         } elseif ($action === 'metadata') {
-            $tagMapper->sync_metadata($collection, $this->getUser());
+            $tagMapper->sync_metadata($collection, $this->user);
             $this->addFlash('success', $this->translator->trans('Metadata synchronized from file', [], 'admin'));
         } elseif ($action === 'delete_derivatives' && $request->request->get('del_derivatives_type')) {
             foreach ($imageMapper->getRepository()->find($collection) as $image) {
@@ -608,7 +618,7 @@ class AdminBatchManagerController extends AbstractController
             switch ($bulk_manager_filter['prefilter']) {
                 case 'caddie':
 
-                    $filter_sets[] = $this->getUser()->getCaddies()->map(function(Caddie $caddie) {
+                    $filter_sets[] = $this->user->getCaddies()->map(function(Caddie $caddie) {
                         return $caddie->getImage()->getId();
                     })->toArray();
 
@@ -616,7 +626,7 @@ class AdminBatchManagerController extends AbstractController
 
                 case 'favorites':
                     $user_favorites = [];
-                    foreach ($favoriteRepository->findUserFavorites($this->getUser()->getId(), $this->getUser()->getUserInfos()->getForbiddenCategories()) as $favorite) {
+                    foreach ($favoriteRepository->findUserFavorites($this->user->getId(), $this->user->getUserInfos()->getForbiddenCategories()) as $favorite) {
                         $user_favorites[] = $favorite->getImage()->geId();
                     }
                     $filter_sets[] = $user_favorites;
@@ -741,7 +751,7 @@ class AdminBatchManagerController extends AbstractController
         if (!empty($bulk_manager_filter['tags'])) {
             $image_ids = [];
             foreach ($imageMapper->getRepository()->getImageIdsForTags(
-                $this->getUser()->getUserInfos()->getForbiddenCategories(),
+                $this->user->getUserInfos()->getForbiddenCategories(),
                 $bulk_manager_filter['tags'],
                 $bulk_manager_filter['tag_mode']
             ) as $image) {
@@ -809,7 +819,7 @@ class AdminBatchManagerController extends AbstractController
         }
 
         if (!empty($bulk_manager_filter['search']) && !empty($bulk_manager_filter['search']['q'])) {
-            $result = $searchMapper->getQuickSearchResults($bulk_manager_filter['search']['q'], $this->getUser());
+            $result = $searchMapper->getQuickSearchResults($bulk_manager_filter['search']['q'], $this->user);
             if (!empty($result['items']) && !empty($result['qs']['unmatched_terms'])) {
                 // $tpl_params ??? $template->assign('no_search_results', $result['qs']['unmatched_terms']);
             }
@@ -947,6 +957,8 @@ class AdminBatchManagerController extends AbstractController
         AlbumRepository $albumRepository,
         ImageAlbumRepository $imageAlbumRepository,
         FavoriteRepository $favoriteRepository,
+        RouterInterface $router,
+        ManagerRegistry $managerRegistry,
         string $filter = null,
         int $start = 0
     ) {
@@ -974,7 +986,7 @@ class AdminBatchManagerController extends AbstractController
                 if ($request->request->get('tags-' . $image->getId())) {
                     $tag_ids = $tagMapper->getTagsIds($request->request->get('tags-' . $image->getId()));
                 }
-                $tagMapper->setTags($tag_ids, $image->getId(), $this->getUser());
+                $tagMapper->setTags($tag_ids, $image->getId(), $this->user);
                 $imageMapper->getRepository()->addOrUpdateImage($image);
             }
 
@@ -1042,7 +1054,7 @@ class AdminBatchManagerController extends AbstractController
             }
 
             // remove tags
-            $tpl_params['associated_tags'] = $tagMapper->getCommonTags($this->getUser(), $current_set, -1);
+            $tpl_params['associated_tags'] = $tagMapper->getCommonTags($this->user, $current_set, -1);
         }
 
         // creation date
@@ -1075,7 +1087,7 @@ class AdminBatchManagerController extends AbstractController
             }
         }
         if (count($current_set) > 0) {
-            $tpl_params['navbar'] = Utils::createNavigationBar($this->get('router'), 'admin_batch_manager_unit', ['filter' => $filter], count($current_set), $start, $nb_images);
+            $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_unit', ['filter' => $filter], count($current_set), $start, $nb_images);
 
             $is_category = false;
             if (isset($this->getFilter($request->getSession())['category']) && !isset($this->getFilter($request->getSession())['category_recursive'])) {
@@ -1150,7 +1162,7 @@ class AdminBatchManagerController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_batch_manager_unit');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Site manager', [], 'admin');
-        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($this->getDoctrine(), ['tags', 'categories'], $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($managerRegistry, ['tags', 'categories'], $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params = array_merge($this->setTabsheet('unit'), $tpl_params);

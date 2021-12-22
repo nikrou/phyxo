@@ -13,6 +13,8 @@ namespace App\Controller\Admin;
 
 use App\Repository\CaddieRepository;
 use App\Repository\CommentRepository;
+use App\Security\AppUser;
+use App\Security\AppUserService;
 use Phyxo\Block\BlockManager;
 use Phyxo\Conf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -107,11 +109,10 @@ class AdminMenubarController extends AbstractController
         return $orders;
     }
 
-    public function navigation(Conf $conf, CaddieRepository $caddieRepository, CommentRepository $commentRepository, ParameterBagInterface $params)
+    public function navigation(AppUserService $appUserService, Conf $conf, CaddieRepository $caddieRepository, CommentRepository $commentRepository, ParameterBagInterface $params)
     {
-        $tpl_params = [];
         $tpl_params = [
-            'USERNAME' => $this->getUser()->getUsername(),
+            'USERNAME' => $appUserService->getUser()->getUserIdentifier(),
             'ENABLE_SYNCHRONIZATION' => $conf['enable_synchronization'],
             'U_HISTORY_STAT' => $this->generateUrl('admin_history'),
             'U_MAINTENANCE' => $this->generateUrl('admin_maintenance'),
@@ -147,7 +148,7 @@ class AdminMenubarController extends AbstractController
         }
 
         // any photo in the caddie?
-        $nb_photos_in_caddie = $caddieRepository->count(['user' => $this->getUser()->getId()]);
+        $nb_photos_in_caddie = $caddieRepository->count(['user' => $appUserService->getUser()->getId()]);
 
         if ($nb_photos_in_caddie > 0) {
             $tpl_params['NB_PHOTOS_IN_CADDIE'] = $nb_photos_in_caddie;

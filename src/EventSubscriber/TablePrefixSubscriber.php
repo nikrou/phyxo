@@ -13,6 +13,7 @@ namespace App\EventSubscriber;
 
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Symfony\Bundle\MakerBundle\DependencyInjection\CompilerPass\DoctrineAttributesCheckPass;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class TablePrefixSubscriber implements EventSubscriberInterface
@@ -24,9 +25,9 @@ class TablePrefixSubscriber implements EventSubscriberInterface
         $this->prefix = $prefix;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
-        return ['loadClassMetadata'];
+        return [LoadClassMetadataEventArgs::class => 'loadClassMetadata'];
     }
 
     public function loadClassMetadata(LoadClassMetadataEventArgs $event)

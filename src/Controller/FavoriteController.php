@@ -20,6 +20,7 @@ use App\DataMapper\ImageMapper;
 use App\Entity\Favorite;
 use App\Repository\ImageRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FavoriteController extends CommonController
@@ -31,9 +32,9 @@ class FavoriteController extends CommonController
         FavoriteRepository $favoriteRepository,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
+        RouterInterface $router,
         int $start = 0
-    )
-    {
+    ) {
         $tpl_params = [];
 
         if ($request->cookies->has('category_view')) {
@@ -64,7 +65,7 @@ class FavoriteController extends CommonController
 
             if (count($tpl_params['items']) > $this->getUser()->getUserInfos()->getNbImagePage()) {
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                    $this->get('router'),
+                    $router,
                     'favorites',
                     [],
                     count($tpl_params['items']),

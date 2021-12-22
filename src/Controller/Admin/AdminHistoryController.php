@@ -21,6 +21,7 @@ use App\Repository\HistorySummaryRepository;
 use App\Repository\SearchRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
+use App\Security\AppUserService;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
@@ -30,16 +31,18 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminHistoryController extends AbstractController
 {
-    private $image_std_params, $types, $display_thumbnails, $translator;
+    private $image_std_params, $types, $display_thumbnails, $translator, $user;
 
-    public function __construct(ImageStandardParams $image_std_params, TranslatorInterface $translator)
+    public function __construct(ImageStandardParams $image_std_params, TranslatorInterface $translator, AppUserService $appUserService)
     {
         $this->image_std_params = $image_std_params;
         $this->translator = $translator;
+        $this->user = $appUserService->getUser();
 
         $this->types = [
             'none' => $this->translator->trans('none', [], 'admin'),
@@ -194,7 +197,8 @@ class AdminHistoryController extends AbstractController
         UserMapper $userMapper,
         ImageMapper $imageMapper,
         TagRepository $tagRepository,
-        HistoryRepository $historyRepository
+        HistoryRepository $historyRepository,
+        RouterInterface $router
     ) {
         $tpl_params = [];
 
@@ -223,7 +227,7 @@ class AdminHistoryController extends AbstractController
             $nb_lines = $tpl_params['search_results']['nb_lines'];
 
             $tpl_params['navbar'] = Utils::createNavigationBar(
-                $this->get('router'),
+                $router,
                 'admin_history_search',
                 ['search_id' => $search_id],
                 $nb_lines,
@@ -575,7 +579,7 @@ class AdminHistoryController extends AbstractController
     protected function dateFormat(int $timestamp, string $format): string
     {
         $date_time = (new \DateTime())->setTimestamp($timestamp);
-        $intl_date_formatter = new \IntlDateFormatter($this->getUser()->getUserInfos()->getLanguage(), \IntlDateFormatter::FULL, \IntlDateFormatter::NONE, null, null, $format);
+        $intl_date_formatter = new \IntlDateFormatter($this->user->getUserInfos()->getLanguage(), \IntlDateFormatter::FULL, \IntlDateFormatter::NONE, null, null, $format);
 
         return $intl_date_formatter->format($date_time);
     }

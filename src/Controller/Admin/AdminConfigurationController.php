@@ -15,6 +15,7 @@ use App\DataMapper\UserMapper;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
+use App\Security\AppUserService;
 use App\Services\DerivativeService;
 use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
@@ -431,7 +432,8 @@ class AdminConfigurationController extends AbstractController
         UserMapper $userMapper,
         UserInfosRepository $userInfosRepository,
         LanguageRepository $languageRepository,
-        DerivativeService $derivativeService
+        DerivativeService $derivativeService,
+        AppUserService $appUserService
     ) {
         $conf_updated = false;
         $error = false;
@@ -566,7 +568,7 @@ class AdminConfigurationController extends AbstractController
                     $needFlush = true;
                 }
 
-                if ($request->request->get('recent_period') && $this->getUser()->getUserInfos()->getRecentPeriod() != $request->request->get('recent_period')) {
+                if ($request->request->get('recent_period') && $appUserService->getUser()->getUserInfos()->getRecentPeriod() != $request->request->get('recent_period')) {
                     $guestUserInfos->setRecentPeriod((int) $request->request->get('recent_period'));
                     $needFlush = true;
                 }

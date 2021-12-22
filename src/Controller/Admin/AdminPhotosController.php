@@ -16,6 +16,8 @@ use App\DataMapper\ImageMapper;
 use App\Entity\Caddie;
 use App\Repository\CaddieRepository;
 use App\Repository\ImageRepository;
+use App\Security\AppUserService;
+use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\TabSheet\TabSheet;
@@ -47,7 +49,8 @@ class AdminPhotosController extends AbstractController
         CsrfTokenManagerInterface $tokenManager,
         AlbumMapper $albumMapper,
         TranslatorInterface $translator,
-        ImageMapper $imageMapper
+        ImageMapper $imageMapper,
+        ManagerRegistry $managerRegistry
     ) {
         $tpl_params = [];
         $this->translator = $translator;
@@ -141,7 +144,7 @@ class AdminPhotosController extends AbstractController
                 'admin'
             );
         }
-        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($this->getDoctrine(), ['categories'], $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($managerRegistry, ['categories'], $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');
@@ -157,13 +160,13 @@ class AdminPhotosController extends AbstractController
         return $this->render('photos_add_direct.html.twig', $tpl_params);
     }
 
-    public function batch(Request $request, ImageRepository $imageRepository, CaddieRepository $caddieRepository)
+    public function batch(Request $request, AppUserService $appUserService, ImageRepository $imageRepository, CaddieRepository $caddieRepository)
     {
-        $caddieRepository->emptyCaddies($this->getUser()->getId());
+        $caddieRepository->emptyCaddies($appUserService->getUser()->getId());
         foreach ($imageRepository->findBy(['id' => explode(',', $request->request->get('batch'))]) as $image) {
             $caddie = new Caddie();
             $caddie->setImage($image);
-            $caddie->setUser($this->getUser());
+            $caddie->setUser($appUserService->getUser());
             $caddieRepository->addOrUpdateCaddie($caddie);
         }
 

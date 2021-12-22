@@ -21,6 +21,7 @@ use App\DataMapper\ImageMapper;
 use App\Entity\Tag as EntityTag;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TagController extends CommonController
@@ -135,6 +136,7 @@ class TagController extends CommonController
         TagRepository $tagRepository,
         Conf $conf,
         MenuBar $menuBar,
+        RouterInterface $router,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -168,7 +170,7 @@ class TagController extends CommonController
             $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                $this->get('router'),
+                $router,
                 'images_by_tags',
                 ['tag_ids' => $tag_ids],
                 count($tpl_params['items']),

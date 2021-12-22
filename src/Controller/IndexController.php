@@ -17,6 +17,7 @@ use Phyxo\Conf;
 use App\DataMapper\ImageMapper;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class IndexController extends CommonController
@@ -28,9 +29,9 @@ class IndexController extends CommonController
         ImageMapper $imageMapper,
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
+        RouterInterface $router,
         int $start = 0
-    )
-    {
+    ) {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -49,7 +50,7 @@ class IndexController extends CommonController
             $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                $this->get('router'),
+                $router,
                 'most_visited',
                 [],
                 count($tpl_params['items']),
@@ -85,9 +86,9 @@ class IndexController extends CommonController
         ImageMapper $imageMapper,
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
+        RouterInterface $router,
         int $start = 0
-    )
-    {
+    ) {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -110,7 +111,7 @@ class IndexController extends CommonController
             $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                $this->get('router'),
+                $router,
                 'recent_pics',
                 [],
                 count($tpl_params['items']),
@@ -146,9 +147,9 @@ class IndexController extends CommonController
         ImageMapper $imageMapper,
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
+        RouterInterface $router,
         int $start = 0
-    )
-    {
+    ) {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -169,7 +170,7 @@ class IndexController extends CommonController
 
             if (count($tpl_params['items']) > $nb_image_page) {
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                    $this->get('router'),
+                    $router,
                     'best_rated',
                     [],
                     count($tpl_params['items']),
@@ -222,8 +223,7 @@ class IndexController extends CommonController
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
         int $start = 0
-    )
-    {
+    ) {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 

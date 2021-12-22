@@ -20,6 +20,7 @@ use Phyxo\Image\ImageStandardParams;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminCommentsController extends AbstractController
@@ -37,11 +38,11 @@ class AdminCommentsController extends AbstractController
     }
 
     public function index(
-        Request $request,
         ImageStandardParams $image_std_params,
         Conf $conf,
         TranslatorInterface $translator,
         CommentRepository $commentRepository,
+        RouterInterface $router,
         string $section = 'all',
         int $start = 0
     ) {
@@ -84,7 +85,7 @@ class AdminCommentsController extends AbstractController
         $tpl_params = array_merge($this->setTabsheet($section), $tpl_params);
 
         $tpl_params['navbar'] = Utils::createNavigationBar(
-            $this->get('router'),
+            $router,
             'admin_comments',
             ['section' => $section],
             ('pending' == $section ? $nb_pending : $nb_total - $nb_pending),

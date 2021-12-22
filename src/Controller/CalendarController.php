@@ -21,6 +21,7 @@ use App\Repository\AlbumRepository;
 use App\Repository\ImageRepository;
 use Phyxo\Calendar\CalendarWeekly;
 use Phyxo\Functions\Utils;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CalendarController extends CommonController
@@ -36,6 +37,7 @@ class CalendarController extends CommonController
         ImageMapper $imageMapper,
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
+        RouterInterface $router,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -82,7 +84,7 @@ class CalendarController extends CommonController
         }
         $calendar->setChronologyDate($chronology_date);
 
-        $calendar->setRouter($this->get('router'));
+        $calendar->setRouter($router);
         $calendar->setConf($conf);
         $calendar->setViewType($view_type);
         $calendar->setImageStandardParams($image_std_params);
@@ -101,7 +103,7 @@ class CalendarController extends CommonController
                 $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                    $this->get('router'),
+                    $router,
                     'calendar_categories_monthly',
                     ['date_type' => $date_type, 'view_type' => $view_type],
                     count($tpl_params['items']),
@@ -153,6 +155,7 @@ class CalendarController extends CommonController
         ImageStandardParams $image_std_params,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
+        RouterInterface $router,
         int $start = 0,
         int $week = 0
     ) {
@@ -202,7 +205,7 @@ class CalendarController extends CommonController
             $calendar->setWeek($week);
         }
 
-        $calendar->setRouter($this->get('router'));
+        $calendar->setRouter($router);
         $calendar->setConf($conf);
         $calendar->setViewType('list');
         $calendar->setImageStandardParams($image_std_params);
@@ -221,7 +224,7 @@ class CalendarController extends CommonController
                 $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                    $this->get('router'),
+                    $router,
                     'calendar_categories_weekly',
                     ['date_type' => $date_type],
                     count($tpl_params['items']),
@@ -264,6 +267,7 @@ class CalendarController extends CommonController
         ImageStandardParams $image_std_params,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
+        RouterInterface $router,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -306,7 +310,7 @@ class CalendarController extends CommonController
         }
         $calendar->setChronologyDate($chronology_date);
 
-        $calendar->setRouter($this->get('router'));
+        $calendar->setRouter($router);
         $calendar->setConf($conf);
         $calendar->setViewType($view_type);
         $calendar->setImageStandardParams($image_std_params);
@@ -326,7 +330,7 @@ class CalendarController extends CommonController
                 $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                    $this->get('router'),
+                    $router,
                     'calendar_category_monthly',
                     ['date_type' => $date_type, 'view_type' => $view_type, 'category_id' => $category_id],
                     count($tpl_params['items']),
@@ -373,6 +377,7 @@ class CalendarController extends CommonController
         ImageStandardParams $image_std_params,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
+        RouterInterface $router,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -439,7 +444,7 @@ class CalendarController extends CommonController
         if ($week) {
             $calendar->setWeek($week);
         }
-        $calendar->setRouter($this->get('router'));
+        $calendar->setRouter($router);
         $calendar->setConf($conf);
         $calendar->setViewType('list');
         $calendar->setImageStandardParams($image_std_params);
@@ -455,7 +460,7 @@ class CalendarController extends CommonController
                 $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                    $this->get('router'),
+                    $router,
                     'calendar_category_monthly',
                     ['date_type' => $date_type, 'view_type' => 'list', 'category_id' => $category_id],
                     count($tpl_params['items']),

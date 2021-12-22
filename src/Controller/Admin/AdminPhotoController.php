@@ -18,7 +18,9 @@ use App\DataMapper\UserMapper;
 use App\Repository\ImageAlbumRepository;
 use App\Repository\RateRepository;
 use App\Repository\UserRepository;
+use App\Security\AppUserService;
 use App\Services\DerivativeService;
+use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
@@ -49,6 +51,7 @@ class AdminPhotoController extends AbstractController
         int $category_id = null,
         Conf $conf,
         TagMapper $tagMapper,
+        AppUserService $appUserService,
         ImageStandardParams $image_std_params,
         UserMapper $userMapper,
         TranslatorInterface $translator,
@@ -56,7 +59,8 @@ class AdminPhotoController extends AbstractController
         UserRepository $userRepository,
         AlbumMapper $albumMapper,
         ImageAlbumRepository $imageAlbumRepository,
-        RateRepository $rateRepository
+        RateRepository $rateRepository,
+        ManagerRegistry $managerRegistry
     ) {
         $tpl_params = [];
         $this->translator = $translator;
@@ -89,7 +93,7 @@ class AdminPhotoController extends AbstractController
             if ($request->request->get('tags')) {
                 $tag_ids = $tagMapper->getTagsIds($request->request->get('tags'));
             }
-            $tagMapper->setTags($tag_ids, $image_id, $this->getUser());
+            $tagMapper->setTags($tag_ids, $image_id, $appUserService->getUser());
 
             // association to albums
             if ($request->request->get('associate')) {
@@ -203,7 +207,7 @@ class AdminPhotoController extends AbstractController
             $image_albums[] = $image_album->getAlbum()->getId();
         }
 
-        $authorizeds = array_diff($image_albums, $this->getUser()->getUserInfos()->getForbiddenCategories());
+        $authorizeds = array_diff($image_albums, $appUserService->getUser()->getUserInfos()->getForbiddenCategories());
 
         $url_img = '';
         if ($category_id && in_array($category_id, $authorizeds)) {
@@ -222,7 +226,7 @@ class AdminPhotoController extends AbstractController
         $tpl_params['associated_albums'] = $associated_albums;
         $tpl_params['represented_albums'] = $represented_albums;
         $tpl_params['STORAGE_ALBUM'] = $storage_category_id;
-        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($this->getDoctrine(), ['tags', 'categories'], $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($managerRegistry, ['tags', 'categories'], $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);
@@ -234,8 +238,15 @@ class AdminPhotoController extends AbstractController
         return $this->render('photo_properties.html.twig', $tpl_params);
     }
 
-    public function delete(int $image_id, int $category_id = null, TranslatorInterface $translator, UserMapper $userMapper, ImageMapper $imageMapper, ImageAlbumRepository $imageAlbumRepository)
-    {
+    public function delete(
+        int $image_id,
+        int $category_id = null,
+        AppUserService $appUserService,
+        TranslatorInterface $translator,
+        UserMapper $userMapper,
+        ImageMapper $imageMapper,
+        ImageAlbumRepository $imageAlbumRepository
+    ) {
         $imageMapper->deleteElements([$image_id], true);
         $userMapper->invalidateUserCache();
 
@@ -253,7 +264,7 @@ class AdminPhotoController extends AbstractController
             $image_albums[] = $image_album->getAlbum()->getId();
         }
 
-        $authorizeds = array_diff($image_albums, $this->getUser()->getUserInfos()->getForbiddenCategories());
+        $authorizeds = array_diff($image_albums, $appUserService->getUser()->getUserInfos()->getForbiddenCategories());
 
         if (count($authorizeds) > 0) {
             return $this->redirectToRoute('admin_album', ['album_id' => $authorizeds[0]]);
@@ -264,9 +275,9 @@ class AdminPhotoController extends AbstractController
         return $this->redirectToRoute('admin_home');
     }
 
-    public function syncMetadata(int $image_id, int $category_id = null, TagMapper $tagMapper, TranslatorInterface $translator)
+    public function syncMetadata(int $image_id, int $category_id = null, AppUserService $appUserService, TagMapper $tagMapper, TranslatorInterface $translator)
     {
-        $tagMapper->sync_metadata([$image_id], $this->getUser());
+        $tagMapper->sync_metadata([$image_id], $appUserService->getUser());
         $this->addFlash('success', $translator->trans('Metadata synchronized from file', [], 'admin'));
 
         return $this->redirectToRoute('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);

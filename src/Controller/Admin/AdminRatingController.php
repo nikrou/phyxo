@@ -22,6 +22,7 @@ use Phyxo\Image\ImageStandardParams;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminRatingController extends AbstractController
@@ -45,6 +46,7 @@ class AdminRatingController extends AbstractController
         UserMapper $userMapper,
         UserRepository $userRepository,
         RateRepository $rateRepository,
+        RouterInterface $router,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -160,7 +162,7 @@ class AdminRatingController extends AbstractController
             $tpl_params['images'][] = array_merge($tpl_image, $image);
         }
 
-        $tpl_params['navbar'] = Utils::createNavigationBar($this->get('router'), 'admin_rating', $navbar_params, $nb_images, $start, $elements_per_page);
+        $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_rating', $navbar_params, $nb_images, $start, $elements_per_page);
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_rating');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_rating');

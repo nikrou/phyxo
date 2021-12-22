@@ -23,6 +23,7 @@ use App\DataMapper\ImageMapper;
 use App\Entity\Search;
 use App\Repository\TagRepository;
 use Phyxo\Functions\Utils;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SearchController extends CommonController
@@ -260,6 +261,7 @@ class SearchController extends CommonController
         MenuBar $menuBar,
         $search_id,
         TranslatorInterface $translator,
+        RouterInterface $router,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -314,7 +316,7 @@ class SearchController extends CommonController
             $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                $this->get('router'),
+                $router,
                 'search_results',
                 ['search_id' => $search_id],
                 count($tpl_params['items']),

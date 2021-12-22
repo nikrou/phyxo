@@ -19,6 +19,8 @@ use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\UserRepository;
+use App\Security\AppUser;
+use App\Security\AppUserService;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -42,6 +44,7 @@ class AdminUsersController extends AbstractController
 
     public function list(
         Conf $conf,
+        AppUserService $appUserService,
         UserMapper $userMapper,
         CsrfTokenManagerInterface $csrfTokenManager,
         TranslatorInterface $translator,
@@ -72,7 +75,7 @@ class AdminUsersController extends AbstractController
         $tpl_params['Double_Password'] = $conf['double_password_type_in_admin'];
 
         $guestUser = $userMapper->getDefaultUser();
-        $protected_users = [$this->getUser()->getId()];
+        $protected_users = [$appUserService->getUser()->getId()];
         $protected_users[] = $guestUser->getId();
 
         // an admin can't delete other admin/webmaster

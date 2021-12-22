@@ -14,6 +14,7 @@ namespace App\Utils;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\Loader\PhpFileLoader;
 use Symfony\Component\Translation\MessageCatalogue;
+use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\TranslatorBagInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -37,9 +38,14 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
         return $this->innerTranslator->{$method}(...$args);
     }
 
-    public function getCatalogue($locale = null)
+    public function getCatalogue($locale = null): MessageCatalogueInterface
     {
         return $this->innerTranslator->getCatalogue($locale);
+    }
+
+    public function getCatalogues(): array
+    {
+        return $this->innerTranslator->getCatalogues();
     }
 
     public function setLocale($locale)
@@ -47,12 +53,12 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
         $this->innerTranslator->setLocale($locale);
     }
 
-    public function getLocale()
+    public function getLocale(): string
     {
         return $this->innerTranslator->getLocale();
     }
 
-    public function trans($id, array $parameters = [], $domain = null, $locale = null)
+    public function trans($id, array $parameters = [], $domain = null, $locale = null): string
     {
         if ($locale === null) {
             $locale = $this->getLocale();

@@ -21,11 +21,12 @@ use App\Repository\ImageTagRepository;
 use App\Repository\RateRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
+use App\Security\AppUserService;
+use Doctrine\Persistence\ManagerRegistry;
 use IntlDateFormatter;
 use Phyxo\Conf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -45,6 +46,8 @@ class AdminDashboardController extends AbstractController
         RateRepository $rateRepository,
         TagRepository $tagRepository,
         ImageTagRepository $imageTagRepository,
+        AppUserService $appUserService,
+        ManagerRegistry $managerRegistry,
         bool $check_upgrade = false
     ) {
         $tpl_params = [];
@@ -91,8 +94,8 @@ class AdminDashboardController extends AbstractController
                 'OS' => PHP_OS,
                 'PHP_VERSION' => \PHP_VERSION,
                 'SYMFONY_VERSION' => Kernel::VERSION,
-                'DB_ENGINE' => $this->getDoctrine()->getConnection()->getDatabasePlatform()->getName(),
-                'DB_VERSION' => $this->getDoctrine()->getConnection()->getWrappedConnection()->getServerVersion(),
+                'DB_ENGINE' => $managerRegistry->getConnection()->getDatabasePlatform()->getName(),
+                'DB_VERSION' => $managerRegistry->getConnection()->getWrappedConnection()->getServerVersion(),
                 'DB_ELEMENTS' => $translator->trans('number_of_photos', ['count' => $nb_elements], 'admin'),
                 'DB_CATEGORIES' => $translator->trans('number_of_albums_including', ['count' => $nb_categories], 'admin'),
                 'PHYSICAL_CATEGORIES' => $translator->trans('number_of_physicals', ['count' => $nb_physical], 'admin'),
@@ -117,7 +120,7 @@ class AdminDashboardController extends AbstractController
 
         if ($nb_elements > 0) {
             if ($min_date_available = $imageMapper->getRepository()->findMinDateAvailable()) {
-                $fmt = new IntlDateFormatter($this->getUser()->getLocale(), IntlDateFormatter::FULL, IntlDateFormatter::NONE);
+                $fmt = new IntlDateFormatter($appUserService->getUser()->getLocale(), IntlDateFormatter::FULL, IntlDateFormatter::NONE);
                 $tpl_params['first_added'] = $translator->trans('first photo added on {date}', ['date' => $fmt->format($min_date_available)], 'admin');
             }
         }

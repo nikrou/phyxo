@@ -22,6 +22,8 @@ use App\Repository\ImageAlbumRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\UserRepository;
+use App\Security\AppUserService;
+use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
@@ -59,7 +61,8 @@ class AdminAlbumController extends AbstractController
         AlbumMapper $albumMapper,
         TranslatorInterface $translator,
         ImageAlbumRepository $imageAlbumRepository,
-        ImageMapper $imageMapper
+        ImageMapper $imageMapper,
+        ManagerRegistry $managerRegistry
     ) {
         $tpl_params = [];
         $this->translator = $translator;
@@ -227,7 +230,7 @@ class AdminAlbumController extends AbstractController
 
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_album', ['album_id' => $album_id, 'parent_id' => $parent_id]);
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
-        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($this->getDoctrine(), ['categories'], $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($managerRegistry, ['categories'], $this->generateUrl('homepage'));
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet($album_id, 'properties', $parent_id), $tpl_params);
@@ -374,7 +377,8 @@ class AdminAlbumController extends AbstractController
         AlbumMapper $albumMapper,
         TranslatorInterface $translator,
         UserRepository $userRepository,
-        GroupRepository $groupRepository
+        GroupRepository $groupRepository,
+        ManagerRegistry $managerRegistry
     ) {
         $tpl_params = [];
         $this->translator = $translator;
@@ -502,7 +506,7 @@ class AdminAlbumController extends AbstractController
         $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');
         $tpl_params['CATEGORIES_NAV'] = $albumMapper->getAlbumsDisplayName($album->getUppercats(), 'admin_album', ['parent_id' => $parent_id]);
         $tpl_params['U_GROUPS'] = $this->generateUrl('admin_groups');
-        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($this->getDoctrine(), ['groups', 'users'], $this->generateUrl('homepage'));
+        $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($managerRegistry, ['groups', 'users'], $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
         $tpl_params['private'] = $album->getStatus() === Album::STATUS_PRIVATE;
@@ -603,8 +607,15 @@ class AdminAlbumController extends AbstractController
         return $this->render('album_notification.html.twig', $tpl_params);
     }
 
-    public function create(Request $request, int $parent_id = null, AlbumMapper $albumMapper, UserMapper $userMapper, UserInfosRepository $userInfosRepository, TranslatorInterface $translator)
-    {
+    public function create(
+        Request $request,
+        int $parent_id = null,
+        AppUserService $appUserService,
+        AlbumMapper $albumMapper,
+        UserMapper $userMapper,
+        UserInfosRepository $userInfosRepository,
+        TranslatorInterface $translator
+    ) {
         if ($request->isMethod('POST')) {
             $virtual_name = $request->request->get('virtual_name');
 
@@ -625,7 +636,7 @@ class AdminAlbumController extends AbstractController
                 if (!is_null($parent_id)) {
                     $parent = $albumMapper->getRepository()->find($parent_id);
                 }
-                $albumMapper->createAlbum($virtual_name, $parent, $this->getUser()->getId(), $admin_ids, $params);
+                $albumMapper->createAlbum($virtual_name, $parent, $appUserService->getUser()->getId(), $admin_ids, $params);
                 $userMapper->invalidateUserCache();
 
                 $this->addFlash('success', $translator->trans('Virtual album added', [], 'admin'));

@@ -21,6 +21,8 @@ use App\Entity\UserCacheAlbum;
 use App\Repository\UserCacheAlbumRepository;
 use Phyxo\Functions\Utils;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AlbumController extends CommonController
@@ -34,6 +36,8 @@ class AlbumController extends CommonController
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
         AlbumMapper $albumMapper,
+        Security $security,
+        RouterInterface $router,
         int $start = 0,
         int $category_id = 0
     ) {
@@ -65,7 +69,7 @@ class AlbumController extends CommonController
             [$translator->trans('Rating score, low &rarr; high'), 'rating_score ASC', $conf['rate']],
             [$translator->trans('Visits, high &rarr; low'), 'hit DESC', true],
             [$translator->trans('Visits, low &rarr; high'), 'hit ASC', true],
-            [$translator->trans('Permissions'), 'level DESC', $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN'), true],
+            [$translator->trans('Permissions'), 'level DESC', $security->isGranted('ROLE_ADMIN'), true],
         ];
 
         $order_index = 0;
@@ -175,7 +179,7 @@ class AlbumController extends CommonController
             // navigation bar
             if ($total_albums > $conf['nb_categories_page']) {
                 $tpl_params['cats_navbar'] = Utils::createNavigationBar(
-                    $this->get('router'),
+                    $router,
                     'albums',
                     [],
                     $total_albums,
@@ -196,7 +200,7 @@ class AlbumController extends CommonController
 
             if (count($tpl_params['items']) > $nb_image_page) {
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                    $this->get('router'),
+                    $router,
                     'album',
                     ['category_id' => $category_id],
                     count($tpl_params['items']),
@@ -239,6 +243,7 @@ class AlbumController extends CommonController
         ImageMapper $imageMapper,
         int $category_id,
         TranslatorInterface $translator,
+        RouterInterface $router,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -264,7 +269,7 @@ class AlbumController extends CommonController
 
             if (count($tpl_params['items']) > $nb_image_page) {
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                    $this->get('router'),
+                    $router,
                     'album_flat',
                     ['category_id' => $category_id],
                     count($tpl_params['items']),
@@ -303,6 +308,7 @@ class AlbumController extends CommonController
         ImageStandardParams $image_std_params,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
+        RouterInterface $router,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -324,7 +330,7 @@ class AlbumController extends CommonController
 
             if (count($tpl_params['items']) > $nb_image_page) {
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
-                    $this->get('router'),
+                    $router,
                     'albums_flat',
                     [],
                     count($tpl_params['items']),
@@ -363,6 +369,7 @@ class AlbumController extends CommonController
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
         AlbumMapper $albumMapper,
+        RouterInterface $router,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -461,7 +468,7 @@ class AlbumController extends CommonController
             // navigation bar
             if ($total_albums > $conf['nb_categories_page']) {
                 $tpl_params['cats_navbar'] = Utils::createNavigationBar(
-                    $this->get('router'),
+                    $router,
                     'albums',
                     [],
                     $total_albums,
@@ -489,6 +496,7 @@ class AlbumController extends CommonController
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
         AlbumMapper $albumMapper,
+        RouterInterface $router,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -584,7 +592,7 @@ class AlbumController extends CommonController
             // navigation bar
             if ($total_albums > $conf['nb_categories_page']) {
                 $tpl_params['cats_navbar'] = Utils::createNavigationBar(
-                    $this->get('router'),
+                    $router,
                     'recent_cats',
                     [],
                     $total_albums,

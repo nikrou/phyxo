@@ -23,6 +23,7 @@ use Phyxo\Functions\Utils;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentController extends CommonController
@@ -37,6 +38,7 @@ class CommentController extends CommonController
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
         CommentRepository $commentRepository,
+        RouterInterface $router,
         int $start = 0,
         int $comment_id = 0
     ) {
@@ -139,7 +141,7 @@ class CommentController extends CommonController
         ];
 
         $tpl_params['navbar'] = \Phyxo\Functions\Utils::createNavigationBar(
-            $this->get('router'),
+            $router,
             'comments',
             $query_params,
             $nb_comments,

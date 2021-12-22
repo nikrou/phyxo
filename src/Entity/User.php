@@ -211,13 +211,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         //$this->password = null;
     }
 
-    public function getSalt()
+    public function getSalt(): ?string
     {
         // not needed when using bcrypt or argon
         return null;
     }
 
-    public function isEqualTo(UserInterface $user)
+    public function isEqualTo(UserInterface $user): bool
     {
         if (!$user instanceof User) {
             return false;
