@@ -14,8 +14,6 @@ namespace App\Security;
 use App\DataMapper\AlbumMapper;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use App\Repository\UserRepository;
 use App\Entity\User;
 use App\Entity\Album;
@@ -25,89 +23,49 @@ use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageRepository;
 use App\Repository\UserCacheAlbumRepository;
 use App\Repository\UserCacheRepository;
-use Phyxo\Conf;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Csrf\Exception\TokenNotFoundException;
 
 class UserProvider implements UserProviderInterface
 {
-    private $user, $session, $albumMapper, $tokenStorage, $conf, $userRepository, $userCacheRepository, $userCacheAlbumRepository, $imageAlbumRepository;
-    private $imageRepository;
+    private $userRepository, $imageAlbumRepository, $imageRepository, $albumMapper, $userCacheRepository, $userCacheAlbumRepository;
 
-    public function __construct(UserRepository $userRepository, SessionInterface $session, TokenStorageInterface $tokenStorage,
-                                Conf $conf, AlbumMapper $albumMapper, UserCacheRepository $userCacheRepository, UserCacheAlbumRepository $userCacheAlbumRepository,
-                                ImageAlbumRepository $imageAlbumRepository, ImageRepository $imageRepository)
-    {
+    public function __construct(
+        UserRepository $userRepository,
+        ImageAlbumRepository $imageAlbumRepository,
+        ImageRepository $imageRepository,
+        AlbumMapper $albumMapper,
+        UserCacheRepository $userCacheRepository,
+        UserCacheAlbumRepository $userCacheAlbumRepository
+    ) {
         $this->userRepository = $userRepository;
-        $this->session = $session;
-        $this->albumMapper = $albumMapper;
-        $this->tokenStorage = $tokenStorage;
-        $this->conf = $conf;
-        $this->userCacheRepository = $userCacheRepository;
-        $this->userCacheAlbumRepository = $userCacheAlbumRepository;
         $this->imageAlbumRepository = $imageAlbumRepository;
         $this->imageRepository = $imageRepository;
+        $this->albumMapper = $albumMapper;
+        $this->userCacheRepository = $userCacheRepository;
+        $this->userCacheAlbumRepository = $userCacheAlbumRepository;
     }
 
-    protected function populateSession(User $user)
+    public function supportsClass(string $class): bool
     {
-        $this->session->set('_theme', $user->getTheme());
-        $this->session->set('_locale', $user->getLocale());
+        return User::class === $class;
     }
 
-    public function getUser(): ?User
+    /**
+     * @deprecated since Symfony 5.3, use loadUserByIdentifier() instead
+     */
+    public function loadUserByUsername(string $username): User
     {
-        if (!$this->user) {
-            $this->user = $this->fromToken($this->tokenStorage->getToken());
-        }
-
-        return $this->user;
-    }
-
-    public function fromToken(?TokenInterface $token): ?User
-    {
-        if (is_null($token)) {
-            return null;
-        }
-
-        if (!$this->user) {
-            if ($this->conf['guest_access']) {
-                if (!($token instanceof AnonymousToken) && !($token->getUser() instanceof UserInterface)) {
-                    return null;
-                }
-            } else {
-                if (!$token->getUser() instanceof UserInterface) {
-                    throw new AccessDeniedException('Access denied to guest');
-                }
-            }
-
-            try {
-                if ($token instanceof AnonymousToken) {
-                    $token->setUser('guest');
-                    $this->user = $this->loadUserByUsername($token->getUser());
-                } else {
-                    $this->user = $this->loadUserByUsername($token->getUser()->getUsername());
-                }
-            } catch (UsernameNotFoundException $exception) {
-                throw  new CustomUserMessageAuthenticationException(sprintf('Username "%s" does not exist.', $token->getUser()->getUsername()));
-            }
-        }
-
-        return $this->user;
+        return $this->loadUserByIdentifier($username);
     }
 
     // @throws UsernameNotFoundException if the user is not found
-    public function loadUserByUsername($username): User
+    public function loadUserByIdentifier(string $username): User
     {
         if (($user = $this->fetchUser($username)) === null) {
-            throw new UsernameNotFoundException(sprintf('User with username "%s" does not exist.', $username));
+            throw new UserNotFoundException(sprintf('User with username "%s" does not exist.', $username));
         }
-        $this->populateSession($user);
 
         return $user;
     }
@@ -117,22 +75,13 @@ class UserProvider implements UserProviderInterface
         if (($user = $this->fetchUserByActivationKey($key)) === null) {
             throw new TokenNotFoundException(sprintf('Activation key "%s" does not exist.', $key));
         }
-        $this->populateSession($user);
 
         return $user;
     }
 
     public function refreshUser(UserInterface $user): User
     {
-        $user = $this->fetchUser($user->getUsername(), $force_refresh = true);
-        $this->populateSession($user);
-
-        return $user;
-    }
-
-    public function supportsClass($class): bool
-    {
-        return User::class === $class;
+        return  $this->fetchUser($user->getUserIdentifier(), $force_refresh = true);
     }
 
     private function fetchUser(string $username, bool $force_refresh = false): ?User

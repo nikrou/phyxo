@@ -63,7 +63,7 @@ class DBContext implements Context
         foreach ($table->getHash() as $userRow) {
             $user = new User();
             $user->setUsername($userRow['username']);
-            $user->setPassword($this->getContainer()->get('security.password_encoder')->encodePassword($user, $userRow['password']));
+            $user->setPassword($this->getContainer()->get('security.password_hasher')->hashPassword($user, $userRow['password']));
             $user->addRole(User::getRoleFromStatus(!empty($userRow['status']) ? $userRow['status'] : User::STATUS_NORMAL));
             if (!empty($userRow['mail_address'])) {
                 $user->setMailAddress($userRow['mail_address']);

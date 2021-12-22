@@ -631,9 +631,7 @@ class Image
      */
     public static function upload($params, Server $service)
     {
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
-        }
+        // @TODO add token
 
         $upload_dir = $service->getUploadDir() . '/buffer';
         try {

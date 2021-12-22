@@ -24,13 +24,12 @@ use App\DataMapper\RateMapper;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
 use App\ImageLibraryGuesser;
-use App\Security\UserProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Utils\UserManager;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Security;
 
 class WsController extends AbstractController
@@ -42,9 +41,8 @@ class WsController extends AbstractController
         TagMapper $tagMapper,
         CommentMapper $commentMapper,
         Conf $conf,
-        UserProvider $userProvider,
         UserManager $userManager,
-        UserPasswordEncoderInterface $passwordEncoder,
+        UserPasswordHasherInterface $passwordHasher,
         RateMapper $rateMapper,
         SearchMapper $searchMapper,
         RouterInterface $router,
@@ -58,8 +56,7 @@ class WsController extends AbstractController
         ManagerRegistry $managerRegistry,
         AlbumMapper $albumMapper,
         ImageLibraryGuesser $imageLibraryGuesser
-    )
-    {
+    ) {
         $this->service = new Server($params->get('upload_dir'));
         $this->service->setRequest($request);
         $this->service->addUserMapper($userMapper);
@@ -74,11 +71,10 @@ class WsController extends AbstractController
         $this->service->setRouter($router);
         $this->service->setUserManager($userManager);
         $this->service->setImageStandardParams($image_std_params);
-        $this->service->setPasswordEncoder($passwordEncoder);
+        $this->service->setPasswordHasher($passwordHasher);
         $this->service->setExtensionsURL($pemURL);
         $this->service->setSecurity($security);
         $this->service->setManagerRegistry($managerRegistry);
-        $this->service->setUserProvider($userProvider);
         $this->service->setImageLibrary($imageLibraryGuesser->getLibrary());
         $this->service->setParams($params);
 

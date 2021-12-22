@@ -16,22 +16,22 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\User;
 use App\Utils\UserManager;
-use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
-use App\Security\LoginFormAuthenticator;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use App\Exception\MissingGuestUserException;
 use App\Form\UserRegistrationType;
 use App\Repository\UserRepository;
+use App\Security\LoginFormAuthenticator;
 use App\Security\UserProvider;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Phyxo\MenuBar;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
+use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SecurityController extends CommonController
@@ -47,12 +47,12 @@ class SecurityController extends CommonController
         ];
     }
 
-    public function login(AuthenticationUtils $authenticationUtils, CsrfTokenManagerInterface $csrfTokenManager, Request $request, UserProvider $userProvider, TranslatorInterface $translator)
+    public function login(AuthenticationUtils $authenticationUtils, CsrfTokenManagerInterface $csrfTokenManager, Request $request, TranslatorInterface $translator)
     {
         $tpl_params = [];
         try {
             $tpl_params = $this->init();
-        } catch (UsernameNotFoundException $e) {
+        } catch (UserNotFoundException $e) {
             throw new MissingGuestUserException("User guest not found in database.");
         }
 
@@ -86,9 +86,9 @@ class SecurityController extends CommonController
     public function register(
         Request $request,
         UserManager $user_manager,
-        UserPasswordEncoderInterface $passwordEncoder,
-        LoginFormAuthenticator $loginAuthenticator,
-        GuardAuthenticatorHandler $guardHandler
+        UserPasswordHasherInterface $passwordHasher,
+        UserAuthenticatorInterface $userAuthenticator,
+        LoginFormAuthenticator $loginFormAuthenticator
     ) {
         $tpl_params = $this->init();
 
@@ -100,19 +100,18 @@ class SecurityController extends CommonController
 
             $user = new User();
             $user->setUsername($userModel->getUsername());
-            $user->setPassword($passwordEncoder->encodePassword($user, $userModel->getPassword()));
+            $user->setPassword($passwordHasher->hashPassword($user, $userModel->getPassword()));
             $user->setMailAddress($userModel->getMailAddress());
             $user->addRole('ROLE_NORMAL');
 
             try {
                 $user_manager->register($user);
 
-                return $guardHandler->authenticateUserAndHandleSuccess($user, $request, $loginAuthenticator, 'main');
+                return $userAuthenticator->authenticateUser($user, $loginFormAuthenticator, $request);
             } catch (\Exception $e) {
                 $tpl_params['errors'] = $e->getMessage();
             }
         }
-
 
         $tpl_params['form'] = $form->createView();
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $this->conf));
@@ -122,17 +121,15 @@ class SecurityController extends CommonController
 
     public function profile(
         Request $request,
-        UserPasswordEncoderInterface $passwordEncoder,
+        UserPasswordHasherInterface $passwordHasher,
         MenuBar $menuBar,
         LanguageRepository $languageRepository,
-        UserProvider $userProvider,
         TranslatorInterface $translator,
         CsrfTokenManagerInterface $csrfTokenManager,
         ThemeRepository $themeRepository,
         UserInfosRepository $userInfosRepository,
         UserRepository $userRepository
     ) {
-        $this->userProvider = $userProvider;
         $tpl_params = $this->init();
 
         $errors = [];
@@ -150,14 +147,14 @@ class SecurityController extends CommonController
                 $needFlush = false;
 
                 if ($request->request->get('_password') && $request->request->get('_new_password') && $request->request->get('_new_password_confirm')) {
-                    if (!$passwordEncoder->isPasswordValid($this->getUser(), $request->request->get('_password'))) {
+                    if (!$passwordHasher->isPasswordValid($this->getUser(), $request->request->get('_password'))) {
                         $errors[] = $translator->trans('Current password is wrong');
                     } elseif ($request->request->get('_new_password') !== $request->request->get('_new_password_confirm')) {
                         $errors[] = $translator->trans('The passwords do not match');
                     }
 
                     if (empty($errors)) {
-                        $this->getUser()->setPassword($passwordEncoder->encodePassword($this->getUser(), $request->request->get('_new_password')));
+                        $this->getUser()->setPassword($passwordHasher->hashPassword($this->getUser(), $request->request->get('_new_password')));
                         $needFlush = true;
                     }
                 }
@@ -353,7 +350,7 @@ class SecurityController extends CommonController
         Request $request,
         string $activation_key,
         CsrfTokenManagerInterface $csrfTokenManager,
-        UserPasswordEncoderInterface $passwordEncoder,
+        UserPasswordHasherInterface $passwordHasher,
         UserProvider $userProvider,
         TranslatorInterface $translator,
         UserRepository $userRepository
@@ -369,7 +366,7 @@ class SecurityController extends CommonController
         if ($request->isMethod('POST')) {
             if ($request->request->get('_password') && $request->request->get('_password_confirmation') &&
                 $request->request->get('_password') != $request->request->get('_password_confirm')) {
-                $user->setPassword($passwordEncoder->encodePassword(new User(), $request->request->get('_password')));
+                $user->setPassword($passwordHasher->hashPassword(new User(), $request->request->get('_password')));
                 $user->getUserInfos()->setActivationKey(null);
                 $user->getUserInfos()->setActivationKeyExpire(null);
                 $userRepository->updateUser($user);

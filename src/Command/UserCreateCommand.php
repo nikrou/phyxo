@@ -18,20 +18,20 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use App\Utils\UserManager;
 use App\Entity\User;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserCreateCommand extends Command
 {
     protected static $defaultName = 'phyxo:user:create';
 
     private $params = ['username' => '', 'password' => '', 'mail_address' => ''];
-    private $userManager, $passwordEncoder, $databaseYamlFile;
+    private $userManager, $passwordHasher, $databaseYamlFile;
 
-    public function __construct(UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, string $databaseYamlFile)
+    public function __construct(UserManager $userManager, UserPasswordHasherInterface $passwordHasher, string $databaseYamlFile)
     {
         parent::__construct();
         $this->userManager = $userManager;
-        $this->passwordEncoder = $passwordEncoder;
+        $this->passwordHasher = $passwordHasher;
         $this->databaseYamlFile = $databaseYamlFile;
     }
 
@@ -100,7 +100,7 @@ class UserCreateCommand extends Command
         $user->setUsername($this->params['username']);
         $user->setMailAddress($this->params['mail_address']);
         if ($this->params['password']) {
-            $user->setPassword($this->passwordEncoder->encodePassword($user, $this->params['password']));
+            $user->setPassword($this->passwordHasher->hashPassword($user, $this->params['password']));
         }
 
         try {

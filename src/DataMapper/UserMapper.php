@@ -25,20 +25,34 @@ use App\Repository\CaddieRepository;
 use App\Repository\CommentRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\UserCacheAlbumRepository;
-use App\Security\UserProvider;
+use Symfony\Component\Security\Core\Security;
 
 class UserMapper
 {
     private $conf, $autorizationChecker, $tagMapper, $themeRepository, $userRepository, $userInfosRepository, $userMailNotificationRepository;
-    private $defaultLanguage, $defaultTheme, $themesDir, $userProvider, $default_user, $default_user_retrieved = false, $commentRepository, $imageTagRepository;
+    private $defaultLanguage, $defaultTheme, $themesDir, $security, $default_user, $default_user_retrieved = false, $commentRepository, $imageTagRepository;
     private $webmaster, $webmaster_retrieved = false, $userFeedRepository, $userCacheRepository, $userCacheAlbumRepository, $caddieRepository, $favoriteRepository;
 
-    public function __construct(Conf $conf, AuthorizationCheckerInterface $autorizationChecker, ThemeRepository $themeRepository,
-                                UserRepository $userRepository, UserInfosRepository $userInfosRepository, string $defaultTheme, CommentRepository $commentRepository,
-                                TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider, UserMailNotificationRepository $userMailNotificationRepository,
-                                UserFeedRepository $userFeedRepository, UserCacheRepository $userCacheRepository, UserCacheAlbumRepository $userCacheAlbumRepository,
-                                CaddieRepository $caddieRepository, FavoriteRepository $favoriteRepository, ImageTagRepository $imageTagRepository)
-    {
+    public function __construct(
+        Conf $conf,
+        AuthorizationCheckerInterface $autorizationChecker,
+        ThemeRepository $themeRepository,
+        UserRepository $userRepository,
+        UserInfosRepository $userInfosRepository,
+        string $defaultTheme,
+        CommentRepository $commentRepository,
+        TagMapper $tagMapper,
+        string $defaultLanguage,
+        string $themesDir,
+        Security $security,
+        UserMailNotificationRepository $userMailNotificationRepository,
+        UserFeedRepository $userFeedRepository,
+        UserCacheRepository $userCacheRepository,
+        UserCacheAlbumRepository $userCacheAlbumRepository,
+        CaddieRepository $caddieRepository,
+        FavoriteRepository $favoriteRepository,
+        ImageTagRepository $imageTagRepository
+    ) {
         $this->themeRepository = $themeRepository;
         $this->userRepository = $userRepository;
         $this->userInfosRepository = $userInfosRepository;
@@ -50,7 +64,7 @@ class UserMapper
         $this->defaultLanguage = $defaultLanguage;
         $this->defaultTheme = $defaultTheme;
         $this->themesDir = $themesDir;
-        $this->userProvider = $userProvider;
+        $this->security = $security;
         $this->userCacheRepository = $userCacheRepository;
         $this->userCacheAlbumRepository = $userCacheAlbumRepository;
         $this->commentRepository = $commentRepository;
@@ -66,7 +80,7 @@ class UserMapper
 
     public function getUser()//: ?User @TODO : modify tests or implementation
     {
-        return $this->userProvider->getUser();
+        return $this->security->getUser();
     }
 
     /**

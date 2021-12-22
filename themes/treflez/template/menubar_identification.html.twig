@@ -1,5 +1,5 @@
 <li class="nav-item dropdown">
-    {% if app.user %}
+    {% if is_granted('ROLE_NORMAL') %}
 	<button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown">
 	    <i class="fa fa-user"></i> {{app.user.username}}
 	</button>

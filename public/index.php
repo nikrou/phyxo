@@ -9,42 +9,22 @@
  * file that was distributed with this source code.
  */
 
-use App\InstallKernel;
 use App\Kernel;
+use App\InstallKernel;
 use App\UpdateKernel;
-use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\ErrorHandler\Debug;
-use Symfony\Component\HttpFoundation\Request;
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require_once dirname(__DIR__) . '/vendor/autoload_runtime.php';
 
-(new Dotenv())->bootEnv(dirname(__DIR__) . '/.env');
-
-if ($_SERVER['APP_DEBUG']) {
-    umask(0000);
-
-    Debug::enable();
-}
-
-if ($trustedProxies = $_SERVER['TRUSTED_PROXIES'] ?? false) {
-    Request::setTrustedProxies(explode(',', $trustedProxies), Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO);
-}
-
-if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? false) {
-    Request::setTrustedHosts([$trustedHosts]);
-}
-
-if (is_readable(dirname(__DIR__) . '/config/database.yaml')) {
-    if (is_readable(dirname(__DIR__) . '/.update.mode')) {
-        $kernel = new UpdateKernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+return function (array $context) {
+    if (is_readable(dirname(__DIR__) . '/config/database.yaml')) {
+        if (is_readable(dirname(__DIR__) . '/.update.mode')) {
+            $kernel = new UpdateKernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
+        } else {
+            $kernel = new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
+        }
     } else {
-        $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+        $kernel = new InstallKernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
     }
-} else {
-    $kernel = new InstallKernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
-}
 
-$request = Request::createFromGlobals();
-$response = $kernel->handle($request);
-$response->send();
-$kernel->terminate($request, $response);
+    return $kernel;
+};

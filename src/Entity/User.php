@@ -16,13 +16,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\EquatableInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ORM\Table(name="users")
  */
-class User implements UserInterface, EquatableInterface, \Serializable
+class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface, \Serializable
 {
     const STATUS_WEBMASTER = 'webmaster';
     const STATUS_ADMIN = 'admin';
@@ -142,6 +143,16 @@ class User implements UserInterface, EquatableInterface, \Serializable
         $this->username = $username;
 
         return $this;
+    }
+
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->username;
     }
 
     public function getPassword(): ?string

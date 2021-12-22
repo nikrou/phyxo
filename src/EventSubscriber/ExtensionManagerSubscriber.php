@@ -33,8 +33,15 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
      * @TODO: change Plugins interface to only accept language instead of UserMapper
      * event better : make Plugins a service
      */
-    public function __construct(PluginRepository $pluginRepository, UserMapper $userMapper, AssetsManager $assetsManager, string $pluginsDir, string $pemURL,
-                                EventDispatcherInterface $eventDispatcher, ExtensionCollection $extensionCollection)
+    public function __construct(
+        PluginRepository $pluginRepository,
+        UserMapper $userMapper,
+        AssetsManager $assetsManager,
+        string $pluginsDir,
+        string $pemURL,
+        EventDispatcherInterface $eventDispatcher,
+        ExtensionCollection $extensionCollection
+    )
     {
         $this->plugins = new Plugins($pluginRepository, $userMapper);
         $this->plugins->setRootPath($pluginsDir);
@@ -55,7 +62,7 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
 
     public function registerPlugins(RequestEvent $event)
     {
-        if ($event->isMasterRequest() === false) {
+        if ($event->isMainRequest() === false) {
             return;
         }
 

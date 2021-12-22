@@ -12,10 +12,7 @@
 namespace App\Tests\Controller;
 
 use App\Entity\Image;
-use App\Entity\User;
-use App\Entity\UserInfos;
 use App\Repository\ImageRepository;
-use App\Security\UserProvider;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -26,7 +23,7 @@ class MediaControllerTest extends WebTestCase
     use ProphecyTrait;
 
     private $fixtures_dir = __DIR__ . '/../fixtures/media', $sample_image = 'sample.jpg', $image_paths = '', $derivative_path = '';
-    private $imageRepository, $userProvider;
+    private $imageRepository;
 
     protected function setUp(): void
     {
@@ -54,14 +51,6 @@ class MediaControllerTest extends WebTestCase
         $this->imageRepository->getForbiddenImages()->willReturn([]);
         $this->imageRepository->isAuthorizedToUser(Argument::any(), Argument::any())->willReturn(true);
 
-        $userInfos = new UserInfos();
-        $userInfos->setForbiddenCategories([]);
-        $user = $this->prophesize(User::class);
-        $user->getUserInfos()->willReturn($userInfos);
-
-        $this->userProvider = $this->prophesize(UserProvider::class);
-        $this->userProvider->fromToken(Argument::any())->willReturn($user->reveal());
-
         $fs = new Filesystem();
         $fs->remove($mediaCacheDir);
         $fs->remove($uploadDir);
@@ -83,9 +72,8 @@ class MediaControllerTest extends WebTestCase
     {
         self::ensureKernelShutdown();
         $client = static::createClient();
-        $container = self::$container;
+        $container = static::getContainer();
         $container->set('App\Repository\ImageRepository', $this->imageRepository->reveal());
-        $container->set('App\Security\UserProvider', $this->userProvider->reveal());
         $client->request('GET', sprintf('/media/%s', $this->image_paths['sq']));
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
@@ -95,9 +83,8 @@ class MediaControllerTest extends WebTestCase
     {
         self::ensureKernelShutdown();
         $client = static::createClient();
-        $container = self::$container;
+        $container = static::getContainer();
         $container->set('App\Repository\ImageRepository', $this->imageRepository->reveal());
-        $container->set('App\Security\UserProvider', $this->userProvider->reveal());
         $client->request('GET', sprintf('/media/%s', $this->image_paths['sq']));
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
@@ -111,9 +98,8 @@ class MediaControllerTest extends WebTestCase
 
         self::ensureKernelShutdown();
         $client = static::createClient();
-        $container = self::$container;
+        $container = static::getContainer();
         $container->set('App\Repository\ImageRepository', $this->imageRepository->reveal());
-        $container->set('App\Security\UserProvider', $this->userProvider->reveal());
 
         // same path, image not changed so http status code must be 304
         $client->request(
@@ -135,9 +121,8 @@ class MediaControllerTest extends WebTestCase
     {
         self::ensureKernelShutdown();
         $client = static::createClient();
-        $container = self::$container;
+        $container = static::getContainer();
         $container->set('App\Repository\ImageRepository', $this->imageRepository->reveal());
-        $container->set('App\Security\UserProvider', $this->userProvider->reveal());
         $client->request('GET', sprintf('/media/%s', $this->image_paths['unknown']));
 
         $this->assertEquals(403, $client->getResponse()->getStatusCode());
@@ -151,9 +136,8 @@ class MediaControllerTest extends WebTestCase
 
         self::ensureKernelShutdown();
         $client = static::createClient();
-        $container = self::$container;
+        $container = static::getContainer();
         $container->set('App\Repository\ImageRepository', $this->imageRepository->reveal());
-        $container->set('App\Security\UserProvider', $this->userProvider->reveal());
 
         $image_std_params = $container->get('Phyxo\Image\ImageStandardParams');
         $image_std_params->makeCustom($width, $height, 1, $width, $height);

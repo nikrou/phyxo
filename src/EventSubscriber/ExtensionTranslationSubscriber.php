@@ -35,7 +35,7 @@ class ExtensionTranslationSubscriber implements EventSubscriberInterface
 
     public function loadExtensionTranslation(RequestEvent $event)
     {
-        if ($event->isMasterRequest() === false) {
+        if ($event->isMainRequest() === false) {
             return;
         }
 

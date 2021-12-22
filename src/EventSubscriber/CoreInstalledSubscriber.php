@@ -37,7 +37,7 @@ class CoreInstalledSubscriber implements EventSubscriberInterface
 
     public function onKernelTerminate(TerminateEvent $event)
     {
-        if (!$event->isMasterRequest()) {
+        if (!$event->isMainRequest()) {
             return false;
         }
 

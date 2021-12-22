@@ -15,8 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Language\Languages;
 use App\Entity\User;
 use App\Install\PhyxoInstaller;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -30,7 +30,7 @@ class InstallController extends AbstractController
         'success' => ['label' => 'Installation completed']
     ];
 
-    private $languages_options, $passwordEncoder, $default_language, $default_theme, $translationsDir, $mediaCacheDir, $localDir;
+    private $languages_options, $passwordHasher, $default_language, $default_theme, $translationsDir, $mediaCacheDir, $localDir;
     private $rootProjectDir, $translator, $databaseYamlFile, $phyxoInstaller, $pluginsDir, $themesDir, $uploadDir, $varDir, $configDir;
     private $default_prefix = 'phyxo_';
 
@@ -43,20 +43,19 @@ class InstallController extends AbstractController
         string $themesDir,
         string $pluginsDir,
         string $databaseYamlFile,
-        UserPasswordEncoderInterface $passwordEncoder,
+        UserPasswordHasherInterface $passwordHasher,
         string $uploadDir,
         TranslatorInterface $translator,
         string $rootProjectDir,
         string $varDir,
         string $configDir,
         string $localDir
-    )
-    {
+    ) {
         $this->translationsDir = $translationsDir;
         $this->databaseYamlFile = $databaseYamlFile;
         $this->default_language = $defaultLanguage;
         $this->default_theme = $defaultTheme;
-        $this->passwordEncoder = $passwordEncoder;
+        $this->passwordHasher = $passwordHasher;
         $this->translator = $translator;
         $this->themesDir = $themesDir;
         $this->pluginsDir = $pluginsDir;
@@ -347,7 +346,7 @@ class InstallController extends AbstractController
                 $statement = $conn->prepare($raw_query_user);
                 $statement->bindValue('username', $db_params['username']);
                 $statement->bindValue('mail_address', $db_params['mail_address']);
-                $statement->bindValue('password', $this->passwordEncoder->encodePassword(new User(), $db_params['password']));
+                $statement->bindValue('password', $this->passwordHasher->hashPassword(new User(), $db_params['password']));
                 $statement->execute();
                 $user_id = $conn->lastInsertId();
 

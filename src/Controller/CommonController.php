@@ -11,34 +11,20 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
 use Phyxo\Conf;
-use App\Security\UserProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 abstract class CommonController extends AbstractController
 {
-    protected $image_std_params, $userProvider, $user, $defaultTheme, $themesDir, $conf, $phyxoVersion, $phyxoWebsite, $session;
+    protected $image_std_params, $defaultTheme, $themesDir, $conf, $phyxoVersion, $phyxoWebsite;
 
-    public function __construct(UserProvider $userProvider, string $defaultTheme, string $themesDir, Conf $conf, string $phyxoVersion, string $phyxoWebsite, SessionInterface $session)
+    public function __construct(string $defaultTheme, string $themesDir, Conf $conf, string $phyxoVersion, string $phyxoWebsite)
     {
-        $this->userProvider = $userProvider;
         $this->defaultTheme = $defaultTheme;
         $this->themesDir = $themesDir;
         $this->conf = $conf;
         $this->phyxoVersion = $phyxoVersion;
         $this->phyxoWebsite = $phyxoWebsite;
-        $this->session = $session;
-    }
-
-    public function getUser(): ?User
-    {
-        if (($token = $this->container->get('security.token_storage')->getToken()) === null) {
-            return null;
-        }
-
-        return $this->userProvider->fromToken($token);
     }
 
     protected function loadThemeConf(string $theme = null, Conf $core_conf = null): array

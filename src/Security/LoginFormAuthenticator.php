@@ -12,99 +12,71 @@
 namespace App\Security;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticator;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
-use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Component\Security\Csrf\CsrfToken;
-use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
+use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
-class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
+class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
 
-    private $router, $passwordEncoder, $csrfTokenManager;
+    private $router;
 
-    public function __construct(RouterInterface $router, UserPasswordEncoderInterface $passwordEncoder, CsrfTokenManagerInterface $crsfTokenManager)
+    public function __construct(RouterInterface $router)
     {
         $this->router = $router;
-        $this->passwordEncoder = $passwordEncoder;
-        $this->csrfTokenManager = $crsfTokenManager;
-    }
-
-    public function start(Request $request, AuthenticationException $authException = null)
-    {
-        $url = $this->getLoginUrl();
-
-        if ($authException !== null) {
-            $request->getSession()->set('_redirect', true);
-        }
-
-        return new RedirectResponse($url);
     }
 
     public function supports(Request $request): bool
     {
-        return $request->attributes->get('_route') === 'login' && $request->isMethod('POST');
+        return $request->isMethod('POST') && $request->attributes->get('_route') === 'login';
     }
 
-    public function getCredentials(Request $request): array
+    public function start(Request $request, AuthenticationException $authException = null): Response
     {
-        $credentials = [
-            'username' => $request->request->get('_username'),
-            'password' => $request->request->get('_password'),
-            'csrf_token' => $request->request->get('_csrf_token'),
-        ];
+        if ($authException !== null) {
+            $request->getSession()->set('_redirect', true);
+        }
 
-        $request->getSession()->set(
-            Security::LAST_USERNAME,
-            $credentials['username']
+        return new RedirectResponse($this->getLoginUrl($request));
+    }
+
+    public function authenticate(Request $request): PassportInterface
+    {
+        $username = $request->request->get('_username');
+        $password = $request->request->get('_password');
+        $csrf_token = $request->request->get('_csrf_token');
+
+        return new Passport(
+            new UserBadge($username),
+            new PasswordCredentials($password),
+            [
+                new CsrfTokenBadge('authenticate', $csrf_token),
+                new RememberMeBadge()
+            ]
         );
-
-        return $credentials;
     }
 
-    public function getUser($credentials, UserProviderInterface $userProvider): UserInterface
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        $token = new CsrfToken('authenticate', $credentials['csrf_token']);
-
-        if (!$this->csrfTokenManager->isTokenValid($token)) {
-            throw new InvalidCsrfTokenException();
-        }
-
-        try {
-            $user = $userProvider->loadUserByUsername($credentials['username']);
-        } catch (UsernameNotFoundException $exception) {
-            throw  new CustomUserMessageAuthenticationException(sprintf('Username "%s" does not exist.', $credentials['username']));
-        }
-
-        return $user;
-    }
-
-    public function checkCredentials($credentials, UserInterface $user): bool
-    {
-        return $this->passwordEncoder->isPasswordValid($user, $credentials['password']);
-    }
-
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
-    {
-        if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
+        if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }
 
         return new RedirectResponse($this->router->generate('homepage'));
     }
 
-    public function getLoginUrl(): string
+    public function getLoginUrl(Request $request): string
     {
         return $this->router->generate('login');
     }

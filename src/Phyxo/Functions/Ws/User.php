@@ -184,7 +184,7 @@ class User
             $user = new EntityUser();
             $user->setUsername($params['username']);
             $user->setMailAddress($params['email']);
-            $user->setPassword($service->getPasswordEncoder()->encodePassword($user, $params['password']));
+            $user->setPassword($service->getPasswordHasher()->hashPassword($user, $params['password']));
             $user->addRole('ROLE_NORMAL');
 
             $user = $service->getUserManager()->register($user);
@@ -296,7 +296,7 @@ class User
             }
 
             if (!empty($params['password'])) {
-                $user->setPassword($service->getPasswordEncoder()->encodePassword(new EntityUser(), $params['password']));
+                $user->setPassword($service->getPasswordHasher()->hashPassword(new EntityUser(), $params['password']));
                 $needUpdate = true;
             }
 

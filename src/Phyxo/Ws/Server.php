@@ -22,86 +22,35 @@ use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\RateMapper;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
-use App\Security\UserProvider;
 use App\Utils\UserManager;
 use Doctrine\Persistence\ManagerRegistry;
 use Imagine\Image\ImagineInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Security;
 
 class Server
 {
-    private $upload_dir;
-
-    private $tagMapper;
-
-    private $commentMapper;
-
-    private $userMapper;
-
-    private $albumMapper;
-
-    private $rateMapper;
-
-    private $searchMapper;
-
-    private $imageMapper;
-
-    private $phyxoVersion;
-
-    private $conf;
-
-    private $router;
-
-    private $image_std_params;
-
-    private $userManager;
-
-    private $passwordEncoder;
-
-    private $pem_url;
-
-    private $security;
-
-    private $params;
-
-    private $userProvider;
-
-    private $request;
-
-    private $managerRegistry;
-
-    private $imageLibrary;
+    private $upload_dir, $tagMapper, $commentMapper, $userMapper, $albumMapper, $rateMapper, $searchMapper, $imageMapper;
+    private $phyxoVersion, $conf, $router, $image_std_params, $userManager, $passwordHasher, $pem_url, $security;
+    private $params, $request, $managerRegistry, $imageLibrary;
 
     private $_methods = [];
 
     const WS_PARAM_ACCEPT_ARRAY = 0x010000;
-
     const WS_PARAM_FORCE_ARRAY = 0x030000;
-
     const WS_PARAM_OPTIONAL = 0x040000;
-
     const WS_TYPE_BOOL = 0x01;
-
     const WS_TYPE_INT = 0x02;
-
     const WS_TYPE_FLOAT = 0x04;
-
     const WS_TYPE_POSITIVE = 0x10;
-
     const WS_TYPE_NOTNULL = 0x20;
-
     const WS_TYPE_ID = self::WS_TYPE_INT | self::WS_TYPE_POSITIVE | self::WS_TYPE_NOTNULL;
-
     const WS_ERR_INVALID_METHOD = 501;
-
     const WS_ERR_MISSING_PARAM = 1002;
-
     const WS_ERR_INVALID_PARAM = 1003;
-
     const WS_XML_ATTRIBUTES = 'attributes_xml_';
 
     public function __construct(string $upload_dir = '.')
@@ -254,24 +203,14 @@ class Server
         return $this->userManager;
     }
 
-    public function setUserProvider(UserProvider $userProvider)
+    public function setPasswordHasher(UserPasswordHasherInterface $passwordHasher)
     {
-        $this->userProvider = $userProvider;
+        $this->passwordHasher = $passwordHasher;
     }
 
-    public function getUserProvider()
+    public function getPasswordHasher()
     {
-        return $this->userProvider;
-    }
-
-    public function setPasswordEncoder(UserPasswordEncoderInterface $passwordEncoder)
-    {
-        $this->passwordEncoder = $passwordEncoder;
-    }
-
-    public function getPasswordEncoder()
-    {
-        return $this->passwordEncoder;
+        return $this->passwordHasher;
     }
 
     public function setSecurity(Security $security)
