@@ -121,10 +121,6 @@ class Permission
      */
     public static function add($params, Server $service)
     {
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
-        }
-
         if (!empty($params['group_id']) || !empty($params['user_id'])) {
             $album_ids = $service->getAlbumMapper()->getUppercatIds($params['cat_id']);
             if ($params['recursive']) {
@@ -176,10 +172,6 @@ class Permission
      */
     public static function remove($params, Server $service)
     {
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
-        }
-
         $album = $service->getAlbumMapper()->getRepository()->find($params['cat_id']);
 
         if (!empty($params['group_id'])) {

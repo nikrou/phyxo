@@ -56,7 +56,7 @@ class AdminBatchManagerController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    protected function appendFilter(array $filter = [], SessionInterface $session)
+    protected function appendFilter(SessionInterface $session, array $filter = [])
     {
         $previous_filter = $this->getFilter($session);
         if (empty($previous_filter)) {
@@ -122,41 +122,41 @@ class AdminBatchManagerController extends AbstractController
             $request->getSession()->set('bulk_manager_filter', []);
 
             if ($request->request->get('filter_prefilter_use')) {
-                $this->appendFilter(['prefilter' => $request->request->get('filter_prefilter')], $request->getSession());
+                $this->appendFilter($request->getSession(), ['prefilter' => $request->request->get('filter_prefilter')]);
 
                 if ($request->request->get('filter_prefilter') === 'duplicates') {
                     if ($request->request->get('filter_duplicates_date')) {
-                        $this->appendFilter(['duplicates_date' => true], $request->getSession());
+                        $this->appendFilter($request->getSession(), ['duplicates_date' => true]);
                     }
 
                     if ($request->request->get('filter_duplicates_dimensions')) {
-                        $this->appendFilter(['duplicates_dimensions' => true], $request->getSession());
+                        $this->appendFilter($request->getSession(), ['duplicates_dimensions' => true]);
                     }
                 }
             }
 
             if ($request->request->get('filter_category_use')) {
-                $this->appendFilter(['category' => $request->request->get('filter_category')], $request->getSession());
+                $this->appendFilter($request->getSession(), ['category' => $request->request->get('filter_category')]);
 
                 if ($request->request->get('filter_category_recursive')) {
-                    $this->appendFilter(['category_recursive' => true], $request->getSession());
+                    $this->appendFilter($request->getSession(), ['category_recursive' => true]);
                 }
             }
 
             if ($request->request->get('filter_tags_use')) {
-                $this->appendFilter(['tags' => $tagMapper->getTagsIds($request->request->get('filter_tags'))], $request->getSession());
+                $this->appendFilter($request->getSession(), ['tags' => $tagMapper->getTagsIds($request->request->get('filter_tags'))]);
 
                 if ($request->request->get('tag_mode') && in_array($request->request->get('tag_mode'), ['AND', 'OR'])) {
-                    $this->appendFilter(['tag_mode' => $request->request->get('tag_mode')], $request->getSession());
+                    $this->appendFilter($request->getSession(), ['tag_mode' => $request->request->get('tag_mode')]);
                 }
             }
 
             if ($request->request->get('filter_level_use')) {
                 if (in_array($request->request->get('filter_level'), $conf['available_permission_levels'])) {
-                    $this->appendFilter(['level' => $request->request->get('filter_level')], $request->getSession());
+                    $this->appendFilter($request->getSession(), ['level' => $request->request->get('filter_level')]);
 
                     if ($request->request->get('filter_level_include_lower')) {
-                        $this->appendFilter(['level_include_lower' => true], $request->getSession());
+                        $this->appendFilter($request->getSession(), ['level_include_lower' => true]);
                     }
                 }
             }
@@ -164,12 +164,12 @@ class AdminBatchManagerController extends AbstractController
             if ($request->request->get('filter_dimension_use')) {
                 foreach (['min_width', 'max_width', 'min_height', 'max_height'] as $type) {
                     if (filter_var($request->request->get('filter_dimension_' . $type), FILTER_VALIDATE_INT) !== false) {
-                        $this->appendFilter(['dimension' => [$type => $request->request->get('filter_dimension_' . $type)]], $request->getSession());
+                        $this->appendFilter($request->getSession(), ['dimension' => [$type => $request->request->get('filter_dimension_' . $type)]]);
                     }
                 }
                 foreach (['min_ratio', 'max_ratio'] as $type) {
                     if (filter_var($request->request->get('filter_dimension_' . $type), FILTER_VALIDATE_FLOAT) !== false) {
-                        $this->appendFilter(['dimension' => [$type => $request->request->get('filter_dimension_' . $type)]], $request->getSession());
+                        $this->appendFilter($request->getSession(), ['dimension' => [$type => $request->request->get('filter_dimension_' . $type)]]);
                     }
                 }
             }
@@ -177,30 +177,30 @@ class AdminBatchManagerController extends AbstractController
             if ($request->request->get('filter_filesize_use')) {
                 foreach (['min', 'max'] as $type) {
                     if (filter_var($request->request->get('filter_filesize_' . $type), FILTER_VALIDATE_FLOAT) !== false) {
-                        $this->appendFilter(['filesize' => [$type => $request->request->get('filter_filesize_' . $type)]], $request->getSession());
+                        $this->appendFilter($request->getSession(), ['filesize' => [$type => $request->request->get('filter_filesize_' . $type)]]);
                     }
                 }
             }
 
             if ($request->request->get('filter_search_use')) {
-                $this->appendFilter(['search' => ['q' => $request->request->get('q')]], $request->getSession());
+                $this->appendFilter($request->getSession(), ['search' => ['q' => $request->request->get('q')]]);
             }
         } elseif ($filter) {
             $request->getSession()->set('bulk_manager_filter', []);
 
             // filters in menu
             if ($filter === 'caddie') {
-                $this->appendFilter(['prefilter' => 'caddie'], $request->getSession());
+                $this->appendFilter($request->getSession(), ['prefilter' => 'caddie']);
                 $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global', ['filter' => 'caddie']);
             } elseif ($filter === 'last_import') {
-                $this->appendFilter(['prefilter' => 'last_import'], $request->getSession());
+                $this->appendFilter($request->getSession(), ['prefilter' => 'last_import']);
                 $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global', ['filter' => 'last_import']);
             } elseif ($filter === 'album' && $request->get('value') !== null) {
-                $this->appendFilter(['category' => (int) $request->get('value')], $request->getSession());
+                $this->appendFilter($request->getSession(), ['category' => (int) $request->get('value')]);
                 $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
             } elseif ($filter === 'tag' && $request->get('value') !== null) {
-                $this->appendFilter(['tags' => [(int) $request->get('value')]], $request->getSession());
-                $this->appendFilter(['tag_mode' => 'AND'], $request->getSession());
+                $this->appendFilter($request->getSession(), ['tags' => [(int) $request->get('value')]]);
+                $this->appendFilter($request->getSession(), ['tag_mode' => 'AND']);
                 $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
             }
 
@@ -598,7 +598,7 @@ class AdminBatchManagerController extends AbstractController
     protected function filterFromSession(SessionInterface $session)
     {
         if (!$session->has('bulk_manager_filter')) {
-            $this->appendFilter(['prefilter' => 'caddie'], $session);
+            $this->appendFilter($session, ['prefilter' => 'caddie']);
         }
     }
 

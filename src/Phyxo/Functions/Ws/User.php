@@ -170,10 +170,6 @@ class User
      */
     public static function add($params, Server $service)
     {
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
-        }
-
         if ($service->getConf()['double_password_type_in_admin']) {
             if ($params['password'] != $params['password_confirm']) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'The passwords do not match');
@@ -208,10 +204,6 @@ class User
      */
     public static function delete($params, Server $service)
     {
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
-        }
-
         $protected_users = [$service->getUserMapper()->getUser()->getId()];
         $protected_users[] = $service->getUserMapper()->getDefaultUser()->getId();
 
@@ -255,10 +247,6 @@ class User
      */
     public static function setInfo($params, Server $service)
     {
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
-        }
-
         $updates_infos = [];
         $update_status = null;
 

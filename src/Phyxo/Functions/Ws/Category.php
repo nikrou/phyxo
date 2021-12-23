@@ -343,10 +343,6 @@ class Category
      */
     public static function delete($params, Server $service)
     {
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
-        }
-
         $modes = ['no_delete', 'delete_orphans', 'force_delete'];
         if (!in_array($params['photo_deletion_mode'], $modes)) {
             return new Error(
@@ -415,10 +411,6 @@ class Category
      */
     public static function move($params, Server $service)
     {
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
-        }
-
         if (!is_array($params['category_id'])) {
             $params['category_id'] = preg_split(
                 '/[\s,;\|]/',

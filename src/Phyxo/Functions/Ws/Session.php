@@ -57,7 +57,6 @@ class Session
         foreach (['status' => 'getStatus', 'theme' => 'getTheme', 'language' => 'getLanguage'] as $key => $getMethod) {
             $res[$key] = $service->getUserMapper()->getUser()->$getMethod();
         }
-        $res['pwg_token'] = \Phyxo\Functions\Utils::get_token();
 
         $res['current_datetime'] = new \DateTime();
         $res['version'] = $service->getCoreVersion();

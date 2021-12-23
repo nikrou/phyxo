@@ -59,10 +59,6 @@ class Plugin
      */
     public static function performAction($params, Server $service)
     {
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
-        }
-
         $plugins = new Plugins($service->getManagerRegistry()->getRepository(EntityPlugin::class), $service->getUserMapper());
         $plugins->setRootPath($service->getParams()->get('plugins_dir'));
         $error = $plugins->performAction($params['action'], $params['plugin']);

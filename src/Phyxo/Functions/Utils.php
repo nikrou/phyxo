@@ -119,20 +119,6 @@ class Utils
         return $str; // TODO
     }
 
-    /**
-     * get pwg_token used to prevent csrf attacks
-     *
-     * @return string
-     */
-    public static function get_token()
-    {
-        if (!empty($_SESSION['_sf2_attributes']['_csrf/https-authenticate'])) {
-            return $_SESSION['_sf2_attributes']['_csrf/https-authenticate'];
-        } else {
-            return $_SESSION['_sf2_attributes']['_csrf/authenticate'];
-        }
-    }
-
     // first/prev/next/last/current
     public static function createNavigationBar(RouterInterface $router, string $route, array $query_params, int $nb_elements, int $start, int $nb_element_page, int $pages_around = 2): array
     {

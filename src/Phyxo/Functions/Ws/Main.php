@@ -20,7 +20,6 @@ use App\Entity\User;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use Phyxo\Image\DerivativeImage;
-use Phyxo\Image\DerivativeParams;
 
 class Main
 {

@@ -1005,10 +1005,6 @@ class Image
      */
     public static function delete($params, Server $service)
     {
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
-        }
-
         // @TODO: simplify !!!
         if (!is_array($params['image_id'])) {
             $params['image_id'] = preg_split(

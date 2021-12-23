@@ -28,10 +28,6 @@ class Theme
      */
     public static function performAction(array $params, Server $service)
     {
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
-        }
-
         $themes = new Themes($service->getManagerRegistry()->getRepository(EntityTheme::class), $service->getUserMapper());
         $errors = $themes->performAction($params['action'], $params['theme']);
 

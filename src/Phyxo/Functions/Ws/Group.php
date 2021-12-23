@@ -86,10 +86,6 @@ class Group
      */
     public static function delete($params, Server $service)
     {
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
-        }
-
         $groupnames = [];
         $service->getManagerRegistry()->getRepository(EntityGroup::class)->deleteByGroupIds($params['group_id']);
         $service->getUserMapper()->invalidateUserCache();
@@ -107,10 +103,6 @@ class Group
      */
     public static function setInfo($params, Server $service)
     {
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
-        }
-
         $group = $service->getManagerRegistry()->getRepository(EntityGroup::class)->find($params['group_id']);
         if (is_null($group)) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'This group does not exist.');
@@ -142,10 +134,6 @@ class Group
      */
     public static function addUser($params, Server $service)
     {
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
-        }
-
         $group = $service->getManagerRegistry()->getRepository(EntityGroup::class)->find($params['group_id']);
         if (is_null($group)) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'This group does not exist.');
@@ -171,10 +159,6 @@ class Group
      */
     public static function deleteUser($params, Server $service)
     {
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
-        }
-
         $group = $service->getManagerRegistry()->getRepository(EntityGroup::class)->find($params['group_id']);
         if (is_null($group)) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'This group does not exist.');

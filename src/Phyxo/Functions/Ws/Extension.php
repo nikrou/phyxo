@@ -41,10 +41,6 @@ class Extension
             return new Error(401, 'Webmaster status is required.');
         }
 
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
-        }
-
         if (!in_array($params['type'], Extensions::TYPES)) {
             return new Error(403, "invalid extension type");
         }
@@ -107,10 +103,6 @@ class Extension
 
         if (!$service->getUserMapper()->isWebmaster()) {
             return new Error(401, 'Access denied');
-        }
-
-        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
-            return new Error(403, 'Invalid security token');
         }
 
         if (!empty($conf['updates_ignored'])) {
