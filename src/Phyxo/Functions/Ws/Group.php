@@ -82,7 +82,6 @@ class Group
      * Deletes a group
      * @param mixed[] $params
      *    @option int[] group_id
-     *    @option string pwg_token
      */
     public static function delete($params, Server $service)
     {

@@ -339,7 +339,6 @@ class Category
      * @param mixed[] $params
      *    @option string|int[] category_id
      *    @option string photo_deletion_mode
-     *    @option string pwg_token
      */
     public static function delete($params, Server $service)
     {
@@ -407,7 +406,6 @@ class Category
      * @param mixed[] $params
      *    @option string|int[] category_id
      *    @option int parent
-     *    @option string pwg_token
      */
     public static function move($params, Server $service)
     {

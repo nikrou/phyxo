@@ -200,7 +200,6 @@ class User
      * Deletes users
      * @param mixed[] $params
      *    @option int[] user_id
-     *    @option string pwg_token
      */
     public static function delete($params, Server $service)
     {

@@ -32,7 +32,6 @@ class Extension
      *    @option string type
      *    @option string id
      *    @option string revision
-     *    @option string pwg_token
      *    @option bool reactivate (optional - undocumented)
      */
     public static function update($params, Server $service)
@@ -95,7 +94,6 @@ class Extension
      *    @option string type (optional)
      *    @option string id (optional)
      *    @option bool reset
-     *    @option string pwg_token
      */
     public static function ignoreupdate($params, Server $service)
     {

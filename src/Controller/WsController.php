@@ -372,7 +372,6 @@ class WsController extends AbstractController
                 'name' => ['default' => null],
                 'category' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
                 'level' => ['default' => 0, 'maxValue' => max($this->service->getConf()['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
-                'pwg_token' => [],
             ],
             'Add an image.<br>Use the <b>$_FILES[image]</b> field for uploading file.<br>Set the form encoding to "form-data".',
             ['admin_only' => true, 'post_only' => true]
@@ -383,7 +382,6 @@ class WsController extends AbstractController
             '\Phyxo\Functions\Ws\Image::delete',
             [
                 'image_id' => ['flags' => Server::WS_PARAM_ACCEPT_ARRAY],
-                'pwg_token' => [],
             ],
             'Deletes image(s).',
             ['admin_only' => true, 'post_only' => true]
@@ -418,7 +416,6 @@ class WsController extends AbstractController
             [
                 'category_id' => ['flags' => Server::WS_PARAM_ACCEPT_ARRAY],
                 'photo_deletion_mode' => ['default' => 'delete_orphans'],
-                'pwg_token' => [],
             ],
             'Deletes album(s).<br><b>photo_deletion_mode</b> can be "no_delete" (may create orphan photos), "delete_orphans"
     (default mode, only deletes photos linked to no other album) or "force_delete" (delete all photos, even those linked to other albums)',
@@ -431,7 +428,6 @@ class WsController extends AbstractController
             [
                 'category_id' => ['flags' => Server::WS_PARAM_ACCEPT_ARRAY],
                 'parent' => ['type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
-                'pwg_token' => [],
             ],
             'Move album(s).
     <br>Set parent as 0 to move to gallery root. Only virtual categories can be moved.',
@@ -565,7 +561,6 @@ class WsController extends AbstractController
             [
                 'action' => ['info' => 'install, activate, deactivate, uninstall, delete'],
                 'plugin' => [],
-                'pwg_token' => [],
             ],
             '',
             ['admin_only' => true]
@@ -577,7 +572,6 @@ class WsController extends AbstractController
             [
                 'action' => ['info' => 'activate, deactivate, delete, set_default'],
                 'theme' => [],
-                'pwg_token' => [],
             ],
             '',
             ['admin_only' => true]
@@ -590,7 +584,6 @@ class WsController extends AbstractController
                 'type' => ['info' => 'plugins, languages, themes'],
                 'id' => [],
                 'revision' => [],
-                'pwg_token' => [],
             ],
             '<b>Webmaster only.</b>',
             ['admin_only' => true]
@@ -603,7 +596,6 @@ class WsController extends AbstractController
                 'type' => ['default' => null, 'info' => 'plugins, languages, themes'],
                 'id' => ['default' => null],
                 'reset' => ['default' => false, 'type' => Server::WS_TYPE_BOOL, 'info' => 'If true, all ignored extensions will be reinitilized.'],
-                'pwg_token' => [],
             ],
             '<b>Webmaster only.</b> Ignores an extension if it needs update.',
             ['admin_only' => true]
@@ -647,7 +639,6 @@ class WsController extends AbstractController
             '\Phyxo\Functions\Ws\Group::delete',
             [
                 'group_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
-                'pwg_token' => [],
             ],
             'Deletes a or more groups. Users and photos are not deleted.',
             ['admin_only' => true, 'post_only' => true]
@@ -660,7 +651,6 @@ class WsController extends AbstractController
                 'group_id' => ['type' => Server::WS_TYPE_ID],
                 'name' => ['flags' => Server::WS_PARAM_OPTIONAL],
                 'is_default' => ['flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL],
-                'pwg_token' => [],
             ],
             'Updates a group. Leave a field blank to keep the current value.',
             ['admin_only' => true, 'post_only' => true]
@@ -672,7 +662,6 @@ class WsController extends AbstractController
             [
                 'group_id' => ['type' => Server::WS_TYPE_ID],
                 'user_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
-                'pwg_token' => [],
             ],
             'Adds one or more users to a group.',
             ['admin_only' => true, 'post_only' => true]
@@ -687,7 +676,6 @@ class WsController extends AbstractController
                     'flags' => Server::WS_PARAM_FORCE_ARRAY,
                     'type' => Server::WS_TYPE_ID
                 ],
-                'pwg_token' => [],
             ],
             'Removes one or more users from a group.',
             ['admin_only' => true, 'post_only' => true]
@@ -723,7 +711,6 @@ class WsController extends AbstractController
                 'password_confirm' => ['flags' => Server::WS_PARAM_OPTIONAL],
                 'email' => ['default' => null],
                 'send_password_by_mail' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
-                'pwg_token' => [],
             ],
             'Registers a new user.',
             ['admin_only' => true, 'post_only' => true]
@@ -734,7 +721,6 @@ class WsController extends AbstractController
             '\Phyxo\Functions\Ws\User::delete',
             [
                 'user_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
-                'pwg_token' => [],
             ],
             'Deletes on or more users. Photos owned by this user are not deleted.',
             ['admin_only' => true, 'post_only' => true]
@@ -760,7 +746,6 @@ class WsController extends AbstractController
                 'show_nb_comments' => ['flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL],
                 'show_nb_hits' => ['flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL],
                 'enabled_high' => ['flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL],
-                'pwg_token' => [],
             ],
             'Updates a user. Leave a field blank to keep the current value.<br>"username", "password" and "email" are ignored if "user_id" is an array.<br>set "group_id" to -1 if you want to dissociate users from all groups',
             ['admin_only' => true, 'post_only' => true]
@@ -787,7 +772,6 @@ class WsController extends AbstractController
                 'group_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID],
                 'user_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID],
                 'recursive' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
-                'pwg_token' => [],
             ],
             'Adds permissions to an album.',
             ['admin_only' => true, 'post_only' => true]
@@ -809,7 +793,6 @@ class WsController extends AbstractController
                     'flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL,
                     'type' => Server::WS_TYPE_ID
                 ],
-                'pwg_token' => [],
             ],
             'Removes permissions from an album.',
             ['admin_only' => true, 'post_only' => true]

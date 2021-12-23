@@ -97,7 +97,6 @@ $(function () {
     up.setOption('multipart_params', {
       category: $('select[name="category"] option:selected').val(),
       level: $('select[name="level"] option:selected').val(),
-      pwg_token: pwg_token,
     })
   })
 

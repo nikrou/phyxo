@@ -24,7 +24,6 @@ class Theme
      * @param mixed[] $params
      *    @option string action
      *    @option string theme
-     *    @option string pwg_token
      */
     public static function performAction(array $params, Server $service)
     {

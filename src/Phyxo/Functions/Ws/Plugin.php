@@ -55,7 +55,6 @@ class Plugin
      * @param mixed[] $params
      *    @option string action
      *    @option string plugin
-     *    @option string pwg_token
      */
     public static function performAction($params, Server $service)
     {

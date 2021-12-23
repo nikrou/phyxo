@@ -24,7 +24,6 @@
 
 		<p>
 		    <input class="btn btn-submit" name="submitAdd" type="submit" value="{{'Create'|trans}}">
-		    <input type="hidden" name="pwg_token" value="{{csrf_token}}">
 		    <a class="btn btn-cancel" href="#create-album" data-toggle="collapse">{{'Cancel'|trans}}</a>
 		</p>
 	    </div>
@@ -46,7 +45,6 @@
 		</p>
 
 		<p>
-		    <input type="hidden" name="pwg_token" value="{{csrf_token}}">
 		    <input class="btn btn-submit" name="submitAutoOrder" type="submit" value="{{'Save order'|trans}}">
 		    <a href="#apply-automatic-sort-order" class="btn btn-cancel" data-toggle="collapse">{{'Cancel'|trans}}</a>
 		</p>
@@ -56,7 +54,6 @@
 
     <form id="categoryOrdering" action="{{F_ACTION_UPDATE}}" method="post">
 	<p id="manualOrder" class="collapse">
-	    <input type="hidden" name="pwg_token" value="{{csrf_token}}">
 	    <input class="btn btn-submit3" name="submitManualOrder" type="submit" value="{{'Save manual order'|trans}}">
 	    ... {{'or'|trans}} <a href="#manualOrder" class="btn btn-cancel" data-toggle="collapse">{{'cancel manual order'|trans}}</a>
 	</p>

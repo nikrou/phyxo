@@ -1001,7 +1001,6 @@ class Image
      * Deletes an image
      * @param mixed[] $params
      *    @option int|int[] image_id
-     *    @option string pwg_token
      */
     public static function delete($params, Server $service)
     {
