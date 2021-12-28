@@ -13,7 +13,7 @@ namespace App;
 
 class UpdateKernel extends Kernel
 {
-    public function getCacheDir()
+    public function getCacheDir(): string
     {
         return $this->getProjectDir() . '/var/cache/' . $this->environment . '/update/';
     }

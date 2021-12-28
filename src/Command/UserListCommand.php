@@ -40,7 +40,7 @@ class UserListCommand extends Command
         $this->databaseYamlFile = $databaseYamlFile;
     }
 
-    public function isEnabled()
+    public function isEnabled(): bool
     {
         return is_readable($this->databaseYamlFile);
     }
@@ -52,7 +52,7 @@ class UserListCommand extends Command
             ->setHelp(file_get_contents(__DIR__ . '/../Resources/help/UserListCommand.txt'));
     }
 
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 

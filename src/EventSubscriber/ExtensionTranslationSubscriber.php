@@ -26,7 +26,7 @@ class ExtensionTranslationSubscriber implements EventSubscriberInterface
         $this->themesDir = $themesDir;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => ['loadExtensionTranslation', 17],

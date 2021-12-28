@@ -41,8 +41,7 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
         string $pemURL,
         EventDispatcherInterface $eventDispatcher,
         ExtensionCollection $extensionCollection
-    )
-    {
+    ) {
         $this->plugins = new Plugins($pluginRepository, $userMapper);
         $this->plugins->setRootPath($pluginsDir);
         $this->plugins->setExtensionsURL($pemURL);
@@ -52,7 +51,7 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
         $this->extensionCollection = $extensionCollection;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => ['registerPlugins'],

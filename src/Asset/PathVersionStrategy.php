@@ -39,12 +39,12 @@ class PathVersionStrategy implements VersionStrategyInterface
         }
     }
 
-    public function getVersion($path)
+    public function getVersion($path): string
     {
         return $this->applyVersion($path);
     }
 
-    public function applyVersion($path)
+    public function applyVersion($path): string
     {
         return $this->getManifestPath($path) ?: $path;
     }

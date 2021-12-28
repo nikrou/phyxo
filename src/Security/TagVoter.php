@@ -35,7 +35,7 @@ class TagVoter extends Voter
         $this->conf = $conf;
     }
 
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         if (!in_array($attribute, [self::ADD, self::DELETE])) {
             return false;
@@ -48,7 +48,7 @@ class TagVoter extends Voter
         return true;
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 

@@ -27,7 +27,7 @@ class ThemePathSubscriber implements EventSubscriberInterface
         $this->defaultTheme = $defaultTheme;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => ['addThemePath', 18],

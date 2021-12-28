@@ -35,7 +35,7 @@ class UserCreateCommand extends Command
         $this->databaseYamlFile = $databaseYamlFile;
     }
 
-    public function isEnabled()
+    public function isEnabled(): bool
     {
         return is_readable($this->databaseYamlFile);
     }
@@ -91,7 +91,7 @@ class UserCreateCommand extends Command
         }
     }
 
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 

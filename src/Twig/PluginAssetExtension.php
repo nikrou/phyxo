@@ -26,7 +26,7 @@ class PluginAssetExtension extends AbstractExtension
         $this->router = $router;
     }
 
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new TwigFunction('publicHeadContent', [$this, 'publicHeadContent'], ['is_safe' => ['html']]),

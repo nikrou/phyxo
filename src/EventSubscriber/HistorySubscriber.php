@@ -29,7 +29,7 @@ class HistorySubscriber implements EventSubscriberInterface
         $this->historyRepository = $historyRepository;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             HistoryEvent::class => 'onVisit'

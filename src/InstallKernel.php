@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 
 class InstallKernel extends Kernel
 {
-    public function getCacheDir()
+    public function getCacheDir(): string
     {
         return $this->getProjectDir() . '/var/cache/' . $this->environment . '/install/';
     }

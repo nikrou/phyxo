@@ -19,7 +19,7 @@ use Doctrine\Persistence\Event\LifecycleEventArgs;
 
 class UserStatusSubscriber implements EventSubscriber
 {
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::postLoad
