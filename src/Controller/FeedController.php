@@ -17,27 +17,28 @@ use Phyxo\MenuBar;
 use App\Repository\UserFeedRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use App\Notification;
+use App\Security\AppUserService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FeedController extends CommonController
 {
-    public function notification(Request $request, Conf $conf, MenuBar $menuBar, TranslatorInterface $translator, UserFeedRepository $userFeedRepository)
+    public function notification(Request $request, Conf $conf, MenuBar $menuBar, TranslatorInterface $translator, UserFeedRepository $userFeedRepository, AppUserService $appUserService)
     {
         $tpl_params = [];
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params['PAGE_TITLE'] = $translator->trans('Notification');
 
-        $feed = $userFeedRepository->findOneBy(['user' => $this->getUser()]);
+        $feed = $userFeedRepository->findOneBy(['user' => $appUserService->getUser()]);
         if (is_null($feed)) {
             $feed = new UserFeed();
-            $feed->setUser($this->getUser());
+            $feed->setUser($appUserService->getUser());
             $userFeedRepository->addOrUpdateUserFeed($feed);
         }
 
-        if ($this->getUser()->isGuest()) {
+        if ($appUserService->getUser()->isGuest()) {
             $tpl_params['U_FEED'] = $this->generateUrl('feed', ['feed_id' => $feed->getUuid()]);
             $tpl_params['U_FEED_IMAGE_ONLY'] = $this->generateUrl('feed_image_only', ['feed_id' => $feed->getUuid()]);
         } else {
@@ -61,8 +62,16 @@ class FeedController extends CommonController
         return new Response('Not yet');
     }
 
-    public function feed(string $feed_id, Conf $conf, UserFeedRepository $userFeedRepository, string $cacheDir, Notification $notification, TranslatorInterface $translator, bool $image_only = false)
-    {
+    public function feed(
+        string $feed_id,
+        Conf $conf,
+        AppUserService $appUserService,
+        UserFeedRepository $userFeedRepository,
+        string $cacheDir,
+        Notification $notification,
+        TranslatorInterface $translator,
+        bool $image_only = false
+    ) {
         $feed = $userFeedRepository->findOneBy(['uuid' => $feed_id]);
         if (is_null($feed)) {
             throw $this->createNotFoundException($translator->trans('Unknown feed identifier'));
@@ -72,7 +81,7 @@ class FeedController extends CommonController
 
         $rss = new \UniversalFeedCreator();
         $rss->title = $conf['gallery_title'];
-        $rss->title .= ' (as ' . $this->getUser()->getUsername() . ')';
+        $rss->title .= ' (as ' . $appUserService->getUser()->getUserIdentifier() . ')';
 
         $rss->link = $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL);
 

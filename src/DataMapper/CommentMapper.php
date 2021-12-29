@@ -12,22 +12,32 @@
 namespace App\DataMapper;
 
 use App\Entity\Comment;
+use App\Entity\User;
 use App\Events\CommentEvent;
 use Phyxo\Conf;
 use App\Repository\CommentRepository;
 use App\Repository\ImageRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserRepository;
+use App\Security\AppUserService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentMapper
 {
-    private $conf, $userMapper, $eventDispatcher, $translator, $userRepository, $userCacheRepository, $commentRepository, $imageRepository;
+    private $conf, $userMapper, $eventDispatcher, $translator, $userRepository, $userCacheRepository, $commentRepository, $imageRepository, $appUserService;
 
-    public function __construct(Conf $conf, UserMapper $userMapper, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator,
-                                UserRepository $userRepository, UserCacheRepository $userCacheRepository, CommentRepository $commentRepository, ImageRepository $imageRepository)
-    {
+    public function __construct(
+        Conf $conf,
+        UserMapper $userMapper,
+        EventDispatcherInterface $eventDispatcher,
+        TranslatorInterface $translator,
+        UserRepository $userRepository,
+        UserCacheRepository $userCacheRepository,
+        CommentRepository $commentRepository,
+        ImageRepository $imageRepository,
+        AppUserService $appUserService
+    ) {
         $this->conf = $conf;
         $this->userMapper = $userMapper;
         $this->eventDispatcher = $eventDispatcher;
@@ -36,6 +46,7 @@ class CommentMapper
         $this->userCacheRepository = $userCacheRepository;
         $this->commentRepository = $commentRepository;
         $this->imageRepository = $imageRepository;
+        $this->appUserService = $appUserService;
     }
 
     public function getRepository(): CommentRepository
@@ -43,9 +54,9 @@ class CommentMapper
         return $this->commentRepository;
     }
 
-    public function getUser()
+    public function getUser(): ?User
     {
-        return $this->userMapper->getUser();
+        return $this->appUserService->getUser();
     }
 
     /**
@@ -139,7 +150,7 @@ class CommentMapper
                 }
             }
         } else {
-            $comm['author'] = $this->getUser()->getUsername();
+            $comm['author'] = $this->getUser()->getUserIdentifier();
             $comm['author_id'] = $this->getUser()->getId();
         }
 
@@ -259,7 +270,7 @@ class CommentMapper
             if ($this->conf['email_admin_on_comment_validation'] && $comment_action === 'moderate') {
                 $this->eventDispatcher->dispatch(new CommentEvent($comment_infos, $comment_action));
             } else {
-                $this->eventDispatcher->dispatch(new CommentEvent(['author' => $this->getUser()->getUsername(), 'content' => $comment_infos['content']], 'edit'));
+                $this->eventDispatcher->dispatch(new CommentEvent(['author' => $this->getUser()->getUserIdentifier(), 'content' => $comment_infos['content']], 'edit'));
             }
         }
 

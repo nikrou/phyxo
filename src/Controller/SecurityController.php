@@ -22,6 +22,7 @@ use App\Repository\UserInfosRepository;
 use App\Exception\MissingGuestUserException;
 use App\Form\UserRegistrationType;
 use App\Repository\UserRepository;
+use App\Security\AppUserService;
 use App\Security\LoginFormAuthenticator;
 use App\Security\UserProvider;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -128,7 +129,8 @@ class SecurityController extends CommonController
         CsrfTokenManagerInterface $csrfTokenManager,
         ThemeRepository $themeRepository,
         UserInfosRepository $userInfosRepository,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        AppUserService $appUserService
     ) {
         $tpl_params = $this->init();
 
@@ -141,20 +143,20 @@ class SecurityController extends CommonController
         if ($request->isMethod('POST')) {
             if ($request->request->get('reset_to_default')) {
                 $guestUserInfos = $userInfosRepository->findOneBy(['status' => User::STATUS_GUEST]);
-                $this->getUser()->getUserInfos()->fromArray($guestUserInfos->toArray());
-                $userRepository->updateUser($this->getUser());
+                $appUserService->getUser()->getUserInfos()->fromArray($guestUserInfos->toArray());
+                $userRepository->updateUser($appUserService->getUser());
             } else {
                 $needFlush = false;
 
                 if ($request->request->get('_password') && $request->request->get('_new_password') && $request->request->get('_new_password_confirm')) {
-                    if (!$passwordHasher->isPasswordValid($this->getUser(), $request->request->get('_password'))) {
+                    if (!$passwordHasher->isPasswordValid($appUserService->getUser(), $request->request->get('_password'))) {
                         $errors[] = $translator->trans('Current password is wrong');
                     } elseif ($request->request->get('_new_password') !== $request->request->get('_new_password_confirm')) {
                         $errors[] = $translator->trans('The passwords do not match');
                     }
 
                     if (empty($errors)) {
-                        $this->getUser()->setPassword($passwordHasher->hashPassword($this->getUser(), $request->request->get('_new_password')));
+                        $appUserService->getUser()->setPassword($passwordHasher->hashPassword($appUserService->getUser(), $request->request->get('_new_password')));
                         $needFlush = true;
                     }
                 }
@@ -164,12 +166,12 @@ class SecurityController extends CommonController
                         $errors[] = $translator->trans('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
                     }
 
-                    if ($userRepository->isEmailExistsExceptUser($request->request->get('_mail_address'), $this->getUser()->getId())) {
+                    if ($userRepository->isEmailExistsExceptUser($request->request->get('_mail_address'), $appUserService->getUser()->getId())) {
                         $errors[] = $translator->trans('this email address is already in use');
                     }
 
                     if (empty($errors)) {
-                        $this->getUser()->setMailAddress($request->request->get('_mail_address'));
+                        $appUserService->getUser()->setMailAddress($request->request->get('_mail_address'));
                         $needFlush = true;
                     }
                 }
@@ -178,7 +180,7 @@ class SecurityController extends CommonController
                     if ((int) $request->request->get('nb_image_page') === 0) {
                         $errors[] = $translator->trans('The number of photos per page must be a not null scalar');
                     } else {
-                        $this->getUser()->getUserInfos()->setNbImagePage((int) $request->request->get('nb_image_page'));
+                        $appUserService->getUser()->getUserInfos()->setNbImagePage((int) $request->request->get('nb_image_page'));
                         $needFlush = true;
                     }
                 }
@@ -186,50 +188,50 @@ class SecurityController extends CommonController
                 // @TODO: check language is in existing language ; same in AdminConfigurationController::default
                 if ($request->request->get('language')) {
                     $request->getSession()->set('_locale', $request->request->get('language'));
-                    $this->getUser()->getUserInfos()->setLanguage($request->request->get('language'));
+                    $appUserService->getUser()->getUserInfos()->setLanguage($request->request->get('language'));
                     $needFlush = true;
                 }
 
                 if ($request->request->get('theme')) {
-                    $this->getUser()->getUserInfos()->setTheme($request->request->get('theme'));
+                    $appUserService->getUser()->getUserInfos()->setTheme($request->request->get('theme'));
                     $needFlush = true;
                 }
 
                 if ($request->request->get('expand')) {
-                    $this->getUser()->getUserInfos()->setExpand($request->request->get('expand') === 'true');
+                    $appUserService->getUser()->getUserInfos()->setExpand($request->request->get('expand') === 'true');
                     $needFlush = true;
                 }
 
                 if ($request->request->get('show_nb_comments')) {
-                    $this->getUser()->getUserInfos()->setShowNbComments($request->request->get('show_nb_comments') === 'true');
+                    $appUserService->getUser()->getUserInfos()->setShowNbComments($request->request->get('show_nb_comments') === 'true');
                     $needFlush = true;
                 }
 
                 if ($request->request->get('show_nb_hits')) {
-                    $this->getUser()->getUserInfos()->setShowNbHits($request->request->get('show_nb_hits') === 'true');
+                    $appUserService->getUser()->getUserInfos()->setShowNbHits($request->request->get('show_nb_hits') === 'true');
                     $needFlush = true;
                 }
 
-                if ($request->request->get('recent_period') && $this->getUser()->getUserInfos()->getRecentPeriod() != $request->request->get('recent_period')) {
-                    $this->getUser()->getUserInfos()->setRecentPeriod((int) $request->request->get('recent_period'));
+                if ($request->request->get('recent_period') && $appUserService->getUser()->getUserInfos()->getRecentPeriod() != $request->request->get('recent_period')) {
+                    $appUserService->getUser()->getUserInfos()->setRecentPeriod((int) $request->request->get('recent_period'));
                     $needFlush = true;
                 }
 
                 if (empty($errors) && $needFlush) {
-                    $userRepository->updateUser($this->getUser());
+                    $userRepository->updateUser($appUserService->getUser());
 
                     return $this->redirectToRoute('profile');
                 }
             }
         }
 
-        $userInfos = $this->getUser()->getUserInfos();
+        $userInfos = $appUserService->getUser()->getUserInfos();
         $tpl_params = array_merge($tpl_params, [
             'ALLOW_USER_CUSTOMIZATION' => $this->conf['allow_user_customization'],
             'ACTIVATE_COMMENTS' => $this->conf['activate_comments'],
 
-            'USERNAME' => $this->getUser()->getUsername(),
-            'EMAIL' => $this->getUser()->getMailAddress(),
+            'USERNAME' => $appUserService->getUser()->getUserIdentifier(),
+            'EMAIL' => $appUserService->getUser()->getMailAddress(),
             'NB_IMAGE_PAGE' => $userInfos->getNbImagePage(),
             'RECENT_PERIOD' => $userInfos->getRecentPeriod(),
             'EXPAND' => $userInfos->wantExpand(),

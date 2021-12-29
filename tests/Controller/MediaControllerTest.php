@@ -48,7 +48,7 @@ class MediaControllerTest extends WebTestCase
         $this->imageRepository = $this->prophesize(ImageRepository::class);
         $this->imageRepository->findOneByUnsanePath(Argument::any())->willReturn($image);
         $this->imageRepository->addOrUpdateImage(Argument::any())->willReturn(1);
-        $this->imageRepository->getForbiddenImages()->willReturn([]);
+        $this->imageRepository->getForbiddenImages(Argument::any(), Argument::any())->willReturn([]);
         $this->imageRepository->isAuthorizedToUser(Argument::any(), Argument::any())->willReturn(true);
 
         $fs = new Filesystem();

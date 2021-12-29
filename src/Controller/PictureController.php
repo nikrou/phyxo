@@ -26,9 +26,11 @@ use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\RateMapper;
 use App\Entity\History;
+use App\Entity\User;
 use App\Events\HistoryEvent;
 use App\Metadata;
 use App\Repository\ImageAlbumRepository;
+use App\Security\AppUserService;
 use App\Security\TagVoter;
 use IntlDateFormatter;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -62,7 +64,8 @@ class PictureController extends CommonController
         RateRepository $rateRepository,
         FavoriteRepository $favoriteRepository,
         ImageAlbumRepository $imageAlbumRepository,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        AppUserService $appUserService
     ) {
         $this->translator = $translator;
         $tpl_params = [];
@@ -88,18 +91,18 @@ class PictureController extends CommonController
             $history_section = History::SECTION_LIST;
             $tpl_params['TITLE'] = $translator->trans('Random photos');
             $tpl_params['items'] = [];
-            foreach ($imageMapper->getRepository()->searchDistinctId($this->getUser()->getUserInfos()->getForbiddenCategories(), $conf['order_by']) as $image) {
+            foreach ($imageMapper->getRepository()->searchDistinctId($appUserService->getUser()->getUserInfos()->getForbiddenCategories(), $conf['order_by']) as $image) {
                 $tpl_params['items'][] = $image['id'];
             }
         } else {
             $history_section = History::SECTION_ALBUMS;
             $album = $albumMapper->getRepository()->find((int) $element_id);
-            if (!is_null($album) && in_array($album->getId(), $this->getUser()->getUserInfos()->getForbiddenCategories())) {
+            if (!is_null($album) && in_array($album->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenCategories())) {
                 throw new AccessDeniedHttpException("Access denied to that album");
             }
 
             $tpl_params['items'] = [];
-            foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum((int) $element_id, $this->getUser()->getUserInfos()->getForbiddenCategories(), $conf['order_by']) as $image) {
+            foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum((int) $element_id, $appUserService->getUser()->getUserInfos()->getForbiddenCategories(), $conf['order_by']) as $image) {
                 $tpl_params['items'][] = $image['id'];
             }
         }
@@ -175,7 +178,7 @@ class PictureController extends CommonController
         $tpl_params['U_METADATA'] = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id, 'metadata' => '']);
         $tpl_params['current']['unique_derivatives'] = $unique_derivatives;
 
-        $fmt = new IntlDateFormatter($this->getUser()->getLocale(), IntlDateFormatter::FULL, IntlDateFormatter::NONE);
+        $fmt = new IntlDateFormatter($appUserService->getUser()->getLocale(), IntlDateFormatter::FULL, IntlDateFormatter::NONE);
         $tpl_params['INFO_POSTED_DATE'] = [
             'label' => $fmt->format($picture['date_available']),
             'url' => $this->generateUrl('calendar_categories_monthly', ['date_type' => 'posted', 'view_type' => 'calendar'])
@@ -220,9 +223,9 @@ class PictureController extends CommonController
             $tpl_params['available_permission_levels'] = Utils::getPrivacyLevelOptions($translator, $conf['available_permission_levels']);
         }
 
-        if (!$this->getUser()->isGuest() && $conf['picture_favorite_icon']) {
+        if (!$appUserService->getUser()->isGuest() && $conf['picture_favorite_icon']) {
             // verify if the picture is already in the favorite of the user
-            $is_favorite = $favoriteRepository->isFavorite($this->getUser()->getId(), $image_id);
+            $is_favorite = $favoriteRepository->isFavorite($appUserService->getUser()->getId(), $image_id);
             $tpl_params['favorite'] = [
                 'IS_FAVORITE' => $is_favorite,
                 'U_FAVORITE' => $this->generateUrl(!$is_favorite ? 'add_to_favorites' : 'remove_from_favorites', ['image_id' => $image_id])
@@ -230,7 +233,7 @@ class PictureController extends CommonController
         }
 
         // related tags
-        $tags = $tagMapper->getRelatedTags($this->getUser(), $image_id, -1);
+        $tags = $tagMapper->getRelatedTags($appUserService->getUser(), $image_id, -1);
         if (count($tags) > 0) {
             foreach ($tags as $tag) {
                 $tpl_params['related_tags'][] = array_merge(
@@ -263,7 +266,7 @@ class PictureController extends CommonController
         }
 
         if ($conf['rate']) {
-            $tpl_params = array_merge($tpl_params, $this->addRateInfos($rateRepository, $picture, $request));
+            $tpl_params = array_merge($tpl_params, $this->addRateInfos($rateRepository, $picture, $request, $appUserService->getUser()));
         }
 
         if (($conf['show_exif'] || $conf['show_iptc'])) {
@@ -430,7 +433,7 @@ class PictureController extends CommonController
                     'AUTHOR_MANDATORY' => $conf['comments_author_mandatory'],
                     'AUTHOR' => '',
                     'WEBSITE_URL' => '',
-                    'SHOW_EMAIL' => !$userMapper->isClassicUser() || empty($this->getUser()->getMailAddress()),
+                    'SHOW_EMAIL' => !$userMapper->isClassicUser() || empty($appUserService->getUser()->getMailAddress()),
                     'EMAIL_MANDATORY' => $conf['comments_email_mandatory'],
                     'EMAIL' => '',
                     'SHOW_WEBSITE' => $conf['comments_enable_website'],
@@ -515,7 +518,7 @@ class PictureController extends CommonController
         );
     }
 
-    protected function addRateInfos(RateRepository $rateRepository, array $picture, Request $request): array
+    protected function addRateInfos(RateRepository $rateRepository, array $picture, Request $request, ?User $user): array
     {
         $tpl_params = [];
 
@@ -536,7 +539,7 @@ class PictureController extends CommonController
                 }
 
                 $rate = $rateRepository->findOneBy([
-                    'user' => $this->getUser()->getId(),
+                    'user' => $user->getId(),
                     'image' => $picture['id'],
                     'anonymous_id' => $anonymous_id
                 ]);
@@ -556,16 +559,16 @@ class PictureController extends CommonController
         return $tpl_params;
     }
 
-    public function rate(Request $request, ImageMapper $imageMapper, Conf $conf, RateMapper $rateMapper)
+    public function rate(Request $request, ImageMapper $imageMapper, Conf $conf, RateMapper $rateMapper, AppUserService $appUserService)
     {
         $result['score'] = null;
 
         if ($request->isMethod('POST')) {
-            if (!$imageMapper->getRepository()->isAuthorizedToUser($request->request->get('image_id'), $this->getUser()->getUserInfos()->getForbiddenCategories())) {
+            if (!$imageMapper->getRepository()->isAuthorizedToUser($request->request->get('image_id'), $appUserService->getUser()->getUserInfos()->getForbiddenCategories())) {
                 return new AccessDeniedException("Cannot rate that image");
             }
 
-            if (!$this->getUser()->isGuest() || $this->conf['rate_anonymous']) {
+            if (!$appUserService->getUser()->isGuest() || $this->conf['rate_anonymous']) {
                 $result = $rateMapper->ratePicture(
                     $request->request->get('image_id'),
                     $request->request->get('rating'),
@@ -585,7 +588,7 @@ class PictureController extends CommonController
                 ['image_id' => $request->request->get('image_id'), 'type' => $request->request->get('type'), 'element_id' => $request->request->get('element_id')]
             )
         );
-        if (!is_null($result['score']) && $this->getUser()->isGuest()) {
+        if (!is_null($result['score']) && $appUserService->getUser()->isGuest()) {
             $cookie = Cookie::create('anonymous_rater', $request->getClientIp(), strtotime('+1year'));
             $response->headers->setCookie($cookie);
         }

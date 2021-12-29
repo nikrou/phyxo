@@ -19,6 +19,7 @@ use App\DataMapper\TagMapper;
 use App\Repository\TagRepository;
 use App\DataMapper\ImageMapper;
 use App\Entity\Tag as EntityTag;
+use App\Security\AppUserService;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
 use Symfony\Component\Routing\RouterInterface;
@@ -26,7 +27,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TagController extends CommonController
 {
-    public function list(Request $request, TagMapper $tagMapper, Conf $conf, MenuBar $menuBar, TranslatorInterface $translator)
+    public function list(Request $request, AppUserService $appUserService, TagMapper $tagMapper, Conf $conf, MenuBar $menuBar, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -44,7 +45,7 @@ class TagController extends CommonController
         $tpl_params['display_mode'] = $display_mode;
 
         // find all tags available for the current user
-        $tags = $tagMapper->getAvailableTags($this->getUser());
+        $tags = $tagMapper->getAvailableTags($appUserService->getUser());
 
         if ($display_mode === 'letters') {
             // we want tags diplayed in alphabetic order
@@ -137,6 +138,7 @@ class TagController extends CommonController
         Conf $conf,
         MenuBar $menuBar,
         RouterInterface $router,
+        AppUserService $appUserService,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -162,12 +164,12 @@ class TagController extends CommonController
         $tpl_params['TITLE'] = $this->getTagsContentTitle($translator, $tpl_params['tags']);
 
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->getImageIdsForTags($this->getUser()->getUserInfos()->getForbiddenCategories(), $requested_tag_ids) as $image) {
+        foreach ($imageMapper->getRepository()->getImageIdsForTags($appUserService->getUser()->getUserInfos()->getForbiddenCategories(), $requested_tag_ids) as $image) {
             $tpl_params['items'][] = $image->getId();
         }
 
         if (count($tpl_params['items']) > 0) {
-            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
+            $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                 $router,

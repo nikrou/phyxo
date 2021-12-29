@@ -19,6 +19,7 @@ use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\ImageMapper;
 use App\Repository\AlbumRepository;
 use App\Repository\ImageRepository;
+use App\Security\AppUserService;
 use Phyxo\Calendar\CalendarWeekly;
 use Phyxo\Functions\Utils;
 use Symfony\Component\Routing\RouterInterface;
@@ -38,6 +39,7 @@ class CalendarController extends CommonController
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
         RouterInterface $router,
+        AppUserService $appUserService,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -88,7 +90,7 @@ class CalendarController extends CommonController
         $calendar->setConf($conf);
         $calendar->setViewType($view_type);
         $calendar->setImageStandardParams($image_std_params);
-        $calendar->findByCondition($this->getUser()->getUserInfos()->getForbiddenCategories());
+        $calendar->findByCondition($appUserService->getUser()->getUserInfos()->getForbiddenCategories());
 
         $category_content = $calendar->generateCategoryContent();
         if (!empty($category_content)) {
@@ -100,7 +102,7 @@ class CalendarController extends CommonController
             $tpl_params['items'] = $calendar->getItems($this->orderByToSorts($conf['order_by']));
 
             if (count($tpl_params['items']) > 0) {
-                $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
+                $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                     $router,
@@ -156,6 +158,7 @@ class CalendarController extends CommonController
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
         RouterInterface $router,
+        AppUserService $appUserService,
         int $start = 0,
         int $week = 0
     ) {
@@ -186,7 +189,6 @@ class CalendarController extends CommonController
             ],
         ];
 
-        $filter = [];
         $calendar = new CalendarWeekly($imageRepository, $albumRepository, $date_type);
         $chronology_date = [];
         if ($year = $request->get('year')) {
@@ -209,7 +211,7 @@ class CalendarController extends CommonController
         $calendar->setConf($conf);
         $calendar->setViewType('list');
         $calendar->setImageStandardParams($image_std_params);
-        $calendar->findByCondition($this->getUser()->getUserInfos()->getForbiddenCategories());
+        $calendar->findByCondition($appUserService->getUser()->getUserInfos()->getForbiddenCategories());
 
         $category_content = $calendar->generateCategoryContent();
         if (!empty($category_content)) {
@@ -221,7 +223,7 @@ class CalendarController extends CommonController
             $tpl_params['items'] = $calendar->getItems($this->orderByToSorts($conf['order_by']));
 
             if (count($tpl_params['items']) > 0) {
-                $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
+                $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                     $router,
@@ -268,6 +270,7 @@ class CalendarController extends CommonController
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
         RouterInterface $router,
+        AppUserService $appUserService,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -314,7 +317,7 @@ class CalendarController extends CommonController
         $calendar->setConf($conf);
         $calendar->setViewType($view_type);
         $calendar->setImageStandardParams($image_std_params);
-        $calendar->findByConditionAndCategory($category_id, $this->getUser()->getUserInfos()->getForbiddenCategories());
+        $calendar->findByConditionAndCategory($category_id, $appUserService->getUser()->getUserInfos()->getForbiddenCategories());
 
 
         $category_content = $calendar->generateCategoryContent();
@@ -327,7 +330,7 @@ class CalendarController extends CommonController
             $tpl_params['items'] = $calendar->getItems($this->orderByToSorts($conf['order_by']));
 
             if (count($tpl_params['items']) > 0) {
-                $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
+                $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                     $router,
@@ -378,6 +381,7 @@ class CalendarController extends CommonController
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
         RouterInterface $router,
+        AppUserService $appUserService,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -426,7 +430,6 @@ class CalendarController extends CommonController
             ],
         ];
 
-        $filter = [];
         $calendar = new CalendarWeekly($imageRepository, $albumRepository, $date_type);
         $chronology_date = [];
         if ($year = $request->get('year')) {
@@ -448,7 +451,7 @@ class CalendarController extends CommonController
         $calendar->setConf($conf);
         $calendar->setViewType('list');
         $calendar->setImageStandardParams($image_std_params);
-        $calendar->findByConditionAndCategory($category_id, $this->getUser()->getUserInfos()->getForbiddenCategories());
+        $calendar->findByConditionAndCategory($category_id, $appUserService->getUser()->getUserInfos()->getForbiddenCategories());
 
         if ($chronology_params = $calendar->generateCategoryContent()) {
             $tpl_params['items'] = [];
@@ -457,7 +460,7 @@ class CalendarController extends CommonController
             $tpl_params['items'] = $calendar->getItems($this->orderByToSorts($conf['order_by']));
 
             if (count($tpl_params['items']) > 0) {
-                $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
+                $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                     $router,

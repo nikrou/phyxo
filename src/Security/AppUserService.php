@@ -13,15 +13,13 @@ namespace App\Security;
 
 use App\Entity\User;
 use Phyxo\Conf;
-use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class AppUserService
 {
     private $user, $security, $userProvider, $conf;
+    private $guest_user, $guest_user_retrieved = false;
 
     public function __construct(Security $security, UserProvider $userProvider, Conf $conf)
     {
@@ -33,32 +31,25 @@ class AppUserService
     public function getUser(): ?User
     {
         if (is_null($this->security->getToken())) {
-            return null;
-        }
-
-        if (!$this->user) {
             if ($this->conf['guest_access']) {
-                if (!($this->security->getToken() instanceof AnonymousToken) && !($this->security->getToken()->getUser() instanceof UserInterface)) {
-                    return null;
-                }
+                $this->user = $this->getDefaultUser();
             } else {
-                if (!$this->security->getToken()->getUser() instanceof UserInterface) {
-                    throw new AccessDeniedException('Access denied to guest');
-                }
+                throw new AccessDeniedException('Access denied to guest');
             }
-
-            try {
-                if ($this->security->getToken() instanceof AnonymousToken) {
-                    $this->user = $this->userProvider->loadUserByIdentifier('guest');
-                    $this->security->getToken()->setUser($this->user);
-                } else {
-                    $this->user = $this->security->getToken()->getUser();
-                }
-            } catch (UserNotFoundException $exception) {
-                throw  new $exception;
-            }
+        } else {
+            $this->user = $this->security->getToken()->getUser();
         }
 
         return $this->user;
+    }
+
+    public function getDefaultUser(): User
+    {
+        if (!$this->guest_user_retrieved) {
+            $this->guest_user = $this->userProvider->loadUserByIdentifier('guest');
+            $this->guest_user_retrieved = true;
+        }
+
+        return $this->guest_user;
     }
 }

@@ -13,6 +13,7 @@ namespace App\Controller;
 
 use App\ImageLibraryGuesser;
 use App\Repository\ImageRepository;
+use App\Security\AppUserService;
 use Symfony\Component\HttpFoundation\Response;
 use Phyxo\Conf;
 use Phyxo\Image\DerivativeParams;
@@ -43,7 +44,8 @@ class MediaController extends CommonController
         ImageRepository $imageRepository,
         string $rootProjectDir,
         MimeTypeGuesserInterface $mimeTypes,
-        ImageLibraryGuesser $imageLibraryGuesser
+        ImageLibraryGuesser $imageLibraryGuesser,
+        AppUserService $appUserService
     ) {
         $this->mimeTypes = $mimeTypes;
 
@@ -73,7 +75,7 @@ class MediaController extends CommonController
             return new Response('Db file path not found ', 404);
         }
 
-        if (!$imageRepository->isAuthorizedToUser($image->getId(), $this->getUser()->getUserInfos()->getForbiddenCategories())) {
+        if (!$imageRepository->isAuthorizedToUser($image->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenCategories())) {
             return new Response('User not allowed to see that image ', 403);
         }
 

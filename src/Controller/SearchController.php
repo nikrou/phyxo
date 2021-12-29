@@ -22,6 +22,7 @@ use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\ImageMapper;
 use App\Entity\Search;
 use App\Repository\TagRepository;
+use App\Security\AppUserService;
 use Phyxo\Functions\Utils;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -66,7 +67,8 @@ class SearchController extends CommonController
         SearchRepository $searchRepository,
         MenuBar $menuBar,
         TranslatorInterface $translator,
-        ImageMapper $imageMapper
+        ImageMapper $imageMapper,
+        AppUserService $appUserService
     ) {
         $tpl_params = [];
 
@@ -75,7 +77,7 @@ class SearchController extends CommonController
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search');
 
-        $available_tags = $tagMapper->getAvailableTags($this->getUser());
+        $available_tags = $tagMapper->getAvailableTags($appUserService->getUser());
 
         if (count($available_tags) > 0) {
             usort($available_tags, [$tagMapper, 'alphaCompare']);
@@ -85,7 +87,7 @@ class SearchController extends CommonController
         // authors
         $authors = [];
         $author_counts = [];
-        foreach ($imageMapper->getRepository()->findGroupByAuthor($this->getUser()->getUserInfos()->getForbiddenCategories()) as $image) {
+        foreach ($imageMapper->getRepository()->findGroupByAuthor($appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $image) {
             if (!isset($author_counts[$image->getAuthor()])) {
                 $author_counts[$image->getAuthor()] = 0;
             }
@@ -110,7 +112,7 @@ class SearchController extends CommonController
         $tpl_params['month_list'] = $month_list;
 
         $albums = [];
-        foreach ($albumMapper->getRepository()->findAllowedAlbums($this->getUser()->getUserInfos()->getForbiddenCategories()) as $album) {
+        foreach ($albumMapper->getRepository()->findAllowedAlbums($appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $album) {
             $albums[] = $album;
         }
         $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_options', true));
@@ -262,6 +264,7 @@ class SearchController extends CommonController
         $search_id,
         TranslatorInterface $translator,
         RouterInterface $router,
+        AppUserService $appUserService,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -282,7 +285,7 @@ class SearchController extends CommonController
         if (!is_null($search) && !empty($search->getRules())) {
             $rules = unserialize(base64_decode($search->getRules()));
 
-            $tpl_params['items'] = $searchMapper->getSearchResults($rules, $this->getUser());
+            $tpl_params['items'] = $searchMapper->getSearchResults($rules, $appUserService->getUser());
         }
 
         /** @phpstan-ignore-next-line */
@@ -313,7 +316,7 @@ class SearchController extends CommonController
         }
 
         if (count($tpl_params['items']) > 0) {
-            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
+            $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                 $router,

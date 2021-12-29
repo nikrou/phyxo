@@ -29,11 +29,10 @@ security:
       switch_user: true
       lazy: true
       provider: app_user_provider
-      entry_point: App\Security\LoginFormAuthenticator
+      # entry_point: App\Security\LoginFormAuthenticator
 
       custom_authenticator:
         - App\Security\LoginFormAuthenticator
-        - App\Security\GuestAuthenticator
 
       remember_me:
         secret: '%kernel.secret%'
@@ -54,10 +53,10 @@ security:
   # Easy way to control access for large sections of your site
   # Note: Only the *first* access control that matches will be used
   access_control:
-    - { path: ^/admin, roles: [ROLE_WEBMASTER, ROLE_ADMIN] }
-    - { path: ^/(identification|register|password|password/.+)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+    - { path: ^/admin, roles: [ROLE_ADMIN] }
+    - { path: ^/(identification|register|password|password/.+)$, roles: PUBLIC_ACCESS }
     - { path: ^/profile$, roles: ROLE_NORMAL }
-    - { path: ^/, roles: [ROLE_NORMAL, ROLE_USER] }
+    - { path: ^/, roles: [PUBLIC_ACCESS] }
 
 when@test:
   security:

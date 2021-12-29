@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Phyxo\MenuBar;
 use Phyxo\Conf;
 use App\DataMapper\ImageMapper;
+use App\Security\AppUserService;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
 use Symfony\Component\Routing\RouterInterface;
@@ -30,6 +31,7 @@ class IndexController extends CommonController
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
         RouterInterface $router,
+        AppUserService $appUserService,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -42,12 +44,12 @@ class IndexController extends CommonController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Most visited');
         $tpl_params['items'] = [];
         $order_by = [['id', 'DESC']];
-        foreach ($imageMapper->getRepository()->findMostVisited($this->getUser()->getUserInfos()->getForbiddenCategories(), $order_by, $conf['top_number']) as $image) {
+        foreach ($imageMapper->getRepository()->findMostVisited($appUserService->getUser()->getUserInfos()->getForbiddenCategories(), $order_by, $conf['top_number']) as $image) {
             $tpl_params['items'][] = $image->getId();
         }
 
         if (count($tpl_params['items']) > 0) {
-            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
+            $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                 $router,
@@ -87,6 +89,7 @@ class IndexController extends CommonController
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
         RouterInterface $router,
+        AppUserService $appUserService,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -100,15 +103,15 @@ class IndexController extends CommonController
         $tpl_params['items'] = [];
 
         $recent_date = new \DateTime();
-        $recent_date->sub(new \DateInterval(sprintf('P%dD', $this->getUser()->getUserInfos()->getRecentPeriod())));
+        $recent_date->sub(new \DateInterval(sprintf('P%dD', $appUserService->getUser()->getUserInfos()->getRecentPeriod())));
 
         $order_by = [['id', 'DESC']];
-        foreach ($imageMapper->getRepository()->findRecentImages($recent_date, $this->getUser()->getUserInfos()->getForbiddenCategories(), $order_by) as $image) {
+        foreach ($imageMapper->getRepository()->findRecentImages($recent_date, $appUserService->getUser()->getUserInfos()->getForbiddenCategories(), $order_by) as $image) {
             $tpl_params['items'] = $image->getId();
         }
 
         if (count($tpl_params['items']) > 0) {
-            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
+            $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                 $router,
@@ -148,6 +151,7 @@ class IndexController extends CommonController
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
         RouterInterface $router,
+        AppUserService $appUserService,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -161,12 +165,12 @@ class IndexController extends CommonController
         $order_by = [['rating_score'], ['id',  'DESC']];
 
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->findBestRated($conf['top_number'], $this->getUser()->getUserInfos()->getForbiddenCategories(), $order_by) as $image) {
+        foreach ($imageMapper->getRepository()->findBestRated($conf['top_number'], $appUserService->getUser()->getUserInfos()->getForbiddenCategories(), $order_by) as $image) {
             $tpl_params['items'][] = $image->getId();
         }
 
         if (count($tpl_params['items']) > 0) {
-            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
+            $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             if (count($tpl_params['items']) > $nb_image_page) {
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
@@ -200,11 +204,11 @@ class IndexController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function random(ImageMapper $imageMapper, Conf $conf)
+    public function random(ImageMapper $imageMapper, Conf $conf, AppUserService $appUserService)
     {
         $list = $imageMapper->getRepository()->findRandomImages(
-            min(50, $conf['top_number'], $this->getUser()->getUserInfos()->getNbImagePage()),
-            $this->getUser()->getUserInfos()->getForbiddenCategories()
+            min(50, $conf['top_number'], $appUserService->getUser()->getUserInfos()->getNbImagePage()),
+            $appUserService->getUser()->getUserInfos()->getForbiddenCategories()
         );
 
         if (count($list) === 0) {
@@ -222,6 +226,7 @@ class IndexController extends CommonController
         MenuBar $menuBar,
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
+        AppUserService $appUserService,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -233,12 +238,12 @@ class IndexController extends CommonController
 
         $tpl_params['TITLE'] = $translator->trans('Random photos');
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->getList(explode(',', $list), $this->getUser()->getUserInfos()->getForbiddenCategories()) as $image) {
+        foreach ($imageMapper->getRepository()->getList(explode(',', $list), $appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $image) {
             $tpl_params['items'][] = $image->getId();
         }
 
         if (count($tpl_params['items']) > 0) {
-            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
+            $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params = array_merge(
                 $tpl_params,

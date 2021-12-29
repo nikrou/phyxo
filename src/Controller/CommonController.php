@@ -11,13 +11,9 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
 use Phyxo\Conf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-/**
- * @method User getUser()
- */
 abstract class CommonController extends AbstractController
 {
     protected $image_std_params, $defaultTheme, $themesDir, $conf, $phyxoVersion, $phyxoWebsite;

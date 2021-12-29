@@ -14,6 +14,7 @@ namespace App\Controller\Admin;
 use App\DataMapper\UserMapper;
 use App\Repository\PluginRepository;
 use App\Repository\ThemeRepository;
+use App\Security\AppUserService;
 use App\Twig\ThemeLoader;
 use Phyxo\Conf;
 use Phyxo\Plugin\Plugins;
@@ -33,7 +34,8 @@ class AdminExtensionController extends AbstractController
         string $themesDir,
         Conf $conf,
         ThemeLoader $themeLoader,
-        ParameterBagInterface $params
+        ParameterBagInterface $params,
+        AppUserService $appUserService
     ) {
         $tpl_params = [];
         $this->conf = $conf;
@@ -49,7 +51,7 @@ class AdminExtensionController extends AbstractController
         if (is_readable($filename)) {
             $themeLoader->addPath($this->params->get('themes_dir') . '/' . $theme . '/admin/template');
 
-            $load = (function ($themeConfiguration) {
+            $load = (function ($themeConfiguration) use ($appUserService) {
                 // For old Piwigo themes
                 if (!defined('PHPWG_ROOT_PATH')) {
                     define('PHPWG_ROOT_PATH', $this->params->get('root_project_dir'));
@@ -58,7 +60,7 @@ class AdminExtensionController extends AbstractController
                     define('PHPWG_THEMES_PATH', $this->params->get('themes_dir') . '/');
                 }
 
-                $user = $this->getUser();
+                $user = $appUserService->getUser();
                 $conf = $this->conf;
                 $template_filename = '';
                 $tpl_params = [];
@@ -82,8 +84,15 @@ class AdminExtensionController extends AbstractController
         return $this->render($themeResponse['template_filename'], $tpl_params);
     }
 
-    public function plugin(string $plugin, PluginRepository $pluginRepository, UserMapper $userMapper, string $pluginsDir, Conf $conf, ParameterBagInterface $params)
-    {
+    public function plugin(
+        string $plugin,
+        PluginRepository $pluginRepository,
+        AppUserService $appUserService,
+        UserMapper $userMapper,
+        string $pluginsDir,
+        Conf $conf,
+        ParameterBagInterface $params
+    ) {
         $tpl_params = [];
         $this->conf = $conf;
         $this->params = $params;
@@ -119,7 +128,7 @@ class AdminExtensionController extends AbstractController
             throw $this->createNotFoundException('Missing plugin configuration file ' . $filename);
         }
 
-        $pluginResponse = $load($filename, $conf, $this->getUser());
+        $pluginResponse = $load($filename, $conf, $appUserService->getUser());
         $tpl_params = array_merge($tpl_params, $pluginResponse['tpl_params']);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_plugins_installed');

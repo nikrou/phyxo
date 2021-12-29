@@ -19,6 +19,7 @@ use App\Repository\CommentRepository;
 use App\DataMapper\UserMapper;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use App\DataMapper\CommentMapper;
+use App\Security\AppUserService;
 use Phyxo\Functions\Utils;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
@@ -39,6 +40,7 @@ class CommentController extends CommonController
         TranslatorInterface $translator,
         CommentRepository $commentRepository,
         RouterInterface $router,
+        AppUserService $appUserService,
         int $start = 0,
         int $comment_id = 0
     ) {
@@ -48,7 +50,7 @@ class CommentController extends CommonController
         $tpl_params['PAGE_TITLE'] = $translator->trans('User comments');
 
         $albums = [];
-        foreach ($albumMapper->getRepository()->findAllowedAlbums($this->getUser()->getUserInfos()->getForbiddenCategories()) as $album) {
+        foreach ($albumMapper->getRepository()->findAllowedAlbums($appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $album) {
             $albums[] = $album;
         }
 
@@ -101,7 +103,7 @@ class CommentController extends CommonController
         $album_ids = [];
 
         $filter_params = [];
-        $filter_params['forbidden_categories'] = $this->getUser()->getUserInfos()->getForbiddenCategories();
+        $filter_params['forbidden_categories'] = $appUserService->getUser()->getUserInfos()->getForbiddenCategories();
 
         if ($tpl_params['category'] !== null) {
             $filter_params['album_ids'] = $albumMapper->getRepository()->getSubcatIds([$tpl_params['category']]);

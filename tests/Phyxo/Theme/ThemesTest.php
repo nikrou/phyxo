@@ -12,6 +12,7 @@
 namespace App\Tests\Phyxo\Theme;
 
 use App\DataMapper\UserMapper;
+use App\Entity\User;
 use App\Repository\ThemeRepository;
 use PHPUnit\Framework\TestCase;
 use Phyxo\Theme\Themes;
@@ -50,14 +51,11 @@ class ThemesTest extends TestCase
     public function testFsThemes()
     {
         $workspace = $this->mirrorToWorkspace();
+        $user = $this->prophesize(User::class);
+        $user->getLocale()->willReturn('en_GB');
 
         $userMapper = $this->prophesize(UserMapper::class);
-        $userMapper->getUser()->willReturn(new class {
-            function getLocale()
-            {
-                return 'en_GB';
-            }
-        });
+        $userMapper->getUser()->willReturn($user->reveal());
 
         $themeRepository = $this->prophesize(ThemeRepository::class);
         $themes = new Themes($themeRepository->reveal(), $userMapper->reveal());
@@ -73,14 +71,11 @@ class ThemesTest extends TestCase
     {
         $workspace = $this->mirrorToWorkspace();
 
-        $userMapper = $this->prophesize(UserMapper::class);
+        $user = $this->prophesize(User::class);
+        $user->getLocale()->willReturn('en_GB');
 
-        $userMapper->getUser()->willReturn(new class {
-            function getLocale()
-            {
-                return 'en_GB';
-            }
-        });
+        $userMapper = $this->prophesize(UserMapper::class);
+        $userMapper->getUser()->willReturn($user->reveal());
 
         $themeRepository = $this->prophesize(ThemeRepository::class);
 

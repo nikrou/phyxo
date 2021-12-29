@@ -25,12 +25,12 @@ use App\Repository\CaddieRepository;
 use App\Repository\CommentRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\UserCacheAlbumRepository;
-use Symfony\Component\Security\Core\Security;
+use App\Security\AppUserService;
 
 class UserMapper
 {
-    private $conf, $autorizationChecker, $tagMapper, $themeRepository, $userRepository, $userInfosRepository, $userMailNotificationRepository;
-    private $defaultLanguage, $defaultTheme, $themesDir, $security, $default_user, $default_user_retrieved = false, $commentRepository, $imageTagRepository;
+    private $conf, $appUserService, $autorizationChecker, $tagMapper, $themeRepository, $userRepository, $userInfosRepository, $userMailNotificationRepository;
+    private $defaultLanguage, $defaultTheme, $themesDir, $default_user, $default_user_retrieved = false, $commentRepository, $imageTagRepository;
     private $webmaster, $webmaster_retrieved = false, $userFeedRepository, $userCacheRepository, $userCacheAlbumRepository, $caddieRepository, $favoriteRepository;
 
     public function __construct(
@@ -44,7 +44,7 @@ class UserMapper
         TagMapper $tagMapper,
         string $defaultLanguage,
         string $themesDir,
-        Security $security,
+        AppUserService $appUserService,
         UserMailNotificationRepository $userMailNotificationRepository,
         UserFeedRepository $userFeedRepository,
         UserCacheRepository $userCacheRepository,
@@ -64,7 +64,7 @@ class UserMapper
         $this->defaultLanguage = $defaultLanguage;
         $this->defaultTheme = $defaultTheme;
         $this->themesDir = $themesDir;
-        $this->security = $security;
+        $this->appUserService = $appUserService;
         $this->userCacheRepository = $userCacheRepository;
         $this->userCacheAlbumRepository = $userCacheAlbumRepository;
         $this->commentRepository = $commentRepository;
@@ -78,9 +78,9 @@ class UserMapper
         return $this->userRepository;
     }
 
-    public function getUser()//: ?User @TODO : modify tests or implementation
+    public function getUser(): ?User
     {
-        return $this->security->getUser();
+        return $this->appUserService->getUser();
     }
 
     /**
@@ -140,7 +140,7 @@ class UserMapper
 
     public function isGuest(): bool
     {
-        return $this->getUser()->isGuest();
+        return $this->autorizationChecker->isGranted('ROLE_USER');
     }
 
     public function isClassicUser(): bool

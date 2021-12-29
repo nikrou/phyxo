@@ -19,6 +19,7 @@ use App\Repository\FavoriteRepository;
 use App\DataMapper\ImageMapper;
 use App\Entity\Favorite;
 use App\Repository\ImageRepository;
+use App\Security\AppUserService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -33,6 +34,7 @@ class FavoriteController extends CommonController
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
         RouterInterface $router,
+        AppUserService $appUserService,
         int $start = 0
     ) {
         $tpl_params = [];
@@ -44,14 +46,14 @@ class FavoriteController extends CommonController
         $tpl_params['TITLE'] = $translator->trans('Your favorites');
 
         $tpl_params['items'] = [];
-        foreach ($favoriteRepository->findUserFavorites($this->getUser()->getId(), $this->getUser()->getUserInfos()->getForbiddenCategories()) as $favorite) {
+        foreach ($favoriteRepository->findUserFavorites($appUserService->getUser()->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $favorite) {
             $tpl_params['items'][] = $favorite->getImage()->getId();
         }
 
         if (count($tpl_params['items']) > 0) {
             $tpl_params['favorite'] = ['U_FAVORITE' => $this->generateUrl('remove_all_favorites')];
 
-            $nb_image_page = $this->getUser()->getUserInfos()->getNbImagePage();
+            $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params = array_merge(
                 $tpl_params,
@@ -63,14 +65,14 @@ class FavoriteController extends CommonController
                 )
             );
 
-            if (count($tpl_params['items']) > $this->getUser()->getUserInfos()->getNbImagePage()) {
+            if (count($tpl_params['items']) > $appUserService->getUser()->getUserInfos()->getNbImagePage()) {
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                     $router,
                     'favorites',
                     [],
                     count($tpl_params['items']),
                     $start,
-                    $this->getUser()->getUserInfos()->getNbImagePage(),
+                    $appUserService->getUser()->getUserInfos()->getNbImagePage(),
                     $conf['paginate_pages_around']
                 );
             }
@@ -85,12 +87,18 @@ class FavoriteController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function add(int $image_id, ImageRepository $imageRepository, FavoriteRepository $favoriteRepository, Request $request, TranslatorInterface $translator)
-    {
+    public function add(
+        int $image_id,
+        ImageRepository $imageRepository,
+        FavoriteRepository $favoriteRepository,
+        AppUserService $appUserService,
+        Request $request,
+        TranslatorInterface $translator
+    ) {
         $image = $imageRepository->find($image_id);
         $favorite = new Favorite();
         $favorite->setImage($image);
-        $favorite->setUser($this->getUser());
+        $favorite->setUser($appUserService->getUser());
         $favoriteRepository->addOrUpdateFavorite($favorite);
 
         if ($request->isXmlHttpRequest()) {
@@ -106,9 +114,9 @@ class FavoriteController extends CommonController
         return $this->redirectToRoute('favorites');
     }
 
-    public function remove(int $image_id, FavoriteRepository $favoriteRepository, Request $request, TranslatorInterface $translator)
+    public function remove(int $image_id, FavoriteRepository $favoriteRepository, AppUserService $appUserService, Request $request, TranslatorInterface $translator)
     {
-        $favoriteRepository->deleteUserFavorite($this->getUser()->getId(), $image_id);
+        $favoriteRepository->deleteUserFavorite($appUserService->getUser()->getId(), $image_id);
 
         if ($request->isXmlHttpRequest()) {
             return new JsonResponse(
@@ -123,9 +131,9 @@ class FavoriteController extends CommonController
         return $this->redirectToRoute('favorites');
     }
 
-    public function removeAll(FavoriteRepository $favoriteRepository)
+    public function removeAll(FavoriteRepository $favoriteRepository, AppUserService $appUserService)
     {
-        $favoriteRepository->deleteAllUserFavorites($this->getUser()->getId());
+        $favoriteRepository->deleteAllUserFavorites($appUserService->getUser()->getId());
 
         return $this->redirectToRoute('favorites');
     }

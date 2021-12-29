@@ -13,10 +13,10 @@ namespace App\Controller;
 
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
+use App\Security\AppUserService;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
-use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 
 class DefaultController extends CommonController
@@ -26,21 +26,28 @@ class DefaultController extends CommonController
         return $this->forward('App\Controller\AlbumController::albums');
     }
 
-    public function action(ImageMapper $imageMapper, int $image_id, string $part, AlbumMapper $albumMapper, Conf $conf, ImageStandardParams $image_std_params, $download = false)
-    {
+    public function action(
+        ImageMapper $imageMapper,
+        int $image_id,
+        string $part,
+        AlbumMapper $albumMapper,
+        AppUserService $appUserService,
+        ImageStandardParams $image_std_params,
+        $download = false
+    ) {
         $image = $imageMapper->getRepository()->find($image_id);
 
         /* $filter['visible_categories'] and $filter['visible_images']
         /* are not used because it's not necessary (filter <> restriction)
          */
-        if (!$albumMapper->getRepository()->hasAccessToImage($image_id, $this->getUser()->getUserInfos()->getForbiddenCategories())) {
+        if (!$albumMapper->getRepository()->hasAccessToImage($image_id, $appUserService->getUser()->getUserInfos()->getForbiddenCategories())) {
             throw new AccessDeniedException('Access denied');
         }
 
         $file = '';
         switch ($part) {
             case 'e':
-                if (!$this->getUser()->getUserInfos()->hasEnabledHigh()) {
+                if (!$appUserService->getUser()->getUserInfos()->hasEnabledHigh()) {
                     $deriv = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_XXLARGE), $image_std_params);
                     if (!$deriv->same_as_source()) {
                         throw new AccessDeniedException('Access denied');
