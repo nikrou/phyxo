@@ -118,7 +118,8 @@ body {
 }
 
 // Forms
-.form-control-plaintext {
+.form-control-plaintext[readonly] {
+  background-color: transparent;
   color: inherit;
 }
 

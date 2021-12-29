@@ -33,6 +33,8 @@ class UserRepository extends ServiceEntityRepository
 
     public function updateUser(User $user): void
     {
+        $user->getUserInfos()->setLastModified(new \DateTime());
+
         $this->_em->persist($user);
         $this->_em->flush();
     }

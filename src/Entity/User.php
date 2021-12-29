@@ -59,6 +59,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
      */
     private $password;
 
+    private $plain_password = null; // used when user updates his password
+
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -167,6 +169,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return $this;
     }
 
+    public function getPlainPassword(): ?string
+    {
+        return $this->plain_password;
+    }
+
+    public function setPlainPassword(?string $plain_password): self
+    {
+        $this->plain_password = $plain_password;
+
+        return $this;
+    }
+
     public function getMailAddress(): ?string
     {
         return $this->mail_address;
@@ -208,7 +222,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
 
     public function eraseCredentials()
     {
-        //$this->password = null;
+        $this->plain_password = null;
     }
 
     public function getSalt(): ?string
@@ -220,14 +234,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     public function isEqualTo(UserInterface $user): bool
     {
         if (!$user instanceof User) {
-            return false;
-        }
-
-        if ($this->password !== $user->getPassword()) {
-            return false;
-        }
-
-        if ($this->salt !== $user->getSalt()) {
             return false;
         }
 

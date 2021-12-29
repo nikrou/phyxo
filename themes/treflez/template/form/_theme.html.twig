@@ -33,3 +33,29 @@
         {%- endif -%}
     {%- endif -%}
 {%- endblock form_label %}
+
+{% block form_row -%}
+    {%- set widget_attr = {} -%}
+    {%- if help is not empty -%}
+        {%- set widget_attr = {attr: {'aria-describedby': id ~"_help"}} -%}
+    {%- endif -%}
+
+    <div{% with {attr: row_attr|merge({class: (row_attr.class|default('') ~ ' form-group')|trim})} %}{{ block('attributes') }}{% endwith %}>
+	{{- form_label(form) -}}
+	{{- form_widget(form, widget_attr) -}}
+	{{- form_help(form) -}}
+    </div>
+{%- endblock form_row %}
+
+{% block form_group_widget %}
+    <div class="card">
+        {% if title is defined and title is not empty %}
+	    <h4 class="card-header">
+		{{ title | trans({}, translation_domain) }}
+	    </h4>
+        {% endif %}
+	<div class="card-body" {{ block('widget_container_attributes') }}>
+	    {{ form_widget(form) }}
+	</div>
+    </div>
+{% endblock %}

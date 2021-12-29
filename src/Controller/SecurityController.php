@@ -16,10 +16,9 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\User;
 use App\Utils\UserManager;
-use App\Repository\LanguageRepository;
-use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use App\Exception\MissingGuestUserException;
+use App\Form\UserProfileType;
 use App\Form\UserRegistrationType;
 use App\Repository\UserRepository;
 use App\Security\AppUserService;
@@ -28,6 +27,7 @@ use App\Security\UserProvider;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Phyxo\MenuBar;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -41,6 +41,7 @@ class SecurityController extends CommonController
     {
         return [
             'CONTENT_ENCODING' => 'utf-8',
+            'GALLERY_TITLE' => $this->conf['gallery_title'],
             'LEVEL_SEPARATOR' => $this->conf['level_separator'],
             'PHYXO_VERSION' => $this->conf['show_version'] ? $this->phyxoVersion : '',
             'PHYXO_URL' => $this->phyxoWebsite,
@@ -122,138 +123,43 @@ class SecurityController extends CommonController
 
     public function profile(
         Request $request,
+        UserRepository $userRepository,
         UserPasswordHasherInterface $passwordHasher,
         MenuBar $menuBar,
-        LanguageRepository $languageRepository,
-        TranslatorInterface $translator,
-        CsrfTokenManagerInterface $csrfTokenManager,
-        ThemeRepository $themeRepository,
-        UserInfosRepository $userInfosRepository,
-        UserRepository $userRepository,
-        AppUserService $appUserService
+        AppUserService $appUserService,
+        TranslatorInterface $translator
     ) {
         $tpl_params = $this->init();
 
-        $errors = [];
+        /** @var Form $form */
+        $form = $this->createForm(UserProfileType::class, $appUserService->getUser());
+        $form->handleRequest($request);
 
-        $languages = $languageRepository->findAll();
-        $themes = $themeRepository->findAll();
-
-        // @TODO: use symfony forms
-        if ($request->isMethod('POST')) {
-            if ($request->request->get('reset_to_default')) {
-                $guestUserInfos = $userInfosRepository->findOneBy(['status' => User::STATUS_GUEST]);
-                $appUserService->getUser()->getUserInfos()->fromArray($guestUserInfos->toArray());
+        if ($form->isSubmitted() && $form->isValid()) {
+            $clickedButton = $form->getClickedButton();
+            if ($clickedButton->getName() === 'resetToDefault') {
+                $guestUser = $appUserService->getDefaultUser();
+                $appUserService->getUser()->getUserInfos()->fromArray($guestUser->getUserInfos()->toArray());
                 $userRepository->updateUser($appUserService->getUser());
+
+                $this->addFlash('info', $translator->trans('User settings are now the default ones'));
             } else {
-                $needFlush = false;
-
-                if ($request->request->get('_password') && $request->request->get('_new_password') && $request->request->get('_new_password_confirm')) {
-                    if (!$passwordHasher->isPasswordValid($appUserService->getUser(), $request->request->get('_password'))) {
-                        $errors[] = $translator->trans('Current password is wrong');
-                    } elseif ($request->request->get('_new_password') !== $request->request->get('_new_password_confirm')) {
-                        $errors[] = $translator->trans('The passwords do not match');
-                    }
-
-                    if (empty($errors)) {
-                        $appUserService->getUser()->setPassword($passwordHasher->hashPassword($appUserService->getUser(), $request->request->get('_new_password')));
-                        $needFlush = true;
-                    }
+                $user = $form->getData();
+                if (!is_null($user->getPlainPassword())) {
+                    $user->setPassword($passwordHasher->hashPassword($user, $user->getPlainPassword()));
                 }
+                $userRepository->updateUser($user);
 
-                if (empty($errors) && $request->request->get('_mail_address')) {
-                    if (filter_var($request->request->get('_mail_address'), FILTER_VALIDATE_EMAIL) === false) {
-                        $errors[] = $translator->trans('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
-                    }
-
-                    if ($userRepository->isEmailExistsExceptUser($request->request->get('_mail_address'), $appUserService->getUser()->getId())) {
-                        $errors[] = $translator->trans('this email address is already in use');
-                    }
-
-                    if (empty($errors)) {
-                        $appUserService->getUser()->setMailAddress($request->request->get('_mail_address'));
-                        $needFlush = true;
-                    }
-                }
-
-                if ($request->request->get('nb_image_page')) {
-                    if ((int) $request->request->get('nb_image_page') === 0) {
-                        $errors[] = $translator->trans('The number of photos per page must be a not null scalar');
-                    } else {
-                        $appUserService->getUser()->getUserInfos()->setNbImagePage((int) $request->request->get('nb_image_page'));
-                        $needFlush = true;
-                    }
-                }
-
-                // @TODO: check language is in existing language ; same in AdminConfigurationController::default
-                if ($request->request->get('language')) {
-                    $request->getSession()->set('_locale', $request->request->get('language'));
-                    $appUserService->getUser()->getUserInfos()->setLanguage($request->request->get('language'));
-                    $needFlush = true;
-                }
-
-                if ($request->request->get('theme')) {
-                    $appUserService->getUser()->getUserInfos()->setTheme($request->request->get('theme'));
-                    $needFlush = true;
-                }
-
-                if ($request->request->get('expand')) {
-                    $appUserService->getUser()->getUserInfos()->setExpand($request->request->get('expand') === 'true');
-                    $needFlush = true;
-                }
-
-                if ($request->request->get('show_nb_comments')) {
-                    $appUserService->getUser()->getUserInfos()->setShowNbComments($request->request->get('show_nb_comments') === 'true');
-                    $needFlush = true;
-                }
-
-                if ($request->request->get('show_nb_hits')) {
-                    $appUserService->getUser()->getUserInfos()->setShowNbHits($request->request->get('show_nb_hits') === 'true');
-                    $needFlush = true;
-                }
-
-                if ($request->request->get('recent_period') && $appUserService->getUser()->getUserInfos()->getRecentPeriod() != $request->request->get('recent_period')) {
-                    $appUserService->getUser()->getUserInfos()->setRecentPeriod((int) $request->request->get('recent_period'));
-                    $needFlush = true;
-                }
-
-                if (empty($errors) && $needFlush) {
-                    $userRepository->updateUser($appUserService->getUser());
-
-                    return $this->redirectToRoute('profile');
-                }
+                $this->addFlash('info', $translator->trans('User settings have been updated'));
             }
+
+            return $this->redirectToRoute('profile');
         }
-
-        $userInfos = $appUserService->getUser()->getUserInfos();
-        $tpl_params = array_merge($tpl_params, [
-            'ALLOW_USER_CUSTOMIZATION' => $this->conf['allow_user_customization'],
-            'ACTIVATE_COMMENTS' => $this->conf['activate_comments'],
-
-            'USERNAME' => $appUserService->getUser()->getUserIdentifier(),
-            'EMAIL' => $appUserService->getUser()->getMailAddress(),
-            'NB_IMAGE_PAGE' => $userInfos->getNbImagePage(),
-            'RECENT_PERIOD' => $userInfos->getRecentPeriod(),
-            'EXPAND' => $userInfos->wantExpand(),
-            'NB_COMMENTS' => $userInfos->getShowNbComments() ? 'true' : 'false',
-            'NB_HITS' => $userInfos->getShowNbHits() ? 'true': 'false',
-            'THEME' => $userInfos->getTheme(),
-            'LANGUAGE' => $userInfos->getLanguage(),
-            'radio_options' => [
-                'true' => $translator->trans('Yes'),
-                'false' => $translator->trans('No'),
-            ],
-            'errors' => $errors,
-            'U_HOME' => $this->generateUrl('homepage'),
-            'GALLERY_TITLE' => $this->conf['gallery_title']
-        ]);
-
-        $tpl_params['themes'] = $themes;
-        $tpl_params['languages'] = $languages;
-        $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
 
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $this->conf));
+
+        $tpl_params['form'] = $form->createView();
 
         return $this->render('profile.html.twig', $tpl_params);
     }
