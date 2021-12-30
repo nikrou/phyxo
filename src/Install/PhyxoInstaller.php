@@ -98,10 +98,10 @@ class PhyxoInstaller
 
         // tables creation, based on phyxo_structure.sql
         $structure_queries = $this->getQueriesFromFile(
-          $db_params['db_layer'],
-          $this->rootProjectDir . '/install/phyxo_structure-' . $db_params['db_layer'] . '.sql',
-          $this->default_prefix,
-          $db_params['db_prefix']
+            $db_params['db_layer'],
+            $this->rootProjectDir . '/install/phyxo_structure-' . $db_params['db_layer'] . '.sql',
+            $this->default_prefix,
+            $db_params['db_prefix']
         );
         foreach ($structure_queries as $query) {
             $conn->executeQuery($query);
@@ -109,10 +109,10 @@ class PhyxoInstaller
 
         // We fill the tables with basic informations
         $config_queries = $this->getQueriesFromFile(
-          $db_params['db_layer'],
-          $this->rootProjectDir . '/install/config.sql',
-          $this->default_prefix,
-          $db_params['db_prefix']
+            $db_params['db_layer'],
+            $this->rootProjectDir . '/install/config.sql',
+            $this->default_prefix,
+            $db_params['db_prefix']
         );
         foreach ($config_queries as $query) {
             $conn->executeQuery($query);
@@ -126,25 +126,25 @@ class PhyxoInstaller
         $statement->bindValue('type', 'string');
         $statement->bindValue('value', md5(random_bytes(15)));
         $statement->bindValue('comment', 'a secret key specific to the gallery for internal use');
-        $statement->execute();
+        $statement->executeStatement();
 
         $statement->bindValue('param', 'phyxo_db_version');
         $statement->bindValue('type', 'string');
         $statement->bindValue('value', Utils::get_branch_from_version($this->phyxoVersion));
         $statement->bindValue('comment', '');
-        $statement->execute();
+        $statement->executeStatement();
 
         $statement->bindValue('param', 'gallery_title');
         $statement->bindValue('type', 'string');
         $statement->bindValue('value', $this->translator->trans('Just another Phyxo gallery', [], 'install'));
         $statement->bindValue('comment', '');
-        $statement->execute();
+        $statement->executeStatement();
 
         $statement->bindValue('param', 'page_banner');
         $statement->bindValue('type', 'string');
         $statement->bindValue('value', '<h1>%gallery_title%</h1><p>' . $this->translator->trans('Welcome to my photo gallery', [], 'install') . '</p>');
         $statement->bindValue('comment', '');
-        $statement->execute();
+        $statement->executeStatement();
 
         $raw_query = 'INSERT INTO phyxo_languages (id, version, name) VALUES(:id, :version, :name)';
         $raw_query = str_replace($this->default_prefix, $db_params['db_prefix'], $raw_query);
@@ -156,7 +156,7 @@ class PhyxoInstaller
             $statement->bindValue('id', $language_code);
             $statement->bindValue('version', $fs_language['version']);
             $statement->bindValue('name', $fs_language['name']);
-            $statement->execute();
+            $statement->executeStatement();
         }
 
         // activate default theme
@@ -166,7 +166,7 @@ class PhyxoInstaller
         $statement->bindValue('id', $this->defaultTheme);
         $statement->bindValue('version', $this->phyxoVersion);
         $statement->bindValue('name', $this->defaultTheme);
-        $statement->execute();
+        $statement->executeStatement();
 
         // Available upgrades must be ignored after a fresh installation.
         // To make Phyxo avoid upgrading, we must tell it upgrades have already been made.
@@ -179,7 +179,7 @@ class PhyxoInstaller
             $statement->bindValue('id', $upgrade_id);
             $statement->bindValue('applied', $now->format('Y-m-d H:i:s'));
             $statement->bindValue('description', 'upgrade included in installation');
-            $statement->execute();
+            $statement->executeStatement();
         }
 
         $file_content = 'parameters:' . "\n";

@@ -31,3 +31,6 @@ DELETE FROM phyxo_config WHERE param in ('tags_permission_add', 'tags_permission
 DELETE FROM phyxo_languages;
 INSERT INTO phyxo_languages (id,version,name) VALUES('en_GB', '2.7.0', 'English [GB]');
 INSERT INTO phyxo_languages (id,version,name) VALUES('fr_FR', '2.7.0', 'Français [FR]');
+
+-- phyxo_themes
+INSERT INTO phyxo_themes (id, name, version) VALUES('treflez', 'Treflez', '0.1.0');
