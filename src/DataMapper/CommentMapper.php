@@ -79,7 +79,7 @@ class CommentMapper
         }
 
         // we do here only BASIC spam check (plugins can do more)
-        if (!$this->userMapper->isGuest()) {
+        if (!$this->appUserService->isGuest()) {
             return $action;
         }
 
@@ -132,7 +132,7 @@ class CommentMapper
         }
 
         // display author field if the user status is guest
-        if ($this->userMapper->isGuest()) {
+        if ($this->appUserService->isGuest()) {
             if (empty($comm['author'])) {
                 if ($this->conf['comments_author_mandatory']) {
                     $infos[] = $this->translator->trans('Username is mandatory');
@@ -192,7 +192,7 @@ class CommentMapper
             $anti_flood_date = new \DateTime();
             $anti_flood_date->sub(new \DateInterval(sprintf('PT%dS', $this->conf['anti-flood-time'])));
 
-            if ($this->getRepository()->doestAuthorPostMessageAfterThan($comm['author_id'], $anti_flood_date, !$this->userMapper->isGuest() ? $anonymous_id : md5('::1'))) {
+            if ($this->getRepository()->doestAuthorPostMessageAfterThan($comm['author_id'], $anti_flood_date, !$this->appUserService->isGuest() ? $anonymous_id : md5('::1'))) {
                 $infos[] = $this->translator->trans('Anti-flood system : please wait for a moment before trying to post another comment');
                 $comment_action = 'reject';
             }

@@ -39,7 +39,7 @@ class Session
      */
     public static function logout($params, Server $service)
     {
-        if (!$service->getUserMapper()->isGuest()) {
+        if (!$service->getAppUserService()->isGuest()) {
             $service->getUserMapper()->logoutUser();
         }
 

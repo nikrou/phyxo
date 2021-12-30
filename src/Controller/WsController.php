@@ -24,6 +24,7 @@ use App\DataMapper\RateMapper;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
 use App\ImageLibraryGuesser;
+use App\Security\AppUserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Utils\UserManager;
 use Doctrine\Persistence\ManagerRegistry;
@@ -37,6 +38,7 @@ class WsController extends AbstractController
     private $service;
 
     public function index(
+        AppUserService $appUserService,
         UserMapper $userMapper,
         TagMapper $tagMapper,
         CommentMapper $commentMapper,
@@ -59,6 +61,7 @@ class WsController extends AbstractController
     ) {
         $this->service = new Server($params->get('upload_dir'));
         $this->service->setRequest($request);
+        $this->service->addAppUserService($appUserService);
         $this->service->addUserMapper($userMapper);
         $this->service->addTagMapper($tagMapper);
         $this->service->addCommentMapper($commentMapper);

@@ -52,4 +52,9 @@ class AppUserService
 
         return $this->guest_user;
     }
+
+    public function isGuest(): bool
+    {
+        return $this->getUser()->getId() === $this->getDefaultUser()->getId();
+    }
 }

@@ -270,12 +270,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return self::STATUS_GUEST;
     }
 
-    // to remove ?
-    public function isGuest(): bool
-    {
-        return $this->getRoles() === ['ROLE_USER'];
-    }
-
     /**
      * @return Collection|Group[]
      */

@@ -21,8 +21,13 @@ class UserManager
 {
     private $userRepository, $userInfosRepository, $groupRepository, $defaultLanguage, $defautlTheme;
 
-    public function __construct(UserRepository $userRepository, UserInfosRepository $userInfosRepository, GroupRepository $groupRepository,
-                                string $defaultLanguage, string $defaultTheme)
+    public function __construct(
+        UserRepository $userRepository,
+        UserInfosRepository $userInfosRepository,
+        GroupRepository $groupRepository,
+        string $defaultLanguage,
+        string $defaultTheme
+    )
     {
         $this->userRepository = $userRepository;
         $this->userInfosRepository = $userInfosRepository;
@@ -35,7 +40,7 @@ class UserManager
     {
         $userInfos = new UserInfos();
 
-        if ($user->isGuest()) {
+        if (!in_array('ROLE_NORMAL', $user->getRoles())) {
             $userInfos->setLanguage($this->defaultLanguage);
             $userInfos->setTheme($this->defautlTheme);
         } else {

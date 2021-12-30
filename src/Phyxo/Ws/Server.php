@@ -22,6 +22,7 @@ use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\RateMapper;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
+use App\Security\AppUserService;
 use App\Utils\UserManager;
 use Doctrine\Persistence\ManagerRegistry;
 use Imagine\Image\ImagineInterface;
@@ -33,7 +34,7 @@ use Symfony\Component\Security\Core\Security;
 
 class Server
 {
-    private $upload_dir, $tagMapper, $commentMapper, $userMapper, $albumMapper, $rateMapper, $searchMapper, $imageMapper;
+    private $upload_dir, $tagMapper, $commentMapper, $appUserService, $userMapper, $albumMapper, $rateMapper, $searchMapper, $imageMapper;
     private $phyxoVersion, $conf, $router, $image_std_params, $userManager, $passwordHasher, $pem_url, $security;
     private $params, $request, $managerRegistry, $imageLibrary;
 
@@ -101,6 +102,16 @@ class Server
     public function getCommentMapper()
     {
         return $this->commentMapper;
+    }
+
+    public function addAppUserService(AppUserService $appUserService)
+    {
+        $this->appUserService = $appUserService;
+    }
+
+    public function getAppUserService(): AppUserService
+    {
+        return $this->appUserService;
     }
 
     public function addUserMapper(UserMapper $userMapper)

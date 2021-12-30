@@ -14,18 +14,19 @@ namespace App\DataMapper;
 use App\Entity\Rate;
 use Phyxo\Conf;
 use App\Repository\RateRepository;
-use Phyxo\Functions\Utils;
+use App\Security\AppUserService;
 
 class RateMapper
 {
-    private $conf, $userMapper, $imageMapper, $rateRepository;
+    private $conf, $userMapper, $imageMapper, $rateRepository, $appUserService;
 
-    public function __construct(Conf $conf, UserMapper $userMapper, ImageMapper $imageMapper, RateRepository $rateRepository)
+    public function __construct(Conf $conf, UserMapper $userMapper, ImageMapper $imageMapper, RateRepository $rateRepository, AppUserService $appUserService)
     {
         $this->conf = $conf;
         $this->userMapper = $userMapper;
         $this->imageMapper = $imageMapper;
         $this->rateRepository = $rateRepository;
+        $this->appUserService = $appUserService;
     }
 
     public function getRepository(): RateRepository
@@ -42,7 +43,7 @@ class RateMapper
             return [];
         }
 
-        $user_anonymous = $this->userMapper->isGuest();
+        $user_anonymous = $this->appUserService->isGuest();
 
         if ($user_anonymous) {
             if ($anonymous_id !== $save_anonymous_id) { // client has changed his IP address or he's trying to fool us

@@ -138,11 +138,6 @@ class UserMapper
         return is_null($this->getDefaultUser()) ? $this->defaultLanguage : $this->getDefaultUser()->getUserInfos()->getLanguage();
     }
 
-    public function isGuest(): bool
-    {
-        return $this->autorizationChecker->isGranted('ROLE_USER');
-    }
-
     public function isClassicUser(): bool
     {
         return $this->autorizationChecker->isGranted('ROLE_NORMAL');
@@ -167,7 +162,7 @@ class UserMapper
      */
     public function canManageComment($action, $comment_author_id)
     {
-        if ($this->isGuest()) {
+        if ($this->appUserService->isGuest()) {
             return false;
         }
 

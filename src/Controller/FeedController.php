@@ -38,7 +38,7 @@ class FeedController extends CommonController
             $userFeedRepository->addOrUpdateUserFeed($feed);
         }
 
-        if ($appUserService->getUser()->isGuest()) {
+        if ($appUserService->isGuest()) {
             $tpl_params['U_FEED'] = $this->generateUrl('feed', ['feed_id' => $feed->getUuid()]);
             $tpl_params['U_FEED_IMAGE_ONLY'] = $this->generateUrl('feed_image_only', ['feed_id' => $feed->getUuid()]);
         } else {

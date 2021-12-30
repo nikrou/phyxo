@@ -157,7 +157,7 @@ class Image
 
         $comment_post_data = null;
         /** @phpstan-ignore-next-line */
-        if ($is_commentable && (!$service->getUserMapper()->isGuest() || ($service->getUserMapper()->isGuest() && $service->getConf()['comments_forall']))) {
+        if ($is_commentable && (!$service->getAppUserService()->isGuest() || ($service->getAppUserService()->isGuest() && $service->getConf()['comments_forall']))) {
             $comment_post_data['author'] = $service->getUserMapper()->getUser()->getUsername();
         }
 

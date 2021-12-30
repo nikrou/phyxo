@@ -15,16 +15,18 @@ use App\DataMapper\UserMapper;
 use App\Entity\History;
 use App\Events\HistoryEvent;
 use App\Repository\HistoryRepository;
+use App\Security\AppUserService;
 use Phyxo\Conf;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class HistorySubscriber implements EventSubscriberInterface
 {
-    private $conf, $userMapper, $historyRepository;
+    private $conf, $appUserService, $userMapper, $historyRepository;
 
-    public function __construct(Conf $conf, UserMapper $userMapper, HistoryRepository $historyRepository)
+    public function __construct(Conf $conf, AppUserService $appUserService, UserMapper $userMapper, HistoryRepository $historyRepository)
     {
         $this->conf = $conf;
+        $this->appUserService = $appUserService;
         $this->userMapper = $userMapper;
         $this->historyRepository = $historyRepository;
     }
@@ -42,7 +44,7 @@ class HistorySubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($this->userMapper->isGuest() && !$this->conf['history_guest']) {
+        if ($this->appUserService->isGuest() && !$this->conf['history_guest']) {
             return;
         }
 
@@ -51,7 +53,7 @@ class HistorySubscriber implements EventSubscriberInterface
         $history->setDate($now);
         $history->setTime($now);
         $history->setSection($event->getSection());
-        $history->setUser($this->userMapper->getUser());
+        $history->setUser($this->appUserService->getUser());
         if ($event->getSection() === 'categories' && !is_null($event->getAlbum())) {
             $history->setAlbum($event->getAlbum());
         }

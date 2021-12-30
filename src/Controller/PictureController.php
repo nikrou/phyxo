@@ -223,7 +223,7 @@ class PictureController extends CommonController
             $tpl_params['available_permission_levels'] = Utils::getPrivacyLevelOptions($translator, $conf['available_permission_levels']);
         }
 
-        if (!$appUserService->getUser()->isGuest() && $conf['picture_favorite_icon']) {
+        if (!$appUserService->isGuest() && $conf['picture_favorite_icon']) {
             // verify if the picture is already in the favorite of the user
             $is_favorite = $favoriteRepository->isFavorite($appUserService->getUser()->getId(), $image_id);
             $tpl_params['favorite'] = [
@@ -421,7 +421,7 @@ class PictureController extends CommonController
             if (isset($edit_comment)) {
                 $show_add_comment_form = false;
             }
-            if ($userMapper->isGuest() && !$conf['comments_forall']) {
+            if ($appUserService->isGuest() && !$conf['comments_forall']) {
                 $show_add_comment_form = false;
             }
 
@@ -568,7 +568,7 @@ class PictureController extends CommonController
                 return new AccessDeniedException("Cannot rate that image");
             }
 
-            if (!$appUserService->getUser()->isGuest() || $this->conf['rate_anonymous']) {
+            if (!$appUserService->isGuest() || $this->conf['rate_anonymous']) {
                 $result = $rateMapper->ratePicture(
                     $request->request->get('image_id'),
                     $request->request->get('rating'),
@@ -588,7 +588,7 @@ class PictureController extends CommonController
                 ['image_id' => $request->request->get('image_id'), 'type' => $request->request->get('type'), 'element_id' => $request->request->get('element_id')]
             )
         );
-        if (!is_null($result['score']) && $appUserService->getUser()->isGuest()) {
+        if (!is_null($result['score']) && $appUserService->isGuest()) {
             $cookie = Cookie::create('anonymous_rater', $request->getClientIp(), strtotime('+1year'));
             $response->headers->setCookie($cookie);
         }

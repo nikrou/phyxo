@@ -18,18 +18,27 @@ use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\UserMapper;
 use App\DataMapper\TagMapper;
 use App\Entity\Tag as EntityTag;
+use App\Security\AppUserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MenuBar
 {
-    private $conf, $menu, $router, $albumMapper, $userMapper, $tagMapper, $translator;
+    private $conf, $menu, $router, $albumMapper, $appUserService, $userMapper, $tagMapper, $translator;
     private $route = null, $items = [], $tags = [];
 
-    public function __construct(Conf $conf, RouterInterface $router, AlbumMapper $albumMapper, UserMapper $userMapper, TagMapper $tagMapper, TranslatorInterface $translator)
-    {
+    public function __construct(
+        Conf $conf,
+        RouterInterface $router,
+        AlbumMapper $albumMapper,
+        AppUserService $appUserService,
+        UserMapper $userMapper,
+        TagMapper $tagMapper,
+        TranslatorInterface $translator
+    ) {
         $this->conf = $conf;
         $this->router = $router;
         $this->albumMapper = $albumMapper;
+        $this->appUserService = $appUserService;
         $this->userMapper = $userMapper;
         $this->tagMapper = $tagMapper;
         $this->translator = $translator;
@@ -109,8 +118,8 @@ class MenuBar
     {
         if (($block = $this->menu->getBlock('mbCategories')) != null) {
             $block->data = [
-                'NB_PICTURE' => $this->userMapper->getUser()->getUserInfos()->getNbTotalImages(),
-                'MENU_CATEGORIES' => $this->albumMapper->getRecursiveAlbumsMenu($this->userMapper->getUser()),
+                'NB_PICTURE' => $this->appUserService->getUser()->getUserInfos()->getNbTotalImages(),
+                'MENU_CATEGORIES' => $this->albumMapper->getRecursiveAlbumsMenu($this->appUserService->getUser()),
                 'U_CATEGORIES' => $this->router->generate('albums_flat'),
             ];
             $block->template = 'menubar_categories';
@@ -122,7 +131,7 @@ class MenuBar
         if (($block = $this->menu->getBlock('mbTags')) != null) {
             if ($this->route === 'images_by_tags') {
                 $tags = $this->tagMapper->getCommonTags(
-                    $this->userMapper->getUser(),
+                    $this->appUserService->getUser(),
                     $this->items,
                     $this->conf['menubar_tag_cloud_items_number'],
                     array_map(function($tag) {
@@ -149,19 +158,21 @@ class MenuBar
                     );
                 }
             } elseif ($this->route === 'tags') {
-                $tags = $this->tagMapper->getAvailableTags($this->userMapper->getUser());
+                $tags = $this->tagMapper->getAvailableTags($this->appUserService->getUser());
                 foreach ($tags as $tag) {
                     $block->data[] = array_merge(
-                        $tag->toArray(), ['URL' => $this->router->generate('images_by_tags', ['tag_ids' => $tag->toUrl()])                        ]
+                        $tag->toArray(),
+                        ['URL' => $this->router->generate('images_by_tags', ['tag_ids' => $tag->toUrl()])]
                     );
                 }
             } else {
                 $tags = $this->tagMapper->addLevelToTags(
-                    $this->tagMapper->getCommonTags($this->userMapper->getUser(), $this->items, $this->conf['content_tag_cloud_items_number'])
+                    $this->tagMapper->getCommonTags($this->appUserService->getUser(), $this->items, $this->conf['content_tag_cloud_items_number'])
                 );
                 foreach ($tags as $tag) {
                     $block->data[] = array_merge(
-                        $tag->toArray(), ['URL' => $this->router->generate('images_by_tags', ['tag_ids' => $tag->toUrl()])                        ]
+                        $tag->toArray(),
+                        ['URL' => $this->router->generate('images_by_tags', ['tag_ids' => $tag->toUrl()])]
                     );
                 }
             }
@@ -175,7 +186,7 @@ class MenuBar
     protected function specialsBlock()
     {
         if (($block = $this->menu->getBlock('mbSpecials')) != null) {
-            if (!$this->userMapper->getUser()->isGuest()) {
+            if (!$this->appUserService->isGuest()) {
                 $block->data['favorites'] = [
                     'URL' => $this->router->generate('favorites'),
                     'TITLE' => $this->translator->trans('display your favorites photos'),
@@ -240,7 +251,7 @@ class MenuBar
                 'TITLE' => $this->translator->trans('display available tags'),
                 'NAME' => $this->translator->trans('Tags'),
                 'URL' => $this->router->generate('tags'),
-                'COUNTER' => $this->userMapper->getNumberAvailableTags($this->userMapper->getUser(), []),
+                'COUNTER' => $this->userMapper->getNumberAvailableTags($this->appUserService->getUser(), []),
             ];
 
             $block->data['search'] = [
@@ -278,7 +289,7 @@ class MenuBar
     {
         $tpl_params = [];
 
-        if ($this->userMapper->getUser()->isGuest()) {
+        if ($this->appUserService->isGuest()) {
             $tpl_params['U_LOST_PASSWORD'] = $this->router->generate('forgot_password');
             $tpl_params['AUTHORIZE_REMEMBERING'] = $this->conf['authorize_remembering'];
 
@@ -286,8 +297,8 @@ class MenuBar
                 $tpl_params['U_REGISTER'] = $this->router->generate('register');
             }
         } else {
-            $tpl_params['APP_USER'] = $this->userMapper->getUser();
-            $tpl_params['USERNAME'] = $this->userMapper->getUser()->getUsername();
+            $tpl_params['APP_USER'] = $this->appUserService->getUser();
+            $tpl_params['USERNAME'] = $this->appUserService->getUser()->getUserIdentifier();
             $tpl_params['U_PROFILE'] = $this->router->generate('profile');
             $tpl_params['U_LOGOUT'] = $this->router->generate('logout');
 
