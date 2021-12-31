@@ -55,7 +55,6 @@ abstract class CommonController extends AbstractController
         $tpl_params['GALLERY_TITLE'] = $conf['gallery_title'];
         $tpl_params['PAGE_TITLE'] = '';
         $tpl_params['CONTENT_ENCODING'] = 'utf-8';
-        $tpl_params['U_HOME'] = $this->generateUrl('homepage');
         $tpl_params['LEVEL_SEPARATOR'] = $conf['level_separator'];
         $tpl_params['category_view'] = 'grid';
 

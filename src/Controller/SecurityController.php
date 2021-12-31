@@ -43,7 +43,6 @@ class SecurityController extends CommonController
             'CONTENT_ENCODING' => 'utf-8',
             'GALLERY_TITLE' => $this->conf['gallery_title'],
             'LEVEL_SEPARATOR' => $this->conf['level_separator'],
-            'U_HOME' => $this->generateUrl('homepage'),
         ];
     }
 

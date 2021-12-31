@@ -134,7 +134,7 @@
 					data-size-medium="{{derivative_medium.getLiteralSize()}}"
 					{% if thumbnail.id == current.id %} id="thumbnail-active"{% endif %}
 					{% if thumbnail.path == 'mp4' %}
-					      data-src-original="{{U_HOME}}{{thumbnail.PATH}}" data-size-original="{{thumbnail.SIZE}}" data-video="true"
+					      data-src-original="{{thumbnail.PATH}}" data-size-original="{{thumbnail.SIZE}}" data-video="true"
 					{% else %}
 					      {% if theme_config.photoswipe_metadata %} data-exif-make="{{thumbnail.EXIF.make}}" data-exif-model="{{thumbnail.EXIF.model}}"
 					data-exif-lens="{{thumbnail.EXIF.lens}}" data-exif-iso="{{thumbnail.EXIF.iso}}" data-exif-apperture="{{thumbnail.EXIF.apperture}}"
@@ -170,7 +170,7 @@
 			    data-description="{{thumbnail.DESCRIPTION}}" data-src-xlarge="{{ media_path(derivative_xxlarge) }}" data-size-xlarge="{{derivative_xxlarge.getLiteralSize()}}"
 			    data-src-large="{{ media_path(derivative_large) }}" data-size-large="{{derivative_large.getLiteralSize()}}" data-src-medium="{{ media_path(derivative_medium) }}"
 			    data-size-medium="{{derivative_medium.getLiteralSize()}}"
-			    {% if thumbnail.PATH == 'mp4' %} data-src-original="{{U_HOME}}{{thumbnail.PATH}}"
+			    {% if thumbnail.PATH == 'mp4' %} data-src-original="{{thumbnail.PATH}}"
 			    data-size-original="{{thumbnail.SIZE}}" data-video="true"
 			    {% else %}
 			    {% if theme_config.photoswipe_metadata %} data-exif-make="{{thumbnail.EXIF.make}}"

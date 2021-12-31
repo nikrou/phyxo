@@ -4,7 +4,7 @@
     <nav class="navbar navbar-contextual navbar-expand-lg {{theme_config.navbar_contextual_style}} {{theme_config.navbar_contextual_bg}} sticky-top mb-5">
 	<div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
             <div class="navbar-brand mr-auto">
-		<a href="{{U_HOME}}">{{'Home'|trans}}</a>{{LEVEL_SEPARATOR}}
+		<a href="{{ path('homepage') }}">{{'Home'|trans}}</a>{{LEVEL_SEPARATOR}}
 		{{'Tags'|trans}}
 	    </div>
             <ul class="navbar-nav justify-content-end">

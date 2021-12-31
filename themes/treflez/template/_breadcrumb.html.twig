@@ -1,6 +1,6 @@
 <nav aria-label="nav-breadcrumb d-inline-flex">
     <ol class="breadcrumb">
-	<li class="breadcrumb-item"><a href="{{U_HOME}}" title="{{'Home'|trans}}"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+	<li class="breadcrumb-item"><a href="{{  path('homepage') }}" title="{{'Home'|trans}}"><i class="fa fa-home" aria-hidden="true"></i></a></li>
 	{% if elements is iterable %}
 	    {% for element in elements %}
 		{%  if element.url is defined %}
