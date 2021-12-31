@@ -39,7 +39,7 @@ class Image
      */
     public static function addComment($params, Server $service)
     {
-        if (!$service->getImageMapper()->getRepository()->isAuthorizedToUser($service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories(), $params['image_id'])) {
+        if (!$service->getImageMapper()->getRepository()->isAuthorizedToUser($params['image_id'], $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories())) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid image_id or access denied');
         }
 
@@ -194,7 +194,7 @@ class Image
      */
     public static function rate($params, Server $service)
     {
-        if (!$service->getImageMapper()->getRepository()->isAuthorizedToUser($service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories(), $params['image_id'])) {
+        if (!$service->getImageMapper()->getRepository()->isAuthorizedToUser($params['image_id'], $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories())) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid image_id or access denied');
         }
 

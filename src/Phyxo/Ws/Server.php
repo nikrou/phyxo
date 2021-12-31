@@ -287,7 +287,7 @@ class Server
         $request_params = [];
         $params = [];
 
-        if ($request->getContentType() === $request->getMimeType('json')) {
+        if ($request->getContentType() === 'json') {
             $request_params = json_decode($request->getContent(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {

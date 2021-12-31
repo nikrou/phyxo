@@ -201,7 +201,8 @@ class WsController extends AbstractController
                 'image_id' => ['type' => Server::WS_TYPE_ID],
                 'rate' => ['type' => Server::WS_TYPE_FLOAT],
             ],
-            'Rates an image.'
+            'Rates an image.',
+            ['post_only' => true]
         );
 
         $this->service->addMethod(

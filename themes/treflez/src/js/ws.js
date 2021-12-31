@@ -41,7 +41,7 @@ $(function () {
     const url = phyxo_root_url + 'ws?method=pwg.images.rate'
 
     const fetch_params = {
-      method: 'GET',
+      method: 'POST',
       mode: 'same-origin',
       credentials: 'same-origin',
       headers: new Headers({ 'Content-Type': 'application/json' }),

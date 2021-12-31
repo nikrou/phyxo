@@ -68,6 +68,7 @@ class RateMapper
         $rate->setAnonymousId($anonymous_id);
         $rate->setDate(new \DateTime());
         $rate->setRate($note);
+
         $this->getRepository()->addOrUpdateRate($rate);
 
         return $this->updateRatingScore($image_id);
@@ -82,7 +83,7 @@ class RateMapper
      * @param ?int $element_id if null applies to all
      * @return array (score, average, count) values are null if $element_id is false
      */
-    public function updateRatingScore(?int $element_id = null)
+    public function updateRatingScore(?int $element_id = null): array
     {
         $all_rates_count = 0;
         $all_rates_avg = 0;

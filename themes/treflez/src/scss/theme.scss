@@ -1,17 +1,6 @@
-// @import "~bootswatch/dist/[theme]/variables";
-// @import "~bootstrap/scss/bootstrap"; or @import 'bootstrap-custom';
-// @import "~bootswatch/dist/[theme]/bootswatch";
-// ```
-
-// Make sure to import Bootstrap's `bootstrap.scss` in between `_variables.scss`
-// and `_bootswatch.scss`!
-
-// comment following line if you want google fonts
-$web-font-path: '';
-
-@import '~bootswatch/dist/darkly/variables';
+@import 'bootswatch_variables';
 @import 'bootstrap-custom';
-@import '~bootswatch/dist/darkly/bootswatch';
+@import 'bootswatch_darkly';
 
 // other dependencies
 @import '~photoswipe/dist/photoswipe.css';
