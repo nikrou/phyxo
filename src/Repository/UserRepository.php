@@ -135,4 +135,14 @@ class UserRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function findOneByActivationKey(string $key)
+    {
+        $qb = $this->createQueryBuilder('u');
+        $qb->leftJoin('u.userInfos', 'ui');
+        $qb->where('ui.activation_key = :activation_key');
+        $qb->setParameter('activation_key', $key);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
 }

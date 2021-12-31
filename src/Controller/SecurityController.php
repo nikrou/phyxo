@@ -15,21 +15,21 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\User;
+use App\Events\ActivationKeyEvent;
 use App\Utils\UserManager;
-use App\Repository\UserInfosRepository;
 use App\Exception\MissingGuestUserException;
+use App\Form\ForgotPasswordType;
+use App\Form\PasswordResetType;
 use App\Form\UserProfileType;
 use App\Form\UserRegistrationType;
 use App\Repository\UserRepository;
 use App\Security\AppUserService;
 use App\Security\LoginFormAuthenticator;
 use App\Security\UserProvider;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Phyxo\MenuBar;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
@@ -43,8 +43,6 @@ class SecurityController extends CommonController
             'CONTENT_ENCODING' => 'utf-8',
             'GALLERY_TITLE' => $this->conf['gallery_title'],
             'LEVEL_SEPARATOR' => $this->conf['level_separator'],
-            'PHYXO_VERSION' => $this->conf['show_version'] ? $this->phyxoVersion : '',
-            'PHYXO_URL' => $this->phyxoWebsite,
             'U_HOME' => $this->generateUrl('homepage'),
         ];
     }
@@ -164,132 +162,68 @@ class SecurityController extends CommonController
         return $this->render('profile.html.twig', $tpl_params);
     }
 
-    public function forgotPassword(
-        Request $request,
-        UserManager $user_manager,
-        MailerInterface $mailer,
-        CsrfTokenManagerInterface $csrfTokenManager,
-        TranslatorInterface $translator,
-        UserRepository $userRepository,
-        UserInfosRepository $userInfosRepository
-    ) {
+    public function forgotPassword(Request $request, UserManager $user_manager, UserRepository $userRepository, EventDispatcherInterface $dispatcher, TranslatorInterface $translator)
+    {
         $tpl_params = $this->init();
 
-        $errors = [];
-        $infos = [];
-        $token = $csrfTokenManager->getToken('authenticate');
-        $title = $translator->trans('Forgot your password?');
+        $form = $this->createForm(ForgotPasswordType::class);
+        $form->handleRequest($request);
 
-        if ($request->request->get('_username_or_email')) {
-            $user = $userRepository->findUserByUsernameOrEmail($request->request->get('_username_or_email'));
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user = $form->getData();
+
             if (is_null($user)) {
-                $errors[] = $translator->trans('Invalid username or email');
+                $this->addFlash('error', $translator->trans('Invalid username or email'));
+            } elseif (is_null($user->getMailAddress())) {
+                $this->addFlash('error', $translator->trans('User "%username%" has no email address, password reset is not possible', ['%username%' => $user->getUserIdentifier()]));
             } else {
-                if (is_null($user->getMailAddress())) {
-                    $errors[] = $translator->trans('User "%s" has no email address, password reset is not possible', $user['username']);
-                } else {
-                    $activation_key = $user_manager->generateActivationKey();
-                    $user->getUserInfos()->setActivationKey($activation_key);
-                    $user->getUserInfos()->setActivationKeyExpire((new \DateTime())->add(new \DateInterval('PT1H')));
-                    $userRepository->updateUser($user);
+                $activation_key = $user_manager->generateActivationKey();
+                $user->getUserInfos()->setActivationKey($activation_key);
+                $user->getUserInfos()->setActivationKeyExpire((new \DateTime())->add(new \DateInterval('PT1H')));
+                $userRepository->updateUser($user);
 
-                    $webmaster = $userInfosRepository->findOneBy(['status' => User::STATUS_WEBMASTER]);
-                    $webmaster_mail_address = $webmaster->getUser()->getMailAddress();
+                $dispatcher->dispatch(new ActivationKeyEvent($activation_key, $user));
 
-                    $mail_params = [
-                        'user' => $user,
-                        'url' => $this->generateUrl('reset_password', ['activation_key' => $activation_key], UrlGeneratorInterface::ABSOLUTE_URL),
-                        'MAIL_TITLE' => $translator->trans('Password Reset'),
-                        'MAIL_THEME' => $this->conf['mail_theme'],
-                        'GALLERY_URL' => $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
-                        'CONTACT_MAIL' => $webmaster_mail_address,
-                        'GALLERY_TITLE' => $this->conf['gallery_title'],
-                    ];
-
-                    try {
-                        $this->sendActivationKey($mail_params, $mailer, $webmaster_mail_address, $translator);
-                        $title = $translator->trans('Password reset');
-
-                        $infos[] = $translator->trans('Check your email for the confirmation link');
-                    } catch (\Exception $e) {
-                        $errors[] = $translator->trans('Error sending email');
-                    }
-                }
+                $this->addFlash('info', $translator->trans('Check your email for the confirmation link'));
             }
         }
 
-        $tpl_params = array_merge($tpl_params, [
-            'forgot_password_action' => $this->generateUrl('forgot_password'),
-            'title' => $title,
-            'csrf_token' => $token,
-            'errors' => $errors,
-            'infos' => $infos,
-        ]);
+        $tpl_params['form'] = $form->createView();
 
+        $tpl_params['title'] = $translator->trans('Password reset');
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $this->conf));
 
         return $this->render('forgot_password.html.twig', $tpl_params);
     }
 
-    protected function sendActivationKey(array $params, MailerInterface $mailer, string $webmaster_mail_address, TranslatorInterface $translator): void
-    {
-        $tpl_params = array_merge([
-            'gallery_url' => $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            'LEVEL_SEPARATOR' => $this->conf['level_separator'],
-            'CONTENT_ENCODING' => 'utf-8',
-            'PHYXO_VERSION' => $this->conf['show_version'] ? $this->phyxoVersion : '',
-            'PHYXO_URL' => $this->phyxoWebsite,
-        ], $params);
-
-        $message = (new TemplatedEmail())
-            ->subject('[' . $this->conf['gallery_title'] . '] ' . $translator->trans('Password Reset'))
-            ->to($params['user']->getMailAddress())
-            ->textTemplate('mail/text/reset_password.text.twig')
-            ->htmlTemplate('mail/html/reset_password.html.twig')
-            ->context($tpl_params);
-
-        $message->from($webmaster_mail_address);
-        $message->replyTo($webmaster_mail_address);
-
-        $mailer->send($message);
-    }
-
     public function resetPassword(
         Request $request,
         string $activation_key,
-        CsrfTokenManagerInterface $csrfTokenManager,
         UserPasswordHasherInterface $passwordHasher,
         UserProvider $userProvider,
         TranslatorInterface $translator,
         UserRepository $userRepository
     ) {
-        $token = $csrfTokenManager->getToken('authenticate');
-        $errors = [];
-        $infos = [];
-
-        $user = $userProvider->loadByActivationKey($activation_key);
         $tpl_params = $this->init();
 
-        // @TODO: use symfony forms
-        if ($request->isMethod('POST')) {
-            if ($request->request->get('_password') && $request->request->get('_password_confirmation') &&
-                $request->request->get('_password') != $request->request->get('_password_confirm')) {
-                $user->setPassword($passwordHasher->hashPassword(new User(), $request->request->get('_password')));
-                $user->getUserInfos()->setActivationKey(null);
-                $user->getUserInfos()->setActivationKeyExpire(null);
-                $userRepository->updateUser($user);
-                $infos[] = $translator->trans('Your password has been reset');
-            } else {
-                $errors[] = $translator->trans('The passwords do not match');
-            }
-        }
+        try {
+            $user = $userProvider->loadByActivationKey($activation_key);
 
-        $tpl_params = array_merge($tpl_params, [
-            'reset_password_action' => $this->generateUrl('reset_password', ['activation_key' => $activation_key]),
-            'csrf_token' => $token,
-            'infos' => $infos,
-            'errors' => $errors,
-        ]);
+            $form = $this->createForm(PasswordResetType::class);
+            $form->handleRequest($request);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                $data = $form->getData();
+                $user->setPassword($passwordHasher->hashPassword($user, $data->getNewPassword()));
+                $userRepository->updateUser($user);
+
+                $this->addFlash('info', $translator->trans('Your password has been updated'));
+            }
+
+            $tpl_params['form'] = $form->createView();
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Activation key does not exist');
+        }
 
         $tpl_params['title'] = $translator->trans('Password reset');
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $this->conf));

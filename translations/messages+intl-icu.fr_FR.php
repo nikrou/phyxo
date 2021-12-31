@@ -257,6 +257,9 @@ $lang['Dimensions'] = 'Dimensions';
 $lang['Validate'] = "Valider";
 $lang['Virtual album added'] = 'Album virtuel ajouté';
 
+$lang['Activation key does not exist'] = "La clé d'activation n'existe pas";
+$lang['Your password has been updated'] = 'Votre mot de passe a été mis à jour';
+
 $lang['Date created, new &rarr; old'] = 'Date de création, récent &rarr; ancien';
 $lang['Date created, old &rarr; new'] = 'Date de création, ancien &rarr; récent';
 $lang['Date posted, new &rarr; old'] = 'Date d\'ajout, récent &rarr; ancien';

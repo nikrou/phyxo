@@ -169,17 +169,4 @@ class UserProfileModel
 
         return $this;
     }
-
-    public function toArray(): array
-    {
-        return [
-            'nb_image_page' => $this->getNbImagePage(),
-            'language' => $this->getLanguage(),
-            'expand' => $this->getExpand(),
-            'show_nb_comments' => $this->getShowNbComments(),
-            'show_nb_hits' => $this->getShowNbHits(),
-            'recent_period' => $this->getRecentPeriod(),
-            'theme' => $this->getTheme(),
-        ];
-    }
 }

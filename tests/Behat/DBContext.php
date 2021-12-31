@@ -69,6 +69,16 @@ class DBContext implements Context
                 $user->setMailAddress($userRow['mail_address']);
             }
             $this->getContainer()->get(UserManager::class)->register($user);
+
+            if (!empty($userRow['activation_key'])) {
+                $user->getUserInfos()->setActivationKey($userRow['activation_key']);
+            }
+            if (!empty($userRow['activation_key_expire'])) {
+                $user->getUserInfos()->setActivationKeyExpire(new \DateTime($userRow['activation_key_expire']));
+            }
+            $userRepository = $this->getContainer()->get(ManagerRegistry::class)->getRepository(User::class);
+            $userRepository->updateUser($user);
+
             $this->storage->set('user_' . $userRow['username'], $user);
         }
     }
