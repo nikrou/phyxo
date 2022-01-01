@@ -14,7 +14,6 @@ namespace App\Controller;
 use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
-use Phyxo\MenuBar;
 use App\Repository\CommentRepository;
 use App\DataMapper\UserMapper;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -32,7 +31,6 @@ class CommentController extends CommonController
     public function index(
         Request $request,
         Conf $conf,
-        MenuBar $menuBar,
         AlbumMapper $albumMapper,
         UserMapper $userMapper,
         CsrfTokenManagerInterface $csrfTokenManager,
@@ -223,8 +221,6 @@ class CommentController extends CommonController
         $tpl_params['F_ACTION'] = $this->generateUrl('comments', array_merge($query_params, ['start' => $start]));
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('comments.html.twig', $tpl_params);

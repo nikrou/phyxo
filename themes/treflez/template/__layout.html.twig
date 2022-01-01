@@ -37,33 +37,31 @@
     </head>
     <body>
 	<div id="wrapper">
-	    {% if blocks is defined %}
-		<nav class="navbar navbar-expand-lg navbar-main {{theme_config.navbar_main_bg}} {% if theme_config.page_header == 'fancy' %}navbar-dark navbar-transparent fixed-top{% else %}{{theme_config.navbar_main_style}}{% endif %}">
-		    <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
-			{% if theme_config.logo_image_enabled %}
-			    <a class="navbar-brand mr-auto" href="{{path('homepage')}}"><img class="img-fluid" src="{{asset(theme_config.logo_image_path)}}" alt="{{GALLERY_TITLE}}"/></a>
-			{% else %}
-			    <a class="navbar-brand mr-auto" href="{{path('homepage')}}">{{GALLERY_TITLE}}</a>
+	    <nav class="navbar navbar-expand-lg navbar-main {{theme_config.navbar_main_bg}} {% if theme_config.page_header == 'fancy' %}navbar-dark navbar-transparent fixed-top{% else %}{{theme_config.navbar_main_style}}{% endif %}">
+		<div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
+		    {% if theme_config.logo_image_enabled %}
+			<a class="navbar-brand mr-auto" href="{{path('homepage')}}"><img class="img-fluid" src="{{asset(theme_config.logo_image_path)}}" alt="{{GALLERY_TITLE}}"/></a>
+		    {% else %}
+			<a class="navbar-brand mr-auto" href="{{path('homepage')}}">{{GALLERY_TITLE}}</a>
+		    {% endif %}
+		    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-menubar" aria-controls="navbar-menubar" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="fa fa-bars"></span>
+		    </button>
+		    <div class="collapse navbar-collapse" id="navbar-menubar">
+			{% if theme_config.quicksearch_navbar %}
+			    <form class="form-inline navbar-form ml-auto" role="search" action="{{path('qsearch')}}" method="get" id="quicksearch" onsubmit="return this.q.value!='' && this.q.value!=qsearch_prompt;">
+				<i class="fa fa-search" title="{{'Search'|trans}}" aria-hidden="true"></i>
+				<div class="form-group">
+				    <input type="text" name="q" id="qsearchInput" class="form-control" placeholder="{{'Search'|trans}}"/>
+				</div>
+			    </form>
 			{% endif %}
-			<button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-menubar" aria-controls="navbar-menubar" aria-expanded="false" aria-label="Toggle navigation">
-			    <span class="fa fa-bars"></span>
-			</button>
-			<div class="collapse navbar-collapse" id="navbar-menubar">
-			    {% if theme_config.quicksearch_navbar %}
-				<form class="form-inline navbar-form ml-auto" role="search" action="{{path('qsearch')}}" method="get" id="quicksearch" onsubmit="return this.q.value!='' && this.q.value!=qsearch_prompt;">
-				    <i class="fa fa-search" title="{{'Search'|trans}}" aria-hidden="true"></i>
-				    <div class="form-group">
-					<input type="text" name="q" id="qsearchInput" class="form-control" placeholder="{{'Search'|trans}}"/>
-				    </div>
-				</form>
-			    {% endif %}
-			    {% block menubar %}
-				{{include('_menubar.html.twig')}}
-			    {% endblock %}
-			</div>
+			{% block menubar %}
+			    {{ render_esi(url('public_menubar_navigation')) }}
+			{% endblock %}
 		    </div>
-		</nav>
-	    {% endif %}
+		</div>
+	    </nav>
 
 	    <div class="main-content">
 		{% block content %}{% endblock %}

@@ -13,7 +13,6 @@ namespace App\Controller;
 
 use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
-use Phyxo\MenuBar;
 use Phyxo\Conf;
 use App\DataMapper\TagMapper;
 use App\Repository\SearchRepository;
@@ -29,7 +28,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SearchController extends CommonController
 {
-    public function qsearch(Request $request, Conf $conf, MenuBar $menuBar, SearchRepository $searchRepository)
+    public function qsearch(Request $request, Conf $conf, SearchRepository $searchRepository)
     {
         $tpl_params = [];
 
@@ -38,7 +37,6 @@ class SearchController extends CommonController
         }
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $rules = ['q' => $request->get('q')];
         $search_id = null;
@@ -65,17 +63,14 @@ class SearchController extends CommonController
         AlbumMapper $albumMapper,
         Conf $conf,
         SearchRepository $searchRepository,
-        MenuBar $menuBar,
         TranslatorInterface $translator,
         ImageMapper $imageMapper,
         AppUserService $appUserService
     ) {
         $tpl_params = [];
 
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search');
+        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
 
         $available_tags = $tagMapper->getAvailableTags($appUserService->getUser());
 
@@ -260,7 +255,6 @@ class SearchController extends CommonController
         Conf $conf,
         SearchRepository $searchRepository,
         ImageStandardParams $image_std_params,
-        MenuBar $menuBar,
         $search_id,
         TranslatorInterface $translator,
         RouterInterface $router,
@@ -271,8 +265,6 @@ class SearchController extends CommonController
         $this->image_std_params = $image_std_params;
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search results');
         $tpl_params['TITLE'] = $translator->trans('Search results');
         $tpl_params['U_SEARCH_RULES'] = $this->generateUrl('search_rules', ['search_id' => $search_id]);
@@ -366,15 +358,12 @@ class SearchController extends CommonController
         TagRepository $tagRepository,
         SearchRepository $searchRepository,
         int $search_id,
-        MenuBar $menuBar,
         TranslatorInterface $translator
     ) {
         $tpl_params = [];
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search rules');
-
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $rules = [];
         $search = $searchRepository->findOneBy(['id' => $search_id]);

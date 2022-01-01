@@ -121,7 +121,6 @@ class TagController extends CommonController
         }
 
         $menuBar->setRoute('tags');
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
@@ -197,7 +196,6 @@ class TagController extends CommonController
         $menuBar->setRoute('images_by_tags');
         $menuBar->setCurrentTags($tpl_params['tags']);
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');

@@ -86,3 +86,7 @@ action:
     image_id: \d+
     part: e|r
     download: download
+
+public_menubar_navigation:
+  path: /menubar_navigation
+  controller: App\Controller\MenubarController::navigation

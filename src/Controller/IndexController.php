@@ -12,7 +12,6 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Phyxo\MenuBar;
 use Phyxo\Conf;
 use App\DataMapper\ImageMapper;
 use App\Security\AppUserService;
@@ -26,7 +25,6 @@ class IndexController extends CommonController
     public function mostVisited(
         Request $request,
         Conf $conf,
-        MenuBar $menuBar,
         ImageMapper $imageMapper,
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
@@ -74,8 +72,6 @@ class IndexController extends CommonController
 
         $tpl_params['START_ID'] = $start;
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('thumbnails.html.twig', $tpl_params);
@@ -84,7 +80,6 @@ class IndexController extends CommonController
     public function recentPics(
         Request $request,
         Conf $conf,
-        MenuBar $menuBar,
         ImageMapper $imageMapper,
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
@@ -136,8 +131,6 @@ class IndexController extends CommonController
 
         $tpl_params['START_ID'] = $start;
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('thumbnails.html.twig', $tpl_params);
@@ -146,7 +139,6 @@ class IndexController extends CommonController
     public function bestRated(
         Request $request,
         Conf $conf,
-        MenuBar $menuBar,
         ImageMapper $imageMapper,
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
@@ -197,8 +189,6 @@ class IndexController extends CommonController
 
         $tpl_params['START_ID'] = $start;
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('thumbnails.html.twig', $tpl_params);
@@ -223,7 +213,6 @@ class IndexController extends CommonController
         string $list,
         Conf $conf,
         ImageMapper $imageMapper,
-        MenuBar $menuBar,
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
         AppUserService $appUserService,
@@ -258,8 +247,6 @@ class IndexController extends CommonController
 
         $tpl_params['START_ID'] = $start;
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('thumbnails.html.twig', $tpl_params);

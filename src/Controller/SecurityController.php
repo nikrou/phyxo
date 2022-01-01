@@ -26,7 +26,6 @@ use App\Repository\UserRepository;
 use App\Security\AppUserService;
 use App\Security\LoginFormAuthenticator;
 use App\Security\UserProvider;
-use Phyxo\MenuBar;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
@@ -122,7 +121,6 @@ class SecurityController extends CommonController
         Request $request,
         UserRepository $userRepository,
         UserPasswordHasherInterface $passwordHasher,
-        MenuBar $menuBar,
         AppUserService $appUserService,
         TranslatorInterface $translator
     ) {
@@ -153,7 +151,6 @@ class SecurityController extends CommonController
             return $this->redirectToRoute('profile');
         }
 
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $this->conf));
 
         $tpl_params['form'] = $form->createView();

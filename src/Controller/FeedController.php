@@ -13,7 +13,6 @@ namespace App\Controller;
 
 use App\Entity\UserFeed;
 use Phyxo\Conf;
-use Phyxo\MenuBar;
 use App\Repository\UserFeedRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use App\Notification;
@@ -24,7 +23,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FeedController extends CommonController
 {
-    public function notification(Request $request, Conf $conf, MenuBar $menuBar, TranslatorInterface $translator, UserFeedRepository $userFeedRepository, AppUserService $appUserService)
+    public function notification(Request $request, Conf $conf, TranslatorInterface $translator, UserFeedRepository $userFeedRepository, AppUserService $appUserService)
     {
         $tpl_params = [];
 
@@ -46,7 +45,6 @@ class FeedController extends CommonController
             $tpl_params['U_FEED_IMAGE_ONLY'] = $this->generateUrl('feed_image_only', ['feed_id' => $feed->getUuid()]);
         }
 
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('notification.html.twig', $tpl_params);

@@ -24,7 +24,7 @@ class IdentifierToUserTransformer implements DataTransformerInterface
         $this->userRepository = $userRepository;
     }
 
-    public function transform($identifier): string
+    public function transform($identifier): ?string
     {
         return $identifier;
     }

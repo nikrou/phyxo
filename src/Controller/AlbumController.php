@@ -14,7 +14,6 @@ namespace App\Controller;
 use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
-use Phyxo\MenuBar;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\ImageMapper;
 use App\Entity\UserCacheAlbum;
@@ -32,7 +31,6 @@ class AlbumController extends CommonController
         Request $request,
         Conf $conf,
         ImageStandardParams $image_std_params,
-        MenuBar $menuBar,
         UserCacheAlbumRepository $userCacheAlbumRepository,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
@@ -224,7 +222,6 @@ class AlbumController extends CommonController
         }
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $tpl_params['SHOW_THUMBNAIL_CAPTION'] = $conf['show_thumbnail_caption'];
         $tpl_params['U_MODE_POSTED'] = $this->generateUrl('calendar_category_monthly', ['date_type' => 'posted', 'view_type' => 'calendar', 'category_id' => $category_id]);
@@ -238,7 +235,6 @@ class AlbumController extends CommonController
     public function albumFlat(
         Request $request,
         Conf $conf,
-        MenuBar $menuBar,
         ImageStandardParams $image_std_params,
         AlbumMapper $albumMapper,
         ImageMapper $imageMapper,
@@ -295,7 +291,6 @@ class AlbumController extends CommonController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
         $tpl_params['START_ID'] = $start;
 
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
@@ -306,7 +301,6 @@ class AlbumController extends CommonController
     public function albumsFlat(
         Request $request,
         Conf $conf,
-        MenuBar $menuBar,
         ImageStandardParams $image_std_params,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
@@ -355,7 +349,6 @@ class AlbumController extends CommonController
         }
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
         $tpl_params['START_ID'] = $start;
 
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
@@ -366,7 +359,6 @@ class AlbumController extends CommonController
     public function albums(
         Request $request,
         Conf $conf,
-        MenuBar $menuBar,
         UserCacheAlbumRepository $userCacheAlbumRepository,
         ImageStandardParams $image_std_params,
         ImageMapper $imageMapper,
@@ -484,8 +476,6 @@ class AlbumController extends CommonController
         }
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('mainpage_categories.html.twig', $tpl_params);
@@ -494,7 +484,6 @@ class AlbumController extends CommonController
     public function recentCats(
         Request $request,
         Conf $conf,
-        MenuBar $menuBar,
         UserCacheAlbumRepository $userCacheAlbumRepository,
         ImageStandardParams $image_std_params,
         ImageMapper $imageMapper,
@@ -609,8 +598,6 @@ class AlbumController extends CommonController
         }
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('mainpage_categories.html.twig', $tpl_params);

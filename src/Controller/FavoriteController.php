@@ -12,7 +12,6 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Phyxo\MenuBar;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use App\Repository\FavoriteRepository;
@@ -28,7 +27,6 @@ class FavoriteController extends CommonController
 {
     public function index(
         Request $request,
-        MenuBar $menuBar,
         Conf $conf,
         FavoriteRepository $favoriteRepository,
         ImageMapper $imageMapper,
@@ -79,8 +77,6 @@ class FavoriteController extends CommonController
         }
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
         $tpl_params['START_ID'] = $start;
 

@@ -13,14 +13,13 @@ namespace App\Controller;
 
 use App\Security\AppUserService;
 use Phyxo\Conf;
-use Phyxo\MenuBar;
 use Phyxo\Functions\Language;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AboutController extends CommonController
 {
-    public function index(Request $request, AppUserService $appUserService, Conf $conf, MenuBar $menuBar, string $themesDir, string $rootProjectDir, TranslatorInterface $translator)
+    public function index(Request $request, AppUserService $appUserService, Conf $conf, string $themesDir, string $rootProjectDir, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -29,7 +28,6 @@ class AboutController extends CommonController
         $tpl_params['ABOUT_MESSAGE'] = Language::loadLanguageFile('about.html', $rootProjectDir . '/languages/' . $appUserService->getUser()->getLocale());
         $tpl_params['THEME_ABOUT'] = Language::loadLanguageFile('about.html', $themesDir . '/' . $appUserService->getUser()->getTheme() . '/languages/' . $appUserService->getUser()->getLocale());
 
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('about.html.twig', $tpl_params);

@@ -13,7 +13,6 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
-use Phyxo\MenuBar;
 use Phyxo\Calendar\CalendarMonthly;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\ImageMapper;
@@ -34,7 +33,6 @@ class CalendarController extends CommonController
         Conf $conf,
         ImageRepository $imageRepository,
         AlbumRepository $albumRepository,
-        MenuBar $menuBar,
         ImageMapper $imageMapper,
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
@@ -140,8 +138,6 @@ class CalendarController extends CommonController
         $tpl_params['TITLE'] = $tmp;
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('month_calendar.html.twig', $tpl_params);
@@ -151,7 +147,6 @@ class CalendarController extends CommonController
         Request $request,
         string $date_type,
         Conf $conf,
-        MenuBar $menuBar,
         ImageRepository $imageRepository,
         AlbumRepository $albumRepository,
         ImageStandardParams $image_std_params,
@@ -250,8 +245,6 @@ class CalendarController extends CommonController
         $tpl_params['TITLE'] = $calendar->getBreadcrumb('calendar_categories_weekly', ['date_type' => $date_type]); // @TODO: label is not translated
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('month_calendar.html.twig', $tpl_params);
@@ -263,7 +256,6 @@ class CalendarController extends CommonController
         string $date_type,
         string $view_type,
         Conf $conf,
-        MenuBar $menuBar,
         ImageRepository $imageRepository,
         AlbumRepository $albumRepository,
         ImageStandardParams $image_std_params,
@@ -361,8 +353,6 @@ class CalendarController extends CommonController
         $tpl_params['TITLE'] = $calendar->getBreadcrumb('calendar_category_monthly', ['date_type' => $date_type, 'view_type' => $view_type, 'category_id' => $category_id]); // @TODO: label is not translated
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('month_calendar.html.twig', $tpl_params);
@@ -376,7 +366,6 @@ class CalendarController extends CommonController
         Conf $conf,
         ImageRepository $imageRepository,
         AlbumRepository $albumRepository,
-        MenuBar $menuBar,
         ImageStandardParams $image_std_params,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
@@ -487,8 +476,6 @@ class CalendarController extends CommonController
         $tpl_params['TITLE'] = $calendar->getBreadcrumb('calendar_category_weekly', ['date_type' => $date_type, 'category_id' => $category_id]); // @TODO: label is not translated
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('month_calendar.html.twig', $tpl_params);

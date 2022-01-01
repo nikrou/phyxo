@@ -15,7 +15,6 @@ use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Phyxo\Conf;
-use Phyxo\MenuBar;
 use Phyxo\Image\ImageStandardParams;
 use App\Repository\FavoriteRepository;
 use App\DataMapper\TagMapper;
@@ -52,7 +51,6 @@ class PictureController extends CommonController
         string $element_id,
         Conf $conf,
         AlbumMapper $albumMapper,
-        MenuBar $menuBar,
         ImageStandardParams $image_std_params,
         TagMapper $tagMapper,
         UserMapper $userMapper,
@@ -475,8 +473,6 @@ class PictureController extends CommonController
         $tpl_params['SECTION_TITLE'] = '<a href="' . $this->generateUrl('homepage') . '">' . $translator->trans('Home') . '</a>';
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('picture.html.twig', $tpl_params);
