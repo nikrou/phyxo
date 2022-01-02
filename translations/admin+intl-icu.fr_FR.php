@@ -725,6 +725,7 @@ $lang['There is no other language available.'] = 'Il n\'y a pas d\'autre langue 
 $lang['There is no other plugin available.'] = 'Il n\'y a pas d\'autre plugin disponible.';
 $lang['There is no other theme available.'] = 'Il n\'y a pas d\'autre thème disponible.';
 $lang['Your configuration settings have been saved'] = 'Vos paramètres de configuration ont été enregistrés';
+$lang['Guest user settings have been updated'] = "Les paramètres de l'utilisateur invité ont été mis à jour";
 $lang['Update to Phyxo {version}'] = 'Mettre à jour vers Phyxo {version}';
 $lang['You can update to Phyxo {major} directly, without upgrading to Phyxo {minor} (recommended).'] = 'Vous pouvez mettre à jour vers Phyxo {major} directement, sans passer par Phyxo {minor} (recommandé).';
 $lang['No photo can be deleted'] = "Aucune photo ne peut être supprimée";

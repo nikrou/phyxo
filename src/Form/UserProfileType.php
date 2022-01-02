@@ -11,15 +11,10 @@
 
 namespace App\Form;
 
-use App\Entity\Language;
-use App\Entity\Theme;
 use App\Form\Model\UserProfileModel;
-use App\Repository\LanguageRepository;
-use App\Repository\ThemeRepository;
+use App\Form\Transformer\UserToUserProfileTransformer;
 use App\Repository\UserRepository;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
@@ -33,18 +28,16 @@ use Symfony\Component\Validator\Constraints\Email;
 
 class UserProfileType extends AbstractType
 {
-    private $languageRepository, $themeRepository, $userRepository;
+    private $userRepository;
 
-    public function __construct(LanguageRepository $languageRepository, ThemeRepository $themeRepository, UserRepository $userRepository)
+    public function __construct(UserRepository $userRepository)
     {
-        $this->languageRepository = $languageRepository;
-        $this->themeRepository = $themeRepository;
         $this->userRepository = $userRepository;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->addModelTransformer(new UserToUserProfileTransformer($this->languageRepository, $this->themeRepository, $this->userRepository));
+        $builder->addModelTransformer(new UserToUserProfileTransformer($this->userRepository));
 
         $builder->add('user_fields', FormGroupType::class, [
             'title' => 'User authentication',
@@ -93,80 +86,7 @@ class UserProfileType extends AbstractType
             }
         ]);
 
-        $builder->add('user_preferences', FormGroupType::class, [
-            'title' => 'Preferences',
-            'fields' => function(FormBuilderInterface $builder) {
-                $builder
-                    ->add(
-                        'nb_image_page',
-                        TextType::class,
-                        [
-                            'label' => 'Number of photos per page',
-                            'attr' => ['placeholder' => 'Number of photos per page'], 'required' => false
-                        ]
-                    )
-                    ->add(
-                        'theme',
-                        EntityType::class,
-                        [
-                            'class' => Theme::class,
-                            'choice_label' => 'name',
-                            'choice_value' => 'id',
-                            'label' => 'Theme',
-                            'required' => true
-                        ]
-                    )
-                    ->add(
-                        'language',
-                        EntityType::class,
-                        [
-                            'class' => Language::class,
-                            'choice_label' => 'name',
-                            'choice_value' => 'id',
-                            'label' => 'Language',
-                            'required' => true,
-                        ]
-                    )
-                    ->add(
-                        'recent_period',
-                        TextType::class,
-                        [
-                            'label' => 'Recent period',
-                            'attr' => ['placeholder' => 'Recent period'], 'required' => false
-                        ]
-                    )
-                    ->add(
-                        'expand',
-                        ChoiceType::class,
-                        [
-                            'label' => 'Expand all albums',
-                            'choices' => ['Yes' => true, 'No' => false],
-                            'expanded' => true,
-                            'required' => true
-                        ]
-                    )
-                    ->add(
-                        'show_nb_comments',
-                        ChoiceType::class,
-                        [
-                            'label' => 'Show number of comments',
-                            'choices' => ['Yes' => true, 'No' => false],
-                            'expanded' => true,
-                            'required' => true
-                        ]
-                    )
-                    ->add(
-                        'show_nb_hits',
-                        ChoiceType::class,
-                        [
-                            'label' => 'Show number of hits',
-                            'choices' => ['Yes' => true, 'No' => false],
-                            'expanded' => true,
-                            'required' => true
-                        ]
-                    );
-            }
-        ]);
+        $builder->add('user_infos', UserInfosType::class, ['label' => false, 'with_submit_buttons' => false]);
 
         $builder
         ->add('validate', SubmitType::class, ['label' => 'Submit', 'row_attr' => ['class' => 'no_div'], 'attr' => ['class' => 'btn-raised btn-primary']])

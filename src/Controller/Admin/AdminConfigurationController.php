@@ -12,10 +12,8 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\UserMapper;
-use App\Repository\LanguageRepository;
-use App\Repository\ThemeRepository;
+use App\Form\UserInfosType;
 use App\Repository\UserInfosRepository;
-use App\Security\AppUserService;
 use App\Services\DerivativeService;
 use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
@@ -25,6 +23,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -135,7 +134,7 @@ class AdminConfigurationController extends AbstractController
         $tabsheet->add('watermark', $this->translator->trans('Watermark', [], 'admin'), $this->generateUrl('admin_configuration', ['section' => 'watermark']));
         $tabsheet->add('display', $this->translator->trans('Display', [], 'admin'), $this->generateUrl('admin_configuration', ['section' => 'display']));
         $tabsheet->add('comments', $this->translator->trans('Comments', [], 'admin'), $this->generateUrl('admin_configuration', ['section' => 'comments']));
-        $tabsheet->add('default', $this->translator->trans('Guest Settings', [], 'admin'), $this->generateUrl('admin_configuration', ['section' => 'default']));
+        $tabsheet->add('default', $this->translator->trans('Guest Settings', [], 'admin'), $this->generateUrl('admin_configuration_default'));
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
@@ -146,10 +145,7 @@ class AdminConfigurationController extends AbstractController
         Conf $conf,
         ParameterBagInterface $params,
         CsrfTokenManagerInterface $csrfTokenManager,
-        ThemeRepository $themeRepository,
-        LanguageRepository $languageRepository,
-        ImageStandardParams $image_std_params,
-        UserMapper $userMapper
+        ImageStandardParams $image_std_params
     ) {
         $tpl_params = [];
 
@@ -178,10 +174,6 @@ class AdminConfigurationController extends AbstractController
 
             case 'watermark':
                 $tpl_params = array_merge($tpl_params, $this->watermarkConfiguration($conf, $params->get('themes_dir'), $params->get('local_dir'), $image_std_params));
-                break;
-
-            case 'default':
-                $tpl_params = array_merge($tpl_params, $this->defaultConfiguration($conf, $userMapper, $themeRepository, $languageRepository));
                 break;
 
             default:
@@ -382,58 +374,34 @@ class AdminConfigurationController extends AbstractController
         return $tpl_params;
     }
 
-    protected function defaultConfiguration(Conf $conf, UserMapper $userMapper, ThemeRepository $themeRepository, LanguageRepository $languageRepository)
+    public function defaultConfiguration(Request $request, UserMapper $userMapper, UserInfosRepository $userInfosRepository, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
 
-        $languages = [];
-        foreach ($languageRepository->findAll() as $language) {
-            $languages[$language->getId()] = $language->getName();
+        $form = $this->createForm(UserInfosType::class, $userMapper->getDefaultUser()->getUserInfos());
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $userInfos = $form->getData();
+            $userInfosRepository->updateInfos($userInfos);
+
+            $this->addFlash('info', $translator->trans('Guest user settings have been updated', [], 'admin'));
+
+            return $this->redirectToRoute('admin_configuration_default');
         }
 
-        $themes = [];
-        foreach ($themeRepository->findAll() as $theme) {
-            $themes[$theme->getId()] = $theme->getName();
-        }
+        $tpl_params['form'] = $form->createView();
 
-        $guestUserInfos = $userMapper->getDefaultUser()->getUserInfos();
-
-        $tpl_params['radio_options'] = [
-            'true' => $this->translator->trans('Yes', [], 'admin'),
-            'false' => $this->translator->trans('No', [], 'admin')
-        ];
-
-        $tpl_params = array_merge($tpl_params, [
-            'GUEST_ACTIVATE_COMMENTS' => $conf['activate_comments'],
-            'GUEST_NB_IMAGE_PAGE' => $guestUserInfos->getNbImagePage(),
-            'GUEST_RECENT_PERIOD' => $guestUserInfos->getRecentPeriod(),
-            'GUEST_EXPAND' => $guestUserInfos->wantExpand(),
-            'GUEST_NB_COMMENTS' => $guestUserInfos->getShowNbComments() ? 'true' : 'false',
-            'GUEST_NB_HITS' => $guestUserInfos->getShowNbHits() ? 'true' : 'false',
-        ]);
-
-        $tpl_params['GUEST_USERNAME'] = 'guest';
-        $tpl_params['THEME'] = $guestUserInfos->getTheme();
-        $tpl_params['themes'] = $themes;
-        $tpl_params['LANGUAGE'] = $guestUserInfos->getLanguage();
-
-        $tpl_params['languages'] = $languages;
-
-        return $tpl_params;
+        return $this->render('configuration_default.html.twig', $tpl_params);
     }
 
     public function update(
         Request $request,
         string $section,
         Conf $conf,
-        ThemeRepository $themeRepository,
         string $localDir,
         ImageStandardParams $image_std_params,
-        UserMapper $userMapper,
-        UserInfosRepository $userInfosRepository,
-        LanguageRepository $languageRepository,
-        DerivativeService $derivativeService,
-        AppUserService $appUserService
+        DerivativeService $derivativeService
     ) {
         $conf_updated = false;
         $error = false;
@@ -516,69 +484,6 @@ class AdminConfigurationController extends AbstractController
                         $conf['mail_theme'] = $mail_theme;
                     }
                 }
-            } elseif ($section === 'default') {
-                $languages = [];
-                foreach ($languageRepository->findAll() as $language) {
-                    $languages[$language->getId()] = $language->getName();
-                }
-
-                $themes = [];
-                foreach ($themeRepository->findAll() as $theme) {
-                    $themes[$theme->getId()] = $theme->getName();
-                }
-
-                $error = false;
-                $needFlush = false;
-                $guestUserInfos = $userMapper->getDefaultUser()->getUserInfos();
-
-                if ($request->request->get('nb_image_page')) {
-                    if ((int) $request->request->get('nb_image_page') === 0) {
-                        $error = true;
-                        $this->addFlash('error', $this->translator->trans('The number of photos per page must be a not null scalar'));
-                    } else {
-                        $guestUserInfos->setNbImagePage((int) $request->request->get('nb_image_page'));
-                        $needFlush = true;
-                    }
-                }
-
-                // @TODO: check language is in existing language ; same in SecurityController::profile
-                if ($request->request->get('language')) {
-                    $request->getSession()->set('_locale', $request->request->get('language'));
-                    $guestUserInfos->setLanguage($request->request->get('language'));
-                    $needFlush = true;
-                }
-
-                if ($request->request->get('theme')) {
-                    $guestUserInfos->setTheme($request->request->get('theme'));
-                    $needFlush = true;
-                }
-
-                if ($request->request->get('expand')) {
-                    $guestUserInfos->setExpand($request->request->get('expand') === 'true');
-                    $needFlush = true;
-                }
-
-                if ($request->request->get('show_nb_comments')) {
-                    $guestUserInfos->setShowNbComments($request->request->get('show_nb_comments') === 'true');
-                    $needFlush = true;
-                }
-
-                if ($request->request->get('show_nb_hits')) {
-                    $guestUserInfos->setShowNbHits($request->request->get('show_nb_hits') === 'true');
-                    $needFlush = true;
-                }
-
-                if ($request->request->get('recent_period') && $appUserService->getUser()->getUserInfos()->getRecentPeriod() != $request->request->get('recent_period')) {
-                    $guestUserInfos->setRecentPeriod((int) $request->request->get('recent_period'));
-                    $needFlush = true;
-                }
-
-                if (!$error && $needFlush) {
-                    $guestUserInfos->setLastModified(new \DateTime());
-                    $userInfosRepository->updateInfos($guestUserInfos);
-                }
-
-                $this->addFlash('success', $this->translator->trans('Your configuration settings have been saved', [], 'admin'));
             } elseif ($section === 'comments') {
                 if ($request->request->get('nb_comment_page')) {
                     $nb_comments = (int) $request->request->get('nb_comment_page');

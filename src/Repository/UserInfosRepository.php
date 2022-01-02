@@ -26,6 +26,8 @@ class UserInfosRepository extends ServiceEntityRepository
 
     public function updateInfos(UserInfos $userInfos): void
     {
+        $userInfos->setLastModified(new \DateTime());
+
         $this->_em->persist($userInfos);
         $this->_em->flush();
     }

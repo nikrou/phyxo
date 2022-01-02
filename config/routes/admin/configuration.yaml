@@ -9,7 +9,11 @@ admin_configuration:
   defaults:
     section: main
   requirements:
-    section: main|sizes|watermark|display|comments|default
+    section: main|sizes|watermark|display|comments
+
+admin_configuration_default:
+  path: /configuration/default
+  controller: App\Controller\Admin\AdminConfigurationController::defaultConfiguration
 
 admin_configuration_update:
   path: /configuration/{section}/update
