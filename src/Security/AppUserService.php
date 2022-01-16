@@ -13,19 +13,21 @@ namespace App\Security;
 
 use App\Entity\User;
 use Phyxo\Conf;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Security;
 
 class AppUserService
 {
-    private $user, $security, $userProvider, $conf;
+    private $user, $security, $userProvider, $conf, $authorizationChecker;
     private $guest_user, $guest_user_retrieved = false;
 
-    public function __construct(Security $security, UserProvider $userProvider, Conf $conf)
+    public function __construct(Security $security, UserProvider $userProvider, Conf $conf, AuthorizationCheckerInterface $authorizationChecker)
     {
         $this->security = $security;
         $this->userProvider = $userProvider;
         $this->conf = $conf;
+        $this->authorizationChecker = $authorizationChecker;
     }
 
     public function getUser(): ?User
@@ -56,5 +58,48 @@ class AppUserService
     public function isGuest(): bool
     {
         return $this->getUser()->getId() === $this->getDefaultUser()->getId();
+    }
+
+    public function isClassicUser(): bool
+    {
+        return $this->authorizationChecker->isGranted('ROLE_NORMAL');
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->authorizationChecker->isGranted('ROLE_ADMIN');
+    }
+
+    public function isWebmaster(): bool
+    {
+        return $this->authorizationChecker->isGranted('ROLE_WEBMASTER');
+    }
+
+    /**
+     * Returns if current user can edit/delete/validate a comment.
+     */
+    public function canManageComment(string $action, int $comment_author_id): bool
+    {
+        if ($this->isGuest()) {
+            return false;
+        }
+
+        if (!in_array($action, ['delete', 'edit', 'validate'])) {
+            return false;
+        }
+
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        if (($action === 'edit' && $this->conf['user_can_edit_comment']) && ($comment_author_id === $this->getUser()->getId())) {
+            return true;
+        }
+
+        if (($action === 'delete' && $this->conf['user_can_delete_comment']) && ($comment_author_id == $this->getUser()->getId())) {
+            return true;
+        }
+
+        return false;
     }
 }

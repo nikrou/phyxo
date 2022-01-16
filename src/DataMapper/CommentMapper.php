@@ -59,43 +59,6 @@ class CommentMapper
         return $this->appUserService->getUser();
     }
 
-    /**
-     * Does basic check on comment and returns action to perform.
-     *
-     * @param string $action before check
-     * @param array $comment
-     * @return string validate, moderate, reject
-     */
-    public function userCommentCheck($action, $comment)
-    {
-        if ($action === 'reject') {
-            return $action;
-        }
-
-        $my_action = $this->conf['comment_spam_reject'] ? 'reject' : 'moderate';
-
-        if ($action == $my_action) {
-            return $action;
-        }
-
-        // we do here only BASIC spam check (plugins can do more)
-        if (!$this->appUserService->isGuest()) {
-            return $action;
-        }
-
-        $link_count = preg_match_all('/https?:\/\//', $comment['content'], $matches);
-
-        if ((strpos($comment['author'], 'http://') !== false) || (strpos($comment['author'], 'https://') !== false)) {
-            $link_count++;
-        }
-
-        if ($link_count > $this->conf['comment_spam_max_links']) {
-            return $my_action;
-        }
-
-        return $action;
-    }
-
     public function createComment(string $content, int $image_id, string $author, int $user_id, array $params = [])
     {
         $image = $this->imageRepository->find($image_id);
@@ -205,7 +168,7 @@ class CommentMapper
 
             ]));
 
-            $this->invalidateUserCacheNbComments();
+            $this->userCacheRepository->invalidateNumberAvailableComments();
             if (($this->conf['email_admin_on_comment'] && 'validate' == $comment_action)
                 || ($this->conf['email_admin_on_comment_validation'] && 'moderate' == $comment_action)) {
                 $this->eventDispatcher->dispatch(new CommentEvent($comm, $comment_action));
@@ -213,84 +176,5 @@ class CommentMapper
         }
 
         return $comment_action;
-    }
-
-    /**
-     * Tries to delete a (or more) user comment.
-     *    only admin can delete all comments
-     *    other users can delete their own comments
-     */
-    public function deleteUserComment(array $comment_ids)
-    {
-        $this->getRepository()->deleteByIds($comment_ids, !$this->userMapper->isAdmin() ? $this->getUser()->getId() : null);
-        $this->invalidateUserCacheNbComments();
-
-        // $this->eventDispatcher->dispatch(new CommentEvent(['ids' => $comment_ids, 'author' => $this->getUser()->getUsername()], 'delete'));
-    }
-
-    /**
-     * Tries to update a user comment
-     *    only admin can update all comments
-     *    users can edit their own comments if admin allow them
-     *
-     * @param string $post_key secret key sent back to the browser
-     * @return string validate, moderate, reject
-     */
-    public function updateUserComment(array $comment_infos, string $post_key): string
-    {
-        $comment_action = 'validate';
-
-        if (!$this->conf['comments_validation'] || $this->userMapper->isAdmin()) { // should the updated comment must be validated
-            $comment_action = 'validate'; //one of validate, moderate, reject
-        } else {
-            $comment_action = 'moderate'; //one of validate, moderate, reject
-        }
-
-        // website
-        if (!empty($comment_infos['website_url'])) {
-            $comment_infos['website_url'] = strip_tags($comment_infos['website_url']);
-            if (!preg_match('/^https?/i', $comment_infos['website_url'])) {
-                $comment['website_url'] = 'http://' . $comment_infos['website_url'];
-            }
-            if (!\Phyxo\Functions\Utils::url_check_format($comment_infos['website_url'])) {
-                //$page['errors'][] = $this->translator->trans('Your website URL is invalid');
-                $comment_action = 'reject';
-            }
-        }
-
-        if ($comment_action !== 'reject') {
-            $comment = $this->getRepository()->find($comment_infos['id']);
-            $comment->setContent($comment_infos['content']);
-            $comment->setValidated($comment_action === 'validate');
-            $comment->setWebsiteUrl(!empty($comment_infos['website_url']) ? $comment_infos['website_url'] : '');
-            $comment->setDate(new \DateTime());
-            $this->getRepository()->addOrUpdateComment($comment);
-
-            // mail admin and ask to validate the comment
-            if ($this->conf['email_admin_on_comment_validation'] && $comment_action === 'moderate') {
-                $this->eventDispatcher->dispatch(new CommentEvent($comment_infos, $comment_action));
-            } else {
-                $this->eventDispatcher->dispatch(new CommentEvent(['author' => $this->getUser()->getUserIdentifier(), 'content' => $comment_infos['content']], 'edit'));
-            }
-        }
-
-        return $comment_action;
-    }
-
-    /**
-     * Tries to validate a user comment.
-     */
-    public function validateUserComment(array $comment_ids)
-    {
-        $this->getRepository()->validateUserComment($comment_ids);
-        $this->invalidateUserCacheNbComments();
-    }
-
-    /**
-     * Clears cache of nb comments for all users
-     */
-    private function invalidateUserCacheNbComments()
-    {
-        $this->userCacheRepository->invalidateNumberAvailableComments();
     }
 }

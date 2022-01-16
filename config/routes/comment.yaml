@@ -1,33 +1,11 @@
-comment_delete:
-  path: /comment/{start}/{comment_id}/delete
-  controller: App\Controller\CommentController::delete
-  methods: POST
-  defaults:
-    start: 0
-  requirements:
-    start: \d+
-
 comment_edit:
   path: /comments/{start}/edit/{comment_id}
   controller: App\Controller\CommentController::index
-  methods: GET
   defaults:
     start: 0
   requirements:
     start: \d+
-
-comment_save:
-  path: /comments/{start}/edit/{comment_id}
-  controller: App\Controller\CommentController::edit
-  methods: POST
-  defaults:
-    start: 0
-  requirements:
-    start: \d+
-
-comment_validate:
-  path: /comments/{start}/validate/{comment_id}
-  controller: App\Controller\CommentController::validate
+    comment_id: \d+
 
 comments__start:
   path: /comments/start-{start}
@@ -44,3 +22,24 @@ comments:
   defaults:
     start: 0
     comment_id: 0
+
+comment_validate:
+  path: /comments/validate/{comment_id}
+  controller: App\Controller\CommentController::validateComment
+  defaults:
+    start: 0
+    comment_id: \d+
+
+comment_update:
+  path: /comments/update/{comment_id}
+  controller: App\Controller\CommentController::updateComment
+  defaults:
+    start: 0
+    comment_id: \d+
+
+comment_delete:
+  path: /comments/delete/{comment_id}
+  controller: App\Controller\CommentController::deleteComment
+  defaults:
+    start: 0
+    comment_id: \d+

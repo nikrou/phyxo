@@ -1,20 +1,5 @@
 {% extends "__layout.html.twig" %}
 
-{%  block html_head %}
-    {{parent()}}
-    {% if comment_derivative_params is defined %}
-	<style type="text/css">
-	 .commentElement .illustration{
-	     width:{{comment_derivative_params.max_width()+5}}px;
-	 }
-
-	 .content .commentElement .description{
-	     min-height:{{comment_derivative_params.max_height()+5}}px;
-	 }
-	</style>
-    {% endif %}
-{% endblock %}
-
 {% block content %}
     <nav class="navbar navbar-contextual navbar-expand-lg {{theme_config.navbar_contextual_style}} {{theme_config.navbar_contextual_bg}} sticky-top mb-5">
 	<div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
@@ -30,38 +15,17 @@
     <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
 	<p><a href="#filter-comments" data-toggle="collapse" class="btn btn-primary">{{'Filter and display comments'|trans}}</a></p>
 
-	<div class="collapse" id="filter-comments">
-	    <form action="{{F_ACTION}}" method="get" class="form-horizontal row">
+	<div {% if comment_filter_form.vars.valid or not comment_filter_form.vars.submitted %}class="collapse"{% endif %} id="filter-comments">
+	    {{ form_start(comment_filter_form, {attr: { 'class': 'form-horizontal row' }}) }}
 		<div class="card col-lg-6">
 		    <h4 class="card-header">
 			{{'Filter'|trans}}
 		    </h4>
 		    <div class="card-body">
-			<div class="form-group">
-			    <label for="keyword" class="col-sm-4 control-label">{{'Keyword'|trans}}</label>
-			    <input type="text" name="keyword" id="keyword" value="{{keyword}}" class="col-sm-8 form-control" placeholder="{{'Keyword'|trans}}">
-			</div>
-			<div class="form-group">
-			    <label for="author" class="col-sm-4 control-label">{{'Author'|trans}}</label>
-			    <input type="text" name="author" id="author" value="{{author}}" class="col-sm-8 form-control" placeholder="{{'Author'|trans}}">
-			</div>
-			<div class="form-group">
-			    <label for="cat" class="col-sm-4 control-label">{{'Album'|trans}}</label>
-			    <select name="category" id="cat" class="col-sm-8 form-control">
-				<option value="0">------------</option>
-				{% for option,label in categories %}
-				    <option value="{{option}}"{% if option==category %} selected="selected"{% endif %}>{{label}}</option>
-				{% endfor %}
-			    </select>
-			</div>
-			<div class="form-group">
-			    <label for="since" class="col-sm-4 control-label">{{'Since'|trans}}</label>
-			    <select name="since" class="form-control col-sm-8">
-				{% for option,label in since_options %}
-				    <option value="{{option}}"{% if option==since %} selected="selected"{% endif %}>{{label}}</option>
-				{% endfor %}
-			    </select>
-			</div>
+			{{ form_row(comment_filter_form.keyword) }}
+			{{ form_row(comment_filter_form.author) }}
+			{{ form_row(comment_filter_form.album) }}
+			{{ form_row(comment_filter_form.since) }}
 		    </div>
 		</div>
 		<div class="card col-lg-6">
@@ -69,53 +33,19 @@
 			{{'Display'|trans}}
 		    </h4>
 		    <div class="card-body">
-			<div class="form-group">
-			    <label for="sort_by" class="col-sm-4 control-label">{{'Sort by'|trans}}</label>
-			    <select class="col-sm-8 form-control" name="sort_by">
-				{% for option,label in sort_by_options %}
-				    <option value="{{option}}"{% if option==sort_by %} selected="selected"{% endif %}>{{label}}</option>
-				{% endfor %}
-			    </select>
-			</div>
-			<div class="form-group">
-			    <label for="sort_order" class="col-sm-4 control-label">{{'Sort order'|trans}}</label>
-			    <select class="col-sm-8 form-control" name="sort_order">
-				{% for option,label in sort_order_options %}
-				    <option value="{{option}}"{% if option==sort_order %} selected="selected"{% endif %}>{{label}}</option>
-				{% endfor %}
-			    </select>
-			</div>
-			<div class="form-group">
-			    <label for="items_number" class="col-sm-4 control-label">{{'Number of items'|trans}}</label>
-			    <select class="col-sm-8 form-control" name="items_number">
-				{% for option,label in items_number_options %}
-				    <option value="{{option}}"{% if option==items_number %} selected="selected"{% endif %}>{{label}}</option>
-				{% endfor %}
-			    </select>
-			</div>
+			{{ form_row(comment_filter_form.sort_by) }}
+			{{ form_row(comment_filter_form.sort_order) }}
+			{{ form_row(comment_filter_form.items_number) }}
 		    </div>
 		</div>
-		<p class="mt-2 ml-3">
-		    <input type="submit" value="{{'Filter and display'|trans}}" class="btn btn-primary btn-raised">
-		</p>
-	    </form>
+		<div class="mt-2 ml-3">
+		    {{ form_row(comment_filter_form.submit) }}
+		</div>
+	    {{ form_end(comment_filter_form) }}
 	</div>
     </div>
 
-    {% if comments is defined %}
-	<a name="comments"></a>
-	<div class="container{% if theme_config.fluid_width %}-fluid{% endif %} comment-search">
-	    <div class="row">
-		<div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-12 col-xs-12">
-		    {{ include('_comment_list.html.twig', { comment_derivative_params: derivative_params }) }}
-		</div>
-	    </div>
-	</div>
-    {% else %}
-	<div class="container{% if theme_config.fluid_width %}-fluid{% endif %} comment-search">
-	    <p>{{'No comments for that search'|trans}}</p>
-	</div>
-    {% endif %}
+    {{ include('_comments_list.html.twig') }}
 
     {% if navbar is defined and (not navbar is empty) %}
 	<div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">

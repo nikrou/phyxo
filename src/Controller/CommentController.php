@@ -15,14 +15,15 @@ use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
 use App\Repository\CommentRepository;
-use App\DataMapper\UserMapper;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use App\DataMapper\CommentMapper;
+use App\Form\CommentFilterType;
+use App\Form\DeleteCommentType;
+use App\Form\EditCommentType;
+use App\Form\Model\CommentFilterModel;
+use App\Form\ValidateCommentType;
 use App\Security\AppUserService;
 use Phyxo\Functions\Utils;
-use Symfony\Component\Security\Csrf\CsrfToken;
-use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -30,195 +31,143 @@ class CommentController extends CommonController
 {
     public function index(
         Request $request,
+        RouterInterface $router,
         Conf $conf,
-        AlbumMapper $albumMapper,
-        UserMapper $userMapper,
-        CsrfTokenManagerInterface $csrfTokenManager,
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
         CommentRepository $commentRepository,
-        RouterInterface $router,
         AppUserService $appUserService,
-        int $start = 0,
-        int $comment_id = 0
+        AlbumMapper $albumMapper,
+        int $comment_id,
+        int $start = 0
     ) {
         $tpl_params = [];
-        $this->image_std_params = $image_std_params;
-
         $tpl_params['PAGE_TITLE'] = $translator->trans('User comments');
 
-        $albums = [];
-        foreach ($albumMapper->getRepository()->findAllowedAlbums($appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $album) {
-            $albums[] = $album;
-        }
-
-        // default values
-        $tpl_params['items_number'] = $request->get('items_number') ? $request->get('items_number') : $conf['comments_page_nb_comments'];
-        $tpl_params['sort_order'] = $request->get('sort_order') ? $request->get('sort_order') : 'DESC' ;
-        $tpl_params['sort_by'] = $request->get('sort_by') ? $request->get('sort_by') : 'date';
-        $tpl_params['since'] = $request->get('since') ? $request->get('since') : 'all';
-        $tpl_params['category'] = $request->get('category') ? $request->get('category') : null;
-        $tpl_params['author'] = $request->get('author') ? $request->get('author') : null;
-        $tpl_params['keyword'] = $request->get('keyword') ? $request->get('keyword') : null;
-
-        // form options
-        $tpl_params['sort_order_options'] = [
-            'DESC' => $translator->trans('descending'),
-            'ASC' => $translator->trans('ascending')
-        ];
-
-        $tpl_params['sort_by_options'] = [
-            'date' => $translator->trans('comment date'),
-            'image_id' => $translator->trans('photo')
-        ];
-
-        $tpl_params['items_number_options'] = [5 => 5, 10 => 10, 20 => 20, 50 => 50, '' => $translator->trans('All comments')];
-
-        $now = new \DateTimeImmutable();
-        $since_options = [
-            'today' => [
-                'label' => $translator->trans('today'),
-                'clause' => $now->sub(new \DateInterval('P1D'))
-            ],
-            'last7days' => [
-                'label' => $translator->trans('last {count} days', ['count' => 7]),
-                'clause' => $now->sub(new \DateInterval('P7D'))
-            ],
-            'last30days' => [
-                'label' => $translator->trans('last {count} days', ['count' => 30]),
-                'clause' => $now->sub(new \DateInterval('P30D'))
-            ],
-            'all' => ['label' => $translator->trans('the beginning'), 'clause' => null]
-        ];
-        $tpl_params['since_options'] = array_combine(array_keys($since_options), array_column($since_options, 'label'));
-
-        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, $tpl_params['category'] !== null ? [$tpl_params['category']]:[], 'categories', true));
-
-        $query_params = [];
-
-        $comments = [];
-        $images = [];
-        $album_ids = [];
-
-        $filter_params = [];
-        $filter_params['forbidden_categories'] = $appUserService->getUser()->getUserInfos()->getForbiddenCategories();
-
-        if ($tpl_params['category'] !== null) {
-            $filter_params['album_ids'] = $albumMapper->getRepository()->getSubcatIds([$tpl_params['category']]);
-        }
-
-        if (!empty($tpl_params['since']) && !empty($since_options[$tpl_params['since']]['clause'])) {
-            $filter_params['since'] = $since_options[$tpl_params['since']]['clause'];
-        }
-
-        if (!empty($tpl_params['author'])) {
-            $filter_params['author'] = $tpl_params['author'];
-        }
-
-        if (!empty($tpl_params['keyword'])) {
-            $filter_params['keywords'] = preg_split('/[\s,;]+/', $tpl_params['keyword']);
-        }
-
-        $filter_params['sort_by'] = $tpl_params['sort_by'];
-        $filter_params['sort_order'] = $tpl_params['sort_order'];
-
-        $nb_comments = $commentRepository->getLastComments($filter_params, 0, 0, $count_only = true);
-        foreach ($commentRepository->getLastComments($filter_params, $start, $tpl_params['items_number'], $count_only = false) as $comment) {
-            $comments[] = $comment;
-            $images[$comment->getImage()->getId()] = $comment->getImage();
-            foreach ($comment->getImage()->getImageAlbums() as $image_album) {
-                $album_ids[] = $image_album->getAlbum()->getId();
-            }
-        }
-
-        $query_params = [
-            'author' => $tpl_params['author'],
-            'category' => $tpl_params['category'],
-            'since' => $tpl_params['since'],
-            'sort_by' => $tpl_params['sort_by'],
-            'sort_order' => $tpl_params['sort_order'],
-            'items_number' => $tpl_params['items_number']
-        ];
-
-        $tpl_params['navbar'] = \Phyxo\Functions\Utils::createNavigationBar(
-            $router,
-            'comments',
-            $query_params,
-            $nb_comments,
-            $start,
-            $tpl_params['items_number'],
-            $conf['paginate_pages_around']
+        $filterParams = new CommentFilterModel();
+        $filterParams->fromArray(
+            [
+                'items_number' => $conf['comments_page_nb_comments'],
+                'sort_order' => 'DESC',
+                'sort_by' => 'date',
+                'since' => null,
+                'album' => null,
+                'author' => null,
+                'keyword' => null
+            ]
         );
+        $queryParams = $request->query->all();
+        if (isset($queryParams['album'])) {
+            $queryParams['album'] = $albumMapper->getRepository()->find($queryParams['album']);
+        }
+        $filterParams->fromArray($queryParams);
+        $filterParams->setPage($start);
 
-        if (count($comments) > 0) {
-            foreach ($comments as $comment) {
-                if ($images[$comment->getImage()->getId()]->getName()) {
-                    $name = $images[$comment->getImage()->getId()]->getName();
-                } else {
-                    $name = Utils::get_name_from_file($images[$comment->getImage()->getId()]->getFile());
-                }
+        $commentFilterForm = $this->createForm(CommentFilterType::class, $filterParams, ['csrf_protection' => false]);
+        $commentFilterForm->handleRequest($request);
 
-                // link to the full size picture
-                $picture_url = $this->generateUrl(
-                    'picture',
+        if ($commentFilterForm->isSubmitted() && $commentFilterForm->isValid()) {
+            $filterParams = $commentFilterForm->getData();
+            $filterParams->setPage(0);
+        }
+
+        $forbiddenCategories = $appUserService->getUser()->getUserInfos()->getForbiddenCategories();
+
+        if ($filterParams->getAlbum()) {
+            $filterParams->setAlbums($albumMapper->getRepository()->getSubcatIds([$filterParams->getAlbum()->getId()]));
+        }
+
+        $tpl_params['comment_filter_form'] = $commentFilterForm->createView();
+
+        $comment_route = 'comments';
+        if ($start > 0) {
+            $comment_route .= '__start';
+        }
+
+        $redirectRoute = $this->generateUrl($comment_route, array_merge(['start' => $start], $filterParams->toQueryParams()));
+
+        $numberOfComments = $commentRepository->getLastComments(array_merge($filterParams->toArray(), ['forbidden_categories' => $forbiddenCategories]), 0, 0, $count_only = true);
+        foreach ($commentRepository->getLastComments(
+            array_merge($filterParams->toArray(), ['forbidden_categories' => $forbiddenCategories]),
+            $filterParams->getPage(),
+            $filterParams->getItemsNumber(),
+            $count_only = false
+        ) as $comment) {
+            $tpl_comment = [];
+            $tpl_comment['comment'] = $comment;
+            $tpl_comment['image_url'] = $this->generateUrl(
+                'picture',
+                [
+                    'image_id' => $comment->getImage()->getId(),
+                    'element_id' => $comment->getImage()->getImageAlbums()->first()->getAlbum()->getId(),
+                    'type' => 'category'
+                ]
+            );
+
+            if ($appUserService->canManageComment('validate', $comment->getUser()->getId()) && !$comment->isValidated()) {
+                $validateForm = $this->createForm(
+                    ValidateCommentType::class,
+                    $comment,
                     [
-                        'element_id' => $comment->getImage()->getImageAlbums()->first()->getAlbum()->getId(),
-                        'image_id' => $comment->getImage()->getId(),
-                        'type' => 'category',
+                        'id' => $comment->getId(),
+                        'redirect' => $redirectRoute,
+                        'action' => $this->generateUrl('comment_validate', ['comment_id' => $comment->getId()])
+                    ]
+                );
+                $tpl_comment['VALIDATE_FORM'] = $validateForm->createView();
+            }
+
+            if ($appUserService->canManageComment('delete', $comment->getUser()->getId())) {
+                $deleteForm = $this->createForm(
+                    DeleteCommentType::class,
+                    $comment,
+                    [
+                        'id' => $comment->getId(),
+                        'redirect' => $redirectRoute,
+                        'action' => $this->generateUrl('comment_delete', ['comment_id' => $comment->getId()])
                     ]
                 );
 
-                $email = null;
-                if ($comment->getUser()->getMailAddress()) {
-                    $email = $comment->getUser()->getMailAddress();
-                } elseif ($comment->getEmail()) {
-                    $email = $comment->getEmail();
-                }
-
-                $tpl_comment = [
-                    'ID' => $comment->getId(),
-                    'U_PICTURE' => $picture_url,
-                    'image' => $images[$comment->getImage()->getId()],
-                    'ALT' => $name,
-                    'AUTHOR' => $comment->getAuthor(),
-                    'WEBSITE_URL' => $comment->getWebsiteUrl(),
-                    'DATE' => $comment->getDate()->format('c'), // ['day_name', 'day', 'month', 'year', 'time']),
-                    'CONTENT' => $comment->getContent(),
-                ];
-
-                if ($userMapper->isAdmin()) {
-                    $tpl_comment['EMAIL'] = $email;
-                }
-
-                if ($userMapper->canManageComment('delete', $comment->getUser()->getId())) {
-                    $tpl_comment['U_DELETE'] = $this->generateUrl('comment_delete', array_merge($query_params, ['start' => $start, 'comment_id' => $comment->getId()]));
-                }
-                if ($userMapper->canManageComment('edit', $comment->getUser()->getId())) {
-                    $tpl_comment['U_EDIT'] = $this->generateUrl('comment_edit', array_merge($query_params, ['start' => $start, 'comment_id' => $comment->getId()]));
-                    $tpl_comment['U_SAVE'] = $this->generateUrl('comment_save', array_merge($query_params, ['start' => $start, 'comment_id' => $comment->getId()]));
-
-                    if ($comment->getId() === $comment_id) {
-                        $tpl_comment['IN_EDIT'] = true;
-                        $tpl_comment['IMAGE_ID'] = $comment->getImage()->getId();
-                        $tpl_comment['CONTENT'] = $comment->getContent();
-                        $tpl_comment['U_CANCEL'] = $this->generateUrl('comments', array_merge($query_params, ['start' => $start]));
-                    }
-                }
-
-                if ($userMapper->canManageComment('validate', $comment->getUser()->getId())) {
-                    if (!$comment->isValidated()) {
-                        $tpl_comment['U_VALIDATE'] = $this->generateUrl('comment_validate', array_merge($query_params, ['start' => $start, 'comment_id' => $comment->getId()]));
-                    }
-                }
-
-                $tpl_params['comments'][] = $tpl_comment;
+                $tpl_comment['DELETE_FORM'] = $deleteForm->createView();
             }
+
+            $tpl_comment['IN_EDIT'] = false;
+
+            if ($appUserService->canManageComment('edit', $comment->getUser()->getId())) {
+                if ($comment_id == $comment->getId()) {
+                    $tpl_comment['IN_EDIT'] = true;
+                    $editForm = $this->createForm(
+                        EditCommentType::class,
+                        $comment,
+                        [
+                            'redirect' => $redirectRoute,
+                            'action' => $this->generateUrl('comment_update', ['comment_id' => $comment->getId()])
+                        ]
+                    );
+                    $tpl_comment['FORM'] = $editForm->createView();
+                    $tpl_comment['U_CANCEL'] = $this->generateUrl($comment_route, array_merge(['start' => $start], $filterParams->toQueryParams()));
+                }
+
+                $tpl_comment['U_EDIT'] = $this->generateUrl('comment_edit', array_merge(
+                    ['_fragment' => 'comment-' . $comment->getId(), 'start' => $start, 'comment_id' => $comment->getId()],
+                    $filterParams->toQueryParams()
+                ));
+            }
+
+            $tpl_params['comments'][] = $tpl_comment;
         }
 
-        $derivative_params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
-        $tpl_params['derivative_params'] = $derivative_params;
-        $tpl_params['csrf_token'] = $csrfTokenManager->getToken('comment');
-        $tpl_params['F_ACTION'] = $this->generateUrl('comments', array_merge($query_params, ['start' => $start]));
+        $tpl_params['navbar'] = Utils::createNavigationBar(
+            $router,
+            'comments',
+            $filterParams->toQueryParams(),
+            $numberOfComments,
+            $filterParams->getPage(),
+            $filterParams->getItemsNumber(),
+            $conf['paginate_pages_around']
+        );
+
+        $tpl_params['derivative_params'] = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
@@ -226,89 +175,45 @@ class CommentController extends CommonController
         return $this->render('comments.html.twig', $tpl_params);
     }
 
-    public function edit(int $comment_id, Request $request, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator)
+    public function updateComment(Request $request, int $comment_id, TranslatorInterface $translator, CommentRepository $commentRepository): Response
     {
-        if ($request->isMethod('POST')) {
-            $token = new CsrfToken('comment', $request->request->get('_csrf_token'));
-            if (!$csrfTokenManager->isTokenValid($token)) {
-                throw new InvalidCsrfTokenException();
-            }
+        $editForm = $this->createForm(EditCommentType::class, $commentRepository->find($comment_id));
+        $editForm->handleRequest($request);
 
-            $comment_action = $commentMapper->updateUserComment(
-                [
-                    'id' => $comment_id,
-                    'image_id' => $request->request->get('image_id'),
-                    'content' => $request->request->get('content'),
-                    'website_url' => $request->request->get('website_url'),
-                ],
-                $request->request->get('key')
-            );
+        if ($editForm->isSubmitted() && $editForm->isValid()) {
+            $comment = $editForm->getData();
+            $commentRepository->addOrUpdateComment($comment);
 
-            switch ($comment_action) {
-                case 'moderate':
-                    $this->addFlash('infos', $translator->trans('An administrator must authorize your comment before it is visible.'));
-                    break;
-                case 'validate':
-                    $this->addFlash('infos', $translator->trans('Your comment has been registered'));
-                    break;
-                case 'reject':
-                    $this->addFlash('errors', $translator->trans('Your comment has NOT been registered because it did not pass the validation rules'));
-                    break;
-            }
+            $this->addFlash('success', $translator->trans('The comment has been updated'));
         }
 
-        return $this->redirectToRoute(
-            'comments',
-            [
-                'author' => $request->get('author'),
-                'category' => $request->get('category'),
-                'sort_by' => $request->get('sort_by'),
-                'sort_order' => $request->get('sort_order'),
-                'items_number' => $request->get('items_number'),
-                'start' => $request->get('start'),
-            ]
-        );
+        return $this->redirect($editForm['redirect']->getData());
     }
 
-    public function delete(Request $request, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager)
+    public function validateComment(Request $request, int $comment_id, TranslatorInterface $translator, CommentRepository $commentRepository): Response
     {
-        $token = new CsrfToken('comment', $request->request->get('_csrf_token'));
-        if (!$csrfTokenManager->isTokenValid($token)) {
-            throw new InvalidCsrfTokenException();
-        }
-        $commentMapper->deleteUserComment([$request->get('comment_id')]);
+        $validateForm = $this->createForm(ValidateCommentType::class, null, ['id' => $comment_id]);
+        $validateForm->handleRequest($request);
 
-        return $this->redirectToRoute(
-            'comments',
-            [
-                'author' => $request->get('author'),
-                'category' => $request->get('category'),
-                'sort_by' => $request->get('sort_by'),
-                'sort_order' => $request->get('sort_order'),
-                'items_number' => $request->get('items_number'),
-                'start' => $request->get('start'),
-            ]
-        );
+        if ($validateForm->isSubmitted() && $validateForm->isValid()) {
+            $commentRepository->validateUserComment([$validateForm['id']->getData()]);
+
+            $this->addFlash('success', $translator->trans('The comment has been validated'));
+        }
+
+        return $this->redirect($validateForm['redirect']->getData());
     }
 
-    public function  validate(Request $request, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager)
+    public function deleteComment(Request $request, int $comment_id, TranslatorInterface $translator, CommentRepository $commentRepository): Response
     {
-        $token = new CsrfToken('comment', $request->request->get('_csrf_token'));
-        if (!$csrfTokenManager->isTokenValid($token)) {
-            throw new InvalidCsrfTokenException();
-        }
-        $commentMapper->validateUserComment([$request->get('comment_id')]);
+        $deleteForm = $this->createForm(DeleteCommentType::class, null, ['id' => $comment_id]);
+        $deleteForm->handleRequest($request);
 
-        return $this->redirectToRoute(
-            'comments',
-            [
-                'author' => $request->get('author'),
-                'category' => $request->get('category'),
-                'sort_by' => $request->get('sort_by'),
-                'sort_order' => $request->get('sort_order'),
-                'items_number' => $request->get('items_number'),
-                'start' => $request->get('start'),
-            ]
-        );
+        if ($deleteForm->isSubmitted() && $deleteForm->isValid()) {
+            $commentRepository->deleteByIds([$deleteForm['id']->getData()]);
+            $this->addFlash('success', $translator->trans('The comment has been deleted'));
+        }
+
+        return $this->redirect($deleteForm['redirect']->getData());
     }
 }

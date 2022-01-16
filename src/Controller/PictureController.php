@@ -13,7 +13,6 @@ namespace App\Controller;
 
 use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
 use App\Repository\FavoriteRepository;
@@ -24,10 +23,16 @@ use App\DataMapper\UserMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\RateMapper;
+use App\Entity\Comment;
 use App\Entity\History;
 use App\Entity\User;
 use App\Events\HistoryEvent;
+use App\Form\DeleteCommentType;
+use App\Form\EditCommentType;
+use App\Form\ImageCommentType;
+use App\Form\ValidateCommentType;
 use App\Metadata;
+use App\Repository\CommentRepository;
 use App\Repository\ImageAlbumRepository;
 use App\Security\AppUserService;
 use App\Security\TagVoter;
@@ -42,7 +47,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class PictureController extends CommonController
 {
     private $userMapper, $translator;
-    private const VALID_COMMENT = 'valid_comment';
 
     public function picture(
         Request $request,
@@ -55,7 +59,6 @@ class PictureController extends CommonController
         TagMapper $tagMapper,
         UserMapper $userMapper,
         CommentMapper $commentMapper,
-        CsrfTokenManagerInterface $csrfTokenManager,
         ImageMapper $imageMapper,
         Metadata $metadata,
         TranslatorInterface $translator,
@@ -63,7 +66,8 @@ class PictureController extends CommonController
         FavoriteRepository $favoriteRepository,
         ImageAlbumRepository $imageAlbumRepository,
         EventDispatcherInterface $eventDispatcher,
-        AppUserService $appUserService
+        AppUserService $appUserService,
+        CommentRepository $commentRepository
     ) {
         $this->translator = $translator;
         $tpl_params = [];
@@ -72,17 +76,6 @@ class PictureController extends CommonController
 
         $history_section = '';
         $this->image_std_params = $image_std_params;
-
-        // @TODO : improve by verify token and redirect after changes
-        if ($request->get('action') === 'edit_comment') {
-            $edit_comment = $request->get('comment_to_edit');
-        } elseif ($request->get('action') === 'delete_comment' && $request->get('comment_to_delete')) {
-            if ($commentMapper->deleteUserComment([(int) $request->get('comment_to_delete')])) {
-                $this->addFlash('success', $translator->trans('The comment has been deleted'));
-
-                return $this->redirectToRoute($request->get('_route'), ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id]);
-            }
-        }
 
         $album = null;
         if ($type === 'list') {
@@ -125,7 +118,7 @@ class PictureController extends CommonController
             $picture['U_DOWNLOAD'] = $this->generateUrl('action', ['image_id' => $image_id, 'part' => 'e', 'download' => 'download']);
         }
 
-        $tpl_params['csrf_token'] = $csrfTokenManager->getToken('comment');
+        $tpl_params['album'] = $album;
         $tpl_params['current'] = $picture;
         $tpl_params['current']['derivatives'] = $image_std_params->getAll($image);
         $tpl_params['type'] = $type;
@@ -272,178 +265,134 @@ class PictureController extends CommonController
         }
 
         if ($conf['activate_comments']) {
-            // the picture is commentable if it belongs at least to one category which is commentable
-            $errors = [];
-            $comment_action = null;
-
-            if ($request->isMethod('POST')) {
-                $token = $request->request->get('_csrf_comment');
-
-                if (!$this->isCsrfTokenValid(self::VALID_COMMENT, $token)) {
-                    $comment_action = 'reject';
-                } else {
-                    $comment = [
-                        'author' => $request->request->get('author'),
-                        'content' => $request->request->get('content'),
-                        'website_url' => $request->request->get('webiste_url'),
-                        'email' => $request->request->get('email'),
-                        'image_id' => $image_id,
-                        'ip' => $request->getClientIp(),
-                    ];
-
-                    if ($request->get('action') === 'edit_comment' && $request->get('comment_to_edit')) {
-                        $comment['comment_id'] = $request->get('comment_to_edit');
-                        $comment_action = $commentMapper->updateUserComment($comment, $request->request->get('key'));
-                    } else {
-                        $comment_action = $commentMapper->insertUserComment($comment, $errors);
-                    }
-                }
-
-                switch ($comment_action) {
-                    case 'moderate':
-                        $this->addFlash('success', $translator->trans('An administrator must authorize your comment before it is visible.'));
-                    case 'validate':
-                        $this->addFlash('success', $translator->trans('Your comment has been registered'));
-                        break;
-                    case 'reject':
-                        $this->addFlash('error', $translator->trans('Your comment has NOT been registered because it did not pass the validation rules'));
-                        break;
-                    default:
-                        $this->addFlash('error', 'Invalid comment action ' . $comment_action);
-                }
-
-                return $this->redirectToRoute($request->get('_route'), ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id]);
-            }
-
             $tpl_params['COMMENT_COUNT'] = $commentMapper->getRepository()->countForImage($image_id, $userMapper->isAdmin());
+
             if ($tpl_params['COMMENT_COUNT'] > 0) {
-                // comments order (get, session, conf)
-                if ($request->get('comments_order') && in_array(strtoupper($request->get('comments_order')), ['ASC', 'DESC'])) {
-                    $request->getSession()->set('comments_order', $request->get('comments_order'));
-                }
-                $comments_order = $request->getSession()->has('comments_order') ? $request->getSession()->get('comments_order') : $conf['comments_order'];
+                $commentsOrder = 'DESC';
+                $redirectRoute = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id]);
 
-                $tpl_params['COMMENTS_ORDER_URL'] = $this->generateUrl(
-                    'picture',
-                    [
-                        'image_id' => $image_id,
-                        'type' => $type,
-                        'element_id' => $element_id,
-                        'comments_order' => ($comments_order == 'ASC' ? 'DESC' : 'ASC')
-                    ]
-                );
-                $tpl_params['COMMENTS_ORDER_TITLE'] = $comments_order == 'ASC' ? $translator->trans('Show latest comments first') : $translator->trans('Show oldest comments first');
-
-                foreach ($commentMapper->getRepository()->getCommentsOnImage($image_id, $comments_order, $conf['nb_comment_page'], 0, $userMapper->isAdmin()) as $comment) {
-                    if ($comment->getAuthor() === 'guest') {
-                        $author = $translator->trans('guest');
-                    } else {
-                        $author = $comment->getAuthor();
-                    }
-
-                    $email = null;
-                    if ($comment->getUser()->getMailAddress()) {
-                        $email = $comment->getUser()->getMailAddress();
-                    } elseif ($comment->getEmail()) {
-                        $email = $comment->getEmail();
-                    }
-
-                    $tpl_comment =
-                        [
-                            'ID' => $comment->getId(),
-                            'AUTHOR' => $author,
-                            'DATE' => $comment->getDate()->format('c'), // ['day_name', 'day', 'month', 'year', 'time']),
-                            'CONTENT' => $comment->getContent(),
-                            'WEBSITE_URL' => $comment->getWebsiteUrl(),
-                        ];
-
-                    if ($userMapper->canManageComment('delete', $comment->getUser()->getId())) {
-                        $tpl_comment['U_DELETE'] = $this->generateUrl(
+                foreach ($commentMapper->getRepository()->getCommentsOnImage($image_id, $commentsOrder, $conf['nb_comment_page'], 0, $userMapper->isAdmin()) as $comment) {
+                    $tpl_comment = [
+                        'comment' => $comment,
+                        'image_url' => $this->generateUrl(
                             'picture',
                             [
-                                'image_id' => $image_id,
-                                'type' => $type,
-                                'element_id' => $element_id,
-                                'action' => 'delete_comment',
-                                'comment_to_delete' => $comment->getId(),
+                                'image_id' => $comment->getImage()->getId(),
+                                'element_id' => $comment->getImage()->getImageAlbums()->first()->getAlbum()->getId(),
+                                'type' => 'category'
                             ]
-                        );
-                    }
-                    if ($userMapper->canManageComment('edit', $comment->getUser()->getId())) {
+                        )
+
+                    ];
+
+                    $tpl_comment['IN_EDIT'] = false;
+
+                    if ($appUserService->canManageComment('edit', $comment->getUser()->getId())) {
+                        if ($request->query->get('comment_id') && $request->query->get('comment_id') == $comment->getId()) {
+                            $tpl_comment['IN_EDIT'] = true;
+                            $editForm = $this->createForm(
+                                EditCommentType::class,
+                                $comment,
+                                [
+                                    'redirect' => $redirectRoute,
+                                    'action' => $this->generateUrl('comment_update', ['comment_id' => $comment->getId()])
+                                ]
+                            );
+                            $tpl_comment['FORM'] = $editForm->createView();
+                            $tpl_comment['U_CANCEL'] = $redirectRoute;
+                        }
+
                         $tpl_comment['U_EDIT'] = $this->generateUrl(
                             'picture',
                             [
+                                '_fragment' => 'comment-' . $comment->getId(),
+                                'comment_id' => $comment->getId(),
                                 'image_id' => $image_id,
                                 'type' => $type,
-                                'element_id' => $element_id,
-                                'action' => 'edit_comment',
-                                'comment_to_edit' => $comment->getId(),
+                                'element_id' => $element_id
+                            ]
+                        );
+                    }
+
+
+                    if ($appUserService->canManageComment('validate', $comment->getUser()->getId()) && !$comment->isValidated()) {
+                        $validateForm = $this->createForm(
+                            ValidateCommentType::class,
+                            $comment,
+                            [
+                                'id' => $comment->getId(),
+                                'redirect' => $redirectRoute,
+                                'action' => $this->generateUrl('comment_validate', ['comment_id' => $comment->getId()])
+                            ]
+                        );
+                        $tpl_comment['VALIDATE_FORM'] = $validateForm->createView();
+                    }
+
+                    if ($appUserService->canManageComment('delete', $comment->getUser()->getId())) {
+                        $deleteForm = $this->createForm(
+                            DeleteCommentType::class,
+                            $comment,
+                            [
+                                'id' => $comment->getId(),
+                                'redirect' => $redirectRoute,
+                                'action' => $this->generateUrl('comment_delete', ['comment_id' => $comment->getId()])
                             ]
                         );
 
-                        if (isset($edit_comment) && ($comment->getId() === $edit_comment)) {
-                            $tpl_comment['IN_EDIT'] = true;
-                            $tpl_comment['CONTENT'] = $comment->getContent();
-                            $tpl_comment['U_CANCEL'] = $this->generateUrl(
-                                'picture',
-                                [
-                                    'image_id' => $image_id,
-                                    'type' => $type,
-                                    'element_id' => $element_id,
-                                ]
-                            );
-                        }
+                        $tpl_comment['DELETE_FORM'] = $deleteForm->createView();
                     }
 
-                    if ($userMapper->isAdmin()) {
-                        $tpl_comment['EMAIL'] = $email;
-
-                        if ($comment->isPending()) {
-                            $tpl_comment['U_VALIDATE'] = $this->generateUrl(
-                                'picture',
-                                [
-                                    'image_id' => $image_id,
-                                    'type' => $type,
-                                    'element_id' => $element_id,
-                                    'action' => 'validate_comment',
-                                    'comment_to_validate' => $comment->getId(),
-                                ]
-                            );
-                        }
-                    }
                     $tpl_params['comments'][] = $tpl_comment;
                 }
-            }
 
-            $show_add_comment_form = true;
-            if (isset($edit_comment)) {
-                $show_add_comment_form = false;
-            }
-            if ($appUserService->isGuest() && !$conf['comments_forall']) {
-                $show_add_comment_form = false;
-            }
-
-            if ($show_add_comment_form) {
-                $tpl_var = [
-                    'F_ACTION' => $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id]),
-                    'CONTENT' => '',
-                    'SHOW_AUTHOR' => !$userMapper->isClassicUser(),
-                    'AUTHOR_MANDATORY' => $conf['comments_author_mandatory'],
-                    'AUTHOR' => '',
-                    'WEBSITE_URL' => '',
-                    'SHOW_EMAIL' => !$userMapper->isClassicUser() || empty($appUserService->getUser()->getMailAddress()),
-                    'EMAIL_MANDATORY' => $conf['comments_email_mandatory'],
-                    'EMAIL' => '',
-                    'SHOW_WEBSITE' => $conf['comments_enable_website'],
-                    'KEY' => $csrfTokenManager->getToken(self::VALID_COMMENT),
-                ];
-
-                if (!is_null($comment_action) && $comment_action === 'reject') {
-                    foreach (['content', 'author', 'website_url', 'email'] as $k) {
-                        $tpl_var[strtoupper($k)] = htmlspecialchars(stripslashes($request->request->get($k)));
-                    }
+                if ($tpl_params['COMMENT_COUNT'] > $conf['comments_page_nb_comments']) {
+                    $tpl_params['MORE_COMMENTS'] = $this->generateUrl('comments', ['album' => $element_id]);
                 }
-                $tpl_params['comment_add'] = $tpl_var;
+            }
+
+            $tpl_params['show_add_comment_form'] = true;
+            if ($appUserService->isGuest() && !$conf['comments_forall']) {
+                $tpl_params['show_add_comment_form'] = false;
+            }
+
+            if ($tpl_params['show_add_comment_form']) {
+                $comment_form = $this->createForm(ImageCommentType::class);
+                $comment_form->handleRequest($request);
+
+                if ($comment_form->isSubmitted() && $comment_form->isValid()) {
+                    $imageCommentModel = $comment_form->getData();
+
+                    if (!$conf['comments_validation'] || $appUserService->isAdmin()) {
+                        $validated = true;
+                    } else {
+                        $validated = false;
+                    }
+
+                    $comment = new Comment();
+                    $comment->setContent($imageCommentModel->getContent());
+                    $comment->setEmail($imageCommentModel->getMailAddress());
+                    $comment->setAuthor($imageCommentModel->getAuthor());
+                    $comment->setWebsiteUrl($imageCommentModel->getWebsiteUrl());
+                    $comment->setImage($image);
+                    $comment->setUser($appUserService->getUser());
+                    $comment->setAnonymousId(md5($request->getClientIp()));
+                    $comment->setDate(new \DateTime());
+                    $comment->setValidated($validated);
+                    if ($validated) {
+                        $comment->setValidationDate(new \DateTime());
+                    }
+                    $commentRepository->addOrUpdateComment($comment);
+
+                    if ($validated) {
+                        $this->addFlash('success', $translator->trans('Your comment has been registered'));
+                    } else {
+                        $this->addFlash('success', $translator->trans('An administrator must authorize your comment before it is visible.'));
+                    }
+
+                    return $this->redirectToRoute('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id]);
+                }
+
+                $tpl_params['comment_form'] = $comment_form->createView();
             }
         }
 

@@ -12,7 +12,6 @@
 namespace App\DataMapper;
 
 use App\Entity\User;
-use Phyxo\Conf;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
@@ -29,13 +28,12 @@ use App\Security\AppUserService;
 
 class UserMapper
 {
-    private $conf, $appUserService, $autorizationChecker, $tagMapper, $themeRepository, $userRepository, $userInfosRepository, $userMailNotificationRepository;
+    private $appUserService, $authorizationChecker, $tagMapper, $themeRepository, $userRepository, $userInfosRepository, $userMailNotificationRepository;
     private $defaultLanguage, $defaultTheme, $themesDir, $default_user, $default_user_retrieved = false, $commentRepository, $imageTagRepository;
     private $webmaster, $webmaster_retrieved = false, $userFeedRepository, $userCacheRepository, $userCacheAlbumRepository, $caddieRepository, $favoriteRepository;
 
     public function __construct(
-        Conf $conf,
-        AuthorizationCheckerInterface $autorizationChecker,
+        AuthorizationCheckerInterface $authorizationChecker,
         ThemeRepository $themeRepository,
         UserRepository $userRepository,
         UserInfosRepository $userInfosRepository,
@@ -58,8 +56,7 @@ class UserMapper
         $this->userInfosRepository = $userInfosRepository;
         $this->userMailNotificationRepository = $userMailNotificationRepository;
         $this->userFeedRepository = $userFeedRepository;
-        $this->conf = $conf;
-        $this->autorizationChecker = $autorizationChecker;
+        $this->authorizationChecker = $authorizationChecker;
         $this->tagMapper = $tagMapper;
         $this->defaultLanguage = $defaultLanguage;
         $this->defaultTheme = $defaultTheme;
@@ -140,53 +137,17 @@ class UserMapper
 
     public function isClassicUser(): bool
     {
-        return $this->autorizationChecker->isGranted('ROLE_NORMAL');
+        return $this->authorizationChecker->isGranted('ROLE_NORMAL');
     }
 
     public function isAdmin(): bool
     {
-        return $this->autorizationChecker->isGranted('ROLE_ADMIN');
+        return $this->authorizationChecker->isGranted('ROLE_ADMIN');
     }
 
     public function isWebmaster(): bool
     {
-        return $this->autorizationChecker->isGranted('ROLE_WEBMASTER');
-    }
-
-    /**
-     * Returns if current user can edit/delete/validate a comment.
-     *
-     * @param string $action edit/delete/validate
-     * @param int $comment_author_id
-     * @return bool
-     */
-    public function canManageComment($action, $comment_author_id)
-    {
-        if ($this->appUserService->isGuest()) {
-            return false;
-        }
-
-        if (!in_array($action, ['delete', 'edit', 'validate'])) {
-            return false;
-        }
-
-        if ($this->isAdmin()) {
-            return true;
-        }
-
-        if ('edit' == $action and $this->conf['user_can_edit_comment']) {
-            if ($comment_author_id == $this->getUser()->getId()) {
-                return true;
-            }
-        }
-
-        if ('delete' == $action and $this->conf['user_can_delete_comment']) {
-            if ($comment_author_id == $this->getUser()->getId()) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->authorizationChecker->isGranted('ROLE_WEBMASTER');
     }
 
     /**

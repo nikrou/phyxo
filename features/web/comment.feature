@@ -31,10 +31,8 @@ Feature: Comment
     And I follow "photo 2"
     Then I should see "a good comment"
 
-  # @TODO: add more scenarios with variations for config keys
   Scenario: Add a comment
     Given I am logged in as "user1" with password "pass1"
-    And config for "key_comment_valid_time" of type "integer" equals to "0"
     And config for "comments_email_mandatory" of type "boolean" equals to "false"
     And config for "comments_validation" of type "boolean" equals to "false"
     And config for "email_admin_on_comment" of type "boolean" equals to "false"
@@ -47,10 +45,19 @@ Feature: Comment
     Then I should see "Your comment has been registered"
     And I should see "What a good pics !"
 
-  # @TODO: add more scenarios with variations for config keys
+  Scenario: Try to add a comment, when email is mandatory
+    Given I am logged in as "user1" with password "pass1"
+    And config for "comments_email_mandatory" of type "boolean" equals to "true"
+    When I follow "album 1"
+    And I follow "photo 1"
+    And I add a comment :
+      """
+      What a good pics !
+      """
+    Then I should not see "Your comment has been registered"
+
   Scenario: Add a comment when comments need admins validation
     Given I am logged in as "user1" with password "pass1"
-    And config for "key_comment_valid_time" of type "integer" equals to "0"
     And config for "comments_email_mandatory" of type "boolean" equals to "false"
     And config for "comments_validation" of type "boolean" equals to "true"
     And config for "email_admin_on_comment_validation" of type "boolean" equals to "false"
@@ -60,7 +67,6 @@ Feature: Comment
       """
       What a good pics !
       """
-    Then I should see "Your comment has been registered"
     And I should see "An administrator must authorize your comment before it is visible"
     And I should not see "What a good pics !"
 
@@ -71,8 +77,8 @@ Feature: Comment
     Then I should not be allowed to go to album "album 2"
     When I am on homepage
     And I follow "Comments"
-    # And I fill in "Author" with "user2"
-    # And I press "Filter and display"
+    And I fill in "Author" with "user2"
+    And I press "Filter and display"
     Then I should not see "a good comment"
 
   Scenario: I search comments in album with no comments

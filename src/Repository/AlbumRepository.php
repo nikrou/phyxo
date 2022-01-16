@@ -184,7 +184,7 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findAllowedAlbums(array $forbidden_categories = [])
+    public function getQueryBuilderForFindAllowedAlbums(array $forbidden_categories = []): QueryBuilder
     {
         $qb = $this->createQueryBuilder('a');
 
@@ -192,7 +192,12 @@ class AlbumRepository extends ServiceEntityRepository
             $qb->where($qb->expr()->notIn('a.id', $forbidden_categories));
         }
 
-        return $qb->getQuery()->getResult();
+        return $qb;
+    }
+
+    public function findAllowedAlbums(array $forbidden_categories = [])
+    {
+        return $this->getQueryBuilderForFindAllowedAlbums($forbidden_categories)->getQuery()->getResult();
     }
 
     public function findAllowedSubAlbums(string $uppercats, array $forbidden_categories = []): array

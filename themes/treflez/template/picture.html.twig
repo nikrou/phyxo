@@ -191,7 +191,7 @@
 		{{ include('_picture_info_cards.html.twig') }}
 	    {% elseif theme_config.picture_info == 'tabs' %}
 		{{ include('_picture_info_tabs.html.twig') }}
-	    {%elseif theme_config.picture_info == 'sidebar' or theme_config.picture_info == 'disabled' %}
+	    {% elseif theme_config.picture_info == 'sidebar' or theme_config.picture_info == 'disabled' %}
 		<div class="col-lg-8 col-md-10 col-12 mx-auto">
 		    {{ include('_picture_info_comments.html.twig') }}
 		</div>

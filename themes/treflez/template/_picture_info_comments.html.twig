@@ -1,56 +1,38 @@
-{% if comment_add is defined or COMMENT_COUNT > 0 %}
+{% if show_add_comment_form or COMMENT_COUNT > 0 %}
     <div id="comments">
 	<ul class="nav nav-pills p-2" role="tablist">
 	    {% if COMMENT_COUNT > 0 %}
 		<li class="nav-item">
-		    <a class="nav-link active" href="#viewcomments" data-toggle="pill" aria-controls="viewcomments">{{'number_of_comments'|trans({'count': COMMENT_COUNT})}}</a>
+		    <a class="nav-link {% if not comment_form.vars.submitted %}active{% endif %}" href="#viewcomments" data-toggle="pill" aria-controls="viewcomments">
+			{{'number_of_comments'|trans({'count': COMMENT_COUNT})}}
+		    </a>
 		</li>
 	    {% endif %}
-	    {% if comment_add is defined %}
+	    {% if show_add_comment_form %}
 		<li class="nav-item">
-		    <a class="nav-link{% if COMMENT_COUNT == 0 %} active{% endif %}" href="#addcomment" data-toggle="pill" aria-controls="addcomment">{{'Add a comment'|trans}}</a>
+		    <a class="nav-link{% if comment_form.vars.submitted or COMMENT_COUNT == 0 %} active{% endif %}" href="#addcomment" data-toggle="pill" aria-controls="addcomment">
+			{{'Add a comment'|trans}}
+		    </a>
 		</li>
 	    {% endif %}
 	</ul>
+
 	<div class="tab-content">
 	    {% if COMMENT_COUNT > 0 %}
-		<div id="viewcomments" class="tab-pane active">
-		    {{ include('_comment_list.html.twig') }}
-		    {% if navbar is defined and (not navbar is empty) %}
-			<div class="row justify-content-center">
-			    {{ include('_navigation_bar.html.twig', { navbar: navbar }) }}
-			</div>
+		<div id="viewcomments" class="tab-pane {% if not comment_form.vars.submitted %}active{% endif %}">
+		    {{ include('_comments_list.html.twig') }}
+
+		    {% if MORE_COMMENTS is defined %}
+			<p>{{ 'There\'s more {comments} on that image'|trans({'comments': '<a href="' ~ MORE_COMMENTS ~ '">'~ 'comments'|trans ~ '</a>' })|raw }}</p>
 		    {% endif %}
 		</div>
 	    {% endif %}
-	    {% if comment_add is defined %}
-		<div id="addcomment" class="tab-pane{% if COMMENT_COUNT == 0 %} active{% endif %}">
-		    <form method="post" action="{{comment_add.F_ACTION}}">
-			{% if comment_add.SHOW_AUTHOR %}
-			    <div class="form-group">
-				<label for="author">{{'Author'|trans}}{% if comment_add.AUTHOR_MANDATORY %} ({{'mandatory'|trans}}){% endif %} :</label>
-				<input class="form-control" type="text" name="author" id="author" value="{{comment_add.AUTHOR}}">
-			    </div>
-			{% endif %}
-			{% if comment_add.SHOW_EMAIL %}
-			    <div class="form-group">
-				<label for="email">{{'Email address'|trans}}{% if comment_add.EMAIL_MANDATORY %} ({{'mandatory'|trans}}){% endif %} :</label>
-				<input class="form-control" type="text" name="email" id="email" value="{{comment_add.EMAIL}}">
-			    </div>
-			{% endif %}
-			{% if comment_add.SHOW_WEBSITE %}
-			    <div class="form-group">
-				<label for="website_url">{{'Website'|trans}} :</label>
-				<input class="form-control" type="text" name="website_url" id="website_url" value="{{comment_add.WEBSITE_URL}}">
-			    </div>
-			{% endif %}
-			<div class="form-group">
-			    <label for="contentid">{{'Comment'|trans}} ({{'mandatory'|trans}}) :</label>
-			    <textarea class="form-control" name="content" id="contentid" rows="5" cols="50">{{comment_add.CONTENT}}</textarea>
-			</div>
-			<input type="hidden" name="_csrf_comment" value="{{comment_add.KEY}}"/>
-			<button type="submit" class="btn btn-primary btn-raised">{{'Submit'|trans}}</button>
-		    </form>
+
+	    {% if show_add_comment_form %}
+		<div id="addcomment" class="tab-pane{% if comment_form.vars.submitted or COMMENT_COUNT == 0 %} active{% endif %}">
+		    {% if comment_form is defined %}
+			{{ form(comment_form) }}
+		    {% endif %}
 		</div>
 	    {% endif %}
 	</div>

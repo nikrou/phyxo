@@ -16,6 +16,7 @@ use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
+use App\Entity\Comment;
 use App\Entity\Group;
 use App\Entity\Image;
 use App\Entity\ImageTag;
@@ -25,6 +26,7 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use App\Entity\User;
+use App\Repository\CommentRepository;
 use App\Utils\UserManager;
 use Behat\Behat\Tester\Exception\PendingException;
 use Doctrine\Persistence\ManagerRegistry;
@@ -254,15 +256,19 @@ class DBContext implements Context
     /**
      * @Given a comment :comment on :photo_name by :username
      */
-    public function givenCommentOnPhotoByUser(string $comment, string $photo_name, string $username)
+    public function givenCommentOnPhotoByUser(string $comment_content, string $photo_name, string $username)
     {
-        $comment_id = $this->getContainer()->get(CommentMapper::class)->createComment(
-            $comment,
-            $this->storage->get('image_' . $photo_name)->getId(),
-            $username,
-            $this->storage->get('user_' . $username)->getId()
-        );
-        $this->storage->set('comment_' . md5($comment), $comment_id);
+        $comment = new Comment();
+        $comment->setUser($this->storage->get('user_' . $username));
+        $comment->setImage($this->storage->get('image_' . $photo_name));
+        $comment->setContent($comment_content);
+        $comment->setDate(new \DateTime());
+        $comment->setValidated(true);
+        $comment->setAnonymousId(md5('::1'));
+
+        $comment_id = $this->getContainer()->get(CommentRepository::class)->addOrUpdateComment($comment);
+
+        $this->storage->set('comment_' . md5($comment_content), $comment_id);
     }
 
     /**

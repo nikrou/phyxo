@@ -1,0 +1,98 @@
+<a name="comments"></a>
+{% if comments is defined %}
+    <script>
+     var confirm_message = "{{'Are you sure?'|trans}}";
+    </script>
+    <div class="container{% if theme_config.fluid_width %}-fluid{% endif %} comments-list">
+	<div class="row">
+	    <div class="col-lg-10 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-12 col-xs-12">
+		{% for comment_compound in comments %}
+		    {% set comment = comment_compound.comment %}
+		    <div class="comment">
+			{% if comment_compound.FORM is defined and (comment_compound.IN_EDIT) %}
+			    <a name="comment-{{comment.id}}"></a>
+			    {{ form_start(comment_compound.FORM) }}
+				{{ form_rest(comment_compound.FORM) }}
+				<div class="actions">
+				    <button type="submit" name="update" class="btn btn-warning btn-sm btn">{{'Update'|trans}}</button>
+				    {% if comment_compound.U_CANCEL is defined %}
+					<a class="btn btn-secondary btn-sm" href="{{comment_compound.U_CANCEL}}">{{'Cancel'|trans}}</a>
+				    {% endif %}
+				</div>
+			    {{ form_end(comment_compound.FORM) }}
+			{% endif %}
+
+			{% if not comment_compound.IN_EDIT %}
+			    <div class="inner-comment">
+				{% if comment_compound.comment.image %}
+				    <div class="image">
+					{% if comment_derivative_params is defined %}
+					    {% set cropped_derivative_params = define_derivative({
+						width: comment_derivative_params.sizing.ideal_size[0],
+						height: comment_derivative_params.sizing.ideal_size[0],
+						crop: true
+					    })
+					    %}
+					{% else %}
+					    {% set cropped_derivative_params = define_derivative({
+						width: derivative_params.sizing.ideal_size[0],
+						height: derivative_params.sizing.ideal_size[0],
+						crop: true
+					    })
+					    %}
+					{% endif %}
+					{% set derivative = derivative_from_image({image: comment.image, params: cropped_derivative_params}) %}
+					<a href="{{ comment_compound.image_url }}">
+					    <img src="{{ media_path(derivative) }}" alt="">
+					</a>
+				    </div>
+				{% endif %}
+
+				<div class="description">
+				    <div class="metadata">
+					{% if comment.websiteUrl %}
+					    <a href="{{comment.websiteUrl}}" class="external" rel="noreferrer noopener">{{comment.author ? comment.author : comment.user.username}}</a>
+					{% else %}
+					    {{comment.author ?? comment.user.username}}
+					{% endif %}
+
+
+					{% if comment.email %}
+					    &nbsp;-&nbsp;<a href="mailto:{{comment.email}}">{{comment.email}}</a>
+					{% endif %}
+
+					&nbsp;-&nbsp;<span class="comment-date">{{comment.date|format_datetime('long')}}</span>
+
+					<blockquote><div>{{comment.CONTENT}}</div></blockquote>
+				    </div>
+				</div>
+			    </div>
+			{% endif %}
+
+			<div class="actions">
+			    {% if comment_compound.U_EDIT is defined and not comment_compound.IN_EDIT %}
+				<a class="btn btn-primary btn-sm" href="{{comment_compound.U_EDIT}}">{{'Edit'|trans}}</a>
+			    {% endif %}
+
+			    {% if comment_compound.VALIDATE_FORM is defined %}
+				{{form_start(comment_compound.VALIDATE_FORM)}}
+				    <button type="submit" name="validate" class="btn btn-success btn-sm btn">{{'Validate'|trans}}</button>
+				{{form_end(comment_compound.VALIDATE_FORM)}}
+			    {% endif %}
+
+			    {% if comment_compound.DELETE_FORM is defined %}
+				{{form_start(comment_compound.DELETE_FORM)}}
+				    <button type="submit" name="delete" data-role="delete-comment" class="btn btn-danger btn-sm btn">{{'Delete'|trans}}</button>
+				{{form_end(comment_compound.DELETE_FORM)}}
+			    {% endif %}
+			</div>
+		    </div>
+		{% endfor %}
+	    </div>
+	</div>
+    </div>
+{% else %}
+    <div class="container{% if theme_config.fluid_width %}-fluid{% endif %} comment-search">
+	<p>{{'No comments for that search'|trans}}</p>
+    </div>
+{% endif %}

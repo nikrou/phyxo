@@ -51,6 +51,7 @@ class CommentRepository extends ServiceEntityRepository
     public function deleteByIds(array $comment_ids, ?int $user_id = null)
     {
         $qb = $this->createQueryBuilder('c');
+        $qb->delete();
         $qb->where($qb->expr()->in('c.id', $comment_ids));
 
         if (!is_null($user_id)) {
@@ -86,7 +87,8 @@ class CommentRepository extends ServiceEntityRepository
         $qb->update();
         $qb->set('c.validated', ':validated');
         $qb->setParameter('validated', true);
-        $qb->set('c.validation_date', new \DateTime());
+        $qb->set('c.validation_date', ':validation_date');
+        $qb->setParameter('validation_date', new \DateTime());
         $qb->where($qb->expr()->in('c.id', $comment_ids));
 
         $qb->getQuery()->getResult();

@@ -11,8 +11,8 @@
 
 namespace App\Controller\Admin;
 
-use App\DataMapper\CommentMapper;
 use App\Repository\CommentRepository;
+use App\Repository\UserCacheRepository;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
@@ -71,7 +71,7 @@ class AdminCommentsController extends AbstractController
             $tpl_params['comments'][] = [
                 'U_PICTURE' => $this->generateUrl('admin_photo', ['image_id' => $comment->getImage()->getId()]),
                 'ID' => $comment->getId(),
-                'TN_SRC' => $this->generateUrl('media', ['path' => $comment->getImage(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $comment->getImage()->getExtension()]),
+                'TN_SRC' => $this->generateUrl('media', ['path' => $comment->getImage()->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $comment->getImage()->getExtension()]),
                 'AUTHOR' => $author_name,
                 'DATE' => $comment->getDate()->format('c'), // ['day_name', 'day', 'month', 'year', 'time']),
                 'CONTENT' => $comment->getContent(),
@@ -107,15 +107,21 @@ class AdminCommentsController extends AbstractController
         return $this->render('comments.html.twig', $tpl_params);
     }
 
-    public function update(Request $request, CommentMapper $commentMapper, TranslatorInterface $translator, string $section = 'all', int $start = 0)
-    {
+    public function update(
+        Request $request,
+        CommentRepository $commentRepository,
+        UserCacheRepository $userCacheRepository,
+        TranslatorInterface $translator,
+        string $section = 'all',
+        int $start = 0
+    ) {
         if ($request->isMethod('POST')) {
             if (!$request->request->get('comments')) {
                 $this->addFlash('error', $translator->trans('Select at least one comment', [], 'admin'));
-                $error = true;
             } else {
                 if ($request->request->get('validate')) {
-                    $commentMapper->validateUserComment($request->request->all()['comments']);
+                    $commentRepository->validateUserComment($request->request->all()['comments']);
+                    $userCacheRepository->invalidateNumberAvailableComments();
 
                     $this->addFlash(
                         'info',
@@ -124,7 +130,8 @@ class AdminCommentsController extends AbstractController
                 }
 
                 if ($request->request->get('reject')) {
-                    $commentMapper->deleteUserComment($request->request->all()['comments']);
+                    $commentRepository->deleteByIds($request->request->all()['comments']);
+                    $userCacheRepository->invalidateNumberAvailableComments();
 
                     $this->addFlash(
                         'info',
