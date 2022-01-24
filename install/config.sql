@@ -37,10 +37,8 @@ INSERT INTO phyxo_config (param,value,type,comment) VALUES ('index_sort_order_in
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('index_flat_icon','false','boolean','Display flat icon');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('index_posted_date_icon','true','boolean','Display calendar by posted date');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('index_created_date_icon','true','boolean','Display calendar by creation date icon');
-INSERT INTO phyxo_config (param,value,type,comment) VALUES ('index_slideshow_icon','true','boolean','Display slideshow icon');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('index_new_icon','true','boolean','Display new icons next albums and pictures');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('picture_metadata_icon','true','boolean','Display metadata icon on picture page');
-INSERT INTO phyxo_config (param,value,type,comment) VALUES ('picture_slideshow_icon','true','boolean','Display slideshow icon on picture page');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('picture_favorite_icon','true','boolean','Display favorite icon on picture page');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('picture_download_icon','true','boolean','Display download icon on picture page');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('picture_navigation_icons','true','boolean','Display navigation icons on picture page');

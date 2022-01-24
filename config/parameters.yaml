@@ -29,6 +29,7 @@ parameters:
   graphics_library: 'auto' #  auto ; gd, gmagick or imagick
 
   start_param: 'start'
+  default_date_type: 'posted'
   locale: 'en'
 
   # cookies

@@ -72,7 +72,7 @@ class ImageMapper
         return $this->imageRepository;
     }
 
-    public function getPicturesFromSelection($element_id, array $selection = [], string $section = '', int $start_id = 0): array
+    public function getPicturesFromSelection($element_id, array $selection = [], string $section = '', int $start_id = 0, array $extra = []): array
     {
         $tpl_params = [];
 
@@ -99,49 +99,6 @@ class ImageMapper
         }
 
         if (count($pictures) > 0) {
-            // define category slideshow url
-            $row = reset($pictures);
-            if (in_array($section, ['category', 'list', 'tags', 'search'])) {
-                $tpl_params['cat_slideshow_url'] = $this->router->generate(
-                    'picture',
-                    [
-                        'image_id' => $row['id'],
-                        'type' => $section,
-                        'element_id' => $element_id,
-                        'slideshow' => (isset($_GET['slideshow']) ? $_GET['slideshow'] : '')
-                    ]
-                );
-            } elseif (in_array($section, ['calendar_categories'])) {
-                $tpl_params['cat_slideshow_url'] = $this->router->generate(
-                    'picture_categories_from_calendar',
-                    [
-                        'image_id' => $row['id'],
-                        'start_id' => $start_id !== 0 ? 'start-' . $start_id : '',
-                        'extra' => 'ext',
-                        'slideshow' => (isset($_GET['slideshow']) ? $_GET['slideshow'] : '')
-                    ]
-                );
-            } elseif (in_array($section, ['calendar_category'])) {
-                $url = $this->router->generate(
-                    'picture_categories_from_calendar',
-                    [
-                        'image_id' => $row['id'],
-                        'category_id' => $element_id,
-                        'start_id' => $start_id !== 0 ? 'start-' . $start_id : '',
-                        'extra' => 'extr',
-                    ]
-                );
-            } else {
-                $tpl_params['cat_slideshow_url'] = $this->router->generate(
-                    'picture_by_type',
-                    [
-                        'image_id' => $row['id'],
-                        'type' => $section,
-                        'start_id' => $start_id !== 0 ? 'start-' . $start_id : '',
-                        'slideshow' => (isset($_GET['slideshow']) ? $_GET['slideshow'] : '')
-                    ]
-                );
-            }
             if ($this->conf['activate_comments'] && $this->userMapper->getUser()->getUserInfos()->getShowNbComments()) {
                 $nb_comments_of = [];
                 foreach ($this->commentRepository->countGroupByImage($selection) as $comment) {
@@ -169,14 +126,14 @@ class ImageMapper
                         'extra' => 'extr',
                     ]
                 );
-            } elseif (in_array($section, ['calendar_category'])) {
+            } elseif (in_array($section, ['from_calendar'])) {
                 $url = $this->router->generate(
-                    'picture_categories_from_calendar',
+                    'picture_from_calendar',
                     [
                         'image_id' => $row['id'],
-                        'category_id' => $element_id,
+                        'date_type' => $extra['date_type'],
+                        'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day']),
                         'start_id' => $start_id !== 0 ? 'start-' . $start_id : '',
-                        'extra' => 'extr',
                     ]
                 );
             } else {

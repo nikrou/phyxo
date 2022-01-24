@@ -14,6 +14,7 @@ namespace App\Repository;
 use App\Entity\Image;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
+use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 class ImageRepository extends ServiceEntityRepository
@@ -343,305 +344,201 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    // Calendar queries
-    public function findImagesInPeriodsByIds(string $level, array $ids = [], string $date_where = '')
+    // Calendar images
+    protected function getFieldFromDateType(string $date_type = 'posted'): string
+    {
+        return ($date_type === 'posted') ? 'date_available' :  'date_creation';
+    }
+
+    public function countImagesByYear(string $date_type = 'posted', array $forbidden_categories = [])
     {
         $qb = $this->createQueryBuilder('i');
-        $qb->select('DISTINCT(i.' . $level . ') as period, COUNT(DISTINCT i.id) as nb_images)');
-        $qb->where($qb->expr()->in('i.id', $ids));
-        $qb->andWhere($date_where);
-        $qb->groupBy('period');
+        $qb->select('YEAR(i.' . $this->getFieldFromDateType($date_type) . ') as year, COUNT(i.id) as nb_images');
+        $qb->leftJoin('i.imageAlbums', 'ia');
+        $qb->groupBy('year');
+        $qb->addGroupBy('ia.album');
+
+        $andXExpression = [];
+
+        if (count($forbidden_categories) > 0) {
+            $andXExpression[] = $qb->expr()->notIn('ia.album', ':ids');
+            $qb->setParameter('ids', $forbidden_categories);
+        }
+
+        if (count($andXExpression) > 0) {
+            $qb->having($qb->expr()->andX(...$andXExpression));
+        }
+
+        $qb->orderBy('year', 'DESC');
 
         return $qb->getQuery()->getResult();
     }
 
-    public function findImagesInPeriods(string $level, string $date_where = '', array $forbidden_categories = [], array $album_ids = [])
+    public function findOneImagePerYear(array $years = [], string $date_type = 'posted', array $forbidden_categories = [])
+    {
+        if (count($years) === 0) {
+            return;
+        }
+
+        $fmt = '(SELECT * FROM phyxo_images AS i';
+        $fmt .= ' LEFT JOIN phyxo_image_category ic ON i.id = ic.image_id';
+        $fmt .= ' WHERE';
+
+        if (count($forbidden_categories) > 0) {
+            $fmt .= ' ic.category_id NOT IN(%s) AND';
+        }
+
+        $fmt .= ' EXTRACT(YEAR FROM %s) = ?';
+        $fmt .= ' LIMIT 1)';
+
+        if (count($forbidden_categories) > 0) {
+            $sql_select = sprintf($fmt, implode(', ', $forbidden_categories), $this->getFieldFromDateType($date_type));
+        } else {
+            $sql_select = sprintf($fmt, $this->getFieldFromDateType($date_type));
+        }
+
+        $sql_parts = array_fill(0, count($years), $sql_select);
+        $sql = implode(' UNION ALL ', $sql_parts);
+
+        $rsm = new ResultSetMappingBuilder($this->getEntityManager());
+        $rsm->addRootEntityFromClassMetadata(Image::class, 'i');
+
+        $query = $this->_em->createNativeQuery($sql, $rsm);
+        foreach ($years as $index => $year) {
+            $query->setParameter($index, $year);
+        }
+
+        return $query->getResult();
+    }
+
+    public function countImagesByMonth(int $year, string $date_type = 'posted', array $forbidden_categories = [])
     {
         $qb = $this->createQueryBuilder('i');
-        $qb->select('DISTINCT(i.' . $level . ') as period, COUNT(DISTINCT i.id) as nb_images');
+        $qb->select('MONTH(i.' . $this->getFieldFromDateType($date_type) . ') as month, COUNT(i.id) as nb_images');
         $qb->leftJoin('i.imageAlbums', 'ia');
-
-        if (count($album_ids) > 0) {
-            $qb->where($qb->expr()->in('ia.album', $album_ids));
-        }
+        $qb->where('YEAR(i.' . $this->getFieldFromDateType($date_type) . ') = :year');
+        $qb->setParameter('year', $year);
+        $qb->groupBy('month');
+        $qb->orderBy('month', 'ASC');
 
         if (count($forbidden_categories) > 0) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
         }
 
-        if ($date_where) {
-            $qb->andWhere($date_where);
-        }
-
-        $qb->groupBy('period');
-
         return $qb->getQuery()->getResult();
     }
 
-    public function findNextPrevPeriodByIds(array $date_elements, array $calendar_levels, array $ids = [], string $date_field = '')
+    public function findOneImagePerMonth(int $year, array $months = [], string $date_type = 'posted', array $forbidden_categories = [])
     {
-        $sub_queries = [];
-        $nb_elements = count($date_elements);
-        for ($i = 0; $i < $nb_elements; $i++) {
-            if ($date_elements[$i] !== 'any') { // @TODO: replace by null ?
-                //$sub_queries[] = $this->conn->db_cast_to_text($calendar_levels[$i]['sql']);
-                $sub_queries[] = $calendar_levels[$i]['sql'];
-            }
+        if (count($months) === 0) {
+            return;
         }
 
-        $sub_queries = array_map(
-            function($field) {
-                return 'i.' . $field;
-            }, $sub_queries
-        );
-        $qb = $this->createQueryBuilder('i');
-        $qb->select('CONCAT(' . implode(',\'-\',', $sub_queries) . ') AS period');
-        $qb->where($qb->expr()->in('i.id', $ids));
-        $qb->andWhere($qb->expr()->isNotNull('i.' . $date_field));
-        $qb->groupBy('period');
+        $fmt = '(SELECT * FROM phyxo_images AS i';
+        $fmt .= ' LEFT JOIN phyxo_image_category ic ON i.id = ic.image_id';
+        $fmt .= ' WHERE';
 
-        return $qb->getQuery()->getResult();
+        if (count($forbidden_categories) > 0) {
+            $fmt .= ' ic.category_id NOT IN(%s) AND';
+        }
+
+        $fmt .= ' EXTRACT(MONTH FROM %s) = ?';
+        $fmt .= ' AND EXTRACT(YEAR FROM %s) = :year';
+        $fmt .= ' LIMIT 1)';
+
+        if (count($forbidden_categories) > 0) {
+            $sql_select = sprintf($fmt, implode(', ', $forbidden_categories), $this->getFieldFromDateType($date_type), $this->getFieldFromDateType($date_type));
+        } else {
+            $sql_select = sprintf($fmt, $this->getFieldFromDateType($date_type), $this->getFieldFromDateType($date_type));
+        }
+
+        $sql_parts = array_fill(0, count($months), $sql_select);
+        $sql = implode(' UNION ALL ', $sql_parts);
+
+        $rsm = new ResultSetMappingBuilder($this->getEntityManager());
+        $rsm->addRootEntityFromClassMetadata(Image::class, 'i');
+
+        $query = $this->_em->createNativeQuery($sql, $rsm);
+        $query->setParameter('year', $year);
+        foreach ($months as $index => $month) {
+            $query->setParameter($index, $month);
+        }
+
+        return $query->getResult();
     }
 
-    // calendar query
-    public function findNextPrevPeriod(array $date_elements, array $calendar_levels, string $date_field = '', array $forbidden_categories = [], array $album_ids = [])
+    public function countImagesByDay(int $year, int $month, string $date_type = 'posted', array $forbidden_categories = [])
     {
-        $sub_queries = [];
-        $nb_elements = count($date_elements);
-        for ($i = 0; $i < $nb_elements; $i++) {
-            if ($date_elements[$i] !== 'any') { // @TODO: replace by null ?
-                // $sub_queries[] = $this->conn->db_cast_to_text($calendar_levels[$i]['sql']);
-                $sub_queries[] = $calendar_levels[$i]['sql'];
-            }
-        }
-
-        $sub_queries = array_map(
-            function($field) {
-                return 'i.' . $field;
-            }, $sub_queries
-        );
         $qb = $this->createQueryBuilder('i');
+        $qb->select('DAY(i.' . $this->getFieldFromDateType($date_type) . ') as day, COUNT(i.id) as nb_images');
         $qb->leftJoin('i.imageAlbums', 'ia');
-        $qb->select('CONCAT(' . implode(',\'-\',', $sub_queries) . ') AS period');
-        if (count($album_ids) > 0) {
-            $qb->where($qb->expr()->in('ia.album', $album_ids));
-        }
+        $qb->groupBy('day');
+        $qb->where('YEAR(i.' . $this->getFieldFromDateType($date_type) . ') = :year');
+        $qb->andWhere('MONTH(i.' . $this->getFieldFromDateType($date_type) . ') = :month');
+        $qb->setParameter('year', $year);
+        $qb->setParameter('month', $month);
+        $qb->orderBy('day', 'ASC');
 
         if (count($forbidden_categories) > 0) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
         }
 
-        $qb->andWhere($qb->expr()->isNotNull('i.' . $date_field));
-        $qb->groupBy('period');
-
         return $qb->getQuery()->getResult();
     }
 
-    public function findDistincIds(array $forbidden_categories = [], array $album_ids = [], array $sorts = [])
+    public function findOneImagePerDay(int $year, int $month, array $days = [], string $date_type = 'posted', array $forbidden_categories = [])
     {
-        $qb = $this->createQueryBuilder('i');
-        $qb->select('DISTINCT(i.id)');
-        $qb->leftJoin('i.imageAlbums', 'ia');
-
-        if (count($album_ids) > 0) {
-            $qb->where($qb->expr()->in('ia.album', $album_ids));
+        if (count($days) === 0) {
+            return;
         }
+
+        $fmt = '(SELECT * FROM phyxo_images AS i';
+        $fmt .= ' LEFT JOIN phyxo_image_category ic ON i.id = ic.image_id';
+        $fmt .= ' WHERE';
 
         if (count($forbidden_categories) > 0) {
-            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
+            $fmt .= ' ic.category_id NOT IN(%s) AND';
         }
 
-        if (count($sorts) > 0) {
-            foreach ($sorts as $order_by) {
-                $qb->orderBy('i.' . $order_by[0], $order_by[1] ?? null);
-            }
-        }
-
-        return $qb->getQuery()->getResult();
-    }
-
-    public function findDayOfMonthPeriodAndImagesCountByIds(array $ids, string $date_field, string $date_where = '')
-    {
-        $qb = $this->createQueryBuilder('i');
-        $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id)) as count');
-        $qb->where($qb->expr()->in('i.id', $ids));
-
-        if ($date_where) {
-            $qb->andWhere($date_where);
-        }
-        $qb->groupBy('period');
-        $qb->orderBy('period', 'ASC');
-
-        return $qb->getQuery()->getResult();
-    }
-
-    public function findDayOfMonthPeriodAndImagesCount(string $date_field, string $date_where = '', array $forbidden_categories = [], array $album_ids = [])
-    {
-        $qb = $this->createQueryBuilder('i');
-        $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id)) as count');
-        $qb->leftJoin('i.imageAlbums', 'ia');
-
-        if (count($album_ids) > 0) {
-            $qb->where($qb->expr()->in('ia.album', $album_ids));
-        }
-
-        if ($date_where) {
-            $qb->andWhere($date_where);
-        }
+        $fmt .= ' EXTRACT(DAY FROM %s) = ?';
+        $fmt .= ' AND EXTRACT(MONTH FROM %s) = :month';
+        $fmt .= ' AND EXTRACT(YEAR FROM %s) = :year';
+        $fmt .= ' LIMIT 1)';
 
         if (count($forbidden_categories) > 0) {
-            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
+            $sql_select = sprintf(
+                $fmt,
+                implode(', ', $forbidden_categories),
+                $this->getFieldFromDateType($date_type),
+                $this->getFieldFromDateType($date_type),
+                $this->getFieldFromDateType($date_type)
+            );
+        } else {
+            $sql_select = sprintf($fmt, $this->getFieldFromDateType($date_type), $this->getFieldFromDateType($date_type), $this->getFieldFromDateType($date_type));
         }
 
-        $qb->groupBy('period');
-        $qb->orderBy('period', 'ASC');
+        $sql_parts = array_fill(0, count($days), $sql_select);
+        $sql = implode(' UNION ALL ', $sql_parts);
 
-        return $qb->getQuery()->getResult();
+        $rsm = new ResultSetMappingBuilder($this->getEntityManager());
+        $rsm->addRootEntityFromClassMetadata(Image::class, 'i');
+
+        $query = $this->_em->createNativeQuery($sql, $rsm);
+        $query->setParameter('year', $year);
+        $query->setParameter('month', $month);
+        foreach ($days as $index => $day) {
+            $query->setParameter($index, $day);
+        }
+
+        return $query->getResult();
     }
 
-    public function findYYYYMMPeriodAndImagesCountByIds(array $ids, string $date_field, string $date_where = '')
+    public function findImagesPerDate(\DateTimeInterface $date, string $date_type = 'posted', array $forbidden_categories = [])
     {
-        $qb = $this->createQueryBuilder('i');
-        $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id)) as count');
-        $qb->where($qb->expr()->in('i.id', $ids));
-
-        if ($date_where) {
-            $qb->andWhere($date_where);
-        }
-        $qb->groupBy('period');
-        $qb->orderBy('period', 'ASC');
-
-        return $qb->getQuery()->getResult();
-    }
-
-    public function findYYYYMMPeriodAndImagesCount(string $date_field, string $date_where = '', array $forbidden_categories = [], array $album_ids = [])
-    {
-        $qb = $this->createQueryBuilder('i');
-        $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id)) as count');
-        $qb->leftJoin('i.imageAlbums', 'ia');
-
-        if (count($album_ids) > 0) {
-            $qb->where($qb->expr()->in('ia.album', $album_ids));
-        }
-
-        if (count($forbidden_categories) > 0) {
-            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
-        }
-
-        if ($date_where) {
-            $qb->andWhere($date_where);
-        }
-
-        $qb->groupBy('period');
-        $qb->orderBy('period', 'ASC');
-
-        return $qb->getQuery()->getResult();
-    }
-
-    public function findMMDDPeriodAndImagesCountByIds(array $ids, string $date_field, string $date_where = '')
-    {
-        $qb = $this->createQueryBuilder('i');
-        $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id)) as count');
-        $qb->where($qb->expr()->in('i.id', $ids));
-        if ($date_where) {
-            $qb->andWhere($date_where);
-        }
-
-        $qb->groupBy('period');
-        $qb->orderBy('period', 'ASC');
-
-        return $qb->getQuery()->getResult();
-    }
-
-    public function findMMDDPeriodAndImagesCount(string $date_field, string $date_where = '', array $forbidden_categories = [], array $album_ids = [])
-    {
-        $qb = $this->createQueryBuilder('i');
-        $qb->select('i.' . $date_field . ' AS period, COUNT(DISTINCT(i.id)) as count');
-        $qb->leftJoin('i.imageAlbums', 'ia');
-
-        if (count($album_ids) > 0) {
-            $qb->where($qb->expr()->in('ia.album', $album_ids));
-        }
-
-        if (count($forbidden_categories) > 0) {
-            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
-        }
-
-        if ($date_where) {
-            $qb->andWhere($date_where);
-        }
-
-        $qb->groupBy('period');
-        $qb->orderBy('period', 'ASC');
-
-        return $qb->getQuery()->getResult();
-    }
-
-    public function findOneRandomInWeekByIds(array $ids, string $date_where = '')
-    {
-        // avoid rand() in sql query
-        $qb = $this->createQueryBuilder('i');
-        $qb->select('COUNT(1)');
-        $qb->where($qb->expr()->in('i.id', $ids));
-        if ($date_where) {
-            $qb->andWhere($date_where);
-        }
-
-        $nb_images = $qb->getQuery()->getSingleScalarResult();
-
-        $qb = $this->createQueryBuilder('i');
-        $qb->where($qb->expr()->in('i.id', $ids));
-        if ($date_where) {
-            $qb->andWhere($date_where);
-        }
-        $qb->setFirstResult(random_int(0, $nb_images));
-        $qb->setMaxResults(1);
-
-        return $qb->getQuery()->getOneOrNullResult();
-    }
-
-    public function findOneRandomInWeek(string $date_where = '', array $forbidden_categories = [], array $album_ids = [])
-    {
-        // avoid rand() in sql query
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
-        $qb->select('COUNT(1)');
-
-        if (count($album_ids) > 0) {
-            $qb->where($qb->expr()->in('ia.album', $album_ids));
-        }
-        if ($date_where) {
-            $qb->andWhere($date_where);
-        }
-
-        if (count($forbidden_categories) > 0) {
-            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
-        }
-
-        $nb_images = $qb->getQuery()->getSingleScalarResult();
-
-        $qb = $this->createQueryBuilder('i');
-        $qb->leftJoin('i.imageAlbums', 'ia');
-
-        if (count($album_ids) > 0) {
-            $qb->where($qb->expr()->in('ia.album', $album_ids));
-        }
-        if ($date_where) {
-            $qb->andWhere($date_where);
-        }
-        $qb->setFirstResult(random_int(0, $nb_images));
-        $qb->setMaxResults(1);
-
-        return $qb->getQuery()->getOneOrNullResult();
-    }
-
-    public function findList(array $ids, array $forbidden_categories = [], ?string $order_by = null)
-    {
-        $qb = $this->createQueryBuilder('i');
-        $qb->select('DISTINCT(i.id)');
-        $qb->leftJoin('i.imageAlbums', 'ia');
-
-        $qb->where($qb->expr()->in('i.id', $ids));
+        $qb->where('DATE(i.' . $this->getFieldFromDateType($date_type) . ') = :date');
+        $qb->setParameter('date', $date);
         if (count($forbidden_categories) > 0) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
         }

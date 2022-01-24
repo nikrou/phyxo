@@ -404,29 +404,6 @@ $conf['filter_pages'] = [
     'register' => ['cancel' => true],
 ];
 
-// +-----------------------------------------------------------------------+
-// | Slideshow                                                             |
-// +-----------------------------------------------------------------------+
-// slideshow_period : waiting time in seconds before loading a new page
-// during automated slideshow
-// slideshow_period_min, slideshow_period_max are bounds of slideshow_period
-// slideshow_period_step is the step of navigation between min and max
-$conf['slideshow_period_min'] = 1;
-$conf['slideshow_period_max'] = 10;
-$conf['slideshow_period_step'] = 1;
-$conf['slideshow_period'] = 4;
-
-// slideshow_repeat : slideshow loops on pictures
-$conf['slideshow_repeat'] = true;
-
-// $conf['light_slideshow'] indicates to use slideshow.tpl in state of
-// picture.tpl for slideshow
-// Take care to have slideshow.tpl in all available templates
-// Or set it false.
-// Check if Picture's plugins are compliant with it
-// Every plugin from 1.7 would be design to manage light_slideshow case.
-$conf['light_slideshow'] = true;
-
 // enable the synchronization method for adding photos
 $conf['enable_synchronization'] = false;
 

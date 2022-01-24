@@ -1,0 +1,26 @@
+{% extends "__layout.html.twig" %}
+
+{% block content %}
+    <nav class="navbar navbar-contextual navbar-expand-lg {{theme_config.navbar_contextual_style}} {{theme_config.navbar_contextual_bg}} sticky-top mb-2">
+	<div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
+	    <nav aria-label="nav-breadcrumb d-inline-flex">
+		<ol class="breadcrumb">
+		    {% block breadcrumb_items %}
+			<li class="breadcrumb-item"><a href="{{ path('homepage') }}" title="{{'Home'|trans}}"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+			<li class="breadcrumb-item">{{'Calendar'|trans}}</li>
+			<li class="breadcrumb-item"><a href="{{ path('calendar', {'date_type': date_type}) }}">{{date_type=='posted'?'Posted date'|trans:'Creation date'|trans}}</a></li>
+		    {% endblock %}
+		</ol>
+	    </nav>
+	</div>
+    </nav>
+
+    <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
+	{% block calendar %}
+	    <h1>{{'Calendar'|trans}} - {{'number_of_photos'|trans({'count': number_of_images}) }}</h1>
+	    <div class="calendar">
+		{{ include('_calendar_view.html.twig', { elements: years}) }}
+	    </div>
+	{% endblock %}
+    </div>
+{% endblock %}

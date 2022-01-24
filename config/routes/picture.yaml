@@ -20,7 +20,7 @@ picture:
   controller: App\Controller\PictureController::picture
   requirements:
     element_id: .+
-    type: category|list|tags|search|favorites|most_visited|best_rated|recent_pics|recent_cats|file
+    type: category|list|tags|search|favorites|most_visited|best_rated|recent_pics|recent_cats|file|from_calendar
 
 picture_rate:
   path: /rate
@@ -37,10 +37,13 @@ picture_by_type:
     type: favorites|most_visited|recent_pics|best_rated
     start_id: start-\d+
 
-picture_category_from_calendar:
-  path: /picture/{image_id}/category/{category_id}/{extra}
+picture_from_calendar:
+  path: /picture/{image_id}/calendar/{date_type}/{year}/{month}/{day}
   controller: App\Controller\PictureController::pictureFromCalendar
+  requirements:
+    image_id: \d+
+    date_type: created|posted
+    year: \d{4}
+    month: \d{2}
+    day: \d{2}
 
-picture_categories_from_calendar:
-  path: /picture/{image_id}/categories/{extra}
-  controller: App\Controller\PictureController::pictureFromCalendar

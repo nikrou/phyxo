@@ -115,5 +115,6 @@ src/Phyxo/DBLayer/sqliteConnection.php
 src/Phyxo/DBLayer/SessionHandler.php
 src/Phyxo/DBLayer/dbException.php
 
-
-
+src/Phyxo/Calendar/CalendarBase.php
+src/Phyxo/Calendar/CalendarMonthly.php
+src/Phyxo/Calendar/CalendarWeekly.php

@@ -39,6 +39,7 @@ services:
       $adminThemeDir: '%admin_theme_dir%'
       $graphicsLibrary: '%graphics_library%'
       $prefix: '%database_prefix%'
+      $defaultDateType: '%default_date_type%'
 
   # makes classes in src/ available to be used as services
   # this creates a service per class whose id is the fully-qualified class name

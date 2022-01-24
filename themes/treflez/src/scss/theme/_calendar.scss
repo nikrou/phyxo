@@ -1,0 +1,66 @@
+.calendar {
+  display: flex;
+  flex-wrap: wrap;
+
+  .thumbnail {
+    border: 1px solid $gray-500;
+    width: 202px;
+    height: 202px;
+
+    figure {
+      position: relative;
+      margin: 0;
+      color: $white;
+
+      figcaption {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        right: 0;
+
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+
+        .date-part {
+          font-size: 2em;
+          margin: 0.2em;
+          text-align: right;
+        }
+
+        .number-of-images {
+          margin: 0.4em;
+        }
+      }
+    }
+  }
+}
+
+.calendar-table {
+  .days {
+    text-transform: capitalize;
+    text-align: right;
+  }
+
+  .calendar-day {
+    border: 1px solid $white;
+    width: 120px;
+    height: 120px;
+    position: relative;
+
+    .day-in-month {
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin: 0.1em;
+    }
+
+    .number-of-images {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      margin: 0.1em;
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{% set calendar_derivative_params = define_derivative({width: '200px', height: '200px', crop: true}) %}
+
+{% for element in elements %}
+    <div class="thumbnail" data-testid="{{element.label}}">
+	{% set figure %}
+	<figure>
+	    {% if element.nb_images > 0 %}
+		{% set derivative_square = derivative_from_image({ image: element.image, params: calendar_derivative_params}) %}
+		<img src="{{ media_path(derivative_square) }}" alt="">
+	    {% endif %}
+	    <figcaption>
+		<div class="date-part">{{element.label}}</div>
+		{% if element.nb_images > 0 %}
+		    <div class="number-of-images">{{element.nb_images}}</div>
+		{% endif %}
+	    </figcaption>
+	</figure>
+        {% endset %}
+
+	{% if element.nb_images > 0 %}
+	    <a href="{{ element.url }}">
+		{{ figure }}
+	    </a>
+	{% else %}
+	    {{ figure }}
+	{% endif %}
+    </div>
+{% endfor %}

@@ -53,13 +53,6 @@
 		</label>
 	    </p>
 	    <p>
-		<label class="font-checkbox">
-		    <i class="fa fa-check-square"></i>
-		    <input type="checkbox" name="index_slideshow_icon" {% if display.index_slideshow_icon %}checked="checked"{% endif %}>
-		    {{'Activate icon "{icon}"'|trans({'icon': 'Slideshow'|trans})}}
-		</label>
-	    </p>
-	    <p>
 		<label>
 		    {{'Number of albums per page'|trans}}
 		    <input class="form-control" type="text" size="3" maxlength="4" name="nb_categories_page" id="nb_categories_page" value="{{display.NB_CATEGORIES_PAGE}}">
@@ -69,13 +62,6 @@
 
 	<div class="fieldset">
 	    <h3>{{'Photo Page'|trans}}</h3>
-	    <p>
-		<label class="font-checkbox">
-		    <i class="fa fa-check-square"></i>
-		    <input type="checkbox" name="picture_slideshow_icon" {% if display.picture_slideshow_icon %}checked="checked"{% endif %}>
-		    {{'Activate icon "{icon}"'|trans({'icon': 'Slideshow'|trans})}}
-		</label>
-	    </p>
 	    <p>
 		<label class="font-checkbox">
 		    <i class="fa fa-check-square"></i>

@@ -16,6 +16,13 @@ doctrine:
             enum: string
 
     orm:
+        dql:
+            datetime_functions:
+                date: App\DQL\Date
+                year: App\DQL\Year
+                month: App\DQL\Month
+                day: App\DQL\Day
+
         auto_generate_proxy_classes: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
         auto_mapping: true

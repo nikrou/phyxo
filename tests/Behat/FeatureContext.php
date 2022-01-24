@@ -490,6 +490,63 @@ class FeatureContext extends BaseContext
     }
 
     /**
+     * @Then I should see :nb_thumbnails calendar thumbnail
+     * @Then I should see :nb_thumbnails calendar thumbnails
+     */
+    public function iShouldSeeCalendarThumbnail(int $nb_thumbnails)
+    {
+        $divThumbnails = $this->getPage()->findAll('css', '.thumbnail');
+        if (count($divThumbnails) !== $nb_thumbnails) {
+            throw new \Exception(sprintf('Number of thumbnails should be "%s" but "%s" found', $nb_thumbnails, count($divThumbnails)));
+        }
+    }
+
+    /**
+     * @Then the calendar thumbnail :datePart should contains :nb_images image
+     * @Then the calendar thumbnail :datePart should contains :nb_images images
+     */
+    public function calendarThumbnailShouldContainsNImages(string $datePart, string $nb_images)
+    {
+        $divThumbnail = $this->getPage()->find('css', sprintf('[data-testid="%s"] .number-of-images', $datePart));
+        if (is_null($divThumbnail)) {
+            throw new \Exception(sprintf('Cannot find thumbnail with date part "%s" on the page', $datePart));
+        }
+
+        if ($nb_images !== $divThumbnail->getText()) {
+            throw new \Exception(sprintf('Number of images for date part "%s" should be "%s" but "%s" found', $datePart, $nb_images, $divThumbnail->getText()));
+        }
+    }
+
+    /**
+     * @Then there's :nb_images image for day :day
+     * @Then there's :nb_images images for day :day
+     */
+    public function theresImageForDay(int $nb_images, int $day)
+    {
+        $td = $this->getPage()->find('css', sprintf('[data-testid="day-%d"] .number-of-images', $day));
+        if (is_null($td)) {
+            throw new \Exception(sprintf('Cannot find calendar cell with day "%d" on the page', $day));
+        }
+
+        if ($nb_images !== (int) $td->getText()) {
+            throw new \Exception(sprintf('Number of images for day "%d" should be "%d" but "%s" found', $day, $nb_images, $td->getText()));
+        }
+    }
+
+    /**
+     * @When I click calendar thumbnail :day
+     */
+    public function iClickCalendarThumbnail(string $day)
+    {
+        $a_in_td = $this->getPage()->find('css', sprintf('[data-testid="day-%d"] a', $day));
+        if (is_null($a_in_td)) {
+            throw new \Exception(sprintf('Cannot find calendar cell with day "%d" on the page', $day));
+        }
+
+        $a_in_td->click();
+    }
+
+    /**
      * @Then I restart my browser
      */
     public function iRestartMyBrowser()

@@ -1,3 +1,4 @@
 parameters:
     upload_dir: '%kernel.project_dir%/tests/upload'
     media_cache_dir: '%kernel.project_dir%/tests/media'
+    default_date_type: 'created'

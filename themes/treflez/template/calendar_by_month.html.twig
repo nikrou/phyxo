@@ -1,0 +1,64 @@
+{% extends "calendar_by_year.html.twig" %}
+
+{% block breadcrumb_items %}
+    {{ parent() }}
+    <li class="breadcrumb-item">
+	<a href="{{ path('calendar_by_month', {'date_type': date_type, 'year': year, 'month': month}) }}">{{month_label}}</a>
+    </li>
+{% endblock %}
+
+{% block calendar %}
+    <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
+	{% set calendar_derivative_params = define_derivative_square() %}
+
+	<h1>{{ month_date|format_date(pattern="MMMM y") }} - {{'number_of_photos'|trans({'count': number_of_images}) }}</h1>
+
+	<table class="calendar-table">
+	    <thead>
+		<tr class="days">
+		    <th>{{'Monday'|format_date(pattern="EEEE")}}</th>
+		    <th>{{'Tuesday'|format_date(pattern="EEEE")}}</th>
+		    <th>{{'Wednesday'|format_date(pattern="EEEE")}}</th>
+		    <th>{{'Thursday'|format_date(pattern="EEEE")}}</th>
+		    <th>{{'Friday'|format_date(pattern="EEEE")}}</th>
+		    <th>{{'Saturday'|format_date(pattern="EEEE")}}</th>
+		    <th>{{'Sunday'|format_date(pattern="EEEE")}}</th>
+		</tr>
+	    </thead>
+	    <tbody>
+		<tr>
+		    {% set daysInMonth = month_date|date('t') %}
+		    {% set startDow = month_date|date('F 1\\s\\t Y')|date('w') - 1 %}
+		    {% set dow = startDow %}
+		    {% for day in range(1, daysInMonth) %}
+			{% if loop.first and startDow != 0 %}
+			    <td colspan="{{ startDow }}"></td>
+			{% endif %}
+			<td class="calendar-day" data-testid="day-{{day}}">
+			    <div class="day-in-month">{{ day }}</div>
+			    {% if days[day].nb_images > 0 %}
+				{% set derivative_square = derivative_from_image({ image: days[day].image, params: calendar_derivative_params}) %}
+
+				<a href="{{ days[day].url }}">
+				    <img src="{{ media_path(derivative_square) }}" alt="">
+				</a>
+			    {% endif %}
+			    {% if days[day].nb_images > 0 %}
+				<div class="number-of-images">{{ days[day].nb_images }}</div>
+			    {% endif %}
+			</td>
+			{% if loop.last and dow != 6 %}
+			    <td colspan="{{ 6 - dow }}">&nbsp;</td>
+			{% endif %}
+			{% if dow == 6 %}
+			    {% set dow = 0 %}
+		</tr>
+		<tr>
+			{% else %}
+		    {% set dow = dow + 1 %}
+			{% endif %}
+		    {% endfor %}
+		</tr>
+	    </tbody>
+	</table>
+{% endblock %}

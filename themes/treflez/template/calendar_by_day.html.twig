@@ -1,0 +1,22 @@
+{% extends "calendar_by_month.html.twig" %}
+
+{% block breadcrumb_items %}
+    {{ parent() }}
+    <li class="breadcrumb-item">
+	<a href="{{ path('calendar_by_day', {'date_type': date_type, 'year': year, 'month': month, 'day': day}) }}">{{day}}</a>
+    </li>
+{% endblock %}
+
+{% block calendar %}
+    <h1>{{ current_day|format_date('long') }} - {{'number_of_photos'|trans({'count': number_of_images}) }}</h1>
+
+    {% if thumbnails is defined  %}
+	{{ include('_thumbnails.html.twig') }}
+    {% endif %}
+
+    {% if thumb_navbar is defined and (not thumb_navbar is empty) %}
+	<div class="row justify-content-center">
+	    {{ include('_navigation_bar.html.twig', { navbar: thumb_navbar}) }}
+	</div>
+    {% endif %}
+{% endblock %}

@@ -44,8 +44,6 @@
 {% endblock %}
 
 {% block content %}
-    {% if PLUGIN_PICTURE_BEFORE is defined %}{{PLUGIN_PICTURE_BEFORE}}{% endif %}
-
     {{ include('_picture_nav.html.twig') }}
 
     <div id="main-picture-container" class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
@@ -197,8 +195,6 @@
 		</div>
 	    {% endif %}
 	</div>
-
-	{% if PLUGIN_PICTURE_AFTER is defined %}{{PLUGIN_PICTURE_AFTER}}{% endif %}
     </div>
 
     {% if theme_config.photoswipe %}

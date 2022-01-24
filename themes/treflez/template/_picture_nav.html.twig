@@ -22,13 +22,7 @@
 			</div>
                     </li>
 		{% endif %}
-		{% if U_SLIDESHOW_START is defined %}
-                    <li class="nav-item">
-			<a class="nav-link" href="{% if theme_config.photoswipe %}javascript:;{else}{{U_SLIDESHOW_START}}{% endif %}" title="{{'slideshow'|trans}}" id="startSlideshow" rel="nofollow">
-                            <i class="fa fa-play" aria-hidden="true"></i><span class="d-lg-none ml-2 text-capitalize">{{'slideshow'|trans}}</span>
-			</a>
-                    </li>
-		{% endif %}
+
 		{# % if U_METADATA is defined %}
                     <li class="nav-item">
 			<a class="nav-link" href="{{U_METADATA}}" title="{{'Show file metadata'|trans}}" rel="nofollow">
@@ -83,8 +77,6 @@
 			</a>
                     </li>
 		{% endif %}
-		{% if PLUGIN_PICTURE_BUTTONS is defined %}{% for button in PLUGIN_PICTURE_BUTTONS %}{{button}}{% endfor %}{% endif %}
-		{% if PLUGIN_PICTURE_ACTIONS is defined %}{{PLUGIN_PICTURE_ACTIONS}}{% endif %}
             </ul>
         </div>
     </div>

@@ -719,4 +719,9 @@ class Image
 
         return $this;
     }
+
+    public function getDateByType(string $date_type): ?\DateTimeInterface
+    {
+        return ($date_type === 'posted')? $this->getDateAvailable():$this->getDateCreation();
+    }
 }

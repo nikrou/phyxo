@@ -224,8 +224,8 @@ class AlbumController extends CommonController
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
 
         $tpl_params['SHOW_THUMBNAIL_CAPTION'] = $conf['show_thumbnail_caption'];
-        $tpl_params['U_MODE_POSTED'] = $this->generateUrl('calendar_category_monthly', ['date_type' => 'posted', 'view_type' => 'calendar', 'category_id' => $category_id]);
-        $tpl_params['U_MODE_CREATED'] = $this->generateUrl('calendar_category_monthly', ['date_type' => 'created', 'view_type' => 'calendar', 'category_id' => $category_id]);
+        $tpl_params['U_MODE_POSTED'] = $this->generateUrl('calendar', ['date_type' => 'posted', 'category_id' => $category_id]);
+        $tpl_params['U_MODE_CREATED'] = $this->generateUrl('calendar', ['date_type' => 'created', 'category_id' => $category_id]);
         $tpl_params['START_ID'] = $start;
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 

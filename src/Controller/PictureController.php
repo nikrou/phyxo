@@ -36,7 +36,6 @@ use App\Repository\CommentRepository;
 use App\Repository\ImageAlbumRepository;
 use App\Security\AppUserService;
 use App\Security\TagVoter;
-use IntlDateFormatter;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -67,7 +66,8 @@ class PictureController extends CommonController
         ImageAlbumRepository $imageAlbumRepository,
         EventDispatcherInterface $eventDispatcher,
         AppUserService $appUserService,
-        CommentRepository $commentRepository
+        CommentRepository $commentRepository,
+        array $extra = []
     ) {
         $this->translator = $translator;
         $tpl_params = [];
@@ -85,6 +85,11 @@ class PictureController extends CommonController
             foreach ($imageMapper->getRepository()->searchDistinctId($appUserService->getUser()->getUserInfos()->getForbiddenCategories(), $conf['order_by']) as $image) {
                 $tpl_params['items'][] = $image['id'];
             }
+        } elseif ($type === 'from_calendar') {
+            $tpl_params['items'] = [];
+            foreach ($imageMapper->getRepository()->findImagesPerDate($extra['current_day'], $extra['date_type']) as $image) {
+                $tpl_params['items'][] = $image->getId();
+            }
         } else {
             $history_section = History::SECTION_ALBUMS;
             $album = $albumMapper->getRepository()->find((int) $element_id);
@@ -101,7 +106,7 @@ class PictureController extends CommonController
         if (count($tpl_params['items']) > 0) {
             $tpl_params = array_merge(
                 $tpl_params,
-                $imageMapper->getPicturesFromSelection($element_id, $tpl_params['items'], $type)
+                $imageMapper->getPicturesFromSelection($element_id, $tpl_params['items'], $type, 0, $extra)
             );
 
             $tpl_params['derivative_params_square'] = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
@@ -127,20 +132,63 @@ class PictureController extends CommonController
         if (count($tpl_params['items']) > 0) {
             $current_index = array_search($image_id, $tpl_params['items']);
             if ($current_index > 0) {
-                $tpl_params['first'] = [
-                    'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][0], 'type' => $type, 'element_id' => $element_id]),
-                ];
-                $tpl_params['previous'] = [
-                    'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][$current_index - 1], 'type' => $type, 'element_id' => $element_id]),
-                ];
+                if ($type === 'from_calendar') {
+                    $tpl_params['first'] = [
+                        'U_IMG' => $this->generateUrl(
+                            'picture_from_calendar',
+                            [
+                                'image_id' => $tpl_params['items'][0], 'date_type' => $extra['date_type'],
+                                'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day'])
+                            ]
+                        )
+                    ];
+                    ;
+                    $tpl_params['previous'] = [
+                        'U_IMG' => $this->generateUrl(
+                            'picture_from_calendar',
+                            [
+                                'image_id' => $tpl_params['items'][$current_index - 1], 'date_type' => $extra['date_type'],
+                                'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day'])
+                            ]
+                        ),
+                    ];
+                } else {
+                    $tpl_params['first'] = [
+                        'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][0], 'type' => $type, 'element_id' => $element_id]),
+                    ];
+                    $tpl_params['previous'] = [
+                        'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][$current_index - 1], 'type' => $type, 'element_id' => $element_id]),
+                    ];
+                }
             }
             if ($current_index < (count($tpl_params['items']) - 1)) {
-                $tpl_params['last'] = [
-                    'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][count($tpl_params['items']) - 1], 'type' => $type, 'element_id' => $element_id]),
-                ];
-                $tpl_params['next'] = [
-                    'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][$current_index + 1], 'type' => $type, 'element_id' => $element_id]),
-                ];
+                if ($type === 'from_calendar') {
+                    $tpl_params['last'] = [
+                        'U_IMG' => $this->generateUrl(
+                            'picture_from_calendar',
+                            [
+                                'image_id' => $tpl_params['items'][count($tpl_params['items']) - 1], 'date_type' => $extra['date_type'],
+                                'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day'])
+                            ]
+                        ),
+                    ];
+                    $tpl_params['next'] = [
+                        'U_IMG' => $this->generateUrl(
+                            'picture_from_calendar',
+                            [
+                                'image_id' => $tpl_params['items'][$current_index + 1], 'date_type' => $extra['date_type'],
+                                'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day'])
+                            ]
+                        )
+                    ];
+                } else {
+                    $tpl_params['last'] = [
+                        'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][count($tpl_params['items']) - 1], 'type' => $type, 'element_id' => $element_id]),
+                    ];
+                    $tpl_params['next'] = [
+                        'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][$current_index + 1], 'type' => $type, 'element_id' => $element_id]),
+                    ];
+                }
             }
 
             $tpl_params['DISPLAY_NAV_BUTTONS'] = $conf['picture_navigation_icons'];
@@ -169,16 +217,35 @@ class PictureController extends CommonController
         $tpl_params['U_METADATA'] = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id, 'metadata' => '']);
         $tpl_params['current']['unique_derivatives'] = $unique_derivatives;
 
-        $fmt = new IntlDateFormatter($appUserService->getUser()->getLocale(), IntlDateFormatter::FULL, IntlDateFormatter::NONE);
+        $fmt = new \IntlDateFormatter($appUserService->getUser()->getLocale(), \IntlDateFormatter::FULL, \IntlDateFormatter::NONE);
         $tpl_params['INFO_POSTED_DATE'] = [
             'label' => $fmt->format($picture['date_available']),
-            'url' => $this->generateUrl('calendar_categories_monthly', ['date_type' => 'posted', 'view_type' => 'calendar'])
+            'url' => $this->generateUrl(
+                'calendar_by_day',
+                [
+                    'date_type' => 'posted', 'year' => $picture['date_available']->format('Y'),
+                    'month' => $picture['date_available']->format('m'), 'day' => $picture['date_available']->format('d')
+                ]
+            )
         ];
 
-        $tpl_params['INFO_CREATION_DATE'] = [
-            'label' => $picture['date_creation'] ? $fmt->format($picture['date_creation']) : 'N/A',
-            'url' => $this->generateUrl('calendar_categories_monthly', ['date_type' => 'created', 'view_type' => 'calendar'])
-        ];
+        if ($picture['date_creation']) {
+            $tpl_params['INFO_CREATION_DATE'] = [
+                'label' => $fmt->format($picture['date_creation']),
+                'url' => $this->generateUrl(
+                    'calendar_by_day',
+                    [
+                        'date_type' => 'created', 'year' => $picture['date_creation']->format('Y'),
+                        'month' => $picture['date_creation']->format('m'), 'day' => $picture['date_creation']->format('d')
+                    ]
+                )
+            ];
+        } else {
+            $tpl_params['INFO_CREATION_DATE'] = [
+                'label' => 'N/A',
+                'url' => $this->generateUrl('calendar', ['date_type' => 'created'])
+            ];
+        }
 
         /** @phpstan-ignore-next-line */
         if (!empty($picture['author'])) {
@@ -451,14 +518,17 @@ class PictureController extends CommonController
         );
     }
 
-    public function pictureFromCalendar(int $image_id)
+    public function pictureFromCalendar(int $image_id, int $year, int $month, int $day, string $date_type)
     {
+        $current_day = new \DateTime(sprintf('%d-%02d-%02d', $year, $month, $day));
+
         return $this->forward(
             'App\Controller\PictureController::picture',
             [
                 'image_id' => $image_id,
-                'type' => 'category',
-                'element_id' => 'extra'
+                'type' => 'from_calendar',
+                'element_id' => 'extra',
+                'extra' => ['year' => $year, 'month' => $month, 'day' => $day, 'current_day' => $current_day, 'date_type' => $date_type]
             ]
         );
     }

@@ -153,19 +153,6 @@
       <code>$year</code>
     </InvalidScalarArgument>
   </file>
-  <file src="src/Phyxo/Calendar/CalendarBase.php">
-    <InvalidScalarArgument occurrences="1">
-      <code>'version_compare'</code>
-    </InvalidScalarArgument>
-  </file>
-  <file src="src/Phyxo/Calendar/CalendarMonthly.php">
-    <InvalidOperand occurrences="1">
-      <code>$known_day</code>
-    </InvalidOperand>
-    <RedundantCondition occurrences="1">
-      <code>is_numeric($year)</code>
-    </RedundantCondition>
-  </file>
   <file src="src/Phyxo/Conf.php">
     <InvalidIterator occurrences="1">
       <code>$conf</code>

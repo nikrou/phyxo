@@ -24,7 +24,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class MenuBar
 {
     private $conf, $menu, $router, $albumMapper, $appUserService, $userMapper, $tagMapper, $translator;
-    private $route = null, $items = [], $tags = [];
+    private $route = null, $items = [], $tags = [], $defaultDateType;
 
     public function __construct(
         Conf $conf,
@@ -33,7 +33,8 @@ class MenuBar
         AppUserService $appUserService,
         UserMapper $userMapper,
         TagMapper $tagMapper,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        string $defaultDateType
     ) {
         $this->conf = $conf;
         $this->router = $router;
@@ -42,6 +43,7 @@ class MenuBar
         $this->userMapper = $userMapper;
         $this->tagMapper = $tagMapper;
         $this->translator = $translator;
+        $this->defaultDateType = $defaultDateType;
     }
 
     public function setRoute(string $route)
@@ -228,10 +230,9 @@ class MenuBar
 
             $block->data['calendar'] = [
                 'URL' => $this->router->generate(
-                    'calendar_categories_monthly',
+                    'calendar',
                     [
-                        'date_type' => $this->conf['calendar_datefield'] === 'date_available' ? 'posted' : 'created',
-                        'view_type' => 'calendar'
+                        'date_type' => $this->defaultDateType
                     ]
                 ),
                 'TITLE' => $this->translator->trans('display each day with photos, month per month'),

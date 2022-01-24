@@ -1,0 +1,13 @@
+{% extends "calendar.html.twig" %}
+
+{% block breadcrumb_items %}
+    {{ parent() }}
+    <li class="breadcrumb-item"><a href="{{ path('calendar_by_year', {'date_type': date_type, 'year': year}) }}">{{year}}</a></li>
+{% endblock %}
+
+{% block calendar %}
+    <h1>{{ year }} - {{'number_of_photos'|trans({'count': number_of_images}) }}</h1>
+    <div class="calendar">
+	{{ include('_calendar_view.html.twig', { elements: months}) }}
+    </div>
+{% endblock %}
