@@ -191,7 +191,7 @@ class Main
 
         if (in_array($image->getExtension(), $service->getConf()['picture_ext'])) { // we have a photo
             if ($service->getUserMapper()->getUser()->getUserInfos()->hasEnabledHigh()) {
-                $ret['element_url'] = $service->getRouter()->generate('media', ['path' => $image->getPath(), 'derivative' => '', 'image_extension' => $image->getExtension()]);
+                $ret['element_url'] = $service->getRouter()->generate('admin_media', ['path' => $image->getPath(), 'derivative' => '', 'image_extension' => $image->getExtension()]);
             }
         } else {
             $ret['element_url'] = $image->getPath();
@@ -204,7 +204,7 @@ class Main
             /** @phpstan-ignore-next-line */
             $size != null or $size = [null, null];
             $derivatives_arr[$type] = [
-                'url' => $service->getRouter()->generate('media', ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()]),
+                'url' => $service->getRouter()->generate('admin_media', ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()]),
                 'width' => $size[0],
                 'height' => $size[1]
             ];

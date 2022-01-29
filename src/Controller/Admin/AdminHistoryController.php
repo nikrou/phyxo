@@ -16,6 +16,7 @@ use App\DataMapper\ImageMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\HistorySummary;
 use App\Entity\Search;
+use App\Entity\User;
 use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
 use App\Repository\SearchRepository;
@@ -31,12 +32,17 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminHistoryController extends AbstractController
 {
-    private $image_std_params, $types, $display_thumbnails, $translator, $user;
+    private ImageStandardParams $image_std_params;
+    private array $types;
+    private array $display_thumbnails;
+    private TranslatorInterface $translator;
+    private User $user;
 
     public function __construct(ImageStandardParams $image_std_params, TranslatorInterface $translator, AppUserService $appUserService)
     {
@@ -68,14 +74,13 @@ class AdminHistoryController extends AbstractController
     }
 
     public function stats(
-        Request $request,
         int $year = null,
         int $month = null,
         int $day = null,
         Conf $conf,
         HistorySummaryRepository $historySummaryRepository,
         HistoryRepository $historyRepository
-    ) {
+    ): Response {
         $tpl_params = [];
 
         $this->refreshSummary($historyRepository, $historySummaryRepository);
@@ -199,7 +204,7 @@ class AdminHistoryController extends AbstractController
         TagRepository $tagRepository,
         HistoryRepository $historyRepository,
         RouterInterface $router
-    ) {
+    ): Response {
         $tpl_params = [];
 
         $tpl_params['type_option_values'] = $this->types;
@@ -473,7 +478,7 @@ class AdminHistoryController extends AbstractController
                 $params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
                 $derivative = new DerivativeImage($image_infos[$line['image_id']], $params, $image_std_params);
                 $thumb_url = $this->generateUrl(
-                    'media',
+                    'admin_media',
                     ['path' => $image_infos[$line['image_id']]->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image_infos[$line['image_id']]]
                 );
             }
@@ -508,7 +513,7 @@ class AdminHistoryController extends AbstractController
         return $image_string;
     }
 
-    public function saveSearch(Request $request, SearchRepository $searchRepository)
+    public function saveSearch(Request $request, SearchRepository $searchRepository): Response
     {
         if ($request->isMethod('POST')) {
             $rules = [];
@@ -584,7 +589,7 @@ class AdminHistoryController extends AbstractController
         return $intl_date_formatter->format($date_time);
     }
 
-    protected function refreshSummary(HistoryRepository $historyRepository, HistorySummaryRepository $historySummaryRepository)
+    protected function refreshSummary(HistoryRepository $historyRepository, HistorySummaryRepository $historySummaryRepository): void
     {
         $need_update = [];
 

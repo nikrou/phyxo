@@ -28,8 +28,12 @@ use Symfony\Component\Mime\MimeTypeGuesserInterface;
 
 class MediaController extends CommonController
 {
-    protected $image_std_params;
-    private $rotation_angle, $original_size, $mimeTypes;
+    protected ImageStandardParams $image_std_params;
+    private int $rotation_angle;
+    private array $original_size;
+    private MimeTypeGuesserInterface $mimeTypes;
+
+    private bool $forAdmin = false;
 
     public function index(
         Request $request,
@@ -75,7 +79,7 @@ class MediaController extends CommonController
             return new Response('Db file path not found ', 404);
         }
 
-        if (!$imageRepository->isAuthorizedToUser($image->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenCategories())) {
+        if (!$this->forAdmin && !$imageRepository->isAuthorizedToUser($image->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenCategories())) {
             return new Response('User not allowed to see that image ', 403);
         }
 
@@ -92,7 +96,12 @@ class MediaController extends CommonController
         }
 
         if ($derivative_type === ImageStandardParams::IMG_CUSTOM) {
-            $params = $derivative_params = $this->parse_custom_params(array_slice(explode('_', '_' . $sizes), 1));
+            try {
+                $params = $derivative_params = $this->parse_custom_params(array_slice(explode('_', '_' . $sizes), 1));
+            } catch (\Exception $e) {
+                return new Response($e->getMessage());
+            }
+
             $this->image_std_params->applyWatermark($params);
 
             if ($params->sizing->ideal_size[0] < 20 || $params->sizing->ideal_size[1] < 20) {
@@ -167,7 +176,7 @@ class MediaController extends CommonController
         $changes = 0;
 
         // rotate
-        if (isset($this->rotation_angle) && $this->rotation_angle !== 0) {
+        if ($this->rotation_angle !== 0) {
             $changes++;
             $imageOptimizer->rotate($this->rotation_angle);
         }
@@ -241,7 +250,17 @@ class MediaController extends CommonController
         return $this->makeDerivativeResponse($mediaCacheDir . '/' . $derivative_path);
     }
 
-    private function url_to_size($s)
+    public function mediaForAdmin(string $path, string $derivative, string $image_extension): Response
+    {
+        $this->forAdmin = true;
+
+        return $this->forward(
+            'App\Controller\MediaController::index',
+            ['path' => $path, 'derivative' => $derivative, 'image_extension' => $image_extension, 'sizes' => '']
+        );
+    }
+
+    private function url_to_size(string $s): array
     {
         $pos = strpos($s, 'x');
         if ($pos === false) {
@@ -251,10 +270,10 @@ class MediaController extends CommonController
         return [(int)substr($s, 0, $pos), (int)substr($s, $pos + 1)];
     }
 
-    private function parse_custom_params($tokens)
+    private function parse_custom_params(array $tokens): DerivativeParams
     {
         if (count($tokens) < 1) {
-            return new Response('Empty array while parsing Sizing', 400);
+            throw new \Exception('Empty array while parsing Sizing', 400);
         }
 
         $crop = 0;
@@ -269,7 +288,7 @@ class MediaController extends CommonController
         } else {
             $size = $this->url_to_size($token);
             if (count($tokens) < 2) {
-                return new Response('Sizing arr', 400);
+                throw new \Exception('Sizing arr', 400);
             }
 
             $token = array_shift($tokens);
@@ -282,7 +301,7 @@ class MediaController extends CommonController
         return new DerivativeParams(new SizingParams($size, $crop, $min_size));
     }
 
-    private function try_switch_source(DerivativeParams $params, string $derivative_path, $original_mtime)
+    private function try_switch_source(DerivativeParams $params, string $derivative_path, $original_mtime): bool
     {
         if (!isset($this->original_size)) {
             return false;

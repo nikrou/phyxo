@@ -32,13 +32,14 @@ use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminAlbumController extends AbstractController
 {
-    private $translator;
+    private TranslatorInterface $translator;
 
     protected function setTabsheet(int $album_id, string $section = 'properties', int $parent_id = null): array
     {
@@ -63,7 +64,7 @@ class AdminAlbumController extends AbstractController
         ImageAlbumRepository $imageAlbumRepository,
         ImageMapper $imageMapper,
         ManagerRegistry $managerRegistry
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -207,7 +208,7 @@ class AdminAlbumController extends AbstractController
                 $representative_picture = $imageMapper->getRepository()->find($album->getRepresentativePictureId());
                 if (!is_null($representative_picture)) {
                     $derivative = new DerivativeImage($representative_picture, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
-                    $src = $this->generateUrl('media', ['path' => $representative_picture->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $representative_picture->getExtension()]);
+                    $src = $this->generateUrl('admin_media', ['path' => $representative_picture->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $representative_picture->getExtension()]);
                     $url = $this->generateUrl('admin_photo', ['image_id' => $album->getRepresentativePictureId()]);
 
                     $tpl_params['representant']['picture'] = [
@@ -246,7 +247,7 @@ class AdminAlbumController extends AbstractController
         AlbumMapper $albumMapper,
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -322,7 +323,7 @@ class AdminAlbumController extends AbstractController
             $tpl_params['thumbnails'][] = [
                 'ID' => $image->getId(),
                 'NAME' => $thumbnail_name,
-                'TN_SRC' => $this->generateUrl('media', ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()]),
+                'TN_SRC' => $this->generateUrl('admin_media', ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()]),
                 'RANK' => $current_rank * 10,
                 'SIZE' => $derivative->getSize(),
             ];
@@ -379,7 +380,7 @@ class AdminAlbumController extends AbstractController
         UserRepository $userRepository,
         GroupRepository $groupRepository,
         ManagerRegistry $managerRegistry
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -531,7 +532,7 @@ class AdminAlbumController extends AbstractController
         GroupRepository $groupRepository,
         ImageMapper $imageMapper,
         TranslatorInterface $translator
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -543,7 +544,7 @@ class AdminAlbumController extends AbstractController
                 $element = $imageMapper->getRepository()->find($album->getRepresentativePictureId());
                 if (!is_null($element)) {
                     $derivative = new DerivativeImage($element, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
-                    $img_src = $this->generateUrl('media', [
+                    $img_src = $this->generateUrl('admin_media', [
                         'path' => $element->getPathBasename(),
                         'derivative' => $derivative->getUrlType(),
                         'image_extension' => $element->getExtension()
@@ -615,7 +616,7 @@ class AdminAlbumController extends AbstractController
         UserMapper $userMapper,
         UserInfosRepository $userInfosRepository,
         TranslatorInterface $translator
-    ) {
+    ): Response {
         if ($request->isMethod('POST')) {
             $virtual_name = $request->request->get('virtual_name');
 
@@ -646,7 +647,7 @@ class AdminAlbumController extends AbstractController
         return  $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
     }
 
-    public function delete(int $album_id, int $parent_id = null, AlbumMapper $albumMapper, ImageMapper $imageMapper, UserMapper $userMapper, TranslatorInterface $translator)
+    public function delete(int $album_id, int $parent_id = null, AlbumMapper $albumMapper, ImageMapper $imageMapper, UserMapper $userMapper, TranslatorInterface $translator): Response
     {
         $albumMapper->deleteAlbums([$album_id]);
 

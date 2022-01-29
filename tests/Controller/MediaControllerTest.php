@@ -12,7 +12,9 @@
 namespace App\Tests\Controller;
 
 use App\Entity\Image;
+use App\Entity\User;
 use App\Repository\ImageRepository;
+use App\Security\UserProvider;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -144,6 +146,41 @@ class MediaControllerTest extends WebTestCase
         $this->assertTrue($image_std_params->hasCustom($custom));
 
         $client->request('GET', sprintf('/media/%s', $this->image_paths['custom']));
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+    }
+
+    public function testAdminMedia()
+    {
+        self::ensureKernelShutdown();
+        $client = static::createClient();
+        $container = static::getContainer();
+        $container->set('App\Repository\ImageRepository', $this->imageRepository->reveal());
+        $client->request('GET', sprintf('/admin/media/%s', $this->image_paths['sq']));
+        $client->followRedirect();
+
+        $this->assertEquals(403, $client->getResponse()->getStatusCode());
+    }
+
+    public function testAdminMediaFromAdmin()
+    {
+        $admin = new User();
+        $admin->addRole('ROLE_WEBMASTER');
+
+        self::ensureKernelShutdown();
+        $client = static::createClient();
+        $container = static::getContainer();
+
+        $userProvider = $this->prophesize(UserProvider::class);
+        $userProvider->supportsClass(Argument::any())->willReturn(true);
+        $userProvider->refreshUser(Argument::any())->willReturn($admin);
+        $container->set('App\Security\UserProvider', $userProvider->reveal());
+
+        $client->loginUser($admin);
+
+        $container = static::getContainer();
+        $container->set('App\Repository\ImageRepository', $this->imageRepository->reveal());
+        $client->request('GET', sprintf('/admin/media/%s', $this->image_paths['sq']));
+
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
     }
 }

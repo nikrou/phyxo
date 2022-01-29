@@ -17,6 +17,7 @@ use App\DataMapper\SearchMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\Caddie;
+use App\Entity\User;
 use App\Repository\AlbumRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\FavoriteRepository;
@@ -33,20 +34,23 @@ use Phyxo\Image\ImageStandardParams;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminBatchManagerController extends AbstractController
 {
-    private $translator, $derivativeService, $user;
+    private TranslatorInterface $translator;
+    private DerivativeService $derivativeService;
+    private User $user;
 
     public function __construct(AppUserService $appUserService)
     {
         $this->user = $appUserService->getUser();
     }
 
-    protected function setTabsheet(string $section = 'global')
+    protected function setTabsheet(string $section = 'global'): array
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('global', $this->translator->trans('global mode', [], 'admin'), $this->generateUrl('admin_batch_manager_global'));
@@ -56,7 +60,7 @@ class AdminBatchManagerController extends AbstractController
         return ['tabsheet' => $tabsheet];
     }
 
-    protected function appendFilter(SessionInterface $session, array $filter = [])
+    protected function appendFilter(SessionInterface $session, array $filter = []): void
     {
         $previous_filter = $this->getFilter($session);
         if (empty($previous_filter)) {
@@ -66,7 +70,7 @@ class AdminBatchManagerController extends AbstractController
         $session->set('bulk_manager_filter', array_merge($previous_filter, $filter));
     }
 
-    protected function getFilter(SessionInterface $session)
+    protected function getFilter(SessionInterface $session): array
     {
         $filter = $session->has('bulk_manager_filter') ? $session->get('bulk_manager_filter'): [];
         if (!isset($filter['prefilter'])) {
@@ -97,7 +101,7 @@ class AdminBatchManagerController extends AbstractController
         ManagerRegistry $managerRegistry,
         string $filter = null,
         int $start = 0
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
         $this->derivativeService = $derivativeService;
@@ -370,12 +374,12 @@ class AdminBatchManagerController extends AbstractController
                     $image->toArray(),
                     [
                         'thumb' => $this->generateUrl(
-                            'media',
+                            'admin_media',
                             ['path' => $image->getPathBasename(), 'derivative' => $derivative_thumb->getUrlType(), 'image_extension' => $image->getExtension()]
                         ),
                         'TITLE' => $ttitle,
                         'FILE_SRC' => $this->generateUrl(
-                            'media',
+                            'admin_media',
                             ['path' => $image->getPathBasename(), 'derivative' => $derivative_large->getUrlType(), 'image_extension' => $image->getExtension()]
                         ),
                         'U_EDIT' => $this->generateUrl('admin_photo', ['image_id' => $image->getId()])
@@ -416,7 +420,7 @@ class AdminBatchManagerController extends AbstractController
         return $this->render('batch_manager_global.html.twig', $tpl_params);
     }
 
-    public function emptyCaddie(Request $request, CaddieRepository $caddieRepository, TranslatorInterface $translator)
+    public function emptyCaddie(Request $request, CaddieRepository $caddieRepository, TranslatorInterface $translator): Response
     {
         $caddieRepository->emptyCaddies($this->user->getId());
         $this->addFlash('success', $translator->trans('Caddie has been emptied', [], 'admin'));
@@ -438,7 +442,7 @@ class AdminBatchManagerController extends AbstractController
         // if the user tries to apply an action, it means that there is at least 1 photo in the selection
         if (count($collection) === 0 && !$request->request->get('submitFilter')) {
             $this->addFlash('error', $this->translator->trans('Select at least one photo', [], 'admin'));
-            return;
+            return null;
         }
 
         $redirect = false;
@@ -595,7 +599,7 @@ class AdminBatchManagerController extends AbstractController
         }
     }
 
-    protected function filterFromSession(SessionInterface $session)
+    protected function filterFromSession(SessionInterface $session): void
     {
         if (!$session->has('bulk_manager_filter')) {
             $this->appendFilter($session, ['prefilter' => 'caddie']);
@@ -609,7 +613,7 @@ class AdminBatchManagerController extends AbstractController
         FavoriteRepository $favoriteRepository,
         TagRepository $tagRepository,
         SessionInterface $session
-    ) {
+    ): array {
         $filter_sets = [];
 
         $bulk_manager_filter = $this->getFilter($session);
@@ -961,7 +965,7 @@ class AdminBatchManagerController extends AbstractController
         ManagerRegistry $managerRegistry,
         string $filter = null,
         int $start = 0
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -1136,11 +1140,11 @@ class AdminBatchManagerController extends AbstractController
                     [
                         'ID' => $image->getId(),
                         'TN_SRC' => $this->generateUrl(
-                            'media',
+                            'admin_media',
                             ['path' => $image->getPathBasename(), 'derivative' => $derivative_thumb->getUrlType(), 'image_extension' => $image->getExtension()]
                         ),
                         'FILE_SRC' => $this->generateUrl(
-                            'media',
+                            'admin_media',
                             ['path' => $image->getPathBasename(), 'derivative' => $derivative_large->getUrlType(), 'image_extension' => $image->getExtension()]
                         ),
                         'LEGEND' => $legend,

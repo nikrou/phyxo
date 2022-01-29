@@ -22,12 +22,13 @@ use Phyxo\Image\ImageStandardParams;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminRatingController extends AbstractController
 {
-    private $translator;
+    private TranslatorInterface $translator;
 
     protected function setTabsheet(string $section = 'photos'): array
     {
@@ -48,7 +49,7 @@ class AdminRatingController extends AbstractController
         RateRepository $rateRepository,
         RouterInterface $router,
         int $start = 0
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -118,7 +119,7 @@ class AdminRatingController extends AbstractController
         foreach ($rateRepository->getRatePerImage($guest_id, $operator_user_filter, $available_order_by[$order_by_index][1], $elements_per_page, $start) as $image) {
             $derivative = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
             $thumbnail_src = $this->generateUrl(
-                'media',
+                'admin_media',
                 ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()]
             );
             $image_url = $this->generateUrl('admin_photo', ['image_id' => $image->getId()]);
@@ -182,7 +183,7 @@ class AdminRatingController extends AbstractController
         UserRepository $userRepository,
         ImageMapper $imageMapper,
         RateRepository $rateRepository
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -249,7 +250,7 @@ class AdminRatingController extends AbstractController
             foreach ($imageMapper->getRepository()->findBy(['id' => array_keys($image_ids)]) as $image) {
                 $derivative = new DerivativeImage($image, $d_params, $image_std_params);
                 $image_urls[$image->getId()] = [
-                    'tn' => $this->generateUrl('media', [
+                    'tn' => $this->generateUrl('admin_media', [
                         'path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()
                     ]),
                     'page' => $this->generateUrl('picture', ['image_id' => $image->getId(), 'type' => 'file', 'element_id' => $image->getFile()]),
@@ -349,31 +350,35 @@ class AdminRatingController extends AbstractController
         return $this->render('rating_users.html.twig', $tpl_params);
     }
 
-    protected function avg_compare($a, $b)
+    protected function avg_compare(array $a, array $b): int
     {
         $d = $a['avg'] - $b['avg'];
+
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
 
-    protected function count_compare($a, $b)
+    protected function count_compare(array $a, array $b): int
     {
         $d = $a['count'] - $b['count'];
+
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
 
-    protected function cv_compare($a, $b)
+    protected function cv_compare(array $a, array $b): int
     {
         $d = $b['cv'] - $a['cv']; //desc
+
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
 
-    protected function consensus_dev_compare($a, $b)
+    protected function consensus_dev_compare(array $a, array $b): int
     {
         $d = $b['cd'] - $a['cd']; //desc
+
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
 
-    protected function last_rate_compare($a, $b)
+    protected function last_rate_compare(array $a, array $b): int
     {
         return -strcmp($a['last_date'], $b['last_date']);
     }

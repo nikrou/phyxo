@@ -20,14 +20,15 @@ use Phyxo\Image\ImageStandardParams;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminCommentsController extends AbstractController
 {
-    private $translator;
+    private TranslatorInterface $translator;
 
-    protected function setTabsheet(string $section = 'all')
+    protected function setTabsheet(string $section = 'all'): array
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('all', $this->translator->trans('All comments', [], 'admin'), $this->generateUrl('admin_comments'));
@@ -45,7 +46,7 @@ class AdminCommentsController extends AbstractController
         RouterInterface $router,
         string $section = 'all',
         int $start = 0
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -71,7 +72,7 @@ class AdminCommentsController extends AbstractController
             $tpl_params['comments'][] = [
                 'U_PICTURE' => $this->generateUrl('admin_photo', ['image_id' => $comment->getImage()->getId()]),
                 'ID' => $comment->getId(),
-                'TN_SRC' => $this->generateUrl('media', ['path' => $comment->getImage()->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $comment->getImage()->getExtension()]),
+                'TN_SRC' => $this->generateUrl('admin_media', ['path' => $comment->getImage()->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $comment->getImage()->getExtension()]),
                 'AUTHOR' => $author_name,
                 'DATE' => $comment->getDate()->format('c'), // ['day_name', 'day', 'month', 'year', 'time']),
                 'CONTENT' => $comment->getContent(),
@@ -114,7 +115,7 @@ class AdminCommentsController extends AbstractController
         TranslatorInterface $translator,
         string $section = 'all',
         int $start = 0
-    ) {
+    ): Response {
         if ($request->isMethod('POST')) {
             if (!$request->request->get('comments')) {
                 $this->addFlash('error', $translator->trans('Select at least one comment', [], 'admin'));

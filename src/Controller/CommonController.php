@@ -12,11 +12,17 @@
 namespace App\Controller;
 
 use Phyxo\Conf;
+use Phyxo\Image\ImageStandardParams;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 abstract class CommonController extends AbstractController
 {
-    protected $image_std_params, $defaultTheme, $themesDir, $conf, $phyxoVersion, $phyxoWebsite;
+    protected ImageStandardParams $image_std_params;
+    protected string $defaultTheme;
+    protected string $themesDir;
+    protected Conf $conf;
+    protected string $phyxoVersion;
+    protected string $phyxoWebsite;
 
     public function __construct(string $defaultTheme, string $themesDir, Conf $conf, string $phyxoVersion, string $phyxoWebsite)
     {

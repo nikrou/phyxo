@@ -29,11 +29,12 @@ use Phyxo\Image\ImageStandardParams;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminPhotoController extends AbstractController
 {
-    private $translator;
+    private TranslatorInterface $translator;
 
     protected function setTabsheet(string $section = 'properties', array $params = []): array
     {
@@ -61,7 +62,7 @@ class AdminPhotoController extends AbstractController
         ImageAlbumRepository $imageAlbumRepository,
         RateRepository $rateRepository,
         ManagerRegistry $managerRegistry
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -136,8 +137,8 @@ class AdminPhotoController extends AbstractController
         $tpl_params['U_SYNC'] = $this->generateUrl('admin_photo_sync_metadata', ['image_id' => $image_id, 'category_id' => $category_id]);
         $tpl_params['U_DELETE'] = $this->generateUrl('admin_photo_delete', ['image_id' => $image_id, 'category_id' => $category_id]);
         $tpl_params['PATH'] = $image->getPath();
-        $tpl_params['TN_SRC'] = $this->generateUrl('media', ['path' => $image->getPathBasename(), 'derivative' => $derivative_thumb->getUrlType(), 'image_extension' => $image->getExtension()]);
-        $tpl_params['FILE_SRC'] = $this->generateUrl('media', ['path' => $image->getPathBasename(), 'derivative' => $derivative_large->getUrlType(), 'image_extension' => $image->getExtension()]);
+        $tpl_params['TN_SRC'] = $this->generateUrl('admin_media', ['path' => $image->getPathBasename(), 'derivative' => $derivative_thumb->getUrlType(), 'image_extension' => $image->getExtension()]);
+        $tpl_params['FILE_SRC'] = $this->generateUrl('admin_media', ['path' => $image->getPathBasename(), 'derivative' => $derivative_large->getUrlType(), 'image_extension' => $image->getExtension()]);
         $tpl_params['NAME'] = $image->getName();
         $tpl_params['TITLE'] = Utils::render_element_name($image->toArray());
         $tpl_params['DIMENSIONS'] = $image->getWidth() . ' * ' . $image->getHeight();
@@ -246,7 +247,7 @@ class AdminPhotoController extends AbstractController
         UserMapper $userMapper,
         ImageMapper $imageMapper,
         ImageAlbumRepository $imageAlbumRepository
-    ) {
+    ): Response {
         $imageMapper->deleteElements([$image_id], true);
         $userMapper->invalidateUserCache();
 
@@ -275,7 +276,7 @@ class AdminPhotoController extends AbstractController
         return $this->redirectToRoute('admin_home');
     }
 
-    public function syncMetadata(int $image_id, int $category_id = null, AppUserService $appUserService, TagMapper $tagMapper, TranslatorInterface $translator)
+    public function syncMetadata(int $image_id, int $category_id = null, AppUserService $appUserService, TagMapper $tagMapper, TranslatorInterface $translator): Response
     {
         $tagMapper->sync_metadata([$image_id], $appUserService->getUser());
         $this->addFlash('success', $translator->trans('Metadata synchronized from file', [], 'admin'));
@@ -291,7 +292,7 @@ class AdminPhotoController extends AbstractController
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
         DerivativeService $derivativeService
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -325,7 +326,7 @@ class AdminPhotoController extends AbstractController
 
         $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params);
         $tpl_params['U_IMG'] = $this->generateUrl(
-            'media',
+            'admin_media',
             ['path' => $image->getPathBasename(), 'derivative' => $derivative_large->getUrlType(), 'image_extension' => $image->getExtension()]
         );
 

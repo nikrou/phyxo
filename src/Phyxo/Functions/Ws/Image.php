@@ -710,7 +710,7 @@ class Image
 
             return [
                 'image_id' => $image_id,
-                'src' => $service->getRouter()->generate('media', $derivative_image->relativeThumbInfos()),
+                'src' => $service->getRouter()->generate('admin_media', $derivative_image->relativeThumbInfos()),
                 'name' => $image->getName(),
                 'category' => [
                     'id' => $params['category'][0],

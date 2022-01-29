@@ -55,12 +55,12 @@ class TagMapper
         return $this->tagRepository;
     }
 
-    public function alphaCompare(Tag $a, Tag $b)
+    public function alphaCompare(Tag $a, Tag $b): int
     {
         return strcmp(Language::transliterate($a->getName()), Language::transliterate($b->getName()));
     }
 
-    public function counterCompare(Tag $a, Tag $b)
+    public function counterCompare(Tag $a, Tag $b): int
     {
         if ($a->getCounter() === $b->getCounter()) {
             return ($a->getId() < $b->getId()) ? -1 : 1;
@@ -73,7 +73,7 @@ class TagMapper
      * Returns all tags even associated to no image.
      * The list can be filtered by $q
      */
-    public function getAllTags(string $q = '')
+    public function getAllTags(string $q = ''): array
     {
         $tags = [];
         foreach ($this->getRepository()->searchAll($q) as $tag) {
@@ -85,7 +85,7 @@ class TagMapper
         return $tags;
     }
 
-    public function getPendingTags()
+    public function getPendingTags(): array
     {
         $tags = [];
         $params = $this->image_std_params->getByType(ImageStandardParams::IMG_THUMB);
@@ -99,7 +99,7 @@ class TagMapper
                     'created_by' => $image_tag->getCreatedBy(),
                     'status' => $image_tag->getStatus(),
                     'thumb_src' => $this->router->generate(
-                        'media',
+                        'admin_media',
                         ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtnsion()]
                     ),
                     'picture_url' => $this->router->generate('admin_photo', ['image_id' => $image->getId()]),
@@ -119,7 +119,7 @@ class TagMapper
      *
      * @return array [id, name, counter, url_name]
      */
-    public function getAvailableTags(User $user)
+    public function getAvailableTags(User $user): array
     {
         $tags = [];
         $available_tags = $this->imageTagRepository->getAvailableTags($user->getId(), $user->getUserInfos()->getForbiddenCategories(), $this->conf['show_pending_added_tags'] ?? false);
@@ -136,7 +136,7 @@ class TagMapper
         return $tags;
     }
 
-    public function getRelatedTags(User $user, int $image_id, int $max_tags, array $excluded_tag_ids = [])
+    public function getRelatedTags(User $user, int $image_id, int $max_tags, array $excluded_tag_ids = []): array
     {
         $tags = [];
         $related_tags = $this->getRepository()->getRelatedTags(
@@ -160,7 +160,7 @@ class TagMapper
         return $tags;
     }
 
-    public function getCommonTags(User $user, array $items, int $max_tags, array $excluded_tag_ids = [])
+    public function getCommonTags(User $user, array $items, int $max_tags, array $excluded_tag_ids = []): array
     {
         if (count($items) === 0) {
             return [];
@@ -233,7 +233,7 @@ class TagMapper
      * @param boolean $allow_create
      * @return int[]
      */
-    public function getTagsIds($raw_tags, bool $allow_create = true)
+    public function getTagsIds($raw_tags, bool $allow_create = true): array
     {
         $tag_ids = [];
         if (!is_array($raw_tags)) {
@@ -281,7 +281,7 @@ class TagMapper
     /**
      * Add new tags to a set of images.
      */
-    public function addTags(array $tag_ids, array $image_ids, User $user)
+    public function addTags(array $tag_ids, array $image_ids, User $user): void
     {
         if (count($tag_ids) === 0 or count($image_ids) === 0) {
             return;
@@ -313,7 +313,7 @@ class TagMapper
      * @param int[] $tags
      * @param int $image_id
      */
-    public function setTags(array $tags, int $image_id, User $user)
+    public function setTags(array $tags, int $image_id, User $user): void
     {
         $this->setTagsOf([$image_id => $tags], $user);
     }
@@ -323,7 +323,7 @@ class TagMapper
      *
      * @param int[] $tag_ids
      */
-    public function deleteTags(array $tag_ids)
+    public function deleteTags(array $tag_ids): void
     {
         $this->imageTagRepository->deleteByTagIds($tag_ids);
         $this->getRepository()->deleteTags($tag_ids);
@@ -336,7 +336,7 @@ class TagMapper
      *
      * @param array $tags_of - keys are image ids, values are array of tag ids
      */
-    public function setTagsOf(array $tags_of, User $user)
+    public function setTagsOf(array $tags_of, User $user): void
     {
         if (count($tags_of) > 0) {
             $tag_ids = [];
@@ -370,7 +370,7 @@ class TagMapper
     /**
      * Deletes all tags linked to no photo
      */
-    public function deleteOrphanTags()
+    public function deleteOrphanTags(): void
     {
         $orphan_tags = [];
         foreach ($this->getRepository()->getOrphanTags() as $tag) {
@@ -382,7 +382,7 @@ class TagMapper
         }
     }
 
-    public function associateTags(array $tag_ids, int $image_id, User $user)
+    public function associateTags(array $tag_ids, int $image_id, User $user): void
     {
         if (count($tag_ids) === 0) {
             return;
@@ -410,7 +410,7 @@ class TagMapper
     }
 
     // @param $elements in an array of tags indexed by image_id
-    public function validateTags(array $elements)
+    public function validateTags(array $elements): void
     {
         if (count($elements) === 0) {
             return;
@@ -424,7 +424,7 @@ class TagMapper
         $this->invalidateUserCacheNbTags();
     }
 
-    public function dissociateTags(array $tag_ids, int $image_id)
+    public function dissociateTags(array $tag_ids, int $image_id): void
     {
         if (count($tag_ids) === 0) {
             return;
@@ -436,7 +436,7 @@ class TagMapper
     /**
      * Mark tags as to be validated for addition or deletion.
      */
-    public function toBeValidatedTags(Image $image, array $tags_ids, User $user, int $status, bool $validated = false)
+    public function toBeValidatedTags(Image $image, array $tags_ids, User $user, int $status, bool $validated = false): void
     {
         $existing_ids = [];
         if (!$image->getImageTags()->isEmpty()) {
@@ -470,7 +470,7 @@ class TagMapper
      * Sync all metadata of a list of images.
      * Metadata are fetched from original files and saved in database.
      */
-    public function sync_metadata(array $ids, User $user)
+    public function sync_metadata(array $ids, User $user): void
     {
         $now = new \DateTime();
 
@@ -516,7 +516,7 @@ class TagMapper
     /**
      * Invalidates cached tags counter for all users.
      */
-    public function invalidateUserCacheNbTags()
+    public function invalidateUserCacheNbTags(): void
     {
         $this->userCacheRepository->invalidateNumberbAvailableTags();
     }
