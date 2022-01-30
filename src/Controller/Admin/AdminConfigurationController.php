@@ -12,6 +12,7 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\UserMapper;
+use App\Form\DisplayConfigurationType;
 use App\Form\UserInfosType;
 use App\Repository\UserInfosRepository;
 use App\Services\DerivativeService;
@@ -29,7 +30,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminConfigurationController extends AbstractController
 {
-    private $main_checkboxes, $sizes_checkboxes, $comments_checkboxes, $display_checkboxes, $display_info_checkboxes, $sort_fields, $comments_order, $mail_themes;
+    private $main_checkboxes, $sizes_checkboxes, $comments_checkboxes, $sort_fields, $comments_order, $mail_themes;
     private $translator;
 
     public function __construct(TranslatorInterface $translator)
@@ -65,35 +66,6 @@ class AdminConfigurationController extends AbstractController
             'comments_enable_website',
         ];
 
-        $this->display_checkboxes = [
-            'menubar_filter_icon',
-            'index_sort_order_input',
-            'index_flat_icon',
-            'index_posted_date_icon',
-            'index_created_date_icon',
-            'index_new_icon',
-            'picture_metadata_icon',
-            'picture_favorite_icon',
-            'picture_download_icon',
-            'picture_navigation_icons',
-            'picture_navigation_thumb',
-            'picture_menu',
-        ];
-
-        $this->display_info_checkboxes = [
-            'author',
-            'created_on',
-            'posted_on',
-            'dimensions',
-            'file',
-            'filesize',
-            'tags',
-            'categories',
-            'visits',
-            'rating_score',
-            'privacy_level',
-        ];
-
         $this->sort_fields = [
             '' => '',
             'file ASC' => $this->translator->trans('File name, A &rarr; Z', [], 'admin'),
@@ -124,13 +96,13 @@ class AdminConfigurationController extends AbstractController
         ];
     }
 
-    protected function setTabsheet(string $section = 'main')
+    protected function setTabsheet(string $section = 'main'): array
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('main', $this->translator->trans('General', [], 'admin'), $this->generateUrl('admin_configuration'));
         $tabsheet->add('sizes', $this->translator->trans('Photo sizes', [], 'admin'), $this->generateUrl('admin_configuration', ['section' => 'sizes']));
         $tabsheet->add('watermark', $this->translator->trans('Watermark', [], 'admin'), $this->generateUrl('admin_configuration', ['section' => 'watermark']));
-        $tabsheet->add('display', $this->translator->trans('Display', [], 'admin'), $this->generateUrl('admin_configuration', ['section' => 'display']));
+        $tabsheet->add('display', $this->translator->trans('Display', [], 'admin'), $this->generateUrl('admin_configuration_display'));
         $tabsheet->add('comments', $this->translator->trans('Comments', [], 'admin'), $this->generateUrl('admin_configuration', ['section' => 'comments']));
         $tabsheet->add('default', $this->translator->trans('Guest Settings', [], 'admin'), $this->generateUrl('admin_configuration_default'));
         $tabsheet->select($section);
@@ -144,7 +116,7 @@ class AdminConfigurationController extends AbstractController
         ParameterBagInterface $params,
         CsrfTokenManagerInterface $csrfTokenManager,
         ImageStandardParams $image_std_params
-    ) {
+    ): Response {
         $tpl_params = [];
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_configuration', ['section' => $section]);
@@ -160,10 +132,6 @@ class AdminConfigurationController extends AbstractController
 
             case 'comments':
                 $tpl_params = array_merge($tpl_params, $this->commentsConfiguration($conf));
-                break;
-
-            case 'display':
-                $tpl_params = array_merge($tpl_params, $this->displayConfiguration($conf));
                 break;
 
             case 'sizes':
@@ -183,7 +151,7 @@ class AdminConfigurationController extends AbstractController
         return $this->render('configuration_' . $section . '.html.twig', $tpl_params);
     }
 
-    public function sizeRestore(ImageStandardParams $image_std_params, Conf $conf, TranslatorInterface $translator, DerivativeService $derivativeService)
+    public function sizeRestore(ImageStandardParams $image_std_params, Conf $conf, TranslatorInterface $translator, DerivativeService $derivativeService): Response
     {
         $image_std_params->setAndSave($image_std_params->getDefaultSizes());
         $derivativeService->clearCache($image_std_params->getAllTypes(), $image_std_params->getAllTypes());
@@ -193,7 +161,7 @@ class AdminConfigurationController extends AbstractController
         return $this->redirectToRoute('admin_configuration', ['section' => 'sizes']);
     }
 
-    protected function mainConfiguration(Conf $conf)
+    protected function mainConfiguration(Conf $conf): array
     {
         $tpl_params = [];
 
@@ -224,7 +192,7 @@ class AdminConfigurationController extends AbstractController
         return $tpl_params;
     }
 
-    protected function commentsConfiguration(Conf $conf)
+    protected function commentsConfiguration(Conf $conf): array
     {
         $tpl_params = [];
 
@@ -241,20 +209,30 @@ class AdminConfigurationController extends AbstractController
         return $tpl_params;
     }
 
-    protected function displayConfiguration(Conf $conf)
+    public function displayConfiguration(Request $request, Conf $conf, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
+        $tpl_params = array_merge($this->setTabsheet('display'), $tpl_params);
 
-        foreach ($this->display_checkboxes as $checkbox) {
-            $tpl_params['display'][$checkbox] = $conf[$checkbox];
+        $form = $this->createForm(DisplayConfigurationType::class, $conf);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            foreach ($form->getData() as $confKey => $confParam) {
+                $conf->addOrUpdateParam($confKey, $confParam['value'], $confParam['type']);
+            }
+
+            $this->addFlash('success', $translator->trans('Your configuration settings have been updated', [], 'admin'));
+
+            return $this->redirectToRoute('admin_configuration_display');
         }
-        $tpl_params['display']['picture_informations'] = $conf['picture_informations'];
-        $tpl_params['display']['NB_CATEGORIES_PAGE'] = $conf['nb_categories_page'];
 
-        return $tpl_params;
+        $tpl_params['form'] = $form->createView();
+
+        return $this->render('configuration_display.html.twig', $tpl_params);
     }
 
-    protected function sizesConfiguration(Conf $conf, ImageStandardParams $image_std_params)
+    protected function sizesConfiguration(Conf $conf, ImageStandardParams $image_std_params): array
     {
         $tpl_params = [];
 
@@ -311,7 +289,7 @@ class AdminConfigurationController extends AbstractController
         return $tpl_params;
     }
 
-    protected function watermarkConfiguration(Conf $conf, string $themesDir, string $localDir, ImageStandardParams $image_std_params)
+    protected function watermarkConfiguration(Conf $conf, string $themesDir, string $localDir, ImageStandardParams $image_std_params): array
     {
         $tpl_params = [];
 
@@ -375,6 +353,7 @@ class AdminConfigurationController extends AbstractController
     public function defaultConfiguration(Request $request, UserMapper $userMapper, UserInfosRepository $userInfosRepository, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
+        $tpl_params = array_merge($this->setTabsheet('default'), $tpl_params);
 
         $form = $this->createForm(UserInfosType::class, $userMapper->getDefaultUser()->getUserInfos());
         $form->handleRequest($request);
@@ -400,7 +379,7 @@ class AdminConfigurationController extends AbstractController
         string $localDir,
         ImageStandardParams $image_std_params,
         DerivativeService $derivativeService
-    ) {
+    ): Response {
         $conf_updated = false;
         $error = false;
 
@@ -510,37 +489,6 @@ class AdminConfigurationController extends AbstractController
                         $conf[$name_checkbox] = $new_value;
                     }
                 }
-            } elseif ($section === 'display') {
-                if ($request->request->get('nb_categories_page')) {
-                    $nb_categories_page = (int) $request->request->get('nb_categories_page');
-                    if ($nb_categories_page < 4) {
-                        $this->addFlash('error', $this->translator->trans('The number of albums a page must be above 4.', [], 'admin'));
-                        $error = true;
-                    } else {
-                        $conf['nb_categories_page'] = $nb_categories_page;
-                        $conf_updated = true;
-                    }
-                }
-
-                foreach ($this->display_checkboxes as $name_checkbox) {
-                    $new_value = !empty($request->request->get($name_checkbox));
-
-                    if ($conf[$name_checkbox] !== $new_value) {
-                        $conf_updated = true;
-                        $conf[$name_checkbox] = $new_value;
-                    }
-                }
-
-                $picture_informations = $conf['picture_informations'];
-                foreach ($this->display_info_checkboxes as $name_checkbox) {
-                    $new_value = !empty($request->request->get('picture_informations')[$name_checkbox]);
-
-                    if ($conf['picture_informations'][$name_checkbox] !== $new_value) {
-                        $conf_updated = true;
-                        $picture_informations[$name_checkbox] = $new_value;
-                    }
-                }
-                $conf['picture_informations'] = $picture_informations;
             } elseif ($section === 'watermark') {
                 $watermark = ['file' => '', 'xpos' => '', 'ypos' => '', 'xrepeat' => '', 'opacity' => '', 'minh' => '', 'minw' => ''];
                 if ($request->files->get('watermarkImage')) {
