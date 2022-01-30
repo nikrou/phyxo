@@ -60,7 +60,7 @@
 	    {% for user, rating in ratings %}
 		<tr id="rate-{{rating.md5sum}}">
 		    <td>{{user}}</td>
-		    <td title="First: {{rating.first_date}}">{{rating.last_date}}</td>
+		    <td title="First: {{rating.first_date|date}}">{{rating.last_date|date}}</td>
 		    <td>{{rating.count}}</td>
 		    <td>{{rating.avg}}</td>
 		    <td>{{rating.cv}}</td>
@@ -76,7 +76,7 @@
 				    {% endif %}
 				{% endfor %}
 			       {% endset %}
-			       <a title="{{rate_over}}">{{rates|length}}</a>
+			       {{rates|length}}
 			    {% endif %}
 			</td>
 		    {% endfor %}

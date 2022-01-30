@@ -18,6 +18,7 @@ use App\Repository\UserRepository;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\DerivativeParams;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -42,7 +43,6 @@ class AdminRatingController extends AbstractController
 
     public function photos(
         Request $request,
-        ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
         UserMapper $userMapper,
         UserRepository $userRepository,
@@ -117,25 +117,27 @@ class AdminRatingController extends AbstractController
 
         $tpl_params['images'] = [];
         foreach ($rateRepository->getRatePerImage($guest_id, $operator_user_filter, $available_order_by[$order_by_index][1], $elements_per_page, $start) as $image) {
-            $derivative = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
+            $pathBasename = (($pos = strrpos($image['path'], '.')) === false) ? $image['path'] : substr($image['path'], 0, $pos);
+            $extension = (($pos = strrpos($image['path'], '.')) === false) ? '' : substr($image['path'], $pos + 1);
+
             $thumbnail_src = $this->generateUrl(
                 'admin_media',
-                ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()]
+                ['path' => $pathBasename, 'derivative' => DerivativeParams::derivative_to_url(ImageStandardParams::IMG_THUMB), 'image_extension' => $extension]
             );
-            $image_url = $this->generateUrl('admin_photo', ['image_id' => $image->getId()]);
+            $image_url = $this->generateUrl('admin_photo', ['image_id' => $image['id']]);
 
-            $rates = $rateRepository->findBy(['image' => $image->getId()]);
+            $rates = $rateRepository->findBy(['image' => $image['id']]);
             $nb_rates = count($rates);
 
             $tpl_image = [
-                'id' => $image->getId(),
+                'id' => $image['id'],
                 'U_THUMB' => $thumbnail_src,
                 'U_URL' => $image_url,
                 'SCORE_RATE' => $image['score'],
                 'AVG_RATE' => round($image['avg_rates'], 2),
                 'SUM_RATE' => $image['sum_rates'],
-                'NB_RATES' => (int)$image['nb_rates'],
-                'NB_RATES_TOTAL' => (int)$nb_rates,
+                'NB_RATES' => (int) $image['nb_rates'],
+                'NB_RATES_TOTAL' => (int) $nb_rates,
                 'FILE' => $image['file'],
                 'rates' => []
             ];
@@ -342,6 +344,7 @@ class AdminRatingController extends AbstractController
         $tpl_params['image_urls'] = $image_urls;
         $tpl_params['TN_WIDTH'] = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE)->sizing->ideal_size[0];
 
+        $tpl_params['WS_RATES_DELETE'] = $this->generateUrl('ws') . '?method=pwg.rates.delete';
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_rating');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_rating');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Rating', [], 'admin');
