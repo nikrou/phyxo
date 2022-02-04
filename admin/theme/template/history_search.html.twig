@@ -2,92 +2,36 @@
 {% extends "__layout.html.twig" %}
 
 {% block breadcrumb_items %}
-    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'History'|trans}}</a></li>
+    <li class="breadcrumb-item"><a href="{{ path('admin_history_search') }}">{{'History'|trans}}</a></li>
     <li class="breadcrumb-item">{{'Search'|trans}}</li>
 {% endblock %}
 
 {% block content %}
-    <form method="post" name="filter" action="{{F_ACTION}}">
+    {{ form_start(history_search_form) }}
 	<p><button type="button" class="btn btn-submit" data-toggle="collapse" data-target="#filter">{{'Search filter'|trans}}</button></p>
 
 	<div class="fieldset collapse" id="filter">
 	    <h3>{{'Filter'|trans}}</h3>
 	    <div class="row">
 		<div class="col-auto">
-		    <div>
-			<label>
-			    {{'Date'|trans}}
-			    <i class="fa fa-calendar"></i>
-			    <input type="date" class="form-control" name="start"/>
-			</label>
-		    </div>
-		    <div>
-			<label>
-			    {{'End-Date'|trans}}
-			    <i class="fa fa-calendar"></i>
-			    <input type="date" class="form-control" name="end"/>
-			</label>
-		    </div>
+		    {{form_row(history_search_form.start)}}
+		    {{form_row(history_search_form.end)}}
 		</div>
 		<div class="col-auto">
-		    <div>
-			<label>
-			    {{'Element type'|trans}}
-			    <select class="custom-select" name="types[]" multiple="multiple" size="4">
-				{% for option, label in type_option_values %}
-				    <option value="{{option}}" {% if option == type_option_selected %}selected="selected"{% endif %}>{{label}}</option>
-				{% endfor %}
-			    </select>
-			</label>
-		    </div>
+		    {{form_row(history_search_form.types)}}
 		</div>
 		<div class="col-auto">
-		    <div>
-			<label>
-			    {{'Image id'|trans}}
-			    <input class="form-control" name="image_id" value="{{IMAGE_ID}}" type="text" size="5">
-			</label>
-		    </div>
-		    <div>
-			<label>
-			    {{'Filename'|trans}}
-			    <input class="form-control" name="filename" value="{{FILENAME}}" type="text" size="12">
-			</label>
-		    </div>
-		    <div>
-			<label>
-			    {{'Thumbnails'|trans}}
-			    <select class="custom-select" name="display_thumbnail">
-				{% for option, label in display_thumbnails %}
-				    <option value="{{option}}" {% if option == display_thumbnail_selected %}selected="selected"{% endif %}>{{label}}</option>
-				{% endfor %}
-			    </select>
-			</label>
-		    </div>
+		    {{form_row(history_search_form.image_id)}}
+		    {{form_row(history_search_form.filename)}}
+		    {{form_row(history_search_form.display_thumbnail)}}
 		</div>
 		<div class="col-auto">
-		    <div>
-			<label>
-			    {{'User'|trans}}
-			    <select class="custom-select" name="user">
-				<option value="-1">------------</option>
-				{% for option, label in user_options %}
-				    <option value="{{option}}" {% if option == user_options_selected %}selected="selected"{% endif %}>{{label}}</option>
-				{% endfor %}
-			    </select>
-			</label>
-		    </div>
-		    <div>
-			<label>
-			    {{'IP'|trans}}
-			    <input class="form-control" name="ip" value="{{IP}}" type="text" size="12">
-			</label>
-		    </div>
+		    {{form_row(history_search_form.user)}}
 		</div>
 	    </div>
 	    <input class="btn btn-submit" type="submit" name="submit" value="{{'Submit'|trans}}">
 	</div>
-    </form>
+    {{ form_end(history_search_form) }}
 
     {% if search_summary is defined %}
 	<div class="fieldset">
@@ -110,34 +54,34 @@
 	{{ include('_navigation_bar.html.twig') }}
     {% endif %}
 
-    <table class="table table-hover table-striped">
-	<thead>
-	    <tr>
-		<th>{{'Date'|trans}}</th>
-		<th>{{'Time'|trans}}</th>
-		<th>{{'User'|trans}}</th>
-		<th>{{'IP'|trans}}</th>
-		<th>{{'Element'|trans}}</th>
-		<th>{{'Element type'|trans}}</th>
-		<th>{{'Section'|trans}}</th>
-		<th>{{'Album'|trans}} / {{'Tags'|trans}}</th>
-	    </tr>
-	</thead>
-	{% if search_results %}
+    {% if search_results is defined %}
+	<table class="table table-hover table-striped">
+	    <thead>
+		<tr>
+		    <th>{{'Date'|trans}}</th>
+		    <th>{{'Time'|trans}}</th>
+		    <th>{{'User'|trans}}</th>
+		    <th>{{'IP'|trans}}</th>
+		    <th>{{'Element'|trans}}</th>
+		    <th>{{'Element type'|trans}}</th>
+		    <th>{{'Section'|trans}}</th>
+		    <th>{{'Album'|trans}} / {{'Tags'|trans}}</th>
+		</tr>
+	    </thead>
 	    {% for detail in search_results %}
 		<tr>
-		    <td class="hour">{{detail.DATE}}</td>
-		    <td class="hour">{{detail.TIME}}</td>
+		    <td class="hour">{{detail.DATE|format_date('short')}}</td>
+		    <td class="hour">{{detail.TIME|format_time('short')}}</td>
 		    <td>{{detail.USER}}</td>
 		    <td class="IP">{{detail.IP}}</td>
-		    <td>{{detail.IMAGE}}</td>
+		    <td>{{detail.IMAGE|raw}}</td>
 		    <td>{{detail.TYPE}}</td>
 		    <td>{{detail.SECTION}}</td>
-		    <td>{{detail.CATEGORY}}{% if detail.TAGS is defined %}&nbsp;/&nbsp;{% endif %}{{detail.TAGS}}</td>
+		    <td>{{detail.CATEGORY}}{% if detail.TAGS is defined %}&nbsp;/&nbsp;{% endif %}{{detail.TAGS|raw}}</td>
 		</tr>
 	    {% endfor %}
-	{% endif %}
-    </table>
+	</table>
+    {% endif %}
 
     {% if navbar is defined %}
 	{{include('_navigation_bar.html.twig') }}

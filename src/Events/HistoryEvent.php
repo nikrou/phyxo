@@ -17,19 +17,23 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class HistoryEvent extends Event
 {
-    private $section, $album = null, $image = null, $ip;
+    private string $section;
+    private ?Album $album = null;
+    private ?Image $image = null;
+    private string $ip;
+    private string $tagIds = '';
 
     public function __construct(string $section)
     {
         $this->section = $section;
     }
 
-    public function getSection()
+    public function getSection(): string
     {
         return $this->section;
     }
 
-    public function setAlbum(Album $album)
+    public function setAlbum(Album $album): void
     {
         $this->album = $album;
     }
@@ -39,17 +43,17 @@ class HistoryEvent extends Event
         return $this->album;
     }
 
-    public function setImage(Image $image)
+    public function setImage(Image $image): void
     {
         $this->image = $image;
     }
 
-    public function getImage(): Image
+    public function getImage(): ?Image
     {
         return $this->image;
     }
 
-    public function setIp(string $ip)
+    public function setIp(string $ip): void
     {
         $this->ip = $ip;
     }
@@ -57,5 +61,15 @@ class HistoryEvent extends Event
     public function getIp(): string
     {
         return $this->ip;
+    }
+
+    public function setTagIds(string $tagIds): void
+    {
+        $this->tagIds = $tagIds;
+    }
+
+    public function getTagIds(): string
+    {
+        return $this->tagIds;
     }
 }

@@ -20,7 +20,7 @@ class Day extends FunctionNode
 {
     public $date;
 
-    public function getSql(SqlWalker $sqlWalker)
+    public function getSql(SqlWalker $sqlWalker): string
     {
         return sprintf(
             'EXTRACT(DAY FROM %s)',
@@ -28,7 +28,7 @@ class Day extends FunctionNode
         );
     }
 
-    public function parse(Parser $parser)
+    public function parse(Parser $parser): void
     {
         $parser->match(Lexer::T_IDENTIFIER);
         $parser->match(Lexer::T_OPEN_PARENTHESIS);

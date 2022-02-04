@@ -54,11 +54,14 @@ class HistorySubscriber implements EventSubscriberInterface
         $history->setTime($now);
         $history->setSection($event->getSection());
         $history->setUser($this->appUserService->getUser());
-        if ($event->getSection() === 'categories' && !is_null($event->getAlbum())) {
+        if ($event->getAlbum()) {
             $history->setAlbum($event->getAlbum());
         }
-        $history->setImage($event->getImage());
+        if ($event->getImage()) {
+            $history->setImage($event->getImage());
+        }
         $history->setIp(md5($event->getIp()));
+        $history->setTagIds($event->getTagIds());
 
         $this->historyRepository->addOrUpdateHistory($history);
     }

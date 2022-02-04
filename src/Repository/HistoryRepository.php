@@ -12,6 +12,7 @@
 namespace App\Repository;
 
 use App\Entity\History;
+use App\Form\Model\SearchRulesModel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -30,65 +31,62 @@ class HistoryRepository extends ServiceEntityRepository
         return $history->getId();
     }
 
-    public function getHistory($search, $types, int $limit, int $offset = 0, bool $count_only = false)
+    public function getHistory(SearchRulesModel $rules, $types, int $limit, int $offset = 0, bool $count_only = false)
     {
         $qb = $this->createQueryBuilder('h');
 
-        if (isset($search['fields']['date-after'])) {
-            $qb->where('h.date >= :date_after');
-            $qb->setParameter('date_after', $search['fields']['date-after']);
+        if ($rules->getStart()) {
+            $qb->where('h.date >= :start');
+            $qb->setParameter('start', $rules->getStart());
         }
 
-        if (isset($search['fields']['date-before'])) {
-            $qb->andWhere('h.date <= :date_before');
-            $qb->setParameter('date_before', $search['fields']['date-before']);
+        if ($rules->getEnd()) {
+            $qb->andWhere('h.date <= :end');
+            $qb->setParameter('end', $rules->getEnd());
         }
 
-        if (isset($search['fields']['types'])) {
+        if ($rules->getTypes()) {
+            $orXExpressions = [];
             foreach (array_keys($types) as $i => $type) {
-                if (in_array($type, $search['fields']['types'])) {
+                if (in_array($type, $rules->getTypes())) {
                     if ($type === 'none') {
-                        $qb->orWhere($qb->expr()->isNull('h.image_type'));
+                        $orXExpressions[] = $qb->expr()->isNull('h.image_type');
                     } else {
-                        $qb->orWhere('h.image_type = :type' . $i);
+                        $orXExpressions[] = $qb->expr()->eq('h.image_type', ':type' . $i);
                         $qb->setParameter('type' . $i, $type);
                     }
                 }
             }
-        }
-
-        if (isset($search['fields']['user']) && $search['fields']['user'] !== -1) {
-            $qb->andWhere('h.user = :user_id');
-            $qb->setParameter('user_id', $search['fields']['user']);
-        }
-
-        if (isset($search['fields']['image_id'])) {
-            $qb->andWhere('h.image = :image_id');
-            $qb->setParameter('image_id', $search['fields']['image_id']);
-        }
-
-        if (isset($search['fields']['filename'])) {
-            if (count($search['image_ids']) > 0) {
-                $qb->andWhere($qb->expr()->in('h.image', $search['image_ids']));
+            if (count($orXExpressions) > 0) {
+                $qb->andWhere($qb->expr()->orX(...$orXExpressions));
             }
         }
 
-        if (isset($search['fields']['ip'])) {
-            $qb->andWhere($qb->expr()->like('h.ip', ':ip'));
-            $qb->setParameter('ip', $search['fields']['ip']);
+        if ($rules->getUser()) {
+            $qb->andWhere('h.user = :user');
+            $qb->setParameter('user', $rules->getUser());
+        }
+
+        if ($rules->getImageId()) {
+            $qb->andWhere('h.image = :image_id');
+            $qb->setParameter('image_id', $rules->getImageId());
+        }
+
+        if (count($rules->getImageIds()) > 0) {
+            $qb->andWhere($qb->expr()->in('h.image', $rules->getImageIds()));
         }
 
         if ($count_only) {
             $qb->select('COUNT(1)');
-        }
 
-        if (!$count_only) {
+            return $qb->getQuery()->getSingleScalarResult();
+        } else {
             $qb->setMaxResults($limit);
             $qb->setFirstResult($offset);
+            $qb->orderBy('h.date', 'DESC');
+            $qb->addOrderBy('h.time', 'DESC');
 
             return $qb->getQuery()->getResult();
-        } else {
-            return $qb->getQuery()->getSingleScalarResult();
         }
     }
 

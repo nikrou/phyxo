@@ -482,6 +482,20 @@ class PictureController extends CommonController
         if (!is_null($album)) {
             $historyEvent->setAlbum($album);
         }
+
+        if (count($tags) > 0) {
+            $historyEvent->setTagIds(
+                implode(
+                    ',',
+                    array_map(
+                        function($tag) {
+                            return $tag->getId();
+                        },
+                        $tags
+                    )
+                )
+            );
+        }
         $historyEvent->setIp($request->getClientIp());
         $eventDispatcher->dispatch($historyEvent);
 

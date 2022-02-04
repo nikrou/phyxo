@@ -14,14 +14,16 @@ namespace App\Controller\Admin;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\UserMapper;
+use App\Entity\History;
 use App\Entity\HistorySummary;
 use App\Entity\Search;
 use App\Entity\User;
+use App\Form\HistorySearchType;
+use App\Form\Model\SearchRulesModel;
 use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
 use App\Repository\SearchRepository;
 use App\Repository\TagRepository;
-use App\Repository\UserRepository;
 use App\Security\AppUserService;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
@@ -39,8 +41,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminHistoryController extends AbstractController
 {
     private ImageStandardParams $image_std_params;
-    private array $types;
-    private array $display_thumbnails;
     private TranslatorInterface $translator;
     private User $user;
 
@@ -49,18 +49,6 @@ class AdminHistoryController extends AbstractController
         $this->image_std_params = $image_std_params;
         $this->translator = $translator;
         $this->user = $appUserService->getUser();
-
-        $this->types = [
-            'none' => $this->translator->trans('none', [], 'admin'),
-            'picture' => $this->translator->trans('picture', [], 'admin'),
-            'high' => $this->translator->trans('high', [], 'admin'),
-            'other' => $this->translator->trans('other', [], 'admin')
-        ];
-        $this->display_thumbnails = [
-            'no_display_thumbnail' => $this->translator->trans('No display', [], 'admin'),
-            'display_thumbnail_classic' => $this->translator->trans('Classic display', [], 'admin'),
-            'display_thumbnail_hoverbox' => $this->translator->trans('Hoverbox display', [], 'admin')
-        ];
     }
 
     protected function setTabsheet(string $section = 'stats'): array
@@ -82,13 +70,7 @@ class AdminHistoryController extends AbstractController
         HistoryRepository $historyRepository
     ): Response {
         $tpl_params = [];
-
         $this->refreshSummary($historyRepository, $historySummaryRepository);
-
-        $summary_lines = [];
-        foreach ($historySummaryRepository->getSummary($year, $month, $day) as $historySummary) {
-            $summary_lines[] = $historySummary;
-        }
 
         $title_parts = [];
         $title_parts[] = '<a href="' . $this->generateUrl('admin_history') . '">' . $this->translator->trans('Overall', [], 'admin') . '</a>';
@@ -114,9 +96,7 @@ class AdminHistoryController extends AbstractController
         $tpl_params['L_STAT_TITLE'] = implode($conf['level_separator'], $title_parts);
         $tpl_params['PERIOD_LABEL'] = $period_label;
 
-        $max_width = 400;
         $datas = [];
-
         if (!is_null($day)) {
             $method = 'getHour';
             $min_x = 0;
@@ -134,21 +114,18 @@ class AdminHistoryController extends AbstractController
         }
 
         $max_pages = 1;
-        foreach ($summary_lines as $line) {
-            if ($line->getNbPages() > $max_pages) {
-                $max_pages = $line->getNbPages();
+        foreach ($historySummaryRepository->getSummary($year, $month, $day) as $historySummary) {
+            if ($historySummary->getNbPages() > $max_pages) {
+                $max_pages = $historySummary->getNbPages();
             }
 
-            $datas[$line->$method()] = $line->getNbPages();
+            $datas[$historySummary->$method()] = $historySummary->getNbPages();
         }
 
-        if (!isset($min_x) && !isset($max_x) && count($datas) > 0) {
-            $min_x = min(array_keys($datas));
-            $max_x = max(array_keys($datas));
-        } else {
-            $min_x = 0;
-            $max_x = 0;
-        }
+        $numberOfPages = array_sum($datas);
+
+        $min_x = min(array_keys($datas));
+        $max_x = max(array_keys($datas));
 
         if (count($datas) > 0) {
             for ($i = $min_x; $i <= $max_x; $i++) {
@@ -178,14 +155,12 @@ class AdminHistoryController extends AbstractController
                 $tpl_params['statrows'][] = [
                     'VALUE' => $value,
                     'PAGES' => $datas[$i],
-                    'WIDTH' => ceil(($datas[$i] * $max_width) / $max_pages)
+                    'WIDTH' => round($datas[$i] / $numberOfPages * 100)
                 ];
             }
         }
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_history');
-        $tpl_params['U_PAGE'] = $this->generateUrl('admin_history');
-        $tpl_params['PAGE_TITLE'] = $this->translator->trans('History', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('stats'), $tpl_params);
 
         return $this->render('history_stats.html.twig', $tpl_params);
@@ -198,7 +173,6 @@ class AdminHistoryController extends AbstractController
         int $search_id = null,
         AlbumMapper $albumMapper,
         Conf $conf,
-        UserRepository $userRepository,
         UserMapper $userMapper,
         ImageMapper $imageMapper,
         TagRepository $tagRepository,
@@ -206,18 +180,16 @@ class AdminHistoryController extends AbstractController
         RouterInterface $router
     ): Response {
         $tpl_params = [];
-
-        $tpl_params['type_option_values'] = $this->types;
-        $tpl_params['display_thumbnails'] = $this->display_thumbnails;
+        $search = null;
+        $rules = null;
 
         if (!is_null($search_id)) {
-            $rules = [];
             $search = $searchRepository->findOneBy(['id' => $search_id]);
             if (!is_null($search) && !empty($search->getRules())) {
                 $rules = unserialize(base64_decode($search->getRules()));
             }
 
-            $tpl_params['search_results'] = $this->getElementFromSearchRules(
+            $results = $this->getElementFromSearchRules(
                 $rules,
                 $start,
                 $conf,
@@ -225,34 +197,44 @@ class AdminHistoryController extends AbstractController
                 $albumMapper,
                 $userMapper,
                 $imageMapper,
-                $userRepository,
                 $tagRepository
             );
-            $tpl_params['search_summary'] = $tpl_params['search_results']['search_summary'];
-            $nb_lines = $tpl_params['search_results']['nb_lines'];
+            $tpl_params['search_summary'] = $results['search_summary'];
+            $tpl_params['search_results'] = $results['search_results'];
+            $tpl_params['nb_lines'] = $results['nb_lines'];
 
-            $tpl_params['navbar'] = Utils::createNavigationBar(
-                $router,
-                'admin_history_search',
-                ['search_id' => $search_id],
-                $nb_lines,
-                $start,
-                $conf['nb_logs_page']
-            );
+            if ($results['nb_lines'] > $conf['nb_logs_page']) {
+                $tpl_params['navbar'] = Utils::createNavigationBar(
+                    $router,
+                    'admin_history_search',
+                    ['search_id' => $search_id],
+                    $results['nb_lines'],
+                    $start,
+                    $conf['nb_logs_page']
+                );
+            }
         }
 
-        $tpl_params['display_thumbnail_selected'] = $request->request->get('display_thumbnail') ?? '';
-        $tpl_params['type_option_selected'] = $request->request->get('types') ?? '';
+        $historySearchForm = $this->createForm(HistorySearchType::class, $rules, ['translation_domain' => 'admin']);
+        $historySearchForm->handleRequest($request);
 
-        $tpl_params['user_options'] = [];
-        foreach ($userRepository->findBy([], ['username' => 'ASC']) as $user) {
-            $tpl_params['user_options'][$user->getId()] = $user->getUsername();
+        if ($historySearchForm->isSubmitted() && $historySearchForm->isValid()) {
+            $rules = $historySearchForm->getData();
+
+            $search = new Search();
+            $search->setRules(base64_encode(serialize($rules)));
+            $searchRepository->addSearch($search);
+
+            $cookie = Cookie::create('display_thumbnail', $rules->getDisplayThumbnail(), strtotime('+1 month'), $request->getBasePath());
+            $response = new RedirectResponse($this->generateUrl('admin_history_search', ['search_id' => $search->getId()]));
+            $response->headers->setCookie($cookie);
+
+            return $response;
         }
-        $tpl_params['user_options_selected'] = $request->request->get('user') ?? -1;
 
-        $tpl_params['F_ACTION'] = $this->generateUrl('admin_history_search_save');
+        $tpl_params['history_search_form'] = $historySearchForm->createView();
+
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_history');
-        $tpl_params['U_PAGE'] = $this->generateUrl('admin_history_search');
         $tpl_params['PAGE_TITLE'] = $this->translator->trans('History', [], 'admin');
         $tpl_params = array_merge($this->setTabsheet('search'), $tpl_params);
 
@@ -260,84 +242,53 @@ class AdminHistoryController extends AbstractController
     }
 
     protected function getElementFromSearchRules(
-        array $rules,
+        SearchRulesModel $rules,
         int $start,
         Conf $conf,
         HistoryRepository $historyRepository,
         AlbumMapper $albumMapper,
         UserMapper $userMapper,
         ImageMapper $imageMapper,
-        UserRepository $userRepository,
         TagRepository $tagRepository
     ): array {
         $search_results = [];
 
-        if (isset($rules['fields']['filename'])) {
-            $rules['image_ids'] = [];
-            foreach ($imageMapper->getRepository()->findBy(['file' => $rules['fields']['filename']]) as $image) {
-                $rules['image_ids'][] = $image->getId();
+        if ($rules->getFilename()) {
+            foreach ($imageMapper->getRepository()->findBy(['file' => $rules->getFilename()]) as $image) {
+                $rules->addImageId($image->getId());
             }
         }
 
-        $nb_lines = $historyRepository->getHistory($rules, $this->types, 0, 0, $count_only = true);
-
-        $data = [];
-        foreach ($historyRepository->getHistory($rules, $this->types, $conf['nb_logs_page'], $start * $conf['nb_logs_page']) as $history) {
-            $data[] = $history;
-        }
-        usort($data, function ($a, $b) {
-            return strcmp($a->getDate() . $a->getTime(), $b->getDate() . $b->getTime());
-        });
+        $nb_lines = $historyRepository->getHistory($rules, HistorySearchType::TYPES, 0, 0, $count_only = true);
 
         $history_lines = [];
         $user_ids = [];
         $username_of = [];
         $category_ids = [];
         $image_ids = [];
+        $image_infos = [];
         $has_tags = false;
 
-        foreach ($data as $row) {
-            $user_ids[] = $row['user_id'];
+        foreach ($historyRepository->getHistory($rules, HistorySearchType::TYPES, $conf['nb_logs_page'], $start) as $history) {
+            $user_ids[] = $history->getUser()->getId();
+            $username_of[$history->getUser()->getId()] = $history->getUser()->getUsername();
 
-            if (isset($row['category_id'])) {
-                $category_ids[] = $row['category_id'];
+            if ($history->getAlbum()) {
+                $category_ids[] = $history->getAlbum()->getId();
+                $uppercats_of[$history->getAlbum()->getId()] = $history->getAlbum()->getUppercats();
+                $name_of_category[$history->getAlbum()->getId()] = $albumMapper->getAlbumsDisplayNameCache($history->getAlbum()->getUppercats());
             }
 
-            if (isset($row['image_id'])) {
-                $image_ids[] = $row['image_id'];
+            if ($history->getImage()) {
+                $image_ids[] = $history->getImage()->getId();
+                $image_infos[$history->getImage()->getId()] = $history->getImage();
             }
 
-            if (isset($row['tag_ids'])) {
+            if ($history->getTagIds()) {
                 $has_tags = true;
             }
 
-            $history_lines[] = $row;
-        }
-
-        if (count($user_ids) > 0) {
-            $username_of = [];
-            foreach ($userRepository->findBy(['id' => $user_ids]) as $user) {
-                $username_of[$user->getId()] = $user->getUsername();
-            }
-        }
-
-        if (count($category_ids) > 0) {
-            $uppercats_of = [];
-            foreach ($albumMapper->getRepository()->findBy(['id' => $category_ids]) as $album) {
-                $uppercats_of[$album->getId()] = $album->getUppercats();
-            }
-
-            $name_of_category = [];
-            foreach ($uppercats_of as $category_id => $uppercats) {
-                $name_of_category[$category_id] = $albumMapper->getAlbumsDisplayNameCache($uppercats);
-            }
-        }
-
-        $image_infos = [];
-        if (count($image_ids) > 0) {
-            foreach ($imageMapper->getRepository()->findBy(['id' => array_keys($image_ids)]) as $image) {
-                $image_infos[$image->getId()] = $image;
-            }
+            $history_lines[] = $history;
         }
 
         $name_of_tag = [];
@@ -350,10 +301,6 @@ class AdminHistoryController extends AbstractController
             }
         }
 
-        $i = 0;
-        $first_line = $start + 1;
-        $last_line = $start + $conf['nb_logs_page'];
-
         $summary = [];
         $summary['total_filesize'] = 0;
         $summary['guests_ip'] = [];
@@ -361,34 +308,28 @@ class AdminHistoryController extends AbstractController
         $guest_id = $userMapper->getDefaultUser()->getId();
 
         foreach ($history_lines as $line) {
-            if (isset($line['image_type']) && $line['image_type'] === 'high') {
-                if (isset($image_infos[$line['image_id']]['filesize'])) {
-                    $summary['total_filesize'] += $image_infos[$line['image_id']]->getFilesize();
+            if ($line->getImageType() && $line->getImageType() === 'high') {
+                if (isset($image_infos[$line->getImage()->getId()]['filesize'])) {
+                    $summary['total_filesize'] += $image_infos[$line->getImage()->getId()]->getFilesize();
                 }
             }
 
-            if ($line['user_id'] === $guest_id) {
-                if (!isset($summary['guests_ip'][$line['ip']])) {
-                    $summary['guests_ip'][$line['ip']] = 0;
+            if ($line->getUser()->getId() === $guest_id) {
+                if (!isset($summary['guests_ip'][$line->getIp()])) {
+                    $summary['guests_ip'][$line->getIp()] = 0;
                 }
 
-                $summary['guests_ip'][$line['ip']]++;
+                $summary['guests_ip'][$line->getIp()]++;
             }
 
-            $i++;
-
-            if ($i < $first_line or $i > $last_line) {
-                continue;
-            }
-
-            if (isset($username_of[$line['user_id']])) {
-                $user_string = $username_of[$line['user_id']];
+            if (isset($username_of[$line->getUser()->getId()])) {
+                $user_string = $username_of[$line->getUser()->getId()];
             } else {
-                $user_string = $line['user_id'];
+                $user_string = $line->getUser()->getId();
             }
 
             $tags_string = '';
-            if (isset($line['tag_ids'])) {
+            if ($line->getTagIds()) {
                 $tags_string = preg_replace_callback(
                     '/(\d+)/',
                     function ($m) use ($name_of_tag) {
@@ -397,7 +338,7 @@ class AdminHistoryController extends AbstractController
                     str_replace(
                         ',',
                         ', ',
-                        $line['tag_ids']
+                        $line->getTagIds()
                     )
                 );
             }
@@ -405,17 +346,16 @@ class AdminHistoryController extends AbstractController
             $image_string = $this->getImageString($this->image_std_params, $line, $image_infos, $rules);
 
             $search_results[] = [
-                'DATE' => $line['date'],
-                'TIME' => (($pos = strrpos($line['time'], '.')) !== false) ? substr($line['time'], 0, $pos) : $line['time'],
+                'DATE' => $line->getDate(),
+                'TIME' => $line->getTime(),
                 'USER' => $user_string,
-                'IP' => $line['ip'],
+                'IP' => $line->getIp(),
                 'IMAGE' => $image_string,
-                'TYPE' => $line['image_type'],
-                'SECTION' => $line['section'],
-                'CATEGORY' => isset($line['category_id'])
-                    ? (isset($name_of_category[$line['category_id']])
-                    ? $name_of_category[$line['category_id']]
-                    : 'deleted ' . $line['category_id'])
+                'TYPE' => $line->getImageType(),
+                'SECTION' => $line->getSection(),
+                'CATEGORY' => $line->getAlbum() ? (isset($name_of_category[$line->getAlbum()->getId()])
+                    ? $name_of_category[$line->getAlbum()->getId()]
+                    : 'deleted ' . $line->getAlbum()->getId())
                     : '',
                 'TAGS' => $tags_string,
             ];
@@ -450,23 +390,23 @@ class AdminHistoryController extends AbstractController
         ];
     }
 
-    protected function getImageString(ImageStandardParams $image_std_params, array $line = [], array $image_infos = [], array $search = []): string
+    protected function getImageString(ImageStandardParams $image_std_params, History $line, array $image_infos = [], SearchRulesModel $rules = null): string
     {
         $image_string = '';
 
-        if (isset($line['image_id'])) {
-            $picture_url = $this->generateUrl('picture', ['image_id' => $line['image_id']]); // @FIX: missing other param
+        if ($line->getImage() && $line->getAlbum()) {
+            $picture_url = $this->generateUrl('picture', ['image_id' => $line->getImage()->getId(), 'type' => 'category', 'element_id' => $line->getAlbum()->getId()]);
 
-            if (isset($image_infos[$line['image_id']])) {
-                $thumbnail_display = $search['fields']['display_thumbnail'];
+            if (isset($image_infos[$line->getImage()->getId()])) {
+                $thumbnail_display = $rules->getDisplayThumbnail();
             } else {
                 $thumbnail_display = 'no_display_thumbnail';
             }
 
-            $image_title = '(' . $line['image_id'] . ')';
+            $image_title = '(' . $line->getImage()->getId() . ')';
 
-            if (isset($image_infos[$line['image_id']]['label'])) {
-                $image_title .= ' ' . $image_infos[$line['image_id']]['label'];
+            if ($image_infos[$line->getImage()->getId()]->getName()) {
+                $image_title .= ' ' . $image_infos[$line->getImage()->getId()]->getName();
             } else {
                 $image_title .= ' unknown filename';
             }
@@ -476,10 +416,14 @@ class AdminHistoryController extends AbstractController
 
             if ($thumbnail_display === 'display_thumbnail_classic' || $thumbnail_display === 'display_thumbnail_hoverbox') {
                 $params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
-                $derivative = new DerivativeImage($image_infos[$line['image_id']], $params, $image_std_params);
+                $derivative = new DerivativeImage($image_infos[$line->getImage()->getId()], $params, $image_std_params);
                 $thumb_url = $this->generateUrl(
                     'admin_media',
-                    ['path' => $image_infos[$line['image_id']]->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image_infos[$line['image_id']]]
+                    [
+                        'path' => $image_infos[$line->getImage()->getId()]->getPathBasename(),
+                        'derivative' => $derivative->getUrlType(),
+                        'image_extension' => $image_infos[$line->getImage()->getId()]->getExtension()
+                    ]
                 );
             }
 
@@ -511,74 +455,6 @@ class AdminHistoryController extends AbstractController
         }
 
         return $image_string;
-    }
-
-    public function saveSearch(Request $request, SearchRepository $searchRepository): Response
-    {
-        if ($request->isMethod('POST')) {
-            $rules = [];
-            if ($date_after = $request->request->get('start')) {
-                $rules['fields']['date-after'] = $date_after;
-            }
-
-            if ($date_end = $request->request->get('end')) {
-                $rules['fields']['date-before'] = $date_end;
-            }
-
-            if ($types = $request->request->get('types')) {
-                $rules['fields']['types'] = $types;
-            } else {
-                $rules['fields']['types'] = $this->types;
-            }
-
-            $rules['fields']['user'] = $request->request->get('user');
-
-            if ($image_id = $request->request->get('image_id')) {
-                $rules['fields']['image_id'] = intval($image_id);
-            }
-
-            if ($filename = $request->request->get('filename')) {
-                $rules['fields']['filename'] = str_replace('*', '%', $filename);
-            }
-
-            if ($ip = $request->request->get('ip')) {
-                $rules['fields']['ip'] = str_replace('*', '%', $ip);
-            }
-
-            $rules['fields']['display_thumbnail'] = $request->request->get('display_thumbnail');
-            // Display choice are also save to one cookie
-            $cookie_val = null;
-            if ($display_thumbnail = $request->request->get('display_thumbnail')) {
-                if ($this->display_thumbnails[$display_thumbnail]) {
-                    $cookie_val = $display_thumbnail;
-                }
-            }
-
-
-            // TODO manage inconsistency of having $_POST['image_id'] and $_POST['filename'] simultaneously
-            /** @phpstan-ignore-next-line */
-            if (count($rules) > 0) {
-                $search = new Search();
-                $search->setRules(base64_encode(serialize($rules)));
-                $searchRepository->addSearch($search);
-
-                $redirect_url = $this->generateUrl('admin_history_search', ['search_id' => $search->getId()]);
-
-            /** @phpstan-ignore-next-line */
-            } else {
-                $this->addFlash('error', $this->translator->trans('Empty query. No criteria has been entered.', [], 'admin'));
-
-                $redirect_url = $this->generateUrl('admin_history_search');
-            }
-
-            $cookie = Cookie::create('display_thumbnail', $cookie_val, strtotime('+1 month'), $request->getBasePath());
-            $response = new RedirectResponse($redirect_url);
-            $response->headers->setCookie($cookie);
-
-            return $response;
-        }
-
-        return $this->redirectToRoute('admin_history_search');
     }
 
     protected function dateFormat(int $timestamp, string $format): string

@@ -128,10 +128,10 @@ class Utils
 
         if ($nb_elements > $nb_element_page) {
             try {
-                $cur_page = $navbar['CURRENT_PAGE'] = $start / $nb_element_page + 1;
+                $cur_page = $navbar['CURRENT_PAGE'] = (int) $start / $nb_element_page + 1;
                 $maximum = (int) ceil($nb_elements / $nb_element_page);
 
-                $start = $nb_element_page * round($start / $nb_element_page);
+                $start = (int) ceil($nb_element_page * ($start / $nb_element_page));
                 $previous = $start - $nb_element_page;
                 $next = $start + $nb_element_page;
                 $last = ($maximum - 1) * $nb_element_page;

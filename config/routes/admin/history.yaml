@@ -13,13 +13,8 @@ admin_history_search__start:
   defaults:
     search_id: null
   requirements:
-    start: \d +
+    start: \d+
     search_id: \d+
-
-admin_history_search_save:
-  path: /history/search/save
-  controller: App\Controller\Admin\AdminHistoryController::saveSearch
-  methods: [POST]
 
 admin_history:
   path: /history
