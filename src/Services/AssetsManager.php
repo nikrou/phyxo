@@ -13,9 +13,10 @@ namespace App\Services;
 
 class AssetsManager
 {
-    private $stylesheets = [], $scripts = [];
+    private array $stylesheets = [];
+    private array $scripts = [];
 
-    public function addStylesheet(string $extension_type, string $extension_id, string $path)
+    public function addStylesheet(string $extension_type, string $extension_id, string $path): void
     {
         $this->stylesheets[] = [
             'id' => $extension_id,
@@ -29,7 +30,7 @@ class AssetsManager
         return $this->stylesheets;
     }
 
-    public function addScript(string $extension_type, string $extension_id, string $path)
+    public function addScript(string $extension_type, string $extension_id, string $path): void
     {
         $this->scripts[] = [
             'id' => $extension_id,

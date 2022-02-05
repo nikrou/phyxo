@@ -12,8 +12,10 @@
 namespace App\Tests\Behat;
 
 use Behat\Behat\Context\Context;
+use Behat\Mink\Element\NodeElement;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Mink\Exception\ExpectationException;
+use Closure;
 
 /**
  * @method getPage()
@@ -26,7 +28,12 @@ use Behat\Mink\Exception\ExpectationException;
  */
 abstract class BaseContext extends RawMinkContext implements Context
 {
-    public function __call($method, $parameters)
+    /**
+     * @param mixed $parameters
+     *
+     * @return mixed
+     */
+    public function __call(string $method, $parameters)
     {
         $page = $this->getSession()->getPage();
         if (method_exists($page, $method)) {
@@ -47,7 +54,7 @@ abstract class BaseContext extends RawMinkContext implements Context
      *         $this->assertSession()->pageTextContains($text);
      *     });
      */
-    public function spins($closure, $tries = 3)
+    public function spins(Closure $closure, int $tries = 3): void
     {
         for ($i = 0; $i <= $tries; $i++) {
             try {
@@ -64,7 +71,7 @@ abstract class BaseContext extends RawMinkContext implements Context
         }
     }
 
-    public function findByDataTestid(string $data_id, $parent = null)
+    public function findByDataTestid(string $data_id, NodeElement $parent = null): NodeElement
     {
         if ($parent === null) {
             $parent = $this->getSession()->getPage();
@@ -78,7 +85,7 @@ abstract class BaseContext extends RawMinkContext implements Context
         return $element;
     }
 
-    protected function throwExpectationException($message)
+    protected function throwExpectationException(string $message): void
     {
         throw new ExpectationException($message, $this->getSession());
     }

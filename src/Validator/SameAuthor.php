@@ -18,6 +18,6 @@ use Symfony\Component\Validator\Constraint;
  */
 class SameAuthor extends Constraint
 {
-    public $message = 'This username "{{ string }}" is already used by another user.';
-    public $ignore_author = 'guest';
+    public string $message = 'This username "{{ string }}" is already used by another user.';
+    public string $ignore_author = 'guest';
 }

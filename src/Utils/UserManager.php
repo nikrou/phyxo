@@ -19,7 +19,11 @@ use App\Repository\UserInfosRepository;
 
 class UserManager
 {
-    private $userRepository, $userInfosRepository, $groupRepository, $defaultLanguage, $defautlTheme;
+    private UserRepository $userRepository;
+    private UserInfosRepository $userInfosRepository;
+    private GroupRepository $groupRepository;
+    private string $defaultLanguage;
+    private string $defautlTheme;
 
     public function __construct(
         UserRepository $userRepository,
@@ -27,8 +31,7 @@ class UserManager
         GroupRepository $groupRepository,
         string $defaultLanguage,
         string $defaultTheme
-    )
-    {
+    ) {
         $this->userRepository = $userRepository;
         $this->userInfosRepository = $userInfosRepository;
         $this->groupRepository = $groupRepository;
@@ -44,7 +47,7 @@ class UserManager
             $userInfos->setLanguage($this->defaultLanguage);
             $userInfos->setTheme($this->defautlTheme);
         } else {
-            $guestUserInfos = $this->userInfosRepository->findOneByStatus(User::STATUS_GUEST);
+            $guestUserInfos = $this->userInfosRepository->findOneBy(['status' => User::STATUS_GUEST]);
             $userInfos->fromArray($guestUserInfos->toArray());
         }
 
@@ -66,7 +69,7 @@ class UserManager
         return $user;
     }
 
-    public function generateActivationKey(int $size = 50)
+    public function generateActivationKey(int $size = 50): string
     {
         return bin2hex(random_bytes($size));
     }

@@ -19,14 +19,14 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 class SameAuthorValidator extends ConstraintValidator
 {
-    private $userRepository;
+    private UserRepository $userRepository;
 
     public function __construct(UserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
     }
 
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
         if (!$constraint instanceof SameAuthor) {
             throw new UnexpectedTypeException($constraint, SameAuthor::class);

@@ -23,8 +23,17 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, LocaleAwareInterface
 {
-    private $innerTranslator, $cache, $formatter, $loader, $runtimeResources = [];
+    /** @var TranslatorBagInterface|TranslatorInterface|LocaleAwareInterface $innerTranslator */
+    private  $innerTranslator;
+    private CacheInterface $cache;
+    private MessageFormatterInterface $formatter;
+    private PhpFileLoader $loader;
+    /** @var array<mixed> $runtimeResources */
+    private $runtimeResources = [];
 
+    /**
+     * @param TranslatorBagInterface|TranslatorInterface|LocaleAwareInterface $translator
+     */
     public function __construct($translator, CacheInterface $cache, MessageFormatterInterface $formatter)
     {
         $this->innerTranslator = $translator;
@@ -33,7 +42,7 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
         $this->loader = new PhpFileLoader();
     }
 
-    public function __call($method, $args)
+    public function __call(string $method, mixed $args): mixed
     {
         return $this->innerTranslator->{$method}(...$args);
     }
@@ -43,12 +52,15 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
         return $this->innerTranslator->getCatalogue($locale);
     }
 
-    public function getCatalogues(): array
+    /**
+     * @return MessageCatalogueInterface[]
+     */
+    public function getCatalogues()
     {
         return $this->innerTranslator->getCatalogues();
     }
 
-    public function setLocale($locale)
+    public function setLocale($locale): void
     {
         $this->innerTranslator->setLocale($locale);
     }
@@ -58,7 +70,10 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
         return $this->innerTranslator->getLocale();
     }
 
-    public function trans($id, array $parameters = [], $domain = null, $locale = null): string
+    /**
+     * @param array<string, string> $parameters
+     */
+    public function trans(string $id, array $parameters = [], string $domain = null, string $locale = null): string
     {
         if ($locale === null) {
             $locale = $this->getLocale();
@@ -76,7 +91,7 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
         return $this->formatter->format($runtimeCatalogue->get($id, $domain), $locale, $parameters);
     }
 
-    public function addRuntimeResource($format, $resource, $locale, $domain = 'null')
+    public function addRuntimeResource(string $format, string $resource, string $locale, string $domain = null): void
     {
         if ($format !== 'php') {
             return;
@@ -85,7 +100,7 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
         $this->runtimeResources[] = [$format, $resource, $locale, $domain];
     }
 
-    private function getRuntimeCatalogue($locale)
+    private function getRuntimeCatalogue(string $locale): MessageCatalogueInterface
     {
         $catalogue = new MessageCatalogue($locale);
         $runtimeResources = array_filter($this->runtimeResources, function($item) use ($locale) {

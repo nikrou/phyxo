@@ -34,6 +34,7 @@ class Notification
     private $conf, $userMapper, $albumMapper, $router, $commentRepository, $imageMapper;
     private $env, $mailer, $translator, $userMailNotificationRepository, $userInfosRepository;
 
+    /** @phpstan-ignore-next-line */
     private $infos = [], $errors = [];
 
     public function __construct(

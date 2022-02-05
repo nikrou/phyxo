@@ -37,9 +37,10 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class DBContext implements Context
 {
-    private $sqlInitFile, $sqlCleanupFile, $kernel;
-
-    private $storage;
+    private string $sqlInitFile;
+    private string $sqlCleanupFile;
+    private KernelInterface $kernel;
+    private Storage $storage;
 
     public function __construct(string $sql_init_file, string $sql_cleanup_file, Storage $storage, KernelInterface $kernel)
     {
@@ -89,7 +90,7 @@ class DBContext implements Context
      * @Given a group:
      * @Given some groups:
      */
-    public function someGroups(TableNode $table)
+    public function someGroups(TableNode $table): void
     {
         $groupRepository = $this->getContainer()->get(ManagerRegistry::class)->getRepository(Group::class);
 
@@ -144,7 +145,7 @@ class DBContext implements Context
      * @Given an image:
      * @Given some images:
      */
-    public function givenImages(TableNode $table)
+    public function givenImages(TableNode $table): void
     {
         foreach ($table->getHash() as $image) {
             $image_params = array_filter($image, function($k) {
@@ -171,7 +172,7 @@ class DBContext implements Context
     /**
      * @Given group :group_name can access album :album_name
      */
-    public function groupCanAccessAlbum(string $group_name, string $album_name)
+    public function groupCanAccessAlbum(string $group_name, string $album_name): void
     {
         $group = $this->getContainer()->get(ManagerRegistry::class)->getRepository(Group::class)->findOneByName($group_name);
         if (is_null($group)) {
@@ -185,7 +186,7 @@ class DBContext implements Context
     /**
      * @Given user ":username" can access album ":album_name"
      */
-    public function userCanAccessAlbum(string $username, string $album_name)
+    public function userCanAccessAlbum(string $username, string $album_name): void
     {
         $user = $this->getContainer()->get(ManagerRegistry::class)->getRepository(User::class)->findOneByUsername($username);
         if (is_null($user)) {
@@ -199,7 +200,7 @@ class DBContext implements Context
     /**
      * @Given user :username cannot access album ":album_name"
      */
-    public function userCannotAccessAlbum(string $username, string $album_name)
+    public function userCannotAccessAlbum(string $username, string $album_name): void
     {
         $user = $this->getContainer()->get(ManagerRegistry::class)->getRepository(User::class)->findOneByUsername($username);
         if (is_null($user)) {
@@ -215,7 +216,7 @@ class DBContext implements Context
      * @When config for :param equals to :value
      * @When config for :param of type :type equals to :value
      */
-    public function configForParamEqualsTo(string $param, string $value, string $type = 'string')
+    public function configForParamEqualsTo(string $param, string $value, string $type = 'string'): void
     {
         $conf = $this->getContainer()->get(Conf::class);
         $conf->addOrUpdateParam($param, $conf->dbToConf($value, $type), $type);
@@ -224,7 +225,7 @@ class DBContext implements Context
     /**
      * @Given I add tag :tag_name on photo :photo_name by user :user not validated
      */
-    public function addTagOnPhoto(string $tag_name, string $photo_name, string $username)
+    public function addTagOnPhoto(string $tag_name, string $photo_name, string $username): void
     {
         if (($image = $this->storage->get('image_' . $photo_name)) === null) {
             throw new \Exception(sprintf('Photo with name "%s" do not exist', $photo_name));
@@ -240,7 +241,7 @@ class DBContext implements Context
     /**
      * @Given I remove tag :tag_name on photo :photo_name by user :user not validated
      */
-    public function removeTagOnPhotoNotValidated(string $tag_name, string $photo_name, string $username)
+    public function removeTagOnPhotoNotValidated(string $tag_name, string $photo_name, string $username): void
     {
         if (($image = $this->storage->get('image_' . $photo_name)) === null) {
             throw new \Exception(sprintf('Photo with name "%s" do not exist', $photo_name));
@@ -256,7 +257,7 @@ class DBContext implements Context
     /**
      * @Given a comment :comment on :photo_name by :username
      */
-    public function givenCommentOnPhotoByUser(string $comment_content, string $photo_name, string $username)
+    public function givenCommentOnPhotoByUser(string $comment_content, string $photo_name, string $username): void
     {
         $comment = new Comment();
         $comment->setUser($this->storage->get('user_' . $username));
@@ -274,7 +275,7 @@ class DBContext implements Context
     /**
      * @BeforeScenario
      */
-    public function prepareDB(BeforeScenarioScope $scope)
+    public function prepareDB(BeforeScenarioScope $scope): void
     {
         $this->executeSqlFile($this->sqlInitFile, $this->getContainer()->getParameter('database_prefix'), 'phyxo_');
         $this->cleanUploadAndMediaDirectories();
@@ -283,20 +284,23 @@ class DBContext implements Context
     /**
      * @AfterScenario
      */
-    public function cleanDB(AfterScenarioScope $scope)
+    public function cleanDB(AfterScenarioScope $scope): void
     {
         $this->executeSqlFile($this->sqlCleanupFile, $this->getContainer()->getParameter('database_prefix'), 'phyxo_');
         $this->cleanUploadAndMediaDirectories();
     }
 
-    protected function cleanUploadAndMediaDirectories()
+    protected function cleanUploadAndMediaDirectories(): void
     {
         $fs = new Filesystem();
         $fs->remove($this->getContainer()->getParameter('upload_dir') . '/*');
         $fs->remove($this->getContainer()->getParameter('media_cache_dir') . '/*');
     }
 
-    protected function addImage(array $image_infos)
+    /**
+     * @param array<string> $image_infos
+     */
+    protected function addImage(array $image_infos): void
     {
         $image = new Image();
         $image->setName($image_infos['name']);
@@ -337,7 +341,7 @@ class DBContext implements Context
         $this->storage->set('image_' . $image_infos['name'], $image);
     }
 
-    protected function associateImageToAlbum(string $image_name, string $album_name)
+    protected function associateImageToAlbum(string $image_name, string $album_name): void
     {
         try {
             $album = $this->getContainer()->get(AlbumMapper::class)->getRepository()->findOneByName($album_name);
@@ -350,7 +354,7 @@ class DBContext implements Context
         $this->getContainer()->get(AlbumMapper::class)->associateImagesToAlbums([$image_id], [$album->getId()]);
     }
 
-    protected function addTag(string $tag_name)
+    protected function addTag(string $tag_name): void
     {
         if (!is_null($this->getContainer()->get(TagMapper::class)->getRepository()->findOneBy(['name' => $tag_name]))) {
             throw new \Exception("Tag already exists");
@@ -365,7 +369,10 @@ class DBContext implements Context
         }
     }
 
-    protected function addTagsToImage(array $tags, int $image_id, int $user_id = null, bool $validated = true)
+    /**
+     * @param array<string> $tags
+     */
+    protected function addTagsToImage(array $tags, int $image_id, int $user_id = null, bool $validated = true): void
     {
         $tag_ids = [];
 
@@ -387,7 +394,10 @@ class DBContext implements Context
         $this->getContainer()->get(TagMapper::class)->toBeValidatedTags($image, $tag_ids, $user, ImageTag::STATUS_TO_ADD, $validated);
     }
 
-    protected function removeTagsFromImage(array $tags, int $image_id, int $user_id = null, bool $validated = true)
+    /**
+     * @param array<string> $tags
+     */
+    protected function removeTagsFromImage(array $tags, int $image_id, int $user_id = null, bool $validated = true): void
     {
         $tag_ids = [];
 
@@ -419,7 +429,7 @@ class DBContext implements Context
      * Returns queries from an SQL file.
      * Before executing a query, $replaced is... replaced by $replacing.
      */
-    protected function executeSqlFile(string $filepath, string $replaced, string $replacing)
+    protected function executeSqlFile(string $filepath, string $replaced, string $replacing): void
     {
         $sql_lines = file($filepath);
         $query = '';

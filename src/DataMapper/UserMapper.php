@@ -177,7 +177,7 @@ class UserMapper
     /**
      * Invalidates cached data (permissions and category counts) for all users.
      */
-    public function invalidateUserCache(bool $full = true)
+    public function invalidateUserCache(bool $full = true): void
     {
         if ($full) {
             $this->userCacheAlbumRepository->deleteAll();
@@ -192,7 +192,7 @@ class UserMapper
      * It also deletes all related data (accesses, favorites, permissions, etc.)
      * @todo : accept array input
      */
-    public function deleteUser(int $user_id)
+    public function deleteUser(int $user_id): void
     {
         // deletion of calculated permissions linked to the user
         $this->userCacheAlbumRepository->deleteForUser($user_id);

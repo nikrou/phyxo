@@ -68,3 +68,7 @@ parameters:
     # need refactoring
     - message: '#Right side of && is always true\.#'
       path: src/Controller/Admin/AdminConfigurationController.php
+
+    # Behat errors
+    - message: '#Method App\\Tests\\Behat\\DBContext::.*\(\) has parameter \$table with no value type specified in iterable type Behat\\Gherkin\\Node\\TableNode\.#'
+      path: tests/Behat/DBContext.php

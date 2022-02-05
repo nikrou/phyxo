@@ -17,7 +17,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class FeatureContext extends BaseContext
 {
-    private $kernel, $storage;
+    private KernelInterface $kernel;
+    private Storage $storage;
 
     public function __construct(KernelInterface $kernel, Storage $storage)
     {
@@ -34,7 +35,7 @@ class FeatureContext extends BaseContext
     /**
      * @Given I am logged in as :username with password :password
      */
-    public function iAmLoggedInAsWithPassword(string $username, string $password, bool $remember = false)
+    public function iAmLoggedInAsWithPassword(string $username, string $password, bool $remember = false): void
     {
         $this->visit('/identification');
         $this->fillField('Username', $username);
@@ -48,7 +49,7 @@ class FeatureContext extends BaseContext
     /**
      * @Given I am logged in as :username with password :password and auto login
      */
-    public function iAmLoggedInAsWithPasswordAndAutoLogin($username, $password)
+    public function iAmLoggedInAsWithPasswordAndAutoLogin(string $username, string $password): void
     {
         $this->iAmLoggedInAsWithPassword($username, $password, true);
         $this->getMink()->assertSession()->cookieExists($this->getCookieName());
@@ -57,7 +58,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then I should be allowed to go to a protected page
      */
-    public function iShouldBeAllowedToGoToAProtectedPage()
+    public function iShouldBeAllowedToGoToAProtectedPage(): void
     {
         $this->visit($this->getContainer()->get('router')->generate('profile'));
     }
@@ -65,7 +66,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then I should not be allowed to go to a protected page
      */
-    public function iShouldNotBeAllowedToGoToAProtectedPage()
+    public function iShouldNotBeAllowedToGoToAProtectedPage(): void
     {
         $this->visit($this->getContainer()->get('router')->generate('profile'));
         $this->getMink()->assertSession()->statusCodeEquals(403);
@@ -74,22 +75,22 @@ class FeatureContext extends BaseContext
     /**
      * @Then I should not be allowed to go to album :album_name
      */
-    public function iShouldNotBeAllowedToGoToAlbum(string $album_name)
+    public function iShouldNotBeAllowedToGoToAlbum(string $album_name): void
     {
         $this->visit($this->getContainer()->get('router')->generate('album', ['category_id' => $this->storage->get('album_' . $album_name)->getId()]));
         $this->getMink()->assertSession()->statusCodeEquals(403);
         $this->getMink()->assertSession()->pageTextContains('The server returned a "403 Forbidden".');
     }
 
-    protected function isPhotoInPage(int $image_id)
+    protected function isPhotoInPage(int $image_id): bool
     {
-        return $this->getPage()->find('css', '[data-photo-id="' . $image_id . '"]');
+        return $this->getPage()->find('css', '[data-photo-id="' . $image_id . '"]') !== null;
     }
 
     /**
      * @Then I should see photo :photo_name
      */
-    public function iShouldSeePhoto(string $photo_name)
+    public function iShouldSeePhoto(string $photo_name): void
     {
         $image_id = $this->storage->get('image_' . $photo_name)->getId();
         if (!$this->isPhotoInPage($image_id)) {
@@ -100,7 +101,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then I should not see photo :photo_name
      */
-    public function iShouldNotSeePhoto(string $photo_name)
+    public function iShouldNotSeePhoto(string $photo_name): void
     {
         $image_id = $this->storage->get('image_' . $photo_name)->getId();
         if ($this->isPhotoInPage($image_id)) {
@@ -108,15 +109,15 @@ class FeatureContext extends BaseContext
         }
     }
 
-    protected function beAbleToEditTags()
+    protected function beAbleToEditTags(): bool
     {
-        return $this->getPage()->find('css', '.edit-tags');
+        return $this->getPage()->find('css', '.edit-tags') !== null;
     }
 
     /**
      * @Then I should not be able to edit tags
      */
-    public function iShouldNotBeAbleToEditTags()
+    public function iShouldNotBeAbleToEditTags(): void
     {
         if ($this->beAbleToEditTags()) {
             throw new \Exception('User can edit tags but should not');
@@ -126,7 +127,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then I should be able to edit tags
      */
-    public function iShouldBeAbleToEditTags()
+    public function iShouldBeAbleToEditTags(): void
     {
         if (!$this->beAbleToEditTags()) {
             throw new \Exception('User cannot edit tags but should be able to');
@@ -136,7 +137,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then I should see tag :tag
      */
-    public function iShouldSeeTag(string $tag_name)
+    public function iShouldSeeTag(string $tag_name): void
     {
         $tags = $this->getPage()->find('css', '#Tags');
         if ($tags === null) {
@@ -152,7 +153,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then I should not see tag :tag
      */
-    public function iShouldNotSeeTag(string $tag_name)
+    public function iShouldNotSeeTag(string $tag_name): void
     {
         $tags = $this->getPage()->find('css', '#Tags');
         if ($tags !== null) {
@@ -165,9 +166,9 @@ class FeatureContext extends BaseContext
 
     /**
      * @When I should see link :link_label
-     * @Then I should see link :arg1 in :parent
+     * @Then I should see link :link_label in :parent
      */
-    public function iShouldSeeLink(string $link_label, string $parent = '')
+    public function iShouldSeeLink(string $link_label, string $parent = ''): void
     {
         if (!empty($parent)) {
             $parentNode = $this->getSession()->getPage()->find('css', $parent);
@@ -184,7 +185,7 @@ class FeatureContext extends BaseContext
     /**
      * @When I should not see link :link_label
      */
-    public function iShouldNotSeeLink(string $link_label)
+    public function iShouldNotSeeLink(string $link_label): void
     {
         $link = $this->findLink($link_label);
 
@@ -196,7 +197,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then I should see :description for :album_name description
      */
-    public function iShouldSeeDescriptionForAlbum(string $description, string $album_name)
+    public function iShouldSeeDescriptionForAlbum(string $description, string $album_name): void
     {
         $album = $this->getPage()->find('css', sprintf('*[data-id="%d"]', $this->storage->get('album_' . $album_name)->getId()));
         if ($description !== $this->findByDataTestid('album-description', $album)->getText()) {
@@ -207,7 +208,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then I should see :nb_images for :album_name number of images
      */
-    public function iShouldSeeNumberOfImagesForAlbum(string $nb_images, string $album_name)
+    public function iShouldSeeNumberOfImagesForAlbum(string $nb_images, string $album_name): void
     {
         $album = $this->getPage()->find('css', sprintf('*[data-id="%d"]', $this->storage->get('album_' . $album_name)->getId()));
         $element = $this->findByDataTestid('album-nb-images', $album);
@@ -226,7 +227,7 @@ class FeatureContext extends BaseContext
      * admin
      * @Then I should see :nb_images for album :album_name
      */
-    public function iShouldSeeTextNumberOfImagesForAlbum(string $nb_images, string $album_name)
+    public function iShouldSeeTextNumberOfImagesForAlbum(string $nb_images, string $album_name): void
     {
         $div_album = $this->getPage()->find('css', sprintf('#album-%d', $this->storage->get('album_' . $album_name)->getId()));
         $element = $div_album->find('css', '*[data-testid="number_of_photos"]');
@@ -239,7 +240,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then I select :image_name in thumbnails
      */
-    public function iSelectPhotoInThumbnails(string $image_name)
+    public function iSelectPhotoInThumbnails(string $image_name): void
     {
         $this->getPage()->find('css', sprintf('*[data-testid="image-%d"] input[type="checkbox"]', $this->storage->get('image_' . $image_name)->getId()))->check();
     }
@@ -247,7 +248,7 @@ class FeatureContext extends BaseContext
     /**
      * @Given I follow image of type :type_map
      */
-    public function iFollowImageOfType(string $type_map)
+    public function iFollowImageOfType(string $type_map): void
     {
         $picture_derivatives = $this->getPage()->find('css', '*[data-testid="picture.derivatives"]');
         if (is_null($picture_derivatives)) {
@@ -267,7 +268,7 @@ class FeatureContext extends BaseContext
     /**
      * @When I add a comment :
      */
-    public function iAddAComment(PyStringNode $comment)
+    public function iAddAComment(PyStringNode $comment): void
     {
         $this->fillField('Comment', $comment);
         $this->pressButton('Submit');
@@ -276,7 +277,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then the option :option from :from" is selected
      */
-    public function theOptionFromSelectIsSelected(string $option, string $from)
+    public function theOptionFromSelectIsSelected(string $option, string $from): void
     {
         $selectField = $this->findField($from);
 
@@ -297,7 +298,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then the radio button :value from :name should be selected
      */
-    public function theRadioButtonFromShouldBeSelected(string $value, string $name)
+    public function theRadioButtonFromShouldBeSelected(string $value, string $name): void
     {
         $radioButton = $this->getSession()->getPage()->find('css', sprintf('input[type="radio"][name="%s"][value="%s"]', $name, $value));
 
@@ -313,7 +314,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then I should not see link to :href
      */
-    public function iShouldNotSeeLinkTo(string $href)
+    public function iShouldNotSeeLinkTo(string $href): void
     {
         $link = $this->findLink($href);
         if (!is_null($link)) {
@@ -324,7 +325,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then the select :element should contain:
      */
-    public function theSelectShouldContain(string $element, PyStringNode $expectedString)
+    public function theSelectShouldContain(string $element, PyStringNode $expectedString): void
     {
         $select = $this->findField($element);
         if (is_null($select)) {
@@ -351,7 +352,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then the group :group should have members :users
      */
-    public function theGroupShouldHaveMembers(string $group, string $users)
+    public function theGroupShouldHaveMembers(string $group, string $users): void
     {
         $rowGroup = $this->getPage()->find('css', sprintf('table tr:contains("%s")', $group));
         if (is_null($rowGroup)) {
@@ -370,7 +371,7 @@ class FeatureContext extends BaseContext
     /**
      * @Given I follow group :group permissions
      */
-    public function iFollowGroupPermissions(string $group)
+    public function iFollowGroupPermissions(string $group): void
     {
         $rowGroup = $this->getPage()->find('css', sprintf('table tr:contains("%s")', $group));
         if (is_null($rowGroup)) {
@@ -382,7 +383,7 @@ class FeatureContext extends BaseContext
     /**
      * @Given I follow album :album_name Edit
      */
-    public function iFollowAlbumEdit(string $album_name)
+    public function iFollowAlbumEdit(string $album_name): void
     {
         $album = $this->storage->get('album_' . $album_name);
         $divAlbum = $this->getPage()->find('css', sprintf('#album-%d', $album->getId()));
@@ -395,7 +396,7 @@ class FeatureContext extends BaseContext
     /**
      * @Given I want to edit :image_name
      */
-    public function iWantToEdit(string $image_name)
+    public function iWantToEdit(string $image_name): void
     {
         $image = $this->storage->get('image_' . $image_name);
         $this->visit($this->getContainer()->get('router')->generate('admin_photo', ['image_id' => $image->getId()]));
@@ -404,7 +405,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then linked albums :element should be album :album_name
      */
-    public function linkedAlbumsShouldBeAlbum(string $element, string $album_name)
+    public function linkedAlbumsShouldBeAlbum(string $element, string $album_name): void
     {
         $select = $this->findField($element);
         if (is_null($select)) {
@@ -429,7 +430,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then tags :element should be :list_tags
      */
-    public function tagsShouldBeAlbum(string $element, string $list_tags)
+    public function tagsShouldBeAlbum(string $element, string $list_tags): void
     {
         $select = $this->findField($element);
         if (is_null($select)) {
@@ -458,7 +459,7 @@ class FeatureContext extends BaseContext
      *
      * @Then the :field_name field date should contain :date
      */
-    public function theFieldDateShouldContain(string $field_name, string $date)
+    public function theFieldDateShouldContain(string $field_name, string $date): void
     {
         $field = $this->findField($field_name);
         if (is_null($field)) {
@@ -479,7 +480,7 @@ class FeatureContext extends BaseContext
      *
      * @When I follow :link_label for album :album_name
      */
-    public function iFollowLinkForAlbum(string $link_label, string $album_name)
+    public function iFollowLinkForAlbum(string $link_label, string $album_name): void
     {
         $album = $this->storage->get('album_' . $album_name);
         $divAlbum = $this->getPage()->find('css', sprintf('#album-%d', $album->getId()));
@@ -493,7 +494,7 @@ class FeatureContext extends BaseContext
      * @Then I should see :nb_thumbnails calendar thumbnail
      * @Then I should see :nb_thumbnails calendar thumbnails
      */
-    public function iShouldSeeCalendarThumbnail(int $nb_thumbnails)
+    public function iShouldSeeCalendarThumbnail(int $nb_thumbnails): void
     {
         $divThumbnails = $this->getPage()->findAll('css', '.thumbnail');
         if (count($divThumbnails) !== $nb_thumbnails) {
@@ -505,7 +506,7 @@ class FeatureContext extends BaseContext
      * @Then the calendar thumbnail :datePart should contains :nb_images image
      * @Then the calendar thumbnail :datePart should contains :nb_images images
      */
-    public function calendarThumbnailShouldContainsNImages(string $datePart, string $nb_images)
+    public function calendarThumbnailShouldContainsNImages(string $datePart, string $nb_images): void
     {
         $divThumbnail = $this->getPage()->find('css', sprintf('[data-testid="%s"] .number-of-images', $datePart));
         if (is_null($divThumbnail)) {
@@ -521,7 +522,7 @@ class FeatureContext extends BaseContext
      * @Then there's :nb_images image for day :day
      * @Then there's :nb_images images for day :day
      */
-    public function theresImageForDay(int $nb_images, int $day)
+    public function theresImageForDay(int $nb_images, int $day): void
     {
         $td = $this->getPage()->find('css', sprintf('[data-testid="day-%d"] .number-of-images', $day));
         if (is_null($td)) {
@@ -536,7 +537,7 @@ class FeatureContext extends BaseContext
     /**
      * @When I click calendar thumbnail :day
      */
-    public function iClickCalendarThumbnail(string $day)
+    public function iClickCalendarThumbnail(string $day): void
     {
         $a_in_td = $this->getPage()->find('css', sprintf('[data-testid="day-%d"] a', $day));
         if (is_null($a_in_td)) {
@@ -549,7 +550,7 @@ class FeatureContext extends BaseContext
     /**
      * @Then I restart my browser
      */
-    public function iRestartMyBrowser()
+    public function iRestartMyBrowser(): void
     {
         $session = $this->getSession();
         $cookie = $session->getCookie($this->getCookieName());
@@ -557,7 +558,7 @@ class FeatureContext extends BaseContext
         $session->setCookie($this->getCookieName(), $cookie);
     }
 
-    private function getCookieName()
+    private function getCookieName(): string
     {
         return $this->getContainer()->getParameter('remember_cookie');
     }
