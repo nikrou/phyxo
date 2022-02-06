@@ -147,6 +147,7 @@ class MediaController extends CommonController
         }
 
         $coi = '';
+        $imageOptimizer = new ImageOptimizer($image_src, $imageLibraryGuesser->getLibrary());
         try {
             if ($image->getWidth() > 0 && $image->getHeight()) {
                 $this->original_size = [$image->getWidth(), $image->getHeight()];
@@ -154,31 +155,21 @@ class MediaController extends CommonController
 
             $coi = (string) $image->getCoi();
             if (!$image->getRotation()) {
-                $this->rotation_angle = ImageOptimizer::getRotationAngle($image_src);
-                $image->setRotation(ImageOptimizer::getRotationCodeFromAngle($this->rotation_angle));
+                $image->setRotation($imageOptimizer->getRotationAngle());
                 $imageRepository->addOrUpdateImage($image);
             } else {
-                $this->rotation_angle = ImageOptimizer::getRotationAngleFromCode($image->getRotation());
+                $this->rotation_angle = $imageOptimizer->getRotationAngleFromCode($image->getRotation());
             }
         } catch (\Exception $e) {
             return new Response($e->getMessage());
         }
 
-        if (!$this->try_switch_source($params, $derivative_src, $src_mtime) && $params->type === ImageStandardParams::IMG_CUSTOM) {
-            $sharpen = 0;
-            foreach ($this->image_std_params->getDefinedTypeMap() as $std_params) {
-                $sharpen += $std_params->sharpen;
-            }
-            $params->sharpen = round($sharpen / count($this->image_std_params->getDefinedTypeMap()));
-        }
-
-        $imageOptimizer = new ImageOptimizer($image_src, $imageLibraryGuesser->getLibrary());
         $changes = 0;
 
         // rotate
-        if ($this->rotation_angle !== 0) {
+        if ($imageOptimizer->getRotationAngleFromCode($image->getRotation()) !== 0) {
             $changes++;
-            $imageOptimizer->rotate($this->rotation_angle);
+            $imageOptimizer->AutoRotate();
         }
 
         // Crop & scale
@@ -196,10 +187,6 @@ class MediaController extends CommonController
             $d_size = $scaled_size;
         }
 
-        if ($params->sharpen) {
-            $changes += (int) $imageOptimizer->sharpen($params->sharpen);
-        }
-
         if ($params->will_watermark($d_size, $this->image_std_params)) {
             $wm = $this->image_std_params->getWatermark();
             $wm_image = new ImageOptimizer(__DIR__ . '/../../' . $wm->file, $imageLibraryGuesser->getLibrary());
@@ -212,24 +199,6 @@ class MediaController extends CommonController
             }
             $x = round(($wm->xpos / 100) * ($d_size[0] - $wm_size[0]));
             $y = round(($wm->ypos / 100) * ($d_size[1] - $wm_size[1]));
-            if ($imageOptimizer->compose($wm_image, $x, $y, $wm->opacity)) {
-                $changes++;
-                if ($wm->xrepeat) {
-                    // todo
-                    $pad = $wm_size[0] + max(30, round($wm_size[0] / 4));
-                    for ($i = -$wm->xrepeat; $i <= $wm->xrepeat; $i++) {
-                        if (!$i) {
-                            continue;
-                        }
-                        $x2 = $x + $i * $pad;
-                        if ($x2 >= 0 && $x2 + $wm_size[0] < $d_size[0]) {
-                            if (!$imageOptimizer->compose($wm_image, $x2, $y, $wm->opacity)) {
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
             $wm_image->destroy();
         }
 
@@ -364,7 +333,6 @@ class MediaController extends CommonController
                 continue;
             }
             $params->use_watermark = false;
-            $params->sharpen = min(1, $params->sharpen);
             $this->rotation_angle = 0;
 
             return true;

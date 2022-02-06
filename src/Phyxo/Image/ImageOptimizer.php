@@ -11,23 +11,31 @@
 
 namespace Phyxo\Image;
 
+use Imagine\Filter\Basic\Autorotate;
 use Imagine\Image\Box;
+use Imagine\Image\ImageInterface;
 use Imagine\Image\ImagineInterface;
+use Imagine\Image\Metadata\DefaultMetadataReader;
+use Imagine\Image\Metadata\MetadataBag;
 use Imagine\Image\Point;
 
 class ImageOptimizer
 {
-    private $sourceFilePath, $imagine, $image;
+    private string $sourceFilePath;
+    private ImagineInterface $imagine;
+    private ImageInterface $image;
 
     public function __construct(string $sourceFilePath, ImagineInterface $imagine)
     {
         $this->imagine = $imagine;
+        $this->imagine->setMetadataReader(new DefaultMetadataReader());
+
         $this->sourceFilePath = $sourceFilePath;
 
         $this->image = $this->imagine->open($this->sourceFilePath);
     }
 
-    public function rotate($rotationAngle): void
+    public function rotate(int $rotationAngle): void
     {
         $this->image->rotate($rotationAngle);
     }
@@ -62,38 +70,21 @@ class ImageOptimizer
         // @TODO: search how to set param
     }
 
-    public static function getRotationAngle(string $sourceFilePath)
+    public function getRotationAngle(): int
     {
-        list($width, $height, $type) = getimagesize($sourceFilePath);
-        if ($type !== IMAGETYPE_JPEG) {
-            return null;
+        $metadata = $this->image->metadata();
+        $orientation = $metadata->get('exif.Orientation');
+
+        if (is_null($orientation)) {
+            return 0;
         }
 
-        if (!function_exists('exif_read_data')) {
-            return null;
-        }
-
-        $rotation = 0;
-
-        $exif = @exif_read_data($sourceFilePath);
-
-        if (isset($exif['Orientation']) and preg_match('/^\s*(\d)/', $exif['Orientation'], $matches)) {
-            $orientation = $matches[1];
-            if (in_array($orientation, [3, 4])) {
-                $rotation = 180;
-            } elseif (in_array($orientation, [5, 6])) {
-                $rotation = 270;
-            } elseif (in_array($orientation, [7, 8])) {
-                $rotation = 90;
-            }
-        }
-
-        return $rotation;
+        return $orientation;
     }
 
-    public static function getRotationCodeFromAngle($rotation_angle)
+    public function getRotationCodeFromAngle(): int
     {
-        switch ($rotation_angle) {
+        switch ($this->getRotationAngle()) {
             case 0:
                 return 0;
             case 90:
@@ -102,10 +93,12 @@ class ImageOptimizer
                 return 2;
             case 270:
                 return 3;
+            default:
+                return 0;
         }
     }
 
-    public static function getRotationAngleFromCode($rotation_code)
+    public function getRotationAngleFromCode(int $rotation_code): int
     {
         switch ($rotation_code % 4) {
             case 0:
@@ -116,50 +109,24 @@ class ImageOptimizer
                 return 180;
             case 3:
                 return 270;
+                default:
+                return 0;
         }
     }
 
-    public function compose($overlay, $x, $y, $opacity): bool
-    {
-        // why ?
-
-        return false;
-    }
-
-    public function sharpen($amount): bool
-    {
-        // why ?
-        $matrix = $this->getSharpenMatrix($amount);
-
-        return false;
-    }
-
-    protected function getSharpenMatrix($amount)
-    {
-        // Amount should be in the range of 48-10
-        $amount = round(abs(-48 + ($amount * 0.38)), 2);
-
-        $matrix = [
-            [-1, -1, -1],
-            [-1, $amount, -1],
-            [-1, -1, -1],
-        ];
-
-        $norm = array_sum(array_map('array_sum', $matrix));
-
-        for ($i = 0; $i < 3; $i++) {
-            $line = $matrix[$i];
-            for ($j = 0; $j < 3; $j++) {
-                $line[$j] /= $norm;
-            }
-        }
-
-        return $matrix;
-    }
-
-    // resize function
-    public function mainResize($destination_filepath, $max_width, $max_height, $quality, $automatic_rotation = true, $strip_metadata = false, $crop = false, $follow_orientation = true)
-    {
+    /**
+     * @return array{source: string, destination: string, width: int, height: int, size: string, time: string|null, library: string}
+     */
+    public function mainResize(
+        string $destination_filepath,
+        int $max_width,
+        int $max_height,
+        int $quality,
+        bool $automatic_rotation = true,
+        bool $strip_metadata = false,
+        bool $crop = false,
+        bool $follow_orientation = true
+    ) {
         $starttime = microtime(true);
 
         // width/height
@@ -168,15 +135,16 @@ class ImageOptimizer
 
         $rotation = null;
         if ($automatic_rotation) {
-            $rotation = self::getRotationAngle($this->sourceFilePath);
+            $rotation = $this->getRotationAngle();
+            $this->AutoRotate();
         }
-        $resize_dimensions = self::getResizeDimensions($source_width, $source_height, $max_width, $max_height, $rotation, $crop, $follow_orientation);
+        $resize_dimensions = $this->getResizeDimensions($source_width, $source_height, $max_width, $max_height, $rotation, $crop, $follow_orientation);
 
-        // testing on height is useless in theory: if width is unchanged, there
-        // should be no resize, because width/height ratio is not modified.
+        // testing on height is useless in theory: if width is unchanged, there should be no resize, because width/height ratio is not modified.
         if ($resize_dimensions['width'] === $source_width && $resize_dimensions['height'] === $source_height) {
             // the image doesn't need any resize! We just copy it to the destination
             copy($this->sourceFilePath, $destination_filepath);
+
             return $this->getResizeResult($destination_filepath, $resize_dimensions['width'], $resize_dimensions['height'], $starttime);
         }
 
@@ -188,25 +156,30 @@ class ImageOptimizer
         }
 
         if (isset($resize_dimensions['crop'])) {
-            $this->image->crop($resize_dimensions['crop']['width'], $resize_dimensions['crop']['height'], $resize_dimensions['crop']['x'], $resize_dimensions['crop']['y']);
+            $this->crop($resize_dimensions['crop']['width'], $resize_dimensions['crop']['height'], $resize_dimensions['crop']['x'], $resize_dimensions['crop']['y']);
         }
 
         $this->resize($resize_dimensions['width'], $resize_dimensions['height']);
 
-        if (!empty($rotation)) {
-            $this->image->rotate($rotation);
+        if ($automatic_rotation) {
+            $this->AutoRotate();
         }
 
         $this->write($destination_filepath);
 
-        // everything should be OK if we are here!
         return $this->getResizeResult($destination_filepath, $resize_dimensions['width'], $resize_dimensions['height'], $starttime);
     }
 
-    public static function getResizeDimensions($width, $height, $max_width, $max_height, $rotation = null, $crop = false, $follow_orientation = true)
+    public function AutoRotate(): void
+    {
+        $filter = new Autorotate();
+        $filter->apply($this->image);
+    }
+
+    public function getResizeDimensions(int $width, int $height, int $max_width, int $max_height, int $rotation = null, bool $crop = false, bool $follow_orientation = true): mixed
     {
         $rotate_for_dimensions = false;
-        if (isset($rotation) and in_array(abs($rotation), [90, 270])) {
+        if (!is_null($rotation) && in_array(abs($rotation), [90, 270])) {
             $rotate_for_dimensions = true;
         }
 
@@ -272,7 +245,10 @@ class ImageOptimizer
         return $result;
     }
 
-    private function getResizeResult($destination_filepath, $width, $height, $time = null): array
+    /**
+     * @return array{source: string, destination: string, width: int, height: int, size: string, time: string|null, library: string}
+     */
+    private function getResizeResult(string $destination_filepath, int $width, int $height, float $time = null)
     {
         return [
             'source' => $this->sourceFilePath,
@@ -290,7 +266,7 @@ class ImageOptimizer
         $this->image->save($imagePath);
     }
 
-    public function destroy()
+    public function destroy(): void
     {
         // @TODO: free image resource
         // imagedestroy($this->image);

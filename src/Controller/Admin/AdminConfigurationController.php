@@ -273,7 +273,6 @@ class AdminConfigurationController extends AbstractController
                 } else {
                     $tpl_var['minw'] = $tpl_var['minh'] = "";
                 }
-                $tpl_var['sharpen'] = $params->sharpen;
             }
             $tpl_params['derivatives'][$type] = $tpl_var;
         }
@@ -715,11 +714,6 @@ class AdminConfigurationController extends AbstractController
                         $prev_w = intval($pderivative['w']);
                         $prev_h = intval($pderivative['h']);
                     }
-
-                    $v = intval($pderivative['sharpen']);
-                    if ($v < 0 || $v > 100) {
-                        $errors[$type]['sharpen'] = '[0..100]';
-                    }
                 }
 
                 // step 3 - save data
@@ -745,7 +739,6 @@ class AdminConfigurationController extends AbstractController
                                 [intval($pderivative['minw']), intval($pderivative['minh'])]
                             );
                             $new_params = new \Phyxo\Image\DerivativeParams($derivative_params);
-                            $new_params->sharpen = intval($pderivative['sharpen']);
 
                             $image_std_params->applyWatermark($new_params);
 
@@ -760,10 +753,6 @@ class AdminConfigurationController extends AbstractController
                                 if ($same
                                         && $new_params->sizing->max_crop != 0
                                         && !\Phyxo\Image\DerivativeParams::size_equals($old_params->sizing->min_size, $new_params->sizing->min_size)) {
-                                    $same = false;
-                                }
-
-                                if ($quality_changed || $new_params->sharpen != $old_params->sharpen) {
                                     $same = false;
                                 }
 

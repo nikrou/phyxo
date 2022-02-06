@@ -1287,10 +1287,8 @@ class Image
             false
         );
 
-        // we need to save the rotation angle in the database to compute
-        // width/height of "multisizes"
-        $rotation_angle = ImageOptimizer::getRotationAngle($file_path);
-        $rotation = ImageOptimizer::getRotationCodeFromAngle($rotation_angle);
+        // we need to save the rotation angle in the database to compute width/height of "multisizes"
+        $rotation = $imageOptimizer->getRotationCodeFromAngle();
 
         list($width, $height) = getimagesize($file_path);
         $filesize = (int) floor(filesize($file_path) / 1024);

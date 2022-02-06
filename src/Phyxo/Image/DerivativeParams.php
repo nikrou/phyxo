@@ -26,8 +26,6 @@ class DerivativeParams
     public $last_mod_time = 0;
     /** @var bool */
     public $use_watermark = false;
-    /** @var float from 0=no sharpening to 1=max sharpening */
-    public $sharpen = 0;
 
     /**
      * @param SizingParams $sizing
@@ -39,7 +37,7 @@ class DerivativeParams
 
     public function __sleep(): array
     {
-        return ['last_mod_time', 'sizing', 'sharpen'];
+        return ['last_mod_time', 'sizing'];
     }
 
     /**
