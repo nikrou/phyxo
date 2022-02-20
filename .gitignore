@@ -5,6 +5,7 @@
 ;; config
 /config/database.yaml
 /config/services_dev.yaml
+/config/parameters_dev.yaml
 /local/config/config.inc.php
 /local/config/database.*.php
 /local/watermarks/

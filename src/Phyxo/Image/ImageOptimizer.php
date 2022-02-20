@@ -15,8 +15,7 @@ use Imagine\Filter\Basic\Autorotate;
 use Imagine\Image\Box;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\ImagineInterface;
-use Imagine\Image\Metadata\DefaultMetadataReader;
-use Imagine\Image\Metadata\MetadataBag;
+use Imagine\Image\Metadata\ExifMetadataReader;
 use Imagine\Image\Point;
 
 class ImageOptimizer
@@ -28,7 +27,7 @@ class ImageOptimizer
     public function __construct(string $sourceFilePath, ImagineInterface $imagine)
     {
         $this->imagine = $imagine;
-        $this->imagine->setMetadataReader(new DefaultMetadataReader());
+        $this->imagine->setMetadataReader(new ExifMetadataReader());
 
         $this->sourceFilePath = $sourceFilePath;
 
@@ -70,10 +69,20 @@ class ImageOptimizer
         // @TODO: search how to set param
     }
 
-    public function getRotationAngle(): int
+    public function getImage(): ImageInterface
+    {
+        return $this->image;
+    }
+
+    public function compose(ImageInterface $overlay, float $x, float $y, int $opacity): bool
+    {
+        return false;
+    }
+
+    public function getRotationCode(): int
     {
         $metadata = $this->image->metadata();
-        $orientation = $metadata->get('exif.Orientation');
+        $orientation = isset($metadata['ifd0.Orientation']) ? $metadata['ifd0.Orientation'] : null;
 
         if (is_null($orientation)) {
             return 0;
@@ -82,34 +91,48 @@ class ImageOptimizer
         return $orientation;
     }
 
-    public function getRotationCodeFromAngle(): int
+    public function getRotationAngle(): int
     {
-        switch ($this->getRotationAngle()) {
-            case 0:
-                return 0;
+        $orientationCode = $this->getRotationCode();
+        if (in_array($orientationCode, [3, 4])) {
+            $rotation = 180;
+        } elseif (in_array($orientationCode, [5, 6])) {
+            $rotation = 270;
+        } elseif (in_array($orientationCode, [7, 8])) {
+            $rotation = 90;
+        } else {
+            $rotation = 0;
+        }
+
+        return $rotation;
+    }
+
+    public function getRotationCodeFromAngle(int $rotationAngle): int
+    {
+        switch ($rotationAngle) {
             case 90:
-                return 1;
+                return 8;
             case 180:
-                return 2;
-            case 270:
                 return 3;
+            case 270:
+                return 6;
             default:
                 return 0;
         }
     }
 
-    public function getRotationAngleFromCode(int $rotation_code): int
+    public function getRotationAngleFromCode(int $rotationCode): int
     {
-        switch ($rotation_code % 4) {
+        switch ($rotationCode % 4) {
             case 0:
                 return 0;
             case 1:
                 return 90;
             case 2:
-                return 180;
-            case 3:
                 return 270;
-                default:
+            case 3:
+                return 180;
+            default:
                 return 0;
         }
     }
@@ -118,56 +141,54 @@ class ImageOptimizer
      * @return array{source: string, destination: string, width: int, height: int, size: string, time: string|null, library: string}
      */
     public function mainResize(
-        string $destination_filepath,
-        int $max_width,
-        int $max_height,
+        string $destinationFilePath,
+        int $maxWidth,
+        int $maxHeight,
         int $quality,
-        bool $automatic_rotation = true,
-        bool $strip_metadata = false,
+        bool $automaticRotation = true,
+        bool $stripMetadata = false,
         bool $crop = false,
-        bool $follow_orientation = true
+        bool $followOrientation = true
     ) {
         $starttime = microtime(true);
 
-        // width/height
-        $source_width = $this->image->getSize()->getWidth();
-        $source_height = $this->image->getSize()->getHeight();
+        $sourceWidth = $this->image->getSize()->getWidth();
+        $sourceHeight = $this->image->getSize()->getHeight();
 
         $rotation = null;
-        if ($automatic_rotation) {
+        if ($automaticRotation) {
             $rotation = $this->getRotationAngle();
-            $this->AutoRotate();
         }
-        $resize_dimensions = $this->getResizeDimensions($source_width, $source_height, $max_width, $max_height, $rotation, $crop, $follow_orientation);
+
+        $resizeDimensions = $this->getResizeDimensions($sourceWidth, $sourceHeight, $maxWidth, $maxHeight, $rotation, $crop, $followOrientation);
 
         // testing on height is useless in theory: if width is unchanged, there should be no resize, because width/height ratio is not modified.
-        if ($resize_dimensions['width'] === $source_width && $resize_dimensions['height'] === $source_height) {
+        if ($resizeDimensions['width'] === $sourceWidth && $resizeDimensions['height'] === $sourceHeight) {
             // the image doesn't need any resize! We just copy it to the destination
-            copy($this->sourceFilePath, $destination_filepath);
+            copy($this->sourceFilePath, $destinationFilePath);
 
-            return $this->getResizeResult($destination_filepath, $resize_dimensions['width'], $resize_dimensions['height'], $starttime);
+            return $this->getResizeResult($destinationFilePath, $resizeDimensions['width'], $resizeDimensions['height'], $starttime);
         }
 
         $this->setCompressionQuality($quality);
 
-        if ($strip_metadata) {
-            // we save a few kilobytes. For example a thumbnail with metadata weights 25KB, without metadata 7KB.
-            $this->image->strip();
+        if ($stripMetadata) {
+            $this->strip();
         }
 
-        if (isset($resize_dimensions['crop'])) {
-            $this->crop($resize_dimensions['crop']['width'], $resize_dimensions['crop']['height'], $resize_dimensions['crop']['x'], $resize_dimensions['crop']['y']);
+        if (isset($resizeDimensions['crop'])) {
+            $this->crop($resizeDimensions['crop']['width'], $resizeDimensions['crop']['height'], $resizeDimensions['crop']['x'], $resizeDimensions['crop']['y']);
         }
 
-        $this->resize($resize_dimensions['width'], $resize_dimensions['height']);
+        $this->resize($resizeDimensions['width'], $resizeDimensions['height']);
 
-        if ($automatic_rotation) {
-            $this->AutoRotate();
+        if (!empty($rotation)) {
+            $this->rotate($rotation);
         }
 
-        $this->write($destination_filepath);
+        $this->write($destinationFilePath);
 
-        return $this->getResizeResult($destination_filepath, $resize_dimensions['width'], $resize_dimensions['height'], $starttime);
+        return $this->getResizeResult($destinationFilePath, $resizeDimensions['width'], $resizeDimensions['height'], $starttime);
     }
 
     public function AutoRotate(): void
@@ -176,61 +197,64 @@ class ImageOptimizer
         $filter->apply($this->image);
     }
 
-    public function getResizeDimensions(int $width, int $height, int $max_width, int $max_height, int $rotation = null, bool $crop = false, bool $follow_orientation = true): mixed
+    /**
+     * @return array{width: int, height: int, crop: array|null}
+     */
+    public function getResizeDimensions(int $width, int $height, int $maxWidth, int $maxHeight, int $rotation = null, bool $crop = false, bool $followOrientation = true)
     {
-        $rotate_for_dimensions = false;
+        $rotateForDimensions = false;
         if (!is_null($rotation) && in_array(abs($rotation), [90, 270])) {
-            $rotate_for_dimensions = true;
+            $rotateForDimensions = true;
         }
 
-        if ($rotate_for_dimensions) {
+        if ($rotateForDimensions) {
             list($width, $height) = [$height, $width];
         }
 
         $x = 0;
         $y = 0;
         if ($crop) {
-            if ($width < $height and $follow_orientation) {
-                list($max_width, $max_height) = [$max_height, $max_width];
+            if ($width < $height && $followOrientation) {
+                list($maxWidth, $maxHeight) = [$maxHeight, $maxWidth];
             }
 
-            $img_ratio = $width / $height;
-            $dest_ratio = $max_width / $max_height;
+            $imageRatio = $width / $height;
+            $destinationRatio = $maxWidth / $maxHeight;
 
-            if ($dest_ratio > $img_ratio) {
-                $destHeight = round($width * $max_height / $max_width);
-                $y = round(($height - $destHeight) / 2);
-                $height = $destHeight;
-            } elseif ($dest_ratio < $img_ratio) {
-                $destWidth = round($height * $max_width / $max_height);
-                $x = round(($width - $destWidth) / 2);
-                $width = $destWidth;
+            if ($destinationRatio > $imageRatio) {
+                $destinationHeight = round($width * $maxHeight / $maxWidth);
+                $y = round(($height - $destinationHeight) / 2);
+                $height = $destinationHeight;
+            } elseif ($destinationRatio < $imageRatio) {
+                $destinationWidth = round($height * $maxWidth / $maxHeight);
+                $x = round(($width - $destinationWidth) / 2);
+                $width = $destinationWidth;
             }
         }
 
-        $ratio_width = $width / $max_width;
-        $ratio_height = $height / $max_height;
-        $destination_width = $width;
-        $destination_height = $height;
+        $ratioWidth = $width / $maxWidth;
+        $ratioHeight = $height / $maxHeight;
+        $destinationWidth = $width;
+        $destinationHeight = $height;
 
         // maximal size exceeded ?
-        if ($ratio_width > 1 or $ratio_height > 1) {
-            if ($ratio_width < $ratio_height) {
-                $destination_width = round($width / $ratio_height);
-                $destination_height = $max_height;
+        if ($ratioWidth > 1 || $ratioHeight > 1) {
+            if ($ratioWidth < $ratioHeight) {
+                $destinationWidth = round($width / $ratioHeight);
+                $destinationHeight = $maxHeight;
             } else {
-                $destination_width = $max_width;
-                $destination_height = round($height / $ratio_width);
+                $destinationWidth = $maxWidth;
+                $destinationHeight = round($height / $ratioWidth);
             }
         }
 
-        if ($rotate_for_dimensions) {
-            list($destination_width, $destination_height) = [$destination_height, $destination_width];
+        if ($rotateForDimensions) {
+            list($destinationWidth, $destinationHeight) = [$destinationHeight, $destinationWidth];
         }
 
         $result = [
-            'width' => $destination_width,
-            'height' => $destination_height,
+            'width' => $destinationWidth,
+            'height' => $destinationHeight,
         ];
 
         if ($crop && ($x || $y)) {
@@ -248,14 +272,14 @@ class ImageOptimizer
     /**
      * @return array{source: string, destination: string, width: int, height: int, size: string, time: string|null, library: string}
      */
-    private function getResizeResult(string $destination_filepath, int $width, int $height, float $time = null)
+    private function getResizeResult(string $destinationFilePath, int $width, int $height, float $time = null)
     {
         return [
             'source' => $this->sourceFilePath,
-            'destination' => $destination_filepath,
+            'destination' => $destinationFilePath,
             'width' => $width,
             'height' => $height,
-            'size' => floor(filesize($destination_filepath) / 1024) . ' KB',
+            'size' => floor(filesize($destinationFilePath) / 1024) . ' KB',
             'time' => $time ? number_format((microtime(true) - $time) * 1000, 2, '.', ' ') . ' ms' : null,
             'library' => get_class($this->imagine),
         ];
@@ -268,7 +292,6 @@ class ImageOptimizer
 
     public function destroy(): void
     {
-        // @TODO: free image resource
-        // imagedestroy($this->image);
+        // done by ImageInterface::__destruct()
     }
 }

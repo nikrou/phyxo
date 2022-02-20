@@ -877,6 +877,9 @@ class AlbumMapper
         // find all albums where the setted representative is not possible : the picture does not exist
         $wrong_representants = $this->getRepository()->findWrongRepresentant($ids);
 
+        // remove userCache for albums
+        $this->userCacheAlbumRepository->deleteForAlbums($ids);
+
         if (count($wrong_representants) > 0) {
             $this->getRepository()->updateAlbums(['representative_picture_id' => null], $wrong_representants);
         }
@@ -1031,7 +1034,7 @@ class AlbumMapper
             } elseif ($album->getRepresentativePictureId()) { // if a representative picture is set, it has priority
                 $image_id = $album->getRepresentativePictureId();
             } elseif ($this->conf['allow_random_representative']) { // searching a random representant among elements in sub-categories
-                if ($random_image = $this->getRepository()->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenCategories())) {
+                if ($random_image = $this->imageRepository->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenCategories())) {
                     $image_id = $random_image->getId();
                 }
             } elseif ($userCacheAlbum->getCountAlbums() > 0 && $userCacheAlbum->getCountImages() > 0) { // searching a random representant among representant of sub-categories
@@ -1060,35 +1063,38 @@ class AlbumMapper
     public function getInfosOfImages(User $user, array $albums, array $image_ids, ImageMapper $imageMapper)
     {
         $infos_of_images = [];
-        $new_image_ids = [];
+        $bad_level_ids = [];
 
         foreach ($imageMapper->getRepository()->findBy(['id' => $image_ids]) as $image) {
             if ($image->getLevel() <= $user->getUserInfos()->getLevel()) {
                 $infos_of_images[$image->getId()] = [$image->toArray(), 'image' => $image];
             } else {
-                // problem: we must not display the thumbnail of a photo which has a
-                // higher privacy level than user privacy level
-                //
+                $bad_level_ids[] = $image->getId();
+            }
+        }
+
+        $missing_image_ids = array_values(array_diff($image_ids, $bad_level_ids, array_keys($infos_of_images)));
+        if (count($missing_image_ids)) {
+            // problem: we must not display the thumbnail of a photo which has a higher privacy level than user privacy level
+            foreach ($missing_image_ids as $id) {
                 // * what is the represented album?
                 // * find a random photo matching user permissions
                 // * register it at user_representative_picture_id
                 // * set it as the representative_picture_id for the album
 
                 foreach ($albums as $album) {
-                    if ($image->getId() === $album->getRepresentativePictureId()) {
+                    if ($album->getRepresentativePictureId() === $id) {
                         // searching a random representant among elements in sub-categories
-                        if ($random_image = $this->getRepository()->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenCategories())) {
-                            $image_id = $random_image->getId();
-                        }
+                        $random_image = $this->imageRepository->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenCategories());
 
-                        if (isset($image_id) && !in_array($image_id, $image_ids)) {
-                            $new_image_ids[] = $image_id;
+                        if (!is_null($random_image) && !in_array($random_image->getId(), $image_ids)) {
+                            $infos_of_images[$random_image->getId()] = [$random_image->toArray(), 'image' => $random_image];
 
                             if ($this->conf['representative_cache_on_level']) {
-                                $user_representative_updates_for[$album->getId()] = $image_id;
+                                // @TODO save representative picture in cache
                             }
 
-                            $album->setRepresentativePictureId($image_id);
+                            $album->setRepresentativePictureId($random_image->getId());
                         }
 
                         $this->getRepository()->addOrUpdateAlbum($album);
@@ -1097,9 +1103,30 @@ class AlbumMapper
             }
         }
 
-        if (count($new_image_ids) > 0) {
-            foreach ($imageMapper->getRepository()->findBy(['id' => $new_image_ids]) as $image) {
-                $infos_of_images[$image->getId()] = $image->toArray();
+        // problem: we must not display the thumbnail of a photo which has a higher privacy level than user privacy level
+        foreach ($bad_level_ids as $id) {
+            // * what is the represented album?
+            // * find a random photo matching user permissions
+            // * register it at user_representative_picture_id
+            // * set it as the representative_picture_id for the album
+
+            foreach ($albums as $album) {
+                if ($id === $album->getRepresentativePictureId()) {
+                    // searching a random representant among elements in sub-categories
+                    $random_image = $this->imageRepository->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenCategories());
+
+                    if (!is_null($random_image) && !in_array($random_image->getId(), $image_ids)) {
+                        $infos_of_images[$random_image->getId()] = [$random_image->toArray(), 'image' => $random_image];
+
+                        if ($this->conf['representative_cache_on_level']) {
+                            // @TODO save representative picture in cache
+                        }
+
+                        $album->setRepresentativePictureId($random_image->getId());
+                    }
+
+                    $this->getRepository()->addOrUpdateAlbum($album);
+                }
             }
         }
 

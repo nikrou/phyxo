@@ -631,8 +631,6 @@ class Image
      */
     public static function upload($params, Server $service)
     {
-        // @TODO add token
-
         $upload_dir = $service->getUploadDir() . '/buffer';
         try {
             $fs = new Filesystem();
@@ -1275,6 +1273,7 @@ class Image
         } else {
             rename($source_filepath, $file_path);
         }
+
         $fs->chmod($file_path, 0644);
 
         $imageOptimizer = new ImageOptimizer($file_path, $service->getImageLibrary());
@@ -1288,7 +1287,7 @@ class Image
         );
 
         // we need to save the rotation angle in the database to compute width/height of "multisizes"
-        $rotation = $imageOptimizer->getRotationCodeFromAngle();
+        $rotation = $imageOptimizer->getRotationCodeFromAngle($imageOptimizer->getRotationAngle());
 
         list($width, $height) = getimagesize($file_path);
         $filesize = (int) floor(filesize($file_path) / 1024);

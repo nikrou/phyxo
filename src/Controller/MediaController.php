@@ -19,7 +19,6 @@ use Phyxo\Conf;
 use Phyxo\Image\DerivativeParams;
 use Phyxo\Image\ImageOptimizer;
 use Phyxo\Image\SizingParams;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,10 +28,7 @@ use Symfony\Component\Mime\MimeTypeGuesserInterface;
 class MediaController extends CommonController
 {
     protected ImageStandardParams $image_std_params;
-    private int $rotation_angle;
-    private array $original_size;
     private MimeTypeGuesserInterface $mimeTypes;
-
     private bool $forAdmin = false;
 
     public function index(
@@ -43,7 +39,6 @@ class MediaController extends CommonController
         string $image_extension,
         string $mediaCacheDir,
         Conf $conf,
-        LoggerInterface $logger,
         ImageStandardParams $image_std_params,
         ImageRepository $imageRepository,
         string $rootProjectDir,
@@ -62,15 +57,11 @@ class MediaController extends CommonController
 
         $image_src = sprintf('%s/%s', $rootProjectDir, $image_path);
         $derivative_src = sprintf('%s/%s', $mediaCacheDir, $derivative_path);
-        $derivative_params = null;
-
-        $this->image_std_params = $image_std_params;
-        foreach ($this->image_std_params->getDefinedTypeMap() as $type => $params) {
-            if (DerivativeParams::derivative_to_url($type) === $derivative) {
-                $derivative_type = $type;
-                $derivative_params = $params;
-                break;
-            }
+        $derivative_params = $image_std_params->getParamsFromDerivative($derivative);
+        if (!is_null($derivative_params)) {
+            $derivative_type = $derivative_params->type;
+        } else {
+            $derivative_type = null;
         }
 
         // deal with ./ at the beginning of path
@@ -83,12 +74,12 @@ class MediaController extends CommonController
             return new Response('User not allowed to see that image ', 403);
         }
 
-        if (!isset($derivative_type)) {
+        if (is_null($derivative_type)) {
             if (DerivativeParams::derivative_to_url(ImageStandardParams::IMG_CUSTOM) === $derivative) {
                 $derivative_type = ImageStandardParams::IMG_CUSTOM;
             } elseif ($derivative === 'original') {
-                $this->original_size = [$image->getWidth(), $image->getHeight()];
-                $derivative_params = new DerivativeParams(new SizingParams($this->original_size));
+                $original_size = [$image->getWidth(), $image->getHeight()];
+                $derivative_params = new DerivativeParams(new SizingParams($original_size));
                 $derivative_type = ImageStandardParams::IMG_ORIGINAL;
             } else {
                 return new Response('Unknown parsing type', 400);
@@ -97,30 +88,28 @@ class MediaController extends CommonController
 
         if ($derivative_type === ImageStandardParams::IMG_CUSTOM) {
             try {
-                $params = $derivative_params = $this->parse_custom_params(array_slice(explode('_', '_' . $sizes), 1));
+                $derivative_params = $derivative_params = $this->parse_custom_params(array_slice(explode('_', '_' . $sizes), 1));
             } catch (\Exception $e) {
                 return new Response($e->getMessage());
             }
 
-            $this->image_std_params->applyWatermark($params);
+            $image_std_params->applyWatermark($derivative_params);
 
-            if ($params->sizing->ideal_size[0] < 20 || $params->sizing->ideal_size[1] < 20) {
+            if ($derivative_params->sizing->ideal_size[0] < 20 || $derivative_params->sizing->ideal_size[1] < 20) {
                 return new Response('Invalid size', 400);
             }
-            if ($params->sizing->max_crop < 0 || $params->sizing->max_crop > 1) {
+            if ($derivative_params->sizing->max_crop < 0 || $derivative_params->sizing->max_crop > 1) {
                 return new Response('Invalid crop', 400);
             }
 
             $key = [];
-            $params->add_url_tokens($key);
+            $derivative_params->add_url_tokens($key);
             $key = implode('_', $key);
 
-            if (!$this->image_std_params->hasCustom($key)) {
+            if (!$image_std_params->hasCustom($key)) {
                 return new Response('Size not allowed', 403);
             }
         }
-
-        $params = $derivative_params;
 
         if (!is_readable($image_src)) {
             return new Response('Image not found ' . $image_src, 404);
@@ -130,14 +119,12 @@ class MediaController extends CommonController
 
         if (is_readable($derivative_src)) {
             $derivative_mtime = filemtime($derivative_src);
-            if ($derivative_mtime < $src_mtime || $derivative_mtime < $params->last_mod_time) {
+            if ($derivative_mtime < $src_mtime || $derivative_mtime < $derivative_params->last_mod_time) {
                 $need_generate = true;
-                $logger->info(sprintf("Need generate %s", $derivative_path));
             } else {
                 $need_generate = false;
             }
         }
-
 
         if (!$need_generate) {
             $response = $this->makeDerivativeResponse($mediaCacheDir . '/' . $derivative_path);
@@ -148,47 +135,44 @@ class MediaController extends CommonController
 
         $coi = '';
         $imageOptimizer = new ImageOptimizer($image_src, $imageLibraryGuesser->getLibrary());
+
         try {
             if ($image->getWidth() > 0 && $image->getHeight()) {
-                $this->original_size = [$image->getWidth(), $image->getHeight()];
+                $original_size = [$image->getWidth(), $image->getHeight()];
             }
 
             $coi = (string) $image->getCoi();
-            if (!$image->getRotation()) {
-                $image->setRotation($imageOptimizer->getRotationAngle());
+            if ($image->getRotation() === 0 || is_null($image->getRotation())) {
+                $rotation_angle = $imageOptimizer->getRotationAngle();
+                $image->setRotation($imageOptimizer->getRotationCodeFromAngle($rotation_angle));
                 $imageRepository->addOrUpdateImage($image);
             } else {
-                $this->rotation_angle = $imageOptimizer->getRotationAngleFromCode($image->getRotation());
+                $rotation_angle = $imageOptimizer->getRotationAngleFromCode($image->getRotation());
             }
         } catch (\Exception $e) {
             return new Response($e->getMessage());
         }
 
-        $changes = 0;
-
         // rotate
-        if ($imageOptimizer->getRotationAngleFromCode($image->getRotation()) !== 0) {
-            $changes++;
-            $imageOptimizer->AutoRotate();
+        if ($rotation_angle !== 0) {
+            $imageOptimizer->rotate($rotation_angle);
         }
 
         // Crop & scale
         $crop_rect = $scaled_size = null;
         $o_size = $d_size = [$imageOptimizer->getWidth(), $imageOptimizer->getHeight()];
-        $params->sizing->compute($o_size, $coi, $crop_rect, $scaled_size);
+        $derivative_params->sizing->compute($o_size, $coi, $crop_rect, $scaled_size);
         if ($crop_rect) {
-            $changes++;
             $imageOptimizer->crop($crop_rect->width(), $crop_rect->height(), $crop_rect->l, $crop_rect->t);
         }
 
         if ($scaled_size) {
-            $changes++;
             $imageOptimizer->resize($scaled_size[0], $scaled_size[1]);
             $d_size = $scaled_size;
         }
 
-        if ($params->will_watermark($d_size, $this->image_std_params)) {
-            $wm = $this->image_std_params->getWatermark();
+        if ($derivative_params->will_watermark($d_size, $image_std_params)) {
+            $wm = $image_std_params->getWatermark();
             $wm_image = new ImageOptimizer(__DIR__ . '/../../' . $wm->file, $imageLibraryGuesser->getLibrary());
             $wm_size = [$wm_image->getWidth(), $wm_image->getHeight()];
             if ($d_size[0] < $wm_size[0] or $d_size[1] < $wm_size[1]) {
@@ -199,10 +183,26 @@ class MediaController extends CommonController
             }
             $x = round(($wm->xpos / 100) * ($d_size[0] - $wm_size[0]));
             $y = round(($wm->ypos / 100) * ($d_size[1] - $wm_size[1]));
+
+            if ($imageOptimizer->compose($wm_image->getImage(), $x, $y, $wm->opacity)) {
+                if ($wm->xrepeat) {
+                    // todo
+                    $pad = $wm_size[0] + max(30, round($wm_size[0] / 4));
+                    for ($i = -$wm->xrepeat; $i <= $wm->xrepeat; $i++) {
+                        if (!$i) {
+                            continue;
+                        }
+                        $x2 = $x + $i * $pad;
+                        if ($x2 >= 0 && $x2 + $wm_size[0] < $d_size[0]) {
+                            if (!$imageOptimizer->compose($wm_image->getImage(), $x2, $y, $wm->opacity)) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
             $wm_image->destroy();
         }
-
-        $logger->info(sprintf('When generating derivative image, changes ? %d', $changes));
 
         if ($d_size[0] * $d_size[1] < $conf['derivatives_strip_metadata_threshold']) {// strip metadata for small images
             $imageOptimizer->strip();
@@ -210,8 +210,7 @@ class MediaController extends CommonController
 
         $fs = new Filesystem();
         $fs->mkdir(dirname($mediaCacheDir . '/' . $derivative_path));
-        $imageOptimizer->setCompressionQuality($this->image_std_params->getQuality());
-        $logger->info(sprintf('WRITE %s', $mediaCacheDir . '/' . $derivative_path));
+        $imageOptimizer->setCompressionQuality($image_std_params->getQuality());
         $imageOptimizer->write($mediaCacheDir . '/' . $derivative_path);
         $imageOptimizer->destroy();
         chmod($mediaCacheDir . '/' . $derivative_path, 0644);
@@ -229,7 +228,7 @@ class MediaController extends CommonController
         );
     }
 
-    private function url_to_size(string $s): array
+    private function url_to_size($s)
     {
         $pos = strpos($s, 'x');
         if ($pos === false) {
@@ -239,10 +238,10 @@ class MediaController extends CommonController
         return [(int)substr($s, 0, $pos), (int)substr($s, $pos + 1)];
     }
 
-    private function parse_custom_params(array $tokens): DerivativeParams
+    private function parse_custom_params($tokens)
     {
         if (count($tokens) < 1) {
-            throw new \Exception('Empty array while parsing Sizing', 400);
+            return new \Exception('Empty array while parsing Sizing', 400);
         }
 
         $crop = 0;
@@ -257,7 +256,7 @@ class MediaController extends CommonController
         } else {
             $size = $this->url_to_size($token);
             if (count($tokens) < 2) {
-                throw new \Exception('Sizing arr', 400);
+                return new Response('Sizing arr', 400);
             }
 
             $token = array_shift($tokens);
@@ -268,77 +267,6 @@ class MediaController extends CommonController
         }
 
         return new DerivativeParams(new SizingParams($size, $crop, $min_size));
-    }
-
-    private function try_switch_source(DerivativeParams $params, string $derivative_path, $original_mtime): bool
-    {
-        if (!isset($this->original_size)) {
-            return false;
-        }
-
-        $original_size = $this->original_size;
-        if ($this->rotation_angle === 90 || $this->rotation_angle === 270) {
-            $tmp = $original_size[0];
-            $original_size[0] = $original_size[1];
-            $original_size[1] = $tmp;
-        }
-        $dsize = $params->compute_final_size($original_size);
-
-        $use_watermark = $params->use_watermark;
-        if ($use_watermark) {
-            $use_watermark = $params->will_watermark($dsize, $this->image_std_params);
-        }
-
-        $candidates = [];
-        foreach ($this->image_std_params->getDefinedTypeMap() as $candidate) {
-            if ($candidate->type == $params->type) {
-                continue;
-            }
-            if ($candidate->use_watermark != $use_watermark) {
-                continue;
-            }
-            if ($candidate->max_width() < $params->max_width() || $candidate->max_height() < $params->max_height()) {
-                continue;
-            }
-            $candidate_size = $candidate->compute_final_size($original_size);
-            if ($dsize != $params->compute_final_size($candidate_size)) {
-                continue;
-            }
-
-            if ($params->sizing->max_crop == 0) {
-                if ($candidate->sizing->max_crop != 0) {
-                    continue;
-                }
-            } else {
-                if ($candidate->sizing->max_crop != 0) {
-                    continue; // this could be optimized
-                }
-                if ($candidate_size[0] < $params->sizing->min_size[0] || $candidate_size[1] < $params->sizing->min_size[1]) {
-                    continue;
-                }
-            }
-            $candidates[] = $candidate;
-        }
-
-        foreach (array_reverse($candidates) as $candidate) {
-            $candidate_path = $derivative_path;
-            $candidate_path = str_replace('-' . DerivativeParams::derivative_to_url($params->type), '-' . DerivativeParams::derivative_to_url($candidate->type), $candidate_path);
-
-            if (!is_readable($candidate_path)) {
-                continue;
-            }
-
-            $candidate_mtime = filemtime($candidate_path);
-            if ($candidate_mtime === false || $candidate_mtime < $original_mtime || $candidate_mtime < $candidate->last_mod_time) {
-                continue;
-            }
-            $params->use_watermark = false;
-            $this->rotation_angle = 0;
-
-            return true;
-        }
-
-        return false;
     }
 
     protected function makeDerivativeResponse(string $image_path): Response

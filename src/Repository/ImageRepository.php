@@ -209,6 +209,52 @@ class ImageRepository extends ServiceEntityRepository
         return $ids;
     }
 
+    /**
+     * Find a random photo among all photos inside an album (including sub-albums)
+     */
+    public function getRandomImageInAlbum(int $album_id, string $uppercats = '', array $forbidden_categories = [], bool $recursive = true)
+    {
+        $qb = $this->createQueryBuilder('i');
+        $qb->select('count(1)');
+        $qb->leftJoin('i.imageAlbums', 'ia');
+        $qb->leftJoin('ia.album', 'a');
+        $qb->where('a.id = :album_id');
+        $qb->setParameter('album_id', $album_id);
+
+        if ($recursive) {
+            $qb->orWhere($qb->expr()->like('a.uppercats', ':uppercats'));
+            $qb->setParameter('uppercats', $uppercats . ',%');
+        }
+
+        if (count($forbidden_categories) > 0) {
+            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
+        }
+        $nb_images = $qb->getQuery()->getSingleScalarResult();
+
+        if ($nb_images > 0) {
+            $qb = $this->createQueryBuilder('i');
+            $qb->leftJoin('i.imageAlbums', 'ia');
+            $qb->leftJoin('ia.album', 'a');
+            $qb->where('a.id = :album_id');
+            $qb->setParameter('album_id', $album_id);
+
+            if ($recursive) {
+                $qb->orWhere($qb->expr()->like('a.uppercats', ':uppercats'));
+                $qb->setParameter('uppercats', $uppercats . ',%');
+            }
+
+            if (count($forbidden_categories) > 0) {
+                $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
+            }
+            $qb->setFirstResult(random_int(0, $nb_images - 1));
+            $qb->setMaxResults(1);
+
+            return $qb->getQuery()->getOneOrNullResult();
+        }
+
+        return null;
+    }
+
     public function getList(array $ids, array $forbidden_categories = [])
     {
         $qb = $this->createQueryBuilder('i');

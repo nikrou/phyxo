@@ -168,6 +168,19 @@ class ImageStandardParams
         return $ret;
     }
 
+    public function getParamsFromDerivative(string $derivative): ?DerivativeParams
+    {
+        $derivative_params = null;
+
+        foreach ($this->getDefinedTypeMap() as $type => $params) {
+            if (DerivativeParams::derivative_to_url($type) === $derivative) {
+                $derivative_params = $params;
+            }
+        }
+
+        return $derivative_params;
+    }
+
     /**
      * Returns an instance of DerivativeImage for a specific image and size.
      * Disabled derivatives fallback to an enabled derivative.

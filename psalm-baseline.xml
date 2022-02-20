@@ -274,32 +274,6 @@
       <code>$this-&gt;src_image-&gt;get_size()</code>
     </NullableReturnStatement>
   </file>
-  <file src="src/Phyxo/Image/Image.php">
-    <RedundantCondition occurrences="1">
-      <code>is_array($returnarray)</code>
-    </RedundantCondition>
-  </file>
-  <file src="src/Phyxo/Image/ImageExtImagick.php">
-    <RedundantCondition occurrences="2">
-      <code>is_array($returnarray)</code>
-      <code>is_array($returnarray)</code>
-    </RedundantCondition>
-    <TypeDoesNotContainType occurrences="1">
-      <code>!is_array($returnarray)</code>
-    </TypeDoesNotContainType>
-  </file>
-  <file src="src/Phyxo/Image/ImageImagick.php">
-    <UndefinedClass occurrences="8">
-      <code>\Imagick</code>
-      <code>\Imagick</code>
-      <code>\Imagick</code>
-      <code>\Imagick</code>
-      <code>\Imagick</code>
-      <code>\Imagick</code>
-      <code>\Imagick</code>
-      <code>\ImagickPixel</code>
-    </UndefinedClass>
-  </file>
   <file src="src/Phyxo/Image/SizingParams.php">
     <InvalidScalarArgument occurrences="2">
       <code>min($idealCropPx, $maxCropPx)</code>
