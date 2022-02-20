@@ -213,6 +213,7 @@ class AdminConfigurationController extends AbstractController
     {
         $tpl_params = [];
         $tpl_params = array_merge($this->setTabsheet('display'), $tpl_params);
+        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_configuration');
 
         $form = $this->createForm(DisplayConfigurationType::class, $conf);
         $form->handleRequest($request);
@@ -353,6 +354,7 @@ class AdminConfigurationController extends AbstractController
     {
         $tpl_params = [];
         $tpl_params = array_merge($this->setTabsheet('default'), $tpl_params);
+        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_configuration');
 
         $form = $this->createForm(UserInfosType::class, $userMapper->getDefaultUser()->getUserInfos());
         $form->handleRequest($request);
