@@ -55,6 +55,12 @@ services:
       - '../src/Tests/'
       - '../src/Phyxo/'
 
+  # controllers are imported separately to make sure services can be injected
+  # as action arguments even if you don't extend any base controller class
+  App\Controller\:
+    resource: '../src/Controller/'
+    tags: ['controller.service_arguments']
+
   # Plugins command
   Plugins\:
     resource: '../plugins/*/Command/*'
@@ -62,13 +68,6 @@ services:
 
   Phyxo\Extension\ExtensionCollection:
     arguments: [!tagged_iterator 'phyxo.console_command']
-
-
-  # controllers are imported separately to make sure services can be injected
-  # as action arguments even if you don't extend any base controller class
-  App\Controller\:
-    resource: '../src/Controller/'
-    tags: ['controller.service_arguments']
 
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
