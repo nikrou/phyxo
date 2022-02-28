@@ -15,6 +15,7 @@ use App\DataMapper\UserMapper;
 use App\Entity\Plugin;
 use App\Repository\PluginRepository;
 use App\Services\AssetsManager;
+use App\Twig\ThemeLoader;
 use Phyxo\Extension\AbstractPlugin;
 use Phyxo\Extension\ExtensionCollection;
 use Phyxo\Plugin\Plugins;
@@ -27,7 +28,11 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ExtensionManagerSubscriber implements EventSubscriberInterface
 {
-    private $plugins, $eventDispatcher, $assetsManager, $extensionCollection;
+    private Plugins $plugins;
+    private EventDispatcherInterface $eventDispatcher;
+    private AssetsManager $assetsManager;
+    private ExtensionCollection $extensionCollection;
+    private ThemeLoader $themeLoader;
 
     /**
      * @TODO: change Plugins interface to only accept language instead of UserMapper
@@ -40,7 +45,8 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
         string $pluginsDir,
         string $pemURL,
         EventDispatcherInterface $eventDispatcher,
-        ExtensionCollection $extensionCollection
+        ExtensionCollection $extensionCollection,
+        ThemeLoader $themeLoader
     ) {
         $this->plugins = new Plugins($pluginRepository, $userMapper);
         $this->plugins->setRootPath($pluginsDir);
@@ -49,6 +55,7 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
         $this->assetsManager = $assetsManager;
         $this->eventDispatcher = $eventDispatcher;
         $this->extensionCollection = $extensionCollection;
+        $this->themeLoader = $themeLoader;
     }
 
     public static function getSubscribedEvents(): array
@@ -74,7 +81,7 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
             $className = AbstractPlugin::getClassName($plugin->getId());
 
             if (class_exists($className) && method_exists($className, 'getSubscribedEvents')) {
-                $this->eventDispatcher->addSubscriber(new $className($this->assetsManager));
+                $this->eventDispatcher->addSubscriber(new $className($this->assetsManager, $this->themeLoader));
             }
         }
     }

@@ -19,12 +19,14 @@ use App\DataMapper\UserMapper;
 use App\DataMapper\TagMapper;
 use App\Entity\Tag as EntityTag;
 use App\Security\AppUserService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MenuBar
 {
     private $conf, $menu, $router, $albumMapper, $appUserService, $userMapper, $tagMapper, $translator;
     private $route = null, $items = [], $tags = [], $defaultDateType;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         Conf $conf,
@@ -34,7 +36,8 @@ class MenuBar
         UserMapper $userMapper,
         TagMapper $tagMapper,
         TranslatorInterface $translator,
-        string $defaultDateType
+        string $defaultDateType,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->conf = $conf;
         $this->router = $router;
@@ -44,6 +47,7 @@ class MenuBar
         $this->tagMapper = $tagMapper;
         $this->translator = $translator;
         $this->defaultDateType = $defaultDateType;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function setRoute(string $route)
@@ -63,11 +67,9 @@ class MenuBar
 
     public function getBlocks()
     {
-        $tpl_params = [];
-
         $this->menu = new BlockManager('menubar');
         $this->menu->loadDefaultBlocks();
-        $this->menu->loadRegisteredBlocks();
+        $this->menu->loadRegisteredBlocks($this->eventDispatcher);
         if (empty($this->conf['blk_menubar'])) {
             $this->menu->loadDefaultBlocks();
         } else {
@@ -80,11 +82,9 @@ class MenuBar
         $this->tagsBlock();
         $this->specialsBlock();
         $this->menuBlock();
-        $tpl_params = array_merge($tpl_params, $this->identificationBlock());
-        $tpl_params['blocks'] = $this->menu->getDisplayBlocks();
+        $this->identificationBlock();
 
-
-        return $tpl_params;
+        return $this->menu->getDisplayBlocks();
     }
 
     protected function linksBlock()
@@ -242,7 +242,7 @@ class MenuBar
         }
     }
 
-    protected function menuBlock()
+    protected function menuBlock(): void
     {
         if (($block = $this->menu->getBlock('mbMenu')) != null) {
             // quick search block will be displayed only if data['qsearch'] is set to "yes"
@@ -286,32 +286,23 @@ class MenuBar
         }
     }
 
-    protected function identificationBlock(): array
+    protected function identificationBlock(): void
     {
-        $tpl_params = [];
-
-        if ($this->appUserService->isGuest()) {
-            $tpl_params['U_LOST_PASSWORD'] = $this->router->generate('forgot_password');
-            $tpl_params['AUTHORIZE_REMEMBERING'] = $this->conf['authorize_remembering'];
-
-            if ($this->conf['allow_user_registration']) {
-                $tpl_params['U_REGISTER'] = $this->router->generate('register');
-            }
-        } else {
-            $tpl_params['APP_USER'] = $this->appUserService->getUser();
-            $tpl_params['USERNAME'] = $this->appUserService->getUser()->getUserIdentifier();
-            $tpl_params['U_PROFILE'] = $this->router->generate('profile');
-            $tpl_params['U_LOGOUT'] = $this->router->generate('logout');
-
-            if ($this->userMapper->isAdmin()) {
-                $tpl_params['U_ADMIN'] = $this->router->generate('admin_home');
-            }
-        }
-
         if (($block = $this->menu->getBlock('mbIdentification')) != null) {
+            if ($this->appUserService->isGuest()) {
+                $block->data['U_LOST_PASSWORD'] = $this->router->generate('forgot_password');
+                $block->data['AUTHORIZE_REMEMBERING'] = $this->conf['authorize_remembering'];
+
+                if ($this->conf['allow_user_registration']) {
+                    $block->data['U_REGISTER'] = $this->router->generate('register');
+                }
+            } else {
+                $block->data['APP_USER'] = $this->appUserService->getUser();
+                $block->data['USERNAME'] = $this->appUserService->getUser()->getUserIdentifier();
+                $block->data['U_LOGOUT'] = $this->router->generate('logout');
+            }
+
             $block->template = 'menubar_identification';
         }
-
-        return $tpl_params;
     }
 }

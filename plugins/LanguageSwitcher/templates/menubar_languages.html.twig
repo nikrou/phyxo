@@ -1,0 +1,10 @@
+{% set data = blocks.mbLanguages.data %}
+
+<li class="nav-item dropdown">
+    <button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown">{{'Languages'|trans}}</button>
+    <div class="dropdown-menu dropdown-menu-right" role="menu">
+        {% for locale in data.locales %}
+            <a class="dropdown-item" href="{{ path(current_route, current_route_params|merge({_locale: locale.code})) }}">{{ locale.name|capitalize }}</a>
+        {% endfor %}
+    </div>
+</li>

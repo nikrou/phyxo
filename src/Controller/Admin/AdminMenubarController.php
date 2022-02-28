@@ -13,18 +13,18 @@ namespace App\Controller\Admin;
 
 use App\Repository\CaddieRepository;
 use App\Repository\CommentRepository;
-use App\Security\AppUser;
 use App\Security\AppUserService;
 use Phyxo\Block\BlockManager;
 use Phyxo\Conf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminMenubarController extends AbstractController
 {
-    public function index(Conf $conf)
+    public function index(Conf $conf, EventDispatcherInterface $eventDispatcher)
     {
         $tpl_params = [];
 
@@ -36,7 +36,7 @@ class AdminMenubarController extends AbstractController
 
         $menu = new BlockManager('menubar');
         $menu->loadDefaultBlocks();
-        $menu->loadRegisteredBlocks();
+        $menu->loadRegisteredBlocks($eventDispatcher);
         $menu->loadMenuConfig($mb_conf);
         $menu->prepareDisplay();
         $reg_blocks = $menu->getRegisteredBlocks();
@@ -44,10 +44,12 @@ class AdminMenubarController extends AbstractController
         $mb_conf = $this->makeConsecutive($reg_blocks, $mb_conf);
 
         foreach ($mb_conf as $id => $pos) {
-            $tpl_params['blocks'][] = [
-                'pos' => $pos / 5,
-                'reg' => $reg_blocks[$id]
-            ];
+            if (isset($reg_blocks[$id])) {
+                $tpl_params['blocks'][] = [
+                    'pos' => $pos / 5,
+                    'reg' => $reg_blocks[$id]
+                ];
+            }
         }
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_menubar');
@@ -56,11 +58,12 @@ class AdminMenubarController extends AbstractController
         return $this->render('menubar.html.twig', $tpl_params);
     }
 
-    public function update(Request $request, Conf $conf, TranslatorInterface $translator)
+    public function update(Request $request, Conf $conf, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator)
     {
         if ($request->isMethod('POST')) {
             $menu = new BlockManager('menubar');
             $menu->loadDefaultBlocks();
+            $menu->loadRegisteredBlocks($eventDispatcher);
             $reg_blocks = $menu->getRegisteredBlocks();
 
             if (is_null($conf['blk_menubar'])) {

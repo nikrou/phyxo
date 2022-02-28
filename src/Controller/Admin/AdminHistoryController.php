@@ -17,14 +17,12 @@ use App\DataMapper\UserMapper;
 use App\Entity\History;
 use App\Entity\HistorySummary;
 use App\Entity\Search;
-use App\Entity\User;
 use App\Form\HistorySearchType;
 use App\Form\Model\SearchRulesModel;
 use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
 use App\Repository\SearchRepository;
 use App\Repository\TagRepository;
-use App\Security\AppUserService;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
@@ -42,13 +40,11 @@ class AdminHistoryController extends AbstractController
 {
     private ImageStandardParams $image_std_params;
     private TranslatorInterface $translator;
-    private User $user;
 
-    public function __construct(ImageStandardParams $image_std_params, TranslatorInterface $translator, AppUserService $appUserService)
+    public function __construct(ImageStandardParams $image_std_params, TranslatorInterface $translator)
     {
         $this->image_std_params = $image_std_params;
         $this->translator = $translator;
-        $this->user = $appUserService->getUser();
     }
 
     protected function setTabsheet(string $section = 'stats'): array
@@ -62,6 +58,7 @@ class AdminHistoryController extends AbstractController
     }
 
     public function stats(
+        Request $request,
         int $year = null,
         int $month = null,
         int $day = null,
@@ -82,13 +79,13 @@ class AdminHistoryController extends AbstractController
         }
 
         if (!is_null($month)) {
-            $month_title = $this->dateFormat(mktime(12, 0, 0, $month, 1, $year), 'LLLL');
+            $month_title = $this->dateFormat($request->get('_locale'), mktime(12, 0, 0, $month, 1, $year), 'LLLL');
             $title_parts[] = '<a href="' . $this->generateUrl('admin_history_year_month', ['year' => $year, 'month' => sprintf('%02d', $month)]) . '">' . $month_title . '</a>';
             $period_label = $this->translator->trans('Day', [], 'admin');
         }
 
         if (!is_null($day)) {
-            $day_title = $this->dateFormat(mktime(12, 0, 0, $month, $day, $year), 'd (cccc)');
+            $day_title = $this->dateFormat($request->get('_locale'), mktime(12, 0, 0, $month, $day, $year), 'd (cccc)');
             $title_parts[] = '<a href="' . $this->generateUrl('admin_history_year_month_day', ['year' => $year, 'month' => sprintf('%02d', $month), 'day' => sprintf('%02d', $day)]) . '">' . $day_title . '</a>';
             $period_label = $this->translator->trans('Hour', [], 'admin');
         }
@@ -139,10 +136,10 @@ class AdminHistoryController extends AbstractController
                     $value = sprintf('%02u', $i);
                 } elseif (!is_null($month)) {
                     $url = $this->generateUrl('admin_history_year_month_day', ['year' => $year, 'month' => sprintf('%02d', $month), 'day' => sprintf('%02d', $i)]);
-                    $value = $this->dateFormat(mktime(12, 0, 0, $month, $i, $year), 'd (cccc)');
+                    $value = $this->dateFormat($request->get('_locale'), mktime(12, 0, 0, $month, $i, $year), 'd (cccc)');
                 } elseif (!is_null($year)) {
                     $url = $this->generateUrl('admin_history_year_month', ['year' => $year, 'month' => sprintf('%02d', $i)]);
-                    $value = $this->dateFormat(mktime(12, 0, 0, $i, 1, $year), 'LLLL');
+                    $value = $this->dateFormat($request->get('_locale'), mktime(12, 0, 0, $i, 1, $year), 'LLLL');
                 } else { // at least the year is defined
                     $url = $this->generateUrl('admin_history_year', ['year' => $i]);
                     $value = $i;
@@ -457,10 +454,10 @@ class AdminHistoryController extends AbstractController
         return $image_string;
     }
 
-    protected function dateFormat(int $timestamp, string $format): string
+    protected function dateFormat(string $locale, int $timestamp, string $format): string
     {
         $date_time = (new \DateTime())->setTimestamp($timestamp);
-        $intl_date_formatter = new \IntlDateFormatter($this->user->getUserInfos()->getLanguage(), \IntlDateFormatter::FULL, \IntlDateFormatter::NONE, null, null, $format);
+        $intl_date_formatter = new \IntlDateFormatter($locale, \IntlDateFormatter::FULL, \IntlDateFormatter::NONE, null, null, $format);
 
         return $intl_date_formatter->format($date_time);
     }

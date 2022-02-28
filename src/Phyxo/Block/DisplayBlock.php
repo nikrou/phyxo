@@ -19,6 +19,8 @@ class DisplayBlock
     protected $registeredBlock;
     protected $position;
     protected $title;
+    public $data = [];
+    public string $template;
 
     public function __construct(RegisteredBlock $block)
     {

@@ -27,12 +27,14 @@ use IntlDateFormatter;
 use Phyxo\Conf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminDashboardController extends AbstractController
 {
     public function index(
+        Request $request,
         Conf $conf,
         ParameterBagInterface $params,
         TranslatorInterface $translator,
@@ -120,7 +122,7 @@ class AdminDashboardController extends AbstractController
 
         if ($nb_elements > 0) {
             if ($min_date_available = $imageMapper->getRepository()->findMinDateAvailable()) {
-                $fmt = new IntlDateFormatter($appUserService->getUser()->getLocale(), IntlDateFormatter::FULL, IntlDateFormatter::NONE);
+                $fmt = new IntlDateFormatter($request->get('_locale'), IntlDateFormatter::FULL, IntlDateFormatter::NONE);
                 $tpl_params['first_added'] = $translator->trans('first photo added on {date}', ['date' => $fmt->format($min_date_available)], 'admin');
             }
         }

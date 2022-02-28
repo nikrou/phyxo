@@ -1,3 +1,5 @@
+{% set data = blocks.mbIdentification.data %}
+
 <li class="nav-item dropdown">
     {% if is_granted('ROLE_NORMAL') %}
 	<button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown">
@@ -17,7 +19,7 @@
 			    <input class="form-control mb-2" type="text" name="_username" id="username" value="" placeholder="{{'Username'|trans}}">
 			    <input class="form-control" type="password" name="_password" id="password" placeholder="{{'Password'|trans}}">
 			</div>
-			{% if AUTHORIZE_REMEMBERING is defined %}
+			{% if data.AUTHORIZE_REMEMBERING is defined %}
 			    <div class="form-check checkbox">
 				<label class="form-check-label">
 				    <input class="form-check-input" type="checkbox" name="_remember_me" id="remember_me" value="1"> {{'Auto login'|trans}}
@@ -28,21 +30,19 @@
 			<button type="submit" class="btn btn-primary btn-raised" name="login">{{'Login'|trans}}</button>
 		    </form>
 		</div>
-		{%  if U_REGISTER is defined or U_LOGOUT is defined or U_PROFILE is defined or U_ADMIN is defined %}
+		{%  if data.U_REGISTER is defined or data.U_LOGOUT is defined or data.U_PROFILE is defined or is_granted('ROLE_ADMIN') %}
 		    <div class="dropdown-divider"></div>
 		{% endif %}
 	    {% endif %}
-	    {% if U_REGISTER is defined %}
-		<a class="dropdown-item" href="{{U_REGISTER}}" title="{{'Create a new account'|trans}}" rel="nofollow">{{'Register'|trans}}</a>
+	    {% if data.U_REGISTER is defined %}
+		<a class="dropdown-item" href="{{data.U_REGISTER}}" title="{{'Create a new account'|trans}}" rel="nofollow">{{'Register'|trans}}</a>
 	    {% endif %}
-	    {%  if U_PROFILE is defined %}
-		<a class="dropdown-item" href="{{U_PROFILE}}" title="{{'customize the appareance of the gallery'|trans}}">{{'Customize'|trans}}</a>
-	    {% endif %}
+	    <a class="dropdown-item" href="{{ path('profile') }}" title="{{'customize the appareance of the gallery'|trans}}">{{'Customize'|trans}}</a>
 	    {% if is_granted('ROLE_ADMIN') %}
-		<a class="dropdown-item" href="{{path('admin_home')}}" title="{{'available for administrators only'|trans}}">{{'Administration'|trans}}</a>
+		<a class="dropdown-item" href="{{ path('admin_home') }}" title="{{'available for administrators only'|trans}}">{{'Administration'|trans}}</a>
 	    {% endif %}
-	    {%  if U_LOGOUT is defined %}
-		<a class="dropdown-item" href="{{U_LOGOUT}}">{{'Logout'|trans}}</a>
+	    {%  if data.U_LOGOUT is defined %}
+		<a class="dropdown-item" href="{{ data.U_LOGOUT}}">{{'Logout'|trans}}</a>
 	    {% endif %}
 	</div>
     {% endif %}

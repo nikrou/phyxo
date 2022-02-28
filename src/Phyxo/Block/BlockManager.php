@@ -11,18 +11,17 @@
 
 namespace Phyxo\Block;
 
+use App\Events\BlockEvent;
 use Phyxo\Block\DisplayBlock;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * Manages a set of RegisteredBlock and DisplayBlock.
- */
 class BlockManager
 {
-    private $id;
-    private $menuBlockConfig = [];
+    private string $id;
+    private array $menuBlockConfig = [];
 
-    protected $registered_blocks = [];
-    protected $display_blocks = [];
+    protected array $registered_blocks = [];
+    protected array $display_blocks = [];
 
     public function __construct(string $id)
     {
@@ -34,7 +33,7 @@ class BlockManager
         $this->menuBlockConfig = $menuBlockConfig;
     }
 
-    public function loadDefaultBlocks()
+    public function loadDefaultBlocks(): void
     {
         $this->registerBlock(new RegisteredBlock('mbLinks', 'Links', 'core'));
         $this->registerBlock(new RegisteredBlock('mbCategories', 'Albums', 'core'));
@@ -47,8 +46,11 @@ class BlockManager
     /**
      * Triggers a notice that allows plugins of menu blocks to register the blocks.
      */
-    public function loadRegisteredBlocks(): void
+    public function loadRegisteredBlocks(EventDispatcherInterface $eventDispatcher = null): void
     {
+        if (!is_null($eventDispatcher)) {
+            $eventDispatcher->dispatch(new BlockEvent($this));
+        }
     }
 
     public function getId(): string
@@ -76,7 +78,7 @@ class BlockManager
      * Triggers 'blockmanager_prepare_display' event where plugins can
      * reposition or hide blocks
      */
-    public function prepareDisplay()
+    public function prepareDisplay(): void
     {
         $idx = 1;
         foreach ($this->registered_blocks as $id => $block) {
@@ -84,6 +86,7 @@ class BlockManager
             if ($pos > 0) {
                 $this->display_blocks[$id] = new DisplayBlock($block);
                 $this->display_blocks[$id]->setPosition($pos);
+                $block->applyData($this->display_blocks[$id]);
             }
             $idx++;
         }
@@ -116,7 +119,7 @@ class BlockManager
         }
     }
 
-    protected function sortBlocks()
+    protected function sortBlocks(): void
     {
         uasort($this->display_blocks, [$this, 'cmp_by_position']);
     }
@@ -124,7 +127,7 @@ class BlockManager
     /**
      * Callback for blocks sorting.
      */
-    protected static function cmp_by_position($a, $b)
+    protected static function cmp_by_position(DisplayBlock $a, DisplayBlock $b): int
     {
         return $a->getPosition() - $b->getPosition();
     }

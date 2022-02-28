@@ -5,6 +5,7 @@
 - Move to Symfony 5
 - Use Symfony forms
 - Revamp calendar views
+- Plugin example : language switcher
 
 # Phyxo 2.2.0 - 2021-11-06
 

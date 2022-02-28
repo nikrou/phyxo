@@ -217,7 +217,7 @@ class PictureController extends CommonController
         $tpl_params['U_METADATA'] = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id, 'metadata' => '']);
         $tpl_params['current']['unique_derivatives'] = $unique_derivatives;
 
-        $fmt = new \IntlDateFormatter($appUserService->getUser()->getLocale(), \IntlDateFormatter::FULL, \IntlDateFormatter::NONE);
+        $fmt = new \IntlDateFormatter($request->get('_locale'), \IntlDateFormatter::FULL, \IntlDateFormatter::NONE);
         $tpl_params['INFO_POSTED_DATE'] = [
             'label' => $fmt->format($picture['date_available']),
             'url' => $this->generateUrl(

@@ -12,6 +12,7 @@
 namespace Phyxo\Extension;
 
 use App\Services\AssetsManager;
+use App\Twig\ThemeLoader;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 abstract class AbstractPlugin implements EventSubscriberInterface
@@ -19,11 +20,13 @@ abstract class AbstractPlugin implements EventSubscriberInterface
     const CLASSNAME_FORMAT = '\\Plugins\\%s\\%s';
     const COMMAND_CLASSNAME_FORMAT = 'Plugins\%s\Command';
 
-    protected $assetsManager;
+    protected AssetsManager $assetsManager;
+    private ThemeLoader $themeLoader;
 
-    public function __construct(AssetsManager $assetsManager)
+    public function __construct(AssetsManager $assetsManager, ThemeLoader $themeLoader)
     {
         $this->assetsManager = $assetsManager;
+        $this->themeLoader = $themeLoader;
     }
 
     public static function getClassName(string $plugin_id): string
@@ -64,5 +67,10 @@ abstract class AbstractPlugin implements EventSubscriberInterface
     private function addJs(string $extension_type, string $extension_id, string $js): void
     {
         $this->assetsManager->addScript($extension_type, $extension_id, $js);
+    }
+
+    public function getThemeLoader(): ThemeLoader
+    {
+        return $this->themeLoader;
     }
 }

@@ -6,6 +6,7 @@ parameters:
 
   paths:
     - src
+    - plugins
     - tests/Behat
 
   doctrine:

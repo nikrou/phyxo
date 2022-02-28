@@ -235,6 +235,7 @@ $lang['Preferences'] = 'Préférences';
 $lang['Number of photos per page'] = 'Nombre de miniatures par page';
 $lang['Theme'] = 'Thème';
 $lang['Language'] = 'Langue';
+$lang['Languages'] = 'Langues';
 $lang['Recent period'] = 'Période récente';
 $lang['Expand all albums'] = 'Développer tous les albums';
 $lang['Show number of comments'] = 'Montrer le nombre de commentaires';

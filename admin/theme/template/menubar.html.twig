@@ -19,11 +19,9 @@
 			<strong>{{block.reg.getName|trans}}</strong> ({{block.reg.getId}})
 		    </p>
 
-		    {% if not block.reg.getOwner == 'core' %}
-			<p class="menuAuthor">
-			    {{'Author'|trans}}: <i>{{block.reg.getOwner}}</i>
-			</p>
-		    {% endif %}
+		    <p class="menuAuthor">
+			{{'Author'|trans}}: <i>{{block.reg.getOwner}}</i>
+		    </p>
 
 		    <p class="menuPos">
 			<label>

@@ -28,6 +28,7 @@
 /media/*
 /upload/*
 /plugins/*
+!/plugins/LanguageSwitcher/
 
 ;; others
 /var/*

@@ -16,13 +16,17 @@ namespace Phyxo\Block;
  */
 class RegisteredBlock
 {
-    private $id, $name, $owner;
+    private string $id;
+    private string $name;
+    private string $owner;
+    private $dataCallback = null;
 
-    public function __construct(string $id, string $name, string $owner)
+    public function __construct(string $id, string $name, string $owner, callable $dataCallback = null)
     {
         $this->id = $id;
         $this->name = $name;
         $this->owner = $owner;
+        $this->dataCallback = $dataCallback;
     }
 
     public function getId(): string
@@ -38,5 +42,12 @@ class RegisteredBlock
     public function getOwner(): string
     {
         return $this->owner;
+    }
+
+    public function applyData(DisplayBlock $block): void
+    {
+        if (!is_null($this->dataCallback)) {
+            call_user_func($this->dataCallback, $block);
+        }
     }
 }
