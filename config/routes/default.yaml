@@ -77,15 +77,11 @@ theme_asset:
     id: '[^/]*'
     path: '.+'
 
-action:
-  path: /action/{image_id}/{part}/{download}
-  controller: App\Controller\DefaultController::action
-  defaults:
-    download: false
+download_picture:
+  path: /download/{image_id}
+  controller: App\Controller\DefaultController::download
   requirements:
     image_id: \d+
-    part: e|r
-    download: download
 
 public_menubar_navigation:
   path: /menubar_navigation

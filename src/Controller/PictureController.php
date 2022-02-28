@@ -120,7 +120,7 @@ class PictureController extends CommonController
         $picture['image'] = $image;
 
         if ($conf['picture_download_icon']) {
-            $picture['U_DOWNLOAD'] = $this->generateUrl('action', ['image_id' => $image_id, 'part' => 'e', 'download' => 'download']);
+            $picture['U_DOWNLOAD'] = $this->generateUrl('download_picture', ['image_id' => $image_id]);
         }
 
         $tpl_params['album'] = $album;

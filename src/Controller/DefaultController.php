@@ -17,7 +17,6 @@ use App\Security\AppUserService;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
-use Phyxo\Functions\Utils;
 
 class DefaultController extends CommonController
 {
@@ -26,39 +25,27 @@ class DefaultController extends CommonController
         return $this->forward('App\Controller\AlbumController::albums');
     }
 
-    public function action(
+    public function download(
         ImageMapper $imageMapper,
         int $image_id,
-        string $part,
         AlbumMapper $albumMapper,
         AppUserService $appUserService,
         ImageStandardParams $image_std_params,
-        $download = false
+        string $rootProjectDir
     ) {
         $image = $imageMapper->getRepository()->find($image_id);
 
-        /* $filter['visible_categories'] and $filter['visible_images']
-        /* are not used because it's not necessary (filter <> restriction)
-         */
         if (!$albumMapper->getRepository()->hasAccessToImage($image_id, $appUserService->getUser()->getUserInfos()->getForbiddenCategories())) {
             throw new AccessDeniedException('Access denied');
         }
 
-        $file = '';
-        switch ($part) {
-            case 'e':
-                if (!$appUserService->getUser()->getUserInfos()->hasEnabledHigh()) {
-                    $deriv = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_XXLARGE), $image_std_params);
-                    if (!$deriv->same_as_source()) {
-                        throw new AccessDeniedException('Access denied');
-                    }
-                }
-                $file = $image->getPath();
-                break;
-            case 'r':
-                $file = Utils::original_to_representative($image->getPath(), $image->getRepresentativeExt());
-                break;
+        if (!$appUserService->getUser()->getUserInfos()->hasEnabledHigh()) {
+            $deriv = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_XXLARGE), $image_std_params);
+            if (!$deriv->same_as_source()) {
+                throw new AccessDeniedException('Access denied');
+            }
         }
+        $file = sprintf('%s/%s', $rootProjectDir, $image->getPath());
 
         return $this->file($file);
     }
