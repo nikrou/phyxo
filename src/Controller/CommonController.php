@@ -33,6 +33,7 @@ abstract class CommonController extends AbstractController
         $this->phyxoWebsite = $phyxoWebsite;
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function loadThemeConf(string $theme = null, Conf $core_conf = null): array
     {
         if (empty($theme)) {
@@ -54,6 +55,7 @@ abstract class CommonController extends AbstractController
         return $extra_params;
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function addThemeParams(Conf $conf): array
     {
         $tpl_params = [];

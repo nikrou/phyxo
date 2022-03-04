@@ -11,15 +11,16 @@
 
 namespace Phyxo\TabSheet;
 
+use Traversable;
+
 class TabSheet implements \IteratorAggregate
 {
+    /**
+     * @var array<string, array{caption: string, url: string, selected: bool, icon: string}>
+     */
     private $elements = [];
 
-    public function __construct()
-    {
-    }
-
-    public function add($name, $caption, $url, $icon = '')
+    public function add(string $name, string $caption, string $url, string $icon = ''): void
     {
         if (!isset($this->elements[$name])) {
             $this->elements[$name] = [
@@ -28,32 +29,24 @@ class TabSheet implements \IteratorAggregate
                 'selected' => false,
                 'icon' => $icon,
             ];
-
-            return true;
         }
-
-        return false;
     }
 
-    public function delete($name)
+    public function delete(string $name): void
     {
         if (isset($this->elements[$name])) {
             unset($this->elements[$name]);
-
-            return true;
         }
-
-        return false;
     }
 
-    public function select($name)
+    public function select(string $name): void
     {
         if (!empty($this->elements[$name])) {
             $this->elements[$name]['selected'] = true;
         }
     }
 
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return new \ArrayIterator($this->elements);
     }

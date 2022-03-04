@@ -17,6 +17,7 @@ use App\DataMapper\ImageMapper;
 use App\Security\AppUserService;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -31,7 +32,7 @@ class IndexController extends CommonController
         RouterInterface $router,
         AppUserService $appUserService,
         int $start = 0
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -42,7 +43,7 @@ class IndexController extends CommonController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Most visited');
         $tpl_params['items'] = [];
         $order_by = [['id', 'DESC']];
-        foreach ($imageMapper->getRepository()->findMostVisited($appUserService->getUser()->getUserInfos()->getForbiddenCategories(), $order_by, $conf['top_number']) as $image) {
+        foreach ($imageMapper->getRepository()->findMostVisited($appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $order_by, $conf['top_number']) as $image) {
             $tpl_params['items'][] = $image->getId();
         }
 
@@ -86,7 +87,7 @@ class IndexController extends CommonController
         RouterInterface $router,
         AppUserService $appUserService,
         int $start = 0
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -101,7 +102,7 @@ class IndexController extends CommonController
         $recent_date->sub(new \DateInterval(sprintf('P%dD', $appUserService->getUser()->getUserInfos()->getRecentPeriod())));
 
         $order_by = [['id', 'DESC']];
-        foreach ($imageMapper->getRepository()->findRecentImages($recent_date, $appUserService->getUser()->getUserInfos()->getForbiddenCategories(), $order_by) as $image) {
+        foreach ($imageMapper->getRepository()->findRecentImages($recent_date, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $order_by) as $image) {
             $tpl_params['items'] = $image->getId();
         }
 
@@ -145,7 +146,7 @@ class IndexController extends CommonController
         RouterInterface $router,
         AppUserService $appUserService,
         int $start = 0
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -157,7 +158,7 @@ class IndexController extends CommonController
         $order_by = [['rating_score'], ['id',  'DESC']];
 
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->findBestRated($conf['top_number'], $appUserService->getUser()->getUserInfos()->getForbiddenCategories(), $order_by) as $image) {
+        foreach ($imageMapper->getRepository()->findBestRated($conf['top_number'], $appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $order_by) as $image) {
             $tpl_params['items'][] = $image->getId();
         }
 
@@ -194,11 +195,11 @@ class IndexController extends CommonController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function random(ImageMapper $imageMapper, Conf $conf, AppUserService $appUserService)
+    public function random(ImageMapper $imageMapper, Conf $conf, AppUserService $appUserService): Response
     {
         $list = $imageMapper->getRepository()->findRandomImages(
             min(50, $conf['top_number'], $appUserService->getUser()->getUserInfos()->getNbImagePage()),
-            $appUserService->getUser()->getUserInfos()->getForbiddenCategories()
+            $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()
         );
 
         if (count($list) === 0) {
@@ -217,7 +218,7 @@ class IndexController extends CommonController
         TranslatorInterface $translator,
         AppUserService $appUserService,
         int $start = 0
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -227,7 +228,7 @@ class IndexController extends CommonController
 
         $tpl_params['TITLE'] = $translator->trans('Random photos');
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->getList(explode(',', $list), $appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $image) {
+        foreach ($imageMapper->getRepository()->getList(explode(',', $list), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $image) {
             $tpl_params['items'][] = $image->getId();
         }
 

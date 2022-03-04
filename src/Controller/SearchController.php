@@ -23,17 +23,18 @@ use App\Entity\Search;
 use App\Repository\TagRepository;
 use App\Security\AppUserService;
 use Phyxo\Functions\Utils;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SearchController extends CommonController
 {
-    public function qsearch(Request $request, Conf $conf, SearchRepository $searchRepository)
+    public function qsearch(Request $request, Conf $conf, SearchRepository $searchRepository): Response
     {
         $tpl_params = [];
 
         if (!$request->get('q')) {
-            return $this->createNotFoundException();
+            throw $this->createNotFoundException();
         }
 
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
@@ -66,7 +67,7 @@ class SearchController extends CommonController
         TranslatorInterface $translator,
         ImageMapper $imageMapper,
         AppUserService $appUserService
-    ) {
+    ): Response {
         $tpl_params = [];
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search');
@@ -82,7 +83,7 @@ class SearchController extends CommonController
         // authors
         $authors = [];
         $author_counts = [];
-        foreach ($imageMapper->getRepository()->findGroupByAuthor($appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $image) {
+        foreach ($imageMapper->getRepository()->findGroupByAuthor($appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $image) {
             if (!isset($author_counts[$image->getAuthor()])) {
                 $author_counts[$image->getAuthor()] = 0;
             }
@@ -107,7 +108,7 @@ class SearchController extends CommonController
         $tpl_params['month_list'] = $month_list;
 
         $albums = [];
-        foreach ($albumMapper->getRepository()->findAllowedAlbums($appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $album) {
+        foreach ($albumMapper->getRepository()->findAllowedAlbums($appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $album) {
             $albums[] = $album;
         }
         $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_options', true));
@@ -255,12 +256,12 @@ class SearchController extends CommonController
         Conf $conf,
         SearchRepository $searchRepository,
         ImageStandardParams $image_std_params,
-        $search_id,
+        int $search_id,
         TranslatorInterface $translator,
         RouterInterface $router,
         AppUserService $appUserService,
         int $start = 0
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -359,7 +360,7 @@ class SearchController extends CommonController
         SearchRepository $searchRepository,
         int $search_id,
         TranslatorInterface $translator
-    ) {
+    ): Response {
         $tpl_params = [];
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search rules');

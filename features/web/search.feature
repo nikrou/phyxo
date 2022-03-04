@@ -59,11 +59,11 @@ Feature: Searching for images
     When I am on homepage
     And I follow "Search"
     Then the select "authors" should contain:
-    """
-    author1 (one photo)
-    author2 (2 photos)
-    author3 (one photo)
-    """
+      """
+      author1 (one photo)
+      author2 (2 photos)
+      author3 (one photo)
+      """
     When I select "author2" from "authors"
     And I press "Submit"
     Then I should see photo "photo 2"
@@ -75,10 +75,10 @@ Feature: Searching for images
     When I am on homepage
     And I follow "Search"
     Then the select "tags" should contain:
-    """
-    tag 1 (2 photos)
-    tag 2 (2 photos)
-    """
+      """
+      tag 1 (2 photos)
+      tag 2 (2 photos)
+      """
     When I select "tag 2" from "tags"
     And I press "Submit"
     Then I should see photo "photo 1"
@@ -91,11 +91,11 @@ Feature: Searching for images
     When I am on homepage
     And I follow "Search"
     Then the select "tags" should contain:
-    """
-    tag 1 (2 photos)
-    tag 2 (3 photos)
-    tag 3 (one photo)
-    """
+      """
+      tag 1 (2 photos)
+      tag 2 (3 photos)
+      tag 3 (one photo)
+      """
     When I select "tag 2" from "tags"
     And I press "Submit"
     Then I should see photo "photo 1"

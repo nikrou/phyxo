@@ -12,6 +12,7 @@
 namespace App\DataMapper;
 
 use App\Entity\User;
+use App\Entity\UserInfos;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
@@ -28,9 +29,27 @@ use App\Security\AppUserService;
 
 class UserMapper
 {
-    private $appUserService, $authorizationChecker, $tagMapper, $themeRepository, $userRepository, $userInfosRepository, $userMailNotificationRepository;
-    private $defaultLanguage, $defaultTheme, $themesDir, $default_user, $default_user_retrieved = false, $commentRepository, $imageTagRepository;
-    private $webmaster, $webmaster_retrieved = false, $userFeedRepository, $userCacheRepository, $userCacheAlbumRepository, $caddieRepository, $favoriteRepository;
+    private AppUserService $appUserService;
+    private AuthorizationCheckerInterface $authorizationChecker;
+    private TagMapper $tagMapper;
+    private ThemeRepository $themeRepository;
+    private UserRepository $userRepository;
+    private UserInfosRepository $userInfosRepository;
+    private UserMailNotificationRepository $userMailNotificationRepository;
+    private string $defaultLanguage;
+    private string $defaultTheme;
+    private string $themesDir;
+    private User $default_user;
+    private bool $default_user_retrieved = false;
+    private CommentRepository $commentRepository;
+    private ImageTagRepository $imageTagRepository;
+    private User $webmaster;
+    private bool $webmaster_retrieved = false;
+    private UserFeedRepository $userFeedRepository;
+    private UserCacheRepository $userCacheRepository;
+    private UserCacheAlbumRepository $userCacheAlbumRepository;
+    private CaddieRepository $caddieRepository;
+    private FavoriteRepository $favoriteRepository;
 
     public function __construct(
         AuthorizationCheckerInterface $authorizationChecker,
@@ -96,11 +115,11 @@ class UserMapper
     public function getDefaultUser(): ?User
     {
         if (!$this->default_user_retrieved) {
-            $this->default_user = $this->userInfosRepository->findOneByStatus(User::STATUS_GUEST);
+            $this->default_user = $this->userInfosRepository->findOneBy(['status' => User::STATUS_GUEST])->getUser();
             $this->default_user_retrieved = true;
         }
 
-        return $this->default_user->getUser();
+        return $this->default_user;
     }
 
     public function setDefaultTheme(string $theme_id): void
@@ -167,7 +186,7 @@ class UserMapper
      */
     public function getNumberAvailableComments(): int
     {
-        $number_of_available_comments = $this->commentRepository->countAvailableComments($this->getUser()->getUserInfos()->getForbiddenCategories(), $this->isAdmin());
+        $number_of_available_comments = $this->commentRepository->countAvailableComments($this->getUser()->getUserInfos()->getForbiddenAlbums(), $this->isAdmin());
 
         $this->userCacheRepository->invalidateNumberAvailableComments($this->getUser()->getId());
 

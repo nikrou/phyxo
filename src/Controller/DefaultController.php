@@ -36,7 +36,7 @@ class DefaultController extends CommonController
     ): Response {
         $image = $imageMapper->getRepository()->find($image_id);
 
-        if (!$albumMapper->getRepository()->hasAccessToImage($image_id, $appUserService->getUser()->getUserInfos()->getForbiddenCategories())) {
+        if (!$albumMapper->getRepository()->hasAccessToImage($image_id, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums())) {
             throw new AccessDeniedException('Access denied');
         }
 

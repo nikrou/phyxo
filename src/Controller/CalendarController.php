@@ -33,7 +33,7 @@ class CalendarController extends CommonController
         $tpl_params['date_type'] = $date_type;
         $tpl_params['number_of_images'] = 0;
 
-        foreach ($imageRepository->countImagesByYear($date_type, $appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $rowYear) {
+        foreach ($imageRepository->countImagesByYear($date_type, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $rowYear) {
             if (is_null($rowYear['year'])) {
                 continue;
             }
@@ -61,7 +61,7 @@ class CalendarController extends CommonController
         }
         krsort($tpl_params['years']);
 
-        foreach ($imageRepository->findOneImagePerYear(array_keys($tpl_params['years']), $date_type, $appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $image) {
+        foreach ($imageRepository->findOneImagePerYear(array_keys($tpl_params['years']), $date_type, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $image) {
             $tpl_params['years'][$image->getDateByType($date_type)->format('Y')]['image'] = $image;
         }
 
@@ -92,7 +92,7 @@ class CalendarController extends CommonController
         }
 
         $monthsWithPhotos = [];
-        foreach ($imageRepository->countImagesByMonth($year, $date_type, $appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $rowMonth) {
+        foreach ($imageRepository->countImagesByMonth($year, $date_type, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $rowMonth) {
             $tpl_params['number_of_images'] += $rowMonth['nb_images'];
             $monthsWithPhotos[] = $this->formatDatePart($rowMonth['month']);
             $tpl_params['months'][$rowMonth['month']]['nb_images'] = $rowMonth['nb_images'];
@@ -106,7 +106,7 @@ class CalendarController extends CommonController
             );
         }
 
-        foreach ($imageRepository->findOneImagePerMonth($year, $monthsWithPhotos, $date_type, $appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $image) {
+        foreach ($imageRepository->findOneImagePerMonth($year, $monthsWithPhotos, $date_type, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $image) {
             $tpl_params['months'][$image->getDateByType($date_type)->format('n')]['image'] = $image;
         }
 
@@ -138,7 +138,7 @@ class CalendarController extends CommonController
         $tpl_params['days'] = array_fill(1, (int) $tpl_params['month_date']->format('t'), ['nb_images' => 0]);
 
         $daysWithPhotos = [];
-        foreach ($imageRepository->countImagesByDay($year, $month, $date_type, $appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $rowDay) {
+        foreach ($imageRepository->countImagesByDay($year, $month, $date_type, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $rowDay) {
             $tpl_params['number_of_images'] += $rowDay['nb_images'];
 
             $daysWithPhotos[] = $this->formatDatePart($rowDay['day']);
@@ -154,7 +154,7 @@ class CalendarController extends CommonController
             );
         }
 
-        foreach ($imageRepository->findOneImagePerDay($year, $month, $daysWithPhotos, $date_type, $appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $image) {
+        foreach ($imageRepository->findOneImagePerDay($year, $month, $daysWithPhotos, $date_type, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $image) {
             $tpl_params['days'][$image->getDateByType($date_type)->format('j')]['image'] = $image;
         }
 
@@ -175,7 +175,7 @@ class CalendarController extends CommonController
         int $year,
         int $month,
         int $day,
-        $start = 0
+        int $start = 0
     ): Response {
         $tpl_params = [];
         $tpl_params['date_type'] = $date_type;
@@ -188,7 +188,7 @@ class CalendarController extends CommonController
         $tpl_params['month_label'] = $intl_date_formatter->format($tpl_params['current_day']);
 
         $thumbnails = [];
-        foreach ($imageRepository->findImagesPerDate($tpl_params['current_day'], $date_type, $appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $image) {
+        foreach ($imageRepository->findImagesPerDate($tpl_params['current_day'], $date_type, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $image) {
             $tpl_thumbnail = $image->toArray();
             $tpl_thumbnail['image'] = $image;
             $tpl_thumbnail['URL'] = $this->generateUrl(

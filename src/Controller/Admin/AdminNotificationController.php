@@ -16,12 +16,15 @@ use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminNotificationController extends AbstractController
 {
-    private $translator, $authorizationChecker;
+    private TranslatorInterface $translator;
+    private AuthorizationCheckerInterface $authorizationChecker;
+    /** @var array<string, string> $conf_types */
     private $conf_types = [
         'nbm_send_html_mail' => 'boolean',
         'nbm_send_mail_as' => 'string',
@@ -35,7 +38,7 @@ class AdminNotificationController extends AbstractController
         $this->authorizationChecker = $authorizationChecker;
     }
 
-    protected function setTabsheet(string $section = 'params'): array
+    protected function setTabsheet(string $section = 'params'): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('params', $this->translator->trans('Parameters', [], 'admin'), $this->generateUrl('admin_notification'));
@@ -45,10 +48,10 @@ class AdminNotificationController extends AbstractController
         }
         $tabsheet->select($section);
 
-        return ['tabsheet' => $tabsheet];
+        return $tabsheet;
     }
 
-    public function params(Request $request, Conf $conf, Notification $notification, TranslatorInterface $translator)
+    public function params(Request $request, Conf $conf, Notification $notification, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -79,14 +82,14 @@ class AdminNotificationController extends AbstractController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_notification');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Notification', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('params'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('params');
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_notification');
 
         return $this->render('notification_by_mail_params.html.twig', $tpl_params);
     }
 
-    public function subscribe(Request $request, Notification $notification, TranslatorInterface $translator)
+    public function subscribe(Request $request, Notification $notification, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -133,14 +136,14 @@ class AdminNotificationController extends AbstractController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_notification');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Notification', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('subscribe'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('subscribe');
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_notification');
 
         return $this->render('notification_by_mail_subscribe.html.twig', $tpl_params);
     }
 
-    public function send(Request $request, Conf $conf, Notification $notification, TranslatorInterface $translator)
+    public function send(Request $request, Conf $conf, Notification $notification, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -183,7 +186,7 @@ class AdminNotificationController extends AbstractController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_notification');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Notification', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('send'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('send');
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_notification');
 

@@ -47,14 +47,14 @@ class AdminHistoryController extends AbstractController
         $this->translator = $translator;
     }
 
-    protected function setTabsheet(string $section = 'stats'): array
+    protected function setTabsheet(string $section = 'stats'): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('stats', $this->translator->trans('Statistics', [], 'admin'), $this->generateUrl('admin_history'), 'fa-signal');
         $tabsheet->add('search', $this->translator->trans('Search', [], 'admin'), $this->generateUrl('admin_history_search'), 'fa-search');
         $tabsheet->select($section);
 
-        return ['tabsheet' => $tabsheet];
+        return $tabsheet;
     }
 
     public function stats(
@@ -158,7 +158,7 @@ class AdminHistoryController extends AbstractController
         }
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_history');
-        $tpl_params = array_merge($this->setTabsheet('stats'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('stats');
 
         return $this->render('history_stats.html.twig', $tpl_params);
     }
@@ -233,11 +233,12 @@ class AdminHistoryController extends AbstractController
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_history');
         $tpl_params['PAGE_TITLE'] = $this->translator->trans('History', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('search'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('search');
 
         return $this->render('history_search.html.twig', $tpl_params);
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function getElementFromSearchRules(
         SearchRulesModel $rules,
         int $start,
@@ -387,6 +388,7 @@ class AdminHistoryController extends AbstractController
         ];
     }
 
+    /** @phpstan-ignore-next-line */
     protected function getImageString(ImageStandardParams $image_std_params, History $line, array $image_infos = [], SearchRulesModel $rules = null): string
     {
         $image_string = '';

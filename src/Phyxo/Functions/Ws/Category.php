@@ -41,7 +41,7 @@ class Category
         //------------------------------------------------- get the related categories
         $album_ids = [];
 
-        $forbidden_categories = $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories();
+        $forbidden_categories = $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenAlbums();
         $albumsList = null;
 
         if ($params['recursive']) {
@@ -89,7 +89,7 @@ class Category
         if ($params['public']) {
             $public_and_visible = true;
         } elseif ($service->getUserMapper()->isAdmin()) {
-            $forbidden_categories = $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories();
+            $forbidden_categories = $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenAlbums();
         }
 
         $albumsList = null;

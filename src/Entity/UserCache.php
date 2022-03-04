@@ -26,52 +26,52 @@ class UserCache
      * @ORM\Id
      * @ORM\OneToOne(targetEntity=User::class, inversedBy="userCache", cascade={"persist", "remove"})
      */
-    private $user;
+    private User $user;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $need_update = true;
+    private bool $need_update = true;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $cache_update_time;
+    private ?int $cache_update_time;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(name="forbidden_categories", type="text")
      */
-    private $forbidden_categories = '[]';
+    private string $forbidden_albums = '[]';
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $nb_total_images = 0;
+    private ?int $nb_total_images = 0;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $last_photo_date;
+    private ?\DateTimeInterface $last_photo_date;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $nb_available_tags = 0;
+    private ?int $nb_available_tags = 0;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $nb_available_comments = 0;
+    private ?int $nb_available_comments = 0;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $image_access_type = self::ACCESS_NOT_IN;
+    private string $image_access_type = self::ACCESS_NOT_IN;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $image_access_list = '[]';
+    private ?string $image_access_list = '[]';
 
     public function getUser(): ?User
     {
@@ -109,14 +109,20 @@ class UserCache
         return $this;
     }
 
-    public function getForbiddenCategories(): array
+    /**
+     * @return int[]
+     */
+    public function getForbiddenAlbums(): array
     {
-        return json_decode($this->forbidden_categories, true);
+        return json_decode($this->forbidden_albums, true);
     }
 
-    public function setForbiddenCategories(array $forbidden_categories = []): self
+    /**
+     * @param int[] $forbidden_albums
+     */
+    public function setForbiddenAlbums(array $forbidden_albums = []): self
     {
-        $this->forbidden_categories = json_encode($forbidden_categories);
+        $this->forbidden_albums = json_encode($forbidden_albums);
 
         return $this;
     }
@@ -181,11 +187,17 @@ class UserCache
         return $this;
     }
 
+    /**
+     * @return int[]
+     */
     public function getImageAccessList(): array
     {
         return json_decode($this->image_access_list, true);
     }
 
+    /**
+     * @param int[] $image_access_list
+     */
     public function setImageAccessList(array $image_access_list = []): self
     {
         $this->image_access_list = json_encode($image_access_list);

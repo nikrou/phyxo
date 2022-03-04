@@ -23,14 +23,15 @@ use Phyxo\Functions\Utils;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminPhotosController extends AbstractController
 {
-    private $translator;
+    private TranslatorInterface $translator;
 
-    protected function setTabsheet(string $section = 'direct', bool $enable_synchronization = false)
+    protected function setTabsheet(string $section = 'direct', bool $enable_synchronization = false): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('direct', $this->translator->trans('Web Form', [], 'admin'), $this->generateUrl('admin_photos_add', ['section' => 'direct']), 'fa-upload');
@@ -39,7 +40,7 @@ class AdminPhotosController extends AbstractController
         }
         $tabsheet->select($section);
 
-        return ['tabsheet' => $tabsheet];
+        return $tabsheet;
     }
 
     public function direct(
@@ -51,7 +52,7 @@ class AdminPhotosController extends AbstractController
         TranslatorInterface $translator,
         ImageMapper $imageMapper,
         ManagerRegistry $managerRegistry
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -155,12 +156,12 @@ class AdminPhotosController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_photos_add');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_photos_add');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Photo', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('direct', $conf['enable_synchronization']), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('direct', $conf['enable_synchronization']);
 
         return $this->render('photos_add_direct.html.twig', $tpl_params);
     }
 
-    public function batch(Request $request, AppUserService $appUserService, ImageRepository $imageRepository, CaddieRepository $caddieRepository)
+    public function batch(Request $request, AppUserService $appUserService, ImageRepository $imageRepository, CaddieRepository $caddieRepository): Response
     {
         $caddieRepository->emptyCaddies($appUserService->getUser()->getId());
         foreach ($imageRepository->findBy(['id' => explode(',', $request->request->get('batch'))]) as $image) {

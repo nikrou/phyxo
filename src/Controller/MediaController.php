@@ -45,7 +45,7 @@ class MediaController extends CommonController
         MimeTypeGuesserInterface $mimeTypes,
         ImageLibraryGuesser $imageLibraryGuesser,
         AppUserService $appUserService
-    ) {
+    ): Response {
         $this->mimeTypes = $mimeTypes;
 
         $image_path = sprintf('%s.%s', $path, $image_extension);
@@ -70,7 +70,7 @@ class MediaController extends CommonController
             return new Response('Db file path not found ', 404);
         }
 
-        if (!$this->forAdmin && !$imageRepository->isAuthorizedToUser($image->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenCategories())) {
+        if (!$this->forAdmin && !$imageRepository->isAuthorizedToUser($image->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums())) {
             return new Response('User not allowed to see that image ', 403);
         }
 
@@ -228,7 +228,10 @@ class MediaController extends CommonController
         );
     }
 
-    private function url_to_size($s)
+    /**
+     * @return array<int, int>
+     */
+    private function url_to_size(string $s): array
     {
         $pos = strpos($s, 'x');
         if ($pos === false) {
@@ -238,10 +241,13 @@ class MediaController extends CommonController
         return [(int)substr($s, 0, $pos), (int)substr($s, $pos + 1)];
     }
 
-    private function parse_custom_params($tokens)
+    /**
+     * @param array<int, string> $tokens
+     */
+    private function parse_custom_params(array $tokens): DerivativeParams
     {
         if (count($tokens) < 1) {
-            return new \Exception('Empty array while parsing Sizing', 400);
+            throw new \Exception('Empty array while parsing Sizing', 400);
         }
 
         $crop = 0;
@@ -256,7 +262,7 @@ class MediaController extends CommonController
         } else {
             $size = $this->url_to_size($token);
             if (count($tokens) < 2) {
-                return new Response('Sizing arr', 400);
+                throw new \Exception('Sizing arr', 400);
             }
 
             $token = array_shift($tokens);

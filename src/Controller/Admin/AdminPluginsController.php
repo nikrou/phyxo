@@ -18,15 +18,15 @@ use Phyxo\Plugin\Plugins;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminPluginsController extends AbstractController
 {
-    private $translator;
+    private TranslatorInterface $translator;
 
-    protected function setTabsheet(string $section = 'installed')
+    protected function setTabsheet(string $section = 'installed'): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('installed', $this->translator->trans('Plugin list', [], 'admin'), $this->generateUrl('admin_plugins_installed'), 'fa-sliders');
@@ -34,7 +34,7 @@ class AdminPluginsController extends AbstractController
         $tabsheet->add('new', $this->translator->trans('Other plugins', [], 'admin'), $this->generateUrl('admin_plugins_new'), 'fa-plus-circle');
         $tabsheet->select($section);
 
-        return ['tabsheet' => $tabsheet];
+        return $tabsheet;
     }
 
     public function installed(
@@ -44,7 +44,7 @@ class AdminPluginsController extends AbstractController
         CsrfTokenManagerInterface $csrfTokenManager,
         ParameterBagInterface $params,
         TranslatorInterface $translator
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -106,14 +106,14 @@ class AdminPluginsController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_plugins_installed');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Plugins', [], 'admin');
         $tpl_params['EXT_TYPE'] = 'plugins';
-        $tpl_params = array_merge($this->setTabsheet('installed'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('installed');
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');
 
         return $this->render('plugins_installed.html.twig', $tpl_params);
     }
 
-    public function install(int $revision, PluginRepository $pluginRepository, ParameterBagInterface $params, UserMapper $userMapper, TranslatorInterface $translator)
+    public function install(int $revision, PluginRepository $pluginRepository, ParameterBagInterface $params, UserMapper $userMapper, TranslatorInterface $translator): Response
     {
         if (!$userMapper->isWebmaster()) {
             $this->addFlash('error', $translator->trans('Webmaster status is required.', [], 'admin'));
@@ -144,7 +144,7 @@ class AdminPluginsController extends AbstractController
         ParameterBagInterface $params,
         TranslatorInterface $translator,
         CsrfTokenManagerInterface $tokenManager
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -176,7 +176,7 @@ class AdminPluginsController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_plugins_new');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Plugins', [], 'admin');
         $tpl_params['EXT_TYPE'] = 'plugins';
-        $tpl_params = array_merge($this->setTabsheet('new'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('new');
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');
 
@@ -190,7 +190,7 @@ class AdminPluginsController extends AbstractController
         CsrfTokenManagerInterface $csrfTokenManager,
         ParameterBagInterface $params,
         TranslatorInterface $translator
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -251,7 +251,7 @@ class AdminPluginsController extends AbstractController
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_plugins_update');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Plugins', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('update'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('update');
 
         $tpl_params['INSTALL_URL'] = $this->generateUrl('admin_plugins_installed');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');

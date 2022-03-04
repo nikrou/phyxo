@@ -19,27 +19,27 @@ use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\UserRepository;
-use App\Security\AppUser;
 use App\Security\AppUserService;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminUsersController extends AbstractController
 {
-    private $translator;
+    private TranslatorInterface $translator;
 
-    public function setTabsheet(string $section = 'list', int $user_id = 0): array
+    public function setTabsheet(string $section = 'list', int $user_id = 0): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('list', $this->translator->trans('User list', [], 'admin'), $this->generateUrl('admin_users'), 'fa-users');
-        $tabsheet->add('perm', $this->translator->trans('Permissions', [], 'admin'), $user_id !== 0 ? $this->generateUrl('admin_user_perm', ['user_id' => $user_id]) : null, 'fa-lock');
+        $tabsheet->add('perm', $this->translator->trans('Permissions', [], 'admin'), $user_id !== 0 ? $this->generateUrl('admin_user_perm', ['user_id' => $user_id]) : '', 'fa-lock');
         $tabsheet->select($section);
 
-        return ['tabsheet' => $tabsheet];
+        return $tabsheet;
     }
 
     public function list(
@@ -53,7 +53,7 @@ class AdminUsersController extends AbstractController
         UserRepository $userRepository,
         UserInfosRepository $userInfosRepository,
         GroupRepository $groupRepository
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -146,12 +146,12 @@ class AdminUsersController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_users');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_users');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Users', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('list'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('list');
 
         return $this->render('users_list.html.twig', $tpl_params);
     }
 
-    public function perm(Request $request, int $user_id, AlbumMapper $albumMapper, TranslatorInterface $translator, UserRepository $userRepository)
+    public function perm(Request $request, int $user_id, AlbumMapper $albumMapper, TranslatorInterface $translator, UserRepository $userRepository): Response
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -202,7 +202,7 @@ class AdminUsersController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_user_perm', ['user_id' => $user_id]);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_users');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Users', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('perm', $user_id), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('perm', $user_id);
 
         return $this->render('user_perm.html.twig', $tpl_params);
     }

@@ -18,16 +18,17 @@ use Phyxo\Functions\Language;
 use App\DataMapper\TagMapper;
 use App\Repository\TagRepository;
 use App\DataMapper\ImageMapper;
-use App\Entity\Tag as EntityTag;
+use App\Entity\Tag;
 use App\Security\AppUserService;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TagController extends CommonController
 {
-    public function list(Request $request, AppUserService $appUserService, TagMapper $tagMapper, Conf $conf, MenuBar $menuBar, TranslatorInterface $translator)
+    public function list(Request $request, AppUserService $appUserService, TagMapper $tagMapper, Conf $conf, MenuBar $menuBar, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
 
@@ -139,7 +140,7 @@ class TagController extends CommonController
         RouterInterface $router,
         AppUserService $appUserService,
         int $start = 0
-    ) {
+    ): Response {
         $tpl_params = [];
 
         $this->image_std_params = $image_std_params;
@@ -163,7 +164,7 @@ class TagController extends CommonController
         $tpl_params['TITLE'] = $this->getTagsContentTitle($translator, $tpl_params['tags']);
 
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->getImageIdsForTags($appUserService->getUser()->getUserInfos()->getForbiddenCategories(), $requested_tag_ids) as $image) {
+        foreach ($imageMapper->getRepository()->getImageIdsForTags($appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $requested_tag_ids) as $image) {
             $tpl_params['items'][] = $image->getId();
         }
 
@@ -209,6 +210,8 @@ class TagController extends CommonController
 
     /**
      * Returns the breadcrumb to be displayed above thumbnails on tag page.
+     *
+     * @param Tag[] $tags
      */
     protected function getTagsContentTitle(TranslatorInterface $translator, array $tags = []): string
     {
@@ -229,7 +232,7 @@ class TagController extends CommonController
                 unset($other_tags[$i]);
                 $remove_url = $this->generateUrl(
                     'images_by_tags',
-                    ['tag_ids' => implode('/', array_map(function(EntityTag $tag) {
+                    ['tag_ids' => implode('/', array_map(function(Tag $tag) {
                         return $tag->toUrl();
                     }, $other_tags))]
                 );

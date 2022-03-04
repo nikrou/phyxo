@@ -20,6 +20,7 @@ use App\Entity\Favorite;
 use App\Repository\ImageRepository;
 use App\Security\AppUserService;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -34,7 +35,7 @@ class FavoriteController extends CommonController
         RouterInterface $router,
         AppUserService $appUserService,
         int $start = 0
-    ) {
+    ): Response {
         $tpl_params = [];
 
         if ($request->cookies->has('category_view')) {
@@ -44,7 +45,7 @@ class FavoriteController extends CommonController
         $tpl_params['TITLE'] = $translator->trans('Your favorites');
 
         $tpl_params['items'] = [];
-        foreach ($favoriteRepository->findUserFavorites($appUserService->getUser()->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $favorite) {
+        foreach ($favoriteRepository->findUserFavorites($appUserService->getUser()->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $favorite) {
             $tpl_params['items'][] = $favorite->getImage()->getId();
         }
 
@@ -90,7 +91,7 @@ class FavoriteController extends CommonController
         AppUserService $appUserService,
         Request $request,
         TranslatorInterface $translator
-    ) {
+    ): Response {
         $image = $imageRepository->find($image_id);
         $favorite = new Favorite();
         $favorite->setImage($image);
@@ -110,7 +111,7 @@ class FavoriteController extends CommonController
         return $this->redirectToRoute('favorites');
     }
 
-    public function remove(int $image_id, FavoriteRepository $favoriteRepository, AppUserService $appUserService, Request $request, TranslatorInterface $translator)
+    public function remove(int $image_id, FavoriteRepository $favoriteRepository, AppUserService $appUserService, Request $request, TranslatorInterface $translator): Response
     {
         $favoriteRepository->deleteUserFavorite($appUserService->getUser()->getId(), $image_id);
 
@@ -127,7 +128,7 @@ class FavoriteController extends CommonController
         return $this->redirectToRoute('favorites');
     }
 
-    public function removeAll(FavoriteRepository $favoriteRepository, AppUserService $appUserService)
+    public function removeAll(FavoriteRepository $favoriteRepository, AppUserService $appUserService): Response
     {
         $favoriteRepository->deleteAllUserFavorites($appUserService->getUser()->getId());
 

@@ -109,7 +109,7 @@ class AlbumMapper
     protected function getAlbumsMenu(User $user, array $selected_album = []): array
     {
         $albums = [];
-        foreach ($this->getRepository()->getAlbumsForMenu($user->getId(), $user->getUserInfos()->getForbiddenCategories()) as $album) {
+        foreach ($this->getRepository()->getAlbumsForMenu($user->getId(), $user->getUserInfos()->getForbiddenAlbums()) as $album) {
             $album_infos = array_merge(
                 $album->toArray(),
                 [
@@ -1069,7 +1069,7 @@ class AlbumMapper
             } elseif ($album->getRepresentativePictureId()) { // if a representative picture is set, it has priority
                 $image_id = $album->getRepresentativePictureId();
             } elseif ($this->conf['allow_random_representative']) { // searching a random representant among elements in sub-categories
-                if ($random_image = $this->imageRepository->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenCategories())) {
+                if ($random_image = $this->imageRepository->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenAlbums())) {
                     $image_id = $random_image->getId();
                 }
             } elseif ($userCacheAlbum->getCountAlbums() > 0 && $userCacheAlbum->getCountImages() > 0) { // searching a random representant among representant of sub-categories
@@ -1124,7 +1124,7 @@ class AlbumMapper
                 foreach ($albums as $album) {
                     if ($album->getRepresentativePictureId() === $id) {
                         // searching a random representant among elements in sub-categories
-                        $random_image = $this->imageRepository->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenCategories());
+                        $random_image = $this->imageRepository->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenAlbums());
 
                         if (!is_null($random_image) && !in_array($random_image->getId(), $image_ids)) {
                             $infos_of_images[$random_image->getId()] = [$random_image->toArray(), 'image' => $random_image];
@@ -1152,7 +1152,7 @@ class AlbumMapper
             foreach ($albums as $album) {
                 if ($id === $album->getRepresentativePictureId()) {
                     // searching a random representant among elements in sub-categories
-                    $random_image = $this->imageRepository->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenCategories());
+                    $random_image = $this->imageRepository->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenAlbums());
 
                     if (!is_null($random_image) && !in_array($random_image->getId(), $image_ids)) {
                         $infos_of_images[$random_image->getId()] = [$random_image->toArray(), 'image' => $random_image];

@@ -16,7 +16,8 @@ use App\Repository\AlbumRepository;
 
 class SearchMapper
 {
-    private $imageMapper, $albumRepository;
+    private ImageMapper $imageMapper;
+    private AlbumRepository $albumRepository;
 
     public function __construct(ImageMapper $imageMapper, AlbumRepository $albumRepository)
     {
@@ -27,6 +28,9 @@ class SearchMapper
     /**
      * Returns an array of 'items' corresponding to the search id.
      * It can be either a quick search or a regular search.
+     *
+     * @param array<string, string>|array<string, array<string, array<string, string|string[]>>> $rules
+     * @return int[]
      */
     public function getSearchResults(array $rules, User $user): array
     {
@@ -37,6 +41,10 @@ class SearchMapper
         }
     }
 
+    /**
+     * @param array<string, array<string, array<string, string|string[]>>> $rules
+     * @return int[]
+     */
     public function getRegularSearchResults(array $rules, User $user): array
     {
         $items = [];
@@ -44,9 +52,10 @@ class SearchMapper
 
         if (isset($rules['fields']['tags'])) {
             foreach ($this->imageMapper->getRepository()->getImageIdsForTags(
-                        $user->getUserInfos()->getForbiddenCategories(),
-                        $rules['fields']['tags']['words'],
-                        $rules['fields']['tags']['mode']) as $image) {
+                $user->getUserInfos()->getForbiddenAlbums(),
+                $rules['fields']['tags']['words'],
+                $rules['fields']['tags']['mode']
+            ) as $image) {
                 $tag_items[] = $image->getId();
             }
         }
@@ -55,7 +64,7 @@ class SearchMapper
             $rules['fields']['cat']['words'] = array_merge(array_values($rules['fields']['cat']['words']), $this->albumRepository->getSubcatIds($rules['fields']['cat']['words']));
         }
 
-        foreach ($this->imageMapper->getRepository()->searchImages($rules, $user->getUserInfos()->getForbiddenCategories()) as $image) {
+        foreach ($this->imageMapper->getRepository()->searchImages($rules, $user->getUserInfos()->getForbiddenAlbums()) as $image) {
             $items[] = $image->getId();
         }
 
@@ -77,11 +86,14 @@ class SearchMapper
         return $items;
     }
 
+    /**
+     * @return int[]
+     */
     public function getQuickSearchResults(string $q, User $user): array
     {
         $items = [];
 
-        foreach ($this->imageMapper->getRepository()->qSearchImages($q, $user->getUserInfos()->getForbiddenCategories()) as $image) {
+        foreach ($this->imageMapper->getRepository()->qSearchImages($q, $user->getUserInfos()->getForbiddenAlbums()) as $image) {
             $items[] = $image->getId();
         }
 

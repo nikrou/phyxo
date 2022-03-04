@@ -19,24 +19,25 @@ use App\Repository\GroupRepository;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminGroupsController extends AbstractController
 {
-    private $translator;
+    private TranslatorInterface $translator;
 
-    public function setTabsheet(string $section = 'list', int $group_id = 0): array
+    public function setTabsheet(string $section = 'list', int $group_id = 0): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('list', $this->translator->trans('Groups', [], 'admin'), $this->generateUrl('admin_groups'), 'fa-group');
-        $tabsheet->add('perm', $this->translator->trans('Permissions', [], 'admin'), $group_id !== 0 ? $this->generateUrl('admin_group_perm', ['group_id' => $group_id]) : null, 'fa-lock');
+        $tabsheet->add('perm', $this->translator->trans('Permissions', [], 'admin'), $group_id !== 0 ? $this->generateUrl('admin_group_perm', ['group_id' => $group_id]) : '', 'fa-lock');
         $tabsheet->select($section);
 
-        return ['tabsheet' => $tabsheet];
+        return $tabsheet;
     }
 
-    public function list(Request $request, TranslatorInterface $translator, GroupRepository $groupRepository, CsrfTokenManagerInterface $tokenManager)
+    public function list(Request $request, TranslatorInterface $translator, GroupRepository $groupRepository, CsrfTokenManagerInterface $tokenManager): Response
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -78,7 +79,7 @@ class AdminGroupsController extends AbstractController
         $tpl_params['F_ACTION_RENAME'] = $this->generateUrl('admin_groups_action', ['action' => 'rename']);
         $tpl_params['F_ACTION_TOGGLE_DEFAULT'] = $this->generateUrl('admin_groups_action', ['action' => 'toggle_default']);
         $tpl_params['PAGE_TITLE'] = $translator->trans('Groups', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('list'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('list');
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_groups');
 
@@ -93,7 +94,7 @@ class AdminGroupsController extends AbstractController
         TranslatorInterface $translator,
         GroupRepository $groupRepository,
         CsrfTokenManagerInterface $tokenManager
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -146,14 +147,14 @@ class AdminGroupsController extends AbstractController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_groups');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Groups', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('perm', $group_id), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('perm', $group_id);
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_groups');
 
         return $this->render('groups_perm.html.twig', $tpl_params);
     }
 
-    public function action(Request $request, string $action, GroupRepository $groupRepository, TranslatorInterface $translator)
+    public function action(Request $request, string $action, GroupRepository $groupRepository, TranslatorInterface $translator): Response
     {
         $group_selection = $request->request->all()['group_selection'];
         if (count($group_selection) === 0) {

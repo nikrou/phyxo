@@ -83,7 +83,7 @@ class Tag
 
         $image_ids = [];
         foreach ($service->getImageMapper()->getRepository()->getImageIdsForTags(
-            $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories(),
+            $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenAlbums(),
             $tag_ids,
             $params['tag_mode_and'] ? 'AND' : 'OR'
         ) as $image) {

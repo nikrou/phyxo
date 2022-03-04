@@ -20,85 +20,94 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class UserInfos
 {
-    private $nb_total_images;
-    private $forbidden_categories = [], $image_access_list = [], $image_access_type = 'NOT IN';
+    private int $nb_total_images;
+    /**
+     * @var int[] $forbidden_albums
+     */
+    private array $forbidden_albums = [];
+    /**
+     * @var int[] $image_access_list
+     */
+    private array $image_access_list = [];
+    private string $image_access_type = 'NOT IN';
 
     /**
      * @ORM\Id
      * @ORM\OneToOne(targetEntity=User::class, inversedBy="userInfos", cascade={"persist", "remove"})
      * @ORM\JoinColumn(name="user_id", nullable=false)
+     * @var User $user
      */
     private $user;
 
     /**
      * @ORM\Column(type="string", length=50)
      */
-    private $status;
+    private string $status;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $nb_image_page = 15;
+    private int $nb_image_page = 15;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $theme;
+    private string $theme;
 
     /**
      * @ORM\Column(type="string", length=50)
      */
-    private $language;
+    private string $language;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $registration_date;
+    private ?\DateTimeInterface $registration_date;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $level = 0;
+    private ?int $level = 0;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $recent_period = 7;
+    private int $recent_period = 7;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $expand = false;
+    private bool $expand = false;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $show_nb_comments = false;
+    private bool $show_nb_comments = false;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $show_nb_hits = false;
+    private bool $show_nb_hits = false;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $enabled_high = true;
+    private bool $enabled_high = true;
 
     /**
      * @ORM\Column(name="lastmodified", type="datetime", nullable=true)
      */
-    private $last_modified;
+    private ?\DateTimeInterface $last_modified;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $activation_key;
+    private ?string $activation_key;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $activation_key_expire;
+    private ?\DateTimeInterface $activation_key_expire;
 
     public function getStatus(): ?string
     {
@@ -220,23 +229,35 @@ class UserInfos
         return $this;
     }
 
-    public function getForbiddenCategories(): array
+    /**
+     * @return int[]
+     */
+    public function getForbiddenAlbums(): array
     {
-        return $this->forbidden_categories;
+        return $this->forbidden_albums;
     }
 
-    public function setForbiddenCategories(array $forbidden_categories = []): self
+    /**
+     * @param int[] $forbidden_albums
+     */
+    public function setForbiddenAlbums(array $forbidden_albums = []): self
     {
-        $this->forbidden_categories = $forbidden_categories;
+        $this->forbidden_albums = $forbidden_albums;
 
         return $this;
     }
 
+    /**
+     * @return int[]
+     */
     public function getImageAccessList(): array
     {
         return $this->image_access_list;
     }
 
+    /**
+     * @param int[] $image_access_list
+     */
     public function setImageAccessList(array $image_access_list = []): self
     {
         $this->image_access_list = $image_access_list;
@@ -292,6 +313,9 @@ class UserInfos
         return $this;
     }
 
+    /**
+     * @return array{nb_image_page: int, language: string, expand: bool, show_nb_comments: bool, show_nb_hits: bool, recent_period: int, theme: string, enabled_high: bool, level: int}
+     */
     public function toArray(): array
     {
         return [
@@ -307,6 +331,9 @@ class UserInfos
         ];
     }
 
+    /**
+     * @param array{nb_image_page: int, language: string, expand: bool, show_nb_comments: bool, show_nb_hits: bool, recent_period: int, theme: string, enabled_high: bool, level: int} $data
+     */
     public function fromArray(array $data): void
     {
         $this->setNbImagePage($data['nb_image_page']);

@@ -18,13 +18,14 @@ use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminAlbumsOptionsController extends AbstractController
 {
-    private $translator;
+    private TranslatorInterface $translator;
 
-    protected function setTabsheet(Conf $conf, string $section = 'status'): array
+    protected function setTabsheet(Conf $conf, string $section = 'status'): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('status', $this->translator->trans('Public / Private', [], 'admin'), $this->generateUrl('admin_albums_options'), 'fa-lock');
@@ -37,10 +38,10 @@ class AdminAlbumsOptionsController extends AbstractController
         }
         $tabsheet->select($section);
 
-        return ['tabsheet' => $tabsheet];
+        return $tabsheet;
     }
 
-    public function index(Request $request, string $section, Conf $conf, AlbumMapper $albumMapper, AlbumRepository $albumRepository, TranslatorInterface $translator)
+    public function index(Request $request, string $section, Conf $conf, AlbumMapper $albumMapper, AlbumRepository $albumRepository, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -83,11 +84,12 @@ class AdminAlbumsOptionsController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums_options', ['section' => $section]);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
         $tpl_params['PAGE_TITLE'] = $this->translator->trans('Public / Private', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet($conf, $section), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet($conf, $section);
 
         return $this->render('albums_options.html.twig', $tpl_params);
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function getCatsBySection(string $section, AlbumRepository $albumRepository): array
     {
         $cats_true = [];

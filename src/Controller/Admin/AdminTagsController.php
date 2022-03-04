@@ -19,14 +19,15 @@ use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminTagsController extends AbstractController
 {
-    private $translator;
+    private TranslatorInterface $translator;
 
-    protected function setTabsheet(string $section = 'all'): array
+    protected function setTabsheet(string $section = 'all'): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('all', $this->translator->trans('All tags', [], 'admin'), $this->generateUrl('admin_tags'));
@@ -35,16 +36,15 @@ class AdminTagsController extends AbstractController
 
         $tabsheet->select($section);
 
-        return ['tabsheet' => $tabsheet];
+        return $tabsheet;
     }
 
     public function list(
-        Request $request,
         CsrfTokenManagerInterface $csrfTokenManager,
         TranslatorInterface $translator,
         TagMapper $tagMapper,
         ImageTagRepository $imageTagRepository
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -98,12 +98,12 @@ class AdminTagsController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_tags');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_tags');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Tags', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('all'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('all');
 
         return $this->render('tags_all.html.twig', $tpl_params);
     }
 
-    public function actions(Request $request, TagMapper $tagMapper, TranslatorInterface $translator)
+    public function actions(Request $request, TagMapper $tagMapper, TranslatorInterface $translator): Response
     {
         if ($request->request->get('action') === 'edit') {
             $existing_names = [];
@@ -219,7 +219,7 @@ class AdminTagsController extends AbstractController
         return $this->redirectToRoute('admin_tags');
     }
 
-    public function add(Request $request, TagMapper $tagMapper, TranslatorInterface $translator)
+    public function add(Request $request, TagMapper $tagMapper, TranslatorInterface $translator): Response
     {
         if ($request->request->get('add_tag')) {
             if (!is_null($tagMapper->getRepository()->findOneBy(['name' => $request->request->get('add_tag')]))) {
@@ -238,7 +238,7 @@ class AdminTagsController extends AbstractController
         return $this->redirectToRoute('admin_tags');
     }
 
-    public function deleteOrphans(TagMapper $tagMapper, TranslatorInterface $translator)
+    public function deleteOrphans(TagMapper $tagMapper, TranslatorInterface $translator): Response
     {
         $tagMapper->deleteOrphanTags();
         $this->addFlash('success', $translator->trans('Orphan tags deleted', [], 'admin'));
@@ -246,7 +246,7 @@ class AdminTagsController extends AbstractController
         return $this->redirectToRoute('admin_tags');
     }
 
-    public function permissions(Request $request, Conf $conf, TagMapper $tagMapper, TranslatorInterface $translator, CsrfTokenManagerInterface $tokenManager)
+    public function permissions(Request $request, Conf $conf, TagMapper $tagMapper, TranslatorInterface $translator, CsrfTokenManagerInterface $tokenManager): Response
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -298,12 +298,12 @@ class AdminTagsController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_tags');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_tags');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Tags', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('permissions'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('permissions');
 
         return $this->render('tags_permissions.html.twig', $tpl_params);
     }
 
-    public function pending(Request $request, TagMapper $tagMapper, TranslatorInterface $translator, CsrfTokenManagerInterface $tokenManager)
+    public function pending(Request $request, TagMapper $tagMapper, TranslatorInterface $translator, CsrfTokenManagerInterface $tokenManager): Response
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -326,7 +326,7 @@ class AdminTagsController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_tags_permissions');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_tags');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Tags', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('pending'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('pending');
 
         return $this->render('tags_pending.html.twig', $tpl_params);
     }

@@ -50,16 +50,19 @@ class AdminBatchManagerController extends AbstractController
         $this->user = $appUserService->getUser();
     }
 
-    protected function setTabsheet(string $section = 'global'): array
+    protected function setTabsheet(string $section = 'global'): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('global', $this->translator->trans('global mode', [], 'admin'), $this->generateUrl('admin_batch_manager_global'));
         $tabsheet->add('unit', $this->translator->trans('unit mode', [], 'admin'), $this->generateUrl('admin_batch_manager_unit'));
         $tabsheet->select($section);
 
-        return ['tabsheet' => $tabsheet];
+        return $tabsheet;
     }
 
+    /**
+     * @param array<string, int|float|bool|string|null|array<int>> $filter
+     */
     protected function appendFilter(SessionInterface $session, array $filter = []): void
     {
         $previous_filter = $this->getFilter($session);
@@ -70,6 +73,9 @@ class AdminBatchManagerController extends AbstractController
         $session->set('bulk_manager_filter', array_merge($previous_filter, $filter));
     }
 
+    /**
+     * @return array<string, int|float|bool|string|null|array<int>>
+     */
     protected function getFilter(SessionInterface $session): array
     {
         $filter = $session->has('bulk_manager_filter') ? $session->get('bulk_manager_filter'): [];
@@ -415,7 +421,7 @@ class AdminBatchManagerController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Site manager', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('global'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('global');
 
         return $this->render('batch_manager_global.html.twig', $tpl_params);
     }
@@ -428,6 +434,9 @@ class AdminBatchManagerController extends AbstractController
         return $this->redirectToRoute('admin_batch_manager_global', ['start' => $request->get('start')]);
     }
 
+    /**
+     * @param int[] $collection
+     */
     protected function actionOnCollection(
         Request $request,
         TagMapper $tagMapper,
@@ -438,7 +447,7 @@ class AdminBatchManagerController extends AbstractController
         CaddieRepository $caddieRepository,
         ImageTagRepository $imageTagRepository,
         array $collection = []
-    ) {
+    ): ?Response {
         // if the user tries to apply an action, it means that there is at least 1 photo in the selection
         if (count($collection) === 0 && !$request->request->get('submitFilter')) {
             $this->addFlash('error', $this->translator->trans('Select at least one photo', [], 'admin'));
@@ -596,6 +605,8 @@ class AdminBatchManagerController extends AbstractController
 
         if ($redirect) {
             return $this->redirectToRoute('admin_batch_manager_global');
+        } else {
+            return null;
         }
     }
 
@@ -606,6 +617,9 @@ class AdminBatchManagerController extends AbstractController
         }
     }
 
+    /**
+     * @return array<string, int|float|bool|string|null|array<int>>
+     */
     protected function getFilterSetsFromFilter(
         SearchMapper $searchMapper,
         ImageMapper $imageMapper,
@@ -630,7 +644,7 @@ class AdminBatchManagerController extends AbstractController
 
                 case 'favorites':
                     $user_favorites = [];
-                    foreach ($favoriteRepository->findUserFavorites($this->user->getId(), $this->user->getUserInfos()->getForbiddenCategories()) as $favorite) {
+                    foreach ($favoriteRepository->findUserFavorites($this->user->getId(), $this->user->getUserInfos()->getForbiddenAlbums()) as $favorite) {
                         $user_favorites[] = $favorite->getImage()->geId();
                     }
                     $filter_sets[] = $user_favorites;
@@ -755,7 +769,7 @@ class AdminBatchManagerController extends AbstractController
         if (!empty($bulk_manager_filter['tags'])) {
             $image_ids = [];
             foreach ($imageMapper->getRepository()->getImageIdsForTags(
-                $this->user->getUserInfos()->getForbiddenCategories(),
+                $this->user->getUserInfos()->getForbiddenAlbums(),
                 $bulk_manager_filter['tags'],
                 $bulk_manager_filter['tag_mode']
             ) as $image) {
@@ -823,16 +837,18 @@ class AdminBatchManagerController extends AbstractController
         }
 
         if (!empty($bulk_manager_filter['search']) && !empty($bulk_manager_filter['search']['q'])) {
+            /** @phpstan-ignore-next-line */
             $result = $searchMapper->getQuickSearchResults($bulk_manager_filter['search']['q'], $this->user);
-            if (!empty($result['items']) && !empty($result['qs']['unmatched_terms'])) {
-                // $tpl_params ??? $template->assign('no_search_results', $result['qs']['unmatched_terms']);
-            }
+            // if (!empty($result['items']) && !empty($result['qs']['unmatched_terms'])) {
+            //     // $tpl_params ??? $template->assign('no_search_results', $result['qs']['unmatched_terms']);
+            // }
             $filter_sets[] = $result['items'];
         }
 
         return $filter_sets;
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function setDimensions(ImageMapper $imageMapper, SessionInterface $session): array
     {
         $tpl_params = [];
@@ -1169,7 +1185,7 @@ class AdminBatchManagerController extends AbstractController
         $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($managerRegistry, ['tags', 'categories'], $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
-        $tpl_params = array_merge($this->setTabsheet('unit'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('unit');
 
         return $this->render('batch_manager_unit.html.twig', $tpl_params);
     }

@@ -25,23 +25,24 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminUpdateController extends AbstractController
 {
-    private $translator;
-    private $defaultTheme;
+    private TranslatorInterface $translator;
+    private string $defaultTheme;
 
-    protected function setTabsheet(string $section = 'core'): array
+    protected function setTabsheet(string $section = 'core'): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('core', $this->translator->trans('Phyxo Update', [], 'admin'), $this->generateUrl('admin_update'));
         $tabsheet->add('extensions', $this->translator->trans('Extensions Update', [], 'admin'), $this->generateUrl('admin_update_extensions'));
         $tabsheet->select($section);
 
-        return ['tabsheet' => $tabsheet];
+        return $tabsheet;
     }
 
     public function core(
@@ -61,7 +62,7 @@ class AdminUpdateController extends AbstractController
         Themes $themes,
         Languages $languages,
         int $step = 0
-    ) {
+    ): Response {
         $tpl_params = [];
 
         $tpl_params['missing'] = ['plugins' => '', 'themes' => '', 'languages' => ''];
@@ -266,12 +267,12 @@ class AdminUpdateController extends AbstractController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_update');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_update');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Updates', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('core'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('core');
 
         return $this->render('updates_core.html.twig', $tpl_params);
     }
 
-    public function extensions(TranslatorInterface $translator)
+    public function extensions(TranslatorInterface $translator): Response
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -279,7 +280,7 @@ class AdminUpdateController extends AbstractController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_update');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_update_extensions');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Updates', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('extensions'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('extensions');
 
         return $this->render('updates_ext.html.twig', $tpl_params);
     }

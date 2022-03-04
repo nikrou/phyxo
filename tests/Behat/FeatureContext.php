@@ -77,7 +77,7 @@ class FeatureContext extends BaseContext
      */
     public function iShouldNotBeAllowedToGoToAlbum(string $album_name): void
     {
-        $this->visit($this->getContainer()->get('router')->generate('album', ['category_id' => $this->storage->get('album_' . $album_name)->getId()]));
+        $this->visit($this->getContainer()->get('router')->generate('album', ['album_id' => $this->storage->get('album_' . $album_name)->getId()]));
         $this->getMink()->assertSession()->statusCodeEquals(403);
         $this->getMink()->assertSession()->pageTextContains('The server returned a "403 Forbidden".');
     }

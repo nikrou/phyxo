@@ -28,14 +28,14 @@ class AdminCommentsController extends AbstractController
 {
     private TranslatorInterface $translator;
 
-    protected function setTabsheet(string $section = 'all'): array
+    protected function setTabsheet(string $section = 'all'): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('all', $this->translator->trans('All comments', [], 'admin'), $this->generateUrl('admin_comments'));
         $tabsheet->add('pending', $this->translator->trans('Pending comments', [], 'admin'), $this->generateUrl('admin_comments', ['section' => 'pending']));
         $tabsheet->select($section);
 
-        return ['tabsheet' => $tabsheet];
+        return $tabsheet;
     }
 
     public function index(
@@ -83,7 +83,7 @@ class AdminCommentsController extends AbstractController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_comments', ['section' => $section, 'start' => $start]);
         $tpl_params['PAGE_TITLE'] = $translator->trans('Comments', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet($section), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet($section);
 
         $tpl_params['navbar'] = Utils::createNavigationBar(
             $router,

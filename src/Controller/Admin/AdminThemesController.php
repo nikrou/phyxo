@@ -19,15 +19,15 @@ use Phyxo\TabSheet\TabSheet;
 use Phyxo\Theme\Themes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminThemesController extends AbstractController
 {
-    private $translator;
+    private TranslatorInterface $translator;
 
-    protected function setTabsheet(string $section = 'installed')
+    protected function setTabsheet(string $section = 'installed'): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('installed', $this->translator->trans('Installed Themes', [], 'admin'), $this->generateUrl('admin_themes_installed'), 'fa-paint-brush');
@@ -35,17 +35,16 @@ class AdminThemesController extends AbstractController
         $tabsheet->add('new', $this->translator->trans('Add New Theme', [], 'admin'), $this->generateUrl('admin_themes_new'), 'fa-plus-circle');
         $tabsheet->select($section);
 
-        return ['tabsheet' => $tabsheet];
+        return $tabsheet;
     }
 
     public function installed(
-        Request $request,
         ThemeRepository $themeRepository,
         UserMapper $userMapper,
         ParameterBagInterface $params,
         TranslatorInterface $translator,
         CsrfTokenManagerInterface $tokenManager
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -150,7 +149,7 @@ class AdminThemesController extends AbstractController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_themes_installed');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('installed'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('installed');
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
 
@@ -158,14 +157,13 @@ class AdminThemesController extends AbstractController
     }
 
     public function update(
-        Request $request,
         UserMapper $userMapper,
         Conf $conf,
         CsrfTokenManagerInterface $tokenManager,
         ThemeRepository $themeRepository,
         ParameterBagInterface $params,
         TranslatorInterface $translator
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -220,7 +218,7 @@ class AdminThemesController extends AbstractController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_themes_update');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('update'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('update');
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
 
@@ -234,7 +232,7 @@ class AdminThemesController extends AbstractController
         ThemeRepository $themeRepository,
         UserInfosRepository $userInfosRepository,
         ParameterBagInterface $params
-    ) {
+    ): Response {
         $themes = new Themes($themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
 
@@ -256,7 +254,7 @@ class AdminThemesController extends AbstractController
         return $this->redirectToRoute('admin_themes_installed');
     }
 
-    public function install(int $revision, ParameterBagInterface $params, UserMapper $userMapper, ThemeRepository $themeRepository, TranslatorInterface $translator)
+    public function install(int $revision, ParameterBagInterface $params, UserMapper $userMapper, ThemeRepository $themeRepository, TranslatorInterface $translator): Response
     {
         if (!$userMapper->isWebmaster()) {
             $this->addFlash('error', $translator->trans('Webmaster status is required.', [], 'admin'));
@@ -280,7 +278,7 @@ class AdminThemesController extends AbstractController
         }
     }
 
-    public function new(ThemeRepository $themeRepository, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
+    public function new(ThemeRepository $themeRepository, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -305,7 +303,7 @@ class AdminThemesController extends AbstractController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_themes_new');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('new'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('new');
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
 

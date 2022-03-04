@@ -39,7 +39,7 @@ class Image
      */
     public static function addComment($params, Server $service)
     {
-        if (!$service->getImageMapper()->getRepository()->isAuthorizedToUser($params['image_id'], $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories())) {
+        if (!$service->getImageMapper()->getRepository()->isAuthorizedToUser($params['image_id'], $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenAlbums())) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid image_id or access denied');
         }
 
@@ -89,7 +89,7 @@ class Image
         //-------------------------------------------------------- related categories
         $is_commentable = false;
         $related_categories = [];
-        foreach ($service->getAlbumMapper()->getRepository()->findRelative($image->getId(), $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories()) as $album) {
+        foreach ($service->getAlbumMapper()->getRepository()->findRelative($image->getId(), $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenAlbums()) as $album) {
             $is_commentable = $album->isCommentable();
             $album_infos = array_merge(
                 $album->toArray(),
@@ -194,7 +194,7 @@ class Image
      */
     public static function rate($params, Server $service)
     {
-        if (!$service->getImageMapper()->getRepository()->isAuthorizedToUser($params['image_id'], $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenCategories())) {
+        if (!$service->getImageMapper()->getRepository()->isAuthorizedToUser($params['image_id'], $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenAlbums())) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid image_id or access denied');
         }
 
@@ -223,7 +223,7 @@ class Image
         $search_result = $service->getSearchMapper()->getQuickSearchResults($params['query'], $service->getUserMapper()->getUser());
 
         $image_ids = array_slice(
-            $search_result['items'],
+            $search_result,
             $params['page'] * $params['per_page'],
             $params['per_page']
         );
@@ -244,7 +244,7 @@ class Image
                 'page' => $params['page'],
                 'per_page' => $params['per_page'],
                 'count' => count($images),
-                'total_count' => count($search_result['items']),
+                'total_count' => count($search_result),
             ],
             'images' => $images,
         ];

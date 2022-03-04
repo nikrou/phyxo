@@ -19,15 +19,15 @@ use Phyxo\Language\Languages;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminLanguagesController extends AbstractController
 {
-    private $translator;
+    private TranslatorInterface $translator;
 
-    public function setTabsheet(string $section = 'installed')
+    public function setTabsheet(string $section = 'installed'): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('installed', $this->translator->trans('Installed Languages', [], 'admin'), $this->generateUrl('admin_languages_installed'), 'fa-language');
@@ -35,7 +35,7 @@ class AdminLanguagesController extends AbstractController
         $tabsheet->add('new', $this->translator->trans('Add New Language', [], 'admin'), $this->generateUrl('admin_languages_new'), 'fa-plus-circle');
         $tabsheet->select($section);
 
-        return ['tabsheet' => $tabsheet];
+        return $tabsheet;
     }
 
     public function installed(
@@ -44,7 +44,7 @@ class AdminLanguagesController extends AbstractController
         TranslatorInterface $translator,
         LanguageRepository $languageRepository,
         UserInfosRepository $userInfosRepository
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -106,7 +106,7 @@ class AdminLanguagesController extends AbstractController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_languages_installed');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('installed'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('installed');
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_languages_installed');
 
@@ -120,7 +120,7 @@ class AdminLanguagesController extends AbstractController
         LanguageRepository $languageRepository,
         UserInfosRepository $userInfosRepository,
         ParameterBagInterface $params
-    ) {
+    ): Response {
         $languages = new Languages($languageRepository, $userMapper->getDefaultLanguage());
         $languages->setRootPath($params->get('translator.default_path'));
 
@@ -137,7 +137,7 @@ class AdminLanguagesController extends AbstractController
         return $this->redirectToRoute('admin_languages_installed');
     }
 
-    public function new(UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator, LanguageRepository $languageRepository)
+    public function new(UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator, LanguageRepository $languageRepository): Response
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -164,7 +164,7 @@ class AdminLanguagesController extends AbstractController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_languages_installed');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('new'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('new');
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_languages_installed');
 
@@ -177,7 +177,7 @@ class AdminLanguagesController extends AbstractController
         UserMapper $userMapper,
         TranslatorInterface $translator,
         LanguageRepository $languageRepository
-    ) {
+    ): Response {
         if (!$userMapper->isWebmaster()) {
             $this->addFlash('error', $translator->trans('Webmaster status is required.', [], 'admin'));
 
@@ -207,7 +207,7 @@ class AdminLanguagesController extends AbstractController
         ParameterBagInterface $params,
         TranslatorInterface $translator,
         LanguageRepository $languageRepository
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -269,7 +269,7 @@ class AdminLanguagesController extends AbstractController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_languages_installed');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('update'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('update');
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_languages_installed');
         $tpl_params['INSTALL_URL'] = $this->generateUrl('admin_languages_installed');

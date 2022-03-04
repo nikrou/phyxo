@@ -86,11 +86,12 @@ class ImageMapper
     }
 
     /**
+     * @param int|string $element_id
      * @param array{current_day?: DateTimeInterface, date_type?: string, year?: int, month?: int, day?: int } $extra
      * @param int[] $selection
      */
     /** @phpstan-ignore-next-line */ // @FIX: define return type
-    public function getPicturesFromSelection(int $element_id, array $selection = [], string $section = '', int $start_id = 0, array $extra = []): array
+    public function getPicturesFromSelection($element_id, array $selection = [], string $section = '', int $start_id = 0, array $extra = []): array
     {
         $tpl_params = [];
 

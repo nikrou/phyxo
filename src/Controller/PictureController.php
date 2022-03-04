@@ -89,7 +89,7 @@ class PictureController extends CommonController
             $history_section = History::SECTION_LIST;
             $tpl_params['TITLE'] = $translator->trans('Random photos');
             $tpl_params['items'] = [];
-            foreach ($imageMapper->getRepository()->searchDistinctId($appUserService->getUser()->getUserInfos()->getForbiddenCategories(), $conf['order_by']) as $image) {
+            foreach ($imageMapper->getRepository()->searchDistinctId($appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $conf['order_by']) as $image) {
                 $tpl_params['items'][] = $image['id'];
             }
         } elseif ($type === 'from_calendar') {
@@ -100,12 +100,12 @@ class PictureController extends CommonController
         } else {
             $history_section = History::SECTION_ALBUMS;
             $album = $albumMapper->getRepository()->find((int) $element_id);
-            if (!is_null($album) && in_array($album->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenCategories())) {
+            if (!is_null($album) && in_array($album->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums())) {
                 throw new AccessDeniedHttpException("Access denied to that album");
             }
 
             $tpl_params['items'] = [];
-            foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum((int) $element_id, $appUserService->getUser()->getUserInfos()->getForbiddenCategories(), $conf['order_by']) as $image) {
+            foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum((int) $element_id, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $conf['order_by']) as $image) {
                 $tpl_params['items'][] = $image['id'];
             }
         }
@@ -601,7 +601,7 @@ class PictureController extends CommonController
         $result['score'] = null;
 
         if ($request->isMethod('POST')) {
-            if (!$imageMapper->getRepository()->isAuthorizedToUser($request->request->get('image_id'), $appUserService->getUser()->getUserInfos()->getForbiddenCategories())) {
+            if (!$imageMapper->getRepository()->isAuthorizedToUser($request->request->get('image_id'), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums())) {
                 throw new AccessDeniedException("Cannot rate that image");
             }
 

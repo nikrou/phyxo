@@ -40,7 +40,7 @@ class CommentController extends CommonController
         AlbumMapper $albumMapper,
         int $comment_id,
         int $start = 0
-    ) {
+    ): Response {
         $tpl_params = [];
         $tpl_params['PAGE_TITLE'] = $translator->trans('User comments');
 
@@ -71,7 +71,7 @@ class CommentController extends CommonController
             $filterParams->setPage(0);
         }
 
-        $forbiddenCategories = $appUserService->getUser()->getUserInfos()->getForbiddenCategories();
+        $forbiddenCategories = $appUserService->getUser()->getUserInfos()->getForbiddenAlbums();
 
         if ($filterParams->getAlbum()) {
             $filterParams->setAlbums($albumMapper->getRepository()->getSubcatIds([$filterParams->getAlbum()->getId()]));
@@ -100,7 +100,7 @@ class CommentController extends CommonController
                 [
                     'image_id' => $comment->getImage()->getId(),
                     'element_id' => $comment->getImage()->getImageAlbums()->first()->getAlbum()->getId(),
-                    'type' => 'category'
+                    'type' => 'album'
                 ]
             );
 

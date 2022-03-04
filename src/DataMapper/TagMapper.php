@@ -28,7 +28,14 @@ use Symfony\Component\Routing\RouterInterface;
 
 class TagMapper
 {
-    private $conf, $image_std_params, $router, $metadata, $userCacheRepository, $imageRepository, $tagRepository, $imageTagRepository;
+    private Conf $conf;
+    private ImageStandardParams $image_std_params;
+    private RouterInterface $router;
+    private Metadata $metadata;
+    private UserCacheRepository $userCacheRepository;
+    private ImageRepository $imageRepository;
+    private TagRepository $tagRepository;
+    private ImageTagRepository $imageTagRepository;
 
     public function __construct(
         Conf $conf,
@@ -72,6 +79,8 @@ class TagMapper
     /**
      * Returns all tags even associated to no image.
      * The list can be filtered by $q
+     *
+     * @return Tag[]
      */
     public function getAllTags(string $q = ''): array
     {
@@ -85,6 +94,7 @@ class TagMapper
         return $tags;
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getPendingTags(): array
     {
         $tags = [];
@@ -117,12 +127,12 @@ class TagMapper
      * The returned list can be a subset of all existing tags due to permissions,
      * also tags with no images are not returned.
      *
-     * @return array [id, name, counter, url_name]
+     * @return Tag[]
      */
     public function getAvailableTags(User $user): array
     {
         $tags = [];
-        $available_tags = $this->imageTagRepository->getAvailableTags($user->getId(), $user->getUserInfos()->getForbiddenCategories(), $this->conf['show_pending_added_tags'] ?? false);
+        $available_tags = $this->imageTagRepository->getAvailableTags($user->getId(), $user->getUserInfos()->getForbiddenAlbums(), $this->conf['show_pending_added_tags'] ?? false);
         foreach ($available_tags as $row) {
             $tag = $row[0]->getTag();
             if (isset($tags[$tag->getId()])) {
@@ -133,9 +143,13 @@ class TagMapper
             $tags[$tag->getId()] = $tag;
         }
 
-        return $tags;
+        return array_values($tags);
     }
 
+    /**
+     * @param int[] $excluded_tag_ids
+     * @return Tag[]
+     */
     public function getRelatedTags(User $user, int $image_id, int $max_tags, array $excluded_tag_ids = []): array
     {
         $tags = [];
@@ -160,6 +174,11 @@ class TagMapper
         return $tags;
     }
 
+    /**
+     * @param int[] $items
+     * @param int[] $excluded_tag_ids
+     * @return Tag[]
+     */
     public function getCommonTags(User $user, array $items, int $max_tags, array $excluded_tag_ids = []): array
     {
         if (count($items) === 0) {
@@ -187,9 +206,10 @@ class TagMapper
     /**
      * Get tags list and surround ids by ~~, for getTagsIds()) to differenciate new tags from existing tags
      *
-     * @param boolean $only_user_language - if true, only local name is returned for
+     * @param Tag[] $tags
+     * @param bool $only_user_language - if true, only local name is returned for
      *    multilingual tags (if ExtendedDescription plugin is active)
-     * @return array[] ('id', 'name')
+     * @return array<int, array{id: string, name?: string}>
      */
     public function prepareTagsListForUI(array $tags, $only_user_language = true) : array
     {
@@ -280,6 +300,9 @@ class TagMapper
 
     /**
      * Add new tags to a set of images.
+     *
+     * @param int[] $tag_ids
+     * @param int[] $image_ids
      */
     public function addTags(array $tag_ids, array $image_ids, User $user): void
     {
@@ -334,7 +357,7 @@ class TagMapper
     /**
      * Set tags of images. Overwrites all existing associations.
      *
-     * @param array $tags_of - keys are image ids, values are array of tag ids
+     * @param array<int, array<int>> $tags_of - keys are image ids, values are array of tag ids
      */
     public function setTagsOf(array $tags_of, User $user): void
     {
@@ -382,6 +405,9 @@ class TagMapper
         }
     }
 
+    /**
+     * @param int[] $tag_ids
+     */
     public function associateTags(array $tag_ids, int $image_id, User $user): void
     {
         if (count($tag_ids) === 0) {
@@ -400,8 +426,10 @@ class TagMapper
         $this->invalidateUserCacheNbTags();
     }
 
-    // @param $elements is an array of tags indexed by image_id
-    public function rejectTags(array $elements)
+    /**
+     * @param array<int, int> $elements is an array of tags indexed by image_id
+     */
+    public function rejectTags(array $elements): void
     {
         if (empty($elements)) {
             return;
@@ -409,7 +437,9 @@ class TagMapper
         $this->imageTagRepository->deleteImageTags($elements);
     }
 
-    // @param $elements in an array of tags indexed by image_id
+    /**
+     * @param array<int, array<int>> $elements is in an array of tags indexed by image_id
+     */
     public function validateTags(array $elements): void
     {
         if (count($elements) === 0) {
@@ -424,6 +454,9 @@ class TagMapper
         $this->invalidateUserCacheNbTags();
     }
 
+    /**
+     * @param int[] $tag_ids
+     */
     public function dissociateTags(array $tag_ids, int $image_id): void
     {
         if (count($tag_ids) === 0) {
@@ -435,6 +468,8 @@ class TagMapper
 
     /**
      * Mark tags as to be validated for addition or deletion.
+     *
+     * @param int[] $tags_ids
      */
     public function toBeValidatedTags(Image $image, array $tags_ids, User $user, int $status, bool $validated = false): void
     {
@@ -469,6 +504,8 @@ class TagMapper
     /**
      * Sync all metadata of a list of images.
      * Metadata are fetched from original files and saved in database.
+     *
+     * @param int[] $ids
      */
     public function sync_metadata(array $ids, User $user): void
     {
@@ -529,8 +566,8 @@ class TagMapper
      * calculation method avoid having very different levels for tags having
      * nearly the same count when set are small.
      *
-     * @param array $tags at least [id, counter]
-     * @return array [..., level]
+     * @param array<int, Tag> $tags
+     * @return Tag[]
      */
     public function addLevelToTags(array $tags = [], int $tags_levels = 5) : array
     {

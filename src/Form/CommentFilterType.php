@@ -25,7 +25,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CommentFilterType extends AbstractType
 {
-    private $appUserService;
+    private AppUserService $appUserService;
 
     public function __construct(AppUserService $appUserService)
     {
@@ -67,7 +67,7 @@ class CommentFilterType extends AbstractType
                 [
                     'class' => Album::class,
                     'query_builder' => function(AlbumRepository $albumRepository) {
-                        return $albumRepository->getQueryBuilderForFindAllowedAlbums($this->appUserService->getUser()->getUserInfos()->getForbiddenCategories());
+                        return $albumRepository->getQueryBuilderForFindAllowedAlbums($this->appUserService->getUser()->getUserInfos()->getForbiddenAlbums());
                     },
                     'choice_label' => 'name',
                     'choice_value' => 'id',

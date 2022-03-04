@@ -51,7 +51,7 @@ class AlbumController extends CommonController
 
         $album = $albumMapper->getRepository()->find($album_id);
 
-        if (in_array($album_id, $appUserService->getUser()->getUserInfos()->getForbiddenCategories())) {
+        if (in_array($album_id, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums())) {
             throw new AccessDeniedHttpException("Access denied to that album");
         }
 
@@ -192,7 +192,7 @@ class AlbumController extends CommonController
         }
 
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum($album->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenCategories(), $order_by) as $image) {
+        foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum($album->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $order_by) as $image) {
             $tpl_params['items'][] = $image['id'];
         }
 
@@ -254,12 +254,12 @@ class AlbumController extends CommonController
 
         $album = $albumMapper->getRepository()->find($album_id);
         $subcat_ids[] = $album->getId();
-        foreach ($albumMapper->getRepository()->findAllowedSubAlbums($album->getUppercats(), $appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $sub_album) {
+        foreach ($albumMapper->getRepository()->findAllowedSubAlbums($album->getUppercats(), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $sub_album) {
             $subcat_ids[] = $sub_album->getId();
         }
 
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum($album->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenCategories(), $conf['order_by']) as $image) {
+        foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum($album->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $conf['order_by']) as $image) {
             $tpl_params['items'][] = $image['id'];
         }
 
@@ -319,7 +319,7 @@ class AlbumController extends CommonController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
 
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->searchDistinctId($appUserService->getUser()->getUserInfos()->getForbiddenCategories(), $conf['order_by']) as $image) {
+        foreach ($imageMapper->getRepository()->searchDistinctId($appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $conf['order_by']) as $image) {
             $tpl_params['items'][] = $image['id'];
         }
 

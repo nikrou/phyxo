@@ -36,14 +36,17 @@ class AdminPhotoController extends AbstractController
 {
     private TranslatorInterface $translator;
 
-    protected function setTabsheet(string $section = 'properties', array $params = []): array
+    /**
+     * @param array<string, int|string|null> $params
+     */
+    protected function setTabsheet(string $section = 'properties', array $params = []): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('properties', $this->translator->trans('Properties', [], 'admin'), $this->generateUrl('admin_photo', $params));
         $tabsheet->add('coi', $this->translator->trans('Center of interest', [], 'admin'), $this->generateUrl('admin_photo_coi', $params), 'fa-crop');
         $tabsheet->select($section);
 
-        return ['tabsheet' => $tabsheet];
+        return $tabsheet;
     }
 
     public function edit(
@@ -208,15 +211,15 @@ class AdminPhotoController extends AbstractController
             $image_albums[] = $image_album->getAlbum()->getId();
         }
 
-        $authorizeds = array_diff($image_albums, $appUserService->getUser()->getUserInfos()->getForbiddenCategories());
+        $authorizeds = array_diff($image_albums, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums());
 
         $url_img = '';
         if ($category_id && in_array($category_id, $authorizeds)) {
-            $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'category', 'element_id' => $category_id]);
+            $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'album', 'element_id' => $category_id]);
         } else {
             if (count($authorizeds) > 0) {
                 $album_id = $authorizeds[0];
-                $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'category', 'element_id' => $cache_albums[$album_id]->getId()]);
+                $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'album', 'element_id' => $cache_albums[$album_id]->getId()]);
             }
         }
 
@@ -234,7 +237,7 @@ class AdminPhotoController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Photo', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('properties', ['image_id' => $image_id, 'category_id' => $category_id]), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('properties', ['image_id' => $image_id, 'category_id' => $category_id]);
 
         return $this->render('photo_properties.html.twig', $tpl_params);
     }
@@ -265,7 +268,7 @@ class AdminPhotoController extends AbstractController
             $image_albums[] = $image_album->getAlbum()->getId();
         }
 
-        $authorizeds = array_diff($image_albums, $appUserService->getUser()->getUserInfos()->getForbiddenCategories());
+        $authorizeds = array_diff($image_albums, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums());
 
         if (count($authorizeds) > 0) {
             return $this->redirectToRoute('admin_album', ['album_id' => $authorizeds[0]]);
@@ -350,7 +353,7 @@ class AdminPhotoController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_photo_coi', ['image_id' => $image_id, 'category_id' => $category_id]);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Photo', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('coi', ['image_id' => $image_id, 'category_id' => $category_id]), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('coi', ['image_id' => $image_id, 'category_id' => $category_id]);
 
         return $this->render('photo_coi.html.twig', $tpl_params);
     }

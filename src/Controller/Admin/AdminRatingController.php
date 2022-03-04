@@ -31,14 +31,14 @@ class AdminRatingController extends AbstractController
 {
     private TranslatorInterface $translator;
 
-    protected function setTabsheet(string $section = 'photos'): array
+    protected function setTabsheet(string $section = 'photos'): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('photos', $this->translator->trans('Photos', [], 'admin'), $this->generateUrl('admin_rating'));
         $tabsheet->add('users', $this->translator->trans('Users', [], 'admin'), $this->generateUrl('admin_rating_users'));
         $tabsheet->select($section);
 
-        return ['tabsheet' => $tabsheet];
+        return $tabsheet;
     }
 
     public function photos(
@@ -170,7 +170,7 @@ class AdminRatingController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_rating');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_rating');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Rating', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('photos'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('photos');
         $tpl_params['WS_RATES_DELETE'] = $this->generateUrl('ws') . '?method=pwg.rates.delete';
 
         return $this->render('rating_photos.html.twig', $tpl_params);
@@ -348,11 +348,12 @@ class AdminRatingController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_rating');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_rating');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Rating', [], 'admin');
-        $tpl_params = array_merge($this->setTabsheet('users'), $tpl_params);
+        $tpl_params['tabsheet'] = $this->setTabsheet('users');
 
         return $this->render('rating_users.html.twig', $tpl_params);
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function avg_compare(array $a, array $b): int
     {
         $d = $a['avg'] - $b['avg'];
@@ -360,6 +361,7 @@ class AdminRatingController extends AbstractController
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function count_compare(array $a, array $b): int
     {
         $d = $a['count'] - $b['count'];
@@ -367,6 +369,7 @@ class AdminRatingController extends AbstractController
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function cv_compare(array $a, array $b): int
     {
         $d = $b['cv'] - $a['cv']; //desc
@@ -374,6 +377,7 @@ class AdminRatingController extends AbstractController
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function consensus_dev_compare(array $a, array $b): int
     {
         $d = $b['cd'] - $a['cd']; //desc
@@ -381,6 +385,7 @@ class AdminRatingController extends AbstractController
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function last_rate_compare(array $a, array $b): int
     {
         return -strcmp($a['last_date'], $b['last_date']);
