@@ -12,18 +12,19 @@
  namespace App\Twig;
 
 use App\Services\AssetsManager;
-use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 class PluginAssetExtension extends AbstractExtension
 {
-    private $assetsManager, $router;
+    private AssetsManager $assetsManager;
+    private UrlGeneratorInterface $urlGenerator;
 
-    public function __construct(AssetsManager $assetsManager, RouterInterface $router)
+    public function __construct(AssetsManager $assetsManager, UrlGeneratorInterface $urlGenerator)
     {
         $this->assetsManager = $assetsManager;
-        $this->router = $router;
+        $this->urlGenerator = $urlGenerator;
     }
 
     public function getFunctions(): array
@@ -35,21 +36,21 @@ class PluginAssetExtension extends AbstractExtension
         ];
     }
 
-    public function publicHeadContent()
+    public function publicHeadContent(): string
     {
         $links = [];
         foreach ($this->assetsManager->getStylesheets() as $stylesheet) {
-            $links[] = sprintf('<link rel="stylesheet" href="%s">', $this->router->generate('plugin_asset', ['id' => $stylesheet['id'], 'path' => $stylesheet['path']]));
+            $links[] = sprintf('<link rel="stylesheet" href="%s">', $this->urlGenerator->generate('plugin_asset', ['id' => $stylesheet['id'], 'path' => $stylesheet['path']]));
         }
 
         return implode('', $links);
     }
 
-    public function publicFooterContent()
+    public function publicFooterContent(): string
     {
         $scripts = [];
         foreach ($this->assetsManager->getScripts() as $script) {
-            $scripts[] = sprintf('<script src="%s"></script>', $this->router->generate('plugin_asset', ['id' => $script['id'], 'path' => $script['path']]));
+            $scripts[] = sprintf('<script src="%s"></script>', $this->urlGenerator->generate('plugin_asset', ['id' => $script['id'], 'path' => $script['path']]));
         }
 
         return implode('', $scripts);

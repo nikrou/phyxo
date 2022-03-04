@@ -12,6 +12,7 @@
 namespace App\Twig;
 
 use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\DerivativeParams;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Extension\AbstractExtension;
@@ -19,7 +20,8 @@ use Twig\TwigFunction;
 
 class DerivativeExtension extends AbstractExtension
 {
-    private $image_std_params, $urlGenerator;
+    private ImageStandardParams $image_std_params;
+    private UrlGeneratorInterface $urlGenerator;
 
     public function __construct(ImageStandardParams $image_std_params, UrlGeneratorInterface $urlGenerator)
     {
@@ -39,18 +41,10 @@ class DerivativeExtension extends AbstractExtension
 
     /**
      * The "defineDerivative" function allows to define derivative from tpl file.
-     * It assigns a DerivativeParams object to _name_ template variable.
      *
-     * @param array $params
-     *    - name (required)
-     *    - type (optional)
-     *    - width (required if type is empty)
-     *    - height (required if type is empty)
-     *    - crop (optional, used if type is empty)
-     *    - min_height (optional, used with crop)
-     *    - min_height (optional, used with crop)
+     * @param array{type?: string, width: int, height: int, crop?: int|bool, min_width: int, min_height: int} $params
      */
-    public function defineDerivative(array $params)
+    public function defineDerivative(array $params): DerivativeParams
     {
         if (isset($params['type'])) {
             return $this->image_std_params->getByType($params['type']);
@@ -94,11 +88,12 @@ class DerivativeExtension extends AbstractExtension
         return $this->image_std_params->makeCustom($w, $h, $crop, $minw, $minh);
     }
 
-    public function defineDerivativeSquare()
+    public function defineDerivativeSquare(): DerivativeParams
     {
         return $this->image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
     }
 
+    /** @phpstan-ignore-next-line */
     public function derivativeFromImage(array $params = []): ?DerivativeImage
     {
         if (empty($params['image']) || empty($params['params'])) {
@@ -108,7 +103,7 @@ class DerivativeExtension extends AbstractExtension
         return new DerivativeImage($params['image'], $params['params'], $this->image_std_params);
     }
 
-    public function mediaPath(DerivativeImage $derivative, bool $relative = false)
+    public function mediaPath(DerivativeImage $derivative, bool $relative = false): string
     {
         if ($derivative->getType() === ImageStandardParams::IMG_CUSTOM) {
             return $this->urlGenerator->generate(
