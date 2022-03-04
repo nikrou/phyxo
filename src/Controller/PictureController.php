@@ -25,6 +25,7 @@ use App\DataMapper\ImageMapper;
 use App\DataMapper\RateMapper;
 use App\Entity\Comment;
 use App\Entity\History;
+use App\Entity\Image;
 use App\Entity\User;
 use App\Events\HistoryEvent;
 use App\Form\DeleteCommentType;
@@ -36,17 +37,23 @@ use App\Repository\CommentRepository;
 use App\Repository\ImageAlbumRepository;
 use App\Security\AppUserService;
 use App\Security\TagVoter;
+use DateTimeInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PictureController extends CommonController
 {
-    private $userMapper, $translator;
+    private UserMapper $userMapper;
+    private TranslatorInterface $translator;
 
+    /**
+     * @param array{current_day?: DateTimeInterface, date_type?: string, year?: int, month?: int, day?: int } $extra
+     */
     public function picture(
         Request $request,
         int $image_id,
@@ -68,7 +75,7 @@ class PictureController extends CommonController
         AppUserService $appUserService,
         CommentRepository $commentRepository,
         array $extra = []
-    ) {
+    ): Response {
         $this->translator = $translator;
         $tpl_params = [];
         $this->conf = $conf;
@@ -198,7 +205,7 @@ class PictureController extends CommonController
         if ($type === 'list') {
             $tpl_params['U_UP'] = $this->generateUrl('random_list', ['list' => $element_id]);
         } else {
-            $tpl_params['U_UP'] = $this->generateUrl('album', ['category_id' => (int) $element_id]);
+            $tpl_params['U_UP'] = $this->generateUrl('album', ['album_id' => (int) $element_id]);
         }
         $deriv_type = $request->cookies->has('picture_deriv') ? $request->cookies->get('picture_deriv') : $conf['derivative_default_size'];
         $tpl_params['current']['selected_derivative'] = $tpl_params['current']['derivatives'][$deriv_type];
@@ -276,7 +283,7 @@ class PictureController extends CommonController
             }
 
             $tpl_params['U_CADDIE'] = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id, 'action' => 'add_to_caddie']);
-            $tpl_params['U_PHOTO_ADMIN'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'category_id' => (int) $element_id]);
+            $tpl_params['U_PHOTO_ADMIN'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'album_id' => (int) $element_id]);
 
             $tpl_params['available_permission_levels'] = Utils::getPrivacyLevelOptions($translator, $conf['available_permission_levels']);
         }
@@ -324,7 +331,7 @@ class PictureController extends CommonController
         }
 
         if ($conf['rate']) {
-            $tpl_params = array_merge($tpl_params, $this->addRateInfos($rateRepository, $picture, $request, $appUserService->getUser()));
+            $tpl_params = array_merge($tpl_params, $this->addRateInfos($rateRepository, $image, $request, $appUserService->getUser()));
         }
 
         if (($conf['show_exif'] || $conf['show_iptc'])) {
@@ -346,7 +353,7 @@ class PictureController extends CommonController
                             [
                                 'image_id' => $comment->getImage()->getId(),
                                 'element_id' => $comment->getImage()->getImageAlbums()->first()->getAlbum()->getId(),
-                                'type' => 'category'
+                                'type' => 'album'
                             ]
                         )
 
@@ -508,19 +515,19 @@ class PictureController extends CommonController
         return $this->render('picture.html.twig', $tpl_params);
     }
 
-    public function picturesByTypes($image_id, $type)
+    public function picturesByTypes(int $image_id, string $type): Response
     {
         return $this->forward(
             'App\Controller\PictureController::picture',
             [
                 'image_id' => $image_id,
-                'type' => 'category',
+                'type' => 'album',
                 'element_id' => 'n/a'
             ]
         );
     }
 
-    public function pictureBySearch($image_id, $search_id)
+    public function pictureBySearch(int $image_id, int $search_id): Response
     {
         return $this->forward(
             'App\Controller\PictureController::picture',
@@ -532,7 +539,7 @@ class PictureController extends CommonController
         );
     }
 
-    public function pictureFromCalendar(int $image_id, int $year, int $month, int $day, string $date_type)
+    public function pictureFromCalendar(int $image_id, int $year, int $month, int $day, string $date_type): Response
     {
         $current_day = new \DateTime(sprintf('%d-%02d-%02d', $year, $month, $day));
 
@@ -547,13 +554,14 @@ class PictureController extends CommonController
         );
     }
 
-    protected function addRateInfos(RateRepository $rateRepository, array $picture, Request $request, ?User $user): array
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
+    protected function addRateInfos(RateRepository $rateRepository, Image $image, Request $request, ?User $user): array
     {
         $tpl_params = [];
 
-        $rate_summary = ['count' => 0, 'score' => $picture['rating_score'], 'average' => null];
+        $rate_summary = ['count' => 0, 'score' => $image->getRatingScore(), 'average' => null];
         if (!is_null($rate_summary['score'])) {
-            $calculated_rate = $rateRepository->calculateRateSummary($picture['id']);
+            $calculated_rate = $rateRepository->calculateRateSummary($image->getId());
             $rate_summary['count'] = $calculated_rate['count'];
             $rate_summary['average'] = round($calculated_rate['average'], 2);
         }
@@ -569,7 +577,7 @@ class PictureController extends CommonController
 
                 $rate = $rateRepository->findOneBy([
                     'user' => $user->getId(),
-                    'image' => $picture['id'],
+                    'image' => $image->getId(),
                     'anonymous_id' => $anonymous_id
                 ]);
                 if (!is_null($rate)) {
@@ -579,7 +587,7 @@ class PictureController extends CommonController
 
             $tpl_params['rating'] = [
                 'F_ACTION' => $this->generateUrl('picture_rate'),
-                'image_id' => $picture['id'],
+                'image_id' => $image->getId(),
                 'USER_RATE' => $user_rate,
                 'marks' => $this->conf['rate_items']
             ];
@@ -588,13 +596,13 @@ class PictureController extends CommonController
         return $tpl_params;
     }
 
-    public function rate(Request $request, ImageMapper $imageMapper, Conf $conf, RateMapper $rateMapper, AppUserService $appUserService)
+    public function rate(Request $request, ImageMapper $imageMapper, Conf $conf, RateMapper $rateMapper, AppUserService $appUserService): Response
     {
         $result['score'] = null;
 
         if ($request->isMethod('POST')) {
             if (!$imageMapper->getRepository()->isAuthorizedToUser($request->request->get('image_id'), $appUserService->getUser()->getUserInfos()->getForbiddenCategories())) {
-                return new AccessDeniedException("Cannot rate that image");
+                throw new AccessDeniedException("Cannot rate that image");
             }
 
             if (!$appUserService->isGuest() || $this->conf['rate_anonymous']) {
@@ -607,7 +615,7 @@ class PictureController extends CommonController
             }
 
             if (is_null($result['score'])) {
-                return new AccessDeniedException('Forbidden or rate not in ' . implode(',', $conf['rate_items']));
+                throw new AccessDeniedException('Forbidden or rate not in ' . implode(',', $conf['rate_items']));
             }
         }
 
@@ -625,6 +633,7 @@ class PictureController extends CommonController
         return $response;
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function addMetadataInfos(Metadata $metadata, string $path): array
     {
         $tpl_params = [];

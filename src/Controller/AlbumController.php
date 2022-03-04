@@ -20,6 +20,7 @@ use App\Entity\UserCacheAlbum;
 use App\Repository\UserCacheAlbumRepository;
 use App\Security\AppUserService;
 use Phyxo\Functions\Utils;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Security;
@@ -39,8 +40,8 @@ class AlbumController extends CommonController
         AppUserService $appUserService,
         RouterInterface $router,
         int $start = 0,
-        int $category_id = 0
-    ) {
+        int $album_id = 0
+    ): Response {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -48,9 +49,9 @@ class AlbumController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        $album = $albumMapper->getRepository()->find($category_id);
+        $album = $albumMapper->getRepository()->find($album_id);
 
-        if (in_array($category_id, $appUserService->getUser()->getUserInfos()->getForbiddenCategories())) {
+        if (in_array($album_id, $appUserService->getUser()->getUserInfos()->getForbiddenCategories())) {
             throw new AccessDeniedHttpException("Access denied to that album");
         }
 
@@ -86,7 +87,7 @@ class AlbumController extends CommonController
             if ($order[2] === true) {
                 $tpl_params['image_orders'][] = [
                     'DISPLAY' => $order[0],
-                    'URL' => $this->generateUrl('album', ['category_id' => $album->getId(), 'start' => $start, 'order' => $order_id]),
+                    'URL' => $this->generateUrl('album', ['album_id' => $album->getId(), 'start' => $start, 'order' => $order_id]),
                     'SELECTED' => false
                 ];
             }
@@ -103,7 +104,7 @@ class AlbumController extends CommonController
 
         list($is_child_date_last, $albums, $image_ids, $user_representative_updates_for) = $albumMapper->getAlbumThumbnails(
             $appUserService->getUser(),
-            $albumMapper->getRepository()->findByParentId($category_id, $appUserService->getUser()->getId())
+            $albumMapper->getRepository()->findByParentId($album_id, $appUserService->getUser()->getId())
         );
 
         if (count($albums) > 0) {
@@ -137,7 +138,7 @@ class AlbumController extends CommonController
                     'representative' => $representative_infos,
                     'TN_ALT' => $currentAlbum->getName(),
                     'TN_TITLE' => $imageMapper->getThumbnailTitle(['rating_score' => '', 'nb_comments' => ''], $currentAlbum->getName(), $currentAlbum->getComment()),
-                    'URL' => $this->generateUrl('album', ['category_id' => $currentAlbum->getId(), 'start' => $start]),
+                    'URL' => $this->generateUrl('album', ['album_id' => $currentAlbum->getId(), 'start' => $start]),
                     'CAPTION_NB_IMAGES' => $albumMapper->getDisplayImagesCount(
                         $userCacheAlbum->getNbImages(),
                         $userCacheAlbum->getCountImages(),
@@ -202,7 +203,7 @@ class AlbumController extends CommonController
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                     $router,
                     'album',
-                    ['category_id' => $category_id],
+                    ['album_id' => $album_id],
                     count($tpl_params['items']),
                     $start,
                     $nb_image_page,
@@ -213,9 +214,9 @@ class AlbumController extends CommonController
             $tpl_params = array_merge(
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
-                    $category_id,
+                    $album_id,
                     array_slice($tpl_params['items'], $start, $nb_image_page),
-                    'category',
+                    'album',
                     $start
                 )
             );
@@ -224,8 +225,8 @@ class AlbumController extends CommonController
         $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
 
         $tpl_params['SHOW_THUMBNAIL_CAPTION'] = $conf['show_thumbnail_caption'];
-        $tpl_params['U_MODE_POSTED'] = $this->generateUrl('calendar', ['date_type' => 'posted', 'category_id' => $category_id]);
-        $tpl_params['U_MODE_CREATED'] = $this->generateUrl('calendar', ['date_type' => 'created', 'category_id' => $category_id]);
+        $tpl_params['U_MODE_POSTED'] = $this->generateUrl('calendar', ['date_type' => 'posted', 'album_id' => $album_id]);
+        $tpl_params['U_MODE_CREATED'] = $this->generateUrl('calendar', ['date_type' => 'created', 'album_id' => $album_id]);
         $tpl_params['START_ID'] = $start;
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
@@ -238,12 +239,12 @@ class AlbumController extends CommonController
         ImageStandardParams $image_std_params,
         AlbumMapper $albumMapper,
         ImageMapper $imageMapper,
-        int $category_id,
+        int $album_id,
         TranslatorInterface $translator,
         RouterInterface $router,
         AppUserService $appUserService,
         int $start = 0
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -251,7 +252,7 @@ class AlbumController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        $album = $albumMapper->getRepository()->find($category_id);
+        $album = $albumMapper->getRepository()->find($album_id);
         $subcat_ids[] = $album->getId();
         foreach ($albumMapper->getRepository()->findAllowedSubAlbums($album->getUppercats(), $appUserService->getUser()->getUserInfos()->getForbiddenCategories()) as $sub_album) {
             $subcat_ids[] = $sub_album->getId();
@@ -269,7 +270,7 @@ class AlbumController extends CommonController
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                     $router,
                     'album_flat',
-                    ['category_id' => $category_id],
+                    ['album_id' => $album_id],
                     count($tpl_params['items']),
                     $start,
                     $nb_image_page,
@@ -280,9 +281,9 @@ class AlbumController extends CommonController
             $tpl_params = array_merge(
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
-                    $category_id,
+                    $album_id,
                     array_slice($tpl_params['items'], $start, $nb_image_page),
-                    'category',
+                    'album',
                     $start
                 )
             );
@@ -307,7 +308,7 @@ class AlbumController extends CommonController
         RouterInterface $router,
         AppUserService $appUserService,
         int $start = 0
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -342,7 +343,7 @@ class AlbumController extends CommonController
                 $imageMapper->getPicturesFromSelection(
                     'flat',
                     array_slice($tpl_params['items'], $start, $nb_image_page),
-                    'categories',
+                    'albums',
                     $start
                 )
             );
@@ -367,7 +368,7 @@ class AlbumController extends CommonController
         RouterInterface $router,
         AppUserService $appUserService,
         int $start = 0
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -419,7 +420,7 @@ class AlbumController extends CommonController
                         'representative' => $representative_infos,
                         'TN_ALT' => $album->getName(),
                         'TN_TITLE' => $imageMapper->getThumbnailTitle(['rating_score' => '', 'nb_comments' => ''], $album->getName(), $album->getComment()),
-                        'URL' => $this->generateUrl('album', ['category_id' => $album->getId(), 'start' => $start]),
+                        'URL' => $this->generateUrl('album', ['album_id' => $album->getId(), 'start' => $start]),
                         'CAPTION_NB_IMAGES' => $albumMapper->getDisplayImagesCount(
                             $userCacheAlbum->getNbImages(),
                             $userCacheAlbum->getCountImages(),
@@ -492,7 +493,7 @@ class AlbumController extends CommonController
         RouterInterface $router,
         AppUserService $appUserService,
         int $start = 0
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -542,7 +543,7 @@ class AlbumController extends CommonController
                     'representative' => $representative_infos,
                     'TN_ALT' => $album->getName(),
                     'TN_TITLE' => $imageMapper->getThumbnailTitle(['rating_score' => '', 'nb_comments' => ''], $album->getName(), $album->getComment()),
-                    'URL' => $this->generateUrl('album', ['category_id' => $album->getId(), 'start' => $start]),
+                    'URL' => $this->generateUrl('album', ['album_id' => $album->getId(), 'start' => $start]),
                     'CAPTION_NB_IMAGES' => $albumMapper->getDisplayImagesCount(
                         $userCacheAlbum->getNbImages(),
                         $userCacheAlbum->getCountImages(),

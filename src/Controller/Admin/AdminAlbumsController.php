@@ -109,7 +109,7 @@ class AdminAlbumsController extends AbstractController
                 'NB_SUB_ALBUMS' => $subcats_of[$album->getId()] ?? 0,
                 'ID' => $album->getId(),
                 'RANK' => $album->getRank() * 10,
-                'U_JUMPTO' => $this->generateUrl('album', ['category_id' => $album->getId()]),
+                'U_JUMPTO' => $this->generateUrl('album', ['album_id' => $album->getId()]),
                 'U_CHILDREN' => $this->generateUrl('admin_albums', ['parent_id' => $album->getId()]),
                 'U_EDIT' => $this->generateUrl('admin_album', ['album_id' => $album->getId(), 'parent_id' => $parent_id]),
                 'IS_VIRTUAL' => $album->isVirtual(),

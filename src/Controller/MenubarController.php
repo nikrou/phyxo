@@ -13,7 +13,6 @@ namespace App\Controller;
 
 use Phyxo\Conf;
 use Phyxo\MenuBar;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 

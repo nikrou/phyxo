@@ -26,7 +26,19 @@ use Symfony\Component\Routing\RouterInterface;
 
 class AlbumMapper
 {
-    private $conf, $albumRepository, $router, $cache = [], $albums_retrieved = false, $translator, $userRepository, $userCacheAlbumRepository, $imageAlbumRepository, $imageRepository;
+    /**
+     *  @var array<int, Album> $cache
+     */
+    private array $cache;
+    private Conf $conf;
+    private AlbumRepository $albumRepository;
+    private RouterInterface $router;
+    private bool $albums_retrieved = false;
+    private TranslatorInterface $translator;
+    private UserRepository $userRepository;
+    private UserCacheAlbumRepository $userCacheAlbumRepository;
+    private ImageAlbumRepository $imageAlbumRepository;
+    private ImageRepository $imageRepository;
 
     public function __construct(
         Conf $conf,
@@ -55,24 +67,26 @@ class AlbumMapper
 
     /**
      * Returns template vars for main albums menu.
-     *
+     * @param array{id?: int, id_uppercat?: int} $selected_album
      */
-    public function getRecursiveAlbumsMenu(User $user, array $selected_category = []): array
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
+    public function getRecursiveAlbumsMenu(User $user, array $selected_album = []): array
     {
-        $flat_categories = $this->getAlbumsMenu($user, $selected_category);
+        $flat_albums = $this->getAlbumsMenu($user, $selected_album);
 
-        $categories = [];
-        foreach ($flat_categories as $category) {
-            if ($category['uppercats'] == $category['id']) {
-                $categories[$category['id']] = $category;
+        $albums = [];
+        foreach ($flat_albums as $album) {
+            if ($album['uppercats'] == $album['id']) {
+                $albums[$album['id']] = $album;
             } else {
-                $this->insertAlbumInTree($categories, $category, $category['uppercats']);
+                $this->insertAlbumInTree($albums, $album, $album['uppercats']);
             }
         }
 
-        return $categories;
+        return $albums;
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function insertAlbumInTree(&$categories, $category, $uppercats)
     {
         if ($category['id'] != $uppercats) {
@@ -89,9 +103,10 @@ class AlbumMapper
 
     /**
      * Returns template vars for main albums menu.
-     *
+     * @param array{id?: int, id_uppercat?: int} $selected_album
      */
-    protected function getAlbumsMenu(User $user, array $selected_category = []): array
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
+    protected function getAlbumsMenu(User $user, array $selected_album = []): array
     {
         $albums = [];
         foreach ($this->getRepository()->getAlbumsForMenu($user->getId(), $user->getUserInfos()->getForbiddenCategories()) as $album) {
@@ -106,10 +121,10 @@ class AlbumMapper
                         false,
                         ' / '
                     ),
-                    'URL' => $this->router->generate('album', ['category_id' => $album->getId()]),
+                    'URL' => $this->router->generate('album', ['album_id' => $album->getId()]),
                     'LEVEL' => substr_count($album->getGlobalRank(), '.') + 1,
-                    'SELECTED' => isset($selected_category['id']) && $selected_category['id'] === $album->getId() ? true : false,
-                    'IS_UPPERCAT' => isset($selected_category['id_uppercat']) && $selected_category['id_uppercat'] === $album->getId() ? true : false,
+                    'SELECTED' => isset($selected_album['id']) && $selected_album['id'] === $album->getId() ? true : false,
+                    'IS_UPPERCAT' => isset($selected_album['id_uppercat']) && $selected_album['id_uppercat'] === $album->getId() ? true : false,
                     'count_images' => $album->getUserCacheAlbums()->first()->getCountImages(),
                     'icon_ts' => ''
                 ]
@@ -128,6 +143,7 @@ class AlbumMapper
      * Get computed array of albums, that means cache data of all albums
      * available for the current user (count_categories, count_images, etc.).
      */
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getComputedAlbums(int $level, array $forbidden_categories = [])
     {
         $albums = [];
@@ -179,6 +195,7 @@ class AlbumMapper
     /**
      * Removes an album from computed array of albums and updates counters.
      */
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function removeComputedAlbum(array $albums, $album): array
     {
         if (isset($albums[$album['id_uppercat']])) {
@@ -202,18 +219,15 @@ class AlbumMapper
     }
 
     /**
-     * Generates breadcrumb from categories list.
-     * Categories string returned contains categories as given in the input
-     * array $cat_informations. $cat_informations array must be an array
-     * of array( id=>?, name=>?). If url input parameter is null,
-     * returns only the categories name without links.
+     * Generates breadcrumb from albums list.
      */
-    public function getAlbumDisplayName(array $cat_informations, string $url = ''): string
+    /** @phpstan-ignore-next-line */
+    public function getAlbumDisplayName(array $album_informations, string $url = ''): string
     {
         $output = '';
         $is_first = true;
 
-        foreach ($cat_informations as $cat) {
+        foreach ($album_informations as $album) {
             if ($is_first) {
                 $is_first = false;
             } else {
@@ -221,33 +235,35 @@ class AlbumMapper
             }
 
             if (empty($url)) {
-                $output .= $cat['name'];
+                $output .= $album['name'];
             } elseif ($url == '') {
-                $output .= '<a href="' . $this->router->generate('album', ['category_id' => $cat['id']]) . '">';
-                $output .= $cat['name'] . '</a>';
+                $output .= '<a href="' . $this->router->generate('album', ['album_id' => $album['id']]) . '">';
+                $output .= $album['name'] . '</a>';
             } else {
-                $output .= '<a href="' . $url . $cat['id'] . '">';
-                $output .= $cat['name'] . '</a>';
+                $output .= '<a href="' . $url . $album['id'] . '">';
+                $output .= $album['name'] . '</a>';
             }
         }
 
         return $output;
     }
 
+    /** @phpstan-ignore-next-line */
     public function getAlbumsDisplayName(string $uppercats, string $route_name, array $params = []): array
     {
         $names = [];
 
-        foreach (explode(',', $uppercats) as $category_id) {
+        foreach (explode(',', $uppercats) as $album_id) {
             $names[] = [
-                'name' => $this->getCacheAlbums()[$category_id]->getName(),
-                'url' => $this->router->generate($route_name, array_merge($params, ['album_id' => $this->getCacheAlbums()[$category_id]->getId()]))
+                'name' => $this->getCacheAlbums()[(int) $album_id]->getName(),
+                'url' => $this->router->generate($route_name, array_merge($params, ['album_id' => $this->getCacheAlbums()[(int) $album_id]->getId()]))
             ];
         }
 
         return $names;
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getBreadcrumb(Album $album): array
     {
         $breadcumb = [];
@@ -265,14 +281,14 @@ class AlbumMapper
             foreach ($upper_ids as $album_id) {
                 $upper_names[] = [
                     'id' => $album_id,
-                    'name' => $this->getCacheAlbums()[$album_id]->getName(),
+                    'name' => $this->getCacheAlbums()[(int) $album_id]->getName(),
                 ];
             }
         }
 
         foreach ($upper_names as $album) {
             $breadcumb[] = [
-                'url' => $this->router->generate('album', ['category_id' => $album['id']]),
+                'url' => $this->router->generate('album', ['album_id' => $album['id']]),
                 'label' => $album['name']
             ];
         }
@@ -289,7 +305,7 @@ class AlbumMapper
         $all_albums = explode(',', $uppercats);
         $output = '';
         if ($single_link) {
-            $single_url = $this->router->generate('album', ['category_id' => $all_albums[count($all_albums) - 1]]);
+            $single_url = $this->router->generate('album', ['album_id' => $all_albums[count($all_albums) - 1]]);
             $output .= '<a href="' . $single_url . '"';
             if (!empty($link_class)) {
                 $output .= ' class="' . $link_class . '"';
@@ -300,7 +316,7 @@ class AlbumMapper
         // @TODO: refactoring with getAlbumDisplayName
         $is_first = true;
         foreach ($all_albums as $album_id) {
-            $album = $this->getCacheAlbums()[$album_id];
+            $album = $this->getCacheAlbums()[(int) $album_id];
 
             if ($is_first) {
                 $is_first = false;
@@ -311,7 +327,7 @@ class AlbumMapper
             if ($url === '' || $single_link) {
                 $output .= $album->getName();
             } else {
-                $output .= '<a href="' . $this->router->generate('album', ['category_id' => $album->getId()]) . '">' . $album->getName() . '</a>';
+                $output .= '<a href="' . $this->router->generate('album', ['album_id' => $album->getId()]) . '">' . $album->getName() . '</a>';
             }
         }
 
@@ -322,7 +338,8 @@ class AlbumMapper
         return $output;
     }
 
-    public function displaySelectAlbums(array $albums, array $selecteds, string $blockname, bool $fullname = true)
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
+    public function displaySelectAlbums(array $albums, array $selecteds, string $blockname, bool $fullname = true): array
     {
         $tpl_cats = [];
         foreach ($albums as $album) {
@@ -346,6 +363,7 @@ class AlbumMapper
      * Same as displaySelectAlbums but albums are ordered by rank
      * @see displaySelectAlbums()
      */
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function displaySelectAlbumsWrapper(array $albums, array $selecteds, string $blockname, bool $fullname = true): array
     {
         usort($albums, [$this, 'globalRankCompare']);
@@ -355,8 +373,9 @@ class AlbumMapper
 
     /**
      * Change the parent album of the given albums. The albums are supposed virtual.
+     * @param int[] $ids
      */
-    public function moveAlbums(array $ids, int $new_parent = null)
+    public function moveAlbums(array $ids, int $new_parent = null): void
     {
         if (count($ids) === 0) {
             return;
@@ -407,7 +426,7 @@ class AlbumMapper
     /**
      * Updates albums uppercats field based on albums id + albums id_uppercat
      */
-    public function updateUppercats()
+    public function updateUppercats(): void
     {
         foreach ($this->getCacheAlbums() as $id => $album) {
             $upper_list = [];
@@ -428,8 +447,9 @@ class AlbumMapper
 
     /**
      * Change the **status** property on a set of albums : private or public.
+     * @param int[] $album_ids
      */
-    public function setAlbumsStatus(array $album_ids, string $status)
+    public function setAlbumsStatus(array $album_ids, string $status): void
     {
         if (!in_array($status, [Album::STATUS_PUBLIC, Album::STATUS_PRIVATE])) {
             throw new \Exception("AlbumMapper::setAlbumsStatus invalid param $status");
@@ -480,7 +500,7 @@ class AlbumMapper
             $top_albums = [];
             $parent_ids = [];
             $all_albums = [];
-            foreach ($this->albumRepository->findById($album_ids) as $album) {
+            foreach ($this->albumRepository->findBy(['id' => $album_ids]) as $album) {
                 $all_albums[] = $album;
             }
             usort($all_albums, [$this, 'globalRankCompare']);
@@ -512,7 +532,7 @@ class AlbumMapper
             $parent_albums = [];
 
             if (count($parent_ids) > 0) {
-                foreach ($this->albumRepository->findById($parent_ids) as $album) {
+                foreach ($this->albumRepository->findBy(['id' => $parent_ids]) as $album) {
                     $parent_albums[] = $album->getId();
                 }
             }
@@ -548,7 +568,9 @@ class AlbumMapper
 
     /**
      * Returns all uppercats Album ids of the given Album ids.
+     * @param int[] $ids
      */
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getUppercatIds(array $ids): array
     {
         if (count($ids) < 1) {
@@ -565,8 +587,10 @@ class AlbumMapper
 
     /**
      * Grant access to a list of categories for a list of users.
+     * @param int[] $album_ids
+     * @param int[] $user_ids
      */
-    public function addPermissionOnAlbum(array $album_ids, array $user_ids, bool $apply_on_sub = false)
+    public function addPermissionOnAlbum(array $album_ids, array $user_ids, bool $apply_on_sub = false): void
     {
         // check for emptiness
         if (count($album_ids) === 0 || count($user_ids) === 0) {
@@ -593,12 +617,8 @@ class AlbumMapper
     /**
      * Create an album.
      *
-     * @param array $options
-     *    - boolean commentable
-     *    - boolean visible
-     *    - string status
-     *    - string comment
-     *    - boolean inherit
+     * @param int[] $admin_ids
+     * @param array{commentable?: bool, visible?: bool, status?: string, comment?: string, inherit?: bool} $options
      */
     public function createAlbum(string $name, ?Album $parent = null, int $user_id, array $admin_ids = [], array $options = []): Album
     {
@@ -651,8 +671,8 @@ class AlbumMapper
         if (!is_null($parent)) {
             $album->setUppercats($parent->getUppercats() . ',' . $album_id);
         } else {
-            $album->setUppercats($album_id);
-            $album->setGlobalRank($album_id);
+            $album->setUppercats((string) $album_id);
+            $album->setGlobalRank((string) $album_id);
         }
         $album_id = $this->albumRepository->addOrUpdateAlbum($album);
 
@@ -684,11 +704,14 @@ class AlbumMapper
     /**
      * Callback used for sorting by global_rank
      */
-    public function globalRankCompare(Album $a, Album $b)
+    public function globalRankCompare(Album $a, Album $b): int
     {
         return strnatcasecmp($a->getGlobalRank(), $b->getGlobalRank());
     }
 
+    /**
+     * @return array<int, Album>
+     */
     protected function getCacheAlbums()
     {
         if (!$this->albums_retrieved) {
@@ -704,8 +727,10 @@ class AlbumMapper
 
     /**
      * Change the **visible** property on a set of albums.
+     *
+     * @param int[] $ids
      */
-    public function setAlbumsVisibility(array $ids, bool $visible, $unlock_child = false)
+    public function setAlbumsVisibility(array $ids, bool $visible, bool $unlock_child = false): void
     {
         // unlocking a category => all its parent categories become unlocked
         if ($visible) {
@@ -724,7 +749,7 @@ class AlbumMapper
      * Orders albums (update albums.rank and global_rank database fields)
      * so that rank field are consecutive integers starting at 1 for each child.
      */
-    public function updateGlobalRank()
+    public function updateGlobalRank(): void
     {
         $albums = [];
         $current_rank = 0;
@@ -749,11 +774,8 @@ class AlbumMapper
         };
 
         foreach ($albums as $id => $album) {
-            $new_global_rank = preg_replace_callback(
-                '/(\d+)/',
-                $map_callback,
-                str_replace(',', '.', $album['uppercats'])
-            );
+            /** @phpstan-ignore-next-line */
+            $new_global_rank = preg_replace_callback('/(\d+)/', $map_callback, str_replace(',', '.', $album['uppercats']));
 
             if ($album['rank_changed'] || $new_global_rank !== $album['global_rank']) {
                 $album_to_update = $this->getCacheAlbums()[$id];
@@ -766,6 +788,10 @@ class AlbumMapper
         unset($albums);
     }
 
+    /**
+     * @param int[] $ids
+     */
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getAlbumsRefDate(array $ids, string $field = 'date_available', string $minmax = 'max')
     {
         // we need to work on the whole tree under each category, even if we don't want to sort sub categories
@@ -779,16 +805,16 @@ class AlbumMapper
 
         // then iterate on all albums (having a ref_date or not) to find the reference_date, with a search on sub-albums
         $uppercats_of = [];
-        foreach ($this->albumRepository->findById($album_ids) as $album) {
+        foreach ($this->albumRepository->findBy(['id' => $album_ids]) as $album) {
             $uppercats_of[$album->getId()] = $album;
         }
 
-        foreach ($uppercats_of as $album_id) {
+        foreach (array_keys($uppercats_of) as $album_id) {
             // find the subcats
             $subcat_ids = [];
 
-            foreach ($uppercats_of as $id => $uppercats) {
-                if (preg_match('/(^|,)' . $album_id . '(,|$)/', $uppercats)) {
+            foreach ($uppercats_of as $id => $album) {
+                if (preg_match('/(^|,)' . $album_id . '(,|$)/', $album->getUppercats())) {
                     $subcat_ids[] = $id;
                 }
             }
@@ -818,8 +844,9 @@ class AlbumMapper
 
     /**
      * Set a new random representant to the albums.
+     * @param int[] $album_ids
      */
-    public function setRandomRepresentant(array $album_ids)
+    public function setRandomRepresentant(array $album_ids): void
     {
         foreach ($album_ids as $album_id) {
             $representative = $this->imageAlbumRepository->findRandomRepresentant($album_id);
@@ -831,35 +858,32 @@ class AlbumMapper
 
     /**
      * Returns display text for images counter of album
-     *
-     * @param int $cat_nb_images nb images directly in album
-     * @param int $cat_count_images nb images in album (including subcats)
-     * @param int $cat_count_categories nb subcats
-     * @param bool $short_message if true append " in this album"
-     * @param string $separator
-     * @return string
+     * $album_nb_images nb images directly in album
+     * $album_count_images nb images in album (including sub-albums)
+     * $album_count_albums nb sub-albums
+     * $short_message if true append " in this album"
      */
-    public function getDisplayImagesCount($cat_nb_images, $cat_count_images, $cat_count_categories, $short_message = true, $separator = '\n')
+    public function getDisplayImagesCount(int $album_nb_images, int $album_count_images, int $album_count_albums, bool $short_message = true, string $separator = "\n"): string
     {
         $display_text = '';
 
-        if ($cat_count_images > 0) {
-            if ($cat_nb_images > 0 and $cat_nb_images < $cat_count_images) {
-                $display_text .= $this->getDisplayImagesCount($cat_nb_images, $cat_nb_images, 0, $short_message, $separator) . $separator;
-                $cat_count_images -= $cat_nb_images;
-                $cat_nb_images = 0;
+        if ($album_count_images > 0) {
+            if ($album_nb_images > 0 && $album_nb_images < $album_count_images) {
+                $display_text .= $this->getDisplayImagesCount($album_nb_images, $album_nb_images, 0, $short_message, $separator) . $separator;
+                $album_count_images -= $album_nb_images;
+                $album_nb_images = 0;
             }
 
             //at least one image direct or indirect
-            $display_text .= $this->translator->trans('number_of_photos', ['count' => $cat_count_images]);
+            $display_text .= $this->translator->trans('number_of_photos', ['count' => $album_count_images]);
 
-            if ($cat_count_categories === 0 || $cat_nb_images === $cat_count_images) {
+            if ($album_count_albums === 0 || $album_nb_images === $album_count_images) {
                 //no descendant categories or descendants do not contain images
                 if (!$short_message) {
                     $display_text .= ' ' . $this->translator->trans('in this album');
                 }
             } else {
-                $display_text .= ' ' . $this->translator->trans('number_of_photos_in_sub_albums', ['count' => $cat_count_categories]);
+                $display_text .= ' ' . $this->translator->trans('number_of_photos_in_sub_albums', ['count' => $album_count_albums]);
             }
         }
 
@@ -871,8 +895,10 @@ class AlbumMapper
     /**
      * Verifies that the representative picture really exists in the db and
      * picks up a random representative if possible and based on config.
+     *
+     * @param int[] $ids
      */
-    public function updateAlbums(array $ids = [])
+    public function updateAlbums(array $ids = []): void
     {
         // find all albums where the setted representative is not possible : the picture does not exist
         $wrong_representants = $this->getRepository()->findWrongRepresentant($ids);
@@ -902,8 +928,10 @@ class AlbumMapper
      *    - all the elements physically linked to the album (with ImageMapper::deleteElements)
      *    - all the links between elements and this album
      *    - all the restrictions linked to the album
+     *
+     * @param int[] $ids
      */
-    public function deleteAlbums(array $ids = [])
+    public function deleteAlbums(array $ids = []): void
     {
         if (count($ids) === 0) {
             return;
@@ -928,8 +956,11 @@ class AlbumMapper
     /**
      * Associate a list of images to a list of albums.
      * The function will not duplicate links and will preserve ranks.
+     *
+     * @param int[] $image_ids
+     * @param int[] $album_ids
      */
-    public function associateImagesToAlbums(array $image_ids, array $album_ids)
+    public function associateImagesToAlbums(array $image_ids, array $album_ids): void
     {
         // get max rank of each albums
         $current_rank_of = $this->imageAlbumRepository->findMaxRankForEachAlbums($album_ids);
@@ -957,11 +988,13 @@ class AlbumMapper
      * Dissociate images from all old albums except their storage album and
      * associate to new albums.
      * This methods will preserve ranks.
+     * @param int[] $image_ids
+     * @param int[] $album_ids
      */
-    public function moveImagesToAlbums(array $image_ids = [], array $album_ids = [])
+    public function moveImagesToAlbums(array $image_ids = [], array $album_ids = []): void
     {
         if (count($image_ids) === 0) {
-            return false;
+            return;
         }
 
         $new_album_ids = [];
@@ -982,22 +1015,23 @@ class AlbumMapper
      *
      * The list of ordered albums id is supposed to be in the same parent album
      */
-    public function saveAlbumsOrder(array $categories)
+    /** @phpstan-ignore-next-line */ // @FIX: albums
+    public function saveAlbumsOrder(array $albums): void
     {
         $current_rank_for_id_uppercat = [];
         $current_rank = 0;
 
-        foreach ($categories as $category) {
-            if (is_array($category)) {
-                $id = $category['id'];
-                $id_uppercat = $category['id_uppercat'];
+        foreach ($albums as $album) {
+            if (is_array($album)) {
+                $id = $album['id'];
+                $id_uppercat = $album['id_uppercat'];
 
                 if (!isset($current_rank_for_id_uppercat[$id_uppercat])) {
                     $current_rank_for_id_uppercat[$id_uppercat] = 0;
                 }
                 $current_rank = ++$current_rank_for_id_uppercat[$id_uppercat];
             } else {
-                $id = $category;
+                $id = $album;
                 $current_rank++;
             }
 
@@ -1009,9 +1043,10 @@ class AlbumMapper
     }
 
     /**
-     * param $albums resource (array or null) return by method repository
+     * @param Album[] $albums
      */
-    public function getAlbumThumbnails(User $user, $albums)
+    /** @phpstan-ignore-next-line */ // @FIX: return type
+    public function getAlbumThumbnails(User $user, array $albums): array
     {
         $album_thumbnails = [];
         $user_representative_updates_for = [];
@@ -1060,6 +1095,10 @@ class AlbumMapper
         return [$is_child_date_last, $album_thumbnails, $image_ids, $user_representative_updates_for];
     }
 
+    /**
+     * @param Album[] $albums
+     */
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getInfosOfImages(User $user, array $albums, array $image_ids, ImageMapper $imageMapper)
     {
         $infos_of_images = [];

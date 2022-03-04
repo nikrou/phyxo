@@ -135,7 +135,7 @@ class AdminAlbumController extends AbstractController
         $tpl_params['CAT_NAME'] = $album->getName();
         $tpl_params['CAT_COMMENT'] = $album->getComment();
         $tpl_params['CAT_LOCK'] = $album->isVisible() ? 'false': 'true';
-        $tpl_params['U_JUMPTO'] = $this->generateUrl('album', ['category_id' => $album_id]);
+        $tpl_params['U_JUMPTO'] = $this->generateUrl('album', ['album_id' => $album_id]);
         $tpl_params['U_ADD_PHOTOS_ALBUM'] = $this->generateUrl('admin_photos_add', ['album_id' => $album_id]);
         $tpl_params['U_CHILDREN'] = $this->generateUrl('admin_albums', ['parent_id' => $album_id]);
         $tpl_params['ws'] = $this->generateUrl('ws');
@@ -549,7 +549,7 @@ class AdminAlbumController extends AbstractController
                         'derivative' => $derivative->getUrlType(),
                         'image_extension' => $element->getExtension()
                     ]);
-                    $img_url = '<a href="' . $this->generateUrl('picture', ['image_id' => $element->getId(), 'type' => 'category', 'element_id' => $album_id], UrlGeneratorInterface::ABSOLUTE_URL);
+                    $img_url = '<a href="' . $this->generateUrl('picture', ['image_id' => $element->getId(), 'type' => 'album', 'element_id' => $album_id], UrlGeneratorInterface::ABSOLUTE_URL);
                     $img_url .= '"><img src="' . $img_src . '" alt="X"></a>';
                 }
             }

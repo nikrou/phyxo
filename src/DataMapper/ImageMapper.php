@@ -22,7 +22,7 @@ use App\Repository\ImageTagRepository;
 use App\Repository\ImageRepository;
 use App\Repository\RateRepository;
 use App\Services\DerivativeService;
-use Phyxo\Functions\URL;
+use DateTimeInterface;
 use Phyxo\Functions\Utils;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -30,8 +30,21 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ImageMapper
 {
-    private $router, $conf, $userMapper, $image_std_params, $albumMapper, $imageRepository, $imageTagRepository, $historyRepository;
-    private $translator, $imageAlbumRepository, $commentRepository, $caddieRepository, $favoriteRepository, $rateRepository, $derivativeService;
+    private RouterInterface $router;
+    private Conf $conf;
+    private UserMapper $userMapper;
+    private ImageStandardParams $image_std_params;
+    private AlbumMapper $albumMapper;
+    private ImageRepository $imageRepository;
+    private ImageTagRepository $imageTagRepository;
+    private HistoryRepository $historyRepository;
+    private TranslatorInterface $translator;
+    private ImageAlbumRepository $imageAlbumRepository;
+    private CommentRepository $commentRepository;
+    private CaddieRepository $caddieRepository;
+    private FavoriteRepository $favoriteRepository;
+    private RateRepository $rateRepository;
+    private DerivativeService $derivativeService;
 
     public function __construct(
         RouterInterface $router,
@@ -72,7 +85,12 @@ class ImageMapper
         return $this->imageRepository;
     }
 
-    public function getPicturesFromSelection($element_id, array $selection = [], string $section = '', int $start_id = 0, array $extra = []): array
+    /**
+     * @param array{current_day?: DateTimeInterface, date_type?: string, year?: int, month?: int, day?: int } $extra
+     * @param int[] $selection
+     */
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
+    public function getPicturesFromSelection(int $element_id, array $selection = [], string $section = '', int $start_id = 0, array $extra = []): array
     {
         $tpl_params = [];
 
@@ -94,8 +112,8 @@ class ImageMapper
         unset($rank_of);
 
         // temporary fix
-        if ($section === 'categories') {
-            $section = 'category';
+        if ($section === 'albums') {
+            $section = 'album';
         }
 
         if (count($pictures) > 0) {
@@ -107,12 +125,12 @@ class ImageMapper
             }
         }
 
-        foreach ($pictures as $row) {
-            if (in_array($section, ['category', 'list', 'tags', 'search'])) {
+        foreach ($pictures as $picture) {
+            if (in_array($section, ['album', 'list', 'tags', 'search'])) {
                 $url = $this->router->generate(
                     'picture',
                     [
-                        'image_id' => $row['id'],
+                        'image_id' => $picture['image']->getId(),
                         'type' => $section,
                         'element_id' => $element_id,
                     ]
@@ -121,7 +139,7 @@ class ImageMapper
                 $url = $this->router->generate(
                     'picture_categories_from_calendar',
                     [
-                        'image_id' => $row['id'],
+                        'image_id' => $picture['image']->getId(),
                         'start_id' => $start_id !== 0 ? 'start-' . $start_id : '',
                         'extra' => 'extr',
                     ]
@@ -130,7 +148,7 @@ class ImageMapper
                 $url = $this->router->generate(
                     'picture_from_calendar',
                     [
-                        'image_id' => $row['id'],
+                        'image_id' => $picture['image']->getId(),
                         'date_type' => $extra['date_type'],
                         'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day']),
                         'start_id' => $start_id !== 0 ? 'start-' . $start_id : '',
@@ -140,23 +158,23 @@ class ImageMapper
                 $url = $this->router->generate(
                     'picture_by_type',
                     [
-                        'image_id' => $row['id'],
+                        'image_id' => $picture['image']->getId(),
                         'type' => $section,
                         'start_id' => $start_id !== 0 ? 'start-' . $start_id : ''
                     ]
                 );
             }
 
-            if (isset($nb_comments_of, $nb_comments_of[$row['id']])) {
-                $row['NB_COMMENTS'] = $row['nb_comments'] = (int) $nb_comments_of[$row['id']];
+            if (isset($nb_comments_of, $nb_comments_of[$picture['image']->getId()])) {
+                $picture['NB_COMMENTS'] = $picture['nb_comments'] = (int) $nb_comments_of[$picture['image']->getId()];
             }
 
-            $name = Utils::render_element_name($row);
-            $desc = Utils::render_element_description($row, 'main_page_element_description');
+            $name = Utils::render_element_name($picture);
+            $desc = Utils::render_element_description($picture, 'main_page_element_description');
 
-            $tpl_var = array_merge($row, [
+            $tpl_var = array_merge($picture, [
                 'TN_ALT' => htmlspecialchars(strip_tags($name)),
-                'TN_TITLE' => $this->getThumbnailTitle($row, $name, $desc),
+                'TN_TITLE' => $this->getThumbnailTitle($picture, $name, $desc),
                 'URL' => $url,
                 'DESCRIPTION' => $desc,
                 'icon_ts' => '',
@@ -167,14 +185,14 @@ class ImageMapper
             }
 
             if ($this->userMapper->getUser()->getUserInfos()->getShowNbHits()) {
-                $tpl_var['NB_HITS'] = $row['hit'];
+                $tpl_var['NB_HITS'] = $picture['image']->getHit();
             }
 
             if ($section === 'best_rated') {
-                $name = '(' . $row['rating_score'] . ') ' . $name;
+                $name = '(' . $picture['image']->getRatingScore() . ') ' . $name;
             } elseif ($section === 'most_visited') {
                 if (!$this->userMapper->getUser()->getUserInfos()->getShowNbHits()) {
-                    $name = '(' . $row['hit'] . ') ' . $name;
+                    $name = '(' . $picture['image']->getHit() . ') ' . $name;
                 }
             }
 
@@ -200,7 +218,7 @@ class ImageMapper
      * @param bool $physical_deletion
      * @return int number of deleted elements
      */
-    public function deleteElements(array $ids, bool $physical_deletion = false)
+    public function deleteElements(array $ids, bool $physical_deletion = false): int
     {
         if (count($ids) == 0) {
             return 0;
@@ -301,6 +319,7 @@ class ImageMapper
      * @param string $comment
      * @return string
      */
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getThumbnailTitle($info, $title, $comment = ''): string
     {
         $details = [];

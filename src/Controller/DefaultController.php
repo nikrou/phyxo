@@ -17,10 +17,11 @@ use App\Security\AppUserService;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Component\HttpFoundation\Response;
 
 class DefaultController extends CommonController
 {
-    public function home()
+    public function home(): Response
     {
         return $this->forward('App\Controller\AlbumController::albums');
     }
@@ -32,7 +33,7 @@ class DefaultController extends CommonController
         AppUserService $appUserService,
         ImageStandardParams $image_std_params,
         string $rootProjectDir
-    ) {
+    ): Response {
         $image = $imageMapper->getRepository()->find($image_id);
 
         if (!$albumMapper->getRepository()->hasAccessToImage($image_id, $appUserService->getUser()->getUserInfos()->getForbiddenCategories())) {

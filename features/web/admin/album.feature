@@ -9,14 +9,14 @@ Feature: Album
       | user1    | pass1    | webmaster |
 
     And some albums:
-      | name      | parent  | comment               | status  |
-      | album 1   |         | album 1 description   | public  |
-      | album 2   |         | album 2 description   | public  |
+      | name    | parent | comment             | status |
+      | album 1 |        | album 1 description | public |
+      | album 2 |        | album 2 description | public |
 
     And some images:
-      | name    | album     |
-      | photo 1 | album 1   |
-      | photo 2 | album 2   |
+      | name    | album   |
+      | photo 1 | album 1 |
+      | photo 2 | album 2 |
 
   Scenario: Move album in sub-album
     Given I am logged in as "user1" with password "pass1"
@@ -25,10 +25,10 @@ Feature: Album
 
     When I go to "admin/albums/move"
     Then the select "Virtual albums to move" should contain:
-    """
-    album 1
-    album 2
-    """
+      """
+      album 1
+      album 2
+      """
     When  I select "album 2" from "Virtual albums to move"
     And I select "album 1" from "New parent album"
     And I press "Submit"
