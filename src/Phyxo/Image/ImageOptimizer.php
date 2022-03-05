@@ -79,6 +79,40 @@ class ImageOptimizer
         return false;
     }
 
+    public function addWatermak(WatermarkParams $watermark): void
+    {
+        // $wm = $image_std_params->getWatermark();
+        // $wm_image = new ImageOptimizer(__DIR__ . '/../../' . $wm->file, $imageLibraryGuesser->getLibrary());
+        // $wm_size = [$wm_image->getWidth(), $wm_image->getHeight()];
+        // if ($d_size[0] < $wm_size[0] or $d_size[1] < $wm_size[1]) {
+        //     $wm_scaling_params = SizingParams::classic($d_size[0], $d_size[1]);
+        //     $wm_scaling_params->compute($wm_size, '', $tmp, $wm_scaled_size);
+        //     $wm_size = $wm_scaled_size;
+        //     $wm_image->resize($wm_scaled_size[0], $wm_scaled_size[1]);
+        // }
+        // $x = round(($wm->xpos / 100) * ($d_size[0] - $wm_size[0]));
+        // $y = round(($wm->ypos / 100) * ($d_size[1] - $wm_size[1]));
+
+        // if ($imageOptimizer->compose($wm_image->getImage(), $x, $y, $wm->opacity)) {
+        //     if ($wm->xrepeat) {
+        //         // todo
+        //         $pad = $wm_size[0] + max(30, round($wm_size[0] / 4));
+        //         for ($i = -$wm->xrepeat; $i <= $wm->xrepeat; $i++) {
+        //             if (!$i) {
+        //                 continue;
+        //             }
+        //             $x2 = $x + $i * $pad;
+        //             if ($x2 >= 0 && $x2 + $wm_size[0] < $d_size[0]) {
+        //                 if (!$imageOptimizer->compose($wm_image->getImage(), $x2, $y, $wm->opacity)) {
+        //                     break;
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        // $wm_image->destroy();
+    }
+
     public function getRotationCode(): int
     {
         $metadata = $this->image->metadata();
@@ -97,44 +131,14 @@ class ImageOptimizer
         if (in_array($orientationCode, [3, 4])) {
             $rotation = 180;
         } elseif (in_array($orientationCode, [5, 6])) {
-            $rotation = 270;
-        } elseif (in_array($orientationCode, [7, 8])) {
             $rotation = 90;
+        } elseif (in_array($orientationCode, [7, 8])) {
+            $rotation = 270;
         } else {
             $rotation = 0;
         }
 
         return $rotation;
-    }
-
-    public function getRotationCodeFromAngle(int $rotationAngle): int
-    {
-        switch ($rotationAngle) {
-            case 90:
-                return 8;
-            case 180:
-                return 3;
-            case 270:
-                return 6;
-            default:
-                return 0;
-        }
-    }
-
-    public function getRotationAngleFromCode(int $rotationCode): int
-    {
-        switch ($rotationCode % 4) {
-            case 0:
-                return 0;
-            case 1:
-                return 90;
-            case 2:
-                return 270;
-            case 3:
-                return 180;
-            default:
-                return 0;
-        }
     }
 
     /**
@@ -191,16 +195,16 @@ class ImageOptimizer
         return $this->getResizeResult($destinationFilePath, $resizeDimensions['width'], $resizeDimensions['height'], $starttime);
     }
 
-    public function AutoRotate(): void
+    public function autoRotate(): void
     {
         $filter = new Autorotate();
         $filter->apply($this->image);
     }
 
     /**
-     * @return array{width: int, height: int, crop: array|null}
+     * @return array{width: int, height: int, crop?: array{width: int, height: int, x: int, y: int}}
      */
-    public function getResizeDimensions(int $width, int $height, int $maxWidth, int $maxHeight, int $rotation = null, bool $crop = false, bool $followOrientation = true)
+    public function getResizeDimensions(int $width, int $height, int $maxWidth, int $maxHeight, int $rotation = null, bool $crop = false, bool $followOrientation = true): array
     {
         $rotateForDimensions = false;
         if (!is_null($rotation) && in_array(abs($rotation), [90, 270])) {

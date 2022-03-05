@@ -48,7 +48,7 @@ class ImageOptimizerTest extends TestCase
         $image_path = sprintf('%s/%s', $this->fixtures_dir, $this->img1);
 
         $imageOptimizer = new ImageOptimizer($image_path, $this->library);
-        $this->assertEquals(270, $imageOptimizer->getRotationAngle());
+        $this->assertEquals(90, $imageOptimizer->getRotationAngle());
 
         if ($imageOptimizer->getRotationAngle() !== 0) {
             $imageOptimizer->rotate($imageOptimizer->getRotationAngle());

@@ -5,6 +5,3 @@ admin_media:
     path: '[^_]*'
     derivative: sq|th|2s|xs|sm|me|la|xl|xx
     image_extension: jpg|jpeg|png
-    sizes: '(?:|_[^\.]*)'
-  defaults:
-    sizes: ''
