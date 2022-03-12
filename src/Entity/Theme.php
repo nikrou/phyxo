@@ -24,17 +24,17 @@ use Doctrine\ORM\Mapping as ORM;
       * @ORM\Id()
       * @ORM\Column(type="string", length=40)
       */
-     private $id;
+     private string $id;
 
      /**
       * @ORM\Column(type="string", length=64, nullable=true)
       */
-     private $version;
+     private ?string $version;
 
      /**
       * @ORM\Column(type="string", length=64)
       */
-     private $name;
+     private string $name;
 
      public function setId(string $id): self
      {

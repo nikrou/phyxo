@@ -17,7 +17,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass=UserCacheAlbumRepository::class)
  * @ORM\Table(name="user_cache_categories")
- *
+ * @phpstan-type UserCacheAlbumInfos array{album_id: ?int, max_date_last: ?\DateTimeInterface, date_last: ?\DateTimeInterface, nb_images: ?int, count_images: ?int,
+ * nb_albums: ?int, count_albums: ?int, user_representative_picture: ?int}
  */
 class UserCacheAlbum
 {
@@ -26,49 +27,49 @@ class UserCacheAlbum
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="userCacheAlbums", cascade={"persist", "remove"})
      * @ORM\JoinColumn(name="user_id", nullable=false)
      */
-    private $user;
+    private User $user;
 
     /**
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity=Album::class, inversedBy="userCacheAlbums", cascade={"persist", "remove"})
      * @ORM\JoinColumn(name="cat_id", nullable=false)
      */
-    private $album;
+    private Album $album;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $date_last;
+    private ?\DateTimeInterface $date_last;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $max_date_last;
+    private ?\DateTimeInterface $max_date_last;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $nb_images;
+    private ?int $nb_images;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $count_images;
+    private ?int $count_images;
 
     /**
      * @ORM\Column(name="nb_categories", type="integer", nullable=true)
      */
-    private $nb_albums;
+    private ?int $nb_albums;
 
     /**
      * @ORM\Column(name="count_categories", type="integer", nullable=true)
      */
-    private $count_albums;
+    private ?int $count_albums;
 
     /**
      * @ORM\Column(name="user_representative_picture_id", type="integer", nullable=true)
      */
-    private $user_representative_picture;
+    private ?int $user_representative_picture = null;
 
     public function getUser(): ?User
     {
@@ -82,7 +83,7 @@ class UserCacheAlbum
         return $this;
     }
 
-    public function getAlbum(): ?Album
+    public function getAlbum(): Album
     {
         return $this->album;
     }
@@ -178,6 +179,9 @@ class UserCacheAlbum
         return $this;
     }
 
+    /**
+     * @return UserCacheAlbumInfos
+     */
     public function toArray(): array
     {
         return [

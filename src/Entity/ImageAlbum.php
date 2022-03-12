@@ -25,19 +25,19 @@ class ImageAlbum
      * @ORM\ManyToOne(targetEntity=Image::class, inversedBy="imageAlbums")
      * @ORM\JoinColumn(name="image_id", nullable=false)
      */
-    private $image;
+    private Image $image;
 
     /**
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity=Album::class, inversedBy="imageAlbums")
      * @ORM\JoinColumn(name="category_id", nullable=false)
      */
-    private $album;
+    private Album $album;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $rank;
+    private ?int $rank;
 
     public function getImage(): ?Image
     {

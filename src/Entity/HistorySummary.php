@@ -25,32 +25,32 @@ class HistorySummary
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $nb_pages;
+    private int $nb_pages;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $year;
+    private int $year;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $month;
+    private ?int $month;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $day;
+    private ?int $day;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $hour;
+    private ?int $hour;
 
     public function getId(): ?int
     {

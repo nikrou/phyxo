@@ -27,26 +27,28 @@ class Group
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", unique=true, length=255)
      */
-    private $name;
+    private string $name;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $is_default = false;
+    private bool $is_default = false;
 
     /**
      * @ORM\Column(name="lastmodified", type="datetime", nullable=true)
      */
-    private $last_modified;
+    private ?\DateTimeInterface $last_modified;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, inversedBy="groups", cascade={"persist", "remove"})
      * @ORM\JoinTable(name="user_group")
+     *
+     * @var Collection<int, User>
      */
     private $users;
 
@@ -56,6 +58,8 @@ class Group
      *   joinColumns={@ORM\JoinColumn(name="group_id")},
      *   inverseJoinColumns={@ORM\JoinColumn(name="cat_id")}
      * )
+     *
+     * @var Collection<int, Album>
      */
     private $group_access;
 
@@ -108,7 +112,7 @@ class Group
     }
 
     /**
-     * @return Collection|User[]
+     * @return Collection<int, User>
      */
     public function getUsers(): Collection
     {
@@ -134,7 +138,7 @@ class Group
     }
 
     /**
-     * @return Collection|Album[]
+     * @return Collection<int, Album>
      */
     public function getGroupAccess(): Collection
     {

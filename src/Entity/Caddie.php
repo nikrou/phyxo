@@ -20,20 +20,19 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Caddie
 {
-
     /**
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="caddies")
      * @ORM\JoinColumn(name="user_id", nullable=false)
      */
-    private $user;
+    private User $user;
 
     /**
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity=Image::class)
      * @ORM\JoinColumn(name="element_id", nullable=false)
      */
-    private $image;
+    private Image $image;
 
     public function getUser(): ?User
     {

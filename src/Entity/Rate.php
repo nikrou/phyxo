@@ -25,36 +25,36 @@ class Rate
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="rates")
      * @ORM\JoinColumn(name="user_id", nullable=false)
      */
-    private $user;
+    private User $user;
 
     /**
      * @ORM\ManyToOne(targetEntity=Image::class, inversedBy="rates")
      * @ORM\JoinColumn(name="element_id", nullable=false)
      */
-    private $image;
+    private Image $image;
 
     /**
      * @ORM\Id
      * @ORM\Column(type="string", length=45)
      */
-    private $anonymous_id;
+    private string $anonymous_id;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $rate;
+    private int $rate;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $date;
+    private ?\DateTimeInterface $date;
 
     public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function setUser(?User $user): self
+    public function setUser(User $user): self
     {
         $this->user = $user;
 
@@ -66,7 +66,7 @@ class Rate
         return $this->image;
     }
 
-    public function setImage(?Image $image): self
+    public function setImage(Image $image): self
     {
         $this->image = $image;
 

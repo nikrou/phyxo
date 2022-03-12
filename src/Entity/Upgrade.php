@@ -24,17 +24,17 @@ class Upgrade
      * @ORM\Id()
      * @ORM\Column(type="string", length=40)
      */
-    private $id;
+    private string $id;
 
     /**
      * @ORM\Column(type="datetime")
      */
-    private $applied;
+    private \DateTimeInterface $applied;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $description;
+    private ?string $description;
 
     public function setId(string $id): self
     {

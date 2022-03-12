@@ -19,6 +19,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass=TagRepository::class)
  * @ORM\Table(name="tags")
+ *
+ * @phpstan-type ImageTagInfos array{status?: ?int, validated?: ?bool, created_by?: ?User}
  */
 class Tag
 {
@@ -27,31 +29,37 @@ class Tag
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    private string $name;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $url_name;
+    private string $url_name;
 
     /**
      * @ORM\Column(name="lastmodified", type="datetime", nullable=true)
      */
-    private $last_modified;
+    private ?\DateTimeInterface $last_modified;
 
     /**
      * @ORM\OneToMany(targetEntity=ImageTag::class, mappedBy="tag", cascade={"persist", "remove"})
+     *
+     * @var ArrayCollection<int, ImageTag>
      */
     private $imageTags;
 
-    private $counter = 0;
-    private $level = 0;
-    // validated, status, created_by
+    private int $counter = 0;
+
+    private int $level = 0;
+
+    /**
+     * @var ImageTagInfos
+     */
     private $related_image_tag_infos = [];
 
     public function __construct()
@@ -59,7 +67,7 @@ class Tag
         $this->imageTags = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -100,7 +108,7 @@ class Tag
         return $this;
     }
 
-    public function setCounter(int $counter)
+    public function setCounter(int $counter): self
     {
         $this->counter = $counter;
 
@@ -112,7 +120,7 @@ class Tag
         return $this->counter;
     }
 
-    public function setLevel(int $level)
+    public function setLevel(int $level): self
     {
         $this->level = $level;
 
@@ -124,13 +132,16 @@ class Tag
         $this->related_image_tag_infos = [
             'status' => $imageTag->getStatus(),
             'validated' => $imageTag->isValidated(),
-            'created_by' => $imageTag->getCreatedBy()->getId()
+            'created_by' => $imageTag->getCreatedBy()
         ];
 
         return $this;
     }
 
-    public function getRelatedImageTagInfos(): array
+    /**
+     * @return ImageTagInfos
+     */
+    public function getRelatedImageTagInfos()
     {
         return $this->related_image_tag_infos;
     }
@@ -141,7 +152,7 @@ class Tag
     }
 
     /**
-     * @return Collection|ImageTag[]
+     * @return Collection<int, ImageTag>
      */
     public function getImageTags(): Collection
     {
@@ -173,7 +184,7 @@ class Tag
 
     public function toUrl(string $tag_url_style = 'id-tag'): string
     {
-        $url_tag = $this->getId();
+        $url_tag = (string) $this->getId();
 
         if (($tag_url_style === 'id-tag') && $this->getUrlName() !== '') {
             $url_tag .= '-' . $this->getUrlName();
@@ -182,6 +193,9 @@ class Tag
         return $url_tag;
     }
 
+    /**
+     * @return array{id: int, name: ?string, url_name: ?string, last_modified: ?\DateTimeInterface, counter: ?int, level: ?int, related_image_tag_infos: ImageTagInfos}
+     */
     public function toArray(): array
     {
         return [

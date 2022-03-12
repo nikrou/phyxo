@@ -12,6 +12,7 @@
 namespace App\Entity;
 
 use App\Repository\ImageRepository;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -27,140 +28,148 @@ class Image
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $file;
+    private ?string $file = null;
 
     /**
      * @ORM\Column(type="datetime")
      */
-    private $date_available;
+    private \DateTimeInterface $date_available;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $date_creation;
+    private ?DateTimeInterface $date_creation = null;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    private string $name;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $comment;
+    private ?string $comment = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $author = '';
+    private ?string $author = '';
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $hit = 0;
+    private ?int $hit = 0;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $filesize = 0;
+    private ?int $filesize = 0;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $width = 0;
+    private ?int $width = 0;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $height = 0;
+    private ?int $height = 0;
 
     /**
      * @ORM\Column(type="string", length=4, nullable=true)
      */
-    private $coi;
+    private ?string $coi = null;
 
     /**
      * @ORM\Column(type="string", length=4, nullable=true)
      */
-    private $representative_ext;
+    private ?string $representative_ext = null;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $date_metadata_update;
+    private ?\DateTimeInterface $date_metadata_update = null;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private $rating_score;
+    private ?float $rating_score = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $path;
+    private ?string $path = null;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $storage_category_id;
+    private ?int $storage_category_id = null;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $level = 0;
+    private ?int $level = 0;
 
     /**
      * @ORM\Column(type="string", length=32)
      */
-    private $md5sum;
+    private string $md5sum;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $added_by;
+    private int $added_by;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $rotation;
+    private ?int $rotation = null;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private $latitude;
+    private ?float $latitude = null;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private $longitude;
+    private ?float $longitude = null;
 
     /**
      * @ORM\Column(name="lastmodified", type="datetime", nullable=true)
      */
-    private $last_modified;
+    private ?\DateTimeInterface $last_modified = null;
 
     /**
      * @ORM\OneToMany(targetEntity=ImageAlbum::class, mappedBy="image", cascade={"persist", "remove"})
+     *
+     * @var ArrayCollection<int, ImageAlbum>
      */
     private $imageAlbums;
 
     /**
      * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="image")
+     *
+     * @var ArrayCollection<int, Comment>
      */
     private $comments;
 
     /**
      * @ORM\OneToMany(targetEntity=Rate::class, mappedBy="image", orphanRemoval=true)
+     *
+     * @var ArrayCollection<int, Rate>
      */
     private $rates;
 
     /**
      * @ORM\OneToMany(targetEntity=ImageTag::class, mappedBy="image", orphanRemoval=true, cascade={"persist", "remove"})
+     *
+     * @var ArrayCollection<int, ImageTag>
      */
     private $imageTags;
 
@@ -464,7 +473,7 @@ class Image
     }
 
     /**
-     * @return Collection|ImageAlbum[]
+     * @return Collection<int, ImageAlbum>
      */
     public function getImageAlbums(): Collection
     {
@@ -497,7 +506,7 @@ class Image
     }
 
     /**
-     * @return Collection|Comment[]
+     * @return Collection<int, Comment>
      */
     public function getComments(): Collection
     {
@@ -528,7 +537,7 @@ class Image
     }
 
     /**
-     * @return Collection|Rate[]
+     * @return Collection<int, Rate>
      */
     public function getRates(): Collection
     {
@@ -549,15 +558,12 @@ class Image
     {
         if ($this->rates->contains($rate)) {
             $this->rates->removeElement($rate);
-            // set the owning side to null (unless already changed)
-            if ($rate->getImage() === $this) {
-                $rate->setImage(null);
-            }
         }
 
         return $this;
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function toArray(): array
     {
         return [
@@ -588,6 +594,7 @@ class Image
         ];
     }
 
+    /** @phpstan-ignore-next-line */
     public function fromArray(array $values = [])
     {
         if (isset($values['id'])) {
@@ -688,7 +695,7 @@ class Image
     }
 
     /**
-     * @return Collection|ImageTag[]
+     * @return Collection<int, ImageTag>
      */
     public function getImageTags(): Collection
     {

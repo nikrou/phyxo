@@ -69,16 +69,16 @@ class UserCache
     private string $image_access_type = self::ACCESS_NOT_IN;
 
     /**
-     * @ORM\Column(type="text", nullable=true)
+     * @ORM\Column(type="text")
      */
-    private ?string $image_access_list = '[]';
+    private string $image_access_list = '[]';
 
-    public function getUser(): ?User
+    public function getUser(): User
     {
         return $this->user;
     }
 
-    public function setUser(?User $user): self
+    public function setUser(User $user): self
     {
         $this->user = $user;
 
@@ -112,7 +112,8 @@ class UserCache
     /**
      * @return int[]
      */
-    public function getForbiddenAlbums(): array
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
+    public function getForbiddenAlbums()
     {
         return json_decode($this->forbidden_albums, true);
     }
@@ -122,7 +123,8 @@ class UserCache
      */
     public function setForbiddenAlbums(array $forbidden_albums = []): self
     {
-        $this->forbidden_albums = json_encode($forbidden_albums);
+        $forbidden_albums = json_encode($forbidden_albums);
+        $this->forbidden_albums = $forbidden_albums !== false ? $forbidden_albums : '[]';
 
         return $this;
     }
@@ -190,7 +192,8 @@ class UserCache
     /**
      * @return int[]
      */
-    public function getImageAccessList(): array
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
+    public function getImageAccessList()
     {
         return json_decode($this->image_access_list, true);
     }
@@ -200,7 +203,8 @@ class UserCache
      */
     public function setImageAccessList(array $image_access_list = []): self
     {
-        $this->image_access_list = json_encode($image_access_list);
+        $image_access_list = json_encode($image_access_list);
+        $this->image_access_list = $image_access_list !== false ? $image_access_list : '[]';
 
         return $this;
     }

@@ -26,17 +26,17 @@ class Comment
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="datetime")
      */
-    private $date;
+    private \DateTimeInterface $date;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $author;
+    private ?string $author;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -44,12 +44,12 @@ class Comment
      *   message = "The email '{{ value }}' is not a valid email."
      * )
      */
-    private $email;
+    private ?string $email;
 
     /**
      * @ORM\Column(type="string", length=45, nullable=true)
      */
-    private $anonymous_id;
+    private ?string $anonymous_id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -57,34 +57,34 @@ class Comment
      *   message = "The url '{{ value }}' is not a valid url",
      * )
      */
-    private $website_url;
+    private ?string $website_url;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $content;
+    private ?string $content;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
      */
-    private $validated;
+    private ?bool $validated;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $validation_date;
+    private ?\DateTimeInterface $validation_date;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="comments")
      * @ORM\JoinColumn(name="author_id", nullable=true)
      */
-    private $user;
+    private ?User $user;
 
     /**
      * @ORM\ManyToOne(targetEntity=Image::class, inversedBy="comments")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $image;
+    private Image $image;
 
     public function getId(): ?int
     {

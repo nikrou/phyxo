@@ -24,22 +24,22 @@ class Config
      * @ORM\Id()
      * @ORM\Column(type="string", length=40)
      */
-    private $param;
+    private string $param;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $value;
+    private ?string $value;
 
     /**
      * @ORM\Column(type="string", length=15, nullable=true, options={"default": "string"})
      */
-    private $type;
+    private ?string $type;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $comment;
+    private ?string $comment;
 
     public function getParam(): ?string
     {

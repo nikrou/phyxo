@@ -468,7 +468,7 @@ class Category
         $page['infos'] = [];
         $page['errors'] = [];
 
-        $service->getAlbumMapper()->moveAlbums($category_ids, $params['parent']);
+        $service->getAlbumMapper()->moveAlbums($category_ids, $params['parent'] === 0 ? null : $params['parent']);
         $service->getUserMapper()->invalidateUserCache();
 
         if (count($page['errors']) != 0) {

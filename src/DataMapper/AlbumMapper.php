@@ -403,11 +403,15 @@ class AlbumMapper
             }
         }
 
-        if ($new_parent != null) {
-            foreach ($ids as $id) {
-                $this->getCacheAlbums()[$id]->setParent($this->getCacheAlbums()[$new_parent]);
+        foreach ($ids as $id) {
+            $parent_album = null;
+            if ($new_parent !== null) {
+                $parent_album = $this->getCacheAlbums()[$new_parent];
             }
+            $this->getCacheAlbums()[$id]->setParent($parent_album);
         }
+
+
         $this->updateUppercats();
         $this->updateGlobalRank();
 

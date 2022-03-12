@@ -47,39 +47,46 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", unique=true, length=100)
      */
-    private $username;
+    private string $username;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $password;
+    private ?string $password;
 
-    private $plain_password = null; // used when user updates his password
+    private ?string $plain_password = null; // used when user updates his password
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $mail_address;
+    private ?string $mail_address;
 
     /**
      * @ORM\OneToOne(targetEntity=UserInfos::class, mappedBy="user", cascade={"persist", "remove"})
      */
-    private $userInfos;
+    private ?UserInfos $userInfos;
 
+    /**
+     * @var array<string>
+     */
     private $roles = [];
 
     /**
      * @ORM\ManyToMany(targetEntity=Group::class, mappedBy="users")
+     *
+     * @var ArrayCollection<int, Group>
      */
     private $groups;
 
     /**
      * @ORM\OneToMany(targetEntity=UserCacheAlbum::class, mappedBy="user", cascade={"persist", "remove"})
+     *
+     * @var ArrayCollection<int, UserCacheAlbum>
      */
     private $userCacheAlbums;
 
@@ -89,31 +96,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
      *   joinColumns={@ORM\JoinColumn(name="user_id")},
      *   inverseJoinColumns={@ORM\JoinColumn(name="cat_id")}
      * )
+     *
+     * @var ArrayCollection<int, Album>
      */
     private $user_access;
 
     /**
      * @ORM\OneToOne(targetEntity=UserCache::class, mappedBy="user", cascade={"persist", "remove"})
      */
-    private $userCache;
+    private ?UserCache $userCache;
 
     /**
      * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="user", cascade={"persist", "remove"})
+     *
+     * @var ArrayCollection<int, Comment>
      */
     private $comments;
 
     /**
      * @ORM\OneToMany(targetEntity=Caddie::class, mappedBy="user", orphanRemoval=true)
+     *
+     * @var ArrayCollection<int, Caddie>
      */
     private $caddies;
 
     /**
      * @ORM\OneToMany(targetEntity=Favorite::class, mappedBy="user", orphanRemoval=true)
+     *
+     * @var ArrayCollection<int, Favorite>
      */
     private $favorites;
 
     /**
      * @ORM\OneToMany(targetEntity=Rate::class, mappedBy="user", orphanRemoval=true)
+     *
+     * @var ArrayCollection<int, Rate>
      */
     private $rates;
 
@@ -193,7 +210,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return $this;
     }
 
-    public function getUserInfos(): ?UserInfos
+    public function getUserInfos(): UserInfos
     {
         return $this->userInfos;
     }
@@ -210,7 +227,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return $this;
     }
 
-    public function addRole(string $role)
+    public function addRole(string $role): void
     {
         $this->roles[] = $role;
     }
@@ -220,7 +237,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return array_unique($this->roles);
     }
 
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
         $this->plain_password = null;
     }
@@ -248,12 +265,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return true;
     }
 
-    public static function getRoleFromStatus(string $status)
+    public static function getRoleFromStatus(string $status): string
     {
         return isset(self::STATUS_TO_ROLE[$status]) ? self::STATUS_TO_ROLE[$status] : 'ROLE_USER';
     }
 
-    public function getStatusFromRoles()
+    public function getStatusFromRoles(): string
     {
         if (in_array('ROLE_WEBMASTER', $this->roles)) {
             return self::STATUS_WEBMASTER;
@@ -271,13 +288,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     }
 
     /**
-     * @return Collection|Group[]
+     * @return Collection<int, Group>
      */
     public function getGroups(): Collection
     {
         return $this->groups;
     }
 
+    /**
+     * @param Group[] $groups
+     */
     public function setGroups(array $groups): self
     {
         $this->groups = new ArrayCollection();
@@ -309,7 +329,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     }
 
     /**
-     * @return Collection|Album[]
+     * @return Collection<int, Album>
      */
     public function getUserAccess(): Collection
     {
@@ -339,21 +359,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return $this->userCache;
     }
 
-    public function setUserCache(?UserCache $userCache): self
+    public function setUserCache(UserCache $userCache): self
     {
         $this->userCache = $userCache;
 
-        // set (or unset) the owning side of the relation if necessary
-        $newUser = null === $userCache ? null : $this;
-        if ($userCache->getUser() !== $newUser) {
-            $userCache->setUser($newUser);
+        // set the owning side of the relation if necessary
+        if ($userCache->getUser() !== $this) {
+            $userCache->setUser($this);
         }
 
         return $this;
     }
 
     /**
-     * @return Collection|Comment[]
+     * @return Collection<int, Comment>
      */
     public function getComments(): Collection
     {
@@ -384,7 +403,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     }
 
     /**
-     * @return Collection|UserCacheAlbum[]
+     * @return Collection<int, UserCacheAlbum>
      */
     public function getUserCacheAlbums(): Collection
     {
@@ -415,7 +434,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     }
 
     /**
-     * @return Collection|Caddie[]
+     * @return Collection<int, Caddie>
      */
     public function getCaddies(): Collection
     {
@@ -446,7 +465,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     }
 
     /**
-     * @return Collection|Favorite[]
+     * @return Collection<int, Favorite>
      */
     public function getFavorites(): Collection
     {
@@ -477,7 +496,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     }
 
     /**
-     * @return Collection|Rate[]
+     * @return Collection<int, Rate>
      */
     public function getRates(): Collection
     {
@@ -498,10 +517,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     {
         if ($this->rates->contains($rate)) {
             $this->rates->removeElement($rate);
-            // set the owning side to null (unless already changed)
-            if ($rate->getUser() === $this) {
-                $rate->setUser(null);
-            }
         }
 
         return $this;
@@ -519,12 +534,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
 
     public function unserialize($serialized)
     {
-        list (
-            $this->id,
-            $this->username,
-            $this->password,
-            $this->roles
-        ) = unserialize($serialized);
+        /** @phpstan-ignore-next-line */
+        list ($this->id, $this->username, $this->password, $this->roles) = unserialize($serialized);
     }
 
     // proxy methods

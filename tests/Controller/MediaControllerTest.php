@@ -15,6 +15,7 @@ use App\Entity\Image;
 use App\Entity\User;
 use App\Repository\ImageRepository;
 use App\Security\UserProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -163,8 +164,9 @@ class MediaControllerTest extends WebTestCase
 
     public function testAdminMediaFromAdmin()
     {
-        $admin = new User();
-        $admin->addRole('ROLE_WEBMASTER');
+        /** @var MockObject $admin */
+        $admin = $this->createStub(User::class);
+        $admin->method('getRoles')->willReturn(['ROLE_WEBMASTER']);
 
         self::ensureKernelShutdown();
         $client = static::createClient();

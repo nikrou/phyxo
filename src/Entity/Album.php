@@ -30,101 +30,111 @@ class Album
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    private string $name;
 
     /**
      * @ORM\ManyToOne(targetEntity=Album::class, inversedBy="children", cascade={"persist", "remove"})
      * @ORM\JoinColumn(name="id_uppercat", nullable=true)
      */
-    private $parent;
+    private ?Album $parent = null;
 
     /**
      * @ORM\OneToMany(targetEntity=Album::class, mappedBy="parent")
+     *
+     * @var Collection<int, Album>
      */
     private $children;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $comment = null;
+    private ?string $comment = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $dir = null;
+    private ?string $dir = null;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $rank = null;
+    private ?int $rank = null;
 
     /**
      * @ORM\Column(type="string", length=25)
      */
-    private $status = self::STATUS_PUBLIC;
+    private string $status = self::STATUS_PUBLIC;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $visible = true;
+    private bool $visible = true;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $representative_picture_id = null;
+    private ?int $representative_picture_id = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $uppercats = null;
+    private ?string $uppercats = null;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $commentable = true;
+    private bool $commentable = true;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $global_rank;
+    private string $global_rank;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $image_order = null;
+    private ?string $image_order = null;
 
     /**
      * @ORM\Column(type="string", unique=true, length=255, nullable=true)
      */
-    private $permalink = null;
+    private ?string $permalink = null;
 
     /**
      * @ORM\Column(name="lastmodified", type="datetime", nullable=true)
      */
-    private $last_modified;
+    private ?\DateTimeInterface $last_modified;
 
     /**
      * @ORM\ManyToMany(targetEntity=Group::class, mappedBy="group_access", cascade={"persist", "remove"})
+     *
+     * @var Collection<int, Group>
      */
     private $group_access;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="user_access")
+     *
+     * @var Collection<int, User>
      */
     private $user_access;
 
     /**
      * @ORM\OneToMany(targetEntity=ImageAlbum::class, mappedBy="album", cascade={"persist", "remove"})
+     *
+     * @var Collection<int, ImageAlbum>
      */
     private $imageAlbums;
 
     /**
      * @ORM\OneToMany(targetEntity=UserCacheAlbum::class, mappedBy="album")
+     *
+     * @var Collection<int, UserCacheAlbum>
      */
     private $userCacheAlbums;
 
@@ -303,12 +313,12 @@ class Album
         return !$this->dir;
     }
 
-    public function getParent(): ?self
+    public function getParent(): ?Album
     {
         return $this->parent;
     }
 
-    public function setParent(?self $parent): self
+    public function setParent(?Album $parent): self
     {
         $this->parent = $parent;
 
@@ -316,7 +326,7 @@ class Album
     }
 
     /**
-     * @return Collection|self[]
+     * @return Collection<int, Album>
      */
     public function getChildren(): Collection
     {
@@ -347,7 +357,7 @@ class Album
     }
 
     /**
-     * @return Collection|Group[]
+     * @return Collection<int, Group>
      */
     public function getGroupAccess(): Collection
     {
@@ -385,7 +395,7 @@ class Album
     }
 
     /**
-     * @return Collection|User[]
+     * @return Collection<int, User>
      */
     public function getUserAccess(): Collection
     {
@@ -423,7 +433,7 @@ class Album
     }
 
     /**
-     * @return Collection|ImageAlbum[]
+     * @return Collection<int, ImageAlbum>
      */
     public function getImageAlbums(): Collection
     {
@@ -462,7 +472,7 @@ class Album
     }
 
     /**
-     * @return Collection|UserCacheAlbum[]
+     * @return Collection<int, UserCacheAlbum>
      */
     public function getUserCacheAlbums(): Collection
     {
@@ -492,6 +502,7 @@ class Album
         return $this;
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function toArray(): array
     {
         return [

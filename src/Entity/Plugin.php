@@ -27,17 +27,17 @@ class Plugin
      * @ORM\Id()
      * @ORM\Column(type="string", length=40)
      */
-    private $id;
+    private string $id;
 
     /**
      * @ORM\Column(type="string", length=25)
      */
-    private $state;
+    private string $state;
 
     /**
      * @ORM\Column(type="string", length=64, nullable=true)
      */
-    private $version;
+    private ?string $version;
 
     public function __construct()
     {

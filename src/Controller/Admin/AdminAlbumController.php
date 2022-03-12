@@ -115,7 +115,7 @@ class AdminAlbumController extends AbstractController
                 $parent = $request->request->get('parent');
                 // only move virtual albums
                 if (!$album->getDir() && $album->getParent() && $album->getParent()->getId() !== $parent) {
-                    $albumMapper->moveAlbums([$album_id], $parent);
+                    $albumMapper->moveAlbums([$album_id], $parent == 0 ? null : $parent);
                 }
 
                 $this->addFlash('success', $translator->trans('Album updated successfully', [], 'admin'));

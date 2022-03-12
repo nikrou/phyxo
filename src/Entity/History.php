@@ -39,60 +39,60 @@ class History
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="date")
      */
-    private $date;
+    private \DateTimeInterface $date;
 
     /**
      * @ORM\Column(type="time")
      */
-    private $time;
+    private \DateTimeInterface $time;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(nullable=false)
      */
-    private $user;
+    private User $user;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $ip;
+    private string $ip;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $section;
+    private string $section;
 
     /**
      * @ORM\ManyToOne(targetEntity=Album::class)
      * @ORM\JoinColumn(name="category_id", nullable=true)
      */
-    private $album = null;
+    private ?Album $album = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $tag_ids = '';
+    private ?string $tag_ids = '';
 
     /**
      * @ORM\ManyToOne(targetEntity=Image::class)
      * @ORM\JoinColumn(nullable=true)
      */
-    private $image;
+    private ?Image $image;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $summarized = false;
+    private bool $summarized = false;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $image_type = self::IMAGE_TYPE_PICTURE;
+    private ?string $image_type = self::IMAGE_TYPE_PICTURE;
 
     public function getId(): ?int
     {

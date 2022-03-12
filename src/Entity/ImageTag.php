@@ -27,30 +27,30 @@ class ImageTag
      * @ORM\ManyToOne(targetEntity=Image::class, inversedBy="imageTags")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $image;
+    private Image $image;
 
     /**
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity=Tag::class, inversedBy="imageTags")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $tag;
+    private Tag $tag;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $validated = true;
+    private bool $validated = true;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(name="created_by", nullable=true)
      */
-    private $created_by;
+    private ?User $created_by;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $status = self::STATUS_TO_ADD;
+    private ?int $status = self::STATUS_TO_ADD;
 
     public function getImage(): ?Image
     {

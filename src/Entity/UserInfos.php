@@ -17,18 +17,30 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass=UserInfosRepository::class)
  * @ORM\Table(name="user_infos")
+ *
+ * @phpstan-type UserInfosArray array{nb_image_page: int, language: ?string, expand: bool, show_nb_comments: bool, show_nb_hits: bool,
+ *  recent_period: int, theme: ?string, enabled_high: bool, level: int}
  */
 class UserInfos
 {
+    const DEFAULT_NB_IMAGE_PAGE = 15;
+    const DEFAULT_LEVEL = 0;
+    const DEFAULT_RECENT_PERIOD = 7;
+    const DEFAULT_SHOW_NB_COMMENTS = false;
+    const DEFAULT_SHOW_NB_HITS = false;
+    const DEFAULT_ENABLED_HIGH = false;
+
     private int $nb_total_images;
     /**
      * @var int[] $forbidden_albums
      */
+
     private array $forbidden_albums = [];
     /**
      * @var int[] $image_access_list
      */
     private array $image_access_list = [];
+
     private string $image_access_type = 'NOT IN';
 
     /**
@@ -47,7 +59,7 @@ class UserInfos
     /**
      * @ORM\Column(type="integer")
      */
-    private int $nb_image_page = 15;
+    private int $nb_image_page = self::DEFAULT_NB_IMAGE_PAGE;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -67,12 +79,12 @@ class UserInfos
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private ?int $level = 0;
+    private ?int $level = self::DEFAULT_LEVEL;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private int $recent_period = 7;
+    private int $recent_period = self::DEFAULT_RECENT_PERIOD;
 
     /**
      * @ORM\Column(type="boolean")
@@ -82,17 +94,17 @@ class UserInfos
     /**
      * @ORM\Column(type="boolean")
      */
-    private bool $show_nb_comments = false;
+    private bool $show_nb_comments = self::DEFAULT_SHOW_NB_COMMENTS;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private bool $show_nb_hits = false;
+    private bool $show_nb_hits = self::DEFAULT_SHOW_NB_HITS;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private bool $enabled_high = true;
+    private bool $enabled_high = self::DEFAULT_ENABLED_HIGH;
 
     /**
      * @ORM\Column(name="lastmodified", type="datetime", nullable=true)
@@ -133,9 +145,9 @@ class UserInfos
         return $this;
     }
 
-    public function getNbImagePage(): ?int
+    public function getNbImagePage(): int
     {
-        return $this->nb_image_page;
+        return $this->nb_image_page ?? self::DEFAULT_NB_IMAGE_PAGE;
     }
 
     public function setNbImagePage(int $nb_image_page): self
@@ -181,24 +193,24 @@ class UserInfos
         return $this;
     }
 
-    public function getLevel(): ?int
+    public function getLevel(): int
     {
-        return $this->level;
+        return $this->level ?? self::DEFAULT_LEVEL;
     }
 
-    public function setLevel(?int $level): self
+    public function setLevel(int $level = self::DEFAULT_LEVEL): self
     {
         $this->level = $level;
 
         return $this;
     }
 
-    public function getRecentPeriod(): ?int
+    public function getRecentPeriod(): int
     {
-        return $this->recent_period;
+        return $this->recent_period ?? self::DEFAULT_RECENT_PERIOD;
     }
 
-    public function setRecentPeriod(int $recent_period): self
+    public function setRecentPeriod(int $recent_period = self::DEFAULT_RECENT_PERIOD): self
     {
         $this->recent_period = $recent_period;
 
@@ -277,36 +289,36 @@ class UserInfos
         return $this;
     }
 
-    public function getShowNbComments(): ?bool
+    public function getShowNbComments(): bool
     {
-        return $this->show_nb_comments;
+        return $this->show_nb_comments ?? self::DEFAULT_SHOW_NB_COMMENTS;
     }
 
-    public function setShowNbComments(bool $show_nb_comments): self
+    public function setShowNbComments(bool $show_nb_comments = self::DEFAULT_SHOW_NB_COMMENTS): self
     {
         $this->show_nb_comments = $show_nb_comments;
 
         return $this;
     }
 
-    public function getShowNbHits(): ?bool
+    public function getShowNbHits(): bool
     {
-        return $this->show_nb_hits;
+        return $this->show_nb_hits ?? self::DEFAULT_SHOW_NB_HITS;
     }
 
-    public function setShowNbHits(bool $show_nb_hits): self
+    public function setShowNbHits(bool $show_nb_hits = self::DEFAULT_SHOW_NB_HITS): self
     {
         $this->show_nb_hits = $show_nb_hits;
 
         return $this;
     }
 
-    public function hasEnabledHigh(): ?bool
+    public function hasEnabledHigh(): bool
     {
-        return $this->enabled_high;
+        return $this->enabled_high ?? self::DEFAULT_ENABLED_HIGH;
     }
 
-    public function setEnabledHigh(bool $enabled_high): self
+    public function setEnabledHigh(bool $enabled_high = self::DEFAULT_ENABLED_HIGH): self
     {
         $this->enabled_high = $enabled_high;
 
@@ -314,7 +326,7 @@ class UserInfos
     }
 
     /**
-     * @return array{nb_image_page: int, language: string, expand: bool, show_nb_comments: bool, show_nb_hits: bool, recent_period: int, theme: string, enabled_high: bool, level: int}
+     * @return UserInfosArray
      */
     public function toArray(): array
     {
@@ -332,17 +344,17 @@ class UserInfos
     }
 
     /**
-     * @param array{nb_image_page: int, language: string, expand: bool, show_nb_comments: bool, show_nb_hits: bool, recent_period: int, theme: string, enabled_high: bool, level: int} $data
+     * @param UserInfosArray $data
      */
     public function fromArray(array $data): void
     {
         $this->setNbImagePage($data['nb_image_page']);
-        $this->setLanguage($data['language']);
+        $this->setLanguage((string) $data['language']);
         $this->setExpand($data['expand']);
         $this->setShowNbComments($data['show_nb_comments']);
         $this->setShowNbHits($data['show_nb_hits']);
         $this->setRecentPeriod($data['recent_period']);
-        $this->setTheme($data['theme']);
+        $this->setTheme((string) $data['theme']);
         $this->setEnabledHigh($data['enabled_high']);
         $this->setLevel($data['level']);
     }
