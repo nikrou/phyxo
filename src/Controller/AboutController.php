@@ -15,11 +15,12 @@ use App\Security\AppUserService;
 use Phyxo\Conf;
 use Phyxo\Functions\Language;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AboutController extends CommonController
 {
-    public function index(Request $request, AppUserService $appUserService, Conf $conf, string $themesDir, string $rootProjectDir, TranslatorInterface $translator)
+    public function index(Request $request, AppUserService $appUserService, Conf $conf, string $themesDir, string $rootProjectDir, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
 

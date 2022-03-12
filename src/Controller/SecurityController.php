@@ -36,6 +36,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SecurityController extends CommonController
 {
+    /**
+     * @return array<string, string>
+     */
     protected function init(): array
     {
         return [
@@ -45,7 +48,7 @@ class SecurityController extends CommonController
         ];
     }
 
-    public function login(AuthenticationUtils $authenticationUtils, CsrfTokenManagerInterface $csrfTokenManager, Request $request, TranslatorInterface $translator)
+    public function login(AuthenticationUtils $authenticationUtils, CsrfTokenManagerInterface $csrfTokenManager, Request $request, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
         try {
@@ -87,7 +90,7 @@ class SecurityController extends CommonController
         UserPasswordHasherInterface $passwordHasher,
         UserAuthenticatorInterface $userAuthenticator,
         LoginFormAuthenticator $loginFormAuthenticator
-    ) {
+    ): Response {
         $tpl_params = $this->init();
 
         $form = $this->createForm(UserRegistrationType::class);
@@ -123,7 +126,7 @@ class SecurityController extends CommonController
         UserPasswordHasherInterface $passwordHasher,
         AppUserService $appUserService,
         TranslatorInterface $translator
-    ) {
+    ): Response {
         $tpl_params = $this->init();
 
         /** @var Form $form */
@@ -158,7 +161,7 @@ class SecurityController extends CommonController
         return $this->render('profile.html.twig', $tpl_params);
     }
 
-    public function forgotPassword(Request $request, UserManager $user_manager, UserRepository $userRepository, EventDispatcherInterface $dispatcher, TranslatorInterface $translator)
+    public function forgotPassword(Request $request, UserManager $user_manager, UserRepository $userRepository, EventDispatcherInterface $dispatcher, TranslatorInterface $translator): Response
     {
         $tpl_params = $this->init();
 
@@ -199,7 +202,7 @@ class SecurityController extends CommonController
         UserProvider $userProvider,
         TranslatorInterface $translator,
         UserRepository $userRepository
-    ) {
+    ): Response {
         $tpl_params = $this->init();
 
         try {
@@ -227,7 +230,7 @@ class SecurityController extends CommonController
         return $this->render('reset_password.html.twig', $tpl_params);
     }
 
-    public function logout()
+    public function logout(): void
     {
     }
 }

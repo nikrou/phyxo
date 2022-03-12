@@ -16,12 +16,14 @@ use Phyxo\Language\Languages;
 use App\Entity\User;
 use App\Install\PhyxoInstaller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class InstallController extends AbstractController
 {
+    /** @var array<string, array{label: string}> */
     private $Steps = [
         'language' => ['label' => 'Choose language'],
         'check' => ['label' => 'Verify requirements'],
@@ -30,9 +32,24 @@ class InstallController extends AbstractController
         'success' => ['label' => 'Installation completed']
     ];
 
-    private $languages_options, $passwordHasher, $default_language, $default_theme, $translationsDir, $mediaCacheDir, $localDir;
-    private $rootProjectDir, $translator, $databaseYamlFile, $phyxoInstaller, $pluginsDir, $themesDir, $uploadDir, $varDir, $configDir;
-    private $default_prefix = 'phyxo_';
+    /** @var array<string, string> */
+    private $languages_options;
+    private UserPasswordHasherInterface $passwordHasher;
+    private string $default_language;
+    private string $default_theme;
+    private string $translationsDir;
+    private string $mediaCacheDir;
+    private string $localDir;
+    private string $rootProjectDir;
+    private TranslatorInterface $translator;
+    private string $databaseYamlFile;
+    private PhyxoInstaller $phyxoInstaller;
+    private string  $pluginsDir;
+    private string $themesDir;
+    private string $uploadDir;
+    private string $varDir;
+    private string $configDir;
+    private string $default_prefix = 'phyxo_';
 
     public function __construct(
         string $translationsDir,
@@ -68,7 +85,7 @@ class InstallController extends AbstractController
         $this->phyxoInstaller = $phyxoInstaller;
     }
 
-    public function index(Request $request, string $step = 'language')
+    public function index(Request $request, string $step = 'language'): Response
     {
         $tpl_params = [];
         $tpl_params['STEPS'] = $this->Steps;
@@ -109,6 +126,9 @@ class InstallController extends AbstractController
         return $this->render('install.html.twig', $tpl_params);
     }
 
+    /**
+     * @return array<string, array<string, string>|string>
+     */
     protected function languageStep(Request $request)
     {
         $tpl_params = [
@@ -125,6 +145,9 @@ class InstallController extends AbstractController
         return $tpl_params;
     }
 
+    /**
+     * @return array<string, array<string, array<string, bool|string>>|string>
+     */
     protected function checkStep(Request $request)
     {
         $tpl_params = [
@@ -214,6 +237,9 @@ class InstallController extends AbstractController
         return $tpl_params;
     }
 
+    /**
+     * @return array<string, array<string, string>|string>
+     */
     protected function databaseStep(Request $request)
     {
         $errors = [];
@@ -280,6 +306,9 @@ class InstallController extends AbstractController
         return $tpl_params;
     }
 
+    /**
+     * @return array<string, array<int, string>|float|int|string|bool>
+     */
     protected function userStep(Request $request)
     {
         $errors = [];
@@ -409,6 +438,9 @@ class InstallController extends AbstractController
         return $tpl_params;
     }
 
+    /**
+     * @return array<string, array<string, string>|string>
+     */
     public function successStep(Request $request)
     {
         rename($this->databaseYamlFile . '.tmp', $this->databaseYamlFile);

@@ -72,5 +72,7 @@ return $config
         'no_closing_tag' => true,
         'no_leading_import_slash' => true,
         'single_blank_line_at_eof' => true,
+
+        'no_unused_imports' => true,
     ])
     ->setFinder($finder);

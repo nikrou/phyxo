@@ -21,11 +21,12 @@ use Phyxo\Plugin\Plugins;
 use Phyxo\Theme\Themes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class AdminExtensionController extends AbstractController
 {
-    protected $params, $conf;
+    protected ParameterBagInterface $params;
+    protected Conf $conf;
 
     public function theme(
         string $theme,
@@ -36,7 +37,7 @@ class AdminExtensionController extends AbstractController
         ThemeLoader $themeLoader,
         ParameterBagInterface $params,
         AppUserService $appUserService
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->conf = $conf;
         $this->params = $params;
@@ -92,7 +93,7 @@ class AdminExtensionController extends AbstractController
         string $pluginsDir,
         Conf $conf,
         ParameterBagInterface $params
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->conf = $conf;
         $this->params = $params;

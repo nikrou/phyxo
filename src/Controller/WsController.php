@@ -35,7 +35,7 @@ use Symfony\Component\Security\Core\Security;
 
 class WsController extends AbstractController
 {
-    private $service;
+    private Server $service;
 
     public function index(
         AppUserService $appUserService,
@@ -58,7 +58,7 @@ class WsController extends AbstractController
         ManagerRegistry $managerRegistry,
         AlbumMapper $albumMapper,
         ImageLibraryGuesser $imageLibraryGuesser
-    ) {
+    ): Response {
         $this->service = new Server($params->get('upload_dir'));
         $this->service->setRequest($request);
         $this->service->addAppUserService($appUserService);
@@ -86,7 +86,7 @@ class WsController extends AbstractController
         return new Response(json_encode($this->service->run($request)));
     }
 
-    protected function addDefaultMethods()
+    protected function addDefaultMethods(): void
     {
         $f_params = [
             'f_min_rate' => ['default' => null, 'type' => Server::WS_TYPE_FLOAT],

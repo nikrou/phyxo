@@ -28,6 +28,7 @@ use Phyxo\Conf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -51,7 +52,7 @@ class AdminDashboardController extends AbstractController
         AppUserService $appUserService,
         ManagerRegistry $managerRegistry,
         bool $check_upgrade = false
-    ) {
+    ): Response {
         $tpl_params = [];
 
         $tpl_params['DEV'] = preg_match('/.*-dev$/', $params->get('core_version'));

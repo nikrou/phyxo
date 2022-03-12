@@ -19,12 +19,13 @@ use Phyxo\Conf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminMenubarController extends AbstractController
 {
-    public function index(Conf $conf, EventDispatcherInterface $eventDispatcher)
+    public function index(Conf $conf, EventDispatcherInterface $eventDispatcher): Response
     {
         $tpl_params = [];
 
@@ -58,7 +59,7 @@ class AdminMenubarController extends AbstractController
         return $this->render('menubar.html.twig', $tpl_params);
     }
 
-    public function update(Request $request, Conf $conf, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator)
+    public function update(Request $request, Conf $conf, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator): Response
     {
         if ($request->isMethod('POST')) {
             $menu = new BlockManager('menubar');
@@ -89,6 +90,7 @@ class AdminMenubarController extends AbstractController
         return $this->redirectToRoute('admin_menubar');
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     private function makeConsecutive(array $blocks = [], array $orders = [], $step = 50): array
     {
         uasort($orders, function($a, $b) {
@@ -112,7 +114,7 @@ class AdminMenubarController extends AbstractController
         return $orders;
     }
 
-    public function navigation(AppUserService $appUserService, Conf $conf, CaddieRepository $caddieRepository, CommentRepository $commentRepository, ParameterBagInterface $params)
+    public function navigation(AppUserService $appUserService, Conf $conf, CaddieRepository $caddieRepository, CommentRepository $commentRepository, ParameterBagInterface $params): Response
     {
         $tpl_params = [
             'USERNAME' => $appUserService->getUser()->getUserIdentifier(),

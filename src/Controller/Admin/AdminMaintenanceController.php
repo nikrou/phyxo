@@ -31,6 +31,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -53,7 +54,7 @@ class AdminMaintenanceController extends AbstractController
         UserFeedRepository $userFeedRepository,
         AlbumMapper $albumMapper,
         UpgradeRepository $upgradeRepository
-    ) {
+    ): Response {
         $tpl_params = [];
 
         switch ($action) {
@@ -179,7 +180,7 @@ class AdminMaintenanceController extends AbstractController
               {
                 $obsolete_file = $obsolete_file = $params->get('install_dir') . '/obsolete.list';
                 if (!is_readable($obsolete_file)) {
-                    return;
+                    return  $this->redirectToRoute('admin_maintenance');
                 }
 
                 $fs = new Filesystem();
@@ -256,7 +257,7 @@ class AdminMaintenanceController extends AbstractController
         return $this->render('maintenance.html.twig', $tpl_params);
     }
 
-    public function derivatives(string $type, ImageStandardParams $image_std_params, DerivativeService $derivativeService)
+    public function derivatives(string $type, ImageStandardParams $image_std_params, DerivativeService $derivativeService): Response
     {
         $derivativeService->clearCache([$type], $image_std_params->getAllTypes());
 

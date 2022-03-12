@@ -23,7 +23,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FeedController extends CommonController
 {
-    public function notification(Request $request, Conf $conf, TranslatorInterface $translator, UserFeedRepository $userFeedRepository, AppUserService $appUserService)
+    public function notification(Request $request, Conf $conf, TranslatorInterface $translator, UserFeedRepository $userFeedRepository, AppUserService $appUserService): Response
     {
         $tpl_params = [];
 
@@ -50,12 +50,12 @@ class FeedController extends CommonController
         return $this->render('notification.html.twig', $tpl_params);
     }
 
-    public function notificationSubscribe()
+    public function notificationSubscribe(): Response
     {
         return new Response('Not yet');
     }
 
-    public function notificationUnsubscribe()
+    public function notificationUnsubscribe(): Response
     {
         return new Response('Not yet');
     }
@@ -69,7 +69,7 @@ class FeedController extends CommonController
         Notification $notification,
         TranslatorInterface $translator,
         bool $image_only = false
-    ) {
+    ): void {
         $feed = $userFeedRepository->findOneBy(['uuid' => $feed_id]);
         if (is_null($feed)) {
             throw $this->createNotFoundException($translator->trans('Unknown feed identifier'));
