@@ -94,7 +94,7 @@ class History
      */
     private ?string $image_type = self::IMAGE_TYPE_PICTURE;
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }

@@ -205,7 +205,7 @@ class AdminGroupsController extends AbstractController
                     }
                 }
 
-                if ($group_to_merge->getGroupAccess() > 0) {
+                if (count($group_to_merge->getGroupAccess()) > 0) {
                     foreach ($group_to_merge->getGroupAccess() as $album) {
                         $group->addGroupAccess($album);
                     }

@@ -43,6 +43,7 @@ class SearchMapper
 
     /**
      * @param array<string, array<string, array<string, string|string[]>>> $rules
+     *
      * @return int[]
      */
     public function getRegularSearchResults(array $rules, User $user): array
@@ -61,7 +62,10 @@ class SearchMapper
         }
 
         if (isset($rules['fields']['cat']) && $rules['fields']['cat']['sub_inc']) {
-            $rules['fields']['cat']['words'] = array_merge(array_values($rules['fields']['cat']['words']), $this->albumRepository->getSubcatIds($rules['fields']['cat']['words']));
+            $rules['fields']['cat']['words'] = array_merge(
+                array_values($rules['fields']['cat']['words']),
+                $this->albumRepository->getSubcatIds(array_map('intval', $rules['fields']['cat']['words']))
+            );
         }
 
         foreach ($this->imageMapper->getRepository()->searchImages($rules, $user->getUserInfos()->getForbiddenAlbums()) as $image) {

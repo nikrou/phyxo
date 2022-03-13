@@ -15,6 +15,9 @@ use App\Entity\UserCache;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<UserCache>
+ */
 class UserCacheRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -22,13 +25,13 @@ class UserCacheRepository extends ServiceEntityRepository
         parent::__construct($registry, UserCache::class);
     }
 
-    public function addOrUpdateUserCache(UserCache $userCache)
+    public function addOrUpdateUserCache(UserCache $userCache): void
     {
         $this->_em->persist($userCache);
         $this->_em->flush();
     }
 
-    public function deleteAll()
+    public function deleteAll(): void
     {
         $qb = $this->createQueryBuilder('uc');
         $qb->delete();
@@ -36,7 +39,7 @@ class UserCacheRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function forceRefresh()
+    public function forceRefresh(): void
     {
         $qb = $this->createQueryBuilder('uc');
         $qb->update();
@@ -45,7 +48,7 @@ class UserCacheRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteForUser(int $user_id)
+    public function deleteForUser(int $user_id): void
     {
         $qb = $this->createQueryBuilder('uc');
         $qb->delete();
@@ -55,7 +58,7 @@ class UserCacheRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function invalidateNumberAvailableComments(?int $user_id = null)
+    public function invalidateNumberAvailableComments(?int $user_id = null): void
     {
         $qb = $this->createQueryBuilder('uc');
         $qb->update();
@@ -69,7 +72,7 @@ class UserCacheRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function invalidateNumberbAvailableTags(?int $user_id = null)
+    public function invalidateNumberbAvailableTags(?int $user_id = null): void
     {
         $qb = $this->createQueryBuilder('uc');
         $qb->update();

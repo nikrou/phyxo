@@ -15,6 +15,9 @@ use App\Entity\ImageTag;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<ImageTag>
+ */
 class ImageTagRepository extends ServiceEntityRepository
 {
     use BaseRepositoryTrait;
@@ -24,12 +27,15 @@ class ImageTagRepository extends ServiceEntityRepository
         parent::__construct($registry, ImageTag::class);
     }
 
-    public function addOrUpdateImageTag(ImageTag $image_tag)
+    public function addOrUpdateImageTag(ImageTag $image_tag): void
     {
         $this->_em->persist($image_tag);
         $this->_em->flush();
     }
 
+    /**
+     * @return array<array{tag_id: int, counter: int}>
+     */
     public function getTagCounters()
     {
         $qb = $this->createQueryBuilder('it');
@@ -39,6 +45,9 @@ class ImageTagRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return ImageTag[]|int
+     */
     public function getPendingTags(bool $count_only = false)
     {
         $qb = $this->createQueryBuilder('it');
@@ -59,7 +68,12 @@ class ImageTagRepository extends ServiceEntityRepository
         }
     }
 
-    public function getAvailableTags(int $user_id, array $forbidden_categories = [], bool $show_pending_added_tags = false, bool $show_pending_deleted_tags = false)
+    /**
+     * @param int[] $forbidden_albums
+     *
+     * @return array<array{ImageTag, counter: int}>
+     */
+    public function getAvailableTags(int $user_id, array $forbidden_albums = [], bool $show_pending_added_tags = false, bool $show_pending_deleted_tags = false)
     {
         $qb = $this->createQueryBuilder('it');
         $qb->addSelect('COUNT(it.image) AS counter');
@@ -68,10 +82,10 @@ class ImageTagRepository extends ServiceEntityRepository
 
         $this->addValidatedCondition($qb, $user_id, $show_pending_added_tags, $show_pending_deleted_tags);
 
-        if (count($forbidden_categories) > 0) {
+        if (count($forbidden_albums) > 0) {
             $qb->leftJoin('it.image', 'i');
             $qb->leftJoin('i.imageAlbums', 'ia');
-            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
+            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
         $qb->groupBy('it.validated, it.status, it.image, it.tag', 't.id');
@@ -80,7 +94,11 @@ class ImageTagRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function deleteByImagesAndTags(array $images, array $tags)
+    /**
+     * @param int[] $images
+     * @param int[] $tags
+     */
+    public function deleteByImagesAndTags(array $images, array $tags): void
     {
         $qb = $this->createQueryBuilder('it');
         $qb->delete();
@@ -90,7 +108,10 @@ class ImageTagRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteByImageIds(array $image_ids)
+    /**
+     * @param int[] $image_ids
+     */
+    public function deleteByImageIds(array $image_ids): void
     {
         $qb = $this->createQueryBuilder('it');
         $qb->delete();
@@ -99,7 +120,7 @@ class ImageTagRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteForImage(int $image_id)
+    public function deleteForImage(int $image_id): void
     {
         $qb = $this->createQueryBuilder('it');
         $qb->delete();
@@ -109,7 +130,10 @@ class ImageTagRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteImageTags(array $datas)
+    /**
+     * @param array<int, int> $datas
+     */
+    public function deleteImageTags(array $datas): void
     {
         $qb = $this->createQueryBuilder('it');
         $qb->delete();
@@ -130,7 +154,10 @@ class ImageTagRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteByImageAndTags(int $image_id, array $tags)
+    /**
+     * @param int[] $tags
+     */
+    public function deleteByImageAndTags(int $image_id, array $tags): void
     {
         $qb = $this->createQueryBuilder('it');
         $qb->delete();
@@ -141,7 +168,7 @@ class ImageTagRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function validatedImageTag(int $image_id, int $tag_id)
+    public function validatedImageTag(int $image_id, int $tag_id): void
     {
         $qb = $this->createQueryBuilder('it');
         $qb->update();
@@ -155,6 +182,12 @@ class ImageTagRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
+    /**
+     * @param int[] $tag_ids
+     * @param int[] $image_ids
+     *
+     * @return ImageTag[]
+     */
     public function findImageTags(array $tag_ids, array $image_ids)
     {
         $qb = $this->createQueryBuilder('it');
@@ -165,6 +198,11 @@ class ImageTagRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @param int[] $tag_ids
+     *
+     * @return ImageTag[]
+     */
     public function findImageByTags(array $tag_ids)
     {
         $qb = $this->createQueryBuilder('it');
@@ -173,6 +211,9 @@ class ImageTagRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return array<array<string, string|int>>
+     */
     public function findImageIds()
     {
         $qb = $this->createQueryBuilder('it');
@@ -181,7 +222,10 @@ class ImageTagRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function deleteByTagIds(array $ids)
+    /**
+     * @param int[] $ids
+     */
+    public function deleteByTagIds(array $ids): void
     {
         $qb = $this->createQueryBuilder('it');
         $qb->delete();
@@ -190,7 +234,7 @@ class ImageTagRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteMarkDeletedAndValidated()
+    public function deleteMarkDeletedAndValidated(): void
     {
         $qb = $this->createQueryBuilder('it');
         $qb->delete();
@@ -202,7 +246,7 @@ class ImageTagRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function removeCreatedByKey(int $user_id)
+    public function removeCreatedByKey(int $user_id): void
     {
         $qb = $this->createQueryBuilder('it');
         $qb->update();

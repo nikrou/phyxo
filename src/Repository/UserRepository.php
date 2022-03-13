@@ -16,6 +16,9 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\AbstractQuery;
 
+/**
+ * @extends ServiceEntityRepository<User>
+ */
 class UserRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -49,6 +52,7 @@ class UserRepository extends ServiceEntityRepository
         return $qb->getQuery()->getOneOrNullResult();
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getList(): array
     {
         $qb = $this->createQueryBuilder('u');
@@ -113,6 +117,10 @@ class UserRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
+    /**
+     * @param int[] $album_ids
+     * @return User[]
+     */
     public function findWithAlbumsAccess(array $album_ids = [])
     {
         $qb = $this->createQueryBuilder('u');
@@ -125,6 +133,9 @@ class UserRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return User[]
+     */
     public function getUsersByGroup(int $group_id)
     {
         $qb = $this->createQueryBuilder('u');
@@ -136,7 +147,7 @@ class UserRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findOneByActivationKey(string $key)
+    public function findOneByActivationKey(string $key): ?User
     {
         $qb = $this->createQueryBuilder('u');
         $qb->leftJoin('u.userInfos', 'ui');

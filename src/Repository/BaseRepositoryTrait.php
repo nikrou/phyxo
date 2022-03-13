@@ -31,7 +31,7 @@ trait BaseRepositoryTrait
             ->getSingleScalarResult();
     }
 
-    protected function addValidatedCondition(QueryBuilder $qb, int $user_id, bool $show_pending_added_tags = false, bool $show_pending_deleted_tags = false)
+    protected function addValidatedCondition(QueryBuilder $qb, int $user_id, bool $show_pending_added_tags = false, bool $show_pending_deleted_tags = false): QueryBuilder
     {
         if ($show_pending_added_tags) {
             $addedValidated = $qb->expr()->orX(

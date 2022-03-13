@@ -120,11 +120,11 @@ class AdminTagsController extends AbstractController
             foreach (explode(',', $request->request->get('edit_list')) as $tag_id) {
                 $tag_name = $request->request->get('tag_name-' . $tag_id);
 
-                if ($tag_name !== $current_name_of[$tag_id]->getName()) {
+                if ($tag_name !== $current_name_of[(int) $tag_id]->getName()) {
                     if (in_array($tag_name, $existing_names)) {
                         $this->addFlash('error', $translator->trans('Tag "{tag}" already exists', ['tag' => $tag_name], 'admin'));
                     } elseif (!empty($tag_name)) {
-                        $current_tag = $current_name_of[$tag_id];
+                        $current_tag = $current_name_of[(int) $tag_id];
                         $current_tag->setName($tag_name);
                         $current_tag->setUrlName($tag_name);
                         $tagMapper->getRepository()->addOrUpdateTag($current_tag);

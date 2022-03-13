@@ -15,6 +15,9 @@ use App\Entity\Plugin;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Plugin>
+ */
 class PluginRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -22,6 +25,9 @@ class PluginRepository extends ServiceEntityRepository
         parent::__construct($registry, Plugin::class);
     }
 
+    /**
+     * @return Plugin[]
+     */
     public function findAllByState(string $state = '')
     {
         $qb = $this->createQueryBuilder('p');
@@ -34,13 +40,13 @@ class PluginRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function addPlugin(Plugin $plugin)
+    public function addPlugin(Plugin $plugin): void
     {
         $this->_em->persist($plugin);
         $this->_em->flush();
     }
 
-    public function updateVersion(string $plugin_id, string $version)
+    public function updateVersion(string $plugin_id, string $version): void
     {
         $qb = $this->createQueryBuilder('p');
         $qb->update();
@@ -49,10 +55,10 @@ class PluginRepository extends ServiceEntityRepository
         $qb->setParameter('id', $plugin_id);
         $qb->setParameter('version', $version);
 
-        return $qb->getQuery()->getResult();
+        $qb->getQuery()->getResult();
     }
 
-    public function updateState(string $plugin_id, string $state)
+    public function updateState(string $plugin_id, string $state): void
     {
         $qb = $this->createQueryBuilder('p');
         $qb->update();
@@ -61,27 +67,28 @@ class PluginRepository extends ServiceEntityRepository
         $qb->setParameter('id', $plugin_id);
         $qb->setParameter('state', $state);
 
-        return $qb->getQuery()->getResult();
+        $qb->getQuery()->getResult();
     }
 
-    public function deactivateNonStandardPlugins()
+    public function deactivateNonStandardPlugins(): void
     {
         $qb = $this->createQueryBuilder('p');
         $qb->update();
-        $qb->set('p.state', Plugin::INACTIVE);
-        $qb->where('p.state = :state');
-        $qb->setParameter('state', Plugin::ACTIVE);
+        $qb->set('p.state', ':state_inactive');
+        $qb->setParameter('state_inactive', Plugin::INACTIVE);
+        $qb->where('p.state = :state_active');
+        $qb->setParameter('state_active', Plugin::ACTIVE);
 
-        return $qb->getQuery()->getResult();
+        $qb->getQuery()->getResult();
     }
 
-    public function deleteById(string $plugin_id)
+    public function deleteById(string $plugin_id): void
     {
         $qb = $this->createQueryBuilder('p');
         $qb->where('p.id = :id');
         $qb->setParameter('id', $plugin_id);
         $qb->delete();
 
-        return $qb->getQuery()->getResult();
+        $qb->getQuery()->getResult();
     }
 }

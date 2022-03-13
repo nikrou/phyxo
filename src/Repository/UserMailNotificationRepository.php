@@ -11,10 +11,14 @@
 
 namespace App\Repository;
 
+use App\Entity\User;
 use App\Entity\UserMailNotification;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<UserMailNotification>
+ */
 class UserMailNotificationRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -22,12 +26,18 @@ class UserMailNotificationRepository extends ServiceEntityRepository
         parent::__construct($registry, UserMailNotification::class);
     }
 
-    public function addOrUpdateUserMailNotification(UserMailNotification $user_mail_notification)
+    public function addOrUpdateUserMailNotification(UserMailNotification $user_mail_notification): void
     {
         $this->_em->persist($user_mail_notification);
         $this->_em->flush();
     }
 
+    /**
+     * @param array<string> $check_keys
+     * @param array<string> $orders
+     *
+     * @return UserMailNotification[]
+     */
     public function findInfosForUsers(bool $send, ?bool $enabled_filter_value, array $check_keys = [], array $orders = [])
     {
         $qb = $this->createQueryBuilder('n');
@@ -57,6 +67,9 @@ class UserMailNotificationRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return User[]
+     */
     public function findUsersWithNoMailNotificationInfos()
     {
         $subQuery = $this->createQueryBuilder('n');
@@ -72,7 +85,10 @@ class UserMailNotificationRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function deleteByCheckKeys(array $check_keys)
+    /**
+     * @param array<string> $check_keys
+     */
+    public function deleteByCheckKeys(array $check_keys): void
     {
         $qb = $this->createQueryBuilder('n');
         $qb->delete();

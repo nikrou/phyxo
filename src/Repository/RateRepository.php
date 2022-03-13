@@ -11,11 +11,15 @@
 
 namespace App\Repository;
 
+use App\Entity\Image;
 use App\Entity\Rate;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Rate>
+ */
 class RateRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -23,12 +27,15 @@ class RateRepository extends ServiceEntityRepository
         parent::__construct($registry, Rate::class);
     }
 
-    public function addOrUpdateRate(Rate $rate)
+    public function addOrUpdateRate(Rate $rate): void
     {
         $this->_em->persist($rate);
         $this->_em->flush();
     }
 
+    /**
+     * @return array{count: int, average: float}
+     */
     public function calculateRateSummary(int $image_id)
     {
         $qb = $this->createQueryBuilder('r');
@@ -52,6 +59,7 @@ class RateRepository extends ServiceEntityRepository
         return $qb->getQuery()->getSingleScalarResult();
     }
 
+    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getRatePerImage(int $user_id, string $operator = null, string $order, int $limit, int $offset = 0)
     {
         $qb = $this->createQueryBuilder('r');
@@ -73,7 +81,7 @@ class RateRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function updateAnonymousIdField(string $new_anonymous_id, int $user_id, string $anonymous_id)
+    public function updateAnonymousIdField(string $new_anonymous_id, int $user_id, string $anonymous_id): void
     {
         $qb = $this->createQueryBuilder('r');
         $qb->update();
@@ -87,7 +95,7 @@ class RateRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteImageRateForUser(int $user_id, int $image_id, ?string $anonymous_id = null)
+    public function deleteImageRateForUser(int $user_id, int $image_id, ?string $anonymous_id = null): void
     {
         $qb = $this->createQueryBuilder('r');
         $qb->delete();
@@ -104,6 +112,9 @@ class RateRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return array{array{image: int, rcount: int, rsum: int}}
+     */
     public function calculateRateByImage()
     {
         $qb = $this->createQueryBuilder('r');
@@ -113,6 +124,9 @@ class RateRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return array{array{image: int, avg: int}}
+     */
     public function calculateAverageByImage()
     {
         $qb = $this->createQueryBuilder('r');
@@ -122,13 +136,16 @@ class RateRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function delete(Rate $rate)
+    public function delete(Rate $rate): void
     {
         $this->_em->remove($rate);
         $this->_em->flush();
     }
 
-    public function deleteByImageIds(array $ids)
+    /**
+     * @param int[] $ids
+     */
+    public function deleteByImageIds(array $ids): void
     {
         $qb = $this->createQueryBuilder('r');
         $qb->delete();
@@ -137,7 +154,7 @@ class RateRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteWithConditions(int $user_id, ?int $image_id = null, ?string $anonymous_id)
+    public function deleteWithConditions(int $user_id, ?int $image_id = null, ?string $anonymous_id): void
     {
         $qb = $this->createQueryBuilder('r');
         $qb->delete();

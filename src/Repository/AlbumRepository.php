@@ -19,6 +19,9 @@ use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Album>
+ */
 class AlbumRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -34,7 +37,7 @@ class AlbumRepository extends ServiceEntityRepository
         return $album->getId();
     }
 
-    public function updateAlbumRepresentative(int $id, int $representative_id)
+    public function updateAlbumRepresentative(int $id, int $representative_id): void
     {
         $qb = $this->createQueryBuilder('a');
         $qb->update();
@@ -46,7 +49,11 @@ class AlbumRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function updateAlbums(array $fields, array $ids)
+    /**
+     * @param array<string, string|bool|int|null> $fields
+     * @param int[] $ids
+     */
+    public function updateAlbums(array $fields, array $ids): void
     {
         $qb = $this->createQueryBuilder('a');
         $qb->update();
@@ -60,34 +67,31 @@ class AlbumRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function getAlbumsForMenu(int $user_id, array $forbidden_categories = [])
+    /**
+     * @param int[] $forbidden_albums
+     *
+     * @return Album[]
+     */
+    public function getAlbumsForMenu(int $user_id, array $forbidden_albums = [])
     {
         $qb = $this->createQueryBuilder('a');
         $qb->leftJoin('a.userCacheAlbums', 'ia', Expr\Join::WITH, 'ia.user = :user_id');
         $qb->addSelect('ia');
         $qb->setParameter('user_id', $user_id);
 
-        if (count($forbidden_categories) > 0) {
-            $qb->where($qb->expr()->notIn('a.id', $forbidden_categories));
-        }
+        $this->getQueryBuilderForFindAllowedAlbums($forbidden_albums, $qb);
 
         return $qb->getQuery()->getResult();
     }
 
-    public function findWithSite(int $id)
-    {
-        $qb = $this->createQueryBuilder('a');
-        $qb->leftJoin('a.site', 's');
-        $qb->where('a.id = :id');
-        $qb->setParameter('id', $id);
-
-        return $qb->getQuery()->getOneOrNullResult();
-    }
-
+    /**
+     * @param int[] $ids
+     *
+     * @return Album[]
+     */
     public function findPhysicalAlbums(array $ids = [])
     {
         $qb = $this->createQueryBuilder('a');
-        $qb->leftJoin('a.site', 's');
         if (count($ids) > 0) {
             $qb->where($qb->expr()->in('a.id', $ids));
         }
@@ -96,6 +100,9 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return Album[]
+     */
     public function findVirtualAlbums()
     {
         $qb = $this->createQueryBuilder('a');
@@ -117,25 +124,29 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getSingleScalarResult();
     }
 
-    protected function addCriteriaSubAlbum(QueryBuilder $qb, int $id): QueryBuilder
+    protected function addCriteriaSubAlbum(QueryBuilder $qb, string $crieria): QueryBuilder
     {
         $qb->orWhere($qb->expr()->like('a.uppercats', ':comma_before'));
-        $qb->setParameter('comma_before', '%,' . $id);
+        $qb->setParameter('comma_before', '%,' . $crieria);
 
         $qb->orWhere($qb->expr()->like('a.uppercats', ':two_comma'));
-        $qb->setParameter('two_comma', '%,' . $id . ',%');
+        $qb->setParameter('two_comma', '%,' . $crieria . ',%');
 
         $qb->orWhere($qb->expr()->like('a.uppercats', ':comma_after'));
-        $qb->setParameter('comma_after', $id . ',%');
+        $qb->setParameter('comma_after', $crieria . ',%');
 
         $qb->orWhere('a.uppercats = :id');
-        $qb->setParameter('id', $id);
+        $qb->setParameter('id', $crieria);
 
         return $qb;
     }
 
     /**
      * Returns all sub-album of given album ids
+     *
+     * @param int[] $ids
+     *
+     * @return Album[]
      */
     public function getSubAlbums(array $ids, bool $only_id = false)
     {
@@ -145,7 +156,7 @@ class AlbumRepository extends ServiceEntityRepository
         }
 
         foreach ($ids as $id) {
-            $this->addCriteriaSubAlbum($qb, $id);
+            $this->addCriteriaSubAlbum($qb, (string) $id);
         }
 
         return $qb->getQuery()->getResult();
@@ -153,8 +164,12 @@ class AlbumRepository extends ServiceEntityRepository
 
     /**
      * Returns all sub-album identifiers of given album ids
+     *
+     * @param int[] $ids
+     *
+     * @return int[]
      */
-    public function getSubcatIds(array $ids): array
+    public function getSubcatIds(array $ids)
     {
         $subalbums = [];
         foreach ($this->getSubAlbums($ids, $only_id = true) as $album) {
@@ -164,6 +179,11 @@ class AlbumRepository extends ServiceEntityRepository
         return $subalbums;
     }
 
+    /**
+     * @param int[] $ids
+     *
+     * @return Album[]
+     */
     public function findByIdsAndStatus(array $ids, string $status = Album::STATUS_PUBLIC)
     {
         $qb = $this->createQueryBuilder('a');
@@ -174,6 +194,9 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return Album[]
+     */
     public function findAlbumsForImage(int $image_id)
     {
         $qb = $this->createQueryBuilder('a');
@@ -184,31 +207,47 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function getQueryBuilderForFindAllowedAlbums(array $forbidden_categories = []): QueryBuilder
+    /**
+     * @param int[] $forbidden_albums
+     */
+    public function getQueryBuilderForFindAllowedAlbums(array $forbidden_albums = [], QueryBuilder $qb = null): QueryBuilder
     {
-        $qb = $this->createQueryBuilder('a');
+        $method = 'andWhere';
 
-        if (count($forbidden_categories) > 0) {
-            $qb->where($qb->expr()->notIn('a.id', $forbidden_categories));
+        if (is_null($qb)) {
+            $qb = $this->createQueryBuilder('a');
+            $method = 'where';
+        }
+
+        if (count($forbidden_albums) > 0) {
+            $qb->$method($qb->expr()->notIn('a.id', $forbidden_albums));
         }
 
         return $qb;
     }
 
-    public function findAllowedAlbums(array $forbidden_categories = [])
+    /**
+     * @param int[] $forbidden_albums
+     *
+     * @return Album[]
+     */
+    public function findAllowedAlbums(array $forbidden_albums = [])
     {
-        return $this->getQueryBuilderForFindAllowedAlbums($forbidden_categories)->getQuery()->getResult();
+        return $this->getQueryBuilderForFindAllowedAlbums($forbidden_albums)->getQuery()->getResult();
     }
 
-    public function findAllowedSubAlbums(string $uppercats, array $forbidden_categories = []): array
+    /**
+     * @param int[] $forbidden_albums
+     *
+     * @return int[]
+     */
+    public function findAllowedSubAlbums(string $uppercats, array $forbidden_albums = [])
     {
         $qb = $this->createQueryBuilder('a');
         $qb->where($qb->expr()->like('a.uppercats', ':uppercats'));
         $qb->setParameter('uppercats', $uppercats . ',%');
 
-        if (count($forbidden_categories) > 0) {
-            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
-        }
+        $this->getQueryBuilderForFindAllowedAlbums($forbidden_albums, $qb);
 
         $subalbums = [];
         foreach ($qb->getQuery()->getResult() as $album) {
@@ -218,6 +257,11 @@ class AlbumRepository extends ServiceEntityRepository
         return $subalbums;
     }
 
+    /**
+     * @param int[] $album_ids
+     *
+     * @return Album[]
+     */
     public function findUnauthorized(array $album_ids = [])
     {
         $qb = $this->createQueryBuilder('a');
@@ -231,6 +275,9 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return Album[]
+     */
     public function findByParentId(?int $parent_id = null, int $user_id)
     {
         $qb = $this->createQueryBuilder('a');
@@ -243,7 +290,7 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findRandomRepresentantAmongSubAlbums(string $uppercats)
+    public function findRandomRepresentantAmongSubAlbums(string $uppercats): ?Album
     {
         // avoid rand() in sql query
         $qb = $this->createQueryBuilder('a');
@@ -264,7 +311,10 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getOneOrNullResult();
     }
 
-    public function deleteAlbums(array $ids)
+    /**
+     * @param int[] $ids
+     */
+    public function deleteAlbums(array $ids): void
     {
         $qb = $this->createQueryBuilder('a');
         $qb->delete();
@@ -273,6 +323,9 @@ class AlbumRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return Album[]
+     */
     public function findAuthorizedToUser(int $user_id)
     {
         $qb = $this->createQueryBuilder('a');
@@ -283,6 +336,11 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @param int[] $exclude_album_ids
+     *
+     * @return Album[]
+     */
     public function findPrivateWithUserAccessAndNotExclude(int $user_id, array $exclude_album_ids = [])
     {
         $qb = $this->createQueryBuilder('a');
@@ -299,6 +357,9 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return Album[]
+     */
     public function findAuthorizedToTheGroupTheUserBelongs(int $user_id)
     {
         $qb = $this->createQueryBuilder('a');
@@ -310,6 +371,9 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return Album[]
+     */
     public function findPrivateWithGroupAccess(int $group_id)
     {
         $qb = $this->createQueryBuilder('a');
@@ -322,7 +386,12 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function getComputedAlbums(int $level, array $forbidden_categories = [])
+    /**
+     * @param int[] $forbidden_albums
+     *
+     * @return array<int, array{album_id: int, id_uppercat: ?int, date_last: string, nb_images: int}>
+     */
+    public function getComputedAlbums(int $level, array $forbidden_albums = [])
     {
         $qb = $this->createQueryBuilder('a');
         $qb->select('a.id AS album_id, IDENTITY(a.parent) AS id_uppercat, MAX(i.date_available) as date_last, COUNT(i.id) AS nb_images');
@@ -330,15 +399,16 @@ class AlbumRepository extends ServiceEntityRepository
         $qb->leftJoin('ia.image', 'i', Expr\Join::WITH, 'i.level <= :level');
         $qb->setParameter('level', $level);
 
-        if (count($forbidden_categories) > 0) {
-            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
-        }
+        $this->getQueryBuilderForFindAllowedAlbums($forbidden_albums, $qb);
 
         $qb->groupBy('a.id');
 
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return Album[]
+     */
     public function findParentAlbums(int $user_id)
     {
         $qb = $this->createQueryBuilder('a');
@@ -349,6 +419,11 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @param int[] $ids
+     *
+     * @return Album[]
+     */
     public function findRepresentants(array $ids)
     {
         $qb = $this->createQueryBuilder('a');
@@ -357,20 +432,26 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findRelative(int $image_id, array $forbidden_categories = [])
+    /**
+     * @param int[] $forbidden_albums
+     *
+     * @return Album[]
+     */
+    public function findRelative(int $image_id, array $forbidden_albums = [])
     {
         $qb = $this->createQueryBuilder('a');
         $qb->leftJoin('a.imageAlbums', 'ia');
         $qb->where('ia.image = :image_id');
         $qb->setParameter('image_id', $image_id);
 
-        if (count($forbidden_categories) > 0) {
-            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
-        }
+        $this->getQueryBuilderForFindAllowedAlbums($forbidden_albums, $qb);
 
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return Album[]
+     */
     public function findRecentAlbums(?DateTimeInterface $recent_date, ?DateTimeInterface $last_photo_date = null)
     {
         $qb = $this->createQueryBuilder('a');
@@ -381,7 +462,12 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findNoParentsAuthorizedAlbums(int $user_id, array $forbidden_categories = [], bool $public_and_visible = false)
+    /**
+     * @param int[] $forbidden_albums
+     *
+     * @return Album[]
+     */
+    public function findNoParentsAuthorizedAlbums(int $user_id, array $forbidden_albums = [], bool $public_and_visible = false)
     {
         $qb = $this->createQueryBuilder('a');
         $qb->leftJoin('a.userCacheAlbums', 'uca', Expr\Join::WITH, 'uca.user = :user');
@@ -394,31 +480,38 @@ class AlbumRepository extends ServiceEntityRepository
             $qb->setParameter('visible', true);
         }
 
-        if (count($forbidden_categories) > 0) {
-            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
-        }
+        $this->getQueryBuilderForFindAllowedAlbums($forbidden_albums, $qb);
 
         $qb->andWhere($qb->expr()->isNull('a.parent'));
 
         return $qb->getQuery()->getResult();
     }
 
-    public function findAuthorizedAlbumsForAlbums(array $album_ids, array $forbidden_categories = [])
+    /**
+     * @param int[] $album_ids
+     * @param int[] $forbidden_albums
+     *
+     * @return Album[]
+     */
+    public function findAuthorizedAlbumsForAlbums(array $album_ids, array $forbidden_albums = [])
     {
         $qb = $this->createQueryBuilder('a');
 
         foreach ($album_ids as $id) {
-            $this->addCriteriaSubAlbum($qb, $id);
+            $this->addCriteriaSubAlbum($qb, (string) $id);
         }
 
-        if (count($forbidden_categories) > 0) {
-            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
-        }
+        $this->getQueryBuilderForFindAllowedAlbums($forbidden_albums, $qb);
 
         return $qb->getQuery()->getResult();
     }
 
-    public function findAuthorizedAlbumsAndParents(int $user_id, int $album_id, array $forbidden_categories = [], bool $public_and_visible = false)
+    /**
+     * @param int[] $forbidden_albums
+     *
+     * @return Album[]
+     */
+    public function findAuthorizedAlbumsAndParents(int $user_id, int $album_id, array $forbidden_albums = [], bool $public_and_visible = false)
     {
         $qb = $this->createQueryBuilder('a');
         $qb->leftJoin('a.userCacheAlbums', 'uca', Expr\Join::WITH, 'uca.user = :user');
@@ -431,9 +524,7 @@ class AlbumRepository extends ServiceEntityRepository
             $qb->setParameter('visible', true);
         }
 
-        if (count($forbidden_categories) > 0) {
-            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
-        }
+        $this->getQueryBuilderForFindAllowedAlbums($forbidden_albums, $qb);
 
         $qb->andWhere('a.parent = :album_id');
         $qb->orWhere('a.id = :album_id');
@@ -442,20 +533,29 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findAuthorizedAlbumsInSubAlbumsForAlbums(array $album_ids, array $forbidden_categories = [])
+    /**
+     * @param int[] $album_ids
+     * @param int[] $forbidden_albums
+     *
+     * @return Album[]
+     */
+    public function findAuthorizedAlbumsInSubAlbumsForAlbums(array $album_ids, array $forbidden_albums = [])
     {
         $qb = $this->createQueryBuilder('a');
 
         $qb->where($qb->expr()->in('a.id', $album_ids));
 
-        if (count($forbidden_categories) > 0) {
-            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
-        }
+        $this->getQueryBuilderForFindAllowedAlbums($forbidden_albums, $qb);
 
         return $qb->getQuery()->getResult();
     }
 
-    public function findAuthorizedAlbumsInSubAlbums(int $user_id, int $album_id, array $forbidden_categories = [], bool $public_and_visible = false)
+    /**
+     * @param int[] $forbidden_albums
+     *
+     * @return Album[]
+     */
+    public function findAuthorizedAlbumsInSubAlbums(int $user_id, int $album_id, array $forbidden_albums = [], bool $public_and_visible = false)
     {
         $qb = $this->createQueryBuilder('a');
         $qb->leftJoin('a.userCacheAlbums', 'uca', Expr\Join::WITH, 'uca.user = :user');
@@ -468,16 +568,19 @@ class AlbumRepository extends ServiceEntityRepository
             $qb->setParameter('visible', true);
         }
 
-        if (count($forbidden_categories) > 0) {
-            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
-        }
+        $this->getQueryBuilderForFindAllowedAlbums($forbidden_albums, $qb);
 
-        $this->addCriteriaSubAlbum($qb, $album_id);
+        $this->addCriteriaSubAlbum($qb, (string) $album_id);
 
         return $qb->getQuery()->getResult();
     }
 
-    public function findAuthorizedAlbums(int $user_id, array $forbidden_categories = [], bool $public_and_visible = false)
+    /**
+     * @param int[] $forbidden_albums
+     *
+     * @return Album[]
+     */
+    public function findAuthorizedAlbums(int $user_id, array $forbidden_albums = [], bool $public_and_visible = false)
     {
         $qb = $this->createQueryBuilder('a');
         $qb->leftJoin('a.userCacheAlbums', 'uca', Expr\Join::WITH, 'uca.user = :user');
@@ -490,14 +593,17 @@ class AlbumRepository extends ServiceEntityRepository
             $qb->setParameter('visible', true);
         }
 
-        if (count($forbidden_categories) > 0) {
-            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
-        }
+        $this->getQueryBuilderForFindAllowedAlbums($forbidden_albums, $qb);
 
         return $qb->getQuery()->getResult();
     }
 
-    public function findWrongRepresentant(array $album_ids = []): array
+    /**
+     * @param int[] $album_ids
+     *
+     * @return array<int, int|string>
+     */
+    public function findWrongRepresentant(array $album_ids = [])
     {
         $qb = $this->createQueryBuilder('a');
         $qb->select('DISTINCT(a.id)');
@@ -517,7 +623,12 @@ class AlbumRepository extends ServiceEntityRepository
         return $results;
     }
 
-    public function findNeedeedRandomRepresentant(array $album_ids = []): array
+    /**
+     * @param int[] $album_ids
+     *
+     * @return array<int>
+     */
+    public function findNeedeedRandomRepresentant(array $album_ids = [])
     {
         $qb = $this->createQueryBuilder('a');
         $qb->select('DISTINCT(a.id)');
@@ -536,7 +647,10 @@ class AlbumRepository extends ServiceEntityRepository
         return $results;
     }
 
-    public function hasAccessToImage(int $image_id, array $forbidden_categories = []) : bool
+    /**
+     * @param int[] $forbidden_albums
+     */
+    public function hasAccessToImage(int $image_id, array $forbidden_albums = []) : bool
     {
         $qb = $this->createQueryBuilder('a');
         $qb->select('COUNT(1)');
@@ -544,31 +658,19 @@ class AlbumRepository extends ServiceEntityRepository
         $qb->where('ia.image = :image_id');
         $qb->setParameter('image_id', $image_id);
 
-        if (count($forbidden_categories) > 0) {
-            $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_categories));
-        }
+        $this->getQueryBuilderForFindAllowedAlbums($forbidden_albums, $qb);
 
         return (int) $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
+    /**
+     * @return array{max: \DateTimeInterface, count: int}
+     */
     public function getMaxLastModified()
     {
         $qb = $this->createQueryBuilder('a');
         $qb->select('MAX(a.last_modified) as max, COUNT(1) as count');
 
         return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_ARRAY);
-    }
-
-    public function findSitesDetail()
-    {
-        return [];
-        // $qb = $this->createQueryBuilder('a');
-        // $qb->select('a.site');
-        // $qb->addSelect('COUNT(DISTINCT(IDENa.id)) AS nb_albums, COUNT(ia.image) AS nb_images');
-        // $qb->leftJoin('a.imageAlbums', 'ia'); //, Expr\Join::WITH, 'a.id = ia.storage_category_id');
-        // $qb->where($qb->expr()->isNotNull('a.site_id'));
-        // $qb->groupBy('a.site_id');
-
-        // return $qb->getQuery()->getResult();
     }
 }

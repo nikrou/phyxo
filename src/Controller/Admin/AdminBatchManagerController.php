@@ -74,7 +74,7 @@ class AdminBatchManagerController extends AbstractController
     }
 
     /**
-     * @return array<string, int|float|bool|string|null|array<int>>
+     * @return array<string, int|float|bool|string|null|array<int>|array<string>>
      */
     protected function getFilter(SessionInterface $session): array
     {
@@ -585,7 +585,7 @@ class AdminBatchManagerController extends AbstractController
             $tagMapper->sync_metadata($collection, $this->user);
             $this->addFlash('success', $this->translator->trans('Metadata synchronized from file', [], 'admin'));
         } elseif ($action === 'delete_derivatives' && $request->request->get('del_derivatives_type')) {
-            foreach ($imageMapper->getRepository()->find($collection) as $image) {
+            foreach ($imageMapper->getRepository()->findBy($collection) as $image) {
                 foreach ($request->request->all()['del_derivatives_type'] as $type) {
                     $this->derivativeService->deleteForElement($image->toArray(), $type);
                 }
@@ -645,7 +645,7 @@ class AdminBatchManagerController extends AbstractController
                 case 'favorites':
                     $user_favorites = [];
                     foreach ($favoriteRepository->findUserFavorites($this->user->getId(), $this->user->getUserInfos()->getForbiddenAlbums()) as $favorite) {
-                        $user_favorites[] = $favorite->getImage()->geId();
+                        $user_favorites[] = $favorite->getImage()->getId();
                     }
                     $filter_sets[] = $user_favorites;
                     break;
@@ -710,8 +710,10 @@ class AdminBatchManagerController extends AbstractController
                     }
 
                     $ids = [];
-                    foreach ($array_of_ids_string as $ids_string) {
-                        $ids = array_merge($ids, explode(',', $ids_string));
+                    if (count($array_of_ids_string) > 0) {
+                        foreach ($array_of_ids_string as $ids_string) {
+                            $ids = array_merge($ids, explode(',', $ids_string));
+                        }
                     }
 
                     $filter_sets[] = $ids;
@@ -742,7 +744,7 @@ class AdminBatchManagerController extends AbstractController
                 $albums[] = $albumRepository->find($bulk_manager_filter['category']);
             }
 
-            if (!is_null($albums)) {
+            if (count($albums) > 0) {
                 foreach ($albums as $album) {
                     foreach ($album->getImageAlbums() as $image_album) {
                         $image_ids[] = $image_album->getImage()->getId();

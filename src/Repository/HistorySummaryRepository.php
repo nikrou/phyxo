@@ -15,6 +15,9 @@ use App\Entity\HistorySummary;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<HistorySummary>
+ */
 class HistorySummaryRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -30,7 +33,7 @@ class HistorySummaryRepository extends ServiceEntityRepository
         return $historySummary->getId();
     }
 
-    public function deleteAll()
+    public function deleteAll(): void
     {
         $qb = $this->createQueryBuilder('h');
         $qb->delete();
@@ -38,6 +41,9 @@ class HistorySummaryRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return HistorySummary[]
+     */
     public function getSummaryToUpdate(int $year, ? int $month = null, ? int $day = null, ? int $hour = null)
     {
         $qb = $this->createQueryBuilder('h');
@@ -68,6 +74,9 @@ class HistorySummaryRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return HistorySummary[]
+     */
     public function getSummary(? int $year = null, ? int $month = null, ? int $day = null)
     {
         $qb = $this->createQueryBuilder('h');

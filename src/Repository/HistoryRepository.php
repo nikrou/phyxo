@@ -16,6 +16,9 @@ use App\Form\Model\SearchRulesModel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<History>
+ */
 class HistoryRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -31,7 +34,12 @@ class HistoryRepository extends ServiceEntityRepository
         return $history->getId();
     }
 
-    public function getHistory(SearchRulesModel $rules, $types, int $limit, int $offset = 0, bool $count_only = false)
+    /**
+     * @param array<string> $types
+     *
+     * @return History[]
+     */
+    public function getHistory(SearchRulesModel $rules, array $types, int $limit, int $offset = 0, bool $count_only = false)
     {
         $qb = $this->createQueryBuilder('h');
 
@@ -90,6 +98,11 @@ class HistoryRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * @param int[] $user_ids
+     *
+     * @return array<int>
+     */
     public function getMaxIdForUsers(array $user_ids)
     {
         $qb = $this->createQueryBuilder('h');
@@ -100,7 +113,7 @@ class HistoryRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function deleteAll()
+    public function deleteAll(): void
     {
         $qb = $this->createQueryBuilder('h');
         $qb->delete();
@@ -108,7 +121,10 @@ class HistoryRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteElements(array $ids = [])
+    /**
+     * @param int[] $ids
+     */
+    public function deleteElements(array $ids = []): void
     {
         $qb = $this->createQueryBuilder('h');
         $qb->delete();
@@ -117,6 +133,9 @@ class HistoryRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return array<array{History, max_id: int, nb_pages: int}>
+     */
     public function getDetailsFromNotSummarized()
     {
         $qb = $this->createQueryBuilder('h');
@@ -130,7 +149,7 @@ class HistoryRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function setSummarizedForUnsummarized(int $max_id)
+    public function setSummarizedForUnsummarized(int $max_id): void
     {
         $qb = $this->createQueryBuilder('h');
         $qb->update();

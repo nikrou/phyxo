@@ -16,6 +16,9 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Tag>
+ */
 class TagRepository extends ServiceEntityRepository
 {
     use BaseRepositoryTrait;
@@ -33,6 +36,9 @@ class TagRepository extends ServiceEntityRepository
         return $tag->getId();
     }
 
+    /**
+     * @return Tag[]
+     */
     public function searchAll(string $q = '')
     {
         $qb = $this->createQueryBuilder('t');
@@ -44,11 +50,24 @@ class TagRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @param string[] $names
+     * @param string[] $url_names
+     *
+     * @return Tag[]
+     */
     public function findByNamesOrUrlNames(array $names, array $url_names)
     {
         return $this->findByIdsOrNamesOrUrlNames([], $names, $url_names);
     }
 
+    /**
+     * @param int[] $ids
+     * @param string[] $names
+     * @param string[] $url_names
+     *
+     * @return Tag[]
+     */
     public function findByIdsOrNamesOrUrlNames(array $ids = [], array $names = [], array $url_names = [])
     {
         $qb = $this->createQueryBuilder('t');
@@ -68,6 +87,12 @@ class TagRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @param int[] $items
+     * @param int[] $excluded_tag_ids
+     *
+     * @return array<array<string|int, Tag|int|string>>
+     */
     public function getCommonTags(int $user_id, array $items, int $max_tags, array $excluded_tag_ids = [])
     {
         $qb = $this->createQueryBuilder('t');
@@ -94,6 +119,9 @@ class TagRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return Tag[]
+     */
     public function getRelatedTags(int $user_id, int $image_id, int $max_tags, bool $show_pending_added_tags, bool $show_pending_deleted_tags = false)
     {
         $qb = $this->createQueryBuilder('t');
@@ -111,6 +139,9 @@ class TagRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return Tag[]
+     */
     public function getOrphanTags()
     {
         $qb = $this->createQueryBuilder('t');
@@ -120,6 +151,9 @@ class TagRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return array<array<string, string|int>>
+     */
     public function findImageWithNoTag()
     {
         $qb = $this->createQueryBuilder('t');
@@ -130,7 +164,10 @@ class TagRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function deleteTags(array $ids)
+    /**
+     * @param int[] $ids
+     */
+    public function deleteTags(array $ids): void
     {
         $qb = $this->createQueryBuilder('t');
         $qb->delete();
@@ -139,12 +176,15 @@ class TagRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function delete(Tag $tag)
+    public function delete(Tag $tag): void
     {
         $this->_em->remove($tag);
         $this->_em->flush();
     }
 
+    /**
+     * @return array{max: \DateTimeInterface, count: int}
+     */
     public function getMaxLastModified()
     {
         $qb = $this->createQueryBuilder('t');
@@ -153,6 +193,9 @@ class TagRepository extends ServiceEntityRepository
         return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_ARRAY);
     }
 
+    /**
+     * @return Tag[]
+     */
     public function getTagsByImage(int $image_id, ? bool $validated = null)
     {
         $qb = $this->createQueryBuilder('t');

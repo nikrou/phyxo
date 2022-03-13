@@ -17,6 +17,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\QueryBuilder;
 
+/**
+ * @extends ServiceEntityRepository<UserInfos>
+ */
 class UserInfosRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -32,6 +35,9 @@ class UserInfosRepository extends ServiceEntityRepository
         $this->_em->flush();
     }
 
+    /**
+     * @return array{max: \DateTimeInterface, count: int}
+     */
     public function getMaxLastModified()
     {
         $qb = $this->createQueryBuilder('u');
@@ -40,12 +46,19 @@ class UserInfosRepository extends ServiceEntityRepository
         return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_ARRAY);
     }
 
+    /**
+     * @param int[] $user_ids
+     */
     public function updateFieldForUsers(string $field, string $value, array $user_ids = []): void
     {
         $this->updateFieldsForUsers([$field => $value], $user_ids);
     }
 
-    public function updateFieldsForUsers(array $fields, array $user_ids = [])
+    /**
+     * @param array<string, string> $fields
+     * @param int[] $user_ids
+     */
+    public function updateFieldsForUsers(array $fields, array $user_ids = []): void
     {
         $qb = $this->createQueryBuilder('u');
         $qb->update();
@@ -60,7 +73,10 @@ class UserInfosRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function updateLanguageForLanguages(string $language, array $languages)
+    /**
+     * @param array<string> $languages
+     */
+    public function updateLanguageForLanguages(string $language, array $languages): void
     {
         $qb = $this->createQueryBuilder('u');
         $qb->update();
@@ -71,12 +87,15 @@ class UserInfosRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return UserInfos[]
+     */
     public function getNewUsers(\DateTimeInterface $start = null, \DateTimeInterface $end = null)
     {
         $qb = $this->createQueryBuilder('u');
         $this->addBetweenDateCondition($qb, $start, $end);
 
-        $qb->getQuery()->getResult();
+        return $qb->getQuery()->getResult();
     }
 
     public function countNewUsers(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
@@ -88,7 +107,7 @@ class UserInfosRepository extends ServiceEntityRepository
         return $qb->getQuery()->getSingleScalarResult();
     }
 
-    private function addBetweenDateCondition(QueryBuilder $qb, \DateTimeInterface $start = null, \DateTimeInterface $end = null)
+    private function addBetweenDateCondition(QueryBuilder $qb, \DateTimeInterface $start = null, \DateTimeInterface $end = null): QueryBuilder
     {
         if (!is_null($start)) {
             $qb->andWhere('u.registration_date > :start');

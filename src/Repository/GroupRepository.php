@@ -15,6 +15,10 @@ use App\Entity\Group;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\Persistence\ManagerRegistry;
+
+/**
+ * @extends ServiceEntityRepository<Group>
+ */
 class GroupRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -30,6 +34,9 @@ class GroupRepository extends ServiceEntityRepository
         return $group->getId();
     }
 
+    /**
+     * @return array{max: int, count: int}
+     */
     public function getMaxLastModified()
     {
         $qb = $this->createQueryBuilder('g');
@@ -48,6 +55,9 @@ class GroupRepository extends ServiceEntityRepository
         return (int) $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
+    /**
+     * @return Group[]
+     */
     public function findUsersInGroups()
     {
         $qb = $this->createQueryBuilder('g');
@@ -56,6 +66,9 @@ class GroupRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return Group[]
+     */
     public function findDefaultGroups()
     {
         $qb = $this->createQueryBuilder('g');
@@ -64,7 +77,10 @@ class GroupRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function deleteByGroupIds(array $group_ids)
+    /**
+     * @param int[] $group_ids
+     */
+    public function deleteByGroupIds(array $group_ids): void
     {
         $qb = $this->createQueryBuilder('g');
         $qb->where($qb->expr()->in('g.id', $group_ids));
@@ -81,7 +97,10 @@ class GroupRepository extends ServiceEntityRepository
         $this->_em->flush();
     }
 
-    public function toggleIsDefault(array $group_ids)
+    /**
+     * @param int[] $group_ids
+     */
+    public function toggleIsDefault(array $group_ids): void
     {
         $qb = $this->createQueryBuilder('g');
         $qb->update();
@@ -91,6 +110,11 @@ class GroupRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
+    /**
+     * @param int[] $group_ids
+     *
+     * @return Group[]
+     */
     public function findByNameOrGroupIds(?string $name = null, array $group_ids = [], ?string $order = null, ?int $limit = null, int $offset = 0)
     {
         $qb = $this->createQueryBuilder('g');
@@ -121,6 +145,11 @@ class GroupRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @param int[] $album_ids
+     *
+     * @return Group[]
+     */
     public function findWithAlbumsAccess(array $album_ids = [])
     {
         $qb = $this->createQueryBuilder('g');

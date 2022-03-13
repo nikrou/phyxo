@@ -15,6 +15,9 @@ use App\Entity\Caddie;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Caddie>
+ */
 class CaddieRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -22,13 +25,13 @@ class CaddieRepository extends ServiceEntityRepository
         parent::__construct($registry, Caddie::class);
     }
 
-    public function addOrUpdateCaddie(Caddie $caddie)
+    public function addOrUpdateCaddie(Caddie $caddie): void
     {
         $this->_em->persist($caddie);
         $this->_em->flush();
     }
 
-    public function emptyCaddies(int $user_id)
+    public function emptyCaddies(int $user_id): void
     {
         $qb = $this->createQueryBuilder('c');
         $qb->delete();
@@ -38,7 +41,10 @@ class CaddieRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteElements(array $image_ids, int $user_id = null)
+    /**
+     * @param int[] $image_ids
+     */
+    public function deleteElements(array $image_ids, int $user_id = null): void
     {
         $qb = $this->createQueryBuilder('c');
         $qb->delete();

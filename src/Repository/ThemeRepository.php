@@ -15,6 +15,9 @@ use App\Entity\Theme;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Theme>
+ */
 class ThemeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -22,12 +25,17 @@ class ThemeRepository extends ServiceEntityRepository
         parent::__construct($registry, Theme::class);
     }
 
-    public function addTheme(Theme $theme)
+    public function addTheme(Theme $theme): void
     {
         $this->_em->persist($theme);
         $this->_em->flush();
     }
 
+    /**
+     * @param string[] $ids
+     *
+     * @return Theme[]
+     */
     public function findExcept(array $ids)
     {
         $qb = $this->createQueryBuilder('t');
@@ -36,17 +44,20 @@ class ThemeRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function deleteById(string $theme_id)
+    public function deleteById(string $theme_id): void
     {
-        return $this->deleteByIds([$theme_id]);
+        $this->deleteByIds([$theme_id]);
     }
 
-    public function deleteByIds(array $theme_ids)
+    /**
+     * @param string[] $theme_ids
+     */
+    public function deleteByIds(array $theme_ids): void
     {
         $qb = $this->createQueryBuilder('t');
         $qb->where($qb->expr()->in('id', $theme_ids));
         $qb->delete();
 
-        return $qb->getQuery()->getResult();
+        $qb->getQuery()->getResult();
     }
 }

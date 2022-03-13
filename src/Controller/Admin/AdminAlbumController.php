@@ -177,7 +177,7 @@ class AdminAlbumController extends AbstractController
             $tpl_params['U_DELETE'] = $this->generateUrl('admin_album_delete', ['album_id' => $album_id, 'parent_id' => $parent_id]);
             $tpl_params['parent_category'] = $album->getParent() ? [$album->getParent()->getId()] : [];
         } else {
-            $album = $albumMapper->getRepository()->findWithSite($album_id);
+            $album = $albumMapper->getRepository()->find($album_id);
 
             $uppercats = '';
             $local_dir = '';
@@ -190,13 +190,6 @@ class AdminAlbumController extends AbstractController
 
             foreach ($upper_array as $id) {
                 $local_dir .= $database_dirs[$id] . '/';
-            }
-
-            $album_full_dir = $album->getSite()->getGalleriesUrl() . $local_dir;
-            $tpl_params['CAT_FULL_DIR'] = preg_replace('/\/$/', '', $album_full_dir);
-
-            if ($conf['enable_synchronization']) {
-                $tpl_params['U_SYNC'] = $this->generateUrl('admin_site_update', ['album_id' => $album_id]);
             }
         }
 
@@ -291,7 +284,12 @@ class AdminAlbumController extends AbstractController
             $albumMapper->getRepository()->updateAlbums(['image_order' => $image_order], [$album_id]);
 
             if ($request->request->get('image_order_subcats')) {
-                $albumMapper->getRepository()->updateAlbums(['image_order' => $image_order], explode(',', $album->getUppercats()));
+                $children_ids = [];
+                foreach ($album->getChildren() as $child) {
+                    $children_ids[] = $child->getId();
+                }
+
+                $albumMapper->getRepository()->updateAlbums(['image_order' => $image_order], $children_ids);
             }
 
             $this->addFlash('success', $translator->trans('Your configuration settings have been saved', [], 'admin'));

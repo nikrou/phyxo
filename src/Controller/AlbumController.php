@@ -254,8 +254,8 @@ class AlbumController extends CommonController
 
         $album = $albumMapper->getRepository()->find($album_id);
         $subcat_ids[] = $album->getId();
-        foreach ($albumMapper->getRepository()->findAllowedSubAlbums($album->getUppercats(), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $sub_album) {
-            $subcat_ids[] = $sub_album->getId();
+        foreach ($albumMapper->getRepository()->findAllowedSubAlbums($album->getUppercats(), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $sub_album_id) {
+            $subcat_ids[] = $sub_album_id;
         }
 
         $tpl_params['items'] = [];

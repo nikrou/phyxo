@@ -34,10 +34,6 @@ class CalendarController extends CommonController
         $tpl_params['number_of_images'] = 0;
 
         foreach ($imageRepository->countImagesByYear($date_type, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $rowYear) {
-            if (is_null($rowYear['year'])) {
-                continue;
-            }
-
             $tpl_params['number_of_images'] += $rowYear['nb_images'];
             if (isset($tpl_params['years'][$rowYear['year']])) {
                 $tpl_params['years'][$rowYear['year']]['nb_images'] += $rowYear['nb_images'];

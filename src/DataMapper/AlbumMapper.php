@@ -533,6 +533,7 @@ class AlbumMapper
             // step 2, search the reference album for permissions
             //
             // to find the reference of each top album, we will need the parent albums
+            /** @var Album[] $parent_albums */
             $parent_albums = [];
 
             if (count($parent_ids) > 0) {

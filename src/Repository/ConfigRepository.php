@@ -15,6 +15,9 @@ use App\Entity\Config;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Config>
+ */
 class ConfigRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -28,13 +31,16 @@ class ConfigRepository extends ServiceEntityRepository
         $this->_em->flush();
     }
 
-    public function addParam(Config $config)
+    public function addParam(Config $config): void
     {
         $this->_em->persist($config);
         $this->_em->flush();
     }
 
-    public function findMatching(string $expression): array
+    /**
+     * @return Config[]
+     */
+    public function findMatching(string $expression)
     {
         $qb = $this->createQueryBuilder('c');
         $qb->where($qb->expr()->like('c.param', ':expression'));
@@ -43,6 +49,9 @@ class ConfigRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @param string[] $params
+     */
     public function delete(array $params = []): void
     {
         $entities = $this->findBy(['param' => array_values($params)]);

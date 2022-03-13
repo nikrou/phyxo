@@ -16,6 +16,9 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Comment>
+ */
 class CommentRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -31,7 +34,7 @@ class CommentRepository extends ServiceEntityRepository
         return $comment->getId();
     }
 
-    public function doestAuthorPostMessageAfterThan(int $user_id, \DateTimeInterface $anti_flood_time, ?string $anonymous_id = null)
+    public function doestAuthorPostMessageAfterThan(int $user_id, \DateTimeInterface $anti_flood_time, ?string $anonymous_id = null): bool
     {
         $qb = $this->createQueryBuilder('c');
         $qb->select('COUNT(1)');
@@ -48,7 +51,10 @@ class CommentRepository extends ServiceEntityRepository
         return (int) $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
-    public function deleteByIds(array $comment_ids, ?int $user_id = null)
+    /**
+     * @param int[] $comment_ids
+     */
+    public function deleteByIds(array $comment_ids, ?int $user_id = null): void
     {
         $qb = $this->createQueryBuilder('c');
         $qb->delete();
@@ -62,7 +68,7 @@ class CommentRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteByUserId(int $user_id)
+    public function deleteByUserId(int $user_id): void
     {
         $qb = $this->createQueryBuilder('c');
         $qb->delete();
@@ -72,7 +78,10 @@ class CommentRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteByImage(array $image_ids)
+    /**
+     * @param int[] $image_ids
+     */
+    public function deleteByImage(array $image_ids): void
     {
         $qb = $this->createQueryBuilder('c');
         $qb->delete();
@@ -81,7 +90,10 @@ class CommentRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function validateUserComment(array $comment_ids)
+    /**
+     * @param int[] $comment_ids
+     */
+    public function validateUserComment(array $comment_ids): void
     {
         $qb = $this->createQueryBuilder('c');
         $qb->update();
@@ -94,6 +106,9 @@ class CommentRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return Comment[]
+     */
     public function getCommentsOnImages(bool $validated, int $limit, int $offset = 0)
     {
         $qb = $this->createQueryBuilder('c');
@@ -108,6 +123,11 @@ class CommentRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @param int[] $image_ids
+     *
+     * @return array<array{image_id: int, nb_comments: int}>
+     */
     public function countGroupByImage(array $image_ids, bool $validated = true)
     {
         $qb = $this->createQueryBuilder('c');
@@ -120,6 +140,9 @@ class CommentRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return array<array{counter: int, validated: bool}>
+     */
     public function countGroupByValidated()
     {
         $qb = $this->createQueryBuilder('c');
@@ -129,6 +152,11 @@ class CommentRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @param array<string, string|int[]> $filter_params
+     *
+     * @return Comment[]|int
+     */
     public function getLastComments(array $filter_params = [], int $offset = 0, int $limit = 0, bool $count_only = false)
     {
         $qb = $this->createQueryBuilder('c');
@@ -197,6 +225,9 @@ class CommentRepository extends ServiceEntityRepository
         return $qb->getQuery()->getSingleScalarResult();
     }
 
+    /**
+     * @return Comment[]
+     */
     public function getCommentsForImagePerPage(int $image_id, int $limit, int $offset = 0)
     {
         $qb = $this->createQueryBuilder('c');
@@ -209,6 +240,9 @@ class CommentRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return Comment[]
+     */
     public function getCommentsOnImage(int $image_id, string $order, int $limit, int $offset = 0, bool $isAdmin = false)
     {
         $qb = $this->createQueryBuilder('c');
@@ -226,7 +260,12 @@ class CommentRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function getNewComments(array $forbidden_categories = [], \DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only = false)
+    /**
+     * @param int[] $forbidden_albums
+     *
+     * @return Comment[]|int
+     */
+    public function getNewComments(array $forbidden_albums = [], \DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only = false)
     {
         $qb = $this->createQueryBuilder('c');
 
@@ -237,8 +276,8 @@ class CommentRepository extends ServiceEntityRepository
         $qb->leftJoin('c.image', 'i');
         $qb->leftJoin('i.imageAlbums', 'ia');
 
-        if (count($forbidden_categories)) {
-            $qb->where($qb->expr()->notIn('ia.album', $forbidden_categories));
+        if (count($forbidden_albums)) {
+            $qb->where($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
         if (!is_null($start)) {
@@ -258,6 +297,9 @@ class CommentRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * @return Comment[]|int
+     */
     public function getUnvalidatedComments(\DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only)
     {
         $qb = $this->createQueryBuilder('c');
@@ -286,15 +328,18 @@ class CommentRepository extends ServiceEntityRepository
         }
     }
 
-    public function countAvailableComments(array $forbidden_categories = [], bool $isAdmin = false): int
+    /**
+     * @param int[] $forbidden_albums
+     */
+    public function countAvailableComments(array $forbidden_albums = [], bool $isAdmin = false): int
     {
         $qb = $this->createQueryBuilder('c');
         $qb->select('COUNT(DISTINCT(c.id))');
         $qb->leftJoin('c.image', 'i');
         $qb->leftJoin('i.imageAlbums', 'ia');
 
-        if (count($forbidden_categories) > 0) {
-            $qb->where($qb->expr()->notIn('ia.album', $forbidden_categories));
+        if (count($forbidden_albums) > 0) {
+            $qb->where($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
         if (!$isAdmin) {

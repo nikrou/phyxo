@@ -72,3 +72,7 @@ parameters:
     # Behat errors
     - message: '#Method App\\Tests\\Behat\\DBContext::.*\(\) has parameter \$table with no value type specified in iterable type Behat\\Gherkin\\Node\\TableNode\.#'
       path: tests/Behat/DBContext.php
+
+    # No more ws functions ?
+    - message: '#.*#'
+      path: src/Phyxo/Functions/Ws/*.php

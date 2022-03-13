@@ -21,6 +21,7 @@ use App\Entity\Album;
 use App\Entity\Comment;
 use App\Entity\Image;
 use App\Entity\User;
+use App\Entity\UserInfos;
 use App\Entity\UserMailNotification;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
@@ -142,9 +143,9 @@ class Notification
     /**
      * Returns updated albums between two dates.
      *
-     * @return Album[]
+     * @return Album[]|int
      */
-    public function updated_albums(\DateTimeInterface $start = null, \DateTimeInterface $end = null): array
+    public function updated_albums(\DateTimeInterface $start = null, \DateTimeInterface $end = null)
     {
         return $this->imageMapper->getRepository()->getUpdatedAlbums($this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums(), $start, $end);
     }
@@ -160,7 +161,7 @@ class Notification
     /**
      * Returns new users between two dates.
      *
-     * @return User[]
+     * @return UserInfos[]
      */
     public function new_users(\DateTimeInterface $start = null, \DateTimeInterface $end = null)
     {

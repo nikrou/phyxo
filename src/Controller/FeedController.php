@@ -110,7 +110,7 @@ class FeedController extends CommonController
             }
         }
 
-        if (!is_null($feed) && empty($news)) { // update the last check from time to time to avoid deletion by maintenance tasks
+        if (empty($news)) { // update the last check from time to time to avoid deletion by maintenance tasks
             if (is_null($feed->getLastCheck()) || $now->diff($feed->getLastCheck())->format('s') > (30 * 24 * 3600)) {
                 $feed->setLastCheck($now->add(new \DateInterval('P15D')));
                 $userFeedRepository->addOrUpdateUserFeed($feed);

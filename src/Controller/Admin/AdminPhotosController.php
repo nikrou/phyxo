@@ -114,8 +114,8 @@ class AdminPhotosController extends AbstractController
             $selected_category = json_decode($request->getSession()->get('selected_category'), true);
         } else {
             // we need to know the category in which the last photo was added
-            if ($last_album = $imageMapper->getRepository()->findAlbumWithLastImageAdded()) {
-                $selected_category = [$last_album->getId()];
+            if ($last_image = $imageMapper->getRepository()->findAlbumWithLastImageAdded()) {
+                $selected_category = [$last_image->getImageAlbums()->first()->getAlbum()->getId()];
             }
         }
 

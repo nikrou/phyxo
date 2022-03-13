@@ -61,10 +61,6 @@
 		<li><a href="{{U_ADD_PHOTOS_ALBUM}}"><i class="fa fa-plus-circle"></i> {{'Add Photos'|trans}}</a></li>
 		<li><a href="{{U_CHILDREN}}"><i class="fa fa-sitemap"></i> {{'manage sub-albums'|trans}}</a></li>
 
-	       {% if U_SYNC is defined %}
-		   <li><a href="{{U_SYNC}}"><i class="fa fa-exchange"></i> {{'Synchronize'|trans}}</a> ({{'Directory'|trans}} = {{CAT_FULL_DIR}})</li>
-	       {% endif %}
-
 	       {% if U_DELETE is defined %}
 		   <li><a class="text-danger" href="{{U_DELETE}}" onclick="return confirm('{{'Are you sure?'|trans}}');"><i class="fa fa-trash"></i> {{'delete album'|trans}}</a></li>
 	       {% endif %}

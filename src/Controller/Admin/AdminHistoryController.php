@@ -331,6 +331,7 @@ class AdminHistoryController extends AbstractController
                 $tags_string = preg_replace_callback(
                     '/(\d+)/',
                     function ($m) use ($name_of_tag) {
+                        /** @phpstan-ignore-next-line */
                         return isset($name_of_tag[$m[1]]) ? $name_of_tag[$m[1]]['url'] : $m[1];
                     },
                     str_replace(

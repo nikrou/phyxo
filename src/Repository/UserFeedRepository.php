@@ -15,6 +15,9 @@ use App\Entity\UserFeed;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<UserFeed>
+ */
 class UserFeedRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

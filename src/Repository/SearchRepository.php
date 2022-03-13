@@ -15,6 +15,9 @@ use App\Entity\Search;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Search>
+ */
 class SearchRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -22,7 +25,7 @@ class SearchRepository extends ServiceEntityRepository
         parent::__construct($registry, Search::class);
     }
 
-    public function updateLastSeen(int $id)
+    public function updateLastSeen(int $id): void
     {
         $qb = $this->createQueryBuilder('s');
         $qb->update();
@@ -31,20 +34,20 @@ class SearchRepository extends ServiceEntityRepository
         $qb->where('s.id = :id');
         $qb->setParameter('id', $id);
 
-        return $qb->getQuery()->getResult();
+        $qb->getQuery()->getResult();
     }
 
-    public function addSearch(Search $search)
+    public function addSearch(Search $search): void
     {
         $this->_em->persist($search);
         $this->_em->flush();
     }
 
-    public function purge()
+    public function purge(): void
     {
         $qb = $this->createQueryBuilder('s');
         $qb->delete();
 
-        return $qb->getQuery()->getResult();
+        $qb->getQuery()->getResult();
     }
 }

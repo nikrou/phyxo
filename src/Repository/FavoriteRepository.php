@@ -15,6 +15,9 @@ use App\Entity\Favorite;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Favorite>
+ */
 class FavoriteRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -22,22 +25,27 @@ class FavoriteRepository extends ServiceEntityRepository
         parent::__construct($registry, Favorite::class);
     }
 
-    public function addOrUpdateFavorite(Favorite $favorite)
+    public function addOrUpdateFavorite(Favorite $favorite): void
     {
         $this->_em->persist($favorite);
         $this->_em->flush();
     }
 
-    public function findUserFavorites(int $user_id, array $forbidden_categories = [])
+    /**
+     * @param int[] $forbidden_albums
+     *
+     * @return Favorite[]
+     */
+    public function findUserFavorites(int $user_id, array $forbidden_albums = [])
     {
         $qb = $this->createQueryBuilder('f');
         $qb->where('f.user = :user_id');
         $qb->setParameter('user_id', $user_id);
 
-        if (count($forbidden_categories) > 0) {
+        if (count($forbidden_albums) > 0) {
             $qb->leftJoin('f.image', 'i');
             $qb->leftJoin('i.imageAlbums', 'ia');
-            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
+            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
         return $qb->getQuery()->getResult();
@@ -55,7 +63,7 @@ class FavoriteRepository extends ServiceEntityRepository
         return (int) $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
-    public function deleteUserFavorite(int $user_id, int $image_id)
+    public function deleteUserFavorite(int $user_id, int $image_id): void
     {
         $qb = $this->createQueryBuilder('f');
         $qb->delete();
@@ -67,7 +75,7 @@ class FavoriteRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteAllUserFavorites(int $user_id)
+    public function deleteAllUserFavorites(int $user_id): void
     {
         $qb = $this->createQueryBuilder('f');
         $qb->delete();
@@ -77,7 +85,10 @@ class FavoriteRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteImagesFromFavorite(array $image_ids)
+    /**
+     * @param int[] $image_ids
+     */
+    public function deleteImagesFromFavorite(array $image_ids): void
     {
         $qb = $this->createQueryBuilder('f');
         $qb->delete();

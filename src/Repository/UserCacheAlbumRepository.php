@@ -15,6 +15,9 @@ use App\Entity\UserCacheAlbum;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<UserCacheAlbum>
+ */
 class UserCacheAlbumRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -22,13 +25,13 @@ class UserCacheAlbumRepository extends ServiceEntityRepository
         parent::__construct($registry, UserCacheAlbum::class);
     }
 
-    public function addOrUpdateUserCacheAlbum(UserCacheAlbum $userCacheAlbum)
+    public function addOrUpdateUserCacheAlbum(UserCacheAlbum $userCacheAlbum): void
     {
         $this->_em->persist($userCacheAlbum);
         $this->_em->flush();
     }
 
-    public function deleteAll()
+    public function deleteAll(): void
     {
         $qb = $this->createQueryBuilder('ucc');
         $qb->delete();
@@ -36,7 +39,7 @@ class UserCacheAlbumRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteForUser(int $user_id)
+    public function deleteForUser(int $user_id): void
     {
         $qb = $this->createQueryBuilder('ucc');
         $qb->delete();
@@ -46,7 +49,10 @@ class UserCacheAlbumRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteForAlbums(array $album_ids)
+    /**
+     * @param int[] $album_ids
+     */
+    public function deleteForAlbums(array $album_ids): void
     {
         $qb = $this->createQueryBuilder('ucc');
         $qb->delete();
@@ -55,7 +61,7 @@ class UserCacheAlbumRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function updateUserRepresentativePicture(int $user_id, int $album_id, int $image_id)
+    public function updateUserRepresentativePicture(int $user_id, int $album_id, int $image_id): void
     {
         $qb = $this->createQueryBuilder('ucc');
         $qb->update();
@@ -68,11 +74,12 @@ class UserCacheAlbumRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function unsetUserRepresentativePictureForAlbum(int $album_id)
+    public function unsetUserRepresentativePictureForAlbum(int $album_id): void
     {
         $qb = $this->createQueryBuilder('ucc');
         $qb->update();
-        $qb->set('ucc.user_representative_picture', null);
+        $qb->set('ucc.user_representative_picture', ':user_representative_picture');
+        $qb->setParameter('user_representative_picture', null);
         $qb->where('ucc.album = :album_id');
         $qb->setParameter('album_id', $album_id);
 

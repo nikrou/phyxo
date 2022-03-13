@@ -46,7 +46,7 @@ class Favorite
         return $this;
     }
 
-    public function getImage(): ?Image
+    public function getImage(): Image
     {
         return $this->image;
     }

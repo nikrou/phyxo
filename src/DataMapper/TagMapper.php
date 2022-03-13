@@ -177,9 +177,10 @@ class TagMapper
     /**
      * @param int[] $items
      * @param int[] $excluded_tag_ids
+     *
      * @return Tag[]
      */
-    public function getCommonTags(User $user, array $items, int $max_tags, array $excluded_tag_ids = []): array
+    public function getCommonTags(User $user, array $items, int $max_tags, array $excluded_tag_ids = [])
     {
         if (count($items) === 0) {
             return [];
@@ -194,7 +195,7 @@ class TagMapper
                 return $it->getTag()->getId() === $tag->getId();
             })->first();
 
-            $tag->setCounter($image_tag->isValidated());
+            $tag->setRelatedImageTagInfos($image_tag);
             $tags[] = $tag;
         }
 

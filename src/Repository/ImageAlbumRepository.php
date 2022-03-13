@@ -15,6 +15,9 @@ use App\Entity\ImageAlbum;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<ImageAlbum>
+ */
 class ImageAlbumRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -22,19 +25,23 @@ class ImageAlbumRepository extends ServiceEntityRepository
         parent::__construct($registry, ImageAlbum::class);
     }
 
-    public function addOrUpdateImageAlbum(ImageAlbum $image_album)
+    public function addOrUpdateImageAlbum(ImageAlbum $image_album): void
     {
         $this->_em->persist($image_album);
         $this->_em->flush();
     }
 
-    public function countTotalImages(string $access_type, array $forbidden_categories = [], array $image_ids = []) : int
+    /**
+     * @param int[] $forbidden_albums
+     * @param int[] $image_ids
+     */
+    public function countTotalImages(string $access_type, array $forbidden_albums = [], array $image_ids = []) : int
     {
         $qb = $this->createQueryBuilder('ia');
         $qb->select('count(distinct(ia.image))');
 
-        if (count($forbidden_categories) > 0) {
-            $qb->where($qb->expr()->notIn('ia.album', $forbidden_categories));
+        if (count($forbidden_albums) > 0) {
+            $qb->where($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
         if (count($image_ids) > 0) {
@@ -72,6 +79,11 @@ class ImageAlbumRepository extends ServiceEntityRepository
         return 0;
     }
 
+    /**
+     * @param int[] $album_ids
+     *
+     * @return array{_to: \DateTimeInterface, _from: \DateTimeInterface}
+     */
     public function dateOfAlbums(array $album_ids)
     {
         $qb = $this->createQueryBuilder('ia');
@@ -83,7 +95,10 @@ class ImageAlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function countImagesByAlbum(): array
+    /**
+     * @return array<int, int|string>
+     */
+    public function countImagesByAlbum()
     {
         $qb = $this->createQueryBuilder('ia');
         $qb->select('IDENTITY(ia.album) AS album, COUNT(1) AS counter');
@@ -119,7 +134,12 @@ class ImageAlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getSingleScalarResult();
     }
 
-    public function findMaxRankForEachAlbums(array $ids): array
+    /**
+     * @param int[] $ids
+     *
+     * @return array<int, int>
+     */
+    public function findMaxRankForEachAlbums(array $ids)
     {
         $qb = $this->createQueryBuilder('ia');
         $qb->select('IDENTITY(ia.album) as album, MAX(ia.rank) as max');
@@ -135,7 +155,7 @@ class ImageAlbumRepository extends ServiceEntityRepository
         return $results;
     }
 
-    public function updateRankForAlbum(int $rank, int $album_id)
+    public function updateRankForAlbum(int $rank, int $album_id): void
     {
         $qb = $this->createQueryBuilder('ia');
         $qb->update();
@@ -149,7 +169,7 @@ class ImageAlbumRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function updateRankForImage(int $rank, int $image_id, int $album_id)
+    public function updateRankForImage(int $rank, int $image_id, int $album_id): void
     {
         $qb = $this->createQueryBuilder('ia');
         $qb->update();
@@ -163,7 +183,11 @@ class ImageAlbumRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteByAlbum(array $ids = [], array $image_ids = [])
+    /**
+     * @param int[] $ids
+     * @param int[] $image_ids
+     */
+    public function deleteByAlbum(array $ids = [], array $image_ids = []): void
     {
         if (count($ids) === 0 && count($image_ids) === 0) {
             return;
@@ -183,7 +207,10 @@ class ImageAlbumRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteByImages(array $ids = [])
+    /**
+     * @param int[] $ids
+     */
+    public function deleteByImages(array $ids = []): void
     {
         $qb = $this->createQueryBuilder('ia');
         $qb->delete();
@@ -195,7 +222,7 @@ class ImageAlbumRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function getAlbumWithLastPhotoAdded()
+    public function getAlbumWithLastPhotoAdded(): ?ImageAlbum
     {
         $qb = $this->createQueryBuilder('ia');
         $qb->orderBy('ia.image', 'DESC');
@@ -204,12 +231,20 @@ class ImageAlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getOneOrNullResult();
     }
 
-    public function getRelatedAlbum(int $image_id, array $forbidden_categories = [])
+    /**
+     * @param int[] $forbidden_albums
+     *
+     * @return ImageAlbum[]
+     */
+    public function getRelatedAlbum(int $image_id, array $forbidden_albums = [])
     {
         $qb = $this->createQueryBuilder('ia');
         $qb->where('ia.image = :image_id');
         $qb->setParameter('image_id', $image_id);
-        $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_categories));
+
+        if (count($forbidden_albums) > 0) {
+            $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
+        }
 
         return $qb->getQuery()->getResult();
     }
