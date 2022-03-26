@@ -532,6 +532,7 @@ class ImageRepository extends ServiceEntityRepository
         if (count($forbidden_albums) > 0) {
             $sql_select = sprintf($fmt, implode(', ', $forbidden_albums), $this->getFieldFromDateType($date_type));
         } else {
+            /** @phpstan-ignore-next-line */
             $sql_select = sprintf($fmt, $this->getFieldFromDateType($date_type));
         }
 
@@ -598,6 +599,7 @@ class ImageRepository extends ServiceEntityRepository
         if (count($forbidden_albums) > 0) {
             $sql_select = sprintf($fmt, implode(', ', $forbidden_albums), $this->getFieldFromDateType($date_type), $this->getFieldFromDateType($date_type));
         } else {
+            /** @phpstan-ignore-next-line */
             $sql_select = sprintf($fmt, $this->getFieldFromDateType($date_type), $this->getFieldFromDateType($date_type));
         }
 
@@ -674,6 +676,7 @@ class ImageRepository extends ServiceEntityRepository
                 $this->getFieldFromDateType($date_type)
             );
         } else {
+            /** @phpstan-ignore-next-line */
             $sql_select = sprintf($fmt, $this->getFieldFromDateType($date_type), $this->getFieldFromDateType($date_type), $this->getFieldFromDateType($date_type));
         }
 

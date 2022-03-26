@@ -222,7 +222,7 @@ class AlbumMapper
      * Generates breadcrumb from albums list.
      */
     /** @phpstan-ignore-next-line */
-    public function getAlbumDisplayName(array $album_informations, string $url = ''): string
+    public function getAlbumDisplayName(array $album_informations, string $url = null): string
     {
         $output = '';
         $is_first = true;
@@ -234,9 +234,9 @@ class AlbumMapper
                 $output .= $this->conf['level_separator'];
             }
 
-            if (empty($url)) {
+            if (is_null($url)) {
                 $output .= $album['name'];
-            } elseif ($url == '') {
+            } elseif ($url === '') {
                 $output .= '<a href="' . $this->router->generate('album', ['album_id' => $album['id']]) . '">';
                 $output .= $album['name'] . '</a>';
             } else {

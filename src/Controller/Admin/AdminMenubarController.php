@@ -78,7 +78,7 @@ class AdminMenubarController extends AbstractController
                 $mb_conf[$id] = ($hide ? -1 : +1) * abs($pos);
 
                 if ($pos = $request->request->get('pos_' . $id)) {
-                    $mb_conf[$id] = $mb_conf[$id] > 0 ? $pos : -$pos;
+                    $mb_conf[$id] = $mb_conf[$id] > 0 ? (int) $pos : -(int) $pos;
                 }
             }
             $mb_conf = $this->makeConsecutive($reg_blocks, $mb_conf);
