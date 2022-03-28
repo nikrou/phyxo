@@ -4,8 +4,10 @@ twig:
     - '%admin_theme_dir%/template'
 
   globals:
+    GALLERY_TITLE: 'Another phyxo gallery'
     PHYXO_VERSION: '%core_version%'
     PHYXO_URL: '%phyxo_website%'
+    category_view: 'grid'
 
   exception_controller: null
 

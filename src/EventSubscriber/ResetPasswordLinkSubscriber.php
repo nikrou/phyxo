@@ -57,7 +57,6 @@ class ResetPasswordLinkSubscriber implements EventSubscriberInterface
             'GALLERY_URL' => $this->router->generate('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'MAIL_TITLE' => $subject,
             'MAIL_THEME' => $this->conf['mail_theme'],
-            'LEVEL_SEPARATOR' => $this->conf['level_separator'],
             'CONTENT_ENCODING' => 'utf-8',
         ];
 

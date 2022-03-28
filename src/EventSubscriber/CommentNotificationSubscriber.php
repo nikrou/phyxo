@@ -68,7 +68,6 @@ class CommentNotificationSubscriber implements EventSubscriberInterface
             'comment' => $comment,
             'comment_action' => $event->getAction(),
             'GALLERY_URL' => $this->router->generate('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            'LEVEL_SEPARATOR' => $this->conf['level_separator'],
         ];
 
         if (!empty($this->conf['mail_sender_email'])) {

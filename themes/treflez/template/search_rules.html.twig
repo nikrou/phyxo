@@ -4,9 +4,10 @@
     <nav class="navbar navbar-contextual navbar-expand-lg {{theme_config.navbar_contextual_style}} {{theme_config.navbar_contextual_bg}} sticky-top mb-5">
 	<div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
 	    <div class="navbar-brand mr-auto">
-		<a href="{{ path('homepage') }}">{{'Home'|trans}}</a>
-		{{LEVEL_SEPARATOR}}
-		{{'Search'|trans}}
+		<ol class="breadcrumb">
+		    <li class="breadcrumb-item"><a href="{{  path('homepage') }}" title="{{'Home'|trans}}"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+		    <li class="breadcrumb-item">{{'Search'|trans}}</li>
+		</ol>
 	    </div>
 	</div>
     </nav>

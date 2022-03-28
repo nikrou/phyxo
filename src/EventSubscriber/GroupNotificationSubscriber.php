@@ -26,9 +26,13 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
 {
     private $mailer, $conf, $router, $userMapper, $translator;
 
-    public function __construct(MailerInterface $mailer, Conf $conf, RouterInterface $router,
-                                UserMapper $userMapper, TranslatorInterface $translator)
-    {
+    public function __construct(
+        MailerInterface $mailer,
+        Conf $conf,
+        RouterInterface $router,
+        UserMapper $userMapper,
+        TranslatorInterface $translator
+    ) {
         $this->mailer = $mailer;
         $this->conf = $conf;
         $this->router = $router;
@@ -58,7 +62,6 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
             'IMG_URL' => $event->getImageUrl(),
             'MAIL_TITLE' => $subject,
             'MAIL_THEME' => $this->conf['mail_theme'],
-            'LEVEL_SEPARATOR' => $this->conf['level_separator'],
             'CONTENT_ENCODING' => 'utf-8',
         ];
 

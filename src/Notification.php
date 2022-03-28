@@ -855,7 +855,6 @@ class Notification
             'MAIL_THEME' => $this->conf['mail_theme'],
             'GALLERY_TITLE' => $this->conf['gallery_title'],
             'GALLERY_URL' => $this->router->generate('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            'LEVEL_SEPARATOR' => $this->conf['level_separator'],
         ];
 
         $tpl_params = array_merge($tpl_params, $params);
