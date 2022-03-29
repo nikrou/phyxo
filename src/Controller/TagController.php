@@ -20,13 +20,13 @@ use App\Repository\TagRepository;
 use App\DataMapper\ImageMapper;
 use App\Entity\Tag;
 use App\Security\AppUserService;
-use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class TagController extends CommonController
+class TagController extends AbstractController
 {
     public function list(Request $request, AppUserService $appUserService, TagMapper $tagMapper, Conf $conf, MenuBar $menuBar, TranslatorInterface $translator): Response
     {
@@ -122,8 +122,6 @@ class TagController extends CommonController
         }
 
         $menuBar->setRoute('tags');
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('tags.html.twig', $tpl_params);
     }
@@ -131,7 +129,6 @@ class TagController extends CommonController
     public function imagesByTags(
         Request $request,
         ImageMapper $imageMapper,
-        ImageStandardParams $image_std_params,
         string $tag_ids,
         TranslatorInterface $translator,
         TagRepository $tagRepository,
@@ -142,8 +139,6 @@ class TagController extends CommonController
         int $start = 0
     ): Response {
         $tpl_params = [];
-
-        $this->image_std_params = $image_std_params;
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -196,13 +191,11 @@ class TagController extends CommonController
 
         $menuBar->setRoute('images_by_tags');
         $menuBar->setCurrentTags($tpl_params['tags']);
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
         $tpl_params['START_ID'] = $start;
 
         return $this->render('thumbnails.html.twig', $tpl_params);

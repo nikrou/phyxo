@@ -23,11 +23,12 @@ use App\Form\ValidateCommentType;
 use App\Security\AppUserService;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class CommentController extends CommonController
+class CommentController extends AbstractController
 {
     public function index(
         Request $request,
@@ -168,9 +169,6 @@ class CommentController extends CommonController
         );
 
         $tpl_params['derivative_params'] = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
-
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('comments.html.twig', $tpl_params);
     }

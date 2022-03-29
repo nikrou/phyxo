@@ -14,11 +14,12 @@ namespace App\Controller;
 use App\Security\AppUserService;
 use Phyxo\Conf;
 use Phyxo\Functions\Language;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class AboutController extends CommonController
+class AboutController extends AbstractController
 {
     public function index(Request $request, AppUserService $appUserService, Conf $conf, string $themesDir, string $rootProjectDir, TranslatorInterface $translator): Response
     {
@@ -28,8 +29,6 @@ class AboutController extends CommonController
         $tpl_params['PAGE_TITLE'] = $translator->trans('About Phyxo');
         $tpl_params['ABOUT_MESSAGE'] = Language::loadLanguageFile('about.html', $rootProjectDir . '/languages/' . $appUserService->getUser()->getLocale());
         $tpl_params['THEME_ABOUT'] = Language::loadLanguageFile('about.html', $themesDir . '/' . $appUserService->getUser()->getTheme() . '/languages/' . $appUserService->getUser()->getLocale());
-
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('about.html.twig', $tpl_params);
     }

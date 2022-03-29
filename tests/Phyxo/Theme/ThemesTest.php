@@ -91,27 +91,36 @@ class ThemesTest extends TestCase
     public function sortThemesDataProvider()
     {
         return [
-            ['author', ['theme2', 'theme3', 'theme4', 'theme1']],
-            ['id', ['theme1', 'theme2', 'theme3', 'theme4']],
-            ['status', ['theme1', 'theme3', 'theme4', 'theme2']],
-            ['name', ['theme1', 'theme3', 'theme4', 'theme2']]
+            ['author', ['theme2', 'theme3', 'theme4', 'my theme dir with space', 'theme1']],
+            ['id', ['my theme dir with space', 'theme1', 'theme2', 'theme3', 'theme4']],
+            ['status', ['my theme dir with space', 'theme1', 'theme3', 'theme4', 'theme2']],
+            ['name', ['my theme dir with space', 'theme1', 'theme3', 'theme4', 'theme2']]
         ];
     }
 
     private function getLocalThemes()
     {
         return [
+            'my theme dir with space' => [
+                'id' => 'my theme dir with space',
+                'name' => 'A simple theme',
+                'version' => '1.2.3',
+                'extension' => 123,
+                'uri' => 'https://ext.phyxo.net/extension_view.php?eid=123',
+                'description' => 'Simple Number One',
+                'author' => 'Nicolas',
+                'admin_uri' => false,
+                'author_uri' => 'https://www.phyxo.net',
+            ],
             'theme1' => [
                 'id' => 'theme1',
                 'name' => 'A simple theme',
                 'version' => '1.2.3',
                 'extension' => 123,
-                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=123',
+                'uri' => 'https://ext.phyxo.net/extension_view.php?eid=123',
                 'description' => 'Simple Number One',
                 'author' => 'Nicolas',
-                'author uri' => 'http://www.phyxo.net',
-                'mobile' => false,
-                'screenshot' => 'admin/theme/images/missing_screenshot.png',
+                'author_uri' => 'https://www.phyxo.net',
                 'admin_uri' => false
             ],
             'theme2' => [
@@ -119,11 +128,9 @@ class ThemesTest extends TestCase
                 'name' => 'ZZ Theme',
                 'version' => '4.5.6',
                 'extension' => 456,
-                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=456',
+                'uri' => 'https://ext.phyxo.net/extension_view.php?eid=456',
                 'description' => 'Theme mobile without author uri',
                 'author' => 'Arthur',
-                'mobile' => true,
-                'screenshot' => 'admin/theme/images/missing_screenshot.png',
                 'admin_uri' => false
             ],
             'theme3' => [
@@ -131,12 +138,10 @@ class ThemesTest extends TestCase
                 'name' => 'My first theme',
                 'version' => '7.8.9',
                 'extension' => 789,
-                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=789',
-                'description' => 'A simple description',
+                'uri' => 'https://ext.phyxo.net/extension_view.php?eid=789',
+                'description' => 'Simple Number Three',
                 'author' => 'Jean',
-                'author uri' => 'http://www.phyxo.net',
-                'mobile' => false,
-                'screenshot' => 'admin/theme/images/missing_screenshot.png',
+                'author_uri' => 'https://www.phyxo.net',
                 'admin_uri' => false
             ],
             'theme4' => [
@@ -144,12 +149,10 @@ class ThemesTest extends TestCase
                 'name' => 'Photos Theme',
                 'version' => '10.11.12',
                 'extension' => 10,
-                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=10',
+                'uri' => 'https://ext.phyxo.net/extension_view.php?eid=10',
                 'description' => 'Simple Number Four',
                 'author' => 'Jean',
-                'author uri' => 'http://www.phyxo.net',
-                'mobile' => false,
-                'screenshot' => 'admin/theme/images/missing_screenshot.png',
+                'author_uri' => 'https://www.phyxo.net',
                 'admin_uri' => false
             ],
         ];

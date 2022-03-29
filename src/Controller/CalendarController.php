@@ -16,11 +16,12 @@ use App\Security\AppUserService;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 
-class CalendarController extends CommonController
+class CalendarController extends AbstractController
 {
     public function index(
         Request $request,
@@ -60,9 +61,6 @@ class CalendarController extends CommonController
         foreach ($imageRepository->findOneImagePerYear(array_keys($tpl_params['years']), $date_type, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $image) {
             $tpl_params['years'][$image->getDateByType($date_type)->format('Y')]['image'] = $image;
         }
-
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('calendar.html.twig', $tpl_params);
     }
@@ -105,9 +103,6 @@ class CalendarController extends CommonController
         foreach ($imageRepository->findOneImagePerMonth($year, $monthsWithPhotos, $date_type, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $image) {
             $tpl_params['months'][$image->getDateByType($date_type)->format('n')]['image'] = $image;
         }
-
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('calendar_by_year.html.twig', $tpl_params);
     }
@@ -153,9 +148,6 @@ class CalendarController extends CommonController
         foreach ($imageRepository->findOneImagePerDay($year, $month, $daysWithPhotos, $date_type, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $image) {
             $tpl_params['days'][$image->getDateByType($date_type)->format('j')]['image'] = $image;
         }
-
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('calendar_by_month.html.twig', $tpl_params);
     }
@@ -218,9 +210,6 @@ class CalendarController extends CommonController
 
         $tpl_params['derivative_params'] = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
         $tpl_params['START_ID'] = $start;
-
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('calendar_by_day.html.twig', $tpl_params);
     }

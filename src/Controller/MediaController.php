@@ -23,9 +23,10 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Mime\MimeTypeGuesserInterface;
 
-class MediaController extends CommonController
+class MediaController extends AbstractController
 {
     protected ImageStandardParams $image_std_params;
     private bool $forAdmin = false;

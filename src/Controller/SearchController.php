@@ -17,17 +17,17 @@ use Phyxo\Conf;
 use App\DataMapper\TagMapper;
 use App\Repository\SearchRepository;
 use App\DataMapper\SearchMapper;
-use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\ImageMapper;
 use App\Entity\Search;
 use App\Repository\TagRepository;
 use App\Security\AppUserService;
 use Phyxo\Functions\Utils;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class SearchController extends CommonController
+class SearchController extends AbstractController
 {
     public function qsearch(Request $request, Conf $conf, SearchRepository $searchRepository): Response
     {
@@ -36,8 +36,6 @@ class SearchController extends CommonController
         if (!$request->get('q')) {
             throw $this->createNotFoundException();
         }
-
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
 
         $rules = ['q' => $request->get('q')];
         $search_id = null;
@@ -71,7 +69,6 @@ class SearchController extends CommonController
         $tpl_params = [];
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search');
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
 
         $available_tags = $tagMapper->getAvailableTags($appUserService->getUser());
 
@@ -241,8 +238,6 @@ class SearchController extends CommonController
             }
         }
 
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
-
         $tpl_params['F_SEARCH_ACTION'] = $this->generateUrl('search');
 
         return $this->render('search.html.twig', $tpl_params);
@@ -255,7 +250,6 @@ class SearchController extends CommonController
         ImageMapper $imageMapper,
         Conf $conf,
         SearchRepository $searchRepository,
-        ImageStandardParams $image_std_params,
         int $search_id,
         TranslatorInterface $translator,
         RouterInterface $router,
@@ -263,9 +257,7 @@ class SearchController extends CommonController
         int $start = 0
     ): Response {
         $tpl_params = [];
-        $this->image_std_params = $image_std_params;
 
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search results');
         $tpl_params['TITLE'] = $translator->trans('Search results');
         $tpl_params['U_SEARCH_RULES'] = $this->generateUrl('search_rules', ['search_id' => $search_id]);
@@ -347,7 +339,6 @@ class SearchController extends CommonController
         }
 
         $tpl_params['START_ID'] = $start;
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
@@ -364,7 +355,6 @@ class SearchController extends CommonController
         $tpl_params = [];
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search rules');
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
 
         $rules = [];
         $search = $searchRepository->findOneBy(['id' => $search_id]);
@@ -462,8 +452,6 @@ class SearchController extends CommonController
                 );
             }
         }
-
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('search_rules.html.twig', $tpl_params);
     }

@@ -19,12 +19,13 @@ use App\DataMapper\ImageMapper;
 use App\Entity\Favorite;
 use App\Repository\ImageRepository;
 use App\Security\AppUserService;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class FavoriteController extends CommonController
+class FavoriteController extends AbstractController
 {
     public function index(
         Request $request,
@@ -77,8 +78,6 @@ class FavoriteController extends CommonController
             }
         }
 
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
         $tpl_params['START_ID'] = $start;
 
         return $this->render('thumbnails.html.twig', $tpl_params);

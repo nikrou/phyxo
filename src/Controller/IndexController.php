@@ -15,26 +15,24 @@ use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
 use App\DataMapper\ImageMapper;
 use App\Security\AppUserService;
-use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class IndexController extends CommonController
+class IndexController extends AbstractController
 {
     public function mostVisited(
         Request $request,
         Conf $conf,
         ImageMapper $imageMapper,
-        ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
         RouterInterface $router,
         AppUserService $appUserService,
         int $start = 0
     ): Response {
         $tpl_params = [];
-        $this->image_std_params = $image_std_params;
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -72,8 +70,6 @@ class IndexController extends CommonController
         }
 
         $tpl_params['START_ID'] = $start;
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
@@ -82,14 +78,12 @@ class IndexController extends CommonController
         Request $request,
         Conf $conf,
         ImageMapper $imageMapper,
-        ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
         RouterInterface $router,
         AppUserService $appUserService,
         int $start = 0
     ): Response {
         $tpl_params = [];
-        $this->image_std_params = $image_std_params;
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -131,8 +125,6 @@ class IndexController extends CommonController
         }
 
         $tpl_params['START_ID'] = $start;
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
@@ -141,14 +133,12 @@ class IndexController extends CommonController
         Request $request,
         Conf $conf,
         ImageMapper $imageMapper,
-        ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
         RouterInterface $router,
         AppUserService $appUserService,
         int $start = 0
     ): Response {
         $tpl_params = [];
-        $this->image_std_params = $image_std_params;
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -189,8 +179,6 @@ class IndexController extends CommonController
         }
 
         $tpl_params['START_ID'] = $start;
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
@@ -212,15 +200,12 @@ class IndexController extends CommonController
     public function randomList(
         Request $request,
         string $list,
-        Conf $conf,
         ImageMapper $imageMapper,
-        ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
         AppUserService $appUserService,
         int $start = 0
     ): Response {
         $tpl_params = [];
-        $this->image_std_params = $image_std_params;
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -247,8 +232,6 @@ class IndexController extends CommonController
         }
 
         $tpl_params['START_ID'] = $start;
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('thumbnails.html.twig', $tpl_params);
     }

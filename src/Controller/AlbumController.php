@@ -20,13 +20,14 @@ use App\Entity\UserCacheAlbum;
 use App\Repository\UserCacheAlbumRepository;
 use App\Security\AppUserService;
 use Phyxo\Functions\Utils;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class AlbumController extends CommonController
+class AlbumController extends AbstractController
 {
     public function album(
         Request $request,
@@ -43,7 +44,6 @@ class AlbumController extends CommonController
         int $album_id = 0
     ): Response {
         $tpl_params = [];
-        $this->image_std_params = $image_std_params;
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -222,13 +222,10 @@ class AlbumController extends CommonController
             );
         }
 
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-
         $tpl_params['SHOW_THUMBNAIL_CAPTION'] = $conf['show_thumbnail_caption'];
         $tpl_params['U_MODE_POSTED'] = $this->generateUrl('calendar', ['date_type' => 'posted', 'album_id' => $album_id]);
         $tpl_params['U_MODE_CREATED'] = $this->generateUrl('calendar', ['date_type' => 'created', 'album_id' => $album_id]);
         $tpl_params['START_ID'] = $start;
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
@@ -236,7 +233,6 @@ class AlbumController extends CommonController
     public function albumFlat(
         Request $request,
         Conf $conf,
-        ImageStandardParams $image_std_params,
         AlbumMapper $albumMapper,
         ImageMapper $imageMapper,
         int $album_id,
@@ -246,7 +242,6 @@ class AlbumController extends CommonController
         int $start = 0
     ): Response {
         $tpl_params = [];
-        $this->image_std_params = $image_std_params;
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -290,11 +285,7 @@ class AlbumController extends CommonController
         }
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
-
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params['START_ID'] = $start;
-
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
@@ -302,7 +293,6 @@ class AlbumController extends CommonController
     public function albumsFlat(
         Request $request,
         Conf $conf,
-        ImageStandardParams $image_std_params,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
         RouterInterface $router,
@@ -310,7 +300,6 @@ class AlbumController extends CommonController
         int $start = 0
     ): Response {
         $tpl_params = [];
-        $this->image_std_params = $image_std_params;
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -349,10 +338,7 @@ class AlbumController extends CommonController
             );
         }
 
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params['START_ID'] = $start;
-
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
@@ -370,7 +356,6 @@ class AlbumController extends CommonController
         int $start = 0
     ): Response {
         $tpl_params = [];
-        $this->image_std_params = $image_std_params;
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -476,9 +461,6 @@ class AlbumController extends CommonController
             }
         }
 
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
-
         return $this->render('mainpage_categories.html.twig', $tpl_params);
     }
 
@@ -495,7 +477,6 @@ class AlbumController extends CommonController
         int $start = 0
     ): Response {
         $tpl_params = [];
-        $this->image_std_params = $image_std_params;
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -597,9 +578,6 @@ class AlbumController extends CommonController
                 );
             }
         }
-
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('mainpage_categories.html.twig', $tpl_params);
     }

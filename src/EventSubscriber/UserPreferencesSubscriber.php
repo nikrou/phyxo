@@ -20,7 +20,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Security\Http\SecurityEvents;
 
-class UserLocaleSubscriber implements EventSubscriberInterface
+class UserPreferencesSubscriber implements EventSubscriberInterface
 {
     private $rememberMeCookie, $kernel;
 
@@ -32,19 +32,23 @@ class UserLocaleSubscriber implements EventSubscriberInterface
 
     public function onInteractiveLogin(InteractiveLoginEvent $event, string $eventName, EventDispatcherInterface $dispatcher)
     {
+        $request = $event->getRequest();
+
         /** @var User $user */
         $user = $event->getAuthenticationToken()->getUser();
 
         if ($user->getLocale() !== null) {
-            $request = $event->getRequest();
             $request->getSession()->set('_locale', $user->getLocale());
+        }
 
-            if ($request->cookies->has($this->rememberMeCookie) && !$request->getSession()->has('_dispatch_remember_me')) {
-                $request->getSession()->set('_dispatch_remember_me', true);
-                $request->setLocale($user->getLocale());
+        if ($user->getTheme() !== null) {
+            $request->getSession()->set('_theme', $user->getTheme());
+        }
 
-                $dispatcher->dispatch(new RequestEvent($this->kernel, $request, HttpKernel::MAIN_REQUEST));
-            }
+        if ($request->cookies->has($this->rememberMeCookie) && !$request->getSession()->has('_dispatch_remember_me')) {
+            $request->getSession()->set('_dispatch_remember_me', true);
+
+            $dispatcher->dispatch(new RequestEvent($this->kernel, $request, HttpKernel::MAIN_REQUEST));
         }
     }
 

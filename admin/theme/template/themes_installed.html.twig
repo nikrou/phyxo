@@ -39,13 +39,15 @@
 
 			    <div class="extension theme card">
 				<div class="card-header">
-				    {{theme.NAME}} {% if theme.IS_DEFAULT %}<em>({{'Default'|trans}})</em>{% endif %} {% if theme.IS_MOBILE %}<em>({{'Mobile'|trans}})</em>{% endif %}
+				    {{theme.NAME}} {% if theme.IS_DEFAULT %}<em>({{'Default'|trans}})</em>{% endif %}
 				    {{'Version'|trans}} {{version|raw}}
 				</div>
 				<div class="card-body">
-				    <a href="{{asset(theme.SCREENSHOT)}}" class="preview-box icon-zoom-in" title="{{theme.NAME}}">
-					<img class="card-img-top" src="{{ asset(theme.SCREENSHOT) }}" alt="">
-				    </a>
+				    {% if theme.SCREENSHOT %}
+					<img class="card-img-top" src="{{ path('admin_theme_screenshot', {theme: theme.ID}) }}" alt="">
+				    {% else %}
+					<i class="fa fa-question fa-5x"></i>
+				    {% endif %}
 				</div>
 				<div class="actions btn-group btn-group-sm">
 				    {% if theme.state == 'active' %}

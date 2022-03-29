@@ -17,9 +17,10 @@ use App\Security\AppUserService;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
-class DefaultController extends CommonController
+class DefaultController extends AbstractController
 {
     public function home(): Response
     {

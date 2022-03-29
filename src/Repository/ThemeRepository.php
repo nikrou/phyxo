@@ -55,7 +55,7 @@ class ThemeRepository extends ServiceEntityRepository
     public function deleteByIds(array $theme_ids): void
     {
         $qb = $this->createQueryBuilder('t');
-        $qb->where($qb->expr()->in('id', $theme_ids));
+        $qb->where($qb->expr()->in('t.id', $theme_ids));
         $qb->delete();
 
         $qb->getQuery()->getResult();

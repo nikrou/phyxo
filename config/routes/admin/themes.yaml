@@ -23,3 +23,7 @@ admin_themes_install:
   controller: App\Controller\Admin\AdminThemesController::install
   requirements:
     revision: \d+
+
+admin_theme_screenshot:
+  path: /theme/screenshot/{theme}
+  controller: App\Controller\Admin\AdminThemesController::screenshot

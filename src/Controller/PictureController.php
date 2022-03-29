@@ -37,7 +37,7 @@ use App\Repository\CommentRepository;
 use App\Repository\ImageAlbumRepository;
 use App\Security\AppUserService;
 use App\Security\TagVoter;
-use DateTimeInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -46,13 +46,13 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class PictureController extends CommonController
+class PictureController extends AbstractController
 {
     private UserMapper $userMapper;
     private TranslatorInterface $translator;
 
     /**
-     * @param array{current_day?: DateTimeInterface, date_type?: string, year?: int, month?: int, day?: int } $extra
+     * @param array{current_day?: \DateTimeInterface, date_type?: string, year?: int, month?: int, day?: int } $extra
      */
     public function picture(
         Request $request,
@@ -78,11 +78,9 @@ class PictureController extends CommonController
     ): Response {
         $this->translator = $translator;
         $tpl_params = [];
-        $this->conf = $conf;
         $this->userMapper = $userMapper;
 
         $history_section = '';
-        $this->image_std_params = $image_std_params;
 
         $album = null;
         if ($type === 'list') {
@@ -331,11 +329,11 @@ class PictureController extends CommonController
         }
 
         if ($conf['rate']) {
-            $tpl_params = array_merge($tpl_params, $this->addRateInfos($rateRepository, $image, $request, $appUserService->getUser()));
+            $tpl_params = array_merge($tpl_params, $this->addRateInfos($rateRepository, $conf, $image, $request, $appUserService->getUser()));
         }
 
         if (($conf['show_exif'] || $conf['show_iptc'])) {
-            $tpl_params = array_merge($tpl_params, $this->addMetadataInfos($metadata, $picture['path']));
+            $tpl_params = array_merge($tpl_params, $this->addMetadataInfos($metadata, $conf, $picture['path']));
         }
 
         if ($conf['activate_comments']) {
@@ -509,9 +507,6 @@ class PictureController extends CommonController
         $tpl_params['TITLE'][] = ['label' => $picture['name']];
         $tpl_params['SECTION_TITLE'] = '<a href="' . $this->generateUrl('homepage') . '">' . $translator->trans('Home') . '</a>';
 
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
-
         return $this->render('picture.html.twig', $tpl_params);
     }
 
@@ -555,7 +550,7 @@ class PictureController extends CommonController
     }
 
     /** @phpstan-ignore-next-line */ // @FIX: define return type
-    protected function addRateInfos(RateRepository $rateRepository, Image $image, Request $request, ?User $user): array
+    protected function addRateInfos(RateRepository $rateRepository, Conf $conf, Image $image, Request $request, ?User $user): array
     {
         $tpl_params = [];
 
@@ -569,7 +564,7 @@ class PictureController extends CommonController
 
         $user_rate = null;
         $anonymous_id = null;
-        if ($this->conf['rate_anonymous'] || $this->userMapper->isClassicUser()) {
+        if ($conf['rate_anonymous'] || $this->userMapper->isClassicUser()) {
             if ($rate_summary['count'] > 0) {
                 if (!$this->userMapper->isClassicUser()) {
                     $anonymous_id = $request->getClientIp();
@@ -589,7 +584,7 @@ class PictureController extends CommonController
                 'F_ACTION' => $this->generateUrl('picture_rate'),
                 'image_id' => $image->getId(),
                 'USER_RATE' => $user_rate,
-                'marks' => $this->conf['rate_items']
+                'marks' => $conf['rate_items']
             ];
         }
 
@@ -605,7 +600,7 @@ class PictureController extends CommonController
                 throw new AccessDeniedException("Cannot rate that image");
             }
 
-            if (!$appUserService->isGuest() || $this->conf['rate_anonymous']) {
+            if (!$appUserService->isGuest() || $conf['rate_anonymous']) {
                 $result = $rateMapper->ratePicture(
                     $request->request->get('image_id'),
                     $request->request->get('rating'),
@@ -634,13 +629,13 @@ class PictureController extends CommonController
     }
 
     /** @phpstan-ignore-next-line */ // @FIX: define return type
-    protected function addMetadataInfos(Metadata $metadata, string $path): array
+    protected function addMetadataInfos(Metadata $metadata, Conf $conf, string $path): array
     {
         $tpl_params = [];
 
-        if (($this->conf['show_exif']) && (function_exists('exif_read_data'))) {
+        if (($conf['show_exif']) && (function_exists('exif_read_data'))) {
             $exif_mapping = [];
-            foreach ($this->conf['show_exif_fields'] as $field) {
+            foreach ($conf['show_exif_fields'] as $field) {
                 $exif_mapping[$field] = $field;
             }
 
@@ -652,7 +647,7 @@ class PictureController extends CommonController
                     'lines' => [],
                 ];
 
-                foreach ($this->conf['show_exif_fields'] as $field) {
+                foreach ($conf['show_exif_fields'] as $field) {
                     if (strpos($field, ';') === false) {
                         if (isset($exif[$field])) {
                             $key = $field;
@@ -675,8 +670,8 @@ class PictureController extends CommonController
             }
         }
 
-        if ($this->conf['show_iptc']) {
-            $iptc = $metadata->getIptcData($path, $this->conf['show_iptc_mapping'], ', ');
+        if ($conf['show_iptc']) {
+            $iptc = $metadata->getIptcData($path, $conf['show_iptc_mapping'], ', ');
 
             if (count($iptc) > 0) {
                 $tpl_meta = [

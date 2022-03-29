@@ -9,10 +9,9 @@
  * file that was distributed with this source code.
  */
 
-// Includes
-require_once(__DIR__ . '/../include/config.php');
+use Themes\treflez\Config;
 
-$themeconfig = new \Treflez\Config($conf);
+$themeconfig = new Config($conf);
 // Save settings
 if (isset($_POST['_settings'])) {  // @TODO : need to find a better way to use POST paramters
     $themeconfig->fromPost($_POST);

@@ -17,17 +17,16 @@ use App\Repository\UserFeedRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use App\Notification;
 use App\Security\AppUserService;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class FeedController extends CommonController
+class FeedController extends AbstractController
 {
-    public function notification(Request $request, Conf $conf, TranslatorInterface $translator, UserFeedRepository $userFeedRepository, AppUserService $appUserService): Response
+    public function notification(TranslatorInterface $translator, UserFeedRepository $userFeedRepository, AppUserService $appUserService): Response
     {
         $tpl_params = [];
 
-        $tpl_params = array_merge($this->addThemeParams($conf), $tpl_params);
         $tpl_params['PAGE_TITLE'] = $translator->trans('Notification');
 
         $feed = $userFeedRepository->findOneBy(['user' => $appUserService->getUser()]);
@@ -44,8 +43,6 @@ class FeedController extends CommonController
             $tpl_params['U_FEED'] = $this->generateUrl('feed', ['feed_id' => $feed->getUuid()]);
             $tpl_params['U_FEED_IMAGE_ONLY'] = $this->generateUrl('feed_image_only', ['feed_id' => $feed->getUuid()]);
         }
-
-        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
         return $this->render('notification.html.twig', $tpl_params);
     }

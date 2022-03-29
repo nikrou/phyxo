@@ -93,8 +93,10 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
 
         if ($command->getName() === 'list') {
             foreach ($this->plugins->getDbPlugins(Plugin::INACTIVE) as $plugin) {
-                foreach ($this->extensionCollection->getExtensionsByClass()[$plugin->getId()] as $command_name) {
-                    $application->get($command_name)->setHidden(true);
+                if ($this->extensionCollection->getExtensionsByClass()) {
+                    foreach ($this->extensionCollection->getExtensionsByClass()[$plugin->getId()] as $command_name) {
+                        $application->get($command_name)->setHidden(true);
+                    }
                 }
             }
         } else {

@@ -1,0 +1,7 @@
+name: Treflez
+version: 0.1.0
+author: Nicolas Roudaire
+author_uri: https://www.nikrou.net/
+uri: https://ext.phyxo.net/extension_view.php?eid=NNN
+description: The theme is based on the original one for piwigo.
+admin_uri: true

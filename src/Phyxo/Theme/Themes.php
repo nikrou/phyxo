@@ -14,12 +14,17 @@ namespace Phyxo\Theme;
 use App\DataMapper\UserMapper;
 use App\Entity\Theme;
 use Phyxo\Extension\Extensions;
-use Phyxo\Theme\DummyThemeMaintain;
 use App\Repository\ThemeRepository;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Yaml\Yaml;
 
+/**
+ * @phpstan-type ThemeParameters array{name: string, description: ?string, parent?: string, screenshot?: string, version: string, uri: ?string, author: string, admin_uri: ?bool}
+ */
 class Themes extends Extensions
 {
+    const CONFIG_FILE = 'config.yaml';
+
     private $themeRepository;
     private $themes_root_path, $userMapper;
     private $fs_themes = [], $db_themes = [], $server_themes = [];
@@ -212,75 +217,57 @@ class Themes extends Extensions
     public function getFsThemes()
     {
         if (!$this->fs_themes_retrieved) {
-            foreach (glob($this->themes_root_path . '/*/themeconf.inc.php') as $themeconf) {
-                $theme_dir = basename(dirname($themeconf));
-                if (!preg_match('`^[a-zA-Z0-9-_]+$`', $theme_dir)) {
+            foreach (glob($this->themes_root_path . '/*') as $theme_dir) {
+                if (!is_readable($theme_dir . '/' . self::CONFIG_FILE)) {
                     continue;
                 }
 
-                $theme = [
-                    'id' => $theme_dir,
-                    'name' => $theme_dir,
-                    'version' => '0',
-                    'uri' => '',
-                    'description' => '',
-                    'author' => '',
-                    'mobile' => false,
-                ];
-                $theme_data = implode('', file($themeconf));
-
-                if (preg_match("|Theme Name:\\s*(.+)|", $theme_data, $val)) {
-                    $theme['name'] = trim($val[1]);
-                }
-                if (preg_match("|Version:\\s*([\\w.-]+)|", $theme_data, $val)) {
-                    $theme['version'] = trim($val[1]);
-                }
-                if (preg_match("|Theme URI:\\s*(https?:\\/\\/.+)|", $theme_data, $val)) {
-                    $theme['uri'] = trim($val[1]);
-                }
-                if ($desc = \Phyxo\Functions\Language::loadLanguageFile('description.' . $this->userMapper->getUser()->getLocale() . '.txt', dirname($themeconf))) {
-                    $theme['description'] = trim($desc);
-                } elseif (preg_match("|Description:\\s*(.+)|", $theme_data, $val)) {
-                    $theme['description'] = trim($val[1]);
-                }
-                if (preg_match("|Author:\\s*(.+)|", $theme_data, $val)) {
-                    $theme['author'] = trim($val[1]);
-                }
-                if (preg_match("|Author URI:\\s*(https?:\\/\\/.+)|", $theme_data, $val)) {
-                    $theme['author uri'] = trim($val[1]);
-                }
-                if (!empty($theme['uri']) and strpos($theme['uri'], 'extension_view.php?eid=')) {
-                    list(, $extension) = explode('extension_view.php?eid=', $theme['uri']);
-                    if (is_numeric($extension)) {
-                        $theme['extension'] = $extension;
-                    }
-                }
-                if (preg_match('/["\']parent["\'][^"\']+["\']([^"\']+)["\']/', $theme_data, $val)) {
-                    $theme['parent'] = $val[1];
-                }
-                if (preg_match('/["\']activable["\'].*?(true|false)/i', $theme_data, $val)) {
-                    $theme['activable'] = $val[1] !== 'false';
-                }
-                if (preg_match('/["\']mobile["\'].*?(true|false)/i', $theme_data, $val)) {
-                    $theme['mobile'] = $val[1] !== 'false';
-                }
-
-                // screenshot
-                $screenshot_path = $theme_dir . '/screenshot.png';
-                if (is_readable($this->themes_root_path . '/' . $screenshot_path)) {
-                    $theme['screenshot'] = "themes/$screenshot_path";
-                } else {
-                    $theme['screenshot'] = 'admin/theme/images/missing_screenshot.png';
-                }
-
-                $admin_file = dirname($themeconf) . '/admin/admin.inc.php';
-                $theme['admin_uri'] = file_exists($admin_file);
-                $this->fs_themes[$theme_dir] = $theme;
+                $this->getFsTheme(basename($theme_dir));
             }
+
             $this->fs_themes_retrieved = true;
         }
 
         return $this->fs_themes;
+    }
+
+    public function getFsTheme(string $theme_id): void
+    {
+        $path = $this->themes_root_path . '/' . $theme_id;
+        $config_file = $path . '/' . self::CONFIG_FILE;
+
+        $this->fs_themes[$theme_id] = self::loadThemeParameters($config_file, $theme_id, $this->themes_root_path);
+    }
+
+    /**
+     * @return ThemeParameters
+     */
+    public static function loadThemeParameters(string $config_file, string $theme_id, string $themes_root_path)
+    {
+        $theme = [
+            'id' => $theme_id,
+            'name' => $theme_id,
+            'version' => '0',
+            'uri' => '',
+            'description' => '',
+            'author' => '',
+            'admin_uri' => false,
+        ];
+
+        $theme_data = Yaml::parse(file_get_contents($config_file));
+        if (!empty($theme_data['uri']) && ($pos = strpos($theme_data['uri'], 'extension_view.php?eid=')) !== false) {
+            list(, $extension) = explode('extension_view.php?eid=', $theme_data['uri']);
+            if (is_numeric($extension)) {
+                $theme_data['extension'] = (int) $extension;
+            }
+        }
+
+        $screenshot_path = $theme_id . '/screenshot.png';
+        if (is_readable($themes_root_path . '/' . $screenshot_path)) {
+            $theme['screenshot'] = "themes/$screenshot_path";
+        }
+
+        return array_merge($theme, $theme_data);
     }
 
     /**
@@ -429,7 +416,7 @@ class Themes extends Extensions
 
         $extract_path = $this->themes_root_path;
         try {
-            $this->extractZipFiles($archive, 'themeconf.inc.php', $extract_path);
+            $this->extractZipFiles($archive, self::CONFIG_FILE, $extract_path);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         } finally {

@@ -76,7 +76,8 @@
         "psr-4": {
             "Phyxo\\": "src/Phyxo/",
             "App\\": "src/",
-            "Plugins\\": "plugins/"
+            "Plugins\\": "plugins/",
+            "Themes\\": "themes/"
         }
     },
     "autoload-dev": {

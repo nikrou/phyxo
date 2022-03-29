@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Treflez;
+namespace Themes\treflez;
 
 class Config
 {

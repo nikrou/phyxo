@@ -12,6 +12,7 @@
 namespace App\EventSubscriber;
 
 use App\Twig\ThemeLoader;
+use Phyxo\Theme\Themes;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -50,6 +51,13 @@ class ThemePathSubscriber implements EventSubscriberInterface
         if (is_dir($this->themesDir . '/' . $theme . '/template')) {
             $request->attributes->set('_theme', $theme);
             $this->themeLoader->addPath($this->themesDir . '/' . $theme . '/template');
+
+            $theme_config_file = sprintf('%s/%s/%s', $this->themesDir, $theme, Themes::CONFIG_FILE);
+            $themeParameters = Themes::loadThemeParameters($theme_config_file, $theme, $this->themesDir);
+
+            if (!empty($themeParameters['parent']) && is_dir($this->themesDir . '/' . $themeParameters['parent'] . '/template')) {
+                $this->themeLoader->addPath($this->themesDir . '/' . $themeParameters['parent'] . '/template');
+            }
         }
     }
 }

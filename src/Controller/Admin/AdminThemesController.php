@@ -19,7 +19,9 @@ use Phyxo\TabSheet\TabSheet;
 use Phyxo\Theme\Themes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mime\MimeTypeGuesserInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -70,8 +72,7 @@ class AdminThemesController extends AbstractController
                 'AUTHOR' => $fs_theme['author'],
                 'AUTHOR_URL' => $fs_theme['author uri'] ?? null,
                 'PARENT' => $fs_theme['parent'] ?? null,
-                'SCREENSHOT' => $fs_theme['screenshot'],
-                'IS_MOBILE' => $fs_theme['mobile'],
+                'SCREENSHOT' => $fs_theme['screenshot'] ?? null,
                 'IS_DEFAULT' => ($theme_id === $default_theme),
                 'ADMIN_URI' => $fs_theme['admin_uri'] ? $this->generateUrl('admin_theme', ['theme' => $theme_id]) : ''
             ];
@@ -308,5 +309,22 @@ class AdminThemesController extends AbstractController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
 
         return $this->render('themes_new.html.twig', $tpl_params);
+    }
+
+    public function screenshot(string $theme, string $themesDir, MimeTypeGuesserInterface $mimeTypeGuesser): Response
+    {
+        $path = sprintf('%s/%s/screenshot.png', $themesDir, $theme);
+        if (!is_readable($path)) {
+            return new Response('screenshot not found', 404);
+        }
+
+        $response = new BinaryFileResponse($path);
+        $response->setEtag(md5_file($path));
+        $response->setLastModified((new \DateTime())->setTimestamp(filemtime($path)));
+        $response->setMaxAge(3600);
+        $response->setPublic();
+        $response->headers->set('Content-Type', $mimeTypeGuesser->guessMimeType($path));
+
+        return $response;
     }
 }
