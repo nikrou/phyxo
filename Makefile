@@ -27,7 +27,7 @@ PUBLIC_MANIFEST=$(PUBLIC_THEME_PATH)/build/manifest.json
 
 config: clean ## prepare environment for building archive
 	mkdir -p $(DIST)/$(APP_NAME)/bin
-	cp -pr .env public include install languages templates translations config src \
+	cp -pr .env public include install templates translations config src \
 	CHANGELOG.md LICENSE README.md $(DIST)/$(APP_NAME)/
 	cp -p tools/.htaccess $(DIST)/$(APP_NAME)/
 

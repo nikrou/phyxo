@@ -11,6 +11,8 @@
 
 namespace App\EventSubscriber;
 
+use App\DataMapper\UserMapper;
+use App\Repository\ThemeRepository;
 use Phyxo\Conf;
 use Phyxo\Extension\AbstractTheme;
 use Phyxo\Theme\Themes;
@@ -25,9 +27,9 @@ class ThemeConfigSubscriber implements EventSubscriberInterface
     private Conf $conf;
     private Themes $themes;
 
-    public function __construct(Themes $themes, Conf $conf, Environment $twig)
+    public function __construct(ThemeRepository $themeRepository, UserMapper $userMapper, Conf $conf, Environment $twig)
     {
-        $this->themes = $themes;
+        $this->themes = new Themes($themeRepository, $userMapper);
         $this->conf = $conf;
         $this->twig = $twig;
     }
