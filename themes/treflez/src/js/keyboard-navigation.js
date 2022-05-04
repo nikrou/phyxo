@@ -1,29 +1,24 @@
 document.onkeydown = function (e) {
-  if (!$('#photoswipe-container').hasClass('pswp__ui--hidden')) {
-    return;
+  if ($('.pswp.pswp--open').length > 0) {
+    return
   }
 
-  const keyToRel = [];
-  keyToRel[35] = { rel: 'last', ctrlKey: true };
-  keyToRel[36] = { rel: 'first', ctrlKey: true };
-  keyToRel[37] = { rel: 'prev', ctrlKey: false };
-  keyToRel[38] = { rel: 'up', ctrlKey: true };
-  keyToRel[39] = { rel: 'next', ctrlKey: false };
+  const keyToRel = []
+  keyToRel['End'] = { rel: 'last', ctrlKey: true }
+  keyToRel['Home'] = { rel: 'first', ctrlKey: true }
+  keyToRel['ArrowLeft'] = { rel: 'prev', ctrlKey: false }
+  keyToRel['ArrowUp'] = { rel: 'up', ctrlKey: true }
+  keyToRel['ArrowRight'] = { rel: 'next', ctrlKey: false }
 
-  e = e || window.event;
-  if (e.altKey) return true;
-  var target = e.target || e.srcElement;
-  if (target && target.type) return true;
-  var keyCode = e.keyCode || e.which;
+  const keyCode = e.key
 
-  if (keyCode && keyToRel[keyCode]) {
+  if (keyCode && keyToRel[keyCode] !== undefined) {
     if (keyToRel[keyCode]['ctrlKey'] && !e.ctrlKey) {
-      return;
+      return
     }
-    const link = $('link[rel="' + keyToRel[keyCode]['rel'] + '"]');
+    const link = $('link[rel="' + keyToRel[keyCode]['rel'] + '"]')
     if (link.length) {
-      // @TODO: prevent scroll when end key is pressed
-      document.location = link.attr('href');
+      document.location = link.attr('href')
     }
   }
-};
+}

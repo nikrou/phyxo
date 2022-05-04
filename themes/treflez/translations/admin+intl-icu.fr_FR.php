@@ -32,6 +32,7 @@ $lang['Picture info display position'] = 'Position des informations de l\'image'
 $lang['Thumbnail Link Target'] = 'Cible des miniatures';
 $lang['Link thumbnail to'] = 'Cliquer sur les miniatures ouvre';
 $lang['Picture details page'] = 'Page détaillée de l\'image';
+$lang['PhotoSwipe Settings'] = 'Paramètres du Diaporama';
 $lang['PhotoSwipe Slideshow'] = 'Diaporama PhotoSwipe';
 $lang['Photoswipe Slideshow (Mobile devices only)'] = 'Diaporama PhotoSwipe (uniquement sur les périphériques mobiles)';
 $lang['Category page display'] = 'Affichage de la page des catégories';
@@ -50,7 +51,7 @@ $lang['from'] = 'de';
 $lang['Site logo'] = 'Logo du site';
 $lang['Display a site logo image instead of plain text'] = 'Affiche le logo du site au lieu du nom';
 $lang['The path to the image, relative to your Phyxo installation folder'] = 'Le chemin d\'accès à l\'image, par rapport à votre dossier d\'installation Phyxo.';
-$lang['directly in the navigation bar'] = 'directement dans la barre de navigation.';
+$lang['Quick search directly in the navigation bar'] = 'Recherche rapide directement dans la barre de navigation.';
 $lang['This setting is overridden by Bootstrap Darkroom'] = 'Ce paramètre est remplacé par Bootstrap Darkroom.';
 $lang['Hides the top menu and jumbotron containing the page title and banner'] = 'Masque le menu principal et le jumbotron contenant le titre et la bannière de la page.';
 $lang['Social integration'] = 'Intégration des réseaux sociaux';
@@ -80,7 +81,7 @@ $lang['Simple'] = "Simple";
 $lang['Advanced'] = "Avancé";
 $lang['Description display style'] = "Style d'affichage de la description";
 $lang['center-aligned h5 heading'] = "titre h5 centré";
-$lang['left-aligned free text for advanced descriptions'] = "text aligné à gauche pour des descriptions plus élaborées";
+$lang['left-aligned free text for advanced descriptions'] = "texte aligné à gauche pour des descriptions plus élaborées";
 $lang['Banner style'] = "Style de bannière";
 $lang['Background image'] = "Image de fond";
 $lang['URL or releative path to the image'] = "URL ou chemin relatif vers l'image";
@@ -89,5 +90,11 @@ $lang['Use 6 colums for viewports >= 1680px'] = "Utiliser les 6 colonnes pour le
 $lang['Filter and display comments'] = "Filtrer les commentaires";
 $lang['Virtual album added'] = 'Album virtuel ajouté';
 $lang['Virtual album deleted'] = 'Album virtuel supprimé';
+$lang['Tag cloud'] = 'Nuage de mots-clés';
+$lang['Quick search'] = 'Recherche rapide';
+$lang['Slick Carousel Settings'] = 'Paramètre du Slick Carousel';
+$lang['About'] = 'À propos';
+$lang['Path'] = 'Chemin';
+$lang['Page header'] = 'Entête de page';
 
 return $lang;

@@ -12,7 +12,6 @@ const path = require('path')
 const webpack = require('webpack')
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const WebpackAssetsManifest = require('webpack-assets-manifest')
 
 const HOST = process.env.HOST ? process.env.HOST : 'localhost'
@@ -47,16 +46,8 @@ const PATHS = {
   ),
 }
 
-/**
- * bootswatch themes available
- *
- * cerulean, cosmo, cyborg, darkly, flatly, journal, litera, lumen, lux, materia, minty, pulse, sandstone,
- * simplex, sketchy, slate, solar, spacelab, superhero, united, yeti
- *
- */
-
 module.exports = {
-  devtool: 'source-map',
+  devtool: IS_DEV ? 'eval' : 'source-map',
 
   entry: {
     theme: PATHS.theme,
@@ -67,29 +58,35 @@ module.exports = {
     filename: path.join('js', IS_DEV ? '[name].js' : '[name]-[fullhash].js'),
     path: PATHS.target,
     publicPath: PUBLIC_PATH,
+    clean: true,
   },
 
   module: {
     rules: [
       {
         test: /\.js$/,
-        exclude: /node_modules/,
+        exclude: [/node_modules/],
         use: {
+          loader: 'babel-loader',
           options: {
             cacheDirectory: true,
-            presets: [['env', { modules: false }]],
+            presets: ['@babel/preset-env'],
           },
-          loader: 'babel-loader',
         },
       },
 
       {
-        test: /\.scss$/,
+        test: /\.scss?$/,
         use: [
           // fallback to style-loader in development
           IS_DEV ? 'style-loader' : MiniCssExtractPlugin.loader,
           'css-loader',
-          'sass-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              implementation: require('dart-sass'),
+            },
+          },
         ],
       },
 
@@ -99,7 +96,9 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
-              name: 'images/[name].[ext]', // @TODO: find a way to inject [hash] in templates
+              name: IS_DEV
+                ? 'images/[name].[ext]'
+                : 'images/[contenthash].[ext]',
               publicPath: ASSETS_PUBLIC_PATH,
             },
           },
@@ -112,7 +111,7 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
-              name: 'fonts/[name].[ext]', // @TODO: find a way to inject [hash:8] in templates
+              name: IS_DEV ? 'fonts/[name].[ext]' : 'fonts/[contenthash].[ext]',
               publicPath: ASSETS_PUBLIC_PATH,
             },
           },
@@ -141,12 +140,8 @@ module.exports = {
       // Options similar to the same options in webpackOptions.output
       // both options are optional
       filename: IS_DEV ? '[name].css' : '[name].[fullhash].css',
-      chunkFilename: IS_DEV ? '[id].css' : '[id].[fullhash].css', // @TODO: find a way to inject [hash] in templates
+      chunkFilename: IS_DEV ? '[id].css' : '[id].[fullhash].css',
     }),
-
-    new webpack.HotModuleReplacementPlugin(),
-
-    new CleanWebpackPlugin(),
   ],
 
   devServer: {

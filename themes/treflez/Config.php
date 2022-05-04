@@ -11,6 +11,8 @@
 
 namespace Themes\treflez;
 
+use Phyxo\Conf;
+
 class Config
 {
     const CONF_PARAM = 'treflez';
@@ -37,7 +39,7 @@ class Config
     const KEY_PAGE_HEADER_BOTH_NAVS = 'page_header_both_navs';
     const KEY_PICTURE_INFO = 'picture_info';
     const KEY_PHOTOSWIPE = 'photoswipe';
-    const KEY_PHOTOSWIPE_INTERVAL = 'photoswipe_interval';
+    const KEY_PHOTOSWIPE_LOOP = 'loop';
     const KEY_PHOTOSWIPE_METADATA = 'photoswipe_metadata';
     const KEY_THUMBNAIL_LINKTO = 'thumbnail_linkto';
     const KEY_THUMBNAIL_CAPTION = 'thumbnail_caption';
@@ -77,7 +79,7 @@ class Config
         self::KEY_PAGE_HEADER_BOTH_NAVS => true,
         self::KEY_PICTURE_INFO => 'cards',
         self::KEY_PHOTOSWIPE => true,
-        self::KEY_PHOTOSWIPE_INTERVAL => '3500',
+        self::KEY_PHOTOSWIPE_LOOP => true,
         self::KEY_PHOTOSWIPE_METADATA => false,
         self::KEY_THUMBNAIL_LINKTO => 'picture',
         self::KEY_THUMBNAIL_CAPTION => true,
@@ -116,7 +118,7 @@ class Config
         self::KEY_PAGE_HEADER_BOTH_NAVS => self::TYPE_BOOL,
         self::KEY_PICTURE_INFO => self::TYPE_STRING,
         self::KEY_PHOTOSWIPE => self::TYPE_BOOL,
-        self::KEY_PHOTOSWIPE_INTERVAL => self::TYPE_NUM,
+        self::KEY_PHOTOSWIPE_LOOP => self::TYPE_BOOL,
         self::KEY_PHOTOSWIPE_METADATA => self::TYPE_BOOL,
         self::KEY_THUMBNAIL_LINKTO => self::TYPE_STRING,
         self::KEY_THUMBNAIL_CAPTION => self::TYPE_BOOL,
@@ -141,7 +143,7 @@ class Config
     private $config = [];
     private $core_config = [];
 
-    public function __construct(\Phyxo\Conf $conf)
+    public function __construct(Conf $conf)
     {
         $this->core_config = $conf;
 
@@ -155,12 +157,12 @@ class Config
         $this->populateConfig();
     }
 
-    public function getConfig()
+    public function getConfig(): array
     {
         return $this->config;
     }
 
-    public function __set($key, $value)
+    public function __set(string $key, $value): void
     {
         if (array_key_exists($key, $this->defaults)) {
             switch ($this->types[$key]) {
@@ -177,7 +179,7 @@ class Config
         }
     }
 
-    public function __get($key)
+    public function __get(string $key)
     {
         if (array_key_exists($key, $this->defaults)) {
             switch ($this->types[$key]) {
@@ -191,24 +193,24 @@ class Config
         }
     }
 
-    public function fromPost(array $post)
+    public function fromPost(array $post): void
     {
         foreach (array_keys($this->defaults) as $key) {
             $this->__set($key, isset($post[$key]) ? stripslashes($post[$key]) : null);
         }
     }
 
-    public function save()
+    public function save(): void
     {
         $this->core_config->addOrUpdateParam(self::CONF_PARAM, $this->config, 'json');
     }
 
-    private function createDefaultConfig()
+    private function createDefaultConfig(): void
     {
         $this->config = $this->defaults;
     }
 
-    private function populateConfig()
+    private function populateConfig(): void
     {
         foreach ($this->defaults as $key => $value) {
             if (!isset($this->config[$key])) {
