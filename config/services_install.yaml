@@ -63,6 +63,10 @@ services:
     autowire: false
     autoconfigure: false
 
+  App\EventSubscriber\ThemeConfigSubscriber:
+    autowire: false
+    autoconfigure: false
+
   App\Twig\ThemeLoader:
     autowire: false
     autoconfigure: false
