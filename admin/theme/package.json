@@ -31,7 +31,7 @@
     "jgrowl": "~1.4.8",
     "jquery": "^3.6.0",
     "jquery-colorbox": "^1.6.4",
-    "jquery-ui": "~1.13.1",
+    "jquery-ui": "~1.13.2",
     "lozad": "^1.16.0",
     "mini-css-extract-plugin": "^2.6.0",
     "normalize.css": "^8.0.1",
