@@ -83,12 +83,13 @@ class PictureController extends AbstractController
         $history_section = '';
 
         $album = null;
+        $order_by = $conf['order_by'];
         if ($type === 'list') {
             $history_section = History::SECTION_LIST;
             $tpl_params['TITLE'] = $translator->trans('Random photos');
             $tpl_params['items'] = [];
-            foreach ($imageMapper->getRepository()->searchDistinctId($appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $conf['order_by']) as $image) {
-                $tpl_params['items'][] = $image['id'];
+            foreach ($imageMapper->getRepository()->searchDistinctId($appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $order_by) as $image) {
+                $tpl_params['items'][] = $image->getId();
             }
         } elseif ($type === 'from_calendar') {
             $tpl_params['items'] = [];
@@ -103,8 +104,8 @@ class PictureController extends AbstractController
             }
 
             $tpl_params['items'] = [];
-            foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum((int) $element_id, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $conf['order_by']) as $image) {
-                $tpl_params['items'][] = $image['id'];
+            foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum((int) $element_id, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $order_by) as $image) {
+                $tpl_params['items'][] = $image->getId();
             }
         }
 

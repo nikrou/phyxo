@@ -186,9 +186,7 @@ class AdminConfigurationController extends AbstractController
             $order_by = [''];
             $tpl_params['ORDER_BY_IS_CUSTOM'] = true;
         } else {
-            $order_by = trim($conf['order_by_inside_category']);
-            $order_by = str_replace('ORDER BY ', '', $order_by);
-            $order_by = explode(', ', $order_by);
+            $order_by = $conf['order_by_inside_category'];
         }
 
         $tpl_params['main'] = [

@@ -59,18 +59,18 @@ class AlbumController extends AbstractController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
 
         $preferred_image_orders = [
-            [$translator->trans('Default'), '', true],
-            [$translator->trans('Photo title, A &rarr; Z'), 'name ASC', true],
-            [$translator->trans('Photo title, Z &rarr; A'), 'name DESC', true],
-            [$translator->trans('Date created, new &rarr; old'), 'date_creation DESC', true],
-            [$translator->trans('Date created, old &rarr; new'), 'date_creation ASC', true],
-            [$translator->trans('Date posted, new &rarr; old'), 'date_available DESC', true],
-            [$translator->trans('Date posted, old &rarr; new'), 'date_available ASC', true],
-            [$translator->trans('Rating score, high &rarr; low'), 'rating_score DESC', $conf['rate']],
-            [$translator->trans('Rating score, low &rarr; high'), 'rating_score ASC', $conf['rate']],
-            [$translator->trans('Visits, high &rarr; low'), 'hit DESC', true],
-            [$translator->trans('Visits, low &rarr; high'), 'hit ASC', true],
-            [$translator->trans('Permissions'), 'level DESC', $security->isGranted('ROLE_ADMIN'), true],
+            [$translator->trans('Default'), '[]', true],
+            [$translator->trans('Photo title, A &rarr; Z'), '[["name", "ASC"]]', true],
+            [$translator->trans('Photo title, Z &rarr; A'), '["name", "DESC"]]', true],
+            [$translator->trans('Date created, new &rarr; old'), '[["date_creation", "DESC"]]', true],
+            [$translator->trans('Date created, old &rarr; new'), '[["date_creation", "ASC"]]', true],
+            [$translator->trans('Date posted, new &rarr; old'), '[["date_available", "DESC"]]', true],
+            [$translator->trans('Date posted, old &rarr; new'), '[["date_available", "ASC"]]', true],
+            [$translator->trans('Rating score, high &rarr; low'), '[["rating_score", "DESC"]]', $conf['rate']],
+            [$translator->trans('Rating score, low &rarr; high'), '[["rating_score", "ASC"]]', $conf['rate']],
+            [$translator->trans('Visits, high &rarr; low'), '[["hit", "DESC"]]', true],
+            [$translator->trans('Visits, low &rarr; high'), '[["hit", "ASC"]]', true],
+            [$translator->trans('Permissions'), '[["level", "DESC"]]', $security->isGranted('ROLE_ADMIN'), true],
         ];
 
         $order_index = 0;
@@ -81,6 +81,7 @@ class AlbumController extends AbstractController
             $order_index = (int) $request->get('order');
             $request->getSession()->set('image_order_index', $order_index);
         }
+
         $order_by = $conf['order_by'];
         $tpl_params['image_orders'] = [];
         foreach ($preferred_image_orders as $order_id => $order) {
@@ -93,8 +94,8 @@ class AlbumController extends AbstractController
             }
         }
         $tpl_params['image_orders'][$order_index]['SELECTED'] = true;
-        if ($preferred_image_orders[$order_index][1] !== '') {
-            $order_by = $preferred_image_orders[$order_index][1] . ',' . $order_by;
+        if ($preferred_image_orders[$order_index][1] !== '[]') {
+            $order_by = array_merge(json_decode($preferred_image_orders[$order_index][1], true), $order_by);
         }
 
         $albums = [];
@@ -193,7 +194,7 @@ class AlbumController extends AbstractController
 
         $tpl_params['items'] = [];
         foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum($album->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $order_by) as $image) {
-            $tpl_params['items'][] = $image['id'];
+            $tpl_params['items'][] = $image->getId();
         }
 
         if (count($tpl_params['items']) > 0) {

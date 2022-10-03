@@ -308,7 +308,7 @@ class AdminAlbumController extends AbstractController
         // template thumbnail initialization
         $current_rank = 1;
         $derivativeParams = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
-        foreach ($imageMapper->getRepository()->findImagesInAlbum($album_id, 'ORDER BY RANK') as $image) {
+        foreach ($imageMapper->getRepository()->findImagesInAlbum($album_id, [['RANK', 'ASC']]) as $image) {
             $derivative = new DerivativeImage($image, $derivativeParams, $image_std_params);
 
             if ($image->getName()) {

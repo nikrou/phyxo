@@ -34,7 +34,7 @@
 // order_by_custom and order_by_inside_category_custom : for non common pattern
 // you can define special ORDER configuration
 //
-// $conf['order_by_custom'] = ' ORDER BY date_available DESC, file ASC, id ASC';
+// $conf['order_by_custom'] = 'date_available DESC, file ASC, id ASC';
 
 // order_by_inside_category : inside a category, images can also be ordered
 // by rank. A manually defined rank on each image for the category.
@@ -47,8 +47,8 @@ $conf['picture_ext'] = ['jpg', 'JPG', 'jpeg', 'JPEG', 'png', 'PNG', 'gif', 'GIF'
 
 // file_ext : file extensions (case sensitive) authorized
 $conf['file_ext'] = array_merge(
-  $conf['picture_ext'],
-  ['tiff', 'tif', 'mpg', 'zip', 'avi', 'mp3', 'ogg', 'pdf']
+    $conf['picture_ext'],
+    ['tiff', 'tif', 'mpg', 'zip', 'avi', 'mp3', 'ogg', 'pdf']
 );
 
 // top_number : number of element to display for "best rated" and "most

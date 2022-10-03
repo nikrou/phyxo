@@ -47,8 +47,8 @@ INSERT INTO phyxo_config (param,value,type,comment) VALUES ('picture_menu','fals
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('picture_informations','{"author":true,"created_on":true,"posted_on":true,"dimensions":false,"file":false,"filesize":false,"tags":true,"categories":true,"visits":true,"rating_score":true,"privacy_level":true}','json','Information displayed on picture page');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('week_starts_on','monday','string','Monday may not be the first day of the week');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('updates_ignored','{"plugins":[],"themes":[],"languages":[]}','json','Extensions ignored for update');
-INSERT INTO phyxo_config (param,value,type,comment) VALUES ('order_by','ORDER BY date_available DESC, file ASC, id ASC','string','default photo order');
-INSERT INTO phyxo_config (param,value,type,comment) VALUES ('order_by_inside_category','ORDER BY date_available DESC, file ASC, id ASC','string','default photo order inside category');
+INSERT INTO phyxo_config (param,value,type,comment) VALUES ('order_by','[["date_available", "DESC"], ["file", "ASC"], ["id", "ASC"]]','json','default photo order');
+INSERT INTO phyxo_config (param,value,type,comment) VALUES ('order_by_inside_category','[["date_available", "DESC"], ["file", "ASC"], ["id", "ASC"]]','json','default photo order inside category');
 INSERT INTO phyxo_config (param,value,type) VALUES ('original_resize','false','boolean');
 INSERT INTO phyxo_config (param,value,type) VALUES ('original_resize_maxwidth','2016','integer');
 INSERT INTO phyxo_config (param,value,type) VALUES ('original_resize_maxheight','2016','integer');

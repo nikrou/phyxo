@@ -362,7 +362,7 @@ class AdminBatchManagerController extends AbstractController
             foreach ($imageMapper->getRepository()->findByImageIdsAndAlbumId(
                 $current_set,
                 $is_category ? ($this->getFilter($request->getSession())['category'] ?? null) : null,
-                $conf['order_by'] ?? '  ',
+                $conf['order_by'] ?? [],
                 $nb_images,
                 $start
             ) as $image) {
@@ -1133,7 +1133,7 @@ class AdminBatchManagerController extends AbstractController
             foreach ($imageMapper->getRepository()->findByImageIdsAndAlbumId(
                 $current_set,
                 $this->getFilter($request->getSession())['category'] ?? null,
-                $conf['order_by'] ?? '  ',
+                $conf['order_by'] ?? [],
                 $nb_images,
                 $start
             ) as $image) {

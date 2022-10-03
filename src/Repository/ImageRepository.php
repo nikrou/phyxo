@@ -422,20 +422,23 @@ class ImageRepository extends ServiceEntityRepository
 
     /**
      * @param int[] $forbidden_albums
+     * @param array<array<int, string>> $order_by
      *
-     * @return array<array<string, int|string>>
+     * @return Image[]
      */
-    public function searchDistinctId(array $forbidden_albums = [], ?string $order_by = null, ?int $limit = null)
+    public function searchDistinctId(array $forbidden_albums = [], array $order_by = [], ?int $limit = null)
     {
         $qb = $this->createQueryBuilder('i');
-        $qb->select('DISTINCT(i.id) AS id');
+        // $qb->select('DISTINCT(i.id) AS id');
         $qb->leftJoin('i.imageAlbums', 'ia');
 
         if (count($forbidden_albums) > 0) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
-        // $qb->orderBy($order_by);
+        foreach ($order_by as $order_by_element) {
+            $qb->addOrderBy('i.' . $order_by_element[0], $order_by_element[1]);
+        }
 
         if (!is_null($limit)) {
             $qb->setMaxResults($limit);
@@ -447,12 +450,11 @@ class ImageRepository extends ServiceEntityRepository
     /**
      * @param int[] $forbidden_albums
      *
-     * @return array<array<string, int|string>>
+     * @return Image[]
      */
-    public function searchDistinctIdInAlbum(int $album_id, array $forbidden_albums = [], ?string $order_by = null, ?int $limit = null)
+    public function searchDistinctIdInAlbum(int $album_id, array $forbidden_albums = [], array $order_by = [], ?int $limit = null)
     {
         $qb = $this->createQueryBuilder('i');
-        $qb->select('DISTINCT(i.id) AS id');
         $qb->leftJoin('i.imageAlbums', 'ia');
 
         $qb->where('ia.album = :album_id');
@@ -462,7 +464,9 @@ class ImageRepository extends ServiceEntityRepository
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
-        // $qb->orderBy($order_by);
+        foreach ($order_by as $order_by_element) {
+            $qb->addOrderBy('i.' . $order_by_element[0], $order_by_element[1]);
+        }
 
         if (!is_null($limit)) {
             $qb->setMaxResults($limit);
@@ -734,14 +738,20 @@ class ImageRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param array<array<int, string>> $order_by
+     *
      * @return Image[]
      */
-    public function findImagesInAlbum(int $album_id, string $order_by)
+    public function findImagesInAlbum(int $album_id, array $order_by = [])
     {
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
         $qb->where('ia.album = :album_id');
         $qb->setParameter('album_id', $album_id);
+
+        foreach ($order_by as $order_by_element) {
+            $qb->addOrderBy('i.' . $order_by_element[0], $order_by_element[1]);
+        }
 
         return $qb->getQuery()->getResult();
     }
@@ -804,10 +814,11 @@ class ImageRepository extends ServiceEntityRepository
 
     /**
      * @param int[] $image_ids
+     * @param array<array<int, string>> $order_by
      *
      * @return Image[]
      */
-    public function findByImageIdsAndAlbumId(array $image_ids, ? int $album_id = null, string $order_by, int $limit, int $offset = 0)
+    public function findByImageIdsAndAlbumId(array $image_ids, ?int $album_id = null, array $order_by, int $limit, int $offset = 0)
     {
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
@@ -820,6 +831,12 @@ class ImageRepository extends ServiceEntityRepository
 
         $qb->setMaxResults($limit);
         $qb->setFirstResult($offset);
+
+        if (is_array($order_by)) {
+            foreach ($order_by as $order_by_element) {
+                $qb->addOrderBy('i.' . $order_by_element[0], $order_by_element[1]);
+            }
+        }
 
         return $qb->getQuery()->getResult();
     }
