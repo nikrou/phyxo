@@ -8,15 +8,10 @@
  * file that was distributed with this source code.
  */
 
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const path = require('path')
 const webpack = require('webpack')
-
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const WebpackAssetsManifest = require('webpack-assets-manifest')
-
-const HOST = process.env.HOST ? process.env.HOST : 'localhost'
-const PORT = process.env.PORT ? process.env.PORT : 8080
-const IS_DEV = process.env.NODE_ENV !== 'production'
 
 /**
  * PATH_PREFIX is used to add a prefix to phyxo urls.
@@ -25,12 +20,15 @@ const IS_DEV = process.env.NODE_ENV !== 'production'
  *
  */
 const PATH_PREFIX = process.env.PATH_PREFIX ? process.env.PATH_PREFIX : ''
-
 const TARGET_NAME = 'build'
+
+const HOST = process.env.HOST ? process.env.HOST : 'localhost'
+const PORT = process.env.PORT ? process.env.PORT : 8080
+const IS_DEV = process.env.NODE_ENV !== 'production'
+
 const PUBLIC_PATH = IS_DEV
   ? `http://${HOST}:${PORT}/`
   : `${PATH_PREFIX}themes/treflez/${TARGET_NAME}/`
-const ASSETS_PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : './'
 
 const PATHS = {
   theme: path.join(__dirname, 'src', 'js'),
@@ -47,7 +45,7 @@ const PATHS = {
 }
 
 module.exports = {
-  devtool: IS_DEV ? 'eval' : 'source-map',
+  // devtool: IS_DEV ? 'eval-cheap-source-map' : 'nosources-source-map',
 
   entry: {
     theme: PATHS.theme,
@@ -65,7 +63,7 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        exclude: [/node_modules/],
+        exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
           options: {
@@ -76,10 +74,17 @@ module.exports = {
       },
 
       {
-        test: /\.scss?$/,
+        test: /\.scss$/,
+        exclude: /node_modules/,
         use: [
-          // fallback to style-loader in development
-          IS_DEV ? 'style-loader' : MiniCssExtractPlugin.loader,
+          IS_DEV
+            ? 'style-loader'
+            : {
+                loader: MiniCssExtractPlugin.loader,
+                options: {
+                  publicPath: '../',
+                },
+              },
           'css-loader',
           {
             loader: 'sass-loader',
@@ -92,30 +97,18 @@ module.exports = {
 
       {
         test: /\.(png|jpg|jpeg|gif|ico)$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: IS_DEV
-                ? 'images/[name].[ext]'
-                : 'images/[contenthash].[ext]',
-              publicPath: ASSETS_PUBLIC_PATH,
-            },
-          },
-        ],
+        type: 'asset/resource',
+        generator: {
+          filename: 'images/[hash][ext]',
+        },
       },
 
       {
-        test: /\.(svg|ttf|otf|eot|woff(2)?)(\?[a-z0-9]+)?$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: IS_DEV ? 'fonts/[name].[ext]' : 'fonts/[contenthash].[ext]',
-              publicPath: ASSETS_PUBLIC_PATH,
-            },
-          },
-        ],
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset/resource',
+        generator: {
+          filename: 'fonts/[hash][ext]',
+        },
       },
     ],
   },
@@ -137,16 +130,15 @@ module.exports = {
     }),
 
     new MiniCssExtractPlugin({
-      // Options similar to the same options in webpackOptions.output
-      // both options are optional
-      filename: IS_DEV ? '[name].css' : '[name].[fullhash].css',
-      chunkFilename: IS_DEV ? '[id].css' : '[id].[fullhash].css',
+      filename: IS_DEV ? 'css/[name].css' : 'css/[name].[fullhash].css',
+      chunkFilename: IS_DEV ? 'css/[id].css' : 'css/[id].[fullhash].css',
     }),
   ],
 
   devServer: {
     hot: true,
     port: PORT,
+    allowedHosts: 'all',
     headers: { 'Access-Control-Allow-Origin': '*' },
   },
 }

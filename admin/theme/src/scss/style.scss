@@ -3,10 +3,10 @@
 @import 'users-list';
 @import 'selectize.clear';
 
-@import '~jquery-colorbox/example1/colorbox.css';
-@import '~jcrop/build/css/jcrop.scss';
-@import '~jgrowl/jquery.jgrowl.css';
-@import '~plupload/src/jquery.plupload.queue/css/jquery.plupload.queue.css';
+@import 'jquery-colorbox/example1/colorbox.css';
+@import 'jcrop/build/css/jcrop.scss';
+@import 'jgrowl/jquery.jgrowl.css';
+@import 'plupload/src/jquery.plupload.queue/css/jquery.plupload.queue.css';
 
 $sidebar-width: 15em;
 $sidebar-install-width: $sidebar-width + 5em;

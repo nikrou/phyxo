@@ -3,10 +3,10 @@
 @import 'bootswatch_darkly';
 
 // other dependencies
-@import '~slick-carousel/slick/slick.css';
-@import '~slick-carousel/slick/slick-theme.css';
-@import '~selectize/dist/css/selectize.bootstrap3.css';
-@import '~bootstrap-social/bootstrap-social.css';
+@import 'slick-carousel/slick/slick.css';
+@import 'slick-carousel/slick/slick-theme.css';
+@import 'selectize/dist/css/selectize.bootstrap3.css';
+@import 'bootstrap-social/bootstrap-social.css';
 
 // local styles
 @import 'common/variables';
@@ -22,3 +22,4 @@
 @import 'theme/carousel-fade';
 @import 'theme/page-header';
 @import 'theme/calendar';
+

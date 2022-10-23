@@ -4,7 +4,7 @@
 {% set users_list_pageLength = 5 %}
 
 {% block breadcrumb_items %}
-    <li class="titi breadcrumb-item"><a href="{{U_PAGE}}">{{'User list'|trans}}</a></li>
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'User list'|trans}}</a></li>
 {% endblock %}
 
 {% block javascripts %}
@@ -136,6 +136,12 @@
 	<a href="#add-user" data-toggle="collapse" class="btn btn-submit"><i class="fa fa-plus-circle"></i> {{'Add a user'|trans}}</a>
     </p>
 
+	<div class="container alert alert-dismissible fade show" role="alert">
+	    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<i class="fa fa-times"></i>
+	    </button>
+	</div>
+
     <div id="add-user" class="collapse">
 	<form id="addUserForm" method="post" name="add_user" action="{{F_ADD_ACTION}}">
 	    <div class="fieldset">
@@ -143,13 +149,13 @@
 
 		<p>
                     <label>{{'Username'|trans}}
-			<input class="form-control" type="text" name="username" maxlength="50" size="20">
+			<input class="form-control" type="text" data-field="username" name="username" maxlength="50" size="20">
                     </label>
 		</p>
 
 		<p>
                     <label>{{'Password'|trans}}
-			<input class="form-control" type="{% if Double_Password %}password{% else %}text{% endif %}" name="password">
+			<input class="form-control" type="{% if Double_Password %}password{% else %}text{% endif %}" data-field="password" name="password">
                     </label>
 		</p>
 
@@ -163,7 +169,7 @@
 
 		<p>
                     <label>{{'Email address'|trans}}
-			<input class="form-control" type="text" name="email">
+			<input class="form-control" type="text" data-field="email" name="email">
                     </label>
 		</p>
 

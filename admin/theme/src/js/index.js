@@ -21,6 +21,7 @@ import './photo-coi'
 import './element_set_ranks'
 import './menubar'
 import './photos_add_direct'
+import './update'
 
 $(function () {
   $('#sidebarCollapse').on('click', function () {

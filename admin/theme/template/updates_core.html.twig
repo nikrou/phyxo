@@ -1,27 +1,17 @@
 {% trans_default_domain 'admin' %}
 {% extends "__layout.html.twig" %}
 
-{% block breadcrumb_items %}
-    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Updates'|trans}}</a></li>
-    <li class="breadcrumb-item">Phyxo</li>
-{% endblock %}
-
 {% block javascripts %}
     {{parent()}}
     <script>
-     $(function() {
-	 $('input[name="submit"]').click(function() {
-	     if(!confirm('{{'Are you sure?'|trans}}')) {
-		 return false;
-	     }
-	     $(this).hide();
-	     $('.autoupdate_bar').show();
-	 });
-	 $('[name="understand"]').click(function() {
-	     $('[name="submit"]').attr('disabled', !this.checked);
-	 });
-     });
-    </script>
+     var phyxo_msg = phyxo_msg || {};
+     phyxo_msg.are_you_sure = "{{'Are you sure?'|trans}}";
+		</script>
+{% endblock %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Updates'|trans}}</a></li>
+    <li class="breadcrumb-item">Phyxo</li>
 {% endblock %}
 
 {% block content %}

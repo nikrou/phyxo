@@ -11,41 +11,34 @@ import 'sprintf-js'
 
 $(function () {
   const users_list = $('#users-list')
+  const addUserForm = $('#addUserForm')
   let datatable
 
   if ($('#addUserForm').length > 0) {
     $('.alert').hide()
-    $('#addUserForm').submit(function () {
-      $.ajax({
-        url: `${ws_url}?method=pwg.users.add`,
-        type: 'POST',
-        data: $(this).serialize(),
-        beforeSend: function () {
-          $('.alert').find('p').remove()
-          $('.alert')
-            .removeClass('alert-info')
-            .removeClass('alert-danger')
-            .hide()
+    $('#addUserForm').on('submit', function () {
+      const url = `${ws_url}?method=pwg.users.add`
 
-          if ($('input[name="username"]').val() == '') {
-            $('.alert')
-              .addClass('alert-warning')
-              .addClass('show')
-              .append('<p>&#x2718; ' + phyxo_msg.missing_username + '</p>')
-              .show()
+      const username = addUserForm.find('[data-field="username"]').val()
+      const password = addUserForm.find('[data-field="password"]').val()
+      const email = addUserForm.find('[data-field="email"]').val()
 
-            return false
-          }
-        },
-        success: function (json) {
-          const data = JSON(json)
+      const fetch_params = {
+        method: 'POST',
+        mode: 'same-origin',
+        credentials: 'same-origin',
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ username, password, email }),
+      }
 
+      fetch(url, fetch_params)
+        .then((response) => response.json())
+        .then((data) => {
           if (data.stat == 'ok') {
             $(
               '#addUserForm input[type="text"], #addUserForm input[name="password"]'
             ).val('')
-            $('#addUserForm').collapse()
-
+            addUserForm.collapse()
             const new_user = data.result.users[0]
             $('.alert')
               .addClass('alert-info')
@@ -56,7 +49,6 @@ $(function () {
                   '</p>'
               )
               .show()
-            datatable.ajax.reload()
           } else {
             $('.alert')
               .addClass('alert-danger')
@@ -64,10 +56,14 @@ $(function () {
               .append('<p>&#x2718; ' + data.message + '</p>')
               .show()
           }
-        },
-      })
-
-      return false
+        })
+        .catch((err) => {
+          $('.alert')
+            .addClass('alert-danger')
+            .addClass('show')
+            .append('<p>&#x2718; ' + err.message + '</p>')
+            .show()
+        })
     })
     $('#permitAction').hide()
   }
@@ -452,8 +448,7 @@ $(function () {
             .removeClass('alert-danger')
             .hide()
         },
-        success: function (json) {
-          const data = $.parseJSON(json)
+        success: function (data) {
           $('.alert')
             .addClass('alert-info')
             .addClass('show')

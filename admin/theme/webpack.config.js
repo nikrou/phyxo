@@ -8,11 +8,9 @@
  * file that was distributed with this source code.
  */
 
-const webpack = require('webpack')
-const path = require('path')
-
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const path = require('path')
+const webpack = require('webpack')
 const WebpackAssetsManifest = require('webpack-assets-manifest')
 
 const HOST = process.env.HOST ? process.env.HOST : 'localhost'
@@ -21,7 +19,6 @@ const IS_DEV = process.env.NODE_ENV !== 'production'
 
 const TARGET_NAME = 'build'
 const PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : './admin/theme/build/'
-const ASSETS_PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : './'
 
 const PATHS = {
   app: path.join(__dirname, 'src', 'js'),
@@ -39,8 +36,6 @@ const PATHS = {
 }
 
 module.exports = {
-  devtool: 'cheap-module-source-map',
-
   entry: {
     app: PATHS.app,
     install: PATHS.install,
@@ -51,6 +46,7 @@ module.exports = {
     filename: path.join('js', IS_DEV ? '[name].js' : '[name]-[fullhash].js'),
     path: PATHS.target,
     publicPath: PUBLIC_PATH,
+    clean: true,
   },
 
   module: {
@@ -69,38 +65,40 @@ module.exports = {
 
       {
         test: /\.scss$/,
+        exclude: /node_modules/,
         use: [
-          // fallback to style-loader in development
-          IS_DEV ? 'style-loader' : MiniCssExtractPlugin.loader,
+          IS_DEV
+            ? 'style-loader'
+            : {
+                loader: MiniCssExtractPlugin.loader,
+                options: {
+                  publicPath: '../',
+                },
+              },
           'css-loader',
-          'sass-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              implementation: require('dart-sass'),
+            },
+          },
         ],
       },
 
       {
         test: /\.(png|jpg|jpeg|gif|ico)$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: 'images/[name].[ext]', // @TODO: find a way to inject [hash] in templates
-              publicPath: ASSETS_PUBLIC_PATH,
-            },
-          },
-        ],
+        type: 'asset/resource',
+        generator: {
+          filename: 'images/[hash][ext]',
+        },
       },
 
       {
-        test: /\.(svg|ttf|otf|eot|woff(2)?)(\?[a-z0-9]+)?$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: 'fonts/[name].[ext]', // @TODO: find a way to inject [hash:8] in templates
-              publicPath: ASSETS_PUBLIC_PATH,
-            },
-          },
-        ],
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset/resource',
+        generator: {
+          filename: 'fonts/[hash][ext]',
+        },
       },
     ],
   },
@@ -121,20 +119,15 @@ module.exports = {
     }),
 
     new MiniCssExtractPlugin({
-      // Options similar to the same options in webpackOptions.output
-      // both options are optional
-      filename: IS_DEV ? '[name].css' : '[name].[fullhash].css',
-      chunkFilename: IS_DEV ? '[id].css' : '[id].[fullhash].css', // @TODO: find a way to inject [hash] in templates
+      filename: IS_DEV ? 'css/[name].css' : 'css/[name].[fullhash].css',
+      chunkFilename: IS_DEV ? 'css/[id].css' : 'css/[id].[fullhash].css',
     }),
-
-    new webpack.HotModuleReplacementPlugin(),
-
-    new CleanWebpackPlugin(),
   ],
 
   devServer: {
     port: PORT,
     hot: true,
+    allowedHosts: 'all',
     headers: { 'Access-Control-Allow-Origin': '*' },
   },
 }
