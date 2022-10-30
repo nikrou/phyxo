@@ -1,6 +1,7 @@
-# Phyxo 2.4.0 - YYYY-MM-DD
+# Phyxo 2.4.0 - 2022-10-30
 
 - updates Treflez theme dependencies (Photoswipe,...)
+- Reword category in album (the same for plural forms)
 
 # Phyxo 2.3.0 - 2022-02-28
 
