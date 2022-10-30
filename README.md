@@ -6,7 +6,7 @@ Simply share your images.
 
 ## Requirements
 
-This project use severals librairies that need at least PHP 7.4.0
+This project use severals librairies that need at least PHP 8.0.0
 
 [![Phyxo](https://github.com/nikrou/phyxo/actions/workflows/phyxo.yml/badge.svg)](https://github.com/nikrou/phyxo/actions/workflows/phyxo.yml)
 ![PHPSTan level](https://img.shields.io/badge/PHPStan-level%205-brightgreen.svg?style=flat)

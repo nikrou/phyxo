@@ -90,10 +90,12 @@ class PhyxoInstaller
             'password' => $db_params['db_password'],
             'host' => $db_params['db_host'],
             'driver' => 'pdo_' . $db_params['db_layer'],
+            'path' => ''
         ];
         if ($db_params['db_layer'] === 'sqlite') {
             $connectionParams['path'] = $sqlite_db;
         }
+        /** @phpstan-ignore-next-line */ // @FIX: define driver as class
         $conn = DriverManager::getConnection($connectionParams, $config);
 
         // tables creation, based on phyxo_structure.sql

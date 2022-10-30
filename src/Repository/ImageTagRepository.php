@@ -88,7 +88,7 @@ class ImageTagRepository extends ServiceEntityRepository
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
-        $qb->groupBy('it.validated, it.status, it.image, it.tag', 't.id');
+        $qb->groupBy('it.validated, it.status, it.image, it.tag, t.id');
         $qb->orderBy('it.tag');
 
         return $qb->getQuery()->getResult();
