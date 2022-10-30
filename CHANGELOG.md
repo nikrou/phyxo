@@ -1,3 +1,7 @@
+# Phyxo 2.5.0 - YYYY-MM-DD
+
+- nothing yet
+
 # Phyxo 2.4.0 - 2022-10-30
 
 - updates Treflez theme dependencies (Photoswipe,...)
