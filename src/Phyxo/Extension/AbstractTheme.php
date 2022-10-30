@@ -11,6 +11,8 @@
 
 namespace Phyxo\Extension;
 
+use Symfony\Component\HttpFoundation\Request;
+
 abstract class AbstractTheme
 {
     private const CLASSNAME_FORMAT = '\\Themes\\%s\\%s';
@@ -21,4 +23,8 @@ abstract class AbstractTheme
     }
 
     abstract function getConfig(): array;
+
+    abstract function getAdminTemplate(): string;
+
+    abstract function handleFormRequest(Request $request): void;
 }

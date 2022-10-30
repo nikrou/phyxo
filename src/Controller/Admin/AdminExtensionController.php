@@ -17,11 +17,14 @@ use App\Repository\ThemeRepository;
 use App\Security\AppUserService;
 use App\Twig\ThemeLoader;
 use Phyxo\Conf;
+use Phyxo\Extension\AbstractTheme;
 use Phyxo\Plugin\Plugins;
 use Phyxo\Theme\Themes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminExtensionController extends AbstractController
 {
@@ -29,18 +32,19 @@ class AdminExtensionController extends AbstractController
     protected Conf $conf;
 
     public function theme(
+        Request $request,
         string $theme,
         ThemeRepository $themeRepository,
         UserMapper $userMapper,
         string $themesDir,
         Conf $conf,
         ThemeLoader $themeLoader,
-        ParameterBagInterface $params,
-        AppUserService $appUserService
+        TranslatorInterface $translator
     ): Response {
         $tpl_params = [];
         $this->conf = $conf;
-        $this->params = $params;
+
+        $tpl_params['U_PAGE'] = $this->generateUrl('admin_themes_installed');
 
         $themes = new Themes($themeRepository, $userMapper);
         $themes->setRootPath($themesDir);
@@ -48,41 +52,20 @@ class AdminExtensionController extends AbstractController
             throw $this->createNotFoundException('Invalid theme');
         }
 
-        $filename = $themesDir . '/' . $theme . '/admin/admin.inc.php';
-        if (is_readable($filename)) {
-            $themeLoader->addPath($this->params->get('themes_dir') . '/' . $theme . '/admin/template');
+        $className = AbstractTheme::getClassName($theme);
 
-            $load = (function ($themeConfiguration) use ($appUserService) {
-                // For old Piwigo themes
-                if (!defined('PHPWG_ROOT_PATH')) {
-                    define('PHPWG_ROOT_PATH', $this->params->get('root_project_dir'));
-                }
-                if (!defined('PHPWG_THEMES_PATH')) {
-                    define('PHPWG_THEMES_PATH', $this->params->get('themes_dir') . '/');
-                }
-
-                $user = $appUserService->getUser();
-                $conf = $this->conf;
-                $template_filename = '';
-                $tpl_params = [];
-
-                include_once($themeConfiguration);
-
-                return [
-                    'template_filename' => $template_filename,
-                    'tpl_params' => $tpl_params
-                ];
-            });
-        } else {
-            throw $this->createNotFoundException('Missing theme configuration file ' . $filename);
+        if (!class_exists($className)) {
+            throw $this->createNotFoundException(sprintf('%s extending AbstractTheme cannot be found for theme %s', $className, $theme));
+        }
+        $themeLoader->addPath($themesDir . '/' . $theme);
+        $themeConfig = new $className($this->conf);
+        if ($request->isMethod('POST')) {
+            $themeConfig->handleFormRequest($request);
+            $tpl_params['theme_config'] = $themeConfig->getConfig();
+            $this->addFlash('success', $translator->trans('Configuration has been updated'));
         }
 
-        $themeResponse = $load($filename);
-        $tpl_params = array_merge($tpl_params, $themeResponse['tpl_params']);
-        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
-        $tpl_params['U_PAGE'] = $this->generateUrl('admin_themes_installed');
-
-        return $this->render($themeResponse['template_filename'], $tpl_params);
+        return $this->render($themeConfig->getAdminTemplate(), $tpl_params);
     }
 
     public function plugin(

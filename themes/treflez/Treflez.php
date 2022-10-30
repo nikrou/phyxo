@@ -13,9 +13,12 @@
 
 use Phyxo\Conf;
 use Phyxo\Extension\AbstractTheme;
+use Symfony\Component\HttpFoundation\Request;
 
  class Treflez extends AbstractTheme
  {
+     private Config $config;
+
      public function __construct(Conf $conf)
      {
          $this->config = new Config($conf);
@@ -24,5 +27,18 @@ use Phyxo\Extension\AbstractTheme;
      public function getConfig(): array
      {
          return $this->config->getConfig();
+     }
+
+     public function getAdminTemplate(): string
+     {
+         return 'admin/template/settings.html.twig';
+     }
+
+     public function handleFormRequest(Request $request): void
+     {
+         if ($request->isMethod('POST')) {
+             $this->config->fromPost($request->request->all());
+             $this->config->save();
+         }
      }
  }

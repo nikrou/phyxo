@@ -196,7 +196,7 @@ class Config
     public function fromPost(array $post): void
     {
         foreach (array_keys($this->defaults) as $key) {
-            $this->__set($key, isset($post[$key]) ? stripslashes($post[$key]) : null);
+            $this->__set($key, isset($post[$key]) ? $post[$key] : null);
         }
     }
 
