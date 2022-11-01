@@ -51,9 +51,4 @@ class FormGroupType extends AbstractType
             $view->vars['title'] = $options['title'];
         }
     }
-
-    public function getName(): string
-    {
-        return 'form_group';
-    }
 }

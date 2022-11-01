@@ -143,7 +143,7 @@ class AdminAlbumsController extends AbstractController
     {
         if ($request->isMethod('POST')) {
             if ($request->request->get('submitManualOrder')) { // save manual category ordering
-                $categoriesOrder = $request->request->all()['catOrd'];
+                $categoriesOrder = $request->request->all('catOrd');
                 asort($categoriesOrder, SORT_NUMERIC);
 
                 $albums = [];
@@ -200,10 +200,9 @@ class AdminAlbumsController extends AbstractController
     {
         $tpl_params = [];
         $this->translator = $translator;
-
         if ($request->isMethod('POST')) {
-            if ($request->request->get('selection')) {
-                $albumMapper->moveAlbums($request->request->all()['selection'], $request->request->get('parent') == 0 ? null : $request->request->get('parent'));
+            if ($request->request->has('selection')) {
+                $albumMapper->moveAlbums($request->request->all('selection'), $request->request->get('parent') == 0 ? null : $request->request->get('parent'));
             } else {
                 $this->addFlash('error', $translator->trans('Select at least one album', [], 'admin'));
             }

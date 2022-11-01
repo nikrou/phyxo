@@ -23,6 +23,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminNotificationController extends AbstractController
 {
     private TranslatorInterface $translator;
+
     /** @var array<string, string> $conf_types */
     private array $conf_types = [
         'nbm_send_html_mail' => 'boolean',
@@ -93,11 +94,11 @@ class AdminNotificationController extends AbstractController
         $this->translator = $translator;
 
         if ($request->isMethod('POST')) {
-            if ($request->request->get('falsify') && $request->request->get('cat_true')) {
-                $check_key_treated = $notification->unsubscribe_notification_by_mail(true, $request->request->get('cat_true'));
+            if ($request->request->get('falsify') && $request->request->has('cat_true')) {
+                $check_key_treated = $notification->unsubscribe_notification_by_mail(true, $request->request->all('cat_true'));
                 $notification->do_timeout_treatment('cat_true', $check_key_treated);
-            } elseif ($request->request->get('trueify') && $request->request->get('cat_false')) {
-                $check_key_treated = $notification->subscribe_notification_by_mail(true, $request->request->get('cat_false'));
+            } elseif ($request->request->get('trueify') && $request->request->has('cat_false')) {
+                $check_key_treated = $notification->subscribe_notification_by_mail(true, $request->request->all('cat_false'));
                 $notification->do_timeout_treatment('cat_false', $check_key_treated);
             }
         } else {
@@ -112,12 +113,12 @@ class AdminNotificationController extends AbstractController
         foreach ($data_users as $nbm_user) {
             if ($nbm_user->getEnabled()) {
                 $opt_true[$nbm_user->getCheckKey()] = $nbm_user->getUser()->getUsername() . '[' . $nbm_user->getUser()->getMailAddress() . ']';
-                if ($request->request->get('falsify') && $request->request->get('cat_true') && in_array($nbm_user->getCheckKey(), $request->request->all()['cat_true'])) {
+                if ($request->request->get('falsify') && $request->request->has('cat_true') && in_array($nbm_user->getCheckKey(), $request->request->all('cat_true'))) {
                     $opt_true_selected[] = $nbm_user->getCheckKey();
                 }
             } else {
                 $opt_false[$nbm_user->getCheckKey()] = $nbm_user->getUser()->getUsername() . '[' . $nbm_user->getUser()->getMailAddress() . ']';
-                if ($request->request->get('trueify') && $request->request->get('cat_false') && in_array($nbm_user->getCheckKey(), $request->request->all()['cat_false'])) {
+                if ($request->request->get('trueify') && $request->request->has('cat_false') && in_array($nbm_user->getCheckKey(), $request->request->all('cat_false'))) {
                     $opt_false_selected[] = $nbm_user->getCheckKey();
                 }
             }
@@ -169,10 +170,10 @@ class AdminNotificationController extends AbstractController
         $data_users = $notification->do_action_send_mail_notification('list_to_send', [], '');
 
         foreach ($data_users as $nbm_user) {
-            if ((!$must_repost) || (($must_repost) && in_array($nbm_user->getCheckKey(), $request->request->all()['send_selection']))) {
+            if ((!$must_repost) || (($must_repost) && in_array($nbm_user->getCheckKey(), $request->request->all('send_selection')))) {
                 $tpl_var['users'][] = [
                     'ID' => $nbm_user->getCheckKey(),
-                    'CHECKED' => ($request->request->get('send_selection') && !in_array($nbm_user->getCheckKey(), $request->request->all()['send_selection'])) ? '' : 'checked="checked"',
+                    'CHECKED' => ($request->request->get('send_selection') && !in_array($nbm_user->getCheckKey(), $request->request->all('send_selection'))) ? '' : 'checked="checked"',
                     'USERNAME' => $nbm_user->getUser()->getUsername(),
                     'EMAIL' => $nbm_user->getUser()->getMailAddress(),
                     'LAST_SEND' => $nbm_user->getLastSend() ? $nbm_user->getLastSend()->format('Y-m-d H:m:i') : ''

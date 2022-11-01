@@ -264,7 +264,7 @@ class AdminHistoryController extends AbstractController
 
         foreach ($historyRepository->getHistory($rules, HistorySearchType::TYPES, $conf['nb_logs_page'], $start) as $history) {
             $user_ids[] = $history->getUser()->getId();
-            $username_of[$history->getUser()->getId()] = $history->getUser()->getUsername();
+            $username_of[$history->getUser()->getId()] = $history->getUser()->getUserIdentifier();
 
             if ($history->getAlbum()) {
                 $category_ids[] = $history->getAlbum()->getId();

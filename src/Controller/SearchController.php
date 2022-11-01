@@ -112,8 +112,8 @@ class SearchController extends AbstractController
 
         $rules = [];
         if ($request->isMethod('POST')) {
-            if ($request->request->get('search_allwords') && !preg_match('/^\s*$/', $request->request->get('search_allwords'))) {
-                $fields = array_intersect($request->request->all()['fields'], ['name', 'comment', 'file']);
+            if ($request->request->has('search_allwords') && !preg_match('/^\s*$/', $request->request->get('search_allwords'))) {
+                $fields = array_intersect($request->request->all('fields'), ['name', 'comment', 'file']);
 
                 $drop_char_match = [
                     '-', '^', '$', ';', '#', '&', '(', ')', '<', '>', '`', '\'', '"', '|', ',', '@', '_',
@@ -141,18 +141,18 @@ class SearchController extends AbstractController
                 ];
             }
 
-            if ($request->request->get('tags')) {
+            if ($request->request->has('tags')) {
                 $rules['fields']['tags'] = [
-                    'words' => $request->request->get('tags'),
+                    'words' => $request->request->all('tags'),
                     'mode' => $request->request->get('tag_mode'),
                 ];
             }
 
             /** @phpstan-ignore-next-line */
-            if ($request->request->get('authors') && is_array($request->request->get('authors')) && (is_countable($request->request->all()['authors']) ? count($request->request->all()['authors']) : 0) > 0) {
+            if ($request->request->has('authors') && is_array($request->request->all('authors')) && (is_countable($request->request->all('authors')) ? count($request->request->all('authors')) : 0) > 0) {
                 $authors = [];
 
-                foreach ($request->request->all()['authors'] as $author) {
+                foreach ($request->request->all('authors') as $author) {
                     $authors[] = $author;
                 }
 
@@ -162,9 +162,9 @@ class SearchController extends AbstractController
                 ];
             }
 
-            if ($request->request->get('cat')) {
+            if ($request->request->has('cat')) {
                 $rules['fields']['cat'] = [
-                    'words' => $request->request->get('cat'),
+                    'words' => $request->request->all('cat'),
                     'sub_inc' => ($request->request->get('subcats-included') == 1) ? true : false,
                 ];
             }
@@ -218,19 +218,19 @@ class SearchController extends AbstractController
                 $tpl_params['errors'][] = $translator->trans('Empty query. No criteria has been entered.');
             }
 
-            if ($request->request->get('start_day')) {
+            if ($request->request->has('start_day')) {
                 $tpl_params['START_DAY_SELECTED'] = $request->request->get('start_day');
             }
 
-            if ($request->request->get('start_month')) {
+            if ($request->request->has('start_month')) {
                 $tpl_params['START_MONTH_SELECTED'] = $request->request->get('start_month');
             }
 
-            if ($request->request->get('end_day')) {
+            if ($request->request->has('end_day')) {
                 $tpl_params['END_DAY_SELECTED'] = $request->request->get('end_day');
             }
 
-            if ($request->request->get('end_month')) {
+            if ($request->request->has('end_month')) {
                 $tpl_params['END_MONTH_SELECTED'] = $request->request->get('end_month');
             }
         }

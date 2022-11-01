@@ -23,6 +23,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class UserCreateCommand extends Command
 {
     protected static $defaultName = 'phyxo:user:create';
+    protected static $defaultDescription = "Create user";
 
     private array $params = ['username' => '', 'password' => '', 'mail_address' => ''];
     private $userManager, $passwordHasher, $databaseYamlFile;
@@ -42,9 +43,7 @@ class UserCreateCommand extends Command
 
     public function configure()
     {
-        $this
-            ->setDescription("Create user")
-            ->setHelp(file_get_contents(__DIR__ . '/../Resources/help/UserCreateCommand.txt'))
+        $this->setHelp(file_get_contents(__DIR__ . '/../Resources/help/UserCreateCommand.txt'))
             ->addOption('username', null, InputOption::VALUE_REQUIRED, 'Username')
             ->addOption('password', null, InputOption::VALUE_OPTIONAL, 'Password')
             ->addOption('mail_address', null, InputOption::VALUE_OPTIONAL, 'Mail address')

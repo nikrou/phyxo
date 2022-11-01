@@ -20,6 +20,7 @@ use App\Repository\UserRepository;
 class UserListCommand extends Command
 {
     protected static $defaultName = 'phyxo:user:list';
+    protected static $defaultDescription = "List users";
 
     private $userRepository, $databaseYamlFile;
 
@@ -47,9 +48,7 @@ class UserListCommand extends Command
 
     public function configure()
     {
-        $this
-            ->setDescription("List users")
-            ->setHelp(file_get_contents(__DIR__ . '/../Resources/help/UserListCommand.txt'));
+        $this->setHelp(file_get_contents(__DIR__ . '/../Resources/help/UserListCommand.txt'));
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int

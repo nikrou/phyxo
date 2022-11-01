@@ -39,7 +39,7 @@ class UserToUserInfosTransformer implements DataTransformerInterface
         }
 
         $userInfosModel = new userInfosModel();
-        $userInfosModel->setUsername($userInfos->getUser()->getUsername());
+        $userInfosModel->setUsername($userInfos->getUser()->getUserIdentifier());
         $userInfosModel->setTheme($this->themeRepository->findOneBy(['id' => $userInfos->getTheme()]));
         $userInfosModel->setLanguage($this->languageRepository->findOneBy(['id' => $userInfos->getLanguage()]));
         $userInfosModel->setRecentPeriod($userInfos->getRecentPeriod());

@@ -24,6 +24,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 class InstallCommand extends Command
 {
     protected static $defaultName = 'phyxo:install';
+    protected static $defaultDescription = "Install Phyxo";
 
     private array $db_params = ['db_layer' => '', 'db_host' => '', 'db_name' => '', 'db_user' => '', 'db_password' => '', 'db_prefix' => ''];
     private $databaseYamlFile, $rootProjectDir, $phyxoInstaller;
@@ -45,9 +46,7 @@ class InstallCommand extends Command
 
     public function configure()
     {
-        $this
-            ->setDescription("Install Phyxo")
-            ->setHelp(file_get_contents(__DIR__ . '/../Resources/help/InstallCommand.txt'))
+        $this->setHelp(file_get_contents(__DIR__ . '/../Resources/help/InstallCommand.txt'))
 
             ->addOption('db_layer', null, InputOption::VALUE_REQUIRED, 'Database type')
             ->addOption('db_host', null, InputOption::VALUE_OPTIONAL, 'Database hostname')

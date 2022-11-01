@@ -12,16 +12,19 @@
 namespace App\Tests\Phyxo\Image;
 
 use App\ImageLibraryGuesser;
-use Monolog\Test\TestCase;
 use Phyxo\Image\ImageOptimizer;
 use Imagine\Image\ImagineInterface;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ImageOptimizerTest extends TestCase
 {
     private string $fixtures_dir = __DIR__ . '/../../fixtures/media';
+
     private string $media_cache_dir = __DIR__ . '/../../media';
+
     private string $img1 = 'img1.jpg';
+
     private ImagineInterface $library;
 
     protected function setUp(): void

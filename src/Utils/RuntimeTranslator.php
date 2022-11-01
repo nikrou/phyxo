@@ -24,6 +24,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, LocaleAwareInterface
 {
     private PhpFileLoader $loader;
+
     /** @var array<mixed> $runtimeResources */
     private array $runtimeResources = [];
 
@@ -48,12 +49,12 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
     /**
      * @return MessageCatalogueInterface[]
      */
-    public function getCatalogues()
+    public function getCatalogues(): array
     {
         return $this->translator->getCatalogues();
     }
 
-    public function setLocale($locale): void
+    public function setLocale(string $locale): void
     {
         $this->translator->setLocale($locale);
     }
@@ -66,7 +67,7 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
     /**
      * @param array<string, string> $parameters
      */
-    public function trans(string $id, array $parameters = [], string $domain = null, string $locale = null): string
+    public function trans(?string $id, array $parameters = [], string $domain = null, string $locale = null): string
     {
         if ($locale === null) {
             $locale = $this->getLocale();

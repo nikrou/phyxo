@@ -100,8 +100,8 @@ class AdminPhotoController extends AbstractController
             $tagMapper->setTags($tag_ids, $image_id, $appUserService->getUser());
 
             // association to albums
-            if ($request->request->get('associate')) {
-                $albumMapper->associateImagesToAlbums([$image_id], $request->request->all()['associate']);
+            if ($request->request->has('associate')) {
+                $albumMapper->associateImagesToAlbums([$image_id], $request->request->all('associate'));
             }
 
             $userMapper->invalidateUserCache();

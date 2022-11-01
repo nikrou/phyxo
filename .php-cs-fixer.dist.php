@@ -38,7 +38,7 @@ return $config
         'whitespace_after_comma_in_array' => true,
 
         // class
-        'class_attributes_separation' => ['elements' => ['method' => 'one']],
+        'class_attributes_separation' => ['elements' => ['method' => 'one', 'property' => 'one', 'trait_import' => 'one']],
         'class_definition' => ['single_line' => true],
         'method_argument_space' => true,
 

@@ -117,26 +117,26 @@ class AdminCommentsController extends AbstractController
         int $start = 0
     ): Response {
         if ($request->isMethod('POST')) {
-            if (!$request->request->get('comments')) {
+            if (!$request->request->has('comments')) {
                 $this->addFlash('error', $translator->trans('Select at least one comment', [], 'admin'));
             } else {
                 if ($request->request->get('validate')) {
-                    $commentRepository->validateUserComment($request->request->all()['comments']);
+                    $commentRepository->validateUserComment($request->request->all('comments'));
                     $userCacheRepository->invalidateNumberAvailableComments();
 
                     $this->addFlash(
                         'info',
-                        $translator->trans('number_of_comments_validated', ['count' => is_countable($request->request->all()['comments']) ? count($request->request->all()['comments']) : 0], 'admin')
+                        $translator->trans('number_of_comments_validated', ['count' => count($request->request->all('comments'))], 'admin')
                     );
                 }
 
                 if ($request->request->get('reject')) {
-                    $commentRepository->deleteByIds($request->request->all()['comments']);
+                    $commentRepository->deleteByIds($request->request->all('comments'));
                     $userCacheRepository->invalidateNumberAvailableComments();
 
                     $this->addFlash(
                         'info',
-                        $translator->trans('number_of_comments_rejected', ['count' => is_countable($request->request->all()['comments']) ? count($request->request->all()['comments']) : 0], 'admin')
+                        $translator->trans('number_of_comments_rejected', ['count' => count($request->request->all('comments'))], 'admin')
                     );
                 }
             }

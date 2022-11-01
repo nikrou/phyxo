@@ -26,13 +26,13 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminUpdateController extends AbstractController
 {
     private TranslatorInterface $translator;
+
     private string $defaultTheme;
 
     protected function setTabsheet(string $section = 'core'): TabSheet
@@ -56,7 +56,6 @@ class AdminUpdateController extends AbstractController
         UpgradeRepository $upgradeRepository,
         UserInfosRepository $userInfosRepository,
         TokenStorageInterface $tokenStorage,
-        SessionInterface $session,
         Plugins $plugins,
         Themes $themes,
         Languages $languages,
@@ -238,7 +237,7 @@ class AdminUpdateController extends AbstractController
                     $this->addFlash('success', $translator->trans('Upgrade complete.', [], 'admin'));
 
                     $tokenStorage->setToken(null);
-                    $session->invalidate();
+                    $request->getSession()->invalidate();
 
                     $fs->remove($params->get('cache_dir') . '/../main');
                     $fs->remove($params->get('update_mode'));

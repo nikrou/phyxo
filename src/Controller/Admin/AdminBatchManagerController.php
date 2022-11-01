@@ -42,7 +42,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminBatchManagerController extends AbstractController
 {
     private TranslatorInterface $translator;
+
     private DerivativeService $derivativeService;
+
     private User $user;
 
     public function __construct(AppUserService $appUserService)
@@ -293,7 +295,7 @@ class AdminBatchManagerController extends AbstractController
 
         // Dissociate from a category : categories listed for dissociation can only
         // represent virtual links. We can't create orphans. Links to physical categories can't be broken.
-        if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
+        if (count($current_set) > 0) {
             $tpl_params['associated_categories'] = [];
             foreach ($imageMapper->getRepository()->findVirtualAlbumsWithImages($current_set) as $album) {
                 $tpl_params['associated_categories'][] = $album['id'];
@@ -322,7 +324,7 @@ class AdminBatchManagerController extends AbstractController
 
         if ($request->get('display')) {
             if ($request->get('display') === 'all') {
-                $nb_images = is_countable($current_set) ? count($current_set) : 0;
+                $nb_images = count($current_set);
             } else {
                 $nb_images = (int) $request->get('display');
             }
@@ -336,8 +338,8 @@ class AdminBatchManagerController extends AbstractController
         }
         $nb_thumbs_page = 0;
 
-        if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
-            $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_global', ['filter' => $filter], is_countable($current_set) ? count($current_set) : 0, $start, $nb_images);
+        if (count($current_set) > 0) {
+            $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_global', ['filter' => $filter], count($current_set), $start, $nb_images);
 
             $is_category = false;
             if (isset($this->getFilter($request->getSession())['category']) && !isset($this->getFilter($request->getSession())['category_recursive'])) {
@@ -414,7 +416,7 @@ class AdminBatchManagerController extends AbstractController
         $tpl_params['selection'] = $collection;
         $tpl_params['all_elements'] = $current_set;
         $tpl_params['nb_thumbs_page'] = $nb_thumbs_page;
-        $tpl_params['nb_thumbs_set'] = is_countable($current_set) ? count($current_set) : 0;
+        $tpl_params['nb_thumbs_set'] = count($current_set);
         $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($managerRegistry, ['tags', 'categories'], $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
@@ -472,10 +474,10 @@ class AdminBatchManagerController extends AbstractController
                 }
             }
         } elseif ($action === 'del_tags') {
-            if ($request->request->get('del_tags') && (is_countable($request->request->all()['del_tags']) ? count($request->request->all()['del_tags']) : 0) > 0) {
-                $imageTagRepository->deleteByImagesAndTags($collection, $request->request->all()['del_tags']);
+            if ($request->request->has('del_tags')) {
+                $imageTagRepository->deleteByImagesAndTags($collection, $request->request->all('del_tags'));
 
-                if (!empty($this->getFilter($request->getSession())['tags']) && count(array_intersect($this->getFilter($request->getSession())['tags'], $request->request->all()['del_tags'])) > 0) {
+                if (!empty($this->getFilter($request->getSession())['tags']) && count(array_intersect($this->getFilter($request->getSession())['tags'], $request->request->all('del_tags'))) > 0) {
                     $redirect = true;
                 }
             } else {
@@ -584,9 +586,9 @@ class AdminBatchManagerController extends AbstractController
         } elseif ($action === 'metadata') {
             $tagMapper->sync_metadata($collection, $this->user);
             $this->addFlash('success', $this->translator->trans('Metadata synchronized from file', [], 'admin'));
-        } elseif ($action === 'delete_derivatives' && $request->request->get('del_derivatives_type')) {
+        } elseif ($action === 'delete_derivatives' && $request->request->has('del_derivatives_type')) {
             foreach ($imageMapper->getRepository()->findBy($collection) as $image) {
-                foreach ($request->request->all()['del_derivatives_type'] as $type) {
+                foreach ($request->request->all('del_derivatives_type') as $type) {
                     $this->derivativeService->deleteForElement($image->toArray(), $type);
                 }
             }
@@ -1067,7 +1069,7 @@ class AdminBatchManagerController extends AbstractController
 
         // Dissociate from a category : categories listed for dissociation can only
         // represent virtual links. We can't create orphans. Links to physical categories can't be broken.
-        if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
+        if (count($current_set) > 0) {
             $tpl_params['associated_categories'] = [];
             foreach ($imageMapper->getRepository()->findVirtualAlbumsWithImages($current_set) as $album) {
                 $tpl_params['associated_categories'][] = $album['id'];
@@ -1106,8 +1108,8 @@ class AdminBatchManagerController extends AbstractController
                 $nb_images = 5;
             }
         }
-        if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
-            $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_unit', ['filter' => $filter], is_countable($current_set) ? count($current_set) : 0, $start, $nb_images);
+        if (count($current_set) > 0) {
+            $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_unit', ['filter' => $filter], count($current_set), $start, $nb_images);
 
             $is_category = false;
             if (isset($this->getFilter($request->getSession())['category']) && !isset($this->getFilter($request->getSession())['category_recursive'])) {

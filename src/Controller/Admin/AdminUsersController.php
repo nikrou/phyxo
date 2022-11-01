@@ -159,18 +159,18 @@ class AdminUsersController extends AbstractController
         $user = $userRepository->find($user_id);
 
         if ($request->isMethod('POST')) {
-            if ($request->request->get('falsify') && $request->request->get('cat_true') && (is_countable($request->request->all()['cat_true']) ? count($request->request->all()['cat_true']) : 0) > 0) {
+            if ($request->request->get('falsify') && $request->request->has('cat_true')) {
                 // if you forbid access to a category, all sub-categories become automatically forbidden
-                foreach ($albumMapper->getRepository()->getSubAlbums($request->request->all()['cat_true']) as $album) {
+                foreach ($albumMapper->getRepository()->getSubAlbums($request->request->all('cat_true')) as $album) {
                     $album->removeUserAccess($user);
                     $albumMapper->getRepository()->addOrUpdateAlbum($album);
                 }
-            } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && (is_countable($request->request->all()['cat_false']) ? count($request->request->all()['cat_false']) : 0) > 0) {
-                $albumMapper->addPermissionOnAlbum($request->request->all()['cat_false'], [$user_id]);
+            } elseif ($request->request->get('trueify') && $request->request->has('cat_false')) {
+                $albumMapper->addPermissionOnAlbum($request->request->all('cat_false'), [$user_id]);
             }
         }
 
-        $tpl_params['TITLE'] = $translator->trans('Manage permissions for user "{user}"', ['user' => $user->getUsername()], 'admin');
+        $tpl_params['TITLE'] = $translator->trans('Manage permissions for user "{user}"', ['user' => $user->getUserIdentifier()], 'admin');
         $tpl_params['L_CAT_OPTIONS_TRUE'] = $translator->trans('Authorized', [], 'admin');
         $tpl_params['L_CAT_OPTIONS_FALSE'] = $translator->trans('Forbidden', [], 'admin');
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_user_perm', ['user_id' => $user_id]);

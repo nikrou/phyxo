@@ -30,6 +30,7 @@ class AlbumMapper
      *  @var array<int, Album> $cache
      */
     private array $cache;
+
     private bool $albums_retrieved = false;
 
     public function __construct(private Conf $conf, private AlbumRepository $albumRepository, private RouterInterface $router, private TranslatorInterface $translator, private UserRepository $userRepository, private UserCacheAlbumRepository $userCacheAlbumRepository, private ImageAlbumRepository $imageAlbumRepository, private ImageRepository $imageRepository)

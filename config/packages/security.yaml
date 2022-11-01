@@ -7,9 +7,9 @@ security:
     App\Entity\User:
       algorithm: auto
 
-  # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+  # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
   providers:
-    #in_memory: { memory: ~ }
+    # users_in_memory: { memory: null }
     app_user_provider:
       id: App\Security\UserProvider
 
@@ -18,18 +18,20 @@ security:
     ROLE_ADMIN: ROLE_NORMAL
     ROLE_WEBMASTER: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
 
+
   firewalls:
     dev:
       pattern: ^/(_(profiler|wdt)|css|images|js)/
       security: false
+
     install:
       pattern: ^/admin/install
       security: false
+
     main:
       switch_user: true
       lazy: true
       provider: app_user_provider
-      # entry_point: App\Security\LoginFormAuthenticator
 
       custom_authenticator:
         - App\Security\LoginFormAuthenticator
@@ -43,12 +45,11 @@ security:
       logout:
         path: logout
 
-      # provider: chain_provider
       # activate different ways to authenticate
-      # http_basic: true
-      # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
-      # form_login: true
-      # https://symfony.com/doc/current/security/form_login_setup.html
+      # https://symfony.com/doc/current/security.html#the-firewall
+
+      # https://symfony.com/doc/current/security/impersonating_user.html
+      # switch_user: true
 
   # Easy way to control access for large sections of your site
   # Note: Only the *first* access control that matches will be used

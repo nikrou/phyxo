@@ -416,7 +416,7 @@ class AdminConfigurationController extends AbstractController
                 }
 
                 if (empty($conf['order_by_custom']) && empty($conf['order_by_inside_category_custom'])) {
-                    if ($order_by = $request->request->all()['order_by']) {
+                    if ($order_by = $request->request->all('order_by')) {
                         $used = [];
                         foreach ($order_by as $i => $val) {
                             if (empty($val) || isset($used[$val])) {
@@ -425,7 +425,7 @@ class AdminConfigurationController extends AbstractController
                                 $used[$val] = true;
                             }
                         }
-                        if ((is_countable($order_by) ? count($order_by) : 0) === 0) {
+                        if (count($order_by) === 0) {
                             $this->addFlash('error', $this->translator->trans('No order field selected', [], 'admin'));
                         } else {
                             // limit to the number of available parameters
@@ -523,31 +523,31 @@ class AdminConfigurationController extends AbstractController
                             $error = true;
                         }
                     }
-                } elseif ($request->request->all()['watermark']['file']) {
-                    $watermark['file'] = $request->request->all()['watermark']['file'];
+                } elseif ($request->request->all('watermark')['file']) {
+                    $watermark['file'] = $request->request->all('watermark')['file'];
                 } else {
                     $error = true;
                 }
 
                 if (!$error) {
-                    if ($request->request->all()['watermark']['position'] === 'topleft') {
+                    if ($request->request->all('watermark')['position'] === 'topleft') {
                         $watermark['xpos'] = 0;
                         $watermark['ypos'] = 0;
-                    } elseif ($request->request->all()['watermark']['position'] === 'topright') {
+                    } elseif ($request->request->all('watermark')['position'] === 'topright') {
                         $watermark['xpos'] = 100;
                         $watermark['ypos'] = 0;
-                    } elseif ($request->request->all()['watermark']['position'] === 'middle') {
+                    } elseif ($request->request->all('watermark')['position'] === 'middle') {
                         $watermark['xpos'] = 50;
                         $watermark['ypos'] = 50;
-                    } elseif ($request->request->all()['watermark']['position'] === 'bottomleft') {
+                    } elseif ($request->request->all('watermark')['position'] === 'bottomleft') {
                         $watermark['xpos'] = 0;
                         $watermark['ypos'] = 100;
-                    } elseif ($request->request->all()['watermark']['position'] === 'bottomright') {
+                    } elseif ($request->request->all('watermark')['position'] === 'bottomright') {
                         $watermark['xpos'] = 100;
                         $watermark['ypos'] = 100;
-                    } elseif ($request->request->all()['watermark']['position'] === 'custom') {
-                        $xpos = intval($request->request->all()['watermark']['xpos']);
-                        $ypos = intval($request->request->all()['watermark']['ypos']);
+                    } elseif ($request->request->all('watermark')['position'] === 'custom') {
+                        $xpos = intval($request->request->all('watermark')['xpos']);
+                        $ypos = intval($request->request->all('watermark')['ypos']);
                         if ($xpos < 0 || $xpos > 100) {
                             $this->addFlash('error', 'xpos [0..100]');
                             $error = true;
@@ -562,7 +562,7 @@ class AdminConfigurationController extends AbstractController
                         }
                     }
 
-                    $opacity = intval($request->request->all()['watermark']['opacity']);
+                    $opacity = intval($request->request->all('watermark')['opacity']);
                     if ($opacity <= 0 || $opacity > 100) {
                         $this->addFlash('error', 'opacity (0..100]');
                         $error = true;
@@ -570,20 +570,20 @@ class AdminConfigurationController extends AbstractController
                         $watermark['opacity'] = $opacity;
                     }
 
-                    if ($request->request->all()['watermark']['xrepeat']) {
-                        $watermark['xrepeat'] = intval($request->request->all()['watermark']['xrepeat']);
+                    if ($request->request->all('watermark')['xrepeat']) {
+                        $watermark['xrepeat'] = intval($request->request->all('watermark')['xrepeat']);
                     } else {
                         $watermark['xrepeat'] = 0;
                     }
 
-                    if ($request->request->all()['watermark']['minw']) {
-                        $watermark['minw'] = intval($request->request->all()['watermark']['minw']);
+                    if ($request->request->all('watermark')['minw']) {
+                        $watermark['minw'] = intval($request->request->all('watermark')['minw']);
                     } else {
                         $watermark['minw'] = 500;
                     }
 
-                    if ($request->request->all()['watermark']['minh']) {
-                        $watermark['minh'] = intval($request->request->all()['watermark']['minh']);
+                    if ($request->request->all('watermark')['minh']) {
+                        $watermark['minh'] = intval($request->request->all('watermark')['minh']);
                     } else {
                         $watermark['minh'] = 500;
                     }
@@ -665,7 +665,7 @@ class AdminConfigurationController extends AbstractController
                     $error = true;
                 }
 
-                $pderivatives = $request->request->all()['d'];
+                $pderivatives = $request->request->all('d');
 
                 // step 1 - sanitize HTML input
                 foreach ($pderivatives as $type => &$pderivative) {

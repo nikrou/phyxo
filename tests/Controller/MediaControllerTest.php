@@ -15,7 +15,6 @@ use App\Entity\Image;
 use App\Entity\User;
 use App\Repository\ImageRepository;
 use App\Security\UserProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -25,7 +24,14 @@ class MediaControllerTest extends WebTestCase
 {
     use ProphecyTrait;
 
-    private $fixtures_dir = __DIR__ . '/../fixtures/media', $sample_image = 'sample.jpg', $image_paths = '', $derivative_path = '';
+    private $fixtures_dir = __DIR__ . '/../fixtures/media',
+
+    $sample_image = 'sample.jpg',
+
+    $image_paths = '',
+
+    $derivative_path = '';
+
     private $imageRepository;
 
     protected function setUp(): void
@@ -164,9 +170,9 @@ class MediaControllerTest extends WebTestCase
 
     public function testAdminMediaFromAdmin()
     {
-        /** @var MockObject $admin */
-        $admin = $this->createStub(User::class);
-        $admin->method('getRoles')->willReturn(['ROLE_WEBMASTER']);
+        /** @var User $admin */
+        $admin = new User();
+        $admin->unserialize(serialize([1, 'admin', 'passwd', ['ROLE_USER', 'ROLE_WEBMASTER']]));
 
         self::ensureKernelShutdown();
         $client = static::createClient();
