@@ -30,34 +30,10 @@ class AlbumMapper
      *  @var array<int, Album> $cache
      */
     private array $cache;
-    private Conf $conf;
-    private AlbumRepository $albumRepository;
-    private RouterInterface $router;
     private bool $albums_retrieved = false;
-    private TranslatorInterface $translator;
-    private UserRepository $userRepository;
-    private UserCacheAlbumRepository $userCacheAlbumRepository;
-    private ImageAlbumRepository $imageAlbumRepository;
-    private ImageRepository $imageRepository;
 
-    public function __construct(
-        Conf $conf,
-        AlbumRepository $albumRepository,
-        RouterInterface $router,
-        TranslatorInterface $translator,
-        UserRepository $userRepository,
-        UserCacheAlbumRepository $userCacheAlbumRepository,
-        ImageAlbumRepository $imageAlbumRepository,
-        ImageRepository $imageRepository
-    ) {
-        $this->conf = $conf;
-        $this->albumRepository = $albumRepository;
-        $this->router = $router;
-        $this->translator = $translator;
-        $this->userRepository = $userRepository;
-        $this->userCacheAlbumRepository = $userCacheAlbumRepository;
-        $this->imageAlbumRepository = $imageAlbumRepository;
-        $this->imageRepository = $imageRepository;
+    public function __construct(private Conf $conf, private AlbumRepository $albumRepository, private RouterInterface $router, private TranslatorInterface $translator, private UserRepository $userRepository, private UserCacheAlbumRepository $userCacheAlbumRepository, private ImageAlbumRepository $imageAlbumRepository, private ImageRepository $imageRepository)
+    {
     }
 
     public function getRepository(): AlbumRepository
@@ -625,7 +601,7 @@ class AlbumMapper
      * @param int[] $admin_ids
      * @param array{commentable?: bool, visible?: bool, status?: string, comment?: string, inherit?: bool} $options
      */
-    public function createAlbum(string $name, ?Album $parent = null, int $user_id, array $admin_ids = [], array $options = []): Album
+    public function createAlbum(string $name, int $user_id, ?Album $parent = null, array $admin_ids = [], array $options = []): Album
     {
         $album = new Album();
         $album->setName($name);
@@ -774,9 +750,7 @@ class AlbumMapper
             ];
         }
 
-        $map_callback = function ($m) use ($albums) {
-            return $albums[$m[1]]['rank'];
-        };
+        $map_callback = fn($m) => $albums[$m[1]]['rank'];
 
         foreach ($albums as $id => $album) {
             /** @phpstan-ignore-next-line */
@@ -1059,9 +1033,7 @@ class AlbumMapper
         $is_child_date_last = false;
 
         foreach ($albums as $album) {
-            $userCacheAlbum = $user->getUserCacheAlbums()->filter(function(UserCacheAlbum $uca) use ($album) {
-                return $uca->getAlbum()->getId() === $album->getId();
-            })->first();
+            $userCacheAlbum = $user->getUserCacheAlbums()->filter(fn(UserCacheAlbum $uca) => $uca->getAlbum()->getId() === $album->getId())->first();
 
             if (!$userCacheAlbum) {
                 continue;

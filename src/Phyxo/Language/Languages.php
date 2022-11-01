@@ -13,20 +13,17 @@ namespace Phyxo\Language;
 
 use App\Entity\Language;
 use Phyxo\Extension\Extensions;
-use App\Repository\LanguageRepository;
 use PclZip;
 use Symfony\Component\Filesystem\Filesystem;
 
 class Languages extends Extensions
 {
-    private $languageRepository;
     private $languages_root_path, $defaultLanguage;
     private $fs_languages = [], $db_languages = [], $server_languages = [];
     private $fs_languages_retrieved = false, $db_languages_retrieved = false, $server_languages_retrieved = false;
 
-    public function __construct(LanguageRepository $languageRepository = null, string $defaultLanguage = '')
+    public function __construct(private ?\App\Repository\LanguageRepository $languageRepository = null, string $defaultLanguage = '')
     {
-        $this->languageRepository = $languageRepository;
         $this->defaultLanguage = $defaultLanguage;
     }
 
@@ -157,7 +154,7 @@ class Languages extends Extensions
                     $language['author uri'] = trim($val[1]);
                 }
                 if (!empty($language['uri']) and strpos($language['uri'], 'extension_view.php?eid=')) {
-                    list(, $extension) = explode('extension_view.php?eid=', $language['uri']);
+                    [, $extension] = explode('extension_view.php?eid=', $language['uri']);
                     if (is_numeric($extension)) {
                         $language['extension'] = $extension;
                     }
@@ -208,7 +205,7 @@ class Languages extends Extensions
                 }
                 $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);
                 foreach ($pem_versions as $pem_version) {
-                    if (strpos($pem_version['name'], $branch) === 0) {
+                    if (str_starts_with($pem_version['name'], $branch)) {
                         $versions_to_check[] = $pem_version['id'];
                     }
                 }
@@ -316,10 +313,8 @@ class Languages extends Extensions
             if (!empty($main_filepath)) {
                 // @TODO: use native zip library ; use arobase before
                 if ($results = @$zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $extract_path, PCLZIP_OPT_REPLACE_NEWER)) {
-                    $errors = array_filter($results, function($f) {
-                        return ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory';
-                    });
-                    if (count($errors) > 0) {
+                    $errors = array_filter($results, fn($f) => ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory');
+                    if (count((array) $errors) > 0) {
                         throw new \Exception("Error while extracting some files from archive");
                     }
                 } else {

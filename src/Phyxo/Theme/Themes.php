@@ -23,16 +23,13 @@ use Symfony\Component\Yaml\Yaml;
  */
 class Themes extends Extensions
 {
-    const CONFIG_FILE = 'config.yaml';
-
-    private $themeRepository;
+    public const CONFIG_FILE = 'config.yaml';
     private $themes_root_path, $userMapper;
     private $fs_themes = [], $db_themes = [], $server_themes = [];
     private $fs_themes_retrieved = false, $db_themes_retrieved = false, $server_themes_retrieved = false;
 
-    public function __construct(ThemeRepository $themeRepository, UserMapper $userMapper)
+    public function __construct(private ThemeRepository $themeRepository, UserMapper $userMapper)
     {
-        $this->themeRepository = $themeRepository;
         $this->userMapper = $userMapper;
     }
 
@@ -121,7 +118,7 @@ class Themes extends Extensions
 
                 if ($this->userMapper->getDefaultTheme() === $theme_id) {
                     // find a random theme to replace
-                    $random_theme = $this->themeRepository->findById($theme_id);
+                    $random_theme = $this->themeRepository->find($theme_id);
                     if (is_null($random_theme)) {
                         $new_theme = 'treflez'; // @TODO: find default theme instead
                     } else {
@@ -146,7 +143,7 @@ class Themes extends Extensions
                 }
 
                 $children = $this->getChildrenThemes($theme_id);
-                if (count($children) > 0) {
+                if ((is_countable($children) ? count($children) : 0) > 0) {
                     $error = sprintf('Impossible to delete this theme. Other themes depends on it: %s', implode(', ', $children));
                     break;
                 }
@@ -256,7 +253,7 @@ class Themes extends Extensions
 
         $theme_data = Yaml::parse(file_get_contents($config_file));
         if (!empty($theme_data['uri']) && ($pos = strpos($theme_data['uri'], 'extension_view.php?eid=')) !== false) {
-            list(, $extension) = explode('extension_view.php?eid=', $theme_data['uri']);
+            [, $extension] = explode('extension_view.php?eid=', $theme_data['uri']);
             if (is_numeric($extension)) {
                 $theme_data['extension'] = (int) $extension;
             }
@@ -317,7 +314,7 @@ class Themes extends Extensions
                 }
                 $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);
                 foreach ($pem_versions as $pem_version) {
-                    if (strpos($pem_version['name'], $branch) === 0) {
+                    if (str_starts_with($pem_version['name'], $branch)) {
                         $versions_to_check[] = $pem_version['id'];
                     }
                 }

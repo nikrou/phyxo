@@ -15,20 +15,20 @@ use App\Repository\UserInfosRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=UserInfosRepository::class)
- * @ORM\Table(name="user_infos")
  *
  * @phpstan-type UserInfosArray array{nb_image_page: int, language: ?string, expand: bool, show_nb_comments: bool, show_nb_hits: bool,
  *  recent_period: int, theme: ?string, enabled_high: bool, level: int}
  */
+#[ORM\Table(name: 'user_infos')]
+#[ORM\Entity(repositoryClass: UserInfosRepository::class)]
 class UserInfos
 {
-    const DEFAULT_NB_IMAGE_PAGE = 15;
-    const DEFAULT_LEVEL = 0;
-    const DEFAULT_RECENT_PERIOD = 7;
-    const DEFAULT_SHOW_NB_COMMENTS = false;
-    const DEFAULT_SHOW_NB_HITS = false;
-    const DEFAULT_ENABLED_HIGH = false;
+    public const DEFAULT_NB_IMAGE_PAGE = 15;
+    public const DEFAULT_LEVEL = 0;
+    public const DEFAULT_RECENT_PERIOD = 7;
+    public const DEFAULT_SHOW_NB_COMMENTS = false;
+    public const DEFAULT_SHOW_NB_HITS = false;
+    public const DEFAULT_ENABLED_HIGH = false;
 
     private int $nb_total_images;
     /**
@@ -43,83 +43,52 @@ class UserInfos
 
     private string $image_access_type = 'NOT IN';
 
-    /**
-     * @ORM\Id
-     * @ORM\OneToOne(targetEntity=User::class, inversedBy="userInfos", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(name="user_id", nullable=false)
-     * @var User $user
-     */
-    private $user;
+    #[ORM\Id]
+    #[ORM\OneToOne(targetEntity: User::class, inversedBy: 'userInfos', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'user_id', nullable: false)]
+    private ?User $user = null;
 
-    /**
-     * @ORM\Column(type="string", length=50)
-     */
+    #[ORM\Column(type: 'string', length: 50)]
     private string $status;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $nb_image_page = self::DEFAULT_NB_IMAGE_PAGE;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private string $theme;
 
-    /**
-     * @ORM\Column(type="string", length=50)
-     */
+    #[ORM\Column(type: 'string', length: 50)]
     private string $language;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private ?\DateTimeInterface $registration_date;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $registration_date = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $level = self::DEFAULT_LEVEL;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $recent_period = self::DEFAULT_RECENT_PERIOD;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $expand = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $show_nb_comments = self::DEFAULT_SHOW_NB_COMMENTS;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $show_nb_hits = self::DEFAULT_SHOW_NB_HITS;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $enabled_high = self::DEFAULT_ENABLED_HIGH;
 
-    /**
-     * @ORM\Column(name="lastmodified", type="datetime", nullable=true)
-     */
-    private ?\DateTimeInterface $last_modified;
+    #[ORM\Column(name: 'lastmodified', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $last_modified = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $activation_key;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $activation_key = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private ?\DateTimeInterface $activation_key_expire;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $activation_key_expire = null;
 
     public function getStatus(): ?string
     {

@@ -15,7 +15,7 @@ use App\Entity\Album;
 
 class CommentFilterModel
 {
-    private $page = 0;
+    private int $page = 0;
 
     private $keyword;
 
@@ -23,7 +23,7 @@ class CommentFilterModel
 
     private $album;
 
-    private $albums = [];
+    private array $albums = [];
 
     private $since;
 

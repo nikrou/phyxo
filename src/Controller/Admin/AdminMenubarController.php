@@ -93,9 +93,7 @@ class AdminMenubarController extends AbstractController
     /** @phpstan-ignore-next-line */ // @FIX: define return type
     private function makeConsecutive(array $blocks = [], array $orders = [], $step = 50): array
     {
-        uasort($orders, function($a, $b) {
-            return abs($a) - abs($b);
-        });
+        uasort($orders, fn($a, $b) => abs($a) - abs($b));
 
         $idx = 1;
         foreach ($blocks as $id => $block) {
@@ -141,7 +139,7 @@ class AdminMenubarController extends AbstractController
             'U_PLUGINS' => $this->generateUrl('admin_plugins_installed'),
             'U_ADD_PHOTOS' => $this->generateUrl('admin_photos_add'),
             'U_UPDATE' => $this->generateUrl('admin_update'),
-            'U_DEV_VERSION' => strpos($params->get('core_version'), 'dev') !== false,
+            'U_DEV_VERSION' => str_contains($params->get('core_version'), 'dev'),
             'U_DEV_API' => $this->generateUrl('api'),
         ];
 

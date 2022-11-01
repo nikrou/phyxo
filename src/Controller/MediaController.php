@@ -252,7 +252,7 @@ class MediaController extends AbstractController
         $coi = (string) $image->getCoi();
         $crop_rect = $scaled_size = null;
         $o_size = $d_size = [$imageOptimizer->getWidth(), $imageOptimizer->getHeight()];
-        $derivative_params->sizing->compute($o_size, $coi, $crop_rect, $scaled_size);
+        $derivative_params->sizing->compute($o_size, $crop_rect, $scaled_size, $coi);
         if ($crop_rect) {
             $imageOptimizer->crop($crop_rect->width(), $crop_rect->height(), $crop_rect->l, $crop_rect->t);
         }

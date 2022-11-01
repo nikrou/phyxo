@@ -34,6 +34,7 @@ class Main
      */
     public static function getMissingDerivatives($params, Server $service)
     {
+        $where_clauses = [];
         if (empty($params['types'])) {
             $types = array_keys($service->getImageStandardParams()->getDefinedTypeMap());
         } else {
@@ -44,7 +45,7 @@ class Main
         }
 
         $max_urls = $params['max_urls'];
-        list($max_id, $image_count) = $service->getImageMapper()->getRepository()->findMaxIdAndCount();
+        [$max_id, $image_count] = $service->getImageMapper()->getRepository()->findMaxIdAndCount();
 
         if ($image_count === 0) {
             return [];
@@ -104,6 +105,7 @@ class Main
      */
     public static function getInfos($params, Server $service)
     {
+        $infos = [];
         $infos['version'] = $service->getCoreVersion();
         $infos['nb_elements'] = $service->getImageMapper()->getRepository()->count([]);
         $infos['nb_categories'] = $service->getAlbumMapper()->getRepository()->count([]);

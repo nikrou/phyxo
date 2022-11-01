@@ -3,7 +3,6 @@
     "php-cs-fixer.config": ".php-cs-fixer.dist.php",
     "php-cs-fixer.allowRisky": true,
     "php-cs-fixer.lastDownload": 0,
-    "php-cs-fixer.showOutput": true,
     "[php]": {
         "editor.defaultFormatter": "junstyle.php-cs-fixer",
         "editor.formatOnSave": true

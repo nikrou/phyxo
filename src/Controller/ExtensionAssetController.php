@@ -19,11 +19,8 @@ use Symfony\Component\Mime\MimeTypeGuesserInterface;
 
 class ExtensionAssetController extends AbstractController
 {
-    private MimeTypeGuesserInterface $mimeTypes;
-
-    public function __construct(MimeTypeGuesserInterface $mimeTypes)
+    public function __construct(private MimeTypeGuesserInterface $mimeTypes)
     {
-        $this->mimeTypes = $mimeTypes;
     }
 
     public function pluginAsset(string $id, string $path, string $pluginsDir): Response

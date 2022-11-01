@@ -31,57 +31,48 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminConfigurationController extends AbstractController
 {
     /** @var array<string> $main_checkboxes */
-    private array $main_checkboxes;
+    private array $main_checkboxes = [
+        'allow_user_registration',
+        'obligatory_user_mail_address',
+        'rate',
+        'rate_anonymous',
+        'email_admin_on_new_user',
+        'allow_user_customization',
+        'log',
+        'history_admin',
+        'history_guest',
+    ];
 
     /** @var array<string> $sizes_checkboxes */
-    private $sizes_checkboxes;
+    private array $sizes_checkboxes = ['original_resize'];
 
     /** @var array<string> $comments_checkboxes */
-    private  $comments_checkboxes;
+    private  array $comments_checkboxes = [
+        'activate_comments',
+        'comments_forall',
+        'comments_validation',
+        'email_admin_on_comment',
+        'email_admin_on_comment_validation',
+        'user_can_delete_comment',
+        'user_can_edit_comment',
+        'email_admin_on_comment_edition',
+        'email_admin_on_comment_deletion',
+        'comments_author_mandatory',
+        'comments_email_mandatory',
+        'comments_enable_website',
+    ];
 
     /** @var array<string, string> $sort_fields */
-    private $sort_fields;
+    private array $sort_fields;
 
     /** @var array<string, string> $comments_order */
-    private $comments_order;
+    private array $comments_order;
 
     /** @var array<string, string> $mail_themes */
-    private $mail_themes;
-    private TranslatorInterface $translator;
+    private array $mail_themes;
 
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(private TranslatorInterface $translator)
     {
-        $this->translator = $translator;
-
-        $this->main_checkboxes = [
-            'allow_user_registration',
-            'obligatory_user_mail_address',
-            'rate',
-            'rate_anonymous',
-            'email_admin_on_new_user',
-            'allow_user_customization',
-            'log',
-            'history_admin',
-            'history_guest',
-        ];
-
-        $this->sizes_checkboxes = ['original_resize'];
-
-        $this->comments_checkboxes = [
-            'activate_comments',
-            'comments_forall',
-            'comments_validation',
-            'email_admin_on_comment',
-            'email_admin_on_comment_validation',
-            'user_can_delete_comment',
-            'user_can_edit_comment',
-            'email_admin_on_comment_edition',
-            'email_admin_on_comment_deletion',
-            'comments_author_mandatory',
-            'comments_email_mandatory',
-            'comments_enable_website',
-        ];
-
         $this->sort_fields = [
             '' => '',
             'file ASC' => $this->translator->trans('File name, A &rarr; Z', [], 'admin'),
@@ -285,9 +276,9 @@ class AdminConfigurationController extends AbstractController
             }
 
             if ($params) {
-                list($tpl_var['w'], $tpl_var['h']) = $params->sizing->ideal_size;
+                [$tpl_var['w'], $tpl_var['h']] = $params->sizing->ideal_size;
                 if (($tpl_var['crop'] = round(100 * $params->sizing->max_crop)) > 0) {
-                    list($tpl_var['minw'], $tpl_var['minh']) = $params->sizing->min_size;
+                    [$tpl_var['minw'], $tpl_var['minh']] = $params->sizing->min_size;
                 } else {
                     $tpl_var['minw'] = $tpl_var['minh'] = "";
                 }
@@ -399,6 +390,7 @@ class AdminConfigurationController extends AbstractController
         ImageStandardParams $image_std_params,
         DerivativeService $derivativeService
     ): Response {
+        $watermarke = [];
         $conf_updated = false;
         $error = false;
 
@@ -433,7 +425,7 @@ class AdminConfigurationController extends AbstractController
                                 $used[$val] = true;
                             }
                         }
-                        if (count($order_by) === 0) {
+                        if ((is_countable($order_by) ? count($order_by) : 0) === 0) {
                             $this->addFlash('error', $this->translator->trans('No order field selected', [], 'admin'));
                         } else {
                             // limit to the number of available parameters
@@ -513,7 +505,7 @@ class AdminConfigurationController extends AbstractController
                 if ($request->files->get('watermarkImage')) {
                     $watermarkImage = $request->files->get('watermarkImage');
 
-                    list(, , $type) = getimagesize($watermarkImage->getPathName());
+                    [, , $type] = getimagesize($watermarkImage->getPathName());
                     if ($type !== IMAGETYPE_PNG) {
                         $this->addFlash('error', $this->translator->trans('Allowed file types: {type}.', ['type' => 'PNG'], 'admin'));
                         $error = true;
@@ -526,7 +518,7 @@ class AdminConfigurationController extends AbstractController
 
                             $watermarke['file'] = \Phyxo\Functions\Utils::get_filename_wo_extension($watermarkImage->getClientOriginalName()) . '.png';
                             $watermarkImage->move($upload_dir, $watermarke['file']);
-                        } catch (\Exception $e) {
+                        } catch (\Exception) {
                             $this->addFlash('error', $this->translator->trans('Add write access to the "{directory}" directory', ['directory' => $upload_dir], 'admin'));
                             $error = true;
                         }
@@ -730,14 +722,14 @@ class AdminConfigurationController extends AbstractController
                         }
                     }
 
-                    if (count($errors) == 0) {
+                    if ((is_countable($errors) ? count($errors) : 0) == 0) {
                         $prev_w = intval($pderivative['w']);
                         $prev_h = intval($pderivative['h']);
                     }
                 }
 
                 // step 3 - save data
-                if (count($errors) == 0) {
+                if ((is_countable($errors) ? count($errors) : 0) == 0) {
                     $quality_changed = $image_std_params->getQuality() != intval($request->request->get('resize_quality'));
                     $image_std_params->setQuality(intval($request->request->get('resize_quality')));
 
@@ -811,7 +803,7 @@ class AdminConfigurationController extends AbstractController
                     }
 
                     $image_std_params->setAndSave($enabled_by);
-                    if (count($disabled) === 0) {
+                    if ((is_countable($disabled) ? count($disabled) : 0) === 0) {
                         unset($conf['disabled_derivatives']);
                     } else {
                         $conf->addOrUpdateParam('disabled_derivatives', $disabled, 'base64');

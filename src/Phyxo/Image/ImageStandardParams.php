@@ -16,25 +16,25 @@ use Phyxo\Conf;
 
 class ImageStandardParams
 {
-    private $conf_key = 'derivatives';
+    private string $conf_key = 'derivatives';
 
-    const IMG_ORIGINAL = 'original';
+    public const IMG_ORIGINAL = 'original';
 
-    const IMG_SQUARE = 'square';
-    const IMG_THUMB = 'thumb';
-    const IMG_XXSMALL = '2small';
-    const IMG_XSMALL = 'xsmall';
-    const IMG_SMALL = 'small';
-    const IMG_MEDIUM = 'medium';
-    const IMG_LARGE = 'large';
-    const IMG_XLARGE = 'xlarge';
-    const IMG_XXLARGE = 'xxlarge';
-    const IMG_CUSTOM = 'custom';
+    public const IMG_SQUARE = 'square';
+    public const IMG_THUMB = 'thumb';
+    public const IMG_XXSMALL = '2small';
+    public const IMG_XSMALL = 'xsmall';
+    public const IMG_SMALL = 'small';
+    public const IMG_MEDIUM = 'medium';
+    public const IMG_LARGE = 'large';
+    public const IMG_XLARGE = 'xlarge';
+    public const IMG_XXLARGE = 'xxlarge';
+    public const IMG_CUSTOM = 'custom';
 
     private $conf, $derivatives;
     private $all_type_map = [], $type_map = [], $watermark = [], $customs = [], $quality = 95, $undefined_type_map = [];
 
-    private  $all_types = [
+    private  array $all_types = [
         self::IMG_SQUARE, self::IMG_THUMB, self::IMG_XXSMALL, self::IMG_XSMALL, self::IMG_SMALL,
         self::IMG_MEDIUM, self::IMG_LARGE, self::IMG_XLARGE, self::IMG_XXLARGE
     ];
@@ -207,7 +207,7 @@ class ImageStandardParams
     {
         if (!empty($this->derivatives) && isset($this->derivatives['d'])) {
             $this->type_map = $this->derivatives['d'];
-            $this->watermark = isset($this->derivatives['w']) ? $this->derivatives['w'] : new WatermarkParams();
+            $this->watermark = $this->derivatives['w'] ?? new WatermarkParams();
             if (isset($this->derivatives['c'])) {
                 $this->customs = $this->derivatives['c'];
             }

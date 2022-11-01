@@ -18,11 +18,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class TablePrefixSubscriber implements EventSubscriberInterface
 {
-    private $prefix = 'phyxo_';
-
-    public function __construct(string $prefix)
+    public function __construct(private string $prefix)
     {
-        $this->prefix = $prefix;
     }
 
     public static function getSubscribedEvents(): array

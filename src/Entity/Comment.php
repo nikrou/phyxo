@@ -15,75 +15,47 @@ use App\Repository\CommentRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass=CommentRepository::class)
- * @ORM\Table(name="comments")
- */
+#[ORM\Table(name: 'comments')]
+#[ORM\Entity(repositoryClass: CommentRepository::class)]
 class Comment
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private \DateTimeInterface $date;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $author;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $author = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Assert\Email(
-     *   message = "The email '{{ value }}' is not a valid email."
-     * )
-     */
-    private ?string $email;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Assert\Email(message: "The email '{{ value }}' is not a valid email.")]
+    private ?string $email = null;
 
-    /**
-     * @ORM\Column(type="string", length=45, nullable=true)
-     */
-    private ?string $anonymous_id;
+    #[ORM\Column(type: 'string', length: 45, nullable: true)]
+    private ?string $anonymous_id = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Assert\Url(
-     *   message = "The url '{{ value }}' is not a valid url",
-     * )
-     */
-    private ?string $website_url;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Assert\Url(message: "The url '{{ value }}' is not a valid url")]
+    private ?string $website_url = null;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private ?string $content;
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $content = null;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
-    private ?bool $validated;
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $validated = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private ?\DateTimeInterface $validation_date;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $validation_date = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="comments")
-     * @ORM\JoinColumn(name="author_id", nullable=true)
-     */
-    private ?User $user;
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'comments')]
+    #[ORM\JoinColumn(name: 'author_id', nullable: true)]
+    private ?User $user = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Image::class, inversedBy="comments")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Image::class, inversedBy: 'comments')]
+    #[ORM\JoinColumn(nullable: false)]
     private Image $image;
 
     public function getId(): ?int

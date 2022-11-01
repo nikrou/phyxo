@@ -48,7 +48,7 @@ class ImageTagRepository extends ServiceEntityRepository
     /**
      * @return ImageTag[]|int
      */
-    public function getPendingTags(bool $count_only = false)
+    public function getPendingTags(bool $count_only = false): array|int
     {
         $qb = $this->createQueryBuilder('it');
         $qb->leftJoin('it.tag', 't');

@@ -11,33 +11,22 @@
 
 namespace Phyxo\Image;
 
-use Phyxo\Image\ImageRect;
-use Phyxo\Image\DerivativeParams;
-
 /**
  * Paramaters for derivative scaling and cropping.
  * Instance of this class contained by DerivativeParams class.
  */
 class SizingParams
 {
-    /** @var int[] */
-    public $ideal_size;
-    /** @var float */
-    public $max_crop;
-    /** @var int[] */
-    public $min_size;
-
     /**
      * $ideal_size - two element array of maximum output dimensions (width, height)
      * $max_crop - from 0=no cropping to 1= max cropping (100% of width/height);
      *    expressed as a factor of the input width/height
      * $min_size - (used only if _$max_crop_ !=0) two element array of output dimensions (width, height)
+     * @param int[] $ideal_size
+     * @param int[] $min_size
      */
-    public function __construct(array $ideal_size, float $max_crop = 0, array $min_size = [])
+    public function __construct(public array $ideal_size, public float $max_crop = 0, public array $min_size = [])
     {
-        $this->ideal_size = $ideal_size;
-        $this->max_crop = $max_crop;
-        $this->min_size = $min_size;
     }
 
     /**
@@ -80,7 +69,7 @@ class SizingParams
      * ImageRect &$crop_rect - ImageRect containing the cropping rectangle or null if cropping is not required
      * int[] &$scale_size - two element array containing width and height of the scaled image
      */
-    public function compute(array $in_size, ?string $coi = null, &$crop_rect, &$scale_size)
+    public function compute(array $in_size, &$crop_rect, &$scale_size, string $coi = '')
     {
         $destCrop = new ImageRect($in_size);
 

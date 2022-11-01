@@ -23,7 +23,7 @@ class UserListCommand extends Command
 
     private $userRepository, $databaseYamlFile;
 
-    private $Fields = [
+    private array $Fields = [
         'id' => 'Id',
         'username' => 'Username',
         'mail_address' => 'Mail Address',

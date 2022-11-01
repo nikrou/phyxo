@@ -44,6 +44,8 @@ class CommentNotificationSubscriber implements EventSubscriberInterface
 
     public function onCommentAction(CommentEvent $event)
     {
+        $params = [];
+        $from = [];
         $webmaster = $this->userMapper->getWebmaster();
 
         $comment = $event->getComment();
@@ -52,7 +54,7 @@ class CommentNotificationSubscriber implements EventSubscriberInterface
         }
 
         if ($event->getAction() === 'delete') {
-            $subject = $this->translator->trans('number_of_comments_deleted', ['count' => count($comment['ids'])], 'admin');
+            $subject = $this->translator->trans('number_of_comments_deleted', ['count' => is_countable($comment['ids']) ? count($comment['ids']) : 0], 'admin');
             $comment['IDS'] = implode(',', $comment['ids']);
         } elseif ($event->getAction() === 'edit') {
             $subject = $this->translator->trans('A comment has been edited', [], 'admin');

@@ -120,7 +120,7 @@ class Metadata
         if (is_readable($filename) && $exif = @exif_read_data($filename)) {
             // configured fields
             foreach ($map as $key => $field) {
-                if (strpos($field, ';') === false) {
+                if (!str_contains($field, ';')) {
                     if (isset($exif[$field])) {
                         $result[$key] = $exif[$field];
                     }
@@ -272,10 +272,7 @@ class Metadata
 
         if ($this->conf['use_iptc']) {
             $update_fields =
-                array_merge(
-                    $update_fields,
-                    array_keys($this->conf['use_iptc_mapping'])
-                );
+                [...$update_fields, ...array_keys($this->conf['use_iptc_mapping'])];
         }
 
         return array_unique($update_fields);

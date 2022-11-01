@@ -47,7 +47,7 @@ class AdminAlbumsOptionsController extends AbstractController
         $this->translator = $translator;
 
         if ($request->isMethod('POST')) {
-            if ($request->request->get('falsify') && $request->request->get('cat_true') && count($request->request->all()['cat_true']) > 0) {
+            if ($request->request->get('falsify') && $request->request->get('cat_true') && (is_countable($request->request->all()['cat_true']) ? count($request->request->all()['cat_true']) : 0) > 0) {
                 if ($section === 'comments') {
                     $albumRepository->updateAlbums(['commentable' => false], $request->request->all()['cat_true']);
                 } elseif ($section === 'lock') {
@@ -57,7 +57,7 @@ class AdminAlbumsOptionsController extends AbstractController
                 } elseif ($section === 'representative') {
                     $albumRepository->updateAlbums(['representative_picture_id' => null], $request->request->all()['cat_true']);
                 }
-            } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && count($request->request->all()['cat_false']) > 0) {
+            } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && (is_countable($request->request->all()['cat_false']) ? count($request->request->all()['cat_false']) : 0) > 0) {
                 if ($section === 'comments') {
                     $albumRepository->updateAlbums(['commentable' => true], $request->request->all()['cat_false']);
                 } elseif ($section === 'lock') {

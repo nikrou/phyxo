@@ -16,52 +16,41 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=GroupRepository::class)
- * @ORM\Table(name="groups")
- */
+#[ORM\Table(name: 'groups')]
+#[ORM\Entity(repositoryClass: GroupRepository::class)]
 class Group
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\Column(type="string", unique=true, length=255)
-     */
+    #[ORM\Column(type: 'string', unique: true, length: 255)]
     private string $name;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $is_default = false;
 
-    /**
-     * @ORM\Column(name="lastmodified", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'lastmodified', type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $last_modified;
 
     /**
-     * @ORM\ManyToMany(targetEntity=User::class, inversedBy="groups", cascade={"persist", "remove"})
-     * @ORM\JoinTable(name="user_group")
      *
      * @var Collection<int, User>
      */
-    private $users;
+    #[ORM\JoinTable(name: 'user_group')]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'groups', cascade: ['persist', 'remove'])]
+    private Collection $users;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Album::class, inversedBy="group_access", cascade={"persist", "remove"})
-     * @ORM\JoinTable(name="group_access",
-     *   joinColumns={@ORM\JoinColumn(name="group_id")},
-     *   inverseJoinColumns={@ORM\JoinColumn(name="cat_id")}
-     * )
      *
      * @var Collection<int, Album>
      */
-    private $group_access;
+    #[ORM\JoinTable(name: 'group_access')]
+    #[ORM\JoinColumn(name: 'group_id')]
+    #[ORM\InverseJoinColumn(name: 'cat_id')]
+    #[ORM\ManyToMany(targetEntity: Album::class, inversedBy: 'group_access', cascade: ['persist', 'remove'])]
+    private Collection $group_access;
 
     public function __construct()
     {

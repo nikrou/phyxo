@@ -14,33 +14,23 @@ namespace App\Entity;
 use App\Repository\UserMailNotificationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=UserMailNotificationRepository::class)
- * @ORM\Table(name="user_mail_notification")
- */
+#[ORM\Table(name: 'user_mail_notification')]
+#[ORM\Entity(repositoryClass: UserMailNotificationRepository::class)]
 class UserMailNotification
 {
-    /**
-     * @ORM\Id
-     * @ORM\OneToOne(targetEntity=User::class, cascade={"persist", "remove"})
-     * @ORM\JoinColumn(name="user_id", nullable=false)
-     */
+    #[ORM\Id]
+    #[ORM\OneToOne(targetEntity: User::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'user_id', nullable: false)]
     private User $user;
 
-    /**
-     * @ORM\Column(type="string", length=16, nullable=true, unique=true)
-     */
+    #[ORM\Column(type: 'string', length: 16, nullable: true, unique: true)]
     private ?string $check_key = '';
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $enabled = false;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private ?\DateTimeInterface $last_send;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $last_send = null;
 
     public function getUser(): ?User
     {

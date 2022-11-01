@@ -16,13 +16,8 @@ use App\Repository\AlbumRepository;
 
 class SearchMapper
 {
-    private ImageMapper $imageMapper;
-    private AlbumRepository $albumRepository;
-
-    public function __construct(ImageMapper $imageMapper, AlbumRepository $albumRepository)
+    public function __construct(private ImageMapper $imageMapper, private AlbumRepository $albumRepository)
     {
-        $this->imageMapper = $imageMapper;
-        $this->albumRepository = $albumRepository;
     }
 
     /**
@@ -82,7 +77,7 @@ class SearchMapper
                     }
                     break;
                 case 'OR':
-                    $items = array_unique(array_merge($items, $tag_items));
+                    $items = array_unique([...$items, ...$tag_items]);
                     break;
             }
         }

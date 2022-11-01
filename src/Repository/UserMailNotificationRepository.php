@@ -76,7 +76,7 @@ class UserMailNotificationRepository extends ServiceEntityRepository
         $subQuery->select('identity(n.user)');
 
         $qb = $this->_em->createQueryBuilder();
-        $qb->from('App\Entity\User', 'u');
+        $qb->from(\App\Entity\User::class, 'u');
         $qb->select('u');
         $qb->where('u.mail_address != \'\'');
         $qb->andWhere($qb->expr()->isNotNull('u.mail_address'));

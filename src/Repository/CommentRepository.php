@@ -157,7 +157,7 @@ class CommentRepository extends ServiceEntityRepository
      *
      * @return Comment[]|int
      */
-    public function getLastComments(array $filter_params = [], int $offset = 0, int $limit = 0, bool $count_only = false)
+    public function getLastComments(array $filter_params = [], int $offset = 0, int $limit = 0, bool $count_only = false): array|int
     {
         $qb = $this->createQueryBuilder('c');
 
@@ -173,7 +173,7 @@ class CommentRepository extends ServiceEntityRepository
             $qb->setMaxResults($limit);
         }
 
-        if (isset($filter_params['forbidden_categories']) && count($filter_params['forbidden_categories']) > 0) {
+        if (isset($filter_params['forbidden_categories']) && (is_countable($filter_params['forbidden_categories']) ? count($filter_params['forbidden_categories']) : 0) > 0) {
             $qb->where($qb->expr()->notIn('ia.album', $filter_params['forbidden_categories']));
         }
 
@@ -265,7 +265,7 @@ class CommentRepository extends ServiceEntityRepository
      *
      * @return Comment[]|int
      */
-    public function getNewComments(array $forbidden_albums = [], \DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only = false)
+    public function getNewComments(array $forbidden_albums = [], \DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only = false): array|int
     {
         $qb = $this->createQueryBuilder('c');
 
@@ -300,7 +300,7 @@ class CommentRepository extends ServiceEntityRepository
     /**
      * @return Comment[]|int
      */
-    public function getUnvalidatedComments(\DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only)
+    public function getUnvalidatedComments(bool $count_only, \DateTimeInterface $start = null, \DateTimeInterface $end = null): array|int
     {
         $qb = $this->createQueryBuilder('c');
 

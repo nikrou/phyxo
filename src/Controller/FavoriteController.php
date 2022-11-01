@@ -65,12 +65,12 @@ class FavoriteController extends AbstractController
                 )
             );
 
-            if (count($tpl_params['items']) > $appUserService->getUser()->getUserInfos()->getNbImagePage()) {
+            if ((is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0) > $appUserService->getUser()->getUserInfos()->getNbImagePage()) {
                 $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                     $router,
                     'favorites',
                     [],
-                    count($tpl_params['items']),
+                    is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0,
                     $start,
                     $appUserService->getUser()->getUserInfos()->getNbImagePage(),
                     $conf['paginate_pages_around']

@@ -159,13 +159,13 @@ class AdminUsersController extends AbstractController
         $user = $userRepository->find($user_id);
 
         if ($request->isMethod('POST')) {
-            if ($request->request->get('falsify') && $request->request->get('cat_true') && count($request->request->all()['cat_true']) > 0) {
+            if ($request->request->get('falsify') && $request->request->get('cat_true') && (is_countable($request->request->all()['cat_true']) ? count($request->request->all()['cat_true']) : 0) > 0) {
                 // if you forbid access to a category, all sub-categories become automatically forbidden
                 foreach ($albumMapper->getRepository()->getSubAlbums($request->request->all()['cat_true']) as $album) {
                     $album->removeUserAccess($user);
                     $albumMapper->getRepository()->addOrUpdateAlbum($album);
                 }
-            } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && count($request->request->all()['cat_false']) > 0) {
+            } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && (is_countable($request->request->all()['cat_false']) ? count($request->request->all()['cat_false']) : 0) > 0) {
                 $albumMapper->addPermissionOnAlbum($request->request->all()['cat_false'], [$user_id]);
             }
         }
@@ -194,7 +194,7 @@ class AdminUsersController extends AbstractController
 
 
         $albums = [];
-        foreach ($albumMapper->getRepository()->findUnauthorized(array_merge($authorized_ids, $group_authorized)) as $album) {
+        foreach ($albumMapper->getRepository()->findUnauthorized([...$authorized_ids, ...$group_authorized]) as $album) {
             $albums[] = $album;
         }
         $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_option_false'));

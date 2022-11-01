@@ -16,16 +16,10 @@ namespace Phyxo\Block;
  */
 class RegisteredBlock
 {
-    private string $id;
-    private string $name;
-    private string $owner;
     private $dataCallback = null;
 
-    public function __construct(string $id, string $name, string $owner, callable $dataCallback = null)
+    public function __construct(private string $id, private string $name, private string $owner, callable $dataCallback = null)
     {
-        $this->id = $id;
-        $this->name = $name;
-        $this->owner = $owner;
         $this->dataCallback = $dataCallback;
     }
 

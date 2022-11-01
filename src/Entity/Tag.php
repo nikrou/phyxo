@@ -17,41 +17,32 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=TagRepository::class)
- * @ORM\Table(name="tags")
  *
  * @phpstan-type ImageTagInfos array{status?: ?int, validated?: ?bool, created_by?: ?User}
  */
+#[ORM\Table(name: 'tags')]
+#[ORM\Entity(repositoryClass: TagRepository::class)]
 class Tag
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private string $name;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private string $url_name;
 
-    /**
-     * @ORM\Column(name="lastmodified", type="datetime", nullable=true)
-     */
-    private ?\DateTimeInterface $last_modified;
+    #[ORM\Column(name: 'lastmodified', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $last_modified = null;
 
     /**
-     * @ORM\OneToMany(targetEntity=ImageTag::class, mappedBy="tag", cascade={"persist", "remove"})
-     *
-     * @var ArrayCollection<int, ImageTag>
+     * @var Collection<int, ImageTag>
      */
-    private $imageTags;
+    #[ORM\OneToMany(targetEntity: ImageTag::class, mappedBy: 'tag', cascade: ['persist', 'remove'])]
+    private Collection $imageTags;
 
     private int $counter = 0;
 

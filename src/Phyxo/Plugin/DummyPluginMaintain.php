@@ -15,11 +15,8 @@ use Phyxo\Plugin\PluginMaintain;
 
 class DummyPluginMaintain implements PluginMaintain
 {
-    protected $plugin_id;
-
-    public function __construct(string $id)
+    public function __construct(protected string $plugin_id)
     {
-        $this->plugin_id = $id;
     }
 
     public function install(string $plugin_version): array

@@ -23,9 +23,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminNotificationController extends AbstractController
 {
     private TranslatorInterface $translator;
-    private AuthorizationCheckerInterface $authorizationChecker;
     /** @var array<string, string> $conf_types */
-    private $conf_types = [
+    private array $conf_types = [
         'nbm_send_html_mail' => 'boolean',
         'nbm_send_mail_as' => 'string',
         'nbm_send_detailed_content' => 'boolean',
@@ -33,9 +32,8 @@ class AdminNotificationController extends AbstractController
         'nbm_send_recent_post_dates' => 'boolean',
     ];
 
-    public function __construct(AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(private AuthorizationCheckerInterface $authorizationChecker)
     {
-        $this->authorizationChecker = $authorizationChecker;
     }
 
     protected function setTabsheet(string $section = 'params'): TabSheet

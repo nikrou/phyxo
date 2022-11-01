@@ -20,13 +20,8 @@ abstract class AbstractPlugin implements EventSubscriberInterface
     private const CLASSNAME_FORMAT = '\\Plugins\\%s\\%s';
     private const COMMAND_CLASSNAME_FORMAT = 'Plugins\%s\Command';
 
-    protected AssetsManager $assetsManager;
-    private ThemeLoader $themeLoader;
-
-    public function __construct(AssetsManager $assetsManager, ThemeLoader $themeLoader)
+    public function __construct(protected AssetsManager $assetsManager, private ThemeLoader $themeLoader)
     {
-        $this->assetsManager = $assetsManager;
-        $this->themeLoader = $themeLoader;
     }
 
     public static function getClassName(string $plugin_id): string

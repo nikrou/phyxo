@@ -73,9 +73,9 @@ class CommentMapper
             $comment->setDate(new \DateTime());
         }
         $comment->setAnonymousId(isset($params['anonymous_id']) ? md5($params['anonymous_id']) : md5('::1'));
-        $comment->setValidated(isset($params['validated']) ? $params['validated'] : true);
-        $comment->setWebsiteUrl(isset($params['website_url'])?$params['website_url']:'');
-        $comment->setEmail(isset($params['email']) ? $params['email'] : '');
+        $comment->setValidated($params['validated'] ?? true);
+        $comment->setWebsiteUrl($params['website_url'] ?? '');
+        $comment->setEmail($params['email'] ?? '');
         $comment->setImage($image);
 
         $this->getRepository()->addOrUpdateComment($comment);

@@ -45,13 +45,13 @@ class AdminPhotosController extends AbstractController
 
     public function direct(
         Request $request,
-        int $album_id = null,
         Conf $conf,
         CsrfTokenManagerInterface $tokenManager,
         AlbumMapper $albumMapper,
         TranslatorInterface $translator,
         ImageMapper $imageMapper,
-        ManagerRegistry $managerRegistry
+        ManagerRegistry $managerRegistry,
+        int $album_id = null
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -80,7 +80,7 @@ class AdminPhotosController extends AbstractController
         $max_upload_width = round($max_upload_width / 100) * 100;
         $max_upload_height = round($max_upload_height / 100) * 100;
 
-        $max_upload_resolution = floor($max_upload_width * $max_upload_height / (1000000));
+        $max_upload_resolution = floor($max_upload_width * $max_upload_height / (1_000_000));
 
         // no need to display a limitation warning if the limitation is huge like 20MP
         if ($max_upload_resolution < 25) {
@@ -108,10 +108,10 @@ class AdminPhotosController extends AbstractController
             $album = $albumMapper->getRepository()->find($album_id);
             if (!is_null($album)) {
                 $selected_category = [$album_id];
-                $request->getSession()->set('selected_category', json_encode($selected_category));
+                $request->getSession()->set('selected_category', json_encode($selected_category, JSON_THROW_ON_ERROR));
             }
         } elseif ($request->getSession()->has('selected_category')) {
-            $selected_category = json_decode($request->getSession()->get('selected_category'), true);
+            $selected_category = json_decode($request->getSession()->get('selected_category'), true, 512, JSON_THROW_ON_ERROR);
         } else {
             // we need to know the category in which the last photo was added
             if ($last_image = $imageMapper->getRepository()->findAlbumWithLastImageAdded()) {

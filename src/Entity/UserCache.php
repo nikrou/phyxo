@@ -14,63 +14,41 @@ namespace App\Entity;
 use App\Repository\UserCacheRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=UserCacheRepository::class)
- */
+#[ORM\Entity(repositoryClass: UserCacheRepository::class)]
 class UserCache
 {
-    const ACCESS_IN = 'IN';
-    const ACCESS_NOT_IN = 'NOT IN';
+    public const ACCESS_IN = 'IN';
+    public const ACCESS_NOT_IN = 'NOT IN';
 
-    /**
-     * @ORM\Id
-     * @ORM\OneToOne(targetEntity=User::class, inversedBy="userCache", cascade={"persist", "remove"})
-     */
+    #[ORM\Id]
+    #[ORM\OneToOne(targetEntity: User::class, inversedBy: 'userCache', cascade: ['persist', 'remove'])]
     private User $user;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $need_update = true;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private ?int $cache_update_time;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $cache_update_time = null;
 
-    /**
-     * @ORM\Column(name="forbidden_categories", type="text")
-     */
+    #[ORM\Column(name: 'forbidden_categories', type: 'text')]
     private string $forbidden_albums = '[]';
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $nb_total_images = 0;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private ?\DateTimeInterface $last_photo_date;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $last_photo_date = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $nb_available_tags = 0;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $nb_available_comments = 0;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private string $image_access_type = self::ACCESS_NOT_IN;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: 'text')]
     private string $image_access_list = '[]';
 
     public function getUser(): User
@@ -115,7 +93,7 @@ class UserCache
     /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getForbiddenAlbums()
     {
-        return json_decode($this->forbidden_albums, true);
+        return json_decode($this->forbidden_albums, true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -123,8 +101,7 @@ class UserCache
      */
     public function setForbiddenAlbums(array $forbidden_albums = []): self
     {
-        $forbidden_albums = json_encode($forbidden_albums);
-        $this->forbidden_albums = $forbidden_albums !== false ? $forbidden_albums : '[]';
+        $this->forbidden_albums = json_encode($forbidden_albums, JSON_THROW_ON_ERROR);
 
         return $this;
     }
@@ -195,7 +172,7 @@ class UserCache
     /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getImageAccessList()
     {
-        return json_decode($this->image_access_list, true);
+        return json_decode($this->image_access_list, true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -203,8 +180,7 @@ class UserCache
      */
     public function setImageAccessList(array $image_access_list = []): self
     {
-        $image_access_list = json_encode($image_access_list);
-        $this->image_access_list = $image_access_list !== false ? $image_access_list : '[]';
+        $this->image_access_list = json_encode($image_access_list, JSON_THROW_ON_ERROR);
 
         return $this;
     }

@@ -17,7 +17,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class PathVersionStrategy implements VersionStrategyInterface
 {
-    private $manifestData = [];
+    private array $manifestData = [];
 
     public function __construct(RequestStack $request, string $defaultTheme, KernelInterface $kernel)
     {
@@ -51,7 +51,7 @@ class PathVersionStrategy implements VersionStrategyInterface
 
     private function getManifestPath($path): ?string
     {
-        return isset($this->manifestData[$path]) ? $this->manifestData[$path] : null;
+        return $this->manifestData[$path] ?? null;
     }
 
     private function readManifestPath(string $path): void
@@ -76,7 +76,7 @@ class PathVersionStrategy implements VersionStrategyInterface
             return $defaultPublicDir;
         }
 
-        $composerConfig = json_decode(file_get_contents($composerFilePath), true);
+        $composerConfig = json_decode(file_get_contents($composerFilePath), true, 512, JSON_THROW_ON_ERROR);
 
         if (isset($composerConfig['extra']['public-dir'])) {
             return $composerConfig['extra']['public-dir'];

@@ -16,7 +16,7 @@ use PclZip;
 
 class Extensions
 {
-    const TYPES = ['plugins', 'themes', 'languages'];
+    public const TYPES = ['plugins', 'themes', 'languages'];
 
     protected $directory_pattern = '', $pem_url;
 
@@ -26,7 +26,7 @@ class Extensions
             $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $url, ['query' => $params]);
             if ($response->getStatusCode() === 200 && $response->getContent()) {
-                return json_decode($response-> getContent(), true);
+                return json_decode($response-> getContent(), true, 512, JSON_THROW_ON_ERROR);
             } else {
                 throw new \Exception("Response is not readable");
             }
@@ -91,10 +91,8 @@ class Extensions
 
                 // @TODO: use native zip library ; use arobase before
                 if ($results = @$zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $root, PCLZIP_OPT_REPLACE_NEWER)) {
-                    $errors = array_filter($results, function($f) {
-                        return ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory';
-                    });
-                    if (count($errors) > 0) {
+                    $errors = array_filter($results, fn($f) => ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory');
+                    if (count((array) $errors) > 0) {
                         throw new \Exception("Error while extracting some files from archive");
                     }
                 } else {

@@ -21,7 +21,7 @@ class TabSheet implements \IteratorAggregate
     /**
      * @var array<string, Item>
      */
-    private $elements = [];
+    private array $elements = [];
 
     public function add(string $name, string $caption, string $url, string $icon = ''): void
     {

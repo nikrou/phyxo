@@ -151,7 +151,7 @@ class Utils
                     $navbar['pages'][$i] = $router->generate($route_with_start, array_merge($query_params, [$start_param => (($i - 1) * $nb_element_page)]));
                 }
                 $navbar['pages'][$maximum] = $router->generate($route_with_start, array_merge($query_params, [$start_param => $last]));
-            } catch (RouteNotFoundException $e) {
+            } catch (RouteNotFoundException) {
                 // do something : route with start param probably not exists
             }
         }
@@ -431,7 +431,7 @@ class Utils
 
     public static function image_infos($path): array
     {
-        list($width, $height) = getimagesize($path);
+        [$width, $height] = getimagesize($path);
         $filesize = floor(filesize($path) / 1024);
 
         return [

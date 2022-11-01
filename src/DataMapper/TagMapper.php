@@ -28,33 +28,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 class TagMapper
 {
-    private Conf $conf;
-    private ImageStandardParams $image_std_params;
-    private RouterInterface $router;
-    private Metadata $metadata;
-    private UserCacheRepository $userCacheRepository;
-    private ImageRepository $imageRepository;
-    private TagRepository $tagRepository;
-    private ImageTagRepository $imageTagRepository;
-
-    public function __construct(
-        Conf $conf,
-        ImageStandardParams $image_std_params,
-        RouterInterface $router,
-        Metadata $metadata,
-        ImageTagRepository $imageTagRepository,
-        UserCacheRepository $userCacheRepository,
-        ImageRepository $imageRepository,
-        TagRepository $tagRepository
-    ) {
-        $this->conf = $conf;
-        $this->image_std_params = $image_std_params;
-        $this->router = $router;
-        $this->metadata = $metadata;
-        $this->userCacheRepository = $userCacheRepository;
-        $this->imageRepository = $imageRepository;
-        $this->tagRepository = $tagRepository;
-        $this->imageTagRepository = $imageTagRepository;
+    public function __construct(private Conf $conf, private ImageStandardParams $image_std_params, private RouterInterface $router, private Metadata $metadata, private ImageTagRepository $imageTagRepository, private UserCacheRepository $userCacheRepository, private ImageRepository $imageRepository, private TagRepository $tagRepository)
+    {
     }
 
     public function getRepository(): TagRepository
@@ -161,9 +136,7 @@ class TagMapper
             $this->conf['show_pending_deleted_tags'] ?? false
         );
         foreach ($related_tags as $tag) {
-            $image_tag = $tag->getImageTags()->filter(function(ImageTag $it) use ($tag) {
-                return $it->getTag()->getId() === $tag->getId();
-            })->first();
+            $image_tag = $tag->getImageTags()->filter(fn(ImageTag $it) => $it->getTag()->getId() === $tag->getId())->first();
 
             $tag->setRelatedImageTagInfos($image_tag);
             $tags[] = $tag;
@@ -191,9 +164,7 @@ class TagMapper
             $tag = $row[0];
             $tag->setCounter($row['counter']);
 
-            $image_tag = $tag->getImageTags()->filter(function(ImageTag $it) use ($tag) {
-                return $it->getTag()->getId() === $tag->getId();
-            })->first();
+            $image_tag = $tag->getImageTags()->filter(fn(ImageTag $it) => $it->getTag()->getId() === $tag->getId())->first();
 
             $tag->setRelatedImageTagInfos($image_tag);
             $tags[] = $tag;
@@ -236,7 +207,7 @@ class TagMapper
         usort($taglist, '\Phyxo\Functions\Utils::tag_alpha_compare');
         if (count($altlist)) {
             usort($altlist, '\Phyxo\Functions\Utils::tag_alpha_compare');
-            $taglist = array_merge($taglist, $altlist);
+            $taglist = [...$taglist, ...$altlist];
         }
 
         return $taglist;
@@ -254,7 +225,7 @@ class TagMapper
      * @param boolean $allow_create
      * @return int[]
      */
-    public function getTagsIds($raw_tags, bool $allow_create = true): array
+    public function getTagsIds(string|array $raw_tags, bool $allow_create = true): array
     {
         $tag_ids = [];
         if (!is_array($raw_tags)) {
@@ -335,7 +306,6 @@ class TagMapper
      * Warning: given tags are all tags associated to the image, not additionnal tags.
      *
      * @param int[] $tags
-     * @param int $image_id
      */
     public function setTags(array $tags, int $image_id, User $user): void
     {
@@ -538,9 +508,7 @@ class TagMapper
             $image->fromArray(
                 array_filter(
                     $metadata,
-                    function($m) use ($update_fields) {
-                        return in_array($m, $update_fields);
-                    },
+                    fn($m) => in_array($m, $update_fields),
                     ARRAY_FILTER_USE_KEY
                 )
             );

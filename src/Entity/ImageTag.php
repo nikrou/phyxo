@@ -14,42 +14,30 @@ namespace App\Entity;
 use App\Repository\ImageTagRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ImageTagRepository::class)
- */
+#[ORM\Entity(repositoryClass: ImageTagRepository::class)]
 class ImageTag
 {
-    const STATUS_TO_ADD = 1;
-    const STATUS_TO_DELETE = 0;
+    public const STATUS_TO_ADD = 1;
+    public const STATUS_TO_DELETE = 0;
 
-    /**
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity=Image::class, inversedBy="imageTags")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Image::class, inversedBy: 'imageTags')]
+    #[ORM\JoinColumn(nullable: false)]
     private Image $image;
 
-    /**
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity=Tag::class, inversedBy="imageTags")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Tag::class, inversedBy: 'imageTags')]
+    #[ORM\JoinColumn(nullable: false)]
     private Tag $tag;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $validated = true;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class)
-     * @ORM\JoinColumn(name="created_by", nullable=true)
-     */
-    private ?User $created_by;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'created_by', nullable: true)]
+    private ?User $created_by = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $status = self::STATUS_TO_ADD;
 
     public function getImage(): ?Image

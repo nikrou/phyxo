@@ -20,7 +20,7 @@ class ExtensionCollection
         $extensions = $extensions instanceof \Traversable ? iterator_to_array($extensions) : $extensions;
 
         foreach ($extensions as $extension) {
-            $plugin_id = preg_replace('`Plugins\\\\([^\\\\]+)\\\\Command\\\\.+`', '\\1', get_class($extension));
+            $plugin_id = preg_replace('`Plugins\\\\([^\\\\]+)\\\\Command\\\\.+`', '\\1', $extension::class);
 
             $this->extensions_by_class[$plugin_id][] = $extension->getName();
             $this->extensions_by_name[$extension->getName()] = $plugin_id;

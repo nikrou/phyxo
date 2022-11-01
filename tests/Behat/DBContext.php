@@ -12,7 +12,6 @@
 namespace App\Tests\Behat;
 
 use App\DataMapper\AlbumMapper;
-use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
@@ -28,7 +27,6 @@ use Behat\Gherkin\Node\TableNode;
 use App\Entity\User;
 use App\Repository\CommentRepository;
 use App\Utils\UserManager;
-use Behat\Behat\Tester\Exception\PendingException;
 use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\Conf;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -123,7 +121,7 @@ class DBContext implements Context
             if (isset($albumRow['parent']) && $albumRow['parent'] != '') {
                 $parent = $this->storage->get('album_' . $albumRow['parent']);
             }
-            $album = $this->getContainer()->get(AlbumMapper::class)->createAlbum($albumRow['name'], $parent, 0, [], $albumRow);
+            $album = $this->getContainer()->get(AlbumMapper::class)->createAlbum($albumRow['name'], 0, $parent, [], $albumRow);
             $this->storage->set('album_' . $albumRow['name'], $album);
         }
     }

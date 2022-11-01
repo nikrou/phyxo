@@ -27,8 +27,8 @@ class Rate
     {
         $changes = $service->getManagerRegistry()->getRepository(EntityRate::class)->deleteWithConditions(
             $params['user_id'],
-            !empty($params['image_id']) ? $params['image_id'] : null,
-            !empty($params['anonymous_id']) ? $params['anonymous_id'] : null
+            !empty($params['anonymous_id']) ? $params['anonymous_id'] : null,
+            !empty($params['image_id']) ? $params['image_id'] : null
         );
 
         if ($changes) {

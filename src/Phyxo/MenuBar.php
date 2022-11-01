@@ -26,7 +26,6 @@ class MenuBar
 {
     private $conf, $menu, $router, $albumMapper, $appUserService, $userMapper, $tagMapper, $translator;
     private $route = null, $items = [], $tags = [], $defaultDateType;
-    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         Conf $conf,
@@ -37,7 +36,7 @@ class MenuBar
         TagMapper $tagMapper,
         TranslatorInterface $translator,
         string $defaultDateType,
-        EventDispatcherInterface $eventDispatcher
+        private EventDispatcherInterface $eventDispatcher
     ) {
         $this->conf = $conf;
         $this->router = $router;
@@ -47,7 +46,6 @@ class MenuBar
         $this->tagMapper = $tagMapper;
         $this->translator = $translator;
         $this->defaultDateType = $defaultDateType;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function setRoute(string $route)
@@ -103,8 +101,8 @@ class MenuBar
 
                 if (!isset($url_data['new_window']) || $url_data['new_window']) {
                     $tpl_var['new_window'] = [
-                        'NAME' => (isset($url_data['nw_name']) ? $url_data['nw_name'] : ''),
-                        'FEATURES' => (isset($url_data['nw_features']) ? $url_data['nw_features'] : '')
+                        'NAME' => ($url_data['nw_name'] ?? ''),
+                        'FEATURES' => ($url_data['nw_features'] ?? '')
                     ];
                 }
                 $block->data[] = $tpl_var;
@@ -136,9 +134,7 @@ class MenuBar
                     $this->appUserService->getUser(),
                     $this->items,
                     $this->conf['menubar_tag_cloud_items_number'],
-                    array_map(function($tag) {
-                        return $tag->getId();
-                    }, $this->tags)
+                    array_map(fn($tag) => $tag->getId(), $this->tags)
                 );
 
                 $tags = $this->tagMapper->addLevelToTags($tags);
@@ -148,9 +144,7 @@ class MenuBar
                         [
                             'U_ADD' => $this->router->generate(
                                 'images_by_tags',
-                                ['tag_ids' => implode('/', array_map(function(EntityTag $tag) {
-                                    return $tag->toUrl();
-                                }, array_merge($this->tags, [$tag])))]
+                                ['tag_ids' => implode('/', array_map(fn(EntityTag $tag) => $tag->toUrl(), array_merge($this->tags, [$tag])))]
                             ),
                             'URL' => $this->router->generate(
                                 'images_by_tags',
@@ -252,7 +246,7 @@ class MenuBar
                 'TITLE' => $this->translator->trans('display available tags'),
                 'NAME' => $this->translator->trans('Tags'),
                 'URL' => $this->router->generate('tags'),
-                'COUNTER' => $this->userMapper->getNumberAvailableTags($this->appUserService->getUser(), []),
+                'COUNTER' => $this->userMapper->getNumberAvailableTags(),
             ];
 
             $block->data['search'] = [

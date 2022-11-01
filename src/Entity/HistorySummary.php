@@ -14,43 +14,29 @@ namespace App\Entity;
 use App\Repository\HistorySummaryRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=HistorySummaryRepository::class)
- * @ORM\Table(name="history_summary")
- */
+#[ORM\Table(name: 'history_summary')]
+#[ORM\Entity(repositoryClass: HistorySummaryRepository::class)]
 class HistorySummary
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $nb_pages;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $year;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private ?int $month;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $month = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private ?int $day;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $day = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private ?int $hour;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $hour = null;
 
     public function getId(): ?int
     {

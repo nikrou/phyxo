@@ -14,32 +14,22 @@ namespace App\Entity;
 use App\Repository\ConfigRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ConfigRepository::class)
- * @ORM\Table(name="config")
- */
+#[ORM\Table(name: 'config')]
+#[ORM\Entity(repositoryClass: ConfigRepository::class)]
 class Config
 {
-    /**
-     * @ORM\Id()
-     * @ORM\Column(type="string", length=40)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'string', length: 40)]
     private string $param;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private ?string $value;
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $value = null;
 
-    /**
-     * @ORM\Column(type="string", length=15, nullable=true, options={"default": "string"})
-     */
-    private ?string $type;
+    #[ORM\Column(type: 'string', length: 15, nullable: true, options: ['default' => 'string'])]
+    private ?string $type = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $comment;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $comment = null;
 
     public function getParam(): ?string
     {

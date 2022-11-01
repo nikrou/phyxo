@@ -38,13 +38,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminHistoryController extends AbstractController
 {
-    private ImageStandardParams $image_std_params;
-    private TranslatorInterface $translator;
-
-    public function __construct(ImageStandardParams $image_std_params, TranslatorInterface $translator)
+    public function __construct(private ImageStandardParams $image_std_params, private TranslatorInterface $translator)
     {
-        $this->image_std_params = $image_std_params;
-        $this->translator = $translator;
     }
 
     protected function setTabsheet(string $section = 'stats'): TabSheet
@@ -59,12 +54,12 @@ class AdminHistoryController extends AbstractController
 
     public function stats(
         Request $request,
-        int $year = null,
-        int $month = null,
-        int $day = null,
         Conf $conf,
         HistorySummaryRepository $historySummaryRepository,
-        HistoryRepository $historyRepository
+        HistoryRepository $historyRepository,
+        int $year = null,
+        int $month = null,
+        int $day = null
     ): Response {
         $tpl_params = [];
         $this->refreshSummary($historyRepository, $historySummaryRepository);
@@ -167,14 +162,14 @@ class AdminHistoryController extends AbstractController
         Request $request,
         SearchRepository $searchRepository,
         int $start,
-        int $search_id = null,
         AlbumMapper $albumMapper,
         Conf $conf,
         UserMapper $userMapper,
         ImageMapper $imageMapper,
         TagRepository $tagRepository,
         HistoryRepository $historyRepository,
-        RouterInterface $router
+        RouterInterface $router,
+        int $search_id = null
     ): Response {
         $tpl_params = [];
         $search = null;
@@ -330,10 +325,8 @@ class AdminHistoryController extends AbstractController
             if ($line->getTagIds()) {
                 $tags_string = preg_replace_callback(
                     '/(\d+)/',
-                    function ($m) use ($name_of_tag) {
-                        /** @phpstan-ignore-next-line */
-                        return isset($name_of_tag[$m[1]]) ? $name_of_tag[$m[1]]['url'] : $m[1];
-                    },
+                    fn($m) => /** @phpstan-ignore-next-line */
+isset($name_of_tag[$m[1]]) ? $name_of_tag[$m[1]]['url'] : $m[1],
                     str_replace(
                         ',',
                         ', ',
@@ -352,9 +345,7 @@ class AdminHistoryController extends AbstractController
                 'IMAGE' => $image_string,
                 'TYPE' => $line->getImageType(),
                 'SECTION' => $line->getSection(),
-                'CATEGORY' => $line->getAlbum() ? (isset($name_of_category[$line->getAlbum()->getId()])
-                    ? $name_of_category[$line->getAlbum()->getId()]
-                    : 'deleted ' . $line->getAlbum()->getId())
+                'CATEGORY' => $line->getAlbum() ? ($name_of_category[$line->getAlbum()->getId()] ?? 'deleted ' . $line->getAlbum()->getId())
                     : '',
                 'TAGS' => $tags_string,
             ];

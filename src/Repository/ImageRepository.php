@@ -324,7 +324,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return Image[]|int
      */
-    public function getNewElements(array $forbidden_albums = [], \DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only = false)
+    public function getNewElements(array $forbidden_albums = [], \DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only = false): array|int
     {
         $qb = $this->createQueryBuilder('i');
         if ($count_only) {
@@ -358,7 +358,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return Album[]|int
      */
-    public function getUpdatedAlbums(array $forbidden_albums = [], \DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only = false)
+    public function getUpdatedAlbums(array $forbidden_albums = [], \DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only = false): array|int
     {
         return $this->getNewElements($forbidden_albums, $start, $end, $count_only);
     }
@@ -368,7 +368,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return array<string, array{upp: ?string, img_count: int|string}>
      */
-    public function getRecentImages(\DateTimeInterface $date_available = null, int $limit, array $forbidden_albums = [])
+    public function getRecentImages(int $limit, \DateTimeInterface $date_available = null, array $forbidden_albums = [])
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('DISTINCT(a.uppercats) AS upp, COUNT(i.id) AS img_count');
@@ -818,7 +818,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return Image[]
      */
-    public function findByImageIdsAndAlbumId(array $image_ids, ?int $album_id = null, array $order_by, int $limit, int $offset = 0)
+    public function findByImageIdsAndAlbumId(array $image_ids, array $order_by, int $limit, ?int $album_id = null, int $offset = 0)
     {
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
@@ -1088,7 +1088,7 @@ class ImageRepository extends ServiceEntityRepository
         if (isset($rules['fields']['allwords'])) {
             $fields = ['file', 'name', 'comment'];
 
-            if (isset($rules['fields']['allwords']['fields']) && count($rules['fields']['allwords']['fields']) > 0) {
+            if (isset($rules['fields']['allwords']['fields']) && (is_countable($rules['fields']['allwords']['fields']) ? count($rules['fields']['allwords']['fields']) : 0) > 0) {
                 $fields = array_intersect($fields, $rules['fields']['allwords']['fields']);
             }
 

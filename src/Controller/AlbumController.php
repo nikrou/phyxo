@@ -95,7 +95,7 @@ class AlbumController extends AbstractController
         }
         $tpl_params['image_orders'][$order_index]['SELECTED'] = true;
         if ($preferred_image_orders[$order_index][1] !== '[]') {
-            $order_by = array_merge(json_decode($preferred_image_orders[$order_index][1], true), $order_by);
+            $order_by = array_merge(json_decode($preferred_image_orders[$order_index][1], true, 512, JSON_THROW_ON_ERROR), $order_by);
         }
 
         $albums = [];
@@ -103,28 +103,26 @@ class AlbumController extends AbstractController
         $user_representative_updates_for = [];
         $infos_of_images = [];
 
-        list($is_child_date_last, $albums, $image_ids, $user_representative_updates_for) = $albumMapper->getAlbumThumbnails(
+        [$is_child_date_last, $albums, $image_ids, $user_representative_updates_for] = $albumMapper->getAlbumThumbnails(
             $appUserService->getUser(),
-            $albumMapper->getRepository()->findByParentId($album_id, $appUserService->getUser()->getId())
+            $albumMapper->getRepository()->findByParentId($appUserService->getUser()->getId(), $album_id)
         );
 
-        if (count($albums) > 0) {
+        if ((is_countable($albums) ? count($albums) : 0) > 0) {
             $infos_of_images = $albumMapper->getInfosOfImages($appUserService->getUser(), $albums, $image_ids, $imageMapper);
         }
 
-        if (count($user_representative_updates_for) > 0) {
+        if ((is_countable($user_representative_updates_for) ? count($user_representative_updates_for) : 0) > 0) {
             foreach ($user_representative_updates_for as $cat_id => $image_id) {
                 $userCacheAlbumRepository->updateUserRepresentativePicture($appUserService->getUser()->getId(), $cat_id, $image_id);
             }
         }
 
-        if (count($albums) > 0) {
+        if ((is_countable($albums) ? count($albums) : 0) > 0) {
             $tpl_thumbnails_var = [];
 
             foreach ($albums as $currentAlbum) {
-                $userCacheAlbum = $appUserService->getUser()->getUserCacheAlbums()->filter(function(UserCacheAlbum $uca) use ($currentAlbum) {
-                    return $uca->getAlbum()->getId() === $currentAlbum->getId();
-                })->first();
+                $userCacheAlbum = $appUserService->getUser()->getUserCacheAlbums()->filter(fn(UserCacheAlbum $uca) => $uca->getAlbum()->getId() === $currentAlbum->getId())->first();
 
                 if (!$userCacheAlbum || $userCacheAlbum->getCountImages() === 0) {
                     continue;
@@ -242,6 +240,7 @@ class AlbumController extends AbstractController
         AppUserService $appUserService,
         int $start = 0
     ): Response {
+        $subcat_ids = [];
         $tpl_params = [];
 
         if ($request->cookies->has('category_view')) {
@@ -368,27 +367,25 @@ class AlbumController extends AbstractController
         $image_ids = [];
         $user_representative_updates_for = [];
 
-        list($is_child_date_last, $albums, $image_ids, $user_representative_updates_for) = $albumMapper->getAlbumThumbnails(
+        [$is_child_date_last, $albums, $image_ids, $user_representative_updates_for] = $albumMapper->getAlbumThumbnails(
             $appUserService->getUser(),
             $albumMapper->getRepository()->findParentAlbums($appUserService->getUser()->getId())
         );
 
-        if (count($albums) > 0) {
+        if ((is_countable($albums) ? count($albums) : 0) > 0) {
             $infos_of_images = $albumMapper->getInfosOfImages($appUserService->getUser(), $albums, $image_ids, $imageMapper);
         }
 
-        if (count($user_representative_updates_for) > 0) {
+        if ((is_countable($user_representative_updates_for) ? count($user_representative_updates_for) : 0) > 0) {
             foreach ($user_representative_updates_for as $cat_id => $image_id) {
                 $userCacheAlbumRepository->updateUserRepresentativePicture($appUserService->getUser()->getId(), $cat_id, $image_id);
             }
         }
 
-        if (count($albums) > 0) {
+        if ((is_countable($albums) ? count($albums) : 0) > 0) {
             $tpl_thumbnails_var = [];
             foreach ($albums as $album) {
-                $userCacheAlbum = $appUserService->getUser()->getUserCacheAlbums()->filter(function(UserCacheAlbum $uca) use ($album) {
-                    return $uca->getAlbum()->getId() === $album->getId();
-                })->first();
+                $userCacheAlbum = $appUserService->getUser()->getUserCacheAlbums()->filter(fn(UserCacheAlbum $uca) => $uca->getAlbum()->getId() === $album->getId())->first();
 
                 if (!$userCacheAlbum || $userCacheAlbum->getCountImages() === 0) {
                     continue;
@@ -493,24 +490,22 @@ class AlbumController extends AbstractController
         $recent_date->sub(new \DateInterval(sprintf('P%dD', $appUserService->getUser()->getUserInfos()->getRecentPeriod())));
         $infos_of_images = [];
 
-        list($is_child_date_last, $albums, $image_ids, $user_representative_updates_for) = $albumMapper->getAlbumThumbnails($appUserService->getUser(), $albumMapper->getRepository()->findRecentAlbums($recent_date));
+        [$is_child_date_last, $albums, $image_ids, $user_representative_updates_for] = $albumMapper->getAlbumThumbnails($appUserService->getUser(), $albumMapper->getRepository()->findRecentAlbums($recent_date));
 
-        if (count($albums) > 0) {
+        if ((is_countable($albums) ? count($albums) : 0) > 0) {
             $infos_of_images = $albumMapper->getInfosOfImages($appUserService->getUser(), $albums, $image_ids, $imageMapper);
         }
 
-        if (count($user_representative_updates_for) > 0) {
+        if ((is_countable($user_representative_updates_for) ? count($user_representative_updates_for) : 0) > 0) {
             foreach ($user_representative_updates_for as $cat_id => $image_id) {
                 $userCacheAlbumRepository->updateUserRepresentativePicture($appUserService->getUser()->getId(), $cat_id, $image_id);
             }
         }
 
-        if (count($albums) > 0) {
+        if ((is_countable($albums) ? count($albums) : 0) > 0) {
             $tpl_thumbnails_var = [];
             foreach ($albums as $album) {
-                $userCacheAlbum = $appUserService->getUser()->getUserCacheAlbums()->filter(function(UserCacheAlbum $uca) use ($album) {
-                    return $uca->getAlbum()->getId() === $album->getId();
-                })->first();
+                $userCacheAlbum = $appUserService->getUser()->getUserCacheAlbums()->filter(fn(UserCacheAlbum $uca) => $uca->getAlbum()->getId() === $album->getId())->first();
 
                 if (!$userCacheAlbum || $userCacheAlbum->getCountImages() === 0) {
                     continue;

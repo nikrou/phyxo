@@ -53,6 +53,7 @@ class Session
      */
     public static function getStatus($params, Server $service)
     {
+        $res = [];
         $res['username'] = $service->getUserMapper()->getUser()->getUsername();
         foreach (['status' => 'getStatus', 'theme' => 'getTheme', 'language' => 'getLanguage'] as $key => $getMethod) {
             $res[$key] = $service->getUserMapper()->getUser()->$getMethod();

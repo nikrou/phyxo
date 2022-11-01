@@ -208,7 +208,7 @@ class AdminTagsController extends AbstractController
             } else {
                 $tagMapper->deleteTags($request->request->all()['tags']);
 
-                if (count($request->request->all()['tags']) > 1) {
+                if ((is_countable($request->request->all()['tags']) ? count($request->request->all()['tags']) : 0) > 1) {
                     $this->addFlash('success', $translator->trans('The tags were deleted', [], 'admin'));
                 } else {
                     $this->addFlash('success', $translator->trans('The tag was deleted', [], 'admin'));
@@ -248,6 +248,7 @@ class AdminTagsController extends AbstractController
 
     public function permissions(Request $request, Conf $conf, TagMapper $tagMapper, TranslatorInterface $translator, CsrfTokenManagerInterface $tokenManager): Response
     {
+        $status_options = [];
         $tpl_params = [];
         $this->translator = $translator;
 

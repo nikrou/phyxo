@@ -117,7 +117,7 @@ class Group
 
         try {
             $service->getManagerRegistry()->getRepository(EntityGroup::class)->addOrUpdateGroup($group);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'This name is already used by another group.');
         }
 

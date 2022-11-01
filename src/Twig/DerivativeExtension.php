@@ -20,13 +20,8 @@ use Twig\TwigFunction;
 
 class DerivativeExtension extends AbstractExtension
 {
-    private ImageStandardParams $image_std_params;
-    private UrlGeneratorInterface $urlGenerator;
-
-    public function __construct(ImageStandardParams $image_std_params, UrlGeneratorInterface $urlGenerator)
+    public function __construct(private ImageStandardParams $image_std_params, private UrlGeneratorInterface $urlGenerator)
     {
-        $this->image_std_params = $image_std_params;
-        $this->urlGenerator = $urlGenerator;
     }
 
     public function getFunctions(): array

@@ -25,9 +25,9 @@ class InstallCommand extends Command
 {
     protected static $defaultName = 'phyxo:install';
 
-    private $db_params = ['db_layer' => '', 'db_host' => '', 'db_name' => '', 'db_user' => '', 'db_password' => '', 'db_prefix' => ''];
+    private array $db_params = ['db_layer' => '', 'db_host' => '', 'db_name' => '', 'db_user' => '', 'db_password' => '', 'db_prefix' => ''];
     private $databaseYamlFile, $rootProjectDir, $phyxoInstaller;
-    private $default_prefix = 'phyxo_';
+    private string $default_prefix = 'phyxo_';
 
     public function __construct(PhyxoInstaller $phyxoInstaller, string $databaseYamlFile, string $rootProjectDir)
     {
@@ -125,7 +125,7 @@ class InstallCommand extends Command
 
         if (!empty($_SERVER['DATABASE_URL'])) {
             $this->db_params['dsn'] = $_SERVER['DATABASE_URL'];
-            $this->db_params['db_prefix'] = $input->getOption('db_prefix') ? $input->getOption('db_prefix') : $this->default_prefix;
+            $this->db_params['db_prefix'] = $input->getOption('db_prefix') ?: $this->default_prefix;
         } else {
             if (!$io->askQuestion(new ConfirmationQuestion("Install Phyxo using these settings?", true))) {
                 return 0;

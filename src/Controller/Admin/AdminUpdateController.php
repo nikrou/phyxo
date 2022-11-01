@@ -47,7 +47,6 @@ class AdminUpdateController extends AbstractController
 
     public function core(
         Request $request,
-        string $version = null,
         UserMapper $userMapper,
         string $defaultTheme,
         ParameterBagInterface $params,
@@ -61,6 +60,7 @@ class AdminUpdateController extends AbstractController
         Plugins $plugins,
         Themes $themes,
         Languages $languages,
+        string $version = null,
         int $step = 0
     ): Response {
         $tpl_params = [];

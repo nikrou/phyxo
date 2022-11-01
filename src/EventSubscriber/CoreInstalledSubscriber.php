@@ -21,11 +21,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class CoreInstalledSubscriber implements EventSubscriberInterface
 {
-    private $kernel;
-
-    public function __construct(KernelInterface $kernel)
+    public function __construct(private KernelInterface $kernel)
     {
-        $this->kernel = $kernel;
     }
 
     public static function getSubscribedEvents(): array

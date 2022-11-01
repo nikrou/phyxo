@@ -60,7 +60,7 @@ class RateRepository extends ServiceEntityRepository
     }
 
     /** @phpstan-ignore-next-line */ // @FIX: define return type
-    public function getRatePerImage(int $user_id, string $operator = null, string $order, int $limit, int $offset = 0)
+    public function getRatePerImage(int $user_id, string $order, int $limit, string $operator = null, int $offset = 0)
     {
         $qb = $this->createQueryBuilder('r');
         $qb->leftJoin('r.image', 'i');
@@ -154,7 +154,7 @@ class RateRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function deleteWithConditions(int $user_id, ?int $image_id = null, ?string $anonymous_id): void
+    public function deleteWithConditions(int $user_id, ?string $anonymous_id, ?int $image_id = null): void
     {
         $qb = $this->createQueryBuilder('r');
         $qb->delete();

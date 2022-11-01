@@ -333,7 +333,7 @@ class Image
         try {
             $fs = new Filesystem();
             $fs->mkdir($upload_dir);
-        } catch (IOException $e) {
+        } catch (IOException) {
             return new Error(500, 'error during buffer directory creation');
         }
 
@@ -478,7 +478,7 @@ class Image
             $file_path,
             $params['original_filename'],
             [], // categories
-            isset($params['level']) ? $params['level'] : null,
+            $params['level'] ?? null,
             $params['image_id'] > 0 ? $params['image_id'] : null,
             $params['original_sum']
         );
@@ -635,7 +635,7 @@ class Image
         try {
             $fs = new Filesystem();
             $fs->mkdir($upload_dir);
-        } catch (IOException $e) {
+        } catch (IOException) {
             return new Error(500, 'error during buffer directory creation');
         }
 
@@ -850,9 +850,7 @@ class Image
         foreach ($service->getTagMapper()->getRepository()->getTagsByImage($params['image_id']) as $tag) {
             $current_tags_ids[] = $tag->getId();
         }
-        $current_tags = array_map(function ($id) {
-            return '~~' . $id . '~~';
-        }, $current_tags_ids);
+        $current_tags = array_map(fn($id) => '~~' . $id . '~~', $current_tags_ids);
         $removed_tags = array_diff($current_tags, $params['tags']);
         $new_tags = array_diff($params['tags'], $current_tags);
 
@@ -894,7 +892,7 @@ class Image
                     }
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return new Error(500, '[ws_images_setRelatedTags]  Something went wrong when updating tags');
         }
     }
@@ -1048,10 +1046,8 @@ class Image
     }
 
     // protected methods, not part of the API
-
     /**
      * Sets associations of an image
-     * @param int $image_id
      * @param string $categories_string - "cat_id[,rank];cat_id[,rank]"
      * @param bool $replace_mode - removes old associations
      */
@@ -1071,7 +1067,7 @@ class Image
 
         $tokens = explode(';', $categories_string);
         foreach ($tokens as $token) {
-            list($album_id, $rank) = explode(',', $token);
+            [$album_id, $rank] = explode(',', $token);
 
             if (!preg_match('/^\d+$/', $album_id)) {
                 continue;
@@ -1127,9 +1123,6 @@ class Image
 
     /**
      * Merge chunks added by pwg.images.addChunk
-     * @param string $output_filepath
-     * @param string $original_sum
-     * @param string $type
      */
     protected static function merge_chunks(string $output_filepath, string $original_sum, string $type, Server $service)
     {
@@ -1245,7 +1238,7 @@ class Image
             $filename_wo_ext = $date_string . '-' . $random_string;
             $file_path = $filename_dir . '/' . $filename_wo_ext . '.';
 
-            list($width, $height, $type) = getimagesize($source_filepath);
+            [$width, $height, $type] = getimagesize($source_filepath);
 
             if ($type === IMAGETYPE_PNG) {
                 $file_path .= 'png';
@@ -1289,7 +1282,7 @@ class Image
         // we need to save the rotation angle in the database to compute width/height of "multisizes"
         $rotation = $imageOptimizer->getRotationCode();
 
-        list($width, $height) = getimagesize($file_path);
+        [$width, $height] = getimagesize($file_path);
         $filesize = (int) floor(filesize($file_path) / 1024);
 
         if (isset($image_id)) {

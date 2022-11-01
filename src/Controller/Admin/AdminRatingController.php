@@ -116,7 +116,7 @@ class AdminRatingController extends AbstractController
         $tpl_params['user_options_selected'] = [$request->get('users')];
 
         $tpl_params['images'] = [];
-        foreach ($rateRepository->getRatePerImage($guest_id, $operator_user_filter, $available_order_by[$order_by_index][1], $elements_per_page, $start) as $image) {
+        foreach ($rateRepository->getRatePerImage($guest_id, $available_order_by[$order_by_index][1], $elements_per_page, $operator_user_filter, $start) as $image) {
             $pathBasename = (($pos = strrpos($image['path'], '.')) === false) ? $image['path'] : substr($image['path'], 0, $pos);
             $extension = (($pos = strrpos($image['path'], '.')) === false) ? '' : substr($image['path'], $pos + 1);
 
@@ -280,7 +280,7 @@ class AdminRatingController extends AbstractController
             $consensus_dev_top = 0;
             $consensus_dev_top_count = 0;
             foreach ($rating['rates'] as $rate => $rates) {
-                $ct = count($rates);
+                $ct = is_countable($rates) ? count($rates) : 0;
                 $c += $ct;
                 $s += $ct * $rate;
                 $ss += $ct * $rate * $rate;

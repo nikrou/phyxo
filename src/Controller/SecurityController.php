@@ -77,6 +77,7 @@ class SecurityController extends AbstractController
         UserAuthenticatorInterface $userAuthenticator,
         LoginFormAuthenticator $loginFormAuthenticator
     ): Response {
+        $tpl_params = [];
         $form = $this->createForm(UserRegistrationType::class);
         $form->handleRequest($request);
 
@@ -110,6 +111,7 @@ class SecurityController extends AbstractController
         AppUserService $appUserService,
         TranslatorInterface $translator
     ): Response {
+        $tpl_params = [];
         /** @var Form $form */
         $form = $this->createForm(UserProfileType::class, $appUserService->getUser());
         $form->handleRequest($request);
@@ -144,6 +146,7 @@ class SecurityController extends AbstractController
 
     public function forgotPassword(Request $request, UserManager $user_manager, UserRepository $userRepository, EventDispatcherInterface $dispatcher, TranslatorInterface $translator): Response
     {
+        $tpl_params = [];
         $form = $this->createForm(ForgotPasswordType::class);
         $form->handleRequest($request);
 
@@ -196,7 +199,7 @@ class SecurityController extends AbstractController
             }
 
             $tpl_params['form'] = $form->createView();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $this->addFlash('error', 'Activation key does not exist');
         }
 

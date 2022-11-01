@@ -14,34 +14,25 @@ namespace App\Entity;
 use App\Repository\PluginRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PluginRepository::class)
- * @ORM\Table(name="plugins")
- */
+#[ORM\Table(name: 'plugins')]
+#[ORM\Entity(repositoryClass: PluginRepository::class)]
 class Plugin
 {
-    const ACTIVE = 'active';
-    const INACTIVE = 'inactive';
+    public const ACTIVE = 'active';
+    public const INACTIVE = 'inactive';
 
-    /**
-     * @ORM\Id()
-     * @ORM\Column(type="string", length=40)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'string', length: 40)]
     private string $id;
 
-    /**
-     * @ORM\Column(type="string", length=25)
-     */
-    private string $state;
+    #[ORM\Column(type: 'string', length: 25)]
+    private string $state = self::INACTIVE;
 
-    /**
-     * @ORM\Column(type="string", length=64, nullable=true)
-     */
-    private ?string $version;
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
+    private ?string $version = null;
 
     public function __construct()
     {
-        $this->state = self::INACTIVE;
     }
 
     public function setId(string $id): self

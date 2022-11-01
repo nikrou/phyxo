@@ -38,21 +38,21 @@ class Server
     private $phyxoVersion, $conf, $router, $image_std_params, $userManager, $passwordHasher, $pem_url, $security;
     private $params, $request, $managerRegistry, $imageLibrary;
 
-    private $_methods = [];
+    private array $_methods = [];
 
-    const WS_PARAM_ACCEPT_ARRAY = 0x010000;
-    const WS_PARAM_FORCE_ARRAY = 0x030000;
-    const WS_PARAM_OPTIONAL = 0x040000;
-    const WS_TYPE_BOOL = 0x01;
-    const WS_TYPE_INT = 0x02;
-    const WS_TYPE_FLOAT = 0x04;
-    const WS_TYPE_POSITIVE = 0x10;
-    const WS_TYPE_NOTNULL = 0x20;
-    const WS_TYPE_ID = self::WS_TYPE_INT | self::WS_TYPE_POSITIVE | self::WS_TYPE_NOTNULL;
-    const WS_ERR_INVALID_METHOD = 501;
-    const WS_ERR_MISSING_PARAM = 1002;
-    const WS_ERR_INVALID_PARAM = 1003;
-    const WS_XML_ATTRIBUTES = 'attributes_xml_';
+    public const WS_PARAM_ACCEPT_ARRAY = 0x010000;
+    public const WS_PARAM_FORCE_ARRAY = 0x030000;
+    public const WS_PARAM_OPTIONAL = 0x040000;
+    public const WS_TYPE_BOOL = 0x01;
+    public const WS_TYPE_INT = 0x02;
+    public const WS_TYPE_FLOAT = 0x04;
+    public const WS_TYPE_POSITIVE = 0x10;
+    public const WS_TYPE_NOTNULL = 0x20;
+    public const WS_TYPE_ID = self::WS_TYPE_INT | self::WS_TYPE_POSITIVE | self::WS_TYPE_NOTNULL;
+    public const WS_ERR_INVALID_METHOD = 501;
+    public const WS_ERR_MISSING_PARAM = 1002;
+    public const WS_ERR_INVALID_PARAM = 1003;
+    public const WS_XML_ATTRIBUTES = 'attributes_xml_';
 
     public function __construct(string $upload_dir = '.')
     {
@@ -272,12 +272,12 @@ class Server
         // add reflection methods
         $this->addMethod(
             'reflection.getMethodList',
-            ['Phyxo\Ws\Server', 'getMethodList']
+            [\Phyxo\Ws\Server::class, 'getMethodList']
         );
 
         $this->addMethod(
             'reflection.getMethodDetails',
-            ['Phyxo\Ws\Server', 'getMethodDetails'],
+            [\Phyxo\Ws\Server::class, 'getMethodDetails'],
             ['methodName']
         );
 
@@ -387,19 +387,19 @@ class Server
     public function getMethodDescription($methodName)
     {
         $desc = @$this->_methods[$methodName]['description'];
-        return isset($desc) ? $desc : '';
+        return $desc ?? '';
     }
 
     public function getMethodSignature($methodName)
     {
         $signature = @$this->_methods[$methodName]['signature'];
-        return isset($signature) ? $signature : [];
+        return $signature ?? [];
     }
 
     public function getMethodOptions($methodName)
     {
         $options = @$this->_methods[$methodName]['options'];
-        return isset($options) ? $options : [];
+        return $options ?? [];
     }
 
     public static function isPost()
@@ -567,7 +567,7 @@ class Server
      */
     public function isInvokeAllowed(string $methodName, array $params = []): bool
     {
-        if (strpos($methodName, 'reflection.') === 0) { // OK for reflection
+        if (str_starts_with($methodName, 'reflection.')) { // OK for reflection
             return true;
         }
 
@@ -585,9 +585,7 @@ class Server
     {
         $methods = array_filter(
             $service->_methods,
-            function ($m) {
-                return !isset($m['options']['hidden']) || !$m['options']['hidden'];
-            }
+            fn($m) => !isset($m['options']['hidden']) || !$m['options']['hidden']
         );
         return ['methods' => array_keys($methods)];
     }

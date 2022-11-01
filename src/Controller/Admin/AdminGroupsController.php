@@ -101,13 +101,13 @@ class AdminGroupsController extends AbstractController
         if ($request->isMethod('POST')) {
             $group = $groupRepository->find($group_id);
 
-            if ($request->request->get('falsify') && $request->request->get('cat_true') && count($request->request->all()['cat_true']) > 0) {
+            if ($request->request->get('falsify') && $request->request->get('cat_true') && (is_countable($request->request->all()['cat_true']) ? count($request->request->all()['cat_true']) : 0) > 0) {
                 // if you forbid access to a category, all sub-categories become automatically forbidden
                 foreach ($albumMapper->getRepository()->getSubAlbums($request->request->all()['cat_true']) as $album) {
                     $album->removeGroupAccess($group);
                     $albumMapper->getRepository()->addOrUpdateAlbum($album);
                 }
-            } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && count($request->request->all()['cat_false']) > 0) {
+            } elseif ($request->request->get('trueify') && $request->request->get('cat_false') && (is_countable($request->request->all()['cat_false']) ? count($request->request->all()['cat_false']) : 0) > 0) {
                 $uppercats = $albumMapper->getUppercatIds($request->request->all()['cat_false']);
 
                 foreach ($albumMapper->getRepository()->findBy(['id' => $uppercats, 'status' => Album::STATUS_PRIVATE]) as $album) {
@@ -157,7 +157,7 @@ class AdminGroupsController extends AbstractController
     public function action(Request $request, string $action, GroupRepository $groupRepository, TranslatorInterface $translator): Response
     {
         $group_selection = $request->request->all()['group_selection'];
-        if (count($group_selection) === 0) {
+        if ((is_countable($group_selection) ? count($group_selection) : 0) === 0) {
             $this->addFlash('error', $translator->trans('Select at least one group', [], 'admin'));
 
             return $this->redirectToRoute('admin_groups');
@@ -188,7 +188,7 @@ class AdminGroupsController extends AbstractController
             $this->addFlash('success', $translator->trans('group(s) deleted', [], 'admin'));
 
             return $this->redirectToRoute('admin_groups');
-        } elseif ($action === 'merge' && count($group_selection) > 1) {
+        } elseif ($action === 'merge' && (is_countable($group_selection) ? count($group_selection) : 0) > 1) {
             if ($groupRepository->isGroupNameExists($request->request->get('merge'))) {
                 $this->addFlash('error', $translator->trans('This name is already used by another group.', [], 'admin'));
 

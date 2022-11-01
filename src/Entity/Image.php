@@ -17,161 +17,107 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ImageRepository::class)
- * @ORM\Table(name="images")
- */
+#[ORM\Table(name: 'images')]
+#[ORM\Entity(repositoryClass: ImageRepository::class)]
 class Image
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $file = null;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private \DateTimeInterface $date_available;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTimeInterface $date_creation = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private string $name;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $comment = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $author = '';
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $hit = 0;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $filesize = 0;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $width = 0;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $height = 0;
 
-    /**
-     * @ORM\Column(type="string", length=4, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 4, nullable: true)]
     private ?string $coi = null;
 
-    /**
-     * @ORM\Column(type="string", length=4, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 4, nullable: true)]
     private ?string $representative_ext = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $date_metadata_update = null;
 
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     */
+    #[ORM\Column(type: 'float', nullable: true)]
     private ?float $rating_score = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $path = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $storage_category_id = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $level = 0;
 
-    /**
-     * @ORM\Column(type="string", length=32)
-     */
+    #[ORM\Column(type: 'string', length: 32)]
     private string $md5sum;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $added_by;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $rotation = null;
 
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     */
+    #[ORM\Column(type: 'float', nullable: true)]
     private ?float $latitude = null;
 
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     */
+    #[ORM\Column(type: 'float', nullable: true)]
     private ?float $longitude = null;
 
-    /**
-     * @ORM\Column(name="lastmodified", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'lastmodified', type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $last_modified = null;
 
     /**
-     * @ORM\OneToMany(targetEntity=ImageAlbum::class, mappedBy="image", cascade={"persist", "remove"})
-     *
-     * @var ArrayCollection<int, ImageAlbum>
+     * @var Collection<int, ImageAlbum>
      */
-    private $imageAlbums;
+    #[ORM\OneToMany(targetEntity: ImageAlbum::class, mappedBy: 'image', cascade: ['persist', 'remove'])]
+    private Collection $imageAlbums;
 
     /**
-     * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="image")
-     *
-     * @var ArrayCollection<int, Comment>
+     * @var Collection<int, Comment>
      */
-    private $comments;
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'image')]
+    private Collection $comments;
 
     /**
-     * @ORM\OneToMany(targetEntity=Rate::class, mappedBy="image", orphanRemoval=true)
-     *
-     * @var ArrayCollection<int, Rate>
+     * @var Collection<int, Rate>
      */
-    private $rates;
+    #[ORM\OneToMany(targetEntity: Rate::class, mappedBy: 'image', orphanRemoval: true)]
+    private Collection $rates;
 
     /**
-     * @ORM\OneToMany(targetEntity=ImageTag::class, mappedBy="image", orphanRemoval=true, cascade={"persist", "remove"})
-     *
-     * @var ArrayCollection<int, ImageTag>
+     * @var Collection<int, ImageTag>
      */
-    private $imageTags;
+    #[ORM\OneToMany(targetEntity: ImageTag::class, mappedBy: 'image', orphanRemoval: true, cascade: ['persist', 'remove'])]
+    private Collection $imageTags;
 
     public function __construct()
     {
@@ -482,9 +428,7 @@ class Image
 
     public function addImageAlbum(ImageAlbum $newImageAlbum): self
     {
-        if ($this->imageAlbums->filter(function($imageAlbum) use ($newImageAlbum) {
-            return ($imageAlbum->getAlbum()->getId() === $newImageAlbum->getAlbum()->getId());
-        })->isEmpty()) {
+        if ($this->imageAlbums->filter(fn($imageAlbum) => $imageAlbum->getAlbum()->getId() === $newImageAlbum->getAlbum()->getId())->isEmpty()) {
             $this->imageAlbums[] = $newImageAlbum;
             $newImageAlbum->setImage($this);
         }
@@ -704,9 +648,7 @@ class Image
 
     public function addImageTag(ImageTag $newImageTag): self
     {
-        if ($this->imageTags->filter(function($imageTag) use ($newImageTag) {
-            return ($imageTag->getTag()->getId() === $newImageTag->getTag()->getId());
-        })->isEmpty()) {
+        if ($this->imageTags->filter(fn($imageTag) => $imageTag->getTag()->getId() === $newImageTag->getTag()->getId())->isEmpty()) {
             $this->imageTags[] = $newImageTag;
             $newImageTag->setImage($this);
         }

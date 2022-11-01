@@ -38,12 +38,12 @@ class AdminAlbumsController extends AbstractController
     }
 
     public function list(
-        int $parent_id = null,
         Conf $conf,
         AlbumRepository $albumRepository,
         CsrfTokenManagerInterface $csrfTokenManager,
         TranslatorInterface $translator,
-        ImageAlbumRepository $imageAlbumRepository
+        ImageAlbumRepository $imageAlbumRepository,
+        int $parent_id = null
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -139,7 +139,7 @@ class AdminAlbumsController extends AbstractController
         return $this->render('albums_list.html.twig', $tpl_params);
     }
 
-    public function update(Request $request, int $parent_id = null, AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator): Response
+    public function update(Request $request, AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator, int $parent_id = null): Response
     {
         if ($request->isMethod('POST')) {
             if ($request->request->get('submitManualOrder')) { // save manual category ordering
@@ -163,11 +163,11 @@ class AdminAlbumsController extends AbstractController
                 $categories = [];
                 $sort = [];
 
-                list($order_by_field, $order_by_asc) = explode(' ', $request->request->get('order_by'));
+                [$order_by_field, $order_by_asc] = explode(' ', $request->request->get('order_by'));
 
                 $order_by_date = false;
                 $ref_dates = [];
-                if (strpos($order_by_field, 'date_') === 0) {
+                if (str_starts_with($order_by_field, 'date_')) {
                     $order_by_date = true;
 
                     $ref_dates = $albumMapper->getAlbumsRefDate($category_ids, $order_by_field, 'ASC' == $order_by_asc ? 'min' : 'max');
@@ -196,7 +196,7 @@ class AdminAlbumsController extends AbstractController
         return $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
     }
 
-    public function move(Request $request, int $parent_id = null, AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator): Response
+    public function move(Request $request, AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator, int $parent_id = null): Response
     {
         $tpl_params = [];
         $this->translator = $translator;

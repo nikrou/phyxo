@@ -22,26 +22,13 @@ use Symfony\Component\HttpClient\HttpClient;
 
 class Updates
 {
-    private $versions = [], $version = [], $core_version;
-    private $types = [];
-    private $default_themes = [], $default_plugins = [], $default_languages = [];
-    private $plugins, $themes, $languages;
+    private $versions = [], $version = [];
+    private array $types = ['plugins' => 'plugins', 'themes' => 'themes', 'languages' => 'language'];
     private $update_url, $pem_url, $missing = [];
-    private $userMapper, $core_need_update = false, $extensions_need_update = [];
+    private $core_need_update = false, $extensions_need_update = [];
 
-    public function __construct(UserMapper $userMapper, string $core_version, Plugins $plugins, Themes $themes, Languages $languages)
+    public function __construct(private UserMapper $userMapper, private string $core_version, private Plugins $plugins, private Themes $themes, private Languages $languages)
     {
-        $this->userMapper = $userMapper;
-        $this->core_version = $core_version;
-        $this->plugins = $plugins;
-        $this->themes = $themes;
-        $this->languages = $languages;
-
-        $this->types = ['plugins' => 'plugins', 'themes' => 'themes', 'languages' => 'language'];
-
-        $this->default_themes = ['treflez'];
-        $this->default_plugins = [];
-        $this->default_languages = [];
     }
 
     public function setUpdateUrl($url)
@@ -56,13 +43,12 @@ class Updates
 
     protected function getType(string $type): ?Extensions
     {
-        switch ($type) {
-            case 'plugins': return $this->plugins;break;
-            case 'themes': return $this->themes;break;
-            case 'languages': return $this->languages;break;
-
-            default: return null;
-        }
+        return match ($type) {
+            'plugins' => $this->plugins,
+            'themes' => $this->themes,
+            'languages' => $this->languages,
+            default => null,
+        };
     }
 
     public function getAllVersions()
@@ -71,7 +57,7 @@ class Updates
             $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $this->update_url);
             if ($response->getStatusCode() == 200 && $response->getContent()) {
-                $this->versions = json_decode($response->getContent(), true);
+                $this->versions = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
                 return $this->versions;
             } else {
                 return false;
@@ -181,7 +167,7 @@ class Updates
             $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $url, $get_data);
             if ($response->getStatusCode() == 200 && $response->getContent()) {
-                $pem_versions = json_decode($response->getContent(), true);
+                $pem_versions = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
             } else {
                 throw new \Exception("Reponse from server is not readable");
             }
@@ -192,7 +178,7 @@ class Updates
             }
             $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);
             foreach ($pem_versions as $pem_version) {
-                if (strpos($pem_version['name'], $branch) === 0) {
+                if (str_starts_with($pem_version['name'], $branch)) {
                     $versions_to_check[] = $pem_version['id'];
                 }
             }
@@ -234,7 +220,7 @@ class Updates
             $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('POST', $url, $post_data);
             if ($response->getStatusCode() == 200 && $response->getContent()) {
-                $pem_exts = json_decode($response->getContent(), true);
+                $pem_exts = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
             } else {
                 throw new \Exception("Reponse from server is not readable");
             }
@@ -273,7 +259,7 @@ class Updates
                 $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
                 $response = $client->request('GET', $this->update_url);
                 if ($response->getStatusCode() == 200 && $response->getContent()) {
-                    $all_versions = json_decode($response->getContent(), true);
+                    $all_versions = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
                 }
             } catch (\Exception $e) {
                 throw new \Exception($e->getMessage());

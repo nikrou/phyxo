@@ -17,15 +17,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class BlockManager
 {
-    private string $id;
     private array $menuBlockConfig = [];
 
     protected array $registered_blocks = [];
     protected array $display_blocks = [];
 
-    public function __construct(string $id)
+    public function __construct(private string $id)
     {
-        $this->id = $id;
     }
 
     public function loadMenuConfig(array $menuBlockConfig = []): void
@@ -82,7 +80,7 @@ class BlockManager
     {
         $idx = 1;
         foreach ($this->registered_blocks as $id => $block) {
-            $pos = isset($this->menuBlockConfig[$id]) ? $this->menuBlockConfig[$id] : $idx * 50;
+            $pos = $this->menuBlockConfig[$id] ?? $idx * 50;
             if ($pos > 0) {
                 $this->display_blocks[$id] = new DisplayBlock($block);
                 $this->display_blocks[$id]->setPosition($pos);

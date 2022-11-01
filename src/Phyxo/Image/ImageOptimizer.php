@@ -20,16 +20,11 @@ use Imagine\Image\Point;
 
 class ImageOptimizer
 {
-    private string $sourceFilePath;
-    private ImagineInterface $imagine;
     private ImageInterface $image;
 
-    public function __construct(string $sourceFilePath, ImagineInterface $imagine)
+    public function __construct(private string $sourceFilePath, private ImagineInterface $imagine)
     {
-        $this->imagine = $imagine;
         $this->imagine->setMetadataReader(new ExifMetadataReader());
-
-        $this->sourceFilePath = $sourceFilePath;
 
         $this->image = $this->imagine->open($this->sourceFilePath);
     }
@@ -116,7 +111,7 @@ class ImageOptimizer
     public function getRotationCode(): int
     {
         $metadata = $this->image->metadata();
-        $orientation = isset($metadata['ifd0.Orientation']) ? $metadata['ifd0.Orientation'] : null;
+        $orientation = $metadata['ifd0.Orientation'] ?? null;
 
         if (is_null($orientation)) {
             return 0;
@@ -212,14 +207,14 @@ class ImageOptimizer
         }
 
         if ($rotateForDimensions) {
-            list($width, $height) = [$height, $width];
+            [$width, $height] = [$height, $width];
         }
 
         $x = 0;
         $y = 0;
         if ($crop) {
             if ($width < $height && $followOrientation) {
-                list($maxWidth, $maxHeight) = [$maxHeight, $maxWidth];
+                [$maxWidth, $maxHeight] = [$maxHeight, $maxWidth];
             }
 
             $imageRatio = $width / $height;
@@ -253,7 +248,7 @@ class ImageOptimizer
         }
 
         if ($rotateForDimensions) {
-            list($destinationWidth, $destinationHeight) = [$destinationHeight, $destinationWidth];
+            [$destinationWidth, $destinationHeight] = [$destinationHeight, $destinationWidth];
         }
 
         $result = [
@@ -285,7 +280,7 @@ class ImageOptimizer
             'height' => $height,
             'size' => floor(filesize($destinationFilePath) / 1024) . ' KB',
             'time' => $time ? number_format((microtime(true) - $time) * 1000, 2, '.', ' ') . ' ms' : null,
-            'library' => get_class($this->imagine),
+            'library' => $this->imagine::class,
         ];
     }
 

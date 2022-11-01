@@ -24,7 +24,7 @@ class UserCreateCommand extends Command
 {
     protected static $defaultName = 'phyxo:user:create';
 
-    private $params = ['username' => '', 'password' => '', 'mail_address' => ''];
+    private array $params = ['username' => '', 'password' => '', 'mail_address' => ''];
     private $userManager, $passwordHasher, $databaseYamlFile;
 
     public function __construct(UserManager $userManager, UserPasswordHasherInterface $passwordHasher, string $databaseYamlFile)

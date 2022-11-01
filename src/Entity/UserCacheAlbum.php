@@ -15,60 +15,42 @@ use App\Repository\UserCacheAlbumRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=UserCacheAlbumRepository::class)
- * @ORM\Table(name="user_cache_categories")
  * @phpstan-type UserCacheAlbumInfos array{album_id: ?int, max_date_last: ?\DateTimeInterface, date_last: ?\DateTimeInterface, nb_images: ?int, count_images: ?int,
  * nb_albums: ?int, count_albums: ?int, user_representative_picture: ?int}
  */
+#[ORM\Table(name: 'user_cache_categories')]
+#[ORM\Entity(repositoryClass: UserCacheAlbumRepository::class)]
 class UserCacheAlbum
 {
-    /**
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="userCacheAlbums", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(name="user_id", nullable=false)
-     */
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userCacheAlbums', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'user_id', nullable: false)]
     private User $user;
 
-    /**
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity=Album::class, inversedBy="userCacheAlbums", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(name="cat_id", nullable=false)
-     */
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'userCacheAlbums', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'cat_id', nullable: false)]
     private Album $album;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private ?\DateTimeInterface $date_last;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $date_last = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private ?\DateTimeInterface $max_date_last;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $max_date_last = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private ?int $nb_images;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $nb_images = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private ?int $count_images;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $count_images = null;
 
-    /**
-     * @ORM\Column(name="nb_categories", type="integer", nullable=true)
-     */
-    private ?int $nb_albums;
+    #[ORM\Column(name: 'nb_categories', type: 'integer', nullable: true)]
+    private ?int $nb_albums = null;
 
-    /**
-     * @ORM\Column(name="count_categories", type="integer", nullable=true)
-     */
-    private ?int $count_albums;
+    #[ORM\Column(name: 'count_categories', type: 'integer', nullable: true)]
+    private ?int $count_albums = null;
 
-    /**
-     * @ORM\Column(name="user_representative_picture_id", type="integer", nullable=true)
-     */
+    #[ORM\Column(name: 'user_representative_picture_id', type: 'integer', nullable: true)]
     private ?int $user_representative_picture = null;
 
     public function getUser(): ?User

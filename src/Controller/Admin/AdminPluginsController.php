@@ -62,7 +62,7 @@ class AdminPluginsController extends AbstractController
                 'VERSION' => $fs_plugin['version'],
                 'DESC' => $fs_plugin['description'],
                 'AUTHOR' => $fs_plugin['author'],
-                'AUTHOR_URL' => isset($fs_plugin['author_uri']) ? $fs_plugin['author_uri'] : '',
+                'AUTHOR_URL' => $fs_plugin['author_uri'] ?? '',
             ];
 
             if (isset($plugins->getDbPlugins()[$plugin_id])) {
@@ -96,7 +96,7 @@ class AdminPluginsController extends AbstractController
 
         try {
             $tpl_params['incompatible_plugins'] = $plugins->getIncompatiblePlugins($conf['pem_plugins_category'], $params->get('core_version'));
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // @TODO : do something usefull
         }
 
@@ -154,7 +154,7 @@ class AdminPluginsController extends AbstractController
 
         foreach ($plugins->getServerPlugins($conf['pem_plugins_category'], $params->get('core_version'), $new = true) as $plugin) {
             $ext_desc = trim($plugin['extension_description'], " \n\r");
-            list($small_desc) = explode("\n", wordwrap($ext_desc, 200));
+            [$small_desc] = explode("\n", wordwrap($ext_desc, 200));
 
             $tpl_params['plugins'][] = [
                 'ID' => $plugin['extension_id'],
@@ -214,7 +214,7 @@ class AdminPluginsController extends AbstractController
         $server_plugins = $plugins->getServerPlugins($conf['pem_plugins_category'], $params->get('core_version'), $new = false);
         $tpl_params['update_plugins'] = [];
 
-        if (count($server_plugins) > 0) {
+        if ((is_countable($server_plugins) ? count($server_plugins) : 0) > 0) {
             foreach ($plugins->getFsPlugins() as $extension_id => $fs_extension) {
                 if (!isset($fs_extension['extension']) || !isset($server_plugins[$fs_extension['extension']])) {
                     continue;
@@ -242,7 +242,7 @@ class AdminPluginsController extends AbstractController
             }
 
             if (!empty($updates_ignored['plugins'])) {
-                $tpl_params['SHOW_RESET'] = count($updates_ignored['plugins']);
+                $tpl_params['SHOW_RESET'] = is_countable($updates_ignored['plugins']) ? count($updates_ignored['plugins']) : 0;
             }
         }
 

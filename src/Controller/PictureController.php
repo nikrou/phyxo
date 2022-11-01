@@ -135,7 +135,7 @@ class PictureController extends AbstractController
         $tpl_params['type'] = $type;
         $tpl_params['element_id'] = $element_id;
 
-        if (count($tpl_params['items']) > 0) {
+        if ((is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0) > 0) {
             $current_index = array_search($image_id, $tpl_params['items']);
             if ($current_index > 0) {
                 if ($type === 'from_calendar') {
@@ -167,13 +167,13 @@ class PictureController extends AbstractController
                     ];
                 }
             }
-            if ($current_index < (count($tpl_params['items']) - 1)) {
+            if ($current_index < ((is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0) - 1)) {
                 if ($type === 'from_calendar') {
                     $tpl_params['last'] = [
                         'U_IMG' => $this->generateUrl(
                             'picture_from_calendar',
                             [
-                                'image_id' => $tpl_params['items'][count($tpl_params['items']) - 1], 'date_type' => $extra['date_type'],
+                                'image_id' => $tpl_params['items'][(is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0) - 1], 'date_type' => $extra['date_type'],
                                 'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day'])
                             ]
                         ),
@@ -189,7 +189,7 @@ class PictureController extends AbstractController
                     ];
                 } else {
                     $tpl_params['last'] = [
-                        'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][count($tpl_params['items']) - 1], 'type' => $type, 'element_id' => $element_id]),
+                        'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][(is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0) - 1], 'type' => $type, 'element_id' => $element_id]),
                     ];
                     $tpl_params['next'] = [
                         'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][$current_index + 1], 'type' => $type, 'element_id' => $element_id]),
@@ -476,7 +476,7 @@ class PictureController extends AbstractController
             ]];
         } else {
             // @TODO: assign TITLE another way
-            if (count($tpl_params['related_categories']) > 1) {
+            if ((is_countable($tpl_params['related_categories']) ? count($tpl_params['related_categories']) : 0) > 1) {
                 $tpl_params['TITLE'] = [$tpl_params['related_categories'][0]];
             } else {
                 $tpl_params['TITLE'] = $tpl_params['related_categories'];
@@ -494,9 +494,7 @@ class PictureController extends AbstractController
                 implode(
                     ',',
                     array_map(
-                        function($tag) {
-                            return $tag->getId();
-                        },
+                        fn($tag) => $tag->getId(),
                         $tags
                     )
                 )
@@ -594,6 +592,7 @@ class PictureController extends AbstractController
 
     public function rate(Request $request, ImageMapper $imageMapper, Conf $conf, RateMapper $rateMapper, AppUserService $appUserService): Response
     {
+        $result = [];
         $result['score'] = null;
 
         if ($request->isMethod('POST')) {
@@ -649,7 +648,7 @@ class PictureController extends AbstractController
                 ];
 
                 foreach ($conf['show_exif_fields'] as $field) {
-                    if (strpos($field, ';') === false) {
+                    if (!str_contains($field, ';')) {
                         if (isset($exif[$field])) {
                             $key = $field;
                             $key = $this->translator->trans('exif_field_' . $field);

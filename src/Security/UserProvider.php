@@ -28,27 +28,8 @@ use Symfony\Component\Security\Csrf\Exception\TokenNotFoundException;
 
 class UserProvider implements UserProviderInterface
 {
-    private UserRepository $userRepository;
-    private ImageAlbumRepository $imageAlbumRepository;
-    private ImageRepository $imageRepository;
-    private AlbumMapper $albumMapper;
-    private UserCacheRepository $userCacheRepository;
-    private UserCacheAlbumRepository $userCacheAlbumRepository;
-
-    public function __construct(
-        UserRepository $userRepository,
-        ImageAlbumRepository $imageAlbumRepository,
-        ImageRepository $imageRepository,
-        AlbumMapper $albumMapper,
-        UserCacheRepository $userCacheRepository,
-        UserCacheAlbumRepository $userCacheAlbumRepository
-    ) {
-        $this->userRepository = $userRepository;
-        $this->imageAlbumRepository = $imageAlbumRepository;
-        $this->imageRepository = $imageRepository;
-        $this->albumMapper = $albumMapper;
-        $this->userCacheRepository = $userCacheRepository;
-        $this->userCacheAlbumRepository = $userCacheAlbumRepository;
+    public function __construct(private UserRepository $userRepository, private ImageAlbumRepository $imageAlbumRepository, private ImageRepository $imageRepository, private AlbumMapper $albumMapper, private UserCacheRepository $userCacheRepository, private UserCacheAlbumRepository $userCacheAlbumRepository)
+    {
     }
 
     public function supportsClass(string $class): bool
@@ -90,7 +71,7 @@ class UserProvider implements UserProviderInterface
 
     private function fetchUser(string $username, bool $force_refresh = false): ?User
     {
-        // @TODO : find a way to cash some request: if ($this->user_data === null || $force_refresh) -> tests failed
+        // @TODO : find a way to cache some request: if ($this->user_data === null || $force_refresh) -> tests failed
         $user = $this->userRepository->findOneBy(['username' => $username]);
 
         // pretend it returns a User on success, null if there is no user
@@ -230,7 +211,7 @@ class UserProvider implements UserProviderInterface
             foreach ($this->albumMapper->getRepository()->findBy(['visible' => false]) as $album) {
                 $locked_albums[] = $album->getId();
             }
-            $forbidden_albums = array_merge($forbidden_albums, $locked_albums);
+            $forbidden_albums = [...$forbidden_albums, ...$locked_albums];
             $forbidden_albums = array_unique($forbidden_albums);
         }
 

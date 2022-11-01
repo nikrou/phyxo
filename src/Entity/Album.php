@@ -16,127 +16,90 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=AlbumRepository::class)
- * @ORM\Table(name="categories")
- */
+#[ORM\Table(name: 'categories')]
+#[ORM\Entity(repositoryClass: AlbumRepository::class)]
 class Album
 {
-    const STATUS_PUBLIC = 'public';
-    const STATUS_PRIVATE = 'private';
+    public const STATUS_PUBLIC = 'public';
+    public const STATUS_PRIVATE = 'private';
 
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private string $name;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Album::class, inversedBy="children", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(name="id_uppercat", nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'children', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'id_uppercat', nullable: true)]
     private ?Album $parent = null;
 
     /**
-     * @ORM\OneToMany(targetEntity=Album::class, mappedBy="parent")
-     *
      * @var Collection<int, Album>
      */
-    private $children;
+    #[ORM\OneToMany(targetEntity: Album::class, mappedBy: 'parent')]
+    private \Doctrine\Common\Collections\Collection $children;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $comment = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $dir = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $rank = null;
 
-    /**
-     * @ORM\Column(type="string", length=25)
-     */
+    #[ORM\Column(type: 'string', length: 25)]
     private string $status = self::STATUS_PUBLIC;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $visible = true;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $representative_picture_id = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $uppercats = null;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $commentable = true;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private string $global_rank;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $image_order = null;
 
-    /**
-     * @ORM\Column(type="string", unique=true, length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', unique: true, length: 255, nullable: true)]
     private ?string $permalink = null;
 
-    /**
-     * @ORM\Column(name="lastmodified", type="datetime", nullable=true)
-     */
-    private ?\DateTimeInterface $last_modified;
+    #[ORM\Column(name: 'lastmodified', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $last_modified = null;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Group::class, mappedBy="group_access", cascade={"persist", "remove"})
-     *
      * @var Collection<int, Group>
      */
-    private $group_access;
+    #[ORM\ManyToMany(targetEntity: Group::class, mappedBy: 'group_access', cascade: ['persist', 'remove'])]
+    private \Doctrine\Common\Collections\Collection $group_access;
 
     /**
-     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="user_access")
-     *
      * @var Collection<int, User>
      */
-    private $user_access;
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'user_access')]
+    private \Doctrine\Common\Collections\Collection $user_access;
 
     /**
-     * @ORM\OneToMany(targetEntity=ImageAlbum::class, mappedBy="album", cascade={"persist", "remove"})
-     *
      * @var Collection<int, ImageAlbum>
      */
-    private $imageAlbums;
+    #[ORM\OneToMany(targetEntity: ImageAlbum::class, mappedBy: 'album', cascade: ['persist', 'remove'])]
+    private \Doctrine\Common\Collections\Collection $imageAlbums;
 
     /**
-     * @ORM\OneToMany(targetEntity=UserCacheAlbum::class, mappedBy="album")
-     *
      * @var Collection<int, UserCacheAlbum>
      */
-    private $userCacheAlbums;
+    #[ORM\OneToMany(targetEntity: UserCacheAlbum::class, mappedBy: 'album')]
+    private \Doctrine\Common\Collections\Collection $userCacheAlbums;
 
     public function __construct()
     {
@@ -442,9 +405,7 @@ class Album
 
     public function addImageAlbum(ImageAlbum $imageAlbum): self
     {
-        $predicate = function($key, $element) use ($imageAlbum) {
-            return $element->getImage()->getId() === $imageAlbum->getImage()->getId();
-        };
+        $predicate = fn($key, $element) => $element->getImage()->getId() === $imageAlbum->getImage()->getId();
 
         if (!$this->imageAlbums->exists($predicate)) {
             $this->imageAlbums[] = $imageAlbum;
@@ -456,9 +417,7 @@ class Album
 
     public function removeImageAlbum(ImageAlbum $imageAlbum): self
     {
-        $predicate = function($key, $element) use ($imageAlbum) {
-            return $element->getImage()->getId() === $imageAlbum->getImage()->getId();
-        };
+        $predicate = fn($key, $element) => $element->getImage()->getId() === $imageAlbum->getImage()->getId();
 
         if ($this->imageAlbums->exists($predicate)) {
             $this->imageAlbums->removeElement($imageAlbum);

@@ -100,14 +100,14 @@ class IndexController extends AbstractController
             $tpl_params['items'] = $image->getId();
         }
 
-        if (count($tpl_params['items']) > 0) {
+        if (($tpl_params['items'] === null ? 0 : count($tpl_params['items'])) > 0) {
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                 $router,
                 'recent_pics',
                 [],
-                count($tpl_params['items']),
+                $tpl_params['items'] === null ? 0 : count($tpl_params['items']),
                 $start,
                 $nb_image_page,
                 $conf['paginate_pages_around']

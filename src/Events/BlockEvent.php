@@ -16,11 +16,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class BlockEvent extends Event
 {
-    private BlockManager $menu;
-
-    public function __construct(BlockManager $menu)
+    public function __construct(private BlockManager $menu)
     {
-        $this->menu = $menu;
     }
 
     public function getMenu(): BlockManager

@@ -14,27 +14,19 @@ namespace App\Entity;
 use App\Repository\UpgradeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=UpgradeRepository::class)
- * @ORM\Table(name="upgrade")
- */
+#[ORM\Table(name: 'upgrade')]
+#[ORM\Entity(repositoryClass: UpgradeRepository::class)]
 class Upgrade
 {
-    /**
-     * @ORM\Id()
-     * @ORM\Column(type="string", length=40)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'string', length: 40)]
     private string $id;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private \DateTimeInterface $applied;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $description;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $description = null;
 
     public function setId(string $id): self
     {

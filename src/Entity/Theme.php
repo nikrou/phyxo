@@ -14,26 +14,18 @@ namespace App\Entity;
 use App\Repository\ThemeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ThemeRepository::class)
- * @ORM\Table(name="themes")
- */
+#[ORM\Table(name: 'themes')]
+ #[ORM\Entity(repositoryClass: ThemeRepository::class)]
  class Theme
  {
-     /**
-      * @ORM\Id()
-      * @ORM\Column(type="string", length=40)
-      */
+     #[ORM\Id]
+     #[ORM\Column(type: 'string', length: 40)]
      private string $id;
 
-     /**
-      * @ORM\Column(type="string", length=64, nullable=true)
-      */
-     private ?string $version;
+     #[ORM\Column(type: 'string', length: 64, nullable: true)]
+     private ?string $version = null;
 
-     /**
-      * @ORM\Column(type="string", length=64)
-      */
+     #[ORM\Column(type: 'string', length: 64)]
      private string $name;
 
      public function setId(string $id): self

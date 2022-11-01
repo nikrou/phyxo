@@ -83,7 +83,7 @@ class WsController extends AbstractController
 
         $this->addDefaultMethods();
 
-        return new Response(json_encode($this->service->run($request)));
+        return new Response(json_encode($this->service->run($request), JSON_THROW_ON_ERROR));
     }
 
     protected function addDefaultMethods(): void

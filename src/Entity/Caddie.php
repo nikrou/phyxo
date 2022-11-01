@@ -14,24 +14,18 @@ namespace App\Entity;
 use App\Repository\CaddieRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=CaddieRepository::class)
- * @ORM\Table(name="caddie")
- */
+#[ORM\Table(name: 'caddie')]
+#[ORM\Entity(repositoryClass: CaddieRepository::class)]
 class Caddie
 {
-    /**
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="caddies")
-     * @ORM\JoinColumn(name="user_id", nullable=false)
-     */
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'caddies')]
+    #[ORM\JoinColumn(name: 'user_id', nullable: false)]
     private User $user;
 
-    /**
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity=Image::class)
-     * @ORM\JoinColumn(name="element_id", nullable=false)
-     */
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Image::class)]
+    #[ORM\JoinColumn(name: 'element_id', nullable: false)]
     private Image $image;
 
     public function getUser(): ?User

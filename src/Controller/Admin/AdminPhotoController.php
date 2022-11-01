@@ -52,7 +52,6 @@ class AdminPhotoController extends AbstractController
     public function edit(
         Request $request,
         int $image_id,
-        int $category_id = null,
         Conf $conf,
         TagMapper $tagMapper,
         AppUserService $appUserService,
@@ -64,7 +63,8 @@ class AdminPhotoController extends AbstractController
         AlbumMapper $albumMapper,
         ImageAlbumRepository $imageAlbumRepository,
         RateRepository $rateRepository,
-        ManagerRegistry $managerRegistry
+        ManagerRegistry $managerRegistry,
+        int $category_id = null
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -244,12 +244,12 @@ class AdminPhotoController extends AbstractController
 
     public function delete(
         int $image_id,
-        int $category_id = null,
         AppUserService $appUserService,
         TranslatorInterface $translator,
         UserMapper $userMapper,
         ImageMapper $imageMapper,
-        ImageAlbumRepository $imageAlbumRepository
+        ImageAlbumRepository $imageAlbumRepository,
+        int $category_id = null
     ): Response {
         $imageMapper->deleteElements([$image_id], true);
         $userMapper->invalidateUserCache();
@@ -279,7 +279,7 @@ class AdminPhotoController extends AbstractController
         return $this->redirectToRoute('admin_home');
     }
 
-    public function syncMetadata(int $image_id, int $category_id = null, AppUserService $appUserService, TagMapper $tagMapper, TranslatorInterface $translator): Response
+    public function syncMetadata(int $image_id, AppUserService $appUserService, TagMapper $tagMapper, TranslatorInterface $translator, int $category_id = null): Response
     {
         $tagMapper->sync_metadata([$image_id], $appUserService->getUser());
         $this->addFlash('success', $translator->trans('Metadata synchronized from file', [], 'admin'));
@@ -290,11 +290,11 @@ class AdminPhotoController extends AbstractController
     public function coi(
         Request $request,
         int $image_id,
-        int $category_id = null,
         ImageStandardParams $image_std_params,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
-        DerivativeService $derivativeService
+        DerivativeService $derivativeService,
+        int $category_id = null
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;

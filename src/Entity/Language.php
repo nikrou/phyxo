@@ -14,26 +14,18 @@ namespace App\Entity;
 use App\Repository\LanguageRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=LanguageRepository::class)
- * @ORM\Table(name="languages")
- */
+#[ORM\Table(name: 'languages')]
+#[ORM\Entity(repositoryClass: LanguageRepository::class)]
 class Language
 {
-    /**
-     * @ORM\Id()
-     * @ORM\Column(type="string", length=40)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'string', length: 40)]
     private string $id;
 
-    /**
-     * @ORM\Column(type="string", length=64, nullable=true)
-     */
-    private ?string $version;
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
+    private ?string $version = null;
 
-    /**
-     * @ORM\Column(type="string", length=64)
-     */
+    #[ORM\Column(type: 'string', length: 64)]
     private string $name;
 
     public function setId(string $id): self

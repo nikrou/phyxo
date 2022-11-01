@@ -249,7 +249,7 @@ class User
         $updates_infos = [];
         $update_status = null;
 
-        if (count($params['user_id']) === 1) {
+        if ((is_countable($params['user_id']) ? count($params['user_id']) : 0) === 1) {
             $needUpdate = false;
             $user = $service->getManagerRegistry()->getRepository(EntityUser::class)->find($params['user_id'][0]);
 
@@ -363,7 +363,7 @@ class User
             $updates_infos['enabled_high'] = $params['enabled_high'];
         }
 
-        if (isset($update_status) && count($params['user_id_for_status']) > 0) {
+        if (isset($update_status) && (is_countable($params['user_id_for_status']) ? count($params['user_id_for_status']) : 0) > 0) {
             $service->getManagerRegistry()->getRepository(UserInfos::class)->updateFieldForUsers('status', $update_status, $params['user_id_for_status']);
         }
 

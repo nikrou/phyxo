@@ -22,11 +22,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EditCommentType extends AbstractType
 {
-    private $conf;
-
-    public function __construct(Conf $conf)
+    public function __construct(private Conf $conf)
     {
-        $this->conf = $conf;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void

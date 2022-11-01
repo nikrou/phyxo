@@ -14,40 +14,28 @@ namespace App\Entity;
 use App\Repository\RateRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=RateRepository::class)
- * @ORM\Table(name="rate")
- */
+#[ORM\Table(name: 'rate')]
+#[ORM\Entity(repositoryClass: RateRepository::class)]
 class Rate
 {
-    /**
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="rates")
-     * @ORM\JoinColumn(name="user_id", nullable=false)
-     */
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'rates')]
+    #[ORM\JoinColumn(name: 'user_id', nullable: false)]
     private User $user;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Image::class, inversedBy="rates")
-     * @ORM\JoinColumn(name="element_id", nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Image::class, inversedBy: 'rates')]
+    #[ORM\JoinColumn(name: 'element_id', nullable: false)]
     private Image $image;
 
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="string", length=45)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'string', length: 45)]
     private string $anonymous_id;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $rate;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private ?\DateTimeInterface $date;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $date = null;
 
     public function getUser(): ?User
     {

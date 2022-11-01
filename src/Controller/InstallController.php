@@ -24,7 +24,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class InstallController extends AbstractController
 {
     /** @var array<string, array{label: string}> */
-    private $Steps = [
+    private array $Steps = [
         'language' => ['label' => 'Choose language'],
         'check' => ['label' => 'Verify requirements'],
         'database' => ['label' => 'Install database'],
@@ -34,55 +34,25 @@ class InstallController extends AbstractController
 
     /** @var array<string, string> */
     private $languages_options;
-    private UserPasswordHasherInterface $passwordHasher;
-    private string $default_language;
-    private string $default_theme;
-    private string $translationsDir;
-    private string $mediaCacheDir;
-    private string $localDir;
-    private string $rootProjectDir;
-    private TranslatorInterface $translator;
-    private string $databaseYamlFile;
-    private PhyxoInstaller $phyxoInstaller;
-    private string  $pluginsDir;
-    private string $themesDir;
-    private string $uploadDir;
-    private string $varDir;
-    private string $configDir;
     private string $default_prefix = 'phyxo_';
 
     public function __construct(
-        string $translationsDir,
-        string $defaultLanguage,
-        string $defaultTheme,
-        PhyxoInstaller $phyxoInstaller,
-        string $mediaCacheDir,
-        string $themesDir,
-        string $pluginsDir,
-        string $databaseYamlFile,
-        UserPasswordHasherInterface $passwordHasher,
-        string $uploadDir,
-        TranslatorInterface $translator,
-        string $rootProjectDir,
-        string $varDir,
-        string $configDir,
-        string $localDir
+        private string $translationsDir,
+        private string $defaultLanguage,
+        private string $defaultTheme,
+        private PhyxoInstaller $phyxoInstaller,
+        private string $mediaCacheDir,
+        private string $themesDir,
+        private string $pluginsDir,
+        private string $databaseYamlFile,
+        private UserPasswordHasherInterface $passwordHasher,
+        private string $uploadDir,
+        private TranslatorInterface $translator,
+        private string $rootProjectDir,
+        private string $varDir,
+        private string $configDir,
+        private string $localDir
     ) {
-        $this->translationsDir = $translationsDir;
-        $this->databaseYamlFile = $databaseYamlFile;
-        $this->default_language = $defaultLanguage;
-        $this->default_theme = $defaultTheme;
-        $this->passwordHasher = $passwordHasher;
-        $this->translator = $translator;
-        $this->themesDir = $themesDir;
-        $this->pluginsDir = $pluginsDir;
-        $this->uploadDir = $uploadDir;
-        $this->localDir = $localDir;
-        $this->varDir = $varDir;
-        $this->configDir = $configDir;
-        $this->mediaCacheDir = $mediaCacheDir;
-        $this->rootProjectDir = $rootProjectDir;
-        $this->phyxoInstaller = $phyxoInstaller;
     }
 
     public function index(Request $request, string $step = 'language'): Response
@@ -105,12 +75,12 @@ class InstallController extends AbstractController
         } elseif ($request->isMethod('POST') && $request->request->get('language')) {
             $language = $request->request->get('language');
         } else {
-            $language = $this->default_language;
+            $language = $this->defaultLanguage;
         }
         $request->getSession()->set('_locale', $language);
 
         if (!isset($this->languages_options[$language])) {
-            $language = $this->default_language;
+            $language = $this->defaultLanguage;
         }
 
         $stepMethod = $step . 'Step';
@@ -388,7 +358,7 @@ class InstallController extends AbstractController
                 $statement->bindValue('show_nb_comments', 0);
                 $statement->bindValue('show_nb_hits', 0);
                 $statement->bindValue('recent_period', 7);
-                $statement->bindValue('theme', $this->default_theme);
+                $statement->bindValue('theme', $this->defaultTheme);
                 $statement->bindValue('enabled_high', 1);
                 $statement->bindValue('level', 10); // @FIX: find a way to only inject that param instead of conf ; max($this->conf['available_permission_levels']);
                 $statement->bindValue('registration_date', $now->format('Y-m-d H:m:i'));
@@ -410,7 +380,7 @@ class InstallController extends AbstractController
                 $statement->bindValue('show_nb_comments', 0);
                 $statement->bindValue('show_nb_hits', 0);
                 $statement->bindValue('recent_period', 7);
-                $statement->bindValue('theme', $this->default_theme);
+                $statement->bindValue('theme', $this->defaultTheme);
                 $statement->bindValue('enabled_high', 1);
                 $statement->bindValue('level', 0);
                 $statement->bindValue('registration_date', $now->format('Y-m-d H:m:i'));
@@ -443,6 +413,7 @@ class InstallController extends AbstractController
      */
     public function successStep(Request $request)
     {
+        $tpl_params = [];
         rename($this->databaseYamlFile . '.tmp', $this->databaseYamlFile);
 
         $tpl_params['STEP'] = 'success';

@@ -19,11 +19,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 class RedirectToLocaleSubscriber implements EventSubscriberInterface
 {
-    private RouterInterface $router;
-
-    public function __construct(RouterInterface $router)
+    public function __construct(private RouterInterface $router)
     {
-        $this->router = $router;
     }
 
     public static function getSubscribedEvents(): array

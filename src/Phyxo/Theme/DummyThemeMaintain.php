@@ -15,12 +15,11 @@ use Phyxo\Theme\ThemeMaintain;
 
 class DummyThemeMaintain implements ThemeMaintain
 {
-    /** @phpstan-ignore-next-line */
-    private $theme_id;
-
-    public function __construct(string $id)
+    public function __construct(
+        /** @phpstan-ignore-next-line */
+        private string $theme_id
+    )
     {
-        $this->theme_id = $id;
     }
 
     public function activate($theme_version): array

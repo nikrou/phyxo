@@ -14,30 +14,22 @@ namespace App\Entity;
 use App\Repository\ImageAlbumRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ImageAlbumRepository::class)
- * @ORM\Table(name="image_category")
- */
+#[ORM\Table(name: 'image_category')]
+#[ORM\Entity(repositoryClass: ImageAlbumRepository::class)]
 class ImageAlbum
 {
-    /**
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity=Image::class, inversedBy="imageAlbums")
-     * @ORM\JoinColumn(name="image_id", nullable=false)
-     */
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Image::class, inversedBy: 'imageAlbums')]
+    #[ORM\JoinColumn(name: 'image_id', nullable: false)]
     private Image $image;
 
-    /**
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity=Album::class, inversedBy="imageAlbums")
-     * @ORM\JoinColumn(name="category_id", nullable=false)
-     */
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'imageAlbums')]
+    #[ORM\JoinColumn(name: 'category_id', nullable: false)]
     private Album $album;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private ?int $rank;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $rank = null;
 
     public function getImage(): ?Image
     {

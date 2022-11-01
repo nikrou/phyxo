@@ -19,20 +19,18 @@ use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ORM\Table(name="users")
- */
+#[ORM\Table(name: 'users')]
+#[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface, \Serializable
 {
-    const STATUS_WEBMASTER = 'webmaster';
-    const STATUS_ADMIN = 'admin';
-    const STATUS_NORMAL = 'normal';
-    const STATUS_GUEST = 'guest';
+    public const STATUS_WEBMASTER = 'webmaster';
+    public const STATUS_ADMIN = 'admin';
+    public const STATUS_NORMAL = 'normal';
+    public const STATUS_GUEST = 'guest';
 
-    const ALL_STATUS = [self::STATUS_WEBMASTER, self::STATUS_ADMIN, self::STATUS_NORMAL, self::STATUS_GUEST];
+    public const ALL_STATUS = [self::STATUS_WEBMASTER, self::STATUS_ADMIN, self::STATUS_NORMAL, self::STATUS_GUEST];
 
-    const STATUS_TO_ROLE = [
+    public const STATUS_TO_ROLE = [
         self::STATUS_WEBMASTER => 'ROLE_WEBMASTER',
         self::STATUS_ADMIN => 'ROLE_ADMIN',
         self::STATUS_NORMAL => 'ROLE_NORMAL',
@@ -42,101 +40,80 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     /** @phpstan-ignore-next-line */
     private $salt;
 
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\Column(type="string", unique=true, length=100)
-     */
+    #[ORM\Column(type: 'string', unique: true, length: 100)]
     private string $username;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $password;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $password = null;
 
-    private ?string $plain_password = null; // used when user updates his password
+    private ?string $plain_password = null;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $mail_address = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $mail_address;
-
-    /**
-     * @ORM\OneToOne(targetEntity=UserInfos::class, mappedBy="user", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToOne(targetEntity: UserInfos::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?UserInfos $userInfos;
 
     /**
      * @var array<string>
      */
-    private $roles = [];
+    private array $roles = ['ROLE_USER'];
 
     /**
-     * @ORM\ManyToMany(targetEntity=Group::class, mappedBy="users")
-     *
-     * @var ArrayCollection<int, Group>
+     * @var Collection<int, Group>
      */
-    private $groups;
+    #[ORM\ManyToMany(targetEntity: Group::class, mappedBy: 'users')]
+    private Collection $groups;
 
     /**
-     * @ORM\OneToMany(targetEntity=UserCacheAlbum::class, mappedBy="user", cascade={"persist", "remove"})
-     *
      * @var ArrayCollection<int, UserCacheAlbum>
      */
-    private $userCacheAlbums;
+    #[ORM\OneToMany(targetEntity: UserCacheAlbum::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private Collection $userCacheAlbums;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Album::class, inversedBy="user_access")
-     * @ORM\JoinTable(name="user_access",
-     *   joinColumns={@ORM\JoinColumn(name="user_id")},
-     *   inverseJoinColumns={@ORM\JoinColumn(name="cat_id")}
-     * )
      *
      * @var ArrayCollection<int, Album>
      */
-    private $user_access;
+    #[ORM\JoinTable(name: 'user_access')]
+    #[ORM\JoinColumn(name: 'user_id')]
+    #[ORM\InverseJoinColumn(name: 'cat_id')]
+    #[ORM\ManyToMany(targetEntity: Album::class, inversedBy: 'user_access')]
+    private Collection $user_access;
+
+    #[ORM\OneToOne(targetEntity: UserCache::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?UserCache $userCache = null;
 
     /**
-     * @ORM\OneToOne(targetEntity=UserCache::class, mappedBy="user", cascade={"persist", "remove"})
+     * @var Collection<int, Comment>
      */
-    private ?UserCache $userCache;
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private Collection $comments;
 
     /**
-     * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="user", cascade={"persist", "remove"})
-     *
-     * @var ArrayCollection<int, Comment>
+     * @var Collection<int, Caddie>
      */
-    private $comments;
+    #[ORM\OneToMany(targetEntity: Caddie::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $caddies;
 
     /**
-     * @ORM\OneToMany(targetEntity=Caddie::class, mappedBy="user", orphanRemoval=true)
-     *
-     * @var ArrayCollection<int, Caddie>
+     * @var Collection<int, Favorite>
      */
-    private $caddies;
+    #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $favorites;
 
     /**
-     * @ORM\OneToMany(targetEntity=Favorite::class, mappedBy="user", orphanRemoval=true)
-     *
-     * @var ArrayCollection<int, Favorite>
+     * @var Collection<int, Rate>
      */
-    private $favorites;
-
-    /**
-     * @ORM\OneToMany(targetEntity=Rate::class, mappedBy="user", orphanRemoval=true)
-     *
-     * @var ArrayCollection<int, Rate>
-     */
-    private $rates;
+    #[ORM\OneToMany(targetEntity: Rate::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $rates;
 
     public function __construct()
     {
-        $this->roles = ['ROLE_USER'];
         $this->userInfos = new UserInfos();
         $this->groups = new ArrayCollection();
         $this->user_access = new ArrayCollection();
@@ -267,7 +244,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
 
     public static function getRoleFromStatus(string $status): string
     {
-        return isset(self::STATUS_TO_ROLE[$status]) ? self::STATUS_TO_ROLE[$status] : 'ROLE_USER';
+        return self::STATUS_TO_ROLE[$status] ?? 'ROLE_USER';
     }
 
     public function getStatusFromRoles(): string
@@ -535,7 +512,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     public function unserialize($serialized)
     {
         /** @phpstan-ignore-next-line */
-        list ($this->id, $this->username, $this->password, $this->roles) = unserialize($serialized);
+        [$this->id, $this->username, $this->password, $this->roles] = unserialize($serialized);
     }
 
     // proxy methods

@@ -56,14 +56,14 @@ class AdminAlbumController extends AbstractController
     public function properties(
         Request $request,
         int $album_id,
-        int $parent_id = null,
         Conf $conf,
         ImageStandardParams $image_std_params,
         AlbumMapper $albumMapper,
         TranslatorInterface $translator,
         ImageAlbumRepository $imageAlbumRepository,
         ImageMapper $imageMapper,
-        ManagerRegistry $managerRegistry
+        ManagerRegistry $managerRegistry,
+        int $parent_id = null
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -147,7 +147,7 @@ class AdminAlbumController extends AbstractController
         if ($album_has_images) {
             $tpl_params['U_MANAGE_ELEMENTS'] = $this->generateUrl('admin_batch_manager_global', ['filter' => 'album', 'value' => $album_id]);
 
-            list($image_count, $min_date, $max_date) = $imageMapper->getRepository()->getImagesInfosInAlbum($album_id);
+            [$image_count, $min_date, $max_date] = $imageMapper->getRepository()->getImagesInfosInAlbum($album_id);
 
             if ($min_date->format('Y-m-d') === $max_date->format('Y-m-d')) {
                 $tpl_params['INTRO'] = $translator->trans(
@@ -235,11 +235,11 @@ class AdminAlbumController extends AbstractController
     public function sort_order(
         Request $request,
         int $album_id,
-        int $parent_id = null,
         ImageMapper $imageMapper,
         AlbumMapper $albumMapper,
         ImageStandardParams $image_std_params,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        int $parent_id = null
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -369,7 +369,6 @@ class AdminAlbumController extends AbstractController
     public function permissions(
         Request $request,
         int $album_id,
-        int $parent_id = null,
         Conf $conf,
         UserCacheRepository $userCacheRepository,
         CsrfTokenManagerInterface $tokenManager,
@@ -377,7 +376,8 @@ class AdminAlbumController extends AbstractController
         TranslatorInterface $translator,
         UserRepository $userRepository,
         GroupRepository $groupRepository,
-        ManagerRegistry $managerRegistry
+        ManagerRegistry $managerRegistry,
+        int $parent_id = null
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -480,7 +480,7 @@ class AdminAlbumController extends AbstractController
             $user_granted_by_group_ids = [];
 
             foreach ($granted_groups as $group_users) {
-                $user_granted_by_group_ids = array_merge($user_granted_by_group_ids, $group_users);
+                $user_granted_by_group_ids = [...$user_granted_by_group_ids, ...$group_users];
             }
 
             $user_granted_by_group_ids = array_unique($user_granted_by_group_ids);
@@ -522,14 +522,14 @@ class AdminAlbumController extends AbstractController
     public function notification(
         Request $request,
         int $album_id,
-        int $parent_id = null,
         Conf $conf,
         AlbumMapper $albumMapper,
         ImageStandardParams $image_std_params,
         EventDispatcherInterface $eventDispatcher,
         GroupRepository $groupRepository,
         ImageMapper $imageMapper,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        int $parent_id = null
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -587,9 +587,7 @@ class AdminAlbumController extends AbstractController
             }
 
             if (count($group_ids) > 0) {
-                $tpl_params['group_mail_options'] = array_filter($all_groups, function($key) use ($group_ids) {
-                    return in_array($key, $group_ids);
-                }, ARRAY_FILTER_USE_KEY);
+                $tpl_params['group_mail_options'] = array_filter($all_groups, fn($key) => in_array($key, $group_ids), ARRAY_FILTER_USE_KEY);
             }
         }
 
@@ -608,12 +606,12 @@ class AdminAlbumController extends AbstractController
 
     public function create(
         Request $request,
-        int $parent_id = null,
         AppUserService $appUserService,
         AlbumMapper $albumMapper,
         UserMapper $userMapper,
         UserInfosRepository $userInfosRepository,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        int $parent_id = null
     ): Response {
         if ($request->isMethod('POST')) {
             $virtual_name = $request->request->get('virtual_name');
@@ -635,7 +633,7 @@ class AdminAlbumController extends AbstractController
                 if (!is_null($parent_id)) {
                     $parent = $albumMapper->getRepository()->find($parent_id);
                 }
-                $albumMapper->createAlbum($virtual_name, $parent, $appUserService->getUser()->getId(), $admin_ids, $params);
+                $albumMapper->createAlbum($virtual_name, $appUserService->getUser()->getId(), $parent, $admin_ids, $params);
                 $userMapper->invalidateUserCache();
 
                 $this->addFlash('success', $translator->trans('Virtual album added', [], 'admin'));
@@ -645,7 +643,7 @@ class AdminAlbumController extends AbstractController
         return  $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
     }
 
-    public function delete(int $album_id, int $parent_id = null, AlbumMapper $albumMapper, ImageMapper $imageMapper, UserMapper $userMapper, TranslatorInterface $translator): Response
+    public function delete(int $album_id, AlbumMapper $albumMapper, ImageMapper $imageMapper, UserMapper $userMapper, TranslatorInterface $translator, int $parent_id = null): Response
     {
         $albumMapper->deleteAlbums([$album_id]);
 

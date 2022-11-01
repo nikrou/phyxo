@@ -18,13 +18,8 @@ use Twig\TwigFunction;
 
 class PluginAssetExtension extends AbstractExtension
 {
-    private AssetsManager $assetsManager;
-    private UrlGeneratorInterface $urlGenerator;
-
-    public function __construct(AssetsManager $assetsManager, UrlGeneratorInterface $urlGenerator)
+    public function __construct(private AssetsManager $assetsManager, private UrlGeneratorInterface $urlGenerator)
     {
-        $this->assetsManager = $assetsManager;
-        $this->urlGenerator = $urlGenerator;
     }
 
     public function getFunctions(): array

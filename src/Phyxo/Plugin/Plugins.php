@@ -21,18 +21,16 @@ use Symfony\Component\Yaml\Yaml;
 
 class Plugins extends Extensions
 {
-    const CONFIG_FILE = 'config.yaml';
+    public const CONFIG_FILE = 'config.yaml';
 
     private $fs_plugins = [], $db_plugins = [], $server_plugins = [];
     private $fs_plugins_retrieved = false, $db_plugins_retrieved = false, $server_plugins_retrieved = false;
-    private $default_plugins = [];
+    private array $default_plugins = [];
     private $plugins_root_path, $userMapper;
-    private $pluginRepository;
 
-    public function __construct(PluginRepository $pluginRepository, UserMapper $userMapper)
+    public function __construct(private PluginRepository $pluginRepository, UserMapper $userMapper)
     {
         $this->userMapper = $userMapper;
-        $this->pluginRepository = $pluginRepository;
     }
 
     public function setRootPath(string $plugins_root_path)
@@ -208,7 +206,7 @@ class Plugins extends Extensions
         ];
         $plugin_data = Yaml::parse(file_get_contents($config_file));
         if (!empty($plugin_data['uri']) && ($pos = strpos($plugin_data['uri'], 'extension_view.php?eid=')) !== false) {
-            list(, $extension) = explode('extension_view.php?eid=', $plugin_data['uri']);
+            [, $extension] = explode('extension_view.php?eid=', $plugin_data['uri']);
             if (is_numeric($extension)) {
                 $plugin_data['extension'] = $extension;
             }
@@ -223,7 +221,6 @@ class Plugins extends Extensions
      *
      * @param string $state optional filter
      * @param string $id returns only data about given plugin
-     * @return array
      */
     public function getDbPlugins(string $state = '', string $id = ''): array
     {
@@ -236,7 +233,7 @@ class Plugins extends Extensions
         }
 
         if (!empty($id)) {
-            return isset($this->db_plugins[$id]) ? $this->db_plugins[$id] : [];
+            return $this->db_plugins[$id] ?? [];
         } else {
             return $this->db_plugins;
         }
@@ -278,11 +275,11 @@ class Plugins extends Extensions
             }
             $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);
             foreach ($pem_versions as $pem_version) {
-                if (strpos($pem_version['name'], $branch) === 0) {
+                if (str_starts_with($pem_version['name'], $branch)) {
                     $versions_to_check[] = $pem_version['id'];
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return null; // throw new \Exception($e->getMessage());
         }
 

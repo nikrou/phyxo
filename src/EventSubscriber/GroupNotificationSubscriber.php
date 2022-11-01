@@ -58,7 +58,7 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
             'GALLERY_URL' => $this->router->generate('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'CAT_NAME' => $event->getCategory()['name'],
             'LINK' => $this->router->generate('album', ['category_id' => $event->getCategory()['id']], UrlGeneratorInterface::ABSOLUTE_URL),
-            'CPL_CONTENT' => $event->getMailContent() ? $event->getMailContent() : '',
+            'CPL_CONTENT' => $event->getMailContent() ?: '',
             'IMG_URL' => $event->getImageUrl(),
             'MAIL_TITLE' => $subject,
             'MAIL_THEME' => $this->conf['mail_theme'],

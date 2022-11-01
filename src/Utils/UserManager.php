@@ -19,24 +19,13 @@ use App\Repository\UserInfosRepository;
 
 class UserManager
 {
-    private UserRepository $userRepository;
-    private UserInfosRepository $userInfosRepository;
-    private GroupRepository $groupRepository;
-    private string $defaultLanguage;
-    private string $defautlTheme;
-
     public function __construct(
-        UserRepository $userRepository,
-        UserInfosRepository $userInfosRepository,
-        GroupRepository $groupRepository,
-        string $defaultLanguage,
-        string $defaultTheme
+        private UserRepository $userRepository,
+        private UserInfosRepository $userInfosRepository,
+        private GroupRepository $groupRepository,
+        private string $defaultLanguage,
+        private string $defaultTheme
     ) {
-        $this->userRepository = $userRepository;
-        $this->userInfosRepository = $userInfosRepository;
-        $this->groupRepository = $groupRepository;
-        $this->defaultLanguage = $defaultLanguage;
-        $this->defautlTheme = $defaultTheme;
     }
 
     public function register(User $user): User
@@ -45,7 +34,7 @@ class UserManager
 
         if (!in_array('ROLE_NORMAL', $user->getRoles())) {
             $userInfos->setLanguage($this->defaultLanguage);
-            $userInfos->setTheme($this->defautlTheme);
+            $userInfos->setTheme($this->defaultTheme);
         } else {
             $guestUserInfos = $this->userInfosRepository->findOneBy(['status' => User::STATUS_GUEST]);
             $userInfos->fromArray($guestUserInfos->toArray());

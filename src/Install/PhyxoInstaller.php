@@ -22,9 +22,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class PhyxoInstaller
 {
     private $phyxoVersion, $rootProjectDir, $translationsDir, $defaultTheme, $databaseYamlFile, $translator;
-    private $default_prefix = 'phyxo_';
+    private string $default_prefix = 'phyxo_';
 
-    private $dblayers = [
+    private array $dblayers = [
         'mysql' => [
             'engine' => 'MySQL, MariaDB, Percona Server, ...',
             'function_available' => 'mysqli_connect'
@@ -54,13 +54,9 @@ class PhyxoInstaller
     public function availableEngines()
     {
         return array_map(
-            function($dblayer) {
-                return $dblayer['engine'];
-            },
-            array_filter($this->dblayers, function($dblayer) {
-                return (isset($dblayer['function_available']) && function_exists($dblayer['function_available']))
-                || (isset($dblayer['class_available']) && class_exists($dblayer['class_available']));
-            })
+            fn($dblayer) => $dblayer['engine'],
+            array_filter($this->dblayers, fn($dblayer) => (isset($dblayer['function_available']) && function_exists($dblayer['function_available']))
+            || (isset($dblayer['class_available']) && class_exists($dblayer['class_available'])))
         );
     }
 
@@ -70,9 +66,9 @@ class PhyxoInstaller
         if (!empty($db_params['dsn'])) {
             $_params = parse_url($db_params['dsn']);
             $db_params['db_layer'] = $_params['scheme'];
-            $db_params['db_host'] = isset($_params['host']) ? $_params['host'] : '';
-            $db_params['db_user'] = isset($_params['user']) ? $_params['user'] : '';
-            $db_params['db_password'] = isset($_params['pass']) ? $_params['pass'] : '';
+            $db_params['db_host'] = $_params['host'] ?? '';
+            $db_params['db_user'] = $_params['user'] ?? '';
+            $db_params['db_password'] = $_params['pass'] ?? '';
             $db_params['db_name'] = substr($_params['path'], 1);
             unset($_params);
         }

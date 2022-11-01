@@ -126,7 +126,7 @@ class AdminCommentsController extends AbstractController
 
                     $this->addFlash(
                         'info',
-                        $translator->trans('number_of_comments_validated', ['count' => count($request->request->all()['comments'])], 'admin')
+                        $translator->trans('number_of_comments_validated', ['count' => is_countable($request->request->all()['comments']) ? count($request->request->all()['comments']) : 0], 'admin')
                     );
                 }
 
@@ -136,7 +136,7 @@ class AdminCommentsController extends AbstractController
 
                     $this->addFlash(
                         'info',
-                        $translator->trans('number_of_comments_rejected', ['count' => count($request->request->all()['comments'])], 'admin')
+                        $translator->trans('number_of_comments_rejected', ['count' => is_countable($request->request->all()['comments']) ? count($request->request->all()['comments']) : 0], 'admin')
                     );
                 }
             }

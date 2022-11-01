@@ -17,11 +17,8 @@ use Symfony\Component\Form\DataTransformerInterface;
 
 class IdentifierToUserTransformer implements DataTransformerInterface
 {
-    private $userRepository;
-
-    public function __construct(UserRepository $userRepository)
+    public function __construct(private UserRepository $userRepository)
     {
-        $this->userRepository = $userRepository;
     }
 
     public function transform($identifier): ?string

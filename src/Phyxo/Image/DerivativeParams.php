@@ -11,15 +11,11 @@
 
 namespace Phyxo\Image;
 
-use Phyxo\Image\SizingParams;
-
 /**
  * All needed parameters to generate a derivative image.
  */
 class DerivativeParams
 {
-    /** @var SizingParams */
-    public $sizing;
     /** @var string among IMG_* */
     public $type = ImageStandardParams::IMG_CUSTOM;
     /** @var int used for non-custom images to regenerate the cached files */
@@ -27,12 +23,8 @@ class DerivativeParams
     /** @var bool */
     public $use_watermark = false;
 
-    /**
-     * @param SizingParams $sizing
-     */
-    public function __construct(SizingParams $sizing)
+    public function __construct(public SizingParams $sizing)
     {
-        $this->sizing = $sizing;
     }
 
     public function __sleep(): array
@@ -50,9 +42,11 @@ class DerivativeParams
 
     public function compute_final_size($in_size): array
     {
-        $this->sizing->compute($in_size, '', $crop_rect, $scale_size);
+        $crop_rect = null;
+        $scale_size = '';
+        $this->sizing->compute($in_size, $crop_rect, $scale_size);
 
-        return $scale_size !== null ? $scale_size : $in_size;
+        return $scale_size ?? $in_size;
     }
 
     public function max_width(): int

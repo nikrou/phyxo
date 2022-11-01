@@ -55,6 +55,7 @@ class AdminMaintenanceController extends AbstractController
         AlbumMapper $albumMapper,
         UpgradeRepository $upgradeRepository
     ): Response {
+        $purge_urls = [];
         $tpl_params = [];
 
         switch ($action) {
@@ -209,7 +210,7 @@ class AdminMaintenanceController extends AbstractController
                     if ($not_writable_files > 0) {
                         $this->addFlash('error', $translator->trans('Some files ({count}) could have not be removed.', ['count' => $not_writable_files], 'admin'));
                     }
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                     $this->addFlash('error', $translator->trans('Some files ({count}) could have not be removed.', [], 'admin'));
                 }
 

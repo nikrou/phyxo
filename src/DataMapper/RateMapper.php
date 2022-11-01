@@ -115,6 +115,6 @@ class RateMapper
             $this->imageMapper->getRepository()->updateRatingScore($id, $score);
         }
 
-        return isset($return) ? $return : ['score' => null, 'average' => null, 'count' => 0];
+        return $return ?? ['score' => null, 'average' => null, 'count' => 0];
     }
 }

@@ -29,10 +29,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class ExtensionManagerSubscriber implements EventSubscriberInterface
 {
     private Plugins $plugins;
-    private EventDispatcherInterface $eventDispatcher;
-    private AssetsManager $assetsManager;
-    private ExtensionCollection $extensionCollection;
-    private ThemeLoader $themeLoader;
 
     /**
      * @TODO: change Plugins interface to only accept language instead of UserMapper
@@ -41,21 +37,16 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
     public function __construct(
         PluginRepository $pluginRepository,
         UserMapper $userMapper,
-        AssetsManager $assetsManager,
+        private AssetsManager $assetsManager,
         string $pluginsDir,
         string $pemURL,
-        EventDispatcherInterface $eventDispatcher,
-        ExtensionCollection $extensionCollection,
-        ThemeLoader $themeLoader
+        private EventDispatcherInterface $eventDispatcher,
+        private ExtensionCollection $extensionCollection,
+        private ThemeLoader $themeLoader
     ) {
         $this->plugins = new Plugins($pluginRepository, $userMapper);
         $this->plugins->setRootPath($pluginsDir);
         $this->plugins->setExtensionsURL($pemURL);
-
-        $this->assetsManager = $assetsManager;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->extensionCollection = $extensionCollection;
-        $this->themeLoader = $themeLoader;
     }
 
     public static function getSubscribedEvents(): array
@@ -102,9 +93,7 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
         } else {
             if (isset($this->extensionCollection->getExtensionsByName()[$command->getName()])) {
                 $command_name = $this->extensionCollection->getExtensionsByName()[$command->getName()];
-                $pluginsForCommand = array_filter($this->plugins->getDbPlugins(Plugin::INACTIVE), function($p) use ($command_name) {
-                    return $p->getId() === $command_name;
-                });
+                $pluginsForCommand = array_filter($this->plugins->getDbPlugins(Plugin::INACTIVE), fn($p) => $p->getId() === $command_name);
 
                 if (count($pluginsForCommand) > 0) {
                     $event->disableCommand();

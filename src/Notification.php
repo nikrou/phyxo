@@ -36,46 +36,25 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Notification
 {
-    private Conf $conf;
-    private UserMapper $userMapper;
-    private AlbumMapper $albumMapper;
-    private RouterInterface $router;
-    private CommentRepository $commentRepository;
-    private ImageMapper $imageMapper;
     /** @var array<string, int|float|string|bool> $env */
     private array $env;
-    private MailerInterface $mailer;
-    private TranslatorInterface $translator;
-    private UserMailNotificationRepository $userMailNotificationRepository;
-    private UserInfosRepository $userInfosRepository;
     /** @var string[] $infos */
     private array $infos = [];
     /** @var string[] $errors */
     private array $errors = [];
 
     public function __construct(
-        Conf $conf,
-        UserMapper $userMapper,
-        AlbumMapper $albumMapper,
-        RouterInterface $router,
-        ImageMapper $imageMapper,
-        MailerInterface $mailer,
-        TranslatorInterface $translator,
-        CommentRepository $commentRepository,
-        UserMailNotificationRepository $userMailNotificationRepository,
-        UserInfosRepository $userInfosRepository
+        private Conf $conf,
+        private UserMapper $userMapper,
+        private AlbumMapper $albumMapper,
+        private RouterInterface $router,
+        private ImageMapper $imageMapper,
+        private MailerInterface $mailer,
+        private TranslatorInterface $translator,
+        private CommentRepository $commentRepository,
+        private UserMailNotificationRepository $userMailNotificationRepository,
+        private UserInfosRepository $userInfosRepository
     ) {
-        $this->conf = $conf;
-        $this->userMapper = $userMapper;
-        $this->albumMapper = $albumMapper;
-        $this->router = $router;
-        $this->mailer = $mailer;
-        $this->translator = $translator;
-        $this->userMailNotificationRepository = $userMailNotificationRepository;
-        $this->userInfosRepository = $userInfosRepository;
-        $this->commentRepository = $commentRepository;
-        $this->imageMapper = $imageMapper;
-
         $this->env = [
             'start_time' => microtime(true),
             'sendmail_timeout' => (intval(ini_get('max_execution_time')) * $conf['nbm_max_treatment_timeout_percent']),
@@ -111,7 +90,7 @@ class Notification
      */
     public function nb_unvalidated_comments(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
     {
-        return $this->commentRepository->getUnvalidatedComments($start, $end, $count_only = true);
+        return $this->commentRepository->getUnvalidatedComments($count_only = true, $start, $end);
     }
 
     /**
@@ -145,7 +124,7 @@ class Notification
      *
      * @return Album[]|int
      */
-    public function updated_albums(\DateTimeInterface $start = null, \DateTimeInterface $end = null)
+    public function updated_albums(\DateTimeInterface $start = null, \DateTimeInterface $end = null): array|int
     {
         return $this->imageMapper->getRepository()->getUpdatedAlbums($this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums(), $start, $end);
     }
@@ -293,7 +272,7 @@ class Notification
             }
 
             if ($max_cats > 0) { // get some albums ...
-                $dates[$i]['categories'] = $this->imageMapper->getRepository()->getRecentImages($dates[$i]['date_available'], $max_cats, $this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums());
+                $dates[$i]['categories'] = $this->imageMapper->getRepository()->getRecentImages($max_cats, $dates[$i]['date_available'], $this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums());
             }
         }
 
@@ -530,7 +509,7 @@ class Notification
             $msg_error = $this->translator->trans('User %s [%s] was not removed from the subscription list.');
         }
 
-        if (count($check_key_list) > 0) {
+        if ((is_countable($check_key_list) ? count($check_key_list) : 0) > 0) {
             $data_users = $this->get_user_notifications('subscribe', $check_key_list, !$is_subscribe);
 
             // Prepare message after change language
@@ -575,7 +554,7 @@ class Notification
                             $mail_params
                         );
                         $this->inc_mail_sent_success($nbm_user);
-                    } catch (\Exception $e) {
+                    } catch (\Exception) {
                         $this->inc_mail_sent_failed($nbm_user);
                         $do_update = false;
                     }
@@ -644,8 +623,8 @@ class Notification
     {
         if ($this->env['is_sendmail_timeout']) {
             if (isset($_POST[$post_keyname])) {
-                $post_count = count($_POST[$post_keyname]);
-                $treated_count = count($check_key_treated);
+                $post_count = is_countable($_POST[$post_keyname]) ? count($_POST[$post_keyname]) : 0;
+                $treated_count = is_countable($check_key_treated) ? count($check_key_treated) : 0;
                 if ($treated_count != 0) {
                     $time_refresh = ceil((microtime(true) - $this->env['start_time']) * $post_count / $treated_count);
                 } else {
@@ -815,7 +794,7 @@ class Notification
 
                                 $nbm_user->setLastSend($now);
                                 $this->userMailNotificationRepository->addOrUpdateUserMailNotification($nbm_user);
-                            } catch (\Exception $e) {
+                            } catch (\Exception) {
                                 $this->inc_mail_sent_failed($nbm_user);
                             }
                         }

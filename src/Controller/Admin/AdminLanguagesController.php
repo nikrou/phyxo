@@ -147,7 +147,7 @@ class AdminLanguagesController extends AbstractController
         $languages->setExtensionsURL($params->get('pem_url'));
 
         foreach ($languages->getServerLanguages($conf['pem_languages_category'], $params->get('core_version'), $new = true) as $language) {
-            list($date, ) = explode(' ', $language['revision_date']);
+            [$date, ] = explode(' ', $language['revision_date']);
 
             $tpl_params['languages'][] = [
                 'EXT_NAME' => $language['extension_name'],
@@ -259,7 +259,7 @@ class AdminLanguagesController extends AbstractController
             }
 
             if (!empty($updates_ignored['languages'])) {
-                $tpl_params['SHOW_RESET'] = count($updates_ignored['languages']);
+                $tpl_params['SHOW_RESET'] = is_countable($updates_ignored['languages']) ? count($updates_ignored['languages']) : 0;
             }
         }
 

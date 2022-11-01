@@ -14,28 +14,20 @@ namespace App\Entity;
 use App\Repository\SearchRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=SearchRepository::class)
- * @ORM\Table(name="search")
- */
+#[ORM\Table(name: 'search')]
+#[ORM\Entity(repositoryClass: SearchRepository::class)]
 class Search
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private ?\DateTimeInterface $last_seen;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $last_seen = null;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private ?string $rules;
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $rules = null;
 
     public function getId(): ?int
     {

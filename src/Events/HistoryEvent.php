@@ -17,15 +17,13 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class HistoryEvent extends Event
 {
-    private string $section;
     private ?Album $album = null;
     private ?Image $image = null;
     private string $ip;
     private string $tagIds = '';
 
-    public function __construct(string $section)
+    public function __construct(private string $section)
     {
-        $this->section = $section;
     }
 
     public function getSection(): string

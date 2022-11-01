@@ -82,6 +82,8 @@ class Language
      */
     public static function remove_accents($string)
     {
+        $chars = [];
+        $double_chars = [];
         $utf = self::qualify_utf8($string);
         if ($utf == 0) {
             return $string; // ascii

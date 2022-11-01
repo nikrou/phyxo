@@ -61,7 +61,7 @@ class AdminDashboardController extends AbstractController
             try {
                 $response = $client->request('GET', $params->get('update_url'));
                 if ($response->getStatusCode() == 200 && $response->getContent()) {
-                    $versions = json_decode($response->getContent(), true);
+                    $versions = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
                     $latest_version = $versions[0]['version'];
                 } else {
                     throw new \Exception('Unable to check for upgrade.');
@@ -75,7 +75,7 @@ class AdminDashboardController extends AbstractController
                 } else {
                     $tpl_params['infos'][] = $translator->trans('You are running the latest version of Phyxo.', [], 'admin');
                 }
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $tpl_params['errors'][] = $translator->trans('Unable to check for upgrade.', [], 'admin');
             }
         }

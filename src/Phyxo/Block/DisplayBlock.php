@@ -16,15 +16,13 @@ namespace Phyxo\Block;
  */
 class DisplayBlock
 {
-    protected $registeredBlock;
     protected $position;
     protected $title;
     public $data = [];
     public string $template;
 
-    public function __construct(RegisteredBlock $block)
+    public function __construct(protected RegisteredBlock $registeredBlock)
     {
-        $this->registeredBlock = $block;
     }
 
     public function getBlock(): RegisteredBlock

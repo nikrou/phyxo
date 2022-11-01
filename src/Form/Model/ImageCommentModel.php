@@ -21,16 +21,12 @@ class ImageCommentModel
 
     private $user;
 
-    /**
-     * @Assert\Email(message="Please enter a valid mail address")
-     */
+    #[Assert\Email(message: 'Please enter a valid mail address')]
     private $mail_address;
 
     private $image;
 
-    /**
-     * @Assert\NotBlank(message="Please enter a message for your comment")
-     */
+    #[Assert\NotBlank(message: 'Please enter a message for your comment')]
     private $content;
 
     /**

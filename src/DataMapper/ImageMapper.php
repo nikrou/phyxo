@@ -30,54 +30,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ImageMapper
 {
-    private RouterInterface $router;
-    private Conf $conf;
-    private UserMapper $userMapper;
-    private ImageStandardParams $image_std_params;
-    private AlbumMapper $albumMapper;
-    private ImageRepository $imageRepository;
-    private ImageTagRepository $imageTagRepository;
-    private HistoryRepository $historyRepository;
-    private TranslatorInterface $translator;
-    private ImageAlbumRepository $imageAlbumRepository;
-    private CommentRepository $commentRepository;
-    private CaddieRepository $caddieRepository;
-    private FavoriteRepository $favoriteRepository;
-    private RateRepository $rateRepository;
-    private DerivativeService $derivativeService;
-
-    public function __construct(
-        RouterInterface $router,
-        UserMapper $userMapper,
-        Conf $conf,
-        ImageStandardParams $image_std_params,
-        AlbumMapper $albumMapper,
-        HistoryRepository $historyRepository,
-        TranslatorInterface $translator,
-        ImageRepository $imageRepository,
-        ImageAlbumRepository $imageAlbumRepository,
-        CommentRepository $commentRepository,
-        CaddieRepository $caddieRepository,
-        FavoriteRepository $favoriteRepository,
-        RateRepository $rateRepository,
-        ImageTagRepository $imageTagRepository,
-        DerivativeService $derivativeService
-    ) {
-        $this->router = $router;
-        $this->userMapper = $userMapper;
-        $this->conf = $conf;
-        $this->image_std_params = $image_std_params;
-        $this->albumMapper = $albumMapper;
-        $this->translator = $translator;
-        $this->imageRepository = $imageRepository;
-        $this->imageTagRepository = $imageTagRepository;
-        $this->imageAlbumRepository = $imageAlbumRepository;
-        $this->commentRepository = $commentRepository;
-        $this->caddieRepository = $caddieRepository;
-        $this->favoriteRepository = $favoriteRepository;
-        $this->rateRepository = $rateRepository;
-        $this->historyRepository = $historyRepository;
-        $this->derivativeService = $derivativeService;
+    public function __construct(private RouterInterface $router, private UserMapper $userMapper, private Conf $conf, private ImageStandardParams $image_std_params, private AlbumMapper $albumMapper, private HistoryRepository $historyRepository, private TranslatorInterface $translator, private ImageRepository $imageRepository, private ImageAlbumRepository $imageAlbumRepository, private CommentRepository $commentRepository, private CaddieRepository $caddieRepository, private FavoriteRepository $favoriteRepository, private RateRepository $rateRepository, private ImageTagRepository $imageTagRepository, private DerivativeService $derivativeService)
+    {
     }
 
     public function getRepository(): ImageRepository
@@ -202,7 +156,7 @@ class ImageMapper
         }
 
         // @TODO: retrieve index_deriv in another_way
-        $tpl_params['derivative_params'] = $this->image_std_params->getByType(isset($_SESSION['index_deriv']) ? $_SESSION['index_deriv'] : ImageStandardParams::IMG_THUMB);
+        $tpl_params['derivative_params'] = $this->image_std_params->getByType($_SESSION['index_deriv'] ?? ImageStandardParams::IMG_THUMB);
 
         return $tpl_params;
     }
@@ -216,7 +170,6 @@ class ImageMapper
      *    - removes elements from caddie
      *
      * @param int[] $ids
-     * @param bool $physical_deletion
      * @return int number of deleted elements
      */
     public function deleteElements(array $ids, bool $physical_deletion = false): int
@@ -227,7 +180,7 @@ class ImageMapper
 
         if ($physical_deletion) {
             $ids = $this->deleteElementFiles($ids);
-            if (count($ids) == 0) {
+            if ((is_countable($ids) ? count($ids) : 0) == 0) {
                 return 0;
             }
         }
@@ -265,7 +218,7 @@ class ImageMapper
             $this->albumMapper->updateAlbums($album_ids);
         }
 
-        return count($ids);
+        return is_countable($ids) ? count($ids) : 0;
     }
 
     /**
@@ -274,7 +227,7 @@ class ImageMapper
      * @param int[] $ids
      * @return 0|int[] image ids where files were successfully deleted
      */
-    public function deleteElementFiles(array $ids = [])
+    public function deleteElementFiles(array $ids = []): int|array
     {
         if (count($ids) == 0) {
             return 0;
@@ -295,7 +248,7 @@ class ImageMapper
                 foreach ($files as $path) {
                     try {
                         $fs->remove($path);
-                    } catch (\Exception $e) {
+                    } catch (\Exception) {
                         $ok = false; //trigger_error('"' . $path . '" cannot be removed', E_USER_WARNING);
                     }
                 }

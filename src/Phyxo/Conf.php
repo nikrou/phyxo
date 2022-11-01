@@ -24,8 +24,8 @@ use App\Repository\ConfigRepository;
 class Conf implements \ArrayAccess
 {
     private $configRepository, $keys = [];
-    const FILE_PREFIX = 'file_';
-    const DB_PREFIX = 'db_';
+    public const FILE_PREFIX = 'file_';
+    public const DB_PREFIX = 'db_';
 
     public function __construct(ConfigRepository $configRepository)
     {
@@ -102,7 +102,7 @@ class Conf implements \ArrayAccess
         } elseif ($type === 'integer') {
             return (int) $value;
         } elseif ($type === 'json') {
-            return json_decode($value, true);
+            return json_decode($value, true, 512, JSON_THROW_ON_ERROR);
         } elseif ($type === 'base64') {
             return unserialize(base64_decode($value));
         } else {
@@ -119,7 +119,7 @@ class Conf implements \ArrayAccess
         } elseif ($type === 'base64') {
             return base64_encode(serialize($value));
         } elseif ($type === 'json' || is_array($value) || is_object($value)) {
-            return json_encode($value);
+            return json_encode($value, JSON_THROW_ON_ERROR);
         } else {
             return $value;
         }
@@ -175,7 +175,7 @@ class Conf implements \ArrayAccess
      *
      * @param string|string[] $params
      */
-    protected function deleteParam($params): void
+    protected function deleteParam(string|array $params): void
     {
         if (!is_array($params)) {
             $params = [$params];

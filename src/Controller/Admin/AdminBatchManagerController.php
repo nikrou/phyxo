@@ -265,7 +265,7 @@ class AdminBatchManagerController extends AbstractController
             }
         }
         $tpl_params['filter_level_options'] = $level_options;
-        $tpl_params['filter_level_options_selected'] = isset($this->getFilter($request->getSession())['level']) ? $this->getFilter($request->getSession())['level'] : 0;
+        $tpl_params['filter_level_options_selected'] = $this->getFilter($request->getSession())['level'] ?? 0;
 
         // tags
         $filter_tags = [];
@@ -293,7 +293,7 @@ class AdminBatchManagerController extends AbstractController
 
         // Dissociate from a category : categories listed for dissociation can only
         // represent virtual links. We can't create orphans. Links to physical categories can't be broken.
-        if (count($current_set) > 0) {
+        if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
             $tpl_params['associated_categories'] = [];
             foreach ($imageMapper->getRepository()->findVirtualAlbumsWithImages($current_set) as $album) {
                 $tpl_params['associated_categories'][] = $album['id'];
@@ -322,7 +322,7 @@ class AdminBatchManagerController extends AbstractController
 
         if ($request->get('display')) {
             if ($request->get('display') === 'all') {
-                $nb_images = count($current_set);
+                $nb_images = is_countable($current_set) ? count($current_set) : 0;
             } else {
                 $nb_images = (int) $request->get('display');
             }
@@ -336,8 +336,8 @@ class AdminBatchManagerController extends AbstractController
         }
         $nb_thumbs_page = 0;
 
-        if (count($current_set) > 0) {
-            $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_global', ['filter' => $filter], count($current_set), $start, $nb_images);
+        if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
+            $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_global', ['filter' => $filter], is_countable($current_set) ? count($current_set) : 0, $start, $nb_images);
 
             $is_category = false;
             if (isset($this->getFilter($request->getSession())['category']) && !isset($this->getFilter($request->getSession())['category_recursive'])) {
@@ -361,9 +361,9 @@ class AdminBatchManagerController extends AbstractController
             // template thumbnail initialization
             foreach ($imageMapper->getRepository()->findByImageIdsAndAlbumId(
                 $current_set,
-                $is_category ? ($this->getFilter($request->getSession())['category'] ?? null) : null,
                 $conf['order_by'] ?? [],
                 $nb_images,
+                $is_category ? ($this->getFilter($request->getSession())['category'] ?? null) : null,
                 $start
             ) as $image) {
                 $nb_thumbs_page++;
@@ -414,7 +414,7 @@ class AdminBatchManagerController extends AbstractController
         $tpl_params['selection'] = $collection;
         $tpl_params['all_elements'] = $current_set;
         $tpl_params['nb_thumbs_page'] = $nb_thumbs_page;
-        $tpl_params['nb_thumbs_set'] = count($current_set);
+        $tpl_params['nb_thumbs_set'] = is_countable($current_set) ? count($current_set) : 0;
         $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($managerRegistry, ['tags', 'categories'], $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
@@ -472,7 +472,7 @@ class AdminBatchManagerController extends AbstractController
                 }
             }
         } elseif ($action === 'del_tags') {
-            if ($request->request->get('del_tags') && count($request->request->all()['del_tags']) > 0) {
+            if ($request->request->get('del_tags') && (is_countable($request->request->all()['del_tags']) ? count($request->request->all()['del_tags']) : 0) > 0) {
                 $imageTagRepository->deleteByImagesAndTags($collection, $request->request->all()['del_tags']);
 
                 if (!empty($this->getFilter($request->getSession())['tags']) && count(array_intersect($this->getFilter($request->getSession())['tags'], $request->request->all()['del_tags'])) > 0) {
@@ -636,9 +636,7 @@ class AdminBatchManagerController extends AbstractController
             switch ($bulk_manager_filter['prefilter']) {
                 case 'caddie':
 
-                    $filter_sets[] = $this->user->getCaddies()->map(function(Caddie $caddie) {
-                        return $caddie->getImage()->getId();
-                    })->toArray();
+                    $filter_sets[] = $this->user->getCaddies()->map(fn(Caddie $caddie) => $caddie->getImage()->getId())->toArray();
 
                     break;
 
@@ -1041,7 +1039,7 @@ class AdminBatchManagerController extends AbstractController
             }
         }
         $tpl_params['filter_level_options'] = $level_options;
-        $tpl_params['filter_level_options_selected'] = isset($this->getFilter($request->getSession())['level']) ? $this->getFilter($request->getSession())['level'] : 0;
+        $tpl_params['filter_level_options_selected'] = $this->getFilter($request->getSession())['level'] ?? 0;
 
         // tags
         $filter_tags = [];
@@ -1069,7 +1067,7 @@ class AdminBatchManagerController extends AbstractController
 
         // Dissociate from a category : categories listed for dissociation can only
         // represent virtual links. We can't create orphans. Links to physical categories can't be broken.
-        if (count($current_set) > 0) {
+        if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
             $tpl_params['associated_categories'] = [];
             foreach ($imageMapper->getRepository()->findVirtualAlbumsWithImages($current_set) as $album) {
                 $tpl_params['associated_categories'][] = $album['id'];
@@ -1108,8 +1106,8 @@ class AdminBatchManagerController extends AbstractController
                 $nb_images = 5;
             }
         }
-        if (count($current_set) > 0) {
-            $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_unit', ['filter' => $filter], count($current_set), $start, $nb_images);
+        if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
+            $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_unit', ['filter' => $filter], is_countable($current_set) ? count($current_set) : 0, $start, $nb_images);
 
             $is_category = false;
             if (isset($this->getFilter($request->getSession())['category']) && !isset($this->getFilter($request->getSession())['category_recursive'])) {
@@ -1132,9 +1130,9 @@ class AdminBatchManagerController extends AbstractController
             // template thumbnail initialization
             foreach ($imageMapper->getRepository()->findByImageIdsAndAlbumId(
                 $current_set,
-                $this->getFilter($request->getSession())['category'] ?? null,
                 $conf['order_by'] ?? [],
                 $nb_images,
+                $this->getFilter($request->getSession())['category'] ?? null,
                 $start
             ) as $image) {
                 $element_ids[] = $image->getId();

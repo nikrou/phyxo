@@ -5,12 +5,11 @@ on: [push]
 jobs:
   tests:
     name: Phyxo tests
-    runs-on: ubuntu-18.04
-    continue-on-error: ${{ matrix.php-version == '8.0' }}
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        php-versions: [7.4, 8.0]
+        php-versions: [8.0, 8.1]
         # experimental: [false]
         mysql: [5.7]
         # include:

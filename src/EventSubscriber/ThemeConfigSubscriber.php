@@ -23,15 +23,11 @@ use Twig\Environment;
 
 class ThemeConfigSubscriber implements EventSubscriberInterface
 {
-    private Environment $twig;
-    private Conf $conf;
     private Themes $themes;
 
-    public function __construct(ThemeRepository $themeRepository, UserMapper $userMapper, Conf $conf, Environment $twig)
+    public function __construct(ThemeRepository $themeRepository, UserMapper $userMapper, private Conf $conf, private Environment $twig)
     {
         $this->themes = new Themes($themeRepository, $userMapper);
-        $this->conf = $conf;
-        $this->twig = $twig;
     }
 
     public function onKernelRequest(RequestEvent $event)

@@ -26,8 +26,8 @@ class TagVoter extends Voter
 {
     private $security, $conf;
 
-    const ADD = 'add-atg';
-    const DELETE = 'delete-tag';
+    public const ADD = 'add-atg';
+    public const DELETE = 'delete-tag';
 
     public function __construct(Security $security, Conf $conf)
     {
@@ -61,15 +61,11 @@ class TagVoter extends Voter
         }
 
         $image = $subject;
-
-        switch ($attribute) {
-            case self::ADD:
-                return $this->canAddTag($image, $user);
-            case self::DELETE:
-                return $this->canDeleteTag($image, $user);
-        }
-
-        throw new \LogicException('This code should not be reached!');
+        return match ($attribute) {
+            self::ADD => $this->canAddTag($image, $user),
+            self::DELETE => $this->canDeleteTag($image, $user),
+            default => throw new \LogicException('This code should not be reached!'),
+        };
     }
 
     private function canAddTag(Image $image, UserInterface $user)

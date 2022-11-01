@@ -13,37 +13,28 @@ namespace App\Entity;
 
 use App\Repository\UserFeedRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity(repositoryClass=UserFeedRepository::class)
- * @ORM\Table(name="user_feed")
- */
+#[ORM\Table(name: 'user_feed')]
+#[ORM\Entity(repositoryClass: UserFeedRepository::class)]
 class UserFeed
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private ?\DateTimeInterface $last_check;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $last_check = null;
 
-    /**
-     * @ORM\OneToOne(targetEntity=User::class)
-     * @ORM\JoinColumn(name="user_id", nullable=false)
-     */
+    #[ORM\OneToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'user_id', nullable: false)]
     private User $user;
 
-    /**
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
-     */
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     private UuidInterface $uuid;
 
     public function __construct()

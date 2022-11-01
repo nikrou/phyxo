@@ -29,64 +29,13 @@ use App\Security\AppUserService;
 
 class UserMapper
 {
-    private AppUserService $appUserService;
-    private AuthorizationCheckerInterface $authorizationChecker;
-    private TagMapper $tagMapper;
-    private ThemeRepository $themeRepository;
-    private UserRepository $userRepository;
-    private UserInfosRepository $userInfosRepository;
-    private UserMailNotificationRepository $userMailNotificationRepository;
-    private string $defaultLanguage;
-    private string $defaultTheme;
-    private string $themesDir;
     private User $default_user;
     private bool $default_user_retrieved = false;
-    private CommentRepository $commentRepository;
-    private ImageTagRepository $imageTagRepository;
     private User $webmaster;
     private bool $webmaster_retrieved = false;
-    private UserFeedRepository $userFeedRepository;
-    private UserCacheRepository $userCacheRepository;
-    private UserCacheAlbumRepository $userCacheAlbumRepository;
-    private CaddieRepository $caddieRepository;
-    private FavoriteRepository $favoriteRepository;
 
-    public function __construct(
-        AuthorizationCheckerInterface $authorizationChecker,
-        ThemeRepository $themeRepository,
-        UserRepository $userRepository,
-        UserInfosRepository $userInfosRepository,
-        string $defaultTheme,
-        CommentRepository $commentRepository,
-        TagMapper $tagMapper,
-        string $defaultLanguage,
-        string $themesDir,
-        AppUserService $appUserService,
-        UserMailNotificationRepository $userMailNotificationRepository,
-        UserFeedRepository $userFeedRepository,
-        UserCacheRepository $userCacheRepository,
-        UserCacheAlbumRepository $userCacheAlbumRepository,
-        CaddieRepository $caddieRepository,
-        FavoriteRepository $favoriteRepository,
-        ImageTagRepository $imageTagRepository
-    ) {
-        $this->themeRepository = $themeRepository;
-        $this->userRepository = $userRepository;
-        $this->userInfosRepository = $userInfosRepository;
-        $this->userMailNotificationRepository = $userMailNotificationRepository;
-        $this->userFeedRepository = $userFeedRepository;
-        $this->authorizationChecker = $authorizationChecker;
-        $this->tagMapper = $tagMapper;
-        $this->defaultLanguage = $defaultLanguage;
-        $this->defaultTheme = $defaultTheme;
-        $this->themesDir = $themesDir;
-        $this->appUserService = $appUserService;
-        $this->userCacheRepository = $userCacheRepository;
-        $this->userCacheAlbumRepository = $userCacheAlbumRepository;
-        $this->commentRepository = $commentRepository;
-        $this->caddieRepository = $caddieRepository;
-        $this->favoriteRepository = $favoriteRepository;
-        $this->imageTagRepository = $imageTagRepository;
+    public function __construct(private AuthorizationCheckerInterface $authorizationChecker, private ThemeRepository $themeRepository, private UserRepository $userRepository, private UserInfosRepository $userInfosRepository, private string $defaultTheme, private CommentRepository $commentRepository, private TagMapper $tagMapper, private string $defaultLanguage, private string $themesDir, private AppUserService $appUserService, private UserMailNotificationRepository $userMailNotificationRepository, private UserFeedRepository $userFeedRepository, private UserCacheRepository $userCacheRepository, private UserCacheAlbumRepository $userCacheAlbumRepository, private CaddieRepository $caddieRepository, private FavoriteRepository $favoriteRepository, private ImageTagRepository $imageTagRepository)
+    {
     }
 
     public function getRepository(): UserRepository
@@ -130,8 +79,6 @@ class UserMapper
     /**
      * Returns the default theme.
      * If the default theme is not available it returns the first available one.
-     *
-     * @return string
      */
     public function getDefaultTheme(): string
     {

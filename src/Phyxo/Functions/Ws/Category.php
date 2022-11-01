@@ -16,7 +16,6 @@ use App\Entity\ImageAlbum;
 use App\Entity\User;
 use App\Entity\UserCacheAlbum;
 use App\Entity\UserInfos;
-use App\Repository\UserCacheAlbumRepository;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\Server;
 use Phyxo\Image\DerivativeImage;
@@ -127,10 +126,10 @@ class Category
         $image_ids = [];
         $user_representative_updates_for = [];
 
-        list($is_child_date_last, $albums, $image_ids) = $service->getAlbumMapper()->getAlbumThumbnails($service->getUserMapper()->getUser(), $albumsList);
+        [$is_child_date_last, $albums, $image_ids] = $service->getAlbumMapper()->getAlbumThumbnails($service->getUserMapper()->getUser(), $albumsList);
 
         // management of the album thumbnail -- starts here
-        if (count($albums) > 0) {
+        if ((is_countable($albums) ? count($albums) : 0) > 0) {
             $infos_of_images = $service->getAlbumMapper()->getInfosOfImages($service->getUserMapper()->getUser(), $albums, $image_ids, $service->getImageMapper());
         }
 
@@ -147,7 +146,7 @@ class Category
         }
 
         $result = [];
-        if (count($albums) > 0) {
+        if ((is_countable($albums) ? count($albums) : 0) > 0) {
             foreach ($albums as $album) {
                 $thumbnail_url = '';
                 if (isset($infos_of_images[$album->getRepresentativePictureId()])) {
@@ -266,7 +265,7 @@ class Category
             $parent = $service->getAlbumMapper()->getRepository()->find((int) $params['parent']);
         }
 
-        $album = $service->getAlbumMapper()->createAlbum($params['name'], $parent, $service->getUserMapper()->getUser()->getId(), $admin_ids, $options);
+        $album = $service->getAlbumMapper()->createAlbum($params['name'], $service->getUserMapper()->getUser()->getId(), $parent, $admin_ids, $options);
 
         $service->getUserMapper()->invalidateUserCache();
 
@@ -409,6 +408,7 @@ class Category
      */
     public static function move($params, Server $service)
     {
+        $page = [];
         if (!is_array($params['category_id'])) {
             $params['category_id'] = preg_split(
                 '/[\s,;\|]/',
@@ -460,7 +460,7 @@ class Category
          */
         if ($params['parent'] !== 0) {
             $subcat_ids = $service->getAlbumMapper()->getRepository()->getSubcatIds([$params['parent']]);
-            if (count($subcat_ids) == 0) {
+            if ((is_countable($subcat_ids) ? count($subcat_ids) : 0) == 0) {
                 return new Error(403, 'Unknown parent category id');
             }
         }

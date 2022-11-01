@@ -152,7 +152,7 @@ class SearchController extends AbstractController
             }
 
             /** @phpstan-ignore-next-line */
-            if ($request->request->get('authors') && is_array($request->request->get('authors')) && count($request->request->all()['authors']) > 0) {
+            if ($request->request->get('authors') && is_array($request->request->get('authors')) && (is_countable($request->request->all()['authors']) ? count($request->request->all()['authors']) : 0) > 0) {
                 $authors = [];
 
                 foreach ($request->request->all()['authors'] as $author) {
