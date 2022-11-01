@@ -131,10 +131,7 @@ class Conf implements \ArrayAccess
         return isset($this->keys[self::FILE_PREFIX . $param]) || isset($this->keys[self::DB_PREFIX . $param]);
     }
 
-    /**
-     * @return array | mixed
-     */
-    public function offsetGet($param)
+    public function offsetGet($param): mixed
     {
         $value = null;
 
