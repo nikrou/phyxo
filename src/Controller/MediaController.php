@@ -54,15 +54,15 @@ class MediaController extends AbstractController
         // deal with ./ at the beginning of path
         $image = $imageRepository->findOneByUnsanePath($path . '.' . $image_extension);
         if (is_null($image)) {
-            return new Response('Db file path not found ', 404);
+            return new Response('Db file path not found ', Response::HTTP_NOT_FOUND);
         }
 
         if (!$this->forAdmin && !$imageRepository->isAuthorizedToUser($image->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums())) {
-            return new Response('User not allowed to see that image ', 403);
+            return new Response('User not allowed to see that image ', Response::HTTP_FORBIDDEN);
         }
 
         if (!is_readable($image_src)) {
-            return new Response('Image not found ' . $image_src, 404);
+            return new Response('Image not found ' . $image_src, Response::HTTP_NOT_FOUND);
         }
 
         if (!$this->needGenerate($image_src, $derivative_src)) {
@@ -106,20 +106,20 @@ class MediaController extends AbstractController
         // deal with ./ at the beginning of path
         $image = $imageRepository->findOneByUnsanePath($path . '.' . $image_extension);
         if (is_null($image)) {
-            return new Response('Db file path not found ', 404);
+            return new Response('Db file path not found ', Response::HTTP_NOT_FOUND);
         }
 
         if (!$imageRepository->isAuthorizedToUser($image->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums())) {
-            return new Response('User not allowed to see that image ', 403);
+            return new Response('User not allowed to see that image ', Response::HTTP_FORBIDDEN);
         }
 
         $image_std_params->applyWatermark($derivative_params);
 
         if ($derivative_params->sizing->ideal_size[0] < 20 || $derivative_params->sizing->ideal_size[1] < 20) {
-            return new Response('Invalid size', 400);
+            return new Response('Invalid size', Response::HTTP_BAD_REQUEST);
         }
         if ($derivative_params->sizing->max_crop < 0 || $derivative_params->sizing->max_crop > 1) {
-            return new Response('Invalid crop', 400);
+            return new Response('Invalid crop', Response::HTTP_BAD_REQUEST);
         }
 
         $key = [];
@@ -127,11 +127,11 @@ class MediaController extends AbstractController
         $key = implode('_', $key);
 
         if (!$image_std_params->hasCustom($key)) {
-            return new Response('Size not allowed', 403);
+            return new Response('Size not allowed', Response::HTTP_FORBIDDEN);
         }
 
         if (!is_readable($image_src)) {
-            return new Response('Image not found ' . $image_src, 404);
+            return new Response('Image not found ' . $image_src, Response::HTTP_NOT_FOUND);
         }
 
         if (!$this->needGenerate($image_src, $derivative_src)) {
@@ -171,18 +171,18 @@ class MediaController extends AbstractController
         // deal with ./ at the beginning of path
         $image = $imageRepository->findOneByUnsanePath($path . '.' . $image_extension);
         if (is_null($image)) {
-            return new Response('Db file path not found ', 404);
+            return new Response('Db file path not found ', Response::HTTP_NOT_FOUND);
         }
 
         if (!$imageRepository->isAuthorizedToUser($image->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums())) {
-            return new Response('User not allowed to see that image ', 403);
+            return new Response('User not allowed to see that image ', Response::HTTP_FORBIDDEN);
         }
 
         $original_size = [$image->getWidth(), $image->getHeight()];
         $derivative_params = new DerivativeParams(new SizingParams($original_size));
 
         if (!is_readable($image_src)) {
-            return new Response('Image not found ' . $image_src, 404);
+            return new Response('Image not found ' . $image_src, Response::HTTP_NOT_FOUND);
         }
 
         if (!$this->needGenerate($image_src, $derivative_src)) {

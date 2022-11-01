@@ -29,10 +29,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SearchController extends AbstractController
 {
-    public function qsearch(Request $request, Conf $conf, SearchRepository $searchRepository): Response
+    public function qsearch(Request $request, SearchRepository $searchRepository): Response
     {
-        $tpl_params = [];
-
         if (!$request->get('q')) {
             throw $this->createNotFoundException();
         }
@@ -60,7 +58,6 @@ class SearchController extends AbstractController
         Request $request,
         TagMapper $tagMapper,
         AlbumMapper $albumMapper,
-        Conf $conf,
         SearchRepository $searchRepository,
         TranslatorInterface $translator,
         ImageMapper $imageMapper,
@@ -343,15 +340,8 @@ class SearchController extends AbstractController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function searchRules(
-        Request $request,
-        AlbumMapper $albumMapper,
-        Conf $conf,
-        TagRepository $tagRepository,
-        SearchRepository $searchRepository,
-        int $search_id,
-        TranslatorInterface $translator
-    ): Response {
+    public function searchRules(AlbumMapper $albumMapper, TagRepository $tagRepository, SearchRepository $searchRepository, int $search_id, TranslatorInterface $translator): Response
+    {
         $tpl_params = [];
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search rules');

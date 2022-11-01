@@ -23,13 +23,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 class CalendarController extends AbstractController
 {
-    public function index(
-        Request $request,
-        ImageRepository $imageRepository,
-        string $date_type,
-        AppUserService $appUserService,
-        Conf $conf
-    ): Response {
+    public function index(ImageRepository $imageRepository, string $date_type, AppUserService $appUserService): Response
+    {
         $tpl_params = [];
         $tpl_params['date_type'] = $date_type;
         $tpl_params['number_of_images'] = 0;
@@ -65,14 +60,8 @@ class CalendarController extends AbstractController
         return $this->render('calendar.html.twig', $tpl_params);
     }
 
-    public function byYear(
-        Request $request,
-        ImageRepository $imageRepository,
-        string $date_type,
-        AppUserService $appUserService,
-        Conf $conf,
-        int $year
-    ): Response {
+    public function byYear(Request $request, ImageRepository $imageRepository, string $date_type, AppUserService $appUserService, int $year): Response
+    {
         $tpl_params = [];
         $tpl_params['number_of_images'] = 0;
         $tpl_params['date_type'] = $date_type;
@@ -107,15 +96,8 @@ class CalendarController extends AbstractController
         return $this->render('calendar_by_year.html.twig', $tpl_params);
     }
 
-    public function byMonth(
-        Request $request,
-        ImageRepository $imageRepository,
-        AppUserService $appUserService,
-        Conf $conf,
-        string $date_type,
-        int $year,
-        int $month
-    ): Response {
+    public function byMonth(Request $request, ImageRepository $imageRepository, AppUserService $appUserService, string $date_type, int $year, int $month): Response
+    {
         $tpl_params = [];
         $tpl_params['date_type'] = $date_type;
         $tpl_params['year'] = $year;

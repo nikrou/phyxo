@@ -21,6 +21,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CommentFilterType extends AbstractType
@@ -52,7 +53,7 @@ class CommentFilterType extends AbstractType
         $items_number_options = [5 => 5, 10 => 10, 20 => 20, 50 => 50, 'All comments' => null];
 
         $builder
-            ->setMethod('GET')
+            ->setMethod(Request::METHOD_GET)
 
             ->add('keyword', TextType::class, ['required' => false])
 

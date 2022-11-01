@@ -315,7 +315,7 @@ class AdminThemesController extends AbstractController
     {
         $path = sprintf('%s/%s/screenshot.png', $themesDir, $theme);
         if (!is_readable($path)) {
-            return new Response('screenshot not found', 404);
+            return new Response('screenshot not found', Response::HTTP_NOT_FOUND);
         }
 
         $response = new BinaryFileResponse($path);
