@@ -27,3 +27,8 @@ when@test:
     test: true
     session:
       storage_factory_id: session.storage.factory.mock_file
+
+when@dev:
+  framework:
+    session:
+      cookie_secure: false
