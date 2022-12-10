@@ -51,7 +51,7 @@ class Tag
     /**
      * @var ImageTagInfos
      */
-    private $related_image_tag_infos = [];
+    private array $related_image_tag_infos = [];
 
     public function __construct()
     {

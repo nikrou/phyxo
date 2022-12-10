@@ -16,12 +16,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use App\Repository\UserRepository;
+use Symfony\Component\Console\Attribute\AsCommand;
 
-#[\Symfony\Component\Console\Attribute\AsCommand('phyxo:user:list', 'List users')]
+#[AsCommand('phyxo:user:list')]
 class UserListCommand extends Command
 {
-    private $userRepository, $databaseYamlFile;
-
     private array $Fields = [
         'id' => 'Id',
         'username' => 'Username',
@@ -31,12 +30,9 @@ class UserListCommand extends Command
         'theme' => 'Theme',
     ];
 
-    public function __construct(UserRepository $userRepository, string $databaseYamlFile)
+    public function __construct(private UserRepository $userRepository, private string $databaseYamlFile)
     {
         parent::__construct();
-
-        $this->userRepository = $userRepository;
-        $this->databaseYamlFile = $databaseYamlFile;
     }
 
     public function isEnabled(): bool

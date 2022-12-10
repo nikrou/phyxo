@@ -33,7 +33,7 @@ class InstallController extends AbstractController
     ];
 
     /** @var array<string, string> */
-    private $languages_options;
+    private ?array $languages_options = null;
     private string $default_prefix = 'phyxo_';
 
     public function __construct(

@@ -30,6 +30,7 @@ return static function (RectorConfig $rectorConfig): void {
         SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
         SymfonyLevelSetList::UP_TO_SYMFONY_60,
         SymfonyLevelSetList::UP_TO_SYMFONY_61,
+        SymfonyLevelSetList::UP_TO_SYMFONY_62,
         LevelSetList::UP_TO_PHP_80,
         LevelSetList::UP_TO_PHP_81
     ]);

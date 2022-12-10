@@ -620,7 +620,7 @@ class AdminBatchManagerController extends AbstractController
     }
 
     /**
-     * @return array<string, int|float|bool|string|null|array<int>>
+     * @return array<int, array<int, int|string|null>|int>
      */
     protected function getFilterSetsFromFilter(
         SearchMapper $searchMapper,

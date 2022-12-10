@@ -16,14 +16,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 class UserModel
 {
     #[Assert\NotBlank(message: 'Please enter your username')]
-    private $username;
+    private ?string $username = null;
 
     #[Assert\NotBlank(message: 'Please enter your password')]
-    private $password;
+    private ?string $password = null;
 
 
     #[Assert\Email]
-    private $mail_address;
+    private ?string $mail_address = null;
 
     public function getUsername(): ?string
     {

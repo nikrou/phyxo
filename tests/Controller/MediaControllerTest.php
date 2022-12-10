@@ -172,7 +172,7 @@ class MediaControllerTest extends WebTestCase
     {
         /** @var User $admin */
         $admin = new User();
-        $admin->unserialize(serialize([1, 'admin', 'passwd', ['ROLE_USER', 'ROLE_WEBMASTER']]));
+        $admin->fromArray(1, 'admin', 'passwd', ['ROLE_USER', 'ROLE_WEBMASTER']);
 
         self::ensureKernelShutdown();
         $client = static::createClient();

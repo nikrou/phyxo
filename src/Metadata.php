@@ -15,7 +15,9 @@ use Phyxo\Conf;
 
 class Metadata
 {
-    private $root_dir, $conf;
+    private $root_dir,
+
+    $conf;
 
     public function __construct(Conf $conf, string $rootProjectDir)
     {
@@ -78,9 +80,9 @@ class Metadata
         foreach ($iptc as $iptc_key => $value) {
             if (in_array($iptc_key, ['date_creation', 'date_available'])) {
                 if (preg_match('/(\d{4})(\d{2})(\d{2})/', (string) $value, $matches)) {
-                    $year = $matches[1];
-                    $month = $matches[2];
-                    $day = $matches[3];
+                    $year = (int) $matches[1];
+                    $month = (int) $matches[2];
+                    $day = (int) $matches[3];
 
                     if (!checkdate($month, $day, $year)) {
                         // we suppose the year is correct

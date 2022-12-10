@@ -16,21 +16,27 @@ use App\Entity\Theme;
 
 class UserInfosModel
 {
-    private $username;
+    private ?string $username = null;
 
+    /**
+     * @var mixed|null
+     */
     private $recent_period;
 
+    /**
+     * @var mixed|null
+     */
     private $nb_image_page;
 
-    private $language;
+    private ?Language $language = null;
 
-    private $theme;
+    private ?Theme $theme = null;
 
-    private $show_nb_comments;
+    private ?bool $show_nb_comments = null;
 
-    private $show_nb_hits;
+    private ?bool $show_nb_hits = null;
 
-    private $expand;
+    private ?bool $expand = null;
 
     public function setUsername(string $username): self
     {

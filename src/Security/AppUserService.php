@@ -13,21 +13,20 @@ namespace App\Security;
 
 use App\Entity\User;
 use Phyxo\Conf;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Security\Core\Security;
 
 class AppUserService
 {
-    private $user, $security, $userProvider, $conf, $authorizationChecker;
-    private $guest_user, $guest_user_retrieved = false;
+    private User $user;
 
-    public function __construct(Security $security, UserProvider $userProvider, Conf $conf, AuthorizationCheckerInterface $authorizationChecker)
+    private User $guest_user;
+
+    private bool $guest_user_retrieved = false;
+
+    public function __construct(private Security $security, private UserProvider $userProvider, private Conf $conf, private AuthorizationCheckerInterface $authorizationChecker)
     {
-        $this->security = $security;
-        $this->userProvider = $userProvider;
-        $this->conf = $conf;
-        $this->authorizationChecker = $authorizationChecker;
     }
 
     public function getUser(): ?User
@@ -39,7 +38,10 @@ class AppUserService
                 throw new AccessDeniedException('Access denied to guest');
             }
         } else {
-            $this->user = $this->security->getToken()->getUser();
+            /** @var User $security_user */
+            $security_user = $this->security->getUser();
+
+            $this->user = $security_user;
         }
 
         return $this->user;

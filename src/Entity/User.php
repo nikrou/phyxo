@@ -500,6 +500,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return $this;
     }
 
+    public function fromArray(int $id, string $username, string $password, array $roles)
+    {
+        $this->id = $id;
+        $this->username = $username;
+        $this->password = $password;
+        $this->roles = $roles;
+    }
+
     // proxy methods
     public function getLocale(): ?string
     {

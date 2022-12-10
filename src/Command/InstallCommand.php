@@ -12,6 +12,7 @@
 namespace App\Command;
 
 use App\Install\PhyxoInstaller;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -21,20 +22,16 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Input\ArrayInput;
 
-#[\Symfony\Component\Console\Attribute\AsCommand('phyxo:install', 'Install Phyxo')]
+#[AsCommand('phyxo:install')]
 class InstallCommand extends Command
 {
     private array $db_params = ['db_layer' => '', 'db_host' => '', 'db_name' => '', 'db_user' => '', 'db_password' => '', 'db_prefix' => ''];
-    private $databaseYamlFile, $rootProjectDir, $phyxoInstaller;
+
     private string $default_prefix = 'phyxo_';
 
-    public function __construct(PhyxoInstaller $phyxoInstaller, string $databaseYamlFile, string $rootProjectDir)
+    public function __construct(private PhyxoInstaller $phyxoInstaller, private string $databaseYamlFile, private string $rootProjectDir)
     {
         parent::__construct();
-
-        $this->phyxoInstaller = $phyxoInstaller;
-        $this->databaseYamlFile = $databaseYamlFile;
-        $this->rootProjectDir = $rootProjectDir;
     }
 
     public function isEnabled(): bool

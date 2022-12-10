@@ -13,7 +13,7 @@ namespace App\Form\Model;
 
 class PasswordResetModel
 {
-    private $new_password;
+    private ?string $new_password = null;
 
     public function setNewPassword(string $new_password): self
     {

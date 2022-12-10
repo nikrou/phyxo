@@ -17,24 +17,24 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class ImageCommentModel
 {
-    private $author;
+    private ?string $author = null;
 
-    private $user;
+    private ?User $user = null;
 
     #[Assert\Email(message: 'Please enter a valid mail address')]
-    private $mail_address;
+    private ?string $mail_address = null;
 
-    private $image;
+    private ?Image $image = null;
 
     #[Assert\NotBlank(message: 'Please enter a message for your comment')]
-    private $content;
+    private ?string $content = null;
 
     /**
      * @Assert\URL(message="Please enter a valid Website URL")
      */
-    private $website_url;
+    private ?string $website_url = null;
 
-    private $client_ip;
+    private ?string $client_ip = null;
 
     public function setUser(User $user): self
     {

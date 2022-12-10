@@ -12,7 +12,6 @@
 namespace Phyxo\Ws;
 
 use App\DataMapper\AlbumMapper;
-use Phyxo\Ws\Error;
 use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
@@ -26,17 +25,55 @@ use App\Security\AppUserService;
 use App\Utils\UserManager;
 use Doctrine\Persistence\ManagerRegistry;
 use Imagine\Image\ImagineInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Security\Core\Security;
 
 class Server
 {
-    private $upload_dir, $tagMapper, $commentMapper, $appUserService, $userMapper, $albumMapper, $rateMapper, $searchMapper, $imageMapper;
-    private $phyxoVersion, $conf, $router, $image_std_params, $userManager, $passwordHasher, $pem_url, $security;
-    private $params, $request, $managerRegistry, $imageLibrary;
+    private $upload_dir,
+
+    $tagMapper,
+
+    $commentMapper,
+
+    $appUserService,
+
+    $userMapper,
+
+    $albumMapper,
+
+    $rateMapper,
+
+    $searchMapper,
+
+    $imageMapper;
+
+    private $phyxoVersion,
+
+    $conf,
+
+    $router,
+
+    $image_std_params,
+
+    $userManager,
+
+    $passwordHasher,
+
+    $pem_url,
+
+    $security;
+
+    private $params,
+
+    $request,
+
+    $managerRegistry,
+
+    $imageLibrary;
 
     private array $_methods = [];
 
@@ -287,7 +324,7 @@ class Server
         $request_params = [];
         $params = [];
 
-        if ($request->getContentType() === 'json') {
+        if ($request->getContentTypeFormat() === 'json') {
             $request_params = json_decode($request->getContent(), true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {

@@ -3,7 +3,8 @@ framework:
   secret: '%env(APP_SECRET)%'
   default_locale: en_GB
   csrf_protection: true
-  #http_method_override: true
+  http_method_override: false
+  handle_all_throwables: true
 
   assets:
     version_strategy: 'App\Asset\PathVersionStrategy'
@@ -21,8 +22,6 @@ framework:
   http_client:
     default_options:
       max_redirects: 5
-
-  http_method_override: true
 
 when@test:
   framework:

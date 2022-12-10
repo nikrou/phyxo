@@ -18,20 +18,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use App\Utils\UserManager;
 use App\Entity\User;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-#[\Symfony\Component\Console\Attribute\AsCommand('phyxo:user:create', 'Create user')]
+#[AsCommand('phyxo:user:create')]
 class UserCreateCommand extends Command
 {
     private array $params = ['username' => '', 'password' => '', 'mail_address' => ''];
-    private $userManager, $passwordHasher, $databaseYamlFile;
 
-    public function __construct(UserManager $userManager, UserPasswordHasherInterface $passwordHasher, string $databaseYamlFile)
+    public function __construct(private UserManager $userManager, private UserPasswordHasherInterface $passwordHasher, private string $databaseYamlFile)
     {
         parent::__construct();
-        $this->userManager = $userManager;
-        $this->passwordHasher = $passwordHasher;
-        $this->databaseYamlFile = $databaseYamlFile;
     }
 
     public function isEnabled(): bool

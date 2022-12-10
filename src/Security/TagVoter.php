@@ -14,9 +14,9 @@ namespace App\Security;
 use App\Entity\Image;
 use App\Entity\User;
 use Phyxo\Conf;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -24,15 +24,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class TagVoter extends Voter
 {
-    private $security, $conf;
-
     final public const ADD = 'add-atg';
     final public const DELETE = 'delete-tag';
 
-    public function __construct(Security $security, Conf $conf)
+    public function __construct(private Security $security, private Conf $conf)
     {
-        $this->security = $security;
-        $this->conf = $conf;
     }
 
     protected function supports($attribute, $subject): bool

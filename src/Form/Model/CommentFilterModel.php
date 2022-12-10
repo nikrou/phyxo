@@ -17,20 +17,38 @@ class CommentFilterModel
 {
     private int $page = 0;
 
+    /**
+     * @var mixed|string|null
+     */
     private $keyword;
 
-    private $author;
+    private ?string $author = null;
 
+    /**
+     * @var mixed|Album|null
+     */
     private $album;
 
     private array $albums = [];
 
+    /**
+     * @var mixed|string|null
+     */
     private $since;
 
+    /**
+     * @var mixed|string|null
+     */
     private $sort_by;
 
+    /**
+     * @var mixed|string|null
+     */
     private $sort_order;
 
+    /**
+     * @var mixed|int|null
+     */
     private $items_number;
 
     public function fromArray(array $defaults = []): self

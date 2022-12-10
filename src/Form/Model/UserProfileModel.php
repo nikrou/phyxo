@@ -15,15 +15,15 @@ use App\Entity\UserInfos;
 
 class UserProfileModel
 {
-    private $username;
+    private ?string $username = null;
 
-    private $current_password;
+    private ?string $current_password = null;
 
-    private $new_password;
+    private ?string $new_password = null;
 
-    private $mail_address;
+    private ?string $mail_address = null;
 
-    private $user_infos;
+    private ?UserInfos $user_infos = null;
 
     public function getUsername(): ?string
     {

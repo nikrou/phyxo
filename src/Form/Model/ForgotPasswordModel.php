@@ -13,7 +13,7 @@ namespace App\Form\Model;
 
 class ForgotPasswordModel
 {
-    private $identifier;
+    private ?string $identifier = null;
 
     public function setIdentifier(string $identifier): self
     {
