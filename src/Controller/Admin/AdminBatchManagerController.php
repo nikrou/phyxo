@@ -45,7 +45,7 @@ class AdminBatchManagerController extends AbstractController
 
     private DerivativeService $derivativeService;
 
-    private User $user;
+    private readonly User $user;
 
     public function __construct(AppUserService $appUserService)
     {
@@ -72,7 +72,7 @@ class AdminBatchManagerController extends AbstractController
             $previous_filter = [];
         }
 
-        $session->set('bulk_manager_filter', array_merge($previous_filter, $filter));
+        $session->set('bulk_manager_filter', [...$previous_filter, ...$filter]);
     }
 
     /**
@@ -295,7 +295,7 @@ class AdminBatchManagerController extends AbstractController
 
         // Dissociate from a category : categories listed for dissociation can only
         // represent virtual links. We can't create orphans. Links to physical categories can't be broken.
-        if (count($current_set) > 0) {
+        if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
             $tpl_params['associated_categories'] = [];
             foreach ($imageMapper->getRepository()->findVirtualAlbumsWithImages($current_set) as $album) {
                 $tpl_params['associated_categories'][] = $album['id'];
@@ -324,7 +324,7 @@ class AdminBatchManagerController extends AbstractController
 
         if ($request->get('display')) {
             if ($request->get('display') === 'all') {
-                $nb_images = count($current_set);
+                $nb_images = is_countable($current_set) ? count($current_set) : 0;
             } else {
                 $nb_images = (int) $request->get('display');
             }
@@ -338,8 +338,8 @@ class AdminBatchManagerController extends AbstractController
         }
         $nb_thumbs_page = 0;
 
-        if (count($current_set) > 0) {
-            $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_global', ['filter' => $filter], count($current_set), $start, $nb_images);
+        if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
+            $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_global', ['filter' => $filter], is_countable($current_set) ? count($current_set) : 0, $start, $nb_images);
 
             $is_category = false;
             if (isset($this->getFilter($request->getSession())['category']) && !isset($this->getFilter($request->getSession())['category_recursive'])) {
@@ -416,7 +416,7 @@ class AdminBatchManagerController extends AbstractController
         $tpl_params['selection'] = $collection;
         $tpl_params['all_elements'] = $current_set;
         $tpl_params['nb_thumbs_page'] = $nb_thumbs_page;
-        $tpl_params['nb_thumbs_set'] = count($current_set);
+        $tpl_params['nb_thumbs_set'] = is_countable($current_set) ? count($current_set) : 0;
         $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($managerRegistry, ['tags', 'categories'], $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 
@@ -1069,7 +1069,7 @@ class AdminBatchManagerController extends AbstractController
 
         // Dissociate from a category : categories listed for dissociation can only
         // represent virtual links. We can't create orphans. Links to physical categories can't be broken.
-        if (count($current_set) > 0) {
+        if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
             $tpl_params['associated_categories'] = [];
             foreach ($imageMapper->getRepository()->findVirtualAlbumsWithImages($current_set) as $album) {
                 $tpl_params['associated_categories'][] = $album['id'];
@@ -1108,8 +1108,8 @@ class AdminBatchManagerController extends AbstractController
                 $nb_images = 5;
             }
         }
-        if (count($current_set) > 0) {
-            $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_unit', ['filter' => $filter], count($current_set), $start, $nb_images);
+        if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
+            $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_unit', ['filter' => $filter], is_countable($current_set) ? count($current_set) : 0, $start, $nb_images);
 
             $is_category = false;
             if (isset($this->getFilter($request->getSession())['category']) && !isset($this->getFilter($request->getSession())['category_recursive'])) {

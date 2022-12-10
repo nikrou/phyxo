@@ -20,9 +20,9 @@ use Imagine\Image\Point;
 
 class ImageOptimizer
 {
-    private ImageInterface $image;
+    private readonly ImageInterface $image;
 
-    public function __construct(private string $sourceFilePath, private ImagineInterface $imagine)
+    public function __construct(private readonly string $sourceFilePath, private readonly ImagineInterface $imagine)
     {
         $this->imagine->setMetadataReader(new ExifMetadataReader());
 

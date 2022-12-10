@@ -85,7 +85,7 @@ class Upload
                 $max = $upload_form_config[$field]['max'];
                 $pattern = $upload_form_config[$field]['pattern'];
 
-                if (preg_match($pattern, $value) and $value >= $min and $value <= $max) {
+                if (preg_match($pattern, (string) $value) and $value >= $min and $value <= $max) {
                     $updates[] = [
                         'param' => $field,
                         'value' => $value

@@ -33,7 +33,7 @@ class AdminNotificationController extends AbstractController
         'nbm_send_recent_post_dates' => 'boolean',
     ];
 
-    public function __construct(private AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(private readonly AuthorizationCheckerInterface $authorizationChecker)
     {
     }
 

@@ -23,7 +23,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, LocaleAwareInterface
 {
-    private PhpFileLoader $loader;
+    private readonly PhpFileLoader $loader;
 
     /** @var array<mixed> $runtimeResources */
     private array $runtimeResources = [];
@@ -31,7 +31,7 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
     /**
      * @param TranslatorBagInterface|TranslatorInterface|LocaleAwareInterface $translator
      */
-    public function __construct(private $translator, private CacheInterface $cache, private MessageFormatterInterface $formatter)
+    public function __construct(private $translator, private readonly CacheInterface $cache, private readonly MessageFormatterInterface $formatter)
     {
         $this->loader = new PhpFileLoader();
     }

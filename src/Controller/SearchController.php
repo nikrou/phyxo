@@ -70,7 +70,7 @@ class SearchController extends AbstractController
         $available_tags = $tagMapper->getAvailableTags($appUserService->getUser());
 
         if (count($available_tags) > 0) {
-            usort($available_tags, [$tagMapper, 'alphaCompare']);
+            usort($available_tags, $tagMapper->alphaCompare(...));
             $tpl_params['TAGS'] = $available_tags;
         }
 

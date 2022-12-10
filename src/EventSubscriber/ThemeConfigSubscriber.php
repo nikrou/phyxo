@@ -23,9 +23,9 @@ use Twig\Environment;
 
 class ThemeConfigSubscriber implements EventSubscriberInterface
 {
-    private Themes $themes;
+    private readonly Themes $themes;
 
-    public function __construct(ThemeRepository $themeRepository, UserMapper $userMapper, private Conf $conf, private Environment $twig)
+    public function __construct(ThemeRepository $themeRepository, UserMapper $userMapper, private readonly Conf $conf, private readonly Environment $twig)
     {
         $this->themes = new Themes($themeRepository, $userMapper);
     }

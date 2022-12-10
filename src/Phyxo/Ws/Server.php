@@ -40,19 +40,19 @@ class Server
 
     private array $_methods = [];
 
-    public const WS_PARAM_ACCEPT_ARRAY = 0x010000;
-    public const WS_PARAM_FORCE_ARRAY = 0x030000;
-    public const WS_PARAM_OPTIONAL = 0x040000;
-    public const WS_TYPE_BOOL = 0x01;
-    public const WS_TYPE_INT = 0x02;
-    public const WS_TYPE_FLOAT = 0x04;
-    public const WS_TYPE_POSITIVE = 0x10;
-    public const WS_TYPE_NOTNULL = 0x20;
-    public const WS_TYPE_ID = self::WS_TYPE_INT | self::WS_TYPE_POSITIVE | self::WS_TYPE_NOTNULL;
-    public const WS_ERR_INVALID_METHOD = 501;
-    public const WS_ERR_MISSING_PARAM = 1002;
-    public const WS_ERR_INVALID_PARAM = 1003;
-    public const WS_XML_ATTRIBUTES = 'attributes_xml_';
+    final public const WS_PARAM_ACCEPT_ARRAY = 0x010000;
+    final public const WS_PARAM_FORCE_ARRAY = 0x030000;
+    final public const WS_PARAM_OPTIONAL = 0x040000;
+    final public const WS_TYPE_BOOL = 0x01;
+    final public const WS_TYPE_INT = 0x02;
+    final public const WS_TYPE_FLOAT = 0x04;
+    final public const WS_TYPE_POSITIVE = 0x10;
+    final public const WS_TYPE_NOTNULL = 0x20;
+    final public const WS_TYPE_ID = self::WS_TYPE_INT | self::WS_TYPE_POSITIVE | self::WS_TYPE_NOTNULL;
+    final public const WS_ERR_INVALID_METHOD = 501;
+    final public const WS_ERR_MISSING_PARAM = 1002;
+    final public const WS_ERR_INVALID_PARAM = 1003;
+    final public const WS_XML_ATTRIBUTES = 'attributes_xml_';
 
     public function __construct(string $upload_dir = '.')
     {
@@ -272,12 +272,12 @@ class Server
         // add reflection methods
         $this->addMethod(
             'reflection.getMethodList',
-            [\Phyxo\Ws\Server::class, 'getMethodList']
+            \Phyxo\Ws\Server::getMethodList(...)
         );
 
         $this->addMethod(
             'reflection.getMethodDetails',
-            [\Phyxo\Ws\Server::class, 'getMethodDetails'],
+            \Phyxo\Ws\Server::getMethodDetails(...),
             ['methodName']
         );
 
@@ -404,7 +404,7 @@ class Server
 
     public static function isPost()
     {
-        $contentType = isset($_SERVER['CONTENT_TYPE']) ? trim($_SERVER['CONTENT_TYPE']) : '';
+        $contentType = isset($_SERVER['CONTENT_TYPE']) ? trim((string) $_SERVER['CONTENT_TYPE']) : '';
         if ($contentType === "application/json") {
             //Receive the RAW post data.
             $content = trim(file_get_contents("php://input"));

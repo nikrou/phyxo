@@ -22,7 +22,7 @@ class HistoryEvent extends Event
     private string $ip;
     private string $tagIds = '';
 
-    public function __construct(private string $section)
+    public function __construct(private readonly string $section)
     {
     }
 

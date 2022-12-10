@@ -21,11 +21,9 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Input\ArrayInput;
 
+#[\Symfony\Component\Console\Attribute\AsCommand('phyxo:install', 'Install Phyxo')]
 class InstallCommand extends Command
 {
-    protected static $defaultName = 'phyxo:install';
-    protected static $defaultDescription = "Install Phyxo";
-
     private array $db_params = ['db_layer' => '', 'db_host' => '', 'db_name' => '', 'db_user' => '', 'db_password' => '', 'db_prefix' => ''];
     private $databaseYamlFile, $rootProjectDir, $phyxoInstaller;
     private string $default_prefix = 'phyxo_';
@@ -127,7 +125,7 @@ class InstallCommand extends Command
             $this->db_params['db_prefix'] = $input->getOption('db_prefix') ?: $this->default_prefix;
         } else {
             if (!$io->askQuestion(new ConfirmationQuestion("Install Phyxo using these settings?", true))) {
-                return 0;
+                return (int) Command::SUCCESS;
             }
         }
 
@@ -151,7 +149,7 @@ class InstallCommand extends Command
             $command->run(new ArrayInput($arguments), $output);
         } catch (\Exception $e) {
             $io->error($e->getMessage());
-            return 1;
+            return (int) Command::FAILURE;
         }
 
         $this->writeInfo($io, "What's next?");
@@ -161,7 +159,7 @@ class InstallCommand extends Command
             'Go to http://your.hostname/path/to/phyxo and start using your application'
         ]);
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 
     protected function writeInfo($io, string $message)

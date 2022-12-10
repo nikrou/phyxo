@@ -17,11 +17,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use App\Repository\UserRepository;
 
+#[\Symfony\Component\Console\Attribute\AsCommand('phyxo:user:list', 'List users')]
 class UserListCommand extends Command
 {
-    protected static $defaultName = 'phyxo:user:list';
-    protected static $defaultDescription = "List users";
-
     private $userRepository, $databaseYamlFile;
 
     private array $Fields = [
@@ -69,6 +67,6 @@ class UserListCommand extends Command
 
         $io->table(array_values($this->Fields), $users);
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

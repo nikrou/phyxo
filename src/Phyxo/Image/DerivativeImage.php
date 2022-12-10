@@ -122,7 +122,7 @@ class DerivativeImage
                 // no watermark, no rotation required -> we will use the source image
                 return [
                     'path' => $this->getPathBasename(),
-                    'derivative' => substr($this->params->type, 0, 2),
+                    'derivative' => substr((string) $this->params->type, 0, 2),
                     'sizes' => '',
                     'image_extension' => $this->getExtension()
                 ];
@@ -149,7 +149,7 @@ class DerivativeImage
         }
 
         $tokens = [];
-        $tokens[] = substr($this->params->type, 0, 2);
+        $tokens[] = substr((string) $this->params->type, 0, 2);
 
         if ($this->params->type === ImageStandardParams::IMG_CUSTOM) {
             $this->params->add_url_tokens($tokens);
@@ -157,7 +157,7 @@ class DerivativeImage
 
         return [
             'path' => $this->getPathBasename(),
-            'derivative' => substr($this->params->type, 0, 2),
+            'derivative' => substr((string) $this->params->type, 0, 2),
             'sizes' => '',
             'image_extension' => $this->getExtension()
         ];
@@ -193,7 +193,7 @@ class DerivativeImage
         }
 
         $tokens = [];
-        $tokens[] = substr($params->type, 0, 2);
+        $tokens[] = substr((string) $params->type, 0, 2);
 
         if ($params->type === ImageStandardParams::IMG_CUSTOM) {
             $params->add_url_tokens($tokens);

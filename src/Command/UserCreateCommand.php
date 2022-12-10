@@ -20,11 +20,9 @@ use App\Utils\UserManager;
 use App\Entity\User;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+#[\Symfony\Component\Console\Attribute\AsCommand('phyxo:user:create', 'Create user')]
 class UserCreateCommand extends Command
 {
-    protected static $defaultName = 'phyxo:user:create';
-    protected static $defaultDescription = "Create user";
-
     private array $params = ['username' => '', 'password' => '', 'mail_address' => ''];
     private $userManager, $passwordHasher, $databaseYamlFile;
 
@@ -108,6 +106,6 @@ class UserCreateCommand extends Command
             $io->error($e->getMessage());
         }
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

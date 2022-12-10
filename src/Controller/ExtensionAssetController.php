@@ -19,7 +19,7 @@ use Symfony\Component\Mime\MimeTypeGuesserInterface;
 
 class ExtensionAssetController extends AbstractController
 {
-    public function __construct(private MimeTypeGuesserInterface $mimeTypes)
+    public function __construct(private readonly MimeTypeGuesserInterface $mimeTypes)
     {
     }
 

@@ -17,8 +17,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ImageTagRepository::class)]
 class ImageTag
 {
-    public const STATUS_TO_ADD = 1;
-    public const STATUS_TO_DELETE = 0;
+    final public const STATUS_TO_ADD = 1;
+    final public const STATUS_TO_DELETE = 0;
 
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Image::class, inversedBy: 'imageTags')]

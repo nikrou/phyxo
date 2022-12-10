@@ -50,7 +50,7 @@ class TagController extends AbstractController
 
         if ($display_mode === 'letters') {
             // we want tags diplayed in alphabetic order
-            usort($tags, [$tagMapper, 'alphaCompare']);
+            usort($tags, $tagMapper->alphaCompare(...));
 
             $current_letter = null;
             $nb_tags = count($tags);
@@ -101,14 +101,14 @@ class TagController extends AbstractController
         } else {
             // we want only the first most represented tags, so we sort them by counter
             // and take the first tags
-            usort($tags, [$tagMapper, 'counterCompare']);
+            usort($tags, $tagMapper->counterCompare(...));
             $tags = array_slice($tags, 0, $conf['full_tag_cloud_items_number']);
 
             // depending on its counter and the other tags counter, each tag has a level
             $tags = $tagMapper->addLevelToTags($tags);
 
             // we want tags diplayed in alphabetic order
-            usort($tags, [$tagMapper, 'alphaCompare']);
+            usort($tags, $tagMapper->alphaCompare(...));
 
             // display sorted tags
             foreach ($tags as $tag) {

@@ -23,12 +23,12 @@ use Symfony\Component\Yaml\Yaml;
  */
 class Themes extends Extensions
 {
-    public const CONFIG_FILE = 'config.yaml';
+    final public const CONFIG_FILE = 'config.yaml';
     private $themes_root_path, $userMapper;
     private $fs_themes = [], $db_themes = [], $server_themes = [];
     private $fs_themes_retrieved = false, $db_themes_retrieved = false, $server_themes_retrieved = false;
 
-    public function __construct(private ThemeRepository $themeRepository, UserMapper $userMapper)
+    public function __construct(private readonly ThemeRepository $themeRepository, UserMapper $userMapper)
     {
         $this->userMapper = $userMapper;
     }
@@ -219,7 +219,7 @@ class Themes extends Extensions
                     continue;
                 }
 
-                $this->getFsTheme(basename($theme_dir));
+                $this->getFsTheme(basename((string) $theme_dir));
             }
 
             $this->fs_themes_retrieved = true;
@@ -252,8 +252,8 @@ class Themes extends Extensions
         ];
 
         $theme_data = Yaml::parse(file_get_contents($config_file));
-        if (!empty($theme_data['uri']) && ($pos = strpos($theme_data['uri'], 'extension_view.php?eid=')) !== false) {
-            [, $extension] = explode('extension_view.php?eid=', $theme_data['uri']);
+        if (!empty($theme_data['uri']) && ($pos = strpos((string) $theme_data['uri'], 'extension_view.php?eid=')) !== false) {
+            [, $extension] = explode('extension_view.php?eid=', (string) $theme_data['uri']);
             if (is_numeric($extension)) {
                 $theme_data['extension'] = (int) $extension;
             }
@@ -284,7 +284,7 @@ class Themes extends Extensions
                 $this->sortThemesByState();
                 break;
             case 'author':
-                uasort($this->fs_themes, [$this, 'themeAuthorCompare']);
+                uasort($this->fs_themes, $this->themeAuthorCompare(...));
                 break;
             case 'id':
                 uksort($this->fs_themes, 'strcasecmp');
@@ -314,7 +314,7 @@ class Themes extends Extensions
                 }
                 $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);
                 foreach ($pem_versions as $pem_version) {
-                    if (str_starts_with($pem_version['name'], $branch)) {
+                    if (str_starts_with((string) $pem_version['name'], $branch)) {
                         $versions_to_check[] = $pem_version['id'];
                     }
                 }
@@ -380,16 +380,16 @@ class Themes extends Extensions
                 krsort($this->server_themes);
                 break;
             case 'revision':
-                usort($this->server_themes, [$this, 'extensionRevisionCompare']);
+                usort($this->server_themes, $this->extensionRevisionCompare(...));
                 break;
             case 'name':
-                uasort($this->server_themes, [$this, 'extensionNameCompare']);
+                uasort($this->server_themes, $this->extensionNameCompare(...));
                 break;
             case 'author':
-                uasort($this->server_themes, [$this, 'extensionAuthorCompare']);
+                uasort($this->server_themes, $this->extensionAuthorCompare(...));
                 break;
             case 'downloads':
-                usort($this->server_themes, [$this, 'extensionDownloadsCompare']);
+                usort($this->server_themes, $this->extensionDownloadsCompare(...));
                 break;
         }
     }
@@ -435,12 +435,12 @@ class Themes extends Extensions
 
     public function extensionNameCompare($a, $b)
     {
-        return strcmp(strtolower($a['extension_name']), strtolower($b['extension_name']));
+        return strcmp(strtolower((string) $a['extension_name']), strtolower((string) $b['extension_name']));
     }
 
     public function extensionAuthorCompare($a, $b)
     {
-        $r = strcasecmp($a['author_name'], $b['author_name']);
+        $r = strcasecmp((string) $a['author_name'], (string) $b['author_name']);
         if ($r == 0) {
             return $this->extensionNameCompare($a, $b);
         } else {
@@ -450,7 +450,7 @@ class Themes extends Extensions
 
     public function themeAuthorCompare($a, $b)
     {
-        $r = strcasecmp($a['author'], $b['author']);
+        $r = strcasecmp((string) $a['author'], (string) $b['author']);
         if ($r == 0) {
             return \Phyxo\Functions\Utils::name_compare($a, $b);
         } else {

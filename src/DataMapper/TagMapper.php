@@ -28,7 +28,7 @@ use Symfony\Component\Routing\RouterInterface;
 
 class TagMapper
 {
-    public function __construct(private Conf $conf, private ImageStandardParams $image_std_params, private RouterInterface $router, private Metadata $metadata, private ImageTagRepository $imageTagRepository, private UserCacheRepository $userCacheRepository, private ImageRepository $imageRepository, private TagRepository $tagRepository)
+    public function __construct(private readonly Conf $conf, private readonly ImageStandardParams $image_std_params, private readonly RouterInterface $router, private readonly Metadata $metadata, private readonly ImageTagRepository $imageTagRepository, private readonly UserCacheRepository $userCacheRepository, private readonly ImageRepository $imageRepository, private readonly TagRepository $tagRepository)
     {
     }
 
@@ -64,7 +64,7 @@ class TagMapper
             $tags[] = $tag;
         }
 
-        usort($tags, [$this, 'alphaCompare']);
+        usort($tags, $this->alphaCompare(...));
 
         return $tags;
     }
@@ -142,7 +142,7 @@ class TagMapper
             $tags[] = $tag;
         }
 
-        usort($tags, [$this, 'alphaCompare']);
+        usort($tags, $this->alphaCompare(...));
 
         return $tags;
     }
@@ -170,7 +170,7 @@ class TagMapper
             $tags[] = $tag;
         }
 
-        usort($tags, [$this, 'alphaCompare']);
+        usort($tags, $this->alphaCompare(...));
 
         return $tags;
     }
@@ -497,7 +497,7 @@ class TagMapper
                         $tags_of[$id] = [];
                     }
 
-                    foreach (explode(',', $metadata[$key]) as $tag_name) {
+                    foreach (explode(',', (string) $metadata[$key]) as $tag_name) {
                         $tags_of[$id][] = $this->tagIdFromTagName($tag_name);
                     }
                 }

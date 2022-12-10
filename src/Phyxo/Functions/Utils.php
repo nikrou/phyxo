@@ -208,7 +208,7 @@ class Utils
      */
     public static function global_rank_compare($a, $b)
     {
-        return strnatcasecmp($a['global_rank'], $b['global_rank']);
+        return strnatcasecmp((string) $a['global_rank'], (string) $b['global_rank']);
     }
 
     /**
@@ -224,7 +224,7 @@ class Utils
      */
     public static function name_compare($a, $b)
     {
-        return strcmp(strtolower($a['name']), strtolower($b['name']));
+        return strcmp(strtolower((string) $a['name']), strtolower((string) $b['name']));
     }
 
     /**
@@ -369,7 +369,7 @@ class Utils
     {
         $ordered_element_ids = [];
         foreach ($element_ids as $k_id => $element_id) {
-            $key = strtolower($name[$element_id]) . '-' . $name[$element_id] . '-' . $k_id;
+            $key = strtolower((string) $name[$element_id]) . '-' . $name[$element_id] . '-' . $k_id;
             $ordered_element_ids[$key] = $element_id;
         }
         ksort($ordered_element_ids);
@@ -454,7 +454,7 @@ class Utils
 
     public static function convert_shorthand_notation_to_bytes($value)
     {
-        $suffix = substr($value, -1);
+        $suffix = substr((string) $value, -1);
         $multiply_by = null;
 
         if ($suffix === 'K') {
@@ -466,7 +466,7 @@ class Utils
         }
 
         if (!is_null($multiply_by)) {
-            $value = (int) substr($value, 0, -1);
+            $value = (int) substr((string) $value, 0, -1);
             $value = $value * $multiply_by;
         }
 

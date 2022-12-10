@@ -22,7 +22,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EditCommentType extends AbstractType
 {
-    public function __construct(private Conf $conf)
+    public function __construct(private readonly Conf $conf)
     {
     }
 

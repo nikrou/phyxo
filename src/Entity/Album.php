@@ -20,8 +20,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
 class Album
 {
-    public const STATUS_PUBLIC = 'public';
-    public const STATUS_PRIVATE = 'private';
+    final public const STATUS_PUBLIC = 'public';
+    final public const STATUS_PRIVATE = 'private';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

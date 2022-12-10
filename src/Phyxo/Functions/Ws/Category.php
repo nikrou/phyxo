@@ -218,7 +218,7 @@ class Category
                 'image_order' => $album->getImageOrder(),
                 'lastmodified' => $album->getLastModified(),
                 'nb_images' => $nb_images_of[$album->getId()] ?? '',
-                'fullname' => strip_tags($service->getAlbumMapper()->getAlbumsDisplayNameCache($album->getUppercats())),
+                'fullname' => strip_tags((string) $service->getAlbumMapper()->getAlbumsDisplayNameCache($album->getUppercats())),
             ];
         }
 
@@ -249,7 +249,7 @@ class Category
             $options['comment'] = $params['comment'];
         }
 
-        if (preg_match('/^\s*$/', $params['name'])) {
+        if (preg_match('/^\s*$/', (string) $params['name'])) {
             return new Error(500, 'The name of an album must not be empty');
         }
 
@@ -354,7 +354,7 @@ class Category
         if (!is_array($params['category_id'])) {
             $params['category_id'] = preg_split(
                 '/[\s,;\|]/',
-                $params['category_id'],
+                (string) $params['category_id'],
                 -1,
                 PREG_SPLIT_NO_EMPTY
             );
@@ -412,7 +412,7 @@ class Category
         if (!is_array($params['category_id'])) {
             $params['category_id'] = preg_split(
                 '/[\s,;\|]/',
-                $params['category_id'],
+                (string) $params['category_id'],
                 -1,
                 PREG_SPLIT_NO_EMPTY
             );

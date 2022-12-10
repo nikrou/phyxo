@@ -136,7 +136,7 @@ class AdminThemesController extends AbstractController
             }
             $s = ['active' => 0, 'inactive' => 1];
             if ($a['state'] === $b['state']) {
-                return strcasecmp($a['NAME'], $b['NAME']);
+                return strcasecmp((string) $a['NAME'], (string) $b['NAME']);
             } else {
                 return $s[$a['state']] >= $s[$b['state']];
             }
@@ -196,8 +196,8 @@ class AdminThemesController extends AbstractController
                         'EXT_ID' => $extension_id,
                         'EXT_NAME' => $fs_extension['name'],
                         'EXT_URL' => $params->get('pem_url') . '/extension_view.php?eid=' . $ext_info['extension_id'],
-                        'EXT_DESC' => trim($ext_info['extension_description'], " \n\r"),
-                        'REV_DESC' => trim($ext_info['revision_description'], " \n\r"),
+                        'EXT_DESC' => trim((string) $ext_info['extension_description'], " \n\r"),
+                        'REV_DESC' => trim((string) $ext_info['revision_description'], " \n\r"),
                         'CURRENT_VERSION' => $fs_extension['version'],
                         'NEW_VERSION' => $ext_info['revision_name'],
                         'AUTHOR' => $ext_info['author_name'],

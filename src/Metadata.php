@@ -42,7 +42,7 @@ class Metadata
                 foreach (array_keys($rmap) as $iptc_key) {
                     if (isset($iptc[$iptc_key][0])) {
                         if ($iptc_key == '2#025') {
-                            $value = implode($array_sep, array_map([$this, 'cleanIptcValue'], $iptc[$iptc_key]));
+                            $value = implode($array_sep, array_map($this->cleanIptcValue(...), $iptc[$iptc_key]));
                         } else {
                             $value = $this->cleanIptcValue($iptc[$iptc_key][0]);
                         }
@@ -77,7 +77,7 @@ class Metadata
 
         foreach ($iptc as $iptc_key => $value) {
             if (in_array($iptc_key, ['date_creation', 'date_available'])) {
-                if (preg_match('/(\d{4})(\d{2})(\d{2})/', $value, $matches)) {
+                if (preg_match('/(\d{4})(\d{2})(\d{2})/', (string) $value, $matches)) {
                     $year = $matches[1];
                     $month = $matches[2];
                     $day = $matches[3];
@@ -95,7 +95,7 @@ class Metadata
 
         if (isset($iptc['keywords'])) {
             // official keywords separator is the comma
-            $iptc['keywords'] = preg_replace('/[.;]/', ',', $iptc['keywords']);
+            $iptc['keywords'] = preg_replace('/[.;]/', ',', (string) $iptc['keywords']);
             $iptc['keywords'] = preg_replace('/,+/', ',', $iptc['keywords']);
             $iptc['keywords'] = preg_replace('/^,+|,+$/', '', $iptc['keywords']);
 
@@ -120,12 +120,12 @@ class Metadata
         if (is_readable($filename) && $exif = @exif_read_data($filename)) {
             // configured fields
             foreach ($map as $key => $field) {
-                if (!str_contains($field, ';')) {
+                if (!str_contains((string) $field, ';')) {
                     if (isset($exif[$field])) {
                         $result[$key] = $exif[$field];
                     }
                 } else {
-                    $tokens = explode(';', $field);
+                    $tokens = explode(';', (string) $field);
                     if (isset($exif[$tokens[0]][$tokens[1]])) {
                         $result[$key] = $exif[$tokens[0]][$tokens[1]];
                     }
@@ -147,7 +147,7 @@ class Metadata
             foreach ($result as $key => $value) {
                 // in case the origin of the photo is unsecure (user upload), we remove
                 // HTML tags to avoid XSS (malicious execution of javascript)
-                $result[$key] = htmlentities($value, ENT_QUOTES, 'utf-8');
+                $result[$key] = htmlentities((string) $value, ENT_QUOTES, 'utf-8');
             }
         }
 
@@ -163,7 +163,7 @@ class Metadata
 
         foreach ($exif as $exif_key => $value) {
             if (in_array($exif_key, ['date_creation', 'date_available'])) {
-                if (preg_match('/^(\d{4}).(\d{2}).(\d{2}) (\d{2}).(\d{2}).(\d{2})/', $value, $matches)) {
+                if (preg_match('/^(\d{4}).(\d{2}).(\d{2}) (\d{2}).(\d{2}).(\d{2})/', (string) $value, $matches)) {
                     if ($matches[1] != '0000' && $matches[2] != '00' && $matches[3] != '00'
                         && $matches[4] != '00' && $matches[5] != '00' && $matches[6] != '00') {
                         $exif[$exif_key] = \DateTime::createFromFormat(
@@ -173,7 +173,7 @@ class Metadata
                     } else {
                         unset($exif[$exif_key]);
                     }
-                } elseif (preg_match('/^(\d{4}).(\d{2}).(\d{2})/', $value, $matches)) {
+                } elseif (preg_match('/^(\d{4}).(\d{2}).(\d{2})/', (string) $value, $matches)) {
                     $exif[$exif_key] = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
                 } else {
                     unset($exif[$exif_key]);

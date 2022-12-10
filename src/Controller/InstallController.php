@@ -37,21 +37,21 @@ class InstallController extends AbstractController
     private string $default_prefix = 'phyxo_';
 
     public function __construct(
-        private string $translationsDir,
-        private string $defaultLanguage,
-        private string $defaultTheme,
-        private PhyxoInstaller $phyxoInstaller,
-        private string $mediaCacheDir,
-        private string $themesDir,
-        private string $pluginsDir,
-        private string $databaseYamlFile,
-        private UserPasswordHasherInterface $passwordHasher,
-        private string $uploadDir,
-        private TranslatorInterface $translator,
-        private string $rootProjectDir,
-        private string $varDir,
-        private string $configDir,
-        private string $localDir
+        private readonly string $translationsDir,
+        private readonly string $defaultLanguage,
+        private readonly string $defaultTheme,
+        private readonly PhyxoInstaller $phyxoInstaller,
+        private readonly string $mediaCacheDir,
+        private readonly string $themesDir,
+        private readonly string $pluginsDir,
+        private readonly string $databaseYamlFile,
+        private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly string $uploadDir,
+        private readonly TranslatorInterface $translator,
+        private readonly string $rootProjectDir,
+        private readonly string $varDir,
+        private readonly string $configDir,
+        private readonly string $localDir
     ) {
     }
 
@@ -89,7 +89,7 @@ class InstallController extends AbstractController
         if ($step !== $tpl_params['STEP']) {
             return  $this->redirectToRoute('install', ['step' => $tpl_params['STEP'], 'language' => $language]);
         }
-        $tpl_params['lang_info'] = ['code' => preg_replace('`_.*`', '', $language), 'direction' => 'ltr']; // @TODO: retrieve from common place
+        $tpl_params['lang_info'] = ['code' => preg_replace('`_.*`', '', (string) $language), 'direction' => 'ltr']; // @TODO: retrieve from common place
         $tpl_params['LANGUAGE'] = $language;
         $tpl_params['domain'] = 'install';
 
@@ -323,7 +323,7 @@ class InstallController extends AbstractController
                     'driver' => $database_params['parameters']['database_driver']
                 ];
                 if ($database_params['parameters']['database_driver'] === 'pdo_sqlite') {
-                    $connectionParams['path'] = str_replace('%kernel.project_dir%', $this->rootProjectDir, $database_params['parameters']['database_path']);
+                    $connectionParams['path'] = str_replace('%kernel.project_dir%', $this->rootProjectDir, (string) $database_params['parameters']['database_path']);
                 } else {
                     $connectionParams['host'] = $database_params['parameters']['database_host'];
                     $connectionParams['dbname'] = $database_params['parameters']['database_name'];

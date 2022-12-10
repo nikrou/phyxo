@@ -16,7 +16,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class BlockEvent extends Event
 {
-    public function __construct(private BlockManager $menu)
+    public function __construct(private readonly BlockManager $menu)
     {
     }
 

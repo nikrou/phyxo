@@ -16,7 +16,7 @@ use PclZip;
 
 class Extensions
 {
-    public const TYPES = ['plugins', 'themes', 'languages'];
+    final public const TYPES = ['plugins', 'themes', 'languages'];
 
     protected $directory_pattern = '', $pem_url;
 
@@ -74,13 +74,13 @@ class Extensions
 
             // find main file
             foreach ($list as $file) {
-                if (isset($file['filename']) && basename($file['filename']) === $main_file && (!isset($main_filepath) || strlen($file['filename']) < strlen($main_filepath))) {
+                if (isset($file['filename']) && basename((string) $file['filename']) === $main_file && (!isset($main_filepath) || strlen((string) $file['filename']) < strlen((string) $main_filepath))) {
                     $main_filepath = $file['filename'];
                 }
             }
 
             if (!empty($main_filepath)) {
-                $root = basename(dirname($main_filepath)); // dirname($main_filepath) cannot be null throw Exception if needed
+                $root = basename(dirname((string) $main_filepath)); // dirname($main_filepath) cannot be null throw Exception if needed
                 $extract_path .= '/' . $root;
 
                 if (!empty($this->directory_pattern)) {

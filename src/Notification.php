@@ -44,16 +44,16 @@ class Notification
     private array $errors = [];
 
     public function __construct(
-        private Conf $conf,
-        private UserMapper $userMapper,
-        private AlbumMapper $albumMapper,
-        private RouterInterface $router,
-        private ImageMapper $imageMapper,
-        private MailerInterface $mailer,
-        private TranslatorInterface $translator,
-        private CommentRepository $commentRepository,
-        private UserMailNotificationRepository $userMailNotificationRepository,
-        private UserInfosRepository $userInfosRepository
+        private readonly Conf $conf,
+        private readonly UserMapper $userMapper,
+        private readonly AlbumMapper $albumMapper,
+        private readonly RouterInterface $router,
+        private readonly ImageMapper $imageMapper,
+        private readonly MailerInterface $mailer,
+        private readonly TranslatorInterface $translator,
+        private readonly CommentRepository $commentRepository,
+        private readonly UserMailNotificationRepository $userMailNotificationRepository,
+        private readonly UserInfosRepository $userInfosRepository
     ) {
         $this->env = [
             'start_time' => microtime(true),

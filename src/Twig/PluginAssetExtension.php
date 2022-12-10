@@ -18,15 +18,15 @@ use Twig\TwigFunction;
 
 class PluginAssetExtension extends AbstractExtension
 {
-    public function __construct(private AssetsManager $assetsManager, private UrlGeneratorInterface $urlGenerator)
+    public function __construct(private readonly AssetsManager $assetsManager, private readonly UrlGeneratorInterface $urlGenerator)
     {
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('publicHeadContent', [$this, 'publicHeadContent'], ['is_safe' => ['html']]),
-            new TwigFunction('publicFooterContent', [$this, 'publicFooterContent'], ['is_safe' => ['html']]),
+            new TwigFunction('publicHeadContent', $this->publicHeadContent(...), ['is_safe' => ['html']]),
+            new TwigFunction('publicFooterContent', $this->publicFooterContent(...), ['is_safe' => ['html']]),
 
         ];
     }

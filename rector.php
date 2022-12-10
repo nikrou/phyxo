@@ -29,7 +29,9 @@ return static function (RectorConfig $rectorConfig): void {
         SymfonySetList::SYMFONY_CODE_QUALITY,
         SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
         SymfonyLevelSetList::UP_TO_SYMFONY_60,
-        LevelSetList::UP_TO_PHP_80
+        SymfonyLevelSetList::UP_TO_SYMFONY_61,
+        LevelSetList::UP_TO_PHP_80,
+        LevelSetList::UP_TO_PHP_81
     ]);
 
     // register a single rule

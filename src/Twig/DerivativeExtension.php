@@ -20,17 +20,17 @@ use Twig\TwigFunction;
 
 class DerivativeExtension extends AbstractExtension
 {
-    public function __construct(private ImageStandardParams $image_std_params, private UrlGeneratorInterface $urlGenerator)
+    public function __construct(private readonly ImageStandardParams $image_std_params, private readonly UrlGeneratorInterface $urlGenerator)
     {
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('define_derivative', [$this, 'defineDerivative']),
-            new TwigFunction('define_derivative_square', [$this, 'defineDerivativeSquare']),
-            new TwigFunction('derivative_from_image', [$this, 'derivativeFromImage']),
-            new TwigFunction('media_path', [$this, 'mediaPath'])
+            new TwigFunction('define_derivative', $this->defineDerivative(...)),
+            new TwigFunction('define_derivative_square', $this->defineDerivativeSquare(...)),
+            new TwigFunction('derivative_from_image', $this->derivativeFromImage(...)),
+            new TwigFunction('media_path', $this->mediaPath(...))
         ];
     }
 

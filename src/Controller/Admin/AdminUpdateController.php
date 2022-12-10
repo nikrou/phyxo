@@ -94,7 +94,7 @@ class AdminUpdateController extends AbstractController
                 try {
                     $all_versions = $updater->getAllVersions();
                     $tpl_params['CHECK_VERSION'] = true;
-                    $last_version = trim($all_versions[0]['version']);
+                    $last_version = trim((string) $all_versions[0]['version']);
                     $upgrade_to = $last_version;
 
                     if (version_compare($params->get('core_version'), $last_version, '<')) {
@@ -108,7 +108,7 @@ class AdminUpdateController extends AbstractController
 
                             // Check if new version exists in same branch
                             foreach ($all_versions as $version) {
-                                $new_branch = preg_replace('/(\d+\.\d+)\.\d+/', '$1', $version['version']);
+                                $new_branch = preg_replace('/(\d+\.\d+)\.\d+/', '$1', (string) $version['version']);
 
                                 if ($new_branch === $actual_branch) {
                                     if (version_compare($params->get('core_version'), $version['version'], '<')) {

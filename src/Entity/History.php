@@ -18,19 +18,19 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: HistoryRepository::class)]
 class History
 {
-    public const SECTION_ALBUMS = 'categories';
-    public const SECTION_TAGS = 'tags';
-    public const SECTION_SEARCH = 'search';
-    public const SECTION_LIST = 'list';
-    public const SECTION_FAVORITES = 'favorites';
-    public const SECTION_MOST_VISITED = 'most_visited';
-    public const SECTION_BEST_RATED = 'best_rated';
-    public const SECTION_RECENT_PICS = 'recent_pics';
-    public const SECTION_RECENT_ALBUMS = 'recent_cats';
+    final public const SECTION_ALBUMS = 'categories';
+    final public const SECTION_TAGS = 'tags';
+    final public const SECTION_SEARCH = 'search';
+    final public const SECTION_LIST = 'list';
+    final public const SECTION_FAVORITES = 'favorites';
+    final public const SECTION_MOST_VISITED = 'most_visited';
+    final public const SECTION_BEST_RATED = 'best_rated';
+    final public const SECTION_RECENT_PICS = 'recent_pics';
+    final public const SECTION_RECENT_ALBUMS = 'recent_cats';
 
-    public const IMAGE_TYPE_PICTURE = 'picture';
-    public const IMAGE_TYPE_HIGH = 'high';
-    public const IMAGE_TYPE_OTHER = 'other';
+    final public const IMAGE_TYPE_PICTURE = 'picture';
+    final public const IMAGE_TYPE_HIGH = 'high';
+    final public const IMAGE_TYPE_OTHER = 'other';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

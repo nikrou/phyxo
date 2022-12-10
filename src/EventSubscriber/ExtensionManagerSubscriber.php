@@ -28,7 +28,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ExtensionManagerSubscriber implements EventSubscriberInterface
 {
-    private Plugins $plugins;
+    private readonly Plugins $plugins;
 
     /**
      * @TODO: change Plugins interface to only accept language instead of UserMapper
@@ -37,12 +37,12 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
     public function __construct(
         PluginRepository $pluginRepository,
         UserMapper $userMapper,
-        private AssetsManager $assetsManager,
+        private readonly AssetsManager $assetsManager,
         string $pluginsDir,
         string $pemURL,
-        private EventDispatcherInterface $eventDispatcher,
-        private ExtensionCollection $extensionCollection,
-        private ThemeLoader $themeLoader
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ExtensionCollection $extensionCollection,
+        private readonly ThemeLoader $themeLoader
     ) {
         $this->plugins = new Plugins($pluginRepository, $userMapper);
         $this->plugins->setRootPath($pluginsDir);

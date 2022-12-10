@@ -18,7 +18,7 @@ class RegisteredBlock
 {
     private $dataCallback = null;
 
-    public function __construct(private string $id, private string $name, private string $owner, callable $dataCallback = null)
+    public function __construct(private readonly string $id, private readonly string $name, private readonly string $owner, callable $dataCallback = null)
     {
         $this->dataCallback = $dataCallback;
     }

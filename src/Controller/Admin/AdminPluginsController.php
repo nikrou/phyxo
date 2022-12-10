@@ -153,7 +153,7 @@ class AdminPluginsController extends AbstractController
         $plugins->setExtensionsURL($params->get('pem_url'));
 
         foreach ($plugins->getServerPlugins($conf['pem_plugins_category'], $params->get('core_version'), $new = true) as $plugin) {
-            $ext_desc = trim($plugin['extension_description'], " \n\r");
+            $ext_desc = trim((string) $plugin['extension_description'], " \n\r");
             [$small_desc] = explode("\n", wordwrap($ext_desc, 200));
 
             $tpl_params['plugins'][] = [
@@ -163,7 +163,7 @@ class AdminPluginsController extends AbstractController
                 'SMALL_DESC' => trim($small_desc, " \r\n"),
                 'BIG_DESC' => $ext_desc,
                 'VERSION' => $plugin['revision_name'],
-                'REVISION_DATE' => preg_replace('/[^0-9]/', '', $plugin['revision_date']),
+                'REVISION_DATE' => preg_replace('/[^0-9]/', '', (string) $plugin['revision_date']),
                 'AUTHOR' => $plugin['author_name'],
                 'DOWNLOADS' => $plugin['extension_nb_downloads'],
                 'URL_DOWNLOAD' => $plugin['download_url'] . '&amp;origin=phyxo_download',
@@ -229,8 +229,8 @@ class AdminPluginsController extends AbstractController
                         'EXT_ID' => $extension_id,
                         'EXT_NAME' => $fs_extension['name'],
                         'EXT_URL' => $params->get('pem_url') . '/extension_view.php?eid=' . $extension_info['extension_id'],
-                        'EXT_DESC' => trim($extension_info['extension_description'], " \n\r"),
-                        'REV_DESC' => trim($extension_info['revision_description'], " \n\r"),
+                        'EXT_DESC' => trim((string) $extension_info['extension_description'], " \n\r"),
+                        'REV_DESC' => trim((string) $extension_info['revision_description'], " \n\r"),
                         'CURRENT_VERSION' => $fs_extension['version'],
                         'NEW_VERSION' => $extension_info['revision_name'],
                         'AUTHOR' => $extension_info['author_name'],

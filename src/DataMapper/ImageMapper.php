@@ -30,7 +30,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ImageMapper
 {
-    public function __construct(private RouterInterface $router, private UserMapper $userMapper, private Conf $conf, private ImageStandardParams $image_std_params, private AlbumMapper $albumMapper, private HistoryRepository $historyRepository, private TranslatorInterface $translator, private ImageRepository $imageRepository, private ImageAlbumRepository $imageAlbumRepository, private CommentRepository $commentRepository, private CaddieRepository $caddieRepository, private FavoriteRepository $favoriteRepository, private RateRepository $rateRepository, private ImageTagRepository $imageTagRepository, private DerivativeService $derivativeService)
+    public function __construct(private readonly RouterInterface $router, private readonly UserMapper $userMapper, private Conf $conf, private readonly ImageStandardParams $image_std_params, private readonly AlbumMapper $albumMapper, private readonly HistoryRepository $historyRepository, private readonly TranslatorInterface $translator, private readonly ImageRepository $imageRepository, private readonly ImageAlbumRepository $imageAlbumRepository, private readonly CommentRepository $commentRepository, private readonly CaddieRepository $caddieRepository, private readonly FavoriteRepository $favoriteRepository, private readonly RateRepository $rateRepository, private readonly ImageTagRepository $imageTagRepository, private readonly DerivativeService $derivativeService)
     {
     }
 
@@ -295,11 +295,11 @@ class ImageMapper
         }
 
         if (!empty($comment)) {
-            $comment = strip_tags($comment);
+            $comment = strip_tags((string) $comment);
             $title .= ' ' . substr($comment, 0, 100) . (strlen($comment) > 100 ? '...' : '');
         }
 
-        $title = htmlspecialchars(strip_tags($title));
+        $title = htmlspecialchars(strip_tags((string) $title));
 
         return $title;
     }

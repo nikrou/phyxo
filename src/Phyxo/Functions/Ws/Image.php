@@ -44,8 +44,8 @@ class Image
         }
 
         $comm = [
-            'author' => trim($params['author']),
-            'content' => trim($params['content']),
+            'author' => trim((string) $params['author']),
+            'content' => trim((string) $params['content']),
             'image_id' => $params['image_id'],
             'ip' => $service->getRequest()->getClientIp()
         ];
@@ -346,7 +346,7 @@ class Image
 
         $bytes_written = file_put_contents(
             $upload_dir . '/' . $filename,
-            base64_decode($params['data'])
+            base64_decode((string) $params['data'])
         );
 
         if (false === $bytes_written) {
@@ -508,7 +508,7 @@ class Image
         if (isset($params['categories'])) {
             self::addImageAlbumRelations($service, $image_id, $params['categories'], $replace_mode = false);
 
-            if (preg_match('/^\d+/', $params['categories'], $matches)) {
+            if (preg_match('/^\d+/', (string) $params['categories'], $matches)) {
                 $category_id = $matches[0];
 
                 $album = $service->getAlbumMapper()->getRepository()->find($category_id);
@@ -519,7 +519,7 @@ class Image
 
         // and now, let's create tag associations
         if (!empty($params['tag_ids'])) {
-            $service->getTagMapper()->setTags(explode(',', $params['tag_ids']), $image_id, $service->getUserMapper()->getUser());
+            $service->getTagMapper()->setTags(explode(',', (string) $params['tag_ids']), $image_id, $service->getUserMapper()->getUser());
         }
 
         $service->getUserMapper()->invalidateUserCache();
@@ -594,9 +594,9 @@ class Image
                     $tag_ids[] = $service->getTagMapper()->tagIdFromTagName($tag_name);
                 }
             } else {
-                $tag_names = preg_split('~(?<!\\\),~', $params['tags']);
+                $tag_names = preg_split('~(?<!\\\),~', (string) $params['tags']);
                 foreach ($tag_names as $tag_name) {
-                    $tag_ids[] = $service->getTagMapper()->tagIdFromTagName(preg_replace('#\\\\*,#', ',', $tag_name));
+                    $tag_ids[] = $service->getTagMapper()->tagIdFromTagName(preg_replace('#\\\\*,#', ',', (string) $tag_name));
                 }
             }
 
@@ -739,7 +739,7 @@ class Image
             // search among photos the list of photos already added, based on md5sum list
             $md5sums = preg_split(
                 $split_pattern,
-                $params['md5sum_list'],
+                (string) $params['md5sum_list'],
                 -1,
                 PREG_SPLIT_NO_EMPTY
             );
@@ -763,7 +763,7 @@ class Image
             // search among photos the list of photos already added, based on filename list
             $filenames = preg_split(
                 $split_pattern,
-                $params['filename_list'],
+                (string) $params['filename_list'],
                 -1,
                 PREG_SPLIT_NO_EMPTY
             );
@@ -967,7 +967,7 @@ class Image
         if (isset($params['tag_ids'])) {
             $tag_ids = [];
 
-            foreach (explode(',', $params['tag_ids']) as $candidate) {
+            foreach (explode(',', (string) $params['tag_ids']) as $candidate) {
                 $candidate = trim($candidate);
 
                 if (preg_match('/^\d+$/', $candidate)) {
@@ -1004,7 +1004,7 @@ class Image
         if (!is_array($params['image_id'])) {
             $params['image_id'] = preg_split(
                 '/[\s,;\|]/',
-                $params['image_id'],
+                (string) $params['image_id'],
                 -1,
                 PREG_SPLIT_NO_EMPTY
             );
@@ -1033,12 +1033,12 @@ class Image
     {
         $message = '';
         if (!is_dir($service->getUploadDir())) {
-            if (!is_writable(dirname($service->getUploadDir()))) {
-                $message = sprintf('Create the "%s" directory at the root of your Phyxo installation', basename($service->getUploadDir()));
+            if (!is_writable(dirname((string) $service->getUploadDir()))) {
+                $message = sprintf('Create the "%s" directory at the root of your Phyxo installation', basename((string) $service->getUploadDir()));
             }
         } else {
             if (!is_writable($service->getUploadDir())) {
-                $message = sprintf('Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation', basename($service->getUploadDir()));
+                $message = sprintf('Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation', basename((string) $service->getUploadDir()));
             }
         }
 
@@ -1234,7 +1234,7 @@ class Image
 
             // compute file path
             $date_string = $now->format('YmdHis');
-            $random_string = substr($md5sum, 0, 8);
+            $random_string = substr((string) $md5sum, 0, 8);
             $filename_wo_ext = $date_string . '-' . $random_string;
             $file_path = $filename_dir . '/' . $filename_wo_ext . '.';
 
@@ -1287,7 +1287,7 @@ class Image
 
         if (isset($image_id)) {
             $image = $service->getImageMapper()->getRepository()->find($image_id);
-            $image->setFile(!empty($original_filename) ? $original_filename : basename($file_path));
+            $image->setFile(!empty($original_filename) ? $original_filename : basename((string) $file_path));
             $image->setFilesize($filesize);
             $image->setWidth($width);
             $image->setHeight($height);
@@ -1301,10 +1301,10 @@ class Image
             $service->getImageMapper()->getRepository()->addOrUpdateImage($image);
         } else {
             $image = new EntityImage();
-            $image->setFile(!empty($original_filename) ? $original_filename : basename($file_path));
+            $image->setFile(!empty($original_filename) ? $original_filename : basename((string) $file_path));
             $image->setName(Utils::get_name_from_file($image->getFile()));
             $image->setDateAvailable($now);
-            $image->setPath(preg_replace('#^' . preg_quote(dirname($upload_dir)) . '#', '.', realpath($file_path)));
+            $image->setPath(preg_replace('#^' . preg_quote(dirname((string) $upload_dir)) . '#', '.', realpath($file_path)));
             $image->setFilesize($filesize);
             $image->setWidth($width);
             $image->setHeight($height);

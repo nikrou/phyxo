@@ -22,7 +22,7 @@ class Languages extends Extensions
     private $fs_languages = [], $db_languages = [], $server_languages = [];
     private $fs_languages_retrieved = false, $db_languages_retrieved = false, $server_languages_retrieved = false;
 
-    public function __construct(private ?\App\Repository\LanguageRepository $languageRepository = null, string $defaultLanguage = '')
+    public function __construct(private readonly ?\App\Repository\LanguageRepository $languageRepository = null, string $defaultLanguage = '')
     {
         $this->defaultLanguage = $defaultLanguage;
     }
@@ -124,7 +124,7 @@ class Languages extends Extensions
     {
         if (!$this->fs_languages_retrieved) {
             foreach (glob($this->languages_root_path . '/messages+intl-icu.*.php') as $messages_file) {
-                if (!preg_match('`.*messages\+intl\-icu\.([a-zA-Z0-9-_]+)\.php`', $messages_file, $matches)) {
+                if (!preg_match('`.*messages\+intl\-icu\.([a-zA-Z0-9-_]+)\.php`', (string) $messages_file, $matches)) {
                     continue;
                 }
                 $language_code = $matches[1];
@@ -205,7 +205,7 @@ class Languages extends Extensions
                 }
                 $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);
                 foreach ($pem_versions as $pem_version) {
-                    if (str_starts_with($pem_version['name'], $branch)) {
+                    if (str_starts_with((string) $pem_version['name'], $branch)) {
                         $versions_to_check[] = $pem_version['id'];
                     }
                 }
@@ -248,11 +248,11 @@ class Languages extends Extensions
                 }
 
                 foreach ($pem_languages as $language) {
-                    if (preg_match('/^.*? \[[A-Z]{2}\]$/', $language['extension_name'])) {
+                    if (preg_match('/^.*? \[[A-Z]{2}\]$/', (string) $language['extension_name'])) {
                         $this->server_languages[$language['extension_id']] = $language;
                     }
                 }
-                uasort($this->server_languages, [$this, 'extensionNameCompare']);
+                uasort($this->server_languages, $this->extensionNameCompare(...));
             } catch (\Exception $e) {
                 throw new \Exception($e->getMessage());
             }
@@ -304,7 +304,7 @@ class Languages extends Extensions
         if ($list = $zip->listContent()) {
             // find main file
             foreach ($list as $file) {
-                if (isset($file['filename']) && preg_match('`.*messages\+intl\-icu\.([a-zA-Z0-9-_]+)\.php`', basename($file['filename']), $matches)) {
+                if (isset($file['filename']) && preg_match('`.*messages\+intl\-icu\.([a-zA-Z0-9-_]+)\.php`', basename((string) $file['filename']), $matches)) {
                     $main_filepath = $file['filename'];
                     $language_id = $matches[1];
                 }
@@ -333,6 +333,6 @@ class Languages extends Extensions
      */
     public function extensionNameCompare($a, $b)
     {
-        return strcmp(strtolower($a['extension_name']), strtolower($b['extension_name']));
+        return strcmp(strtolower((string) $a['extension_name']), strtolower((string) $b['extension_name']));
     }
 }

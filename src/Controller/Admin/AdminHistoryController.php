@@ -38,7 +38,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminHistoryController extends AbstractController
 {
-    public function __construct(private ImageStandardParams $image_std_params, private TranslatorInterface $translator)
+    public function __construct(private readonly ImageStandardParams $image_std_params, private readonly TranslatorInterface $translator)
     {
     }
 

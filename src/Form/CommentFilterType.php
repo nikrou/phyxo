@@ -26,7 +26,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CommentFilterType extends AbstractType
 {
-    public function __construct(private AppUserService $appUserService)
+    public function __construct(private readonly AppUserService $appUserService)
     {
     }
 

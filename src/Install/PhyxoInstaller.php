@@ -64,7 +64,7 @@ class PhyxoInstaller
     {
         $config = new Configuration();
         if (!empty($db_params['dsn'])) {
-            $_params = parse_url($db_params['dsn']);
+            $_params = parse_url((string) $db_params['dsn']);
             $db_params['db_layer'] = $_params['scheme'];
             $db_params['db_host'] = $_params['host'] ?? '';
             $db_params['db_user'] = $_params['user'] ?? '';
@@ -210,7 +210,7 @@ class PhyxoInstaller
         $sql_lines = file($filepath);
         $query = '';
         foreach ($sql_lines as $sql_line) {
-            $sql_line = trim($sql_line);
+            $sql_line = trim((string) $sql_line);
             if (preg_match('/(^--|^$)/', $sql_line)) {
                 continue;
             }

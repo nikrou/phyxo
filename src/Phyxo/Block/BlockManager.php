@@ -22,7 +22,7 @@ class BlockManager
     protected array $registered_blocks = [];
     protected array $display_blocks = [];
 
-    public function __construct(private string $id)
+    public function __construct(private readonly string $id)
     {
     }
 
@@ -119,7 +119,7 @@ class BlockManager
 
     protected function sortBlocks(): void
     {
-        uasort($this->display_blocks, [$this, 'cmp_by_position']);
+        uasort($this->display_blocks, $this->cmp_by_position(...));
     }
 
     /**

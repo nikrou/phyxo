@@ -24,7 +24,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class HistorySearchType extends AbstractType
 {
-    public const TYPES = [
+    final public const TYPES = [
         'none' => 'none',
         'picture' => 'picture',
         'high' => 'high',

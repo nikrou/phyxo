@@ -18,18 +18,18 @@ class ImageStandardParams
 {
     private string $conf_key = 'derivatives';
 
-    public const IMG_ORIGINAL = 'original';
+    final public const IMG_ORIGINAL = 'original';
 
-    public const IMG_SQUARE = 'square';
-    public const IMG_THUMB = 'thumb';
-    public const IMG_XXSMALL = '2small';
-    public const IMG_XSMALL = 'xsmall';
-    public const IMG_SMALL = 'small';
-    public const IMG_MEDIUM = 'medium';
-    public const IMG_LARGE = 'large';
-    public const IMG_XLARGE = 'xlarge';
-    public const IMG_XXLARGE = 'xxlarge';
-    public const IMG_CUSTOM = 'custom';
+    final public const IMG_SQUARE = 'square';
+    final public const IMG_THUMB = 'thumb';
+    final public const IMG_XXSMALL = '2small';
+    final public const IMG_XSMALL = 'xsmall';
+    final public const IMG_SMALL = 'small';
+    final public const IMG_MEDIUM = 'medium';
+    final public const IMG_LARGE = 'large';
+    final public const IMG_XLARGE = 'xlarge';
+    final public const IMG_XXLARGE = 'xxlarge';
+    final public const IMG_CUSTOM = 'custom';
 
     private $conf, $derivatives;
     private $all_type_map = [], $type_map = [], $watermark = [], $customs = [], $quality = 95, $undefined_type_map = [];

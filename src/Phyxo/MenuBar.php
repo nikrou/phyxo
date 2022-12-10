@@ -36,7 +36,7 @@ class MenuBar
         TagMapper $tagMapper,
         TranslatorInterface $translator,
         string $defaultDateType,
-        private EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
         $this->conf = $conf;
         $this->router = $router;

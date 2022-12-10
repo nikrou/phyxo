@@ -63,15 +63,15 @@ class AdminConfigurationController extends AbstractController
     ];
 
     /** @var array<string, string> $sort_fields */
-    private array $sort_fields;
+    private readonly array $sort_fields;
 
     /** @var array<string, string> $comments_order */
-    private array $comments_order;
+    private readonly array $comments_order;
 
     /** @var array<string, string> $mail_themes */
     private array $mail_themes;
 
-    public function __construct(private TranslatorInterface $translator)
+    public function __construct(private readonly TranslatorInterface $translator)
     {
         $this->sort_fields = [
             '' => '',
@@ -181,8 +181,8 @@ class AdminConfigurationController extends AbstractController
         }
 
         $tpl_params['main'] = [
-            'CONF_GALLERY_TITLE' => htmlspecialchars($conf['gallery_title']),
-            'CONF_PAGE_BANNER' => htmlspecialchars($conf['page_banner']),
+            'CONF_GALLERY_TITLE' => htmlspecialchars((string) $conf['gallery_title']),
+            'CONF_PAGE_BANNER' => htmlspecialchars((string) $conf['page_banner']),
             'week_starts_on_options' => ['sunday' => $this->translator->trans('sunday', [], 'admin'), 'monday' => $this->translator->trans('monday', [], 'admin')],
             'week_starts_on_options_selected' => $conf['week_starts_on'],
             'mail_theme' => $conf['mail_theme'],
@@ -305,7 +305,7 @@ class AdminConfigurationController extends AbstractController
         $watermark_files = [];
 
         foreach (glob($themesDir . '/*/watermarks/*.png') as $file) {
-            $watermark_files[] = 'themes' . substr($file, strlen($themesDir));
+            $watermark_files[] = 'themes' . substr((string) $file, strlen($themesDir));
         }
 
         if (($glob = glob($localDir . '/watermarks/*.png')) !== false) {

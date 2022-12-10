@@ -16,7 +16,7 @@ use App\Repository\AlbumRepository;
 
 class SearchMapper
 {
-    public function __construct(private ImageMapper $imageMapper, private AlbumRepository $albumRepository)
+    public function __construct(private readonly ImageMapper $imageMapper, private readonly AlbumRepository $albumRepository)
     {
     }
 

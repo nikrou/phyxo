@@ -22,6 +22,8 @@ framework:
     default_options:
       max_redirects: 5
 
+  http_method_override: true
+
 when@test:
   framework:
     test: true

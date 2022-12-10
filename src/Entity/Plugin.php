@@ -18,8 +18,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PluginRepository::class)]
 class Plugin
 {
-    public const ACTIVE = 'active';
-    public const INACTIVE = 'inactive';
+    final public const ACTIVE = 'active';
+    final public const INACTIVE = 'inactive';
 
     #[ORM\Id]
     #[ORM\Column(type: 'string', length: 40)]

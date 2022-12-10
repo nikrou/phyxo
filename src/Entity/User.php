@@ -21,16 +21,16 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Table(name: 'users')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface, \Serializable
+class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface
 {
-    public const STATUS_WEBMASTER = 'webmaster';
-    public const STATUS_ADMIN = 'admin';
-    public const STATUS_NORMAL = 'normal';
-    public const STATUS_GUEST = 'guest';
+    final public const STATUS_WEBMASTER = 'webmaster';
+    final public const STATUS_ADMIN = 'admin';
+    final public const STATUS_NORMAL = 'normal';
+    final public const STATUS_GUEST = 'guest';
 
-    public const ALL_STATUS = [self::STATUS_WEBMASTER, self::STATUS_ADMIN, self::STATUS_NORMAL, self::STATUS_GUEST];
+    final public const ALL_STATUS = [self::STATUS_WEBMASTER, self::STATUS_ADMIN, self::STATUS_NORMAL, self::STATUS_GUEST];
 
-    public const STATUS_TO_ROLE = [
+    final public const STATUS_TO_ROLE = [
         self::STATUS_WEBMASTER => 'ROLE_WEBMASTER',
         self::STATUS_ADMIN => 'ROLE_ADMIN',
         self::STATUS_NORMAL => 'ROLE_NORMAL',
@@ -52,6 +52,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     private ?string $password = null;
 
     private ?string $plain_password = null;
+
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $mail_address = null;
 
@@ -497,22 +498,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         }
 
         return $this;
-    }
-
-    public function serialize()
-    {
-        return serialize([
-            $this->id,
-            $this->username,
-            $this->password,
-            $this->getRoles()
-        ]);
-    }
-
-    public function unserialize($serialized)
-    {
-        /** @phpstan-ignore-next-line */
-        [$this->id, $this->username, $this->password, $this->roles] = unserialize($serialized);
     }
 
     // proxy methods

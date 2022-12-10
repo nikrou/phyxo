@@ -28,7 +28,7 @@ use Symfony\Component\Security\Csrf\Exception\TokenNotFoundException;
 
 class UserProvider implements UserProviderInterface
 {
-    public function __construct(private UserRepository $userRepository, private ImageAlbumRepository $imageAlbumRepository, private ImageRepository $imageRepository, private AlbumMapper $albumMapper, private UserCacheRepository $userCacheRepository, private UserCacheAlbumRepository $userCacheAlbumRepository)
+    public function __construct(private readonly UserRepository $userRepository, private readonly ImageAlbumRepository $imageAlbumRepository, private readonly ImageRepository $imageRepository, private readonly AlbumMapper $albumMapper, private readonly UserCacheRepository $userCacheRepository, private readonly UserCacheAlbumRepository $userCacheAlbumRepository)
     {
     }
 

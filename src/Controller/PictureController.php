@@ -648,7 +648,7 @@ class PictureController extends AbstractController
                 ];
 
                 foreach ($conf['show_exif_fields'] as $field) {
-                    if (!str_contains($field, ';')) {
+                    if (!str_contains((string) $field, ';')) {
                         if (isset($exif[$field])) {
                             $key = $field;
                             $key = $this->translator->trans('exif_field_' . $field);
@@ -656,7 +656,7 @@ class PictureController extends AbstractController
                             $tpl_meta['lines'][$key] = $exif[$field];
                         }
                     } else {
-                        $tokens = explode(';', $field);
+                        $tokens = explode(';', (string) $field);
                         if (isset($exif[$field])) {
                             $key = $tokens[1];
                             $key = $this->translator->trans('exif_field_' . $key);

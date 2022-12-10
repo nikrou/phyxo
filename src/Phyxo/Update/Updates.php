@@ -27,7 +27,7 @@ class Updates
     private $update_url, $pem_url, $missing = [];
     private $core_need_update = false, $extensions_need_update = [];
 
-    public function __construct(private UserMapper $userMapper, private string $core_version, private Plugins $plugins, private Themes $themes, private Languages $languages)
+    public function __construct(private readonly UserMapper $userMapper, private readonly string $core_version, private readonly Plugins $plugins, private readonly Themes $themes, private readonly Languages $languages)
     {
     }
 
@@ -101,7 +101,7 @@ class Updates
     public function download($zip_file)
     {
         $fs = new Filesystem();
-        $fs->mkdir(dirname($zip_file));
+        $fs->mkdir(dirname((string) $zip_file));
 
         try {
             $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
@@ -126,7 +126,7 @@ class Updates
         $root = __DIR__ . '/../../../';
 
         foreach ($zip->listContent() as $file) {
-            $filename = str_replace('phyxo/', '', $file['filename']);
+            $filename = str_replace('phyxo/', '', (string) $file['filename']);
             $dest = $dest_dir = $root . '/' . $filename;
             while (!is_dir($dest_dir = dirname($dest_dir)));
 
@@ -178,7 +178,7 @@ class Updates
             }
             $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);
             foreach ($pem_versions as $pem_version) {
-                if (str_starts_with($pem_version['name'], $branch)) {
+                if (str_starts_with((string) $pem_version['name'], $branch)) {
                     $versions_to_check[] = $pem_version['id'];
                 }
             }
@@ -265,7 +265,7 @@ class Updates
                 throw new \Exception($e->getMessage());
             }
             if (!empty($all_versions)) {
-                $new_version = trim($all_versions[0]['version']);
+                $new_version = trim((string) $all_versions[0]['version']);
                 $this->core_need_update = version_compare($this->core_version, $new_version, '<');
             }
         }

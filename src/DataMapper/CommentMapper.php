@@ -72,7 +72,7 @@ class CommentMapper
         } else {
             $comment->setDate(new \DateTime());
         }
-        $comment->setAnonymousId(isset($params['anonymous_id']) ? md5($params['anonymous_id']) : md5('::1'));
+        $comment->setAnonymousId(isset($params['anonymous_id']) ? md5((string) $params['anonymous_id']) : md5('::1'));
         $comment->setValidated($params['validated'] ?? true);
         $comment->setWebsiteUrl($params['website_url'] ?? '');
         $comment->setEmail($params['email'] ?? '');
@@ -126,7 +126,7 @@ class CommentMapper
             if (!$this->conf['comments_enable_website']) { // honeypot: if the field is disabled, it should be empty !
                 $comment_action = 'reject';
             } else {
-                $comm['website_url'] = strip_tags($comm['website_url']);
+                $comm['website_url'] = strip_tags((string) $comm['website_url']);
                 if (!preg_match('/^https?/i', $comm['website_url'])) {
                     $comm['website_url'] = 'http://' . $comm['website_url'];
                 }

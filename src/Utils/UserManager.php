@@ -20,11 +20,11 @@ use App\Repository\UserInfosRepository;
 class UserManager
 {
     public function __construct(
-        private UserRepository $userRepository,
-        private UserInfosRepository $userInfosRepository,
-        private GroupRepository $groupRepository,
-        private string $defaultLanguage,
-        private string $defaultTheme
+        private readonly UserRepository $userRepository,
+        private readonly UserInfosRepository $userInfosRepository,
+        private readonly GroupRepository $groupRepository,
+        private readonly string $defaultLanguage,
+        private readonly string $defaultTheme
     ) {
     }
 

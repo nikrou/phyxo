@@ -18,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class TablePrefixSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private string $prefix)
+    public function __construct(private readonly string $prefix)
     {
     }
 

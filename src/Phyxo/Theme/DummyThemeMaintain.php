@@ -17,7 +17,7 @@ class DummyThemeMaintain implements ThemeMaintain
 {
     public function __construct(
         /** @phpstan-ignore-next-line */
-        private string $theme_id
+        private readonly string $theme_id
     )
     {
     }

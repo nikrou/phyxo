@@ -18,7 +18,7 @@ use Symfony\Component\Form\DataTransformerInterface;
 
 class UserToUserProfileTransformer implements DataTransformerInterface
 {
-    public function __construct(private UserRepository $userRepository)
+    public function __construct(private readonly UserRepository $userRepository)
     {
     }
 

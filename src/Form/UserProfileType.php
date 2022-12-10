@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Constraints\Email;
 
 class UserProfileType extends AbstractType
 {
-    public function __construct(private UserRepository $userRepository)
+    public function __construct(private readonly UserRepository $userRepository)
     {
     }
 

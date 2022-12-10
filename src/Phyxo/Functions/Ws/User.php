@@ -262,7 +262,7 @@ class User
                     return new Error(Server::WS_ERR_INVALID_PARAM, 'this login is already used');
                 }
 
-                if ($params['username'] != strip_tags($params['username'])) {
+                if ($params['username'] != strip_tags((string) $params['username'])) {
                     return new Error(Server::WS_ERR_INVALID_PARAM, 'html tags are not allowed in login');
                 }
                 $user->setUsername($params['username']);

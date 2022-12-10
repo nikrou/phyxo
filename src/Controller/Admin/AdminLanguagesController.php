@@ -147,7 +147,7 @@ class AdminLanguagesController extends AbstractController
         $languages->setExtensionsURL($params->get('pem_url'));
 
         foreach ($languages->getServerLanguages($conf['pem_languages_category'], $params->get('core_version'), $new = true) as $language) {
-            [$date, ] = explode(' ', $language['revision_date']);
+            [$date, ] = explode(' ', (string) $language['revision_date']);
 
             $tpl_params['languages'][] = [
                 'EXT_NAME' => $language['extension_name'],
@@ -246,8 +246,8 @@ class AdminLanguagesController extends AbstractController
                         'EXT_ID' => $extension_id,
                         'EXT_NAME' => $fs_extension['name'],
                         'EXT_URL' => $params->get('pem_url') . '/extension_view.php?eid=' . $extension_info['extension_id'],
-                        'EXT_DESC' => trim($extension_info['extension_description'], " \n\r"),
-                        'REV_DESC' => trim($extension_info['revision_description'], " \n\r"),
+                        'EXT_DESC' => trim((string) $extension_info['extension_description'], " \n\r"),
+                        'REV_DESC' => trim((string) $extension_info['revision_description'], " \n\r"),
                         'CURRENT_VERSION' => $fs_extension['version'],
                         'NEW_VERSION' => $extension_info['revision_name'],
                         'AUTHOR' => $extension_info['author_name'],

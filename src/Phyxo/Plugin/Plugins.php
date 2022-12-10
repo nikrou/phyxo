@@ -21,14 +21,14 @@ use Symfony\Component\Yaml\Yaml;
 
 class Plugins extends Extensions
 {
-    public const CONFIG_FILE = 'config.yaml';
+    final public const CONFIG_FILE = 'config.yaml';
 
     private $fs_plugins = [], $db_plugins = [], $server_plugins = [];
     private $fs_plugins_retrieved = false, $db_plugins_retrieved = false, $server_plugins_retrieved = false;
     private array $default_plugins = [];
     private $plugins_root_path, $userMapper;
 
-    public function __construct(private PluginRepository $pluginRepository, UserMapper $userMapper)
+    public function __construct(private readonly PluginRepository $pluginRepository, UserMapper $userMapper)
     {
         $this->userMapper = $userMapper;
     }
@@ -181,7 +181,7 @@ class Plugins extends Extensions
                     continue;
                 }
 
-                $this->getFsPlugin(basename($plugin_dir));
+                $this->getFsPlugin(basename((string) $plugin_dir));
             }
             $this->fs_plugins_retrieved = true;
         }
@@ -205,8 +205,8 @@ class Plugins extends Extensions
             'author' => '',
         ];
         $plugin_data = Yaml::parse(file_get_contents($config_file));
-        if (!empty($plugin_data['uri']) && ($pos = strpos($plugin_data['uri'], 'extension_view.php?eid=')) !== false) {
-            [, $extension] = explode('extension_view.php?eid=', $plugin_data['uri']);
+        if (!empty($plugin_data['uri']) && ($pos = strpos((string) $plugin_data['uri'], 'extension_view.php?eid=')) !== false) {
+            [, $extension] = explode('extension_view.php?eid=', (string) $plugin_data['uri']);
             if (is_numeric($extension)) {
                 $plugin_data['extension'] = $extension;
             }
@@ -255,7 +255,7 @@ class Plugins extends Extensions
                 $this->sortPluginsByState();
                 break;
             case 'author':
-                uasort($this->fs_plugins, [$this, 'pluginAuthorCompare']);
+                uasort($this->fs_plugins, $this->pluginAuthorCompare(...));
                 break;
             case 'id':
                 uksort($this->fs_plugins, 'strcasecmp');
@@ -275,7 +275,7 @@ class Plugins extends Extensions
             }
             $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);
             foreach ($pem_versions as $pem_version) {
-                if (str_starts_with($pem_version['name'], $branch)) {
+                if (str_starts_with((string) $pem_version['name'], $branch)) {
                     $versions_to_check[] = $pem_version['id'];
                 }
             }
@@ -405,16 +405,16 @@ class Plugins extends Extensions
                 krsort($this->server_plugins);
                 break;
             case 'revision':
-                usort($this->server_plugins, [$this, 'extensionRevisionCompare']);
+                usort($this->server_plugins, $this->extensionRevisionCompare(...));
                 break;
             case 'name':
-                uasort($this->server_plugins, [$this, 'extensionNameCompare']);
+                uasort($this->server_plugins, $this->extensionNameCompare(...));
                 break;
             case 'author':
-                uasort($this->server_plugins, [$this, 'extensionAuthorCompare']);
+                uasort($this->server_plugins, $this->extensionAuthorCompare(...));
                 break;
             case 'downloads':
-                usort($this->server_plugins, [$this, 'extensionDownloadsCompare']);
+                usort($this->server_plugins, $this->extensionDownloadsCompare(...));
                 break;
         }
     }
@@ -460,12 +460,12 @@ class Plugins extends Extensions
 
     protected function extensionNameCompare($a, $b)
     {
-        return strcmp(strtolower($a['extension_name']), strtolower($b['extension_name']));
+        return strcmp(strtolower((string) $a['extension_name']), strtolower((string) $b['extension_name']));
     }
 
     protected function extensionAuthorCompare($a, $b)
     {
-        $r = strcasecmp($a['author_name'], $b['author_name']);
+        $r = strcasecmp((string) $a['author_name'], (string) $b['author_name']);
         if ($r == 0) {
             return $this->extensionNameCompare($a, $b);
         } else {
@@ -475,7 +475,7 @@ class Plugins extends Extensions
 
     protected function pluginAuthorCompare($a, $b)
     {
-        $r = strcasecmp($a['author'], $b['author']);
+        $r = strcasecmp((string) $a['author'], (string) $b['author']);
         if ($r == 0) {
             return \Phyxo\Functions\Utils::name_compare($a, $b);
         } else {

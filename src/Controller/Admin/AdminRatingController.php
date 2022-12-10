@@ -117,8 +117,8 @@ class AdminRatingController extends AbstractController
 
         $tpl_params['images'] = [];
         foreach ($rateRepository->getRatePerImage($guest_id, $available_order_by[$order_by_index][1], $elements_per_page, $operator_user_filter, $start) as $image) {
-            $pathBasename = (($pos = strrpos($image['path'], '.')) === false) ? $image['path'] : substr($image['path'], 0, $pos);
-            $extension = (($pos = strrpos($image['path'], '.')) === false) ? '' : substr($image['path'], $pos + 1);
+            $pathBasename = (($pos = strrpos((string) $image['path'], '.')) === false) ? $image['path'] : substr((string) $image['path'], 0, $pos);
+            $extension = (($pos = strrpos((string) $image['path'], '.')) === false) ? '' : substr((string) $image['path'], $pos + 1);
 
             $thumbnail_src = $this->generateUrl(
                 'admin_media',
@@ -388,6 +388,6 @@ class AdminRatingController extends AbstractController
     /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function last_rate_compare(array $a, array $b): int
     {
-        return -strcmp($a['last_date'], $b['last_date']);
+        return -strcmp((string) $a['last_date'], (string) $b['last_date']);
     }
 }

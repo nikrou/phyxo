@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class UserRegistrationType extends AbstractType
 {
-    public function __construct(private Conf $conf)
+    public function __construct(private readonly Conf $conf)
     {
     }
 

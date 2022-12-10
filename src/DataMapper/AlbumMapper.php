@@ -33,7 +33,7 @@ class AlbumMapper
 
     private bool $albums_retrieved = false;
 
-    public function __construct(private Conf $conf, private AlbumRepository $albumRepository, private RouterInterface $router, private TranslatorInterface $translator, private UserRepository $userRepository, private UserCacheAlbumRepository $userCacheAlbumRepository, private ImageAlbumRepository $imageAlbumRepository, private ImageRepository $imageRepository)
+    public function __construct(private Conf $conf, private readonly AlbumRepository $albumRepository, private readonly RouterInterface $router, private readonly TranslatorInterface $translator, private readonly UserRepository $userRepository, private readonly UserCacheAlbumRepository $userCacheAlbumRepository, private readonly ImageAlbumRepository $imageAlbumRepository, private readonly ImageRepository $imageRepository)
     {
     }
 
@@ -67,7 +67,7 @@ class AlbumMapper
     protected function insertAlbumInTree(&$categories, $category, $uppercats)
     {
         if ($category['id'] != $uppercats) {
-            $cats = explode(',', $uppercats);
+            $cats = explode(',', (string) $uppercats);
             $cat = $cats[0];
             $new_uppercats = array_slice($cats, 1);
             if (count($new_uppercats) === 1) {
@@ -323,9 +323,9 @@ class AlbumMapper
             if ($fullname) {
                 $option = strip_tags($this->getAlbumsDisplayNameCache($album->getUppercats()));
             } else {
-                $option = str_repeat('&nbsp;', (3 * substr_count($album->getGlobalRank(), '.')));
+                $option = str_repeat('&nbsp;', (3 * substr_count((string) $album->getGlobalRank(), '.')));
                 $option .= '- ';
-                $option .= strip_tags($album->getName());
+                $option .= strip_tags((string) $album->getName());
             }
             $tpl_cats[$album->getId()] = $option;
         }
@@ -343,7 +343,7 @@ class AlbumMapper
     /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function displaySelectAlbumsWrapper(array $albums, array $selecteds, string $blockname, bool $fullname = true): array
     {
-        usort($albums, [$this, 'globalRankCompare']);
+        usort($albums, $this->globalRankCompare(...));
 
         return $this->displaySelectAlbums($albums, $selecteds, $blockname, $fullname);
     }
@@ -484,7 +484,7 @@ class AlbumMapper
             foreach ($this->albumRepository->findBy(['id' => $album_ids]) as $album) {
                 $all_albums[] = $album;
             }
-            usort($all_albums, [$this, 'globalRankCompare']);
+            usort($all_albums, $this->globalRankCompare(...));
 
             foreach ($all_albums as $album) {
                 $is_top = true;
@@ -1068,7 +1068,7 @@ class AlbumMapper
             unset($image_id);
         }
 
-        usort($album_thumbnails, [$this, 'globalRankCompare']);
+        usort($album_thumbnails, $this->globalRankCompare(...));
 
         return [$is_child_date_last, $album_thumbnails, $image_ids, $user_representative_updates_for];
     }
