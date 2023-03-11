@@ -63,8 +63,8 @@ class UserInfosRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('u');
         $qb->update();
         foreach ($fields as $field => $value) {
-            $qb->set('u.' . $field, ':value');
-            $qb->setParameter('value', $value);
+            $qb->set('u.' . $field, ':' . $field);
+            $qb->setParameter($field, $value);
         }
         if (count($user_ids) > 0) {
             $qb->where($qb->expr()->in('u.user', $user_ids));

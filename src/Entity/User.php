@@ -523,4 +523,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     {
         return $this->userInfos->getTheme();
     }
+
+    public function __serialize(): array
+    {
+        return [
+            'id' => $this->id,
+            'username' => $this->username,
+            'password' => $this->password,
+            'roles' => json_encode($this->roles)
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->id = $data['id'];
+        $this->username = $data['username'];
+        $this->password = $data['password'];
+        $this->roles = json_decode($data['roles'], true, 512, JSON_THROW_ON_ERROR);
+    }
 }

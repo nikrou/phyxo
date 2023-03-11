@@ -85,7 +85,7 @@ class TagMapper
                     'status' => $image_tag->getStatus(),
                     'thumb_src' => $this->router->generate(
                         'admin_media',
-                        ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtnsion()]
+                        ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()]
                     ),
                     'picture_url' => $this->router->generate('admin_photo', ['image_id' => $image->getId()]),
                 ]
