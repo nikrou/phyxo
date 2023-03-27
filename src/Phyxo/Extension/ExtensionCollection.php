@@ -13,14 +13,16 @@ namespace Phyxo\Extension;
 
 class ExtensionCollection
 {
-    private $extensions_by_class, $extensions_by_name = [];
+    private $extensions_by_class,
+
+    $extensions_by_name = [];
 
     public function __construct(iterable $extensions)
     {
         $extensions = $extensions instanceof \Traversable ? iterator_to_array($extensions) : $extensions;
 
         foreach ($extensions as $extension) {
-            $plugin_id = preg_replace('`Plugins\\\\([^\\\\]+)\\\\Command\\\\.+`', '\\1', (string) $extension::class);
+            $plugin_id = preg_replace('`Plugins\\\\([^\\\\]+)\\\\Command\\\\.+`', '\\1', $extension::class);
 
             $this->extensions_by_class[$plugin_id][] = $extension->getName();
             $this->extensions_by_name[$extension->getName()] = $plugin_id;

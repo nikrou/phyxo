@@ -18,6 +18,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 class FeatureContext extends BaseContext
 {
     private KernelInterface $kernel;
+
     private Storage $storage;
 
     public function __construct(KernelInterface $kernel, Storage $storage)
@@ -362,9 +363,10 @@ class FeatureContext extends BaseContext
         if (is_null($members)) {
             throw new \Exception(sprintf('Cannot find members cell for group "%s" on the page', $group));
         }
-        $foundMembers = implode(',', explode(' ', $members->getText()));
-        if ($foundMembers !== $users) {
-            throw new \Exception(sprintf('Members for group "%s" are "%s" but should be "%s".', $group, $foundMembers, $users));
+        $foundMembers = explode(' ', $members->getText());
+        $expectedMembers = explode(',', $users);
+        if (array_diff($foundMembers, $expectedMembers) !== array_diff($expectedMembers, $foundMembers)) {
+            throw new \Exception(sprintf('Members for group "%s" are "%s" but should be "%s".', $group, implode(',', $foundMembers), $users));
         }
     }
 

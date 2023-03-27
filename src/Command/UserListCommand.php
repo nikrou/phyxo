@@ -30,7 +30,7 @@ class UserListCommand extends Command
         'theme' => 'Theme',
     ];
 
-    public function __construct(private UserRepository $userRepository, private string $databaseYamlFile)
+    public function __construct(private readonly UserRepository $userRepository, private readonly string $databaseYamlFile)
     {
         parent::__construct();
     }

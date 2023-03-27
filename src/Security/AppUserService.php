@@ -25,7 +25,7 @@ class AppUserService
 
     private bool $guest_user_retrieved = false;
 
-    public function __construct(private Security $security, private UserProvider $userProvider, private Conf $conf, private AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(private readonly Security $security, private readonly UserProvider $userProvider, private readonly Conf $conf, private readonly AuthorizationCheckerInterface $authorizationChecker)
     {
     }
 

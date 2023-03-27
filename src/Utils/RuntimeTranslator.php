@@ -67,7 +67,7 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
     /**
      * @param array<string, string> $parameters
      */
-    public function trans(?string $id, array $parameters = [], string $domain = null, string $locale = null): string
+    public function trans(string $id, array $parameters = [], string $domain = null, string $locale = null): string
     {
         if ($locale === null) {
             $locale = $this->getLocale();

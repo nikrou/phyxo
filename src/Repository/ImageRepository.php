@@ -50,9 +50,8 @@ class ImageRepository extends ServiceEntityRepository
 
     /**
      * @param int[] $ids
-     * @param string|\DateTimeInterface|null $value
      */
-    public function updateFieldForImages(array $ids, string $field, $value): void
+    public function updateFieldForImages(array $ids, string $field, string|\DateTimeInterface|null $value): void
     {
         $qb = $this->createQueryBuilder('i');
         $qb->update();

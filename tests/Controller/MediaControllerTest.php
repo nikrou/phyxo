@@ -156,6 +156,17 @@ class MediaControllerTest extends WebTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
     }
 
+    public function testRotateImageBasedOnExifOrientation()
+    {
+        self::ensureKernelShutdown();
+        $client = static::createClient();
+        $container = static::getContainer();
+        $container->set('App\Repository\ImageRepository', $this->imageRepository->reveal());
+        $client->request('GET', sprintf('/media/%s', $this->image_paths['sq']));
+
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+    }
+
     public function testAdminMedia()
     {
         self::ensureKernelShutdown();

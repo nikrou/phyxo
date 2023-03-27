@@ -14,6 +14,7 @@ declare(strict_types=1);
 use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
 use Rector\Config\RectorConfig;
 use Rector\Doctrine\Set\DoctrineSetList;
+use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Symfony\Set\SymfonyLevelSetList;
 use Rector\Symfony\Set\SymfonySetList;
@@ -32,9 +33,11 @@ return static function (RectorConfig $rectorConfig): void {
         SymfonyLevelSetList::UP_TO_SYMFONY_61,
         SymfonyLevelSetList::UP_TO_SYMFONY_62,
         LevelSetList::UP_TO_PHP_80,
-        LevelSetList::UP_TO_PHP_81
+        LevelSetList::UP_TO_PHP_81,
     ]);
 
-    // register a single rule
-    $rectorConfig->rule(InlineConstructorDefaultToPropertyRector::class);
+    $rectorConfig->rules([
+        ClassPropertyAssignToConstructorPromotionRector::class,
+        InlineConstructorDefaultToPropertyRector::class,
+    ]);
 };

@@ -20,7 +20,11 @@ use App\Entity\Image;
  */
 class DerivativeImage
 {
-    private $image, $params, $image_std_params;
+    private $image,
+
+    $params,
+
+    $image_std_params;
 
     // @TODO $params is DerivativeParams but problem in Ws/Main
     public function __construct(Image $image, $params, ImageStandardParams $image_std_params)
@@ -161,52 +165,6 @@ class DerivativeImage
             'sizes' => '',
             'image_extension' => $this->getExtension()
         ];
-    }
-
-    /**
-     * @TODO : documentation of DerivativeImage::build
-     */
-    private function build(&$params, &$rel_path, &$rel_url)
-    {
-        if (count($this->getSize()) > 0 && $params->is_identity($this->getSize())) {
-            // the source image is smaller than what we should do - we do not upsample
-            if (!$params->will_watermark($this->getSize(), $this->image_std_params) && !$this->image->getRotation()) {
-                // no watermark, no rotation required -> we will use the source image
-                $params = null;
-                $rel_path = $rel_url = $this->image->getPath();
-                return;
-            }
-            $defined_types = array_keys($this->image_std_params->getDefinedTypeMap());
-            for ($i = 0; $i < count($defined_types); $i++) {
-                if ($defined_types[$i] == $params->type) {
-                    for ($i--; $i >= 0; $i--) {
-                        $smaller = $this->image_std_params->getByType($defined_types[$i]);
-                        if ($smaller->sizing->max_crop == $params->sizing->max_crop && $smaller->is_identity($this->getSize())) {
-                            $params = $smaller;
-                            $this->build($params, $rel_path, $rel_url);
-                            return;
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-
-        $tokens = [];
-        $tokens[] = substr((string) $params->type, 0, 2);
-
-        if ($params->type === ImageStandardParams::IMG_CUSTOM) {
-            $params->add_url_tokens($tokens);
-        }
-
-        $loc = $this->image->getPath();
-        if (substr_compare($loc, './', 0, 2) == 0) {
-            $loc = substr($loc, 2);
-        } elseif (substr_compare($loc, '../', 0, 3) == 0) {
-            $loc = substr($loc, 3);
-        }
-        $loc = substr_replace($loc, '-' . implode('_', $tokens), strrpos($loc, '.'), 0);
-        $rel_url = 'media' . '/' . $loc;
     }
 
     public function same_as_source(): bool

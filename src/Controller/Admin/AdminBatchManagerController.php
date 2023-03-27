@@ -401,8 +401,8 @@ class AdminBatchManagerController extends AbstractController
         if ($request->isMethod('POST')) {
             if ($request->request->get('setSelected')) {
                 $collection = $current_set;
-            } elseif ($request->request->get('selection')) {
-                $collection = $request->request->get('selection');
+            } elseif ($request->request->has('selection')) {
+                $collection = $request->request->all('selection');
             }
 
             $this->actionOnCollection($request, $tagMapper, $imageMapper, $userMapper, $imageAlbumRepository, $albumMapper, $caddieRepository, $imageTagRepository, $collection);

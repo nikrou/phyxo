@@ -26,7 +26,7 @@ class UserCreateCommand extends Command
 {
     private array $params = ['username' => '', 'password' => '', 'mail_address' => ''];
 
-    public function __construct(private UserManager $userManager, private UserPasswordHasherInterface $passwordHasher, private string $databaseYamlFile)
+    public function __construct(private readonly UserManager $userManager, private readonly UserPasswordHasherInterface $passwordHasher, private readonly string $databaseYamlFile)
     {
         parent::__construct();
     }

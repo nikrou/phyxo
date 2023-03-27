@@ -46,13 +46,9 @@ class UserProvider implements UserProviderInterface
     }
 
     // @throws UsernameNotFoundException if the user is not found
-    public function loadUserByIdentifier(string $username): User
+    public function loadUserByIdentifier(string $identifier): User
     {
-        if (($user = $this->fetchUser($username)) === null) {
-            throw new UserNotFoundException(sprintf('User with username "%s" does not exist.', $username));
-        }
-
-        return $user;
+        return $this->fetchUser($identifier);
     }
 
     public function loadByActivationKey(string $key): User
@@ -69,14 +65,14 @@ class UserProvider implements UserProviderInterface
         return  $this->fetchUser($user->getUserIdentifier(), $force_refresh = true);
     }
 
-    private function fetchUser(string $username, bool $force_refresh = false): ?User
+    private function fetchUser(string $identifier, bool $force_refresh = false): User
     {
         // @TODO : find a way to cache some request: if ($this->user_data === null || $force_refresh) -> tests failed
-        $user = $this->userRepository->findOneBy(['username' => $username]);
+        $user = $this->userRepository->findOneBy(['username' => $identifier]);
 
         // pretend it returns a User on success, null if there is no user
         if (is_null($user)) {
-            return null;
+            throw new UserNotFoundException(sprintf('User with username "%s" does not exist.', $identifier));
         }
 
         $userCache = $this->getUserCacheInfos($user);

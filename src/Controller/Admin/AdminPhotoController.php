@@ -94,8 +94,8 @@ class AdminPhotoController extends AbstractController
 
             // time to deal with tags
             $tag_ids = [];
-            if ($request->request->get('tags')) {
-                $tag_ids = $tagMapper->getTagsIds($request->request->get('tags'));
+            if ($request->request->has('tags')) {
+                $tag_ids = $tagMapper->getTagsIds($request->request->all('tags'));
             }
             $tagMapper->setTags($tag_ids, $image_id, $appUserService->getUser());
 
@@ -107,17 +107,17 @@ class AdminPhotoController extends AbstractController
             $userMapper->invalidateUserCache();
 
             // thumbnail for albums
-            $no_longer_thumbnail_for = array_diff($represented_albums, $request->request->get('represent') ?? []);
+            $no_longer_thumbnail_for = array_diff($represented_albums, $request->request->all('represent'));
             if (count($no_longer_thumbnail_for) > 0) {
                 $albumMapper->setRandomRepresentant($no_longer_thumbnail_for);
             }
 
-            $new_thumbnail_for = array_diff($request->request->get('represent') ?? [], $represented_albums);
+            $new_thumbnail_for = array_diff($request->request->all('represent'), $represented_albums);
             if (count($new_thumbnail_for) > 0) {
                 $albumMapper->getRepository()->updateAlbums(['representative_picture_id' => $image_id], $new_thumbnail_for);
             }
 
-            $represented_albums = $request->request->get('represent') ?? [];
+            $represented_albums = $request->request->all('represent');
             $this->addFlash('success', $translator->trans('Photo informations updated', [], 'admin'));
 
             return $this->redirectToRoute('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);

@@ -78,7 +78,7 @@ class Image
     private ?int $level = 0;
 
     #[ORM\Column(type: 'string', length: 32, nullable: true)]
-    private ?string $md5sum;
+    private ?string $md5sum = null;
 
     #[ORM\Column(type: 'integer')]
     private int $added_by;

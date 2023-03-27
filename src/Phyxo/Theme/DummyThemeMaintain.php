@@ -11,15 +11,12 @@
 
 namespace Phyxo\Theme;
 
-use Phyxo\Theme\ThemeMaintain;
-
 class DummyThemeMaintain implements ThemeMaintain
 {
     public function __construct(
         /** @phpstan-ignore-next-line */
         private readonly string $theme_id
-    )
-    {
+    ) {
     }
 
     public function activate($theme_version): array

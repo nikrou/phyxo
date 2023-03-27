@@ -29,6 +29,7 @@ use Symfony\Component\Mime\MimeTypeGuesserInterface;
 class MediaController extends AbstractController
 {
     protected ImageStandardParams $image_std_params;
+
     private bool $forAdmin = false;
 
     public function derivative(
@@ -73,7 +74,8 @@ class MediaController extends AbstractController
         }
 
         $imageOptimizer = new ImageOptimizer($image_src, $imageLibraryGuesser->getLibrary());
-        $this->rotateIfNeeded($image, $imageOptimizer, $imageRepository);
+        $this->updateImageRotateIfNeeded($image, $imageOptimizer, $imageRepository);
+        $imageOptimizer->rotate($imageOptimizer->getRotationAngle());
         $this->cropAndScale($image, $image_std_params, $derivative_params, $imageOptimizer);
         $imageOptimizer->strip();
 
@@ -142,7 +144,8 @@ class MediaController extends AbstractController
         }
 
         $imageOptimizer = new ImageOptimizer($image_src, $imageLibraryGuesser->getLibrary());
-        $this->rotateIfNeeded($image, $imageOptimizer, $imageRepository);
+        $this->updateImageRotateIfNeeded($image, $imageOptimizer, $imageRepository);
+        $imageOptimizer->rotate($imageOptimizer->getRotationAngle());
         $this->cropAndScale($image, $image_std_params, $derivative_params, $imageOptimizer);
         $imageOptimizer->strip();
 
@@ -193,7 +196,8 @@ class MediaController extends AbstractController
         }
 
         $imageOptimizer = new ImageOptimizer($image_src, $imageLibraryGuesser->getLibrary());
-        $this->rotateIfNeeded($image, $imageOptimizer, $imageRepository);
+        $this->updateImageRotateIfNeeded($image, $imageOptimizer, $imageRepository);
+        $imageOptimizer->rotate($imageOptimizer->getRotationAngle());
         $this->cropAndScale($image, $image_std_params, $derivative_params, $imageOptimizer);
         $imageOptimizer->strip();
 
@@ -229,12 +233,11 @@ class MediaController extends AbstractController
         return $need_generate;
     }
 
-    protected function rotateIfNeeded(Image $image, ImageOptimizer $imageOptimizer, ImageRepository $imageRepository): void
+    protected function updateImageRotateIfNeeded(Image $image, ImageOptimizer $imageOptimizer, ImageRepository $imageRepository): void
     {
         if ($image->getRotation() === 0 || is_null($image->getRotation())) {
             $image->setRotation($imageOptimizer->getRotationCode());
             $imageRepository->addOrUpdateImage($image);
-            $imageOptimizer->rotate($imageOptimizer->getRotationAngle());
         }
     }
 

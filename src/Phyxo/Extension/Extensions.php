@@ -18,7 +18,9 @@ class Extensions
 {
     final public const TYPES = ['plugins', 'themes', 'languages'];
 
-    protected $directory_pattern = '', $pem_url;
+    protected $directory_pattern = '',
+
+    $pem_url;
 
     public function getJsonFromServer($url, $params = [])
     {
@@ -92,7 +94,7 @@ class Extensions
                 // @TODO: use native zip library ; use arobase before
                 if ($results = @$zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $root, PCLZIP_OPT_REPLACE_NEWER)) {
                     $errors = array_filter($results, fn($f) => ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory');
-                    if (count((array) $errors) > 0) {
+                    if (count($errors) > 0) {
                         throw new \Exception("Error while extracting some files from archive");
                     }
                 } else {

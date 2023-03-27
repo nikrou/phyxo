@@ -29,7 +29,7 @@ class InstallCommand extends Command
 
     private string $default_prefix = 'phyxo_';
 
-    public function __construct(private PhyxoInstaller $phyxoInstaller, private string $databaseYamlFile, private string $rootProjectDir)
+    public function __construct(private readonly PhyxoInstaller $phyxoInstaller, private readonly string $databaseYamlFile, private readonly string $rootProjectDir)
     {
         parent::__construct();
     }

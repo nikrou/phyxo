@@ -27,7 +27,7 @@ class TagVoter extends Voter
     final public const ADD = 'add-atg';
     final public const DELETE = 'delete-tag';
 
-    public function __construct(private Security $security, private Conf $conf)
+    public function __construct(private readonly Security $security, private readonly Conf $conf)
     {
     }
 

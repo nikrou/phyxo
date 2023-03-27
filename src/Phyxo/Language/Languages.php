@@ -12,19 +12,29 @@
 namespace Phyxo\Language;
 
 use App\Entity\Language;
+use App\Repository\LanguageRepository;
 use Phyxo\Extension\Extensions;
 use PclZip;
 use Symfony\Component\Filesystem\Filesystem;
 
 class Languages extends Extensions
 {
-    private $languages_root_path, $defaultLanguage;
-    private $fs_languages = [], $db_languages = [], $server_languages = [];
-    private $fs_languages_retrieved = false, $db_languages_retrieved = false, $server_languages_retrieved = false;
+    private $languages_root_path;
 
-    public function __construct(private readonly ?\App\Repository\LanguageRepository $languageRepository = null, string $defaultLanguage = '')
+    private $fs_languages = [];
+
+    private $fs_languages_retrieved = false;
+
+    private $db_languages = [];
+
+    private $db_languages_retrieved = false;
+
+    private $server_languages = [];
+
+    private $server_languages_retrieved = false;
+
+    public function __construct(private readonly ?LanguageRepository $languageRepository = null, private string $defaultLanguage = '')
     {
-        $this->defaultLanguage = $defaultLanguage;
     }
 
     public function setRootPath(string $languages_root_path)
@@ -314,7 +324,7 @@ class Languages extends Extensions
                 // @TODO: use native zip library ; use arobase before
                 if ($results = @$zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $extract_path, PCLZIP_OPT_REPLACE_NEWER)) {
                     $errors = array_filter($results, fn($f) => ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory');
-                    if (count((array) $errors) > 0) {
+                    if (count($errors) > 0) {
                         throw new \Exception("Error while extracting some files from archive");
                     }
                 } else {
