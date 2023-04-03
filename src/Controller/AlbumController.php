@@ -108,17 +108,17 @@ class AlbumController extends AbstractController
             $albumMapper->getRepository()->findByParentId($appUserService->getUser()->getId(), $album_id)
         );
 
-        if ((is_countable($albums) ? count($albums) : 0) > 0) {
+        if (count($albums) > 0) {
             $infos_of_images = $albumMapper->getInfosOfImages($appUserService->getUser(), $albums, $image_ids, $imageMapper);
         }
 
-        if ((is_countable($user_representative_updates_for) ? count($user_representative_updates_for) : 0) > 0) {
+        if (count($user_representative_updates_for) > 0) {
             foreach ($user_representative_updates_for as $cat_id => $image_id) {
                 $userCacheAlbumRepository->updateUserRepresentativePicture($appUserService->getUser()->getId(), $cat_id, $image_id);
             }
         }
 
-        if ((is_countable($albums) ? count($albums) : 0) > 0) {
+        if (count($albums) > 0) {
             $tpl_thumbnails_var = [];
 
             foreach ($albums as $currentAlbum) {
@@ -372,17 +372,17 @@ class AlbumController extends AbstractController
             $albumMapper->getRepository()->findParentAlbums($appUserService->getUser()->getId())
         );
 
-        if ((is_countable($albums) ? count($albums) : 0) > 0) {
+        if (count($albums) > 0) {
             $infos_of_images = $albumMapper->getInfosOfImages($appUserService->getUser(), $albums, $image_ids, $imageMapper);
         }
 
-        if ((is_countable($user_representative_updates_for) ? count($user_representative_updates_for) : 0) > 0) {
+        if (count($user_representative_updates_for) > 0) {
             foreach ($user_representative_updates_for as $cat_id => $image_id) {
                 $userCacheAlbumRepository->updateUserRepresentativePicture($appUserService->getUser()->getId(), $cat_id, $image_id);
             }
         }
 
-        if ((is_countable($albums) ? count($albums) : 0) > 0) {
+        if (count($albums) > 0) {
             $tpl_thumbnails_var = [];
             foreach ($albums as $album) {
                 $userCacheAlbum = $appUserService->getUser()->getUserCacheAlbums()->filter(fn(UserCacheAlbum $uca) => $uca->getAlbum()->getId() === $album->getId())->first();
@@ -492,17 +492,17 @@ class AlbumController extends AbstractController
 
         [$is_child_date_last, $albums, $image_ids, $user_representative_updates_for] = $albumMapper->getAlbumThumbnails($appUserService->getUser(), $albumMapper->getRepository()->findRecentAlbums($recent_date));
 
-        if ((is_countable($albums) ? count($albums) : 0) > 0) {
+        if (count($albums) > 0) {
             $infos_of_images = $albumMapper->getInfosOfImages($appUserService->getUser(), $albums, $image_ids, $imageMapper);
         }
 
-        if ((is_countable($user_representative_updates_for) ? count($user_representative_updates_for) : 0) > 0) {
+        if (count($user_representative_updates_for) > 0) {
             foreach ($user_representative_updates_for as $cat_id => $image_id) {
                 $userCacheAlbumRepository->updateUserRepresentativePicture($appUserService->getUser()->getId(), $cat_id, $image_id);
             }
         }
 
-        if ((is_countable($albums) ? count($albums) : 0) > 0) {
+        if (count($albums) > 0) {
             $tpl_thumbnails_var = [];
             foreach ($albums as $album) {
                 $userCacheAlbum = $appUserService->getUser()->getUserCacheAlbums()->filter(fn(UserCacheAlbum $uca) => $uca->getAlbum()->getId() === $album->getId())->first();
