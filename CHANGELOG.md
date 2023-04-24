@@ -1,6 +1,7 @@
-# Phyxo 2.5.0 - YYYY-MM-DD
+# Phyxo 2.5.0 - 2023-04-24
 
-- nothing yet
+- allow to manually rotate images from batch actions
+- upgrade to symfony 6.2 (php 8.1 at least)
 
 # Phyxo 2.4.0 - 2022-10-30
 
