@@ -18,6 +18,7 @@ use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\Caddie;
 use App\Entity\User;
+use App\ImageLibraryGuesser;
 use App\Repository\AlbumRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\FavoriteRepository;
@@ -30,6 +31,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\ImageOptimizer;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -107,6 +109,8 @@ class AdminBatchManagerController extends AbstractController
         TagRepository $tagRepository,
         RouterInterface $router,
         ManagerRegistry $managerRegistry,
+        string $rootProjectDir,
+        ImageLibraryGuesser $imageLibraryGuesser,
         string $filter = null,
         int $start = 0
     ): Response {
@@ -405,7 +409,19 @@ class AdminBatchManagerController extends AbstractController
                 $collection = $request->request->all('selection');
             }
 
-            $this->actionOnCollection($request, $tagMapper, $imageMapper, $userMapper, $imageAlbumRepository, $albumMapper, $caddieRepository, $imageTagRepository, $collection);
+            $this->actionOnCollection(
+                $request,
+                $tagMapper,
+                $imageMapper,
+                $userMapper,
+                $imageAlbumRepository,
+                $albumMapper,
+                $caddieRepository,
+                $imageTagRepository,
+                $rootProjectDir,
+                $imageLibraryGuesser,
+                $collection,
+            );
         }
 
         $tpl_params['START'] = $start;
@@ -448,7 +464,9 @@ class AdminBatchManagerController extends AbstractController
         AlbumMapper $albumMapper,
         CaddieRepository $caddieRepository,
         ImageTagRepository $imageTagRepository,
-        array $collection = []
+        string $rootProjectDir,
+        ImageLibraryGuesser $imageLibraryGuesser,
+        array $collection = [],
     ): ?Response {
         // if the user tries to apply an action, it means that there is at least 1 photo in the selection
         if (count($collection) === 0 && !$request->request->get('submitFilter')) {
@@ -599,9 +617,20 @@ class AdminBatchManagerController extends AbstractController
             if ($request->request->get('regenerateError') != '0') {
                 $this->addFlash('success', $this->translator->trans('{count} photos can not be regenerated', ['count' => $request->request->get('regenerateError')], 'admin'));
             }
+        } elseif ($action === 'rotate_image') {
+            $rotation_code = $request->request->get('rotation');
+
+            foreach ($imageMapper->getRepository()->findBy(['id' => $collection]) as $image) {
+                $image_src = $image_src = sprintf('%s/%s', $rootProjectDir, $image->getPath());
+                $imageOptimizer = new ImageOptimizer($image_src, $imageLibraryGuesser->getLibrary());
+                $image->setRotation($rotation_code);
+                $imageOptimizer->rotate(ImageOptimizer::getRotationAngleFromCode($rotation_code));
+                $imageOptimizer->write($image_src);
+                $imageMapper->getRepository()->addOrUpdateImage($image);
+            }
         }
 
-        if (!in_array($action, ['remove_from_caddie', 'add_to_caddie', 'delete_derivatives', 'generate_derivatives'])) {
+        if (!in_array($action, ['remove_from_caddie', 'add_to_caddie', 'delete_derivatives', 'generate_derivatives', 'rotate_image'])) {
             $userMapper->invalidateUserCache();
         }
 
@@ -902,6 +931,12 @@ class AdminBatchManagerController extends AbstractController
             'square' => [],
             'landscape' => [],
             'panorama' => [],
+        ];
+
+        $tpl_params['orientations'] = [
+            ['value' => 6, 'name' => $this->translator->trans('90° right', [], 'admin')],
+            ['value' => 8, 'name' => $this->translator->trans('90° left', [], 'admin')],
+            ['value' => 4, 'name' => $this->translator->trans('180°', [], 'admin')]
         ];
 
         foreach ($ratios as $ratio) {

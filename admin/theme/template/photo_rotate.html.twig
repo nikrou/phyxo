@@ -1,0 +1,45 @@
+{% trans_default_domain 'admin' %}
+{% extends "__layout.html.twig" %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{{ path('admin_photo_rotate', { image_id: image.id, category_id: album_id} ) }}">{{'Image'|trans}}</a></li>
+    <li class="breadcrumb-item">{{'Orientation'|trans}}</li>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+	<div class="fieldset">
+	  <h3>{{'Photo orientation'|trans}}</h3>
+	  <p>
+	    <a href="{{FILE_SRC}}" class="preview-box icon-zoom-in" title="{{image.comment}}"><img src="{{TN_SRC}}" alt="{{'Thumbnail'|trans}}"></a>
+	  </p>
+
+	  <ul>
+	    <li>File: {{image.file}}</li>
+	    <li>Path: {{image.path}}</li>
+	    <li>
+	      Turn photo to match what you want to see:
+	      <ul>
+		{% for orientation in orientations %}
+		<li>
+		  <input id="orientation_{{orientation.value}}" type="radio" name="rotation" value="{{orientation.value}}">
+		  <label for="orientation_{{orientation.value}}">{{orientation.name}}</label>
+		</li>
+		{% endfor %}
+	      </ul>
+	    </li>
+	  </ul>
+
+	  <p>
+	    <label>
+	      <input type="checkbox" name="apply_on_original">
+	      {{'Apply on original image'|trans}}
+	    </label>	    
+	  </p>
+	  
+	  <p>
+	    <input class="btn btn-submit" type="submit" name="submit" value="{{'Change orientation'|trans}}">
+	  </p>
+	</div>
+    </form>
+{% endblock %}

@@ -15,7 +15,9 @@ use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
+use App\ImageLibraryGuesser;
 use App\Repository\ImageAlbumRepository;
+use App\Repository\ImageRepository;
 use App\Repository\RateRepository;
 use App\Repository\UserRepository;
 use App\Security\AppUserService;
@@ -25,6 +27,7 @@ use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\DerivativeParams;
+use Phyxo\Image\ImageOptimizer;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -44,6 +47,7 @@ class AdminPhotoController extends AbstractController
         $tabsheet = new TabSheet();
         $tabsheet->add('properties', $this->translator->trans('Properties', [], 'admin'), $this->generateUrl('admin_photo', $params));
         $tabsheet->add('coi', $this->translator->trans('Center of interest', [], 'admin'), $this->generateUrl('admin_photo_coi', $params), 'fa-crop');
+        $tabsheet->add('rotate', $this->translator->trans('Orientation', [], 'admin'), $this->generateUrl('admin_photo_rotate', $params), 'fa-rotate-right');
         $tabsheet->select($section);
 
         return $tabsheet;
@@ -356,5 +360,52 @@ class AdminPhotoController extends AbstractController
         $tpl_params['tabsheet'] = $this->setTabsheet('coi', ['image_id' => $image_id, 'category_id' => $category_id]);
 
         return $this->render('photo_coi.html.twig', $tpl_params);
+    }
+
+    public function rotate(
+        Request $request,
+        int $image_id,
+        int $album_id = null,
+        ImageStandardParams $image_std_params,
+        ImageRepository $imageRepository,
+        TranslatorInterface $translator,
+        ImageLibraryGuesser $imageLibraryGuesser,
+        DerivativeService $derivativeService,
+        string $rootProjectDir,
+    ) {
+        $tpl_params = [];
+        $this->translator = $translator;
+
+        $tpl_params['album_id'] = $album_id;
+
+        $image = $imageRepository->find($image_id);
+        $tpl_params['image'] = $image;
+        $image_src = sprintf('%s/%s', $rootProjectDir, $image->getPath());
+
+        if ($request->isMethod('POST')) {
+            $rotation_code = $request->request->get('rotation');
+            $imageOptimizer = new ImageOptimizer($image_src, $imageLibraryGuesser->getLibrary());
+            $image->setRotation($rotation_code);
+            $imageOptimizer->rotate(ImageOptimizer::getRotationAngleFromCode($rotation_code));
+            $imageOptimizer->write($image_src);
+            $imageRepository->addOrUpdateImage($image);
+
+            $derivativeService->deleteForElement(['path' => $image->getPath()]);
+        }
+
+        $derivative_thumb = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
+        $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params);
+
+        $tpl_params['TN_SRC'] = $this->generateUrl('admin_media', ['path' => $image->getPathBasename(), 'derivative' => $derivative_thumb->getUrlType(), 'image_extension' => $image->getExtension()]);
+        $tpl_params['FILE_SRC'] = $this->generateUrl('admin_media', ['path' => $image->getPathBasename(), 'derivative' => $derivative_large->getUrlType(), 'image_extension' => $image->getExtension()]);
+        $tpl_params['tabsheet'] = $this->setTabsheet('rotate', ['image_id' => $image_id, 'album_id' => $album_id]);
+
+        $tpl_params['orientations'] = [
+            ['value' => 6, 'name' => $this->translator->trans('90° right', [], 'admin')],
+            ['value' => 8, 'name' => $this->translator->trans('90° left', [], 'admin')],
+            ['value' => 4, 'name' => $this->translator->trans('180°', [], 'admin')]
+        ];
+
+        return $this->render('photo_rotate.html.twig', $tpl_params);
     }
 }

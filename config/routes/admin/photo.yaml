@@ -34,3 +34,12 @@ admin_photo_coi:
   requirements:
     image_id: \d+
     category_id: \d+
+
+admin_photo_rotate:
+  path: /photo/{image_id}/rotate/{album_id}
+  controller: App\Controller\Admin\AdminPhotoController::rotate
+  defaults:
+    album_id: null
+  requirements:
+    image_id: \d+
+    album_id: \d+

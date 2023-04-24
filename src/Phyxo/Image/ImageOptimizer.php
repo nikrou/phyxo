@@ -120,20 +120,24 @@ class ImageOptimizer
         return $orientation;
     }
 
-    public function getRotationAngle(): int
+    public static function getRotationAngleFromCode(int $code): int
     {
-        $orientationCode = $this->getRotationCode();
-        if (in_array($orientationCode, [3, 4])) {
+        if (in_array($code, [3, 4])) {
             $rotation = 180;
-        } elseif (in_array($orientationCode, [5, 6])) {
+        } elseif (in_array($code, [5, 6])) {
             $rotation = 90;
-        } elseif (in_array($orientationCode, [7, 8])) {
+        } elseif (in_array($code, [7, 8])) {
             $rotation = 270;
         } else {
             $rotation = 0;
         }
 
         return $rotation;
+    }
+
+    public function getRotationAngle(): int
+    {
+        return self::getRotationAngleFromCode($this->getRotationCode());
     }
 
     /**

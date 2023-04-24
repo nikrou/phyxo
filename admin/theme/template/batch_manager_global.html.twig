@@ -344,6 +344,7 @@
 			<select class="custom-select" name="selectAction">
 			    <option value="-1">{{'Choose an action'|trans}}</option>
 			    <option disabled="disabled">------------------</option>
+			    <option value="rotate_image">{{'Rotate images'|trans}}</option>			    
 			    <option value="delete">{{'Delete selected photos'|trans}}</option>
 			    <option value="associate">{{'Associate to album'|trans}}</option>
 			    <option value="move">{{'Move to album'|trans}}</option>
@@ -374,6 +375,27 @@
 			</select>
 		    </p>
 
+		    <!-- rotate -->
+		    <div id="action_rotate_image">
+		      <p>
+			{{'Turn photo to match what you want to see:'|trans}}
+			<ul>
+			  {% for orientation in orientations %}
+			  <li>
+			    <input id="orientation_{{orientation.value}}" type="radio" name="rotation" value="{{orientation.value}}">
+			    <label for="orientation_{{orientation.value}}">{{orientation.name}}</label>
+			  </li>
+			  {% endfor %}
+			</ul>			
+		      </p>
+		      <p>
+			<label>
+			  <input type="checkbox" name="apply_on_original">
+			  {{'Apply on original image'|trans}}
+			</label>	    
+		      </p>
+		    </div>
+		    
 		    <!-- delete -->
 		    <div id="action_delete">
 			<p class="custom-control custom-checkbox">
