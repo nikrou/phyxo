@@ -26,7 +26,7 @@
 		    <div class="input-group filter {% if ORDER_BY_IS_CUSTOM is defined %}transparent{% endif %}">
 			<select class="custom-select" name="order_by[]" {% if ORDER_BY_IS_CUSTOM is defined %}disabled{% endif %}>
 			    {% for id, option in main.order_by_options %}
-				<option value="{{id}}"{% if id==order %} selected="selected"{% endif %}>{{option|raw('html')}}</option>
+				<option value="{{id}}"{% if id == order[0] ~ ' ' ~ order[1] %} selected="selected"{% endif %}>{{option|raw('html')}}</option>
 			    {% endfor %}
 			</select>
 			<div class="input-group-append">

@@ -19,13 +19,8 @@ use Symfony\Component\Finder\Finder;
 
 class DerivativeService
 {
-    private $mediaCacheDir, $rootProjectDir, $uploadDir;
-
-    public function __construct(string $mediaCacheDir, string $rootProjectDir, string $uploadDir)
+    public function __construct(private string $mediaCacheDir, private string $rootProjectDir, private string $uploadDir)
     {
-        $this->mediaCacheDir = $mediaCacheDir;
-        $this->rootProjectDir = $rootProjectDir;
-        $this->uploadDir = $uploadDir;
     }
 
     /**
@@ -74,6 +69,7 @@ class DerivativeService
         $path = $infos['path'];
 
         $relative_path = $fs->makePathRelative(sprintf('%s/%s', $this->rootProjectDir, $path), $this->uploadDir);
+        $relative_path = sprintf('%s/%s', basename($this->uploadDir), $relative_path);
         $relative_path = rtrim($relative_path, '/');
 
         if (!empty($infos['representative_ext'])) {
@@ -86,10 +82,10 @@ class DerivativeService
         } else {
             $pattern = '-' . DerivativeParams::derivative_to_url($type) . '.*';
         }
-        $pattern = substr_replace($relative_path, $pattern, $dot, 0);
+        $pattern = '#' . substr_replace($relative_path, $pattern, $dot, 0) . '#';
 
         $finder = new Finder();
-        $finder->files()->in($this->mediaCacheDir)->path("#${pattern}#");
+        $finder->files()->in($this->mediaCacheDir)->path($pattern);
         if ($finder->hasResults()) {
             foreach ($finder as $file) {
                 $fs->remove($file->getPathname());

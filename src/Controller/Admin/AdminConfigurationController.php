@@ -416,41 +416,30 @@ class AdminConfigurationController extends AbstractController
                 }
 
                 if (empty($conf['order_by_custom']) && empty($conf['order_by_inside_category_custom'])) {
-                    if ($order_by = $request->request->all('order_by')) {
-                        $used = [];
-                        foreach ($order_by as $i => $val) {
-                            if (empty($val) || isset($used[$val])) {
-                                unset($order_by[$i]);
-                            } else {
-                                $used[$val] = true;
-                            }
+                    if ($new_order_by = $request->request->all('order_by')) {
+                        $order_by = [];
+                        foreach ($new_order_by as $order) {
+                            $order_by[] = explode(' ', $order);
                         }
+
+                        // limit to the number of available parameters
+                        $order_by = $order_by_inside_category = array_slice($order_by, 0, (int) ceil(count($this->sort_fields) / 2));
+
+                        // must define a default order_by if user want to order by rank only
                         if (count($order_by) === 0) {
-                            $this->addFlash('error', $this->translator->trans('No order field selected', [], 'admin'));
-                        } else {
-                            // limit to the number of available parameters
-                            $order_by = $order_by_inside_category = array_slice($order_by, 0, (int) ceil(count($this->sort_fields) / 2));
+                            $order_by = ['id', 'ASC'];
+                        }
 
-                            // there is no rank outside categories
-                            if (($i = array_search('rank ASC', $order_by)) !== false) {
-                                unset($order_by[$i]);
-                            }
+                        // there is no rank outside categories
+                        $order_by = array_filter($order_by, fn($order) => json_encode($order) !== json_encode(['rank', 'ASC']));
+                        if (json_encode($conf['order_by']) !== json_encode($order_by)) {
+                            $conf->addOrUpdateParam('order_by', $order_by, 'json');
+                            $conf_updated = true;
+                        }
 
-                            // must define a default order_by if user want to order by rank only
-                            if (count($order_by) === 0) {
-                                $order_by = ['id ASC'];
-                            }
-
-                            $new_order_by_value = 'ORDER BY ' . implode(', ', $order_by);
-                            if ($conf['order_by'] !== $new_order_by_value) {
-                                $conf_updated = true;
-                                $conf['order_by'] = $new_order_by_value;
-                            }
-                            $new_order_by_value = 'ORDER BY ' . implode(', ', $order_by_inside_category);
-                            if ($conf['order_by_inside_category'] !== $new_order_by_value) {
-                                $conf_updated = true;
-                                $conf['order_by_inside_category'] = $new_order_by_value;
-                            }
+                        if (json_encode($conf['order_by_inside_category']) !== json_encode($order_by_inside_category)) {
+                            $conf->addOrUpdateParam('order_by_inside_category', $order_by_inside_category, 'json');
+                            $conf_updated = true;
                         }
                     } else {
                         $this->addFlash('error', $this->translator->trans('No order field selected', [], 'admin'));

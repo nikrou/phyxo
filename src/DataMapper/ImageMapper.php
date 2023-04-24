@@ -22,7 +22,6 @@ use App\Repository\ImageTagRepository;
 use App\Repository\ImageRepository;
 use App\Repository\RateRepository;
 use App\Services\DerivativeService;
-use DateTimeInterface;
 use Phyxo\Functions\Utils;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Filesystem\Filesystem;
