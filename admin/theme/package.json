@@ -36,7 +36,7 @@
     "normalize.css": "^8.0.1",
     "plupload": "~2.3.9",
     "popper.js": "^1.16.1",
-    "postcss-loader": "~7.0.1",
+    "postcss-loader": "~7.2.4",
     "precss": "^4.0.0",
     "sass": "~1.55.0",
     "selectize": "^0.12.6",
