@@ -28,7 +28,7 @@
         "photoswipe": "~5.3.2",
         "photoswipe-dynamic-caption-plugin": "~1.2.7",
         "popper.js": "^1.16.1",
-        "postcss-loader": "~7.0.1",
+        "postcss-loader": "~7.2.4",
         "selectize": "0.12.6",
         "slick-carousel": "^1.8.1",
         "webpack-assets-manifest": "~5.1.0"
