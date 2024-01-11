@@ -45,7 +45,7 @@ class FormGroupType extends AbstractType
           ->addAllowedTypes('fields', ['array', 'callable']);
     }
 
-    public function buildView(FormView $view, FormInterface $form, array $options)
+    public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         if ($options['title'] !== false) {
             $view->vars['title'] = $options['title'];

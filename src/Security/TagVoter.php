@@ -11,6 +11,7 @@
 
 namespace App\Security;
 
+use LogicException;
 use App\Entity\Image;
 use App\Entity\User;
 use Phyxo\Conf;
@@ -60,7 +61,7 @@ class TagVoter extends Voter
         return match ($attribute) {
             self::ADD => $this->canAddTag($image, $user),
             self::DELETE => $this->canDeleteTag($image, $user),
-            default => throw new \LogicException('This code should not be reached!'),
+            default => throw new LogicException('This code should not be reached!'),
         };
     }
 

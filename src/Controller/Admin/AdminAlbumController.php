@@ -314,7 +314,7 @@ class AdminAlbumController extends AbstractController
             if ($image->getName()) {
                 $thumbnail_name = $image->getName();
             } else {
-                $file_wo_ext = \Phyxo\Functions\Utils::get_filename_wo_extension($image->getFile());
+                $file_wo_ext = Utils::get_filename_wo_extension($image->getFile());
                 $thumbnail_name = str_replace('_', ' ', $file_wo_ext);
             }
             $current_rank++;

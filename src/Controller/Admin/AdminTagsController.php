@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use DateTime;
 use App\DataMapper\TagMapper;
 use App\Entity\Tag;
 use App\Entity\User;
@@ -228,7 +229,7 @@ class AdminTagsController extends AbstractController
                 $tag = new Tag();
                 $tag->setName($request->request->get('add_tag'));
                 $tag->setUrlName($request->request->get('add_tag'));
-                $tag->setLastModified(new \DateTime());
+                $tag->setLastModified(new DateTime());
                 $tagMapper->getRepository()->addOrUpdateTag($tag);
 
                 $this->addFlash('success', $translator->trans('Tag "{tag}" was added', ['tag' => $tag->getName()], 'admin'));

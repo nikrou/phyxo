@@ -13,7 +13,6 @@ namespace App\Repository;
 
 use App\Entity\Tag;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\AbstractQuery;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -21,7 +20,9 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class TagRepository extends ServiceEntityRepository
 {
-    use BaseRepositoryTrait;
+    use MaxLastModifiedTrait;
+
+    use ValidatedConditionTrait;
 
     public function __construct(ManagerRegistry $registry)
     {
@@ -180,17 +181,6 @@ class TagRepository extends ServiceEntityRepository
     {
         $this->_em->remove($tag);
         $this->_em->flush();
-    }
-
-    /**
-     * @return array{max: \DateTimeInterface, count: int}
-     */
-    public function getMaxLastModified()
-    {
-        $qb = $this->createQueryBuilder('t');
-        $qb->select('MAX(t.last_modified) as max, COUNT(1) as count');
-
-        return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_ARRAY);
     }
 
     /**

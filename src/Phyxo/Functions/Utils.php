@@ -11,11 +11,13 @@
 
 namespace Phyxo\Functions;
 
+use Phyxo\Block\BlockManager;
 use App\Entity\Album;
 use App\Entity\Group;
 use App\Entity\Image;
 use App\Entity\Tag;
 use App\Entity\UserInfos;
+use DateTime;
 use Phyxo\Block\RegisteredBlock;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\RouterInterface;
@@ -292,7 +294,7 @@ class Utils
     /**
      * Add known menubar blocks.
      *
-     * @param \Phyxo\Block\BlockManager[] $menu_ref_arr
+     * @param BlockManager[] $menu_ref_arr
      */
     public static function register_default_menubar_blocks($menu_ref_arr)
     {
@@ -405,10 +407,9 @@ class Utils
 
         foreach ($returned as $repository) {
             if (isset($tables[$repository])) {
-                /** @phpstan-ignore-next-line */
                 $tableInfos = $managerRegistry->getRepository($tables[$repository])->getMaxLastModified();
-
-                $keys[$repository] = sprintf('%s_%s', (new \Datetime($tableInfos['max']))->getTimestamp(), $tableInfos['count']);
+                $max = (new DateTime(isset($tableInfos['max']) ? $tableInfos['max'] : 'now'))->getTimestamp();
+                $keys[$repository] = sprintf('%s_%s', $max, $tableInfos['count']);
             }
         }
 

@@ -11,6 +11,8 @@
 
 namespace App\Controller;
 
+use DateTime;
+use DateInterval;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
 use App\DataMapper\ImageMapper;
@@ -92,8 +94,8 @@ class IndexController extends AbstractController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Recent photos');
         $tpl_params['items'] = [];
 
-        $recent_date = new \DateTime();
-        $recent_date->sub(new \DateInterval(sprintf('P%dD', $appUserService->getUser()->getUserInfos()->getRecentPeriod())));
+        $recent_date = new DateTime();
+        $recent_date->sub(new DateInterval(sprintf('P%dD', $appUserService->getUser()->getUserInfos()->getRecentPeriod())));
 
         $order_by = [['id', 'DESC']];
         foreach ($imageMapper->getRepository()->findRecentImages($recent_date, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $order_by) as $image) {

@@ -11,6 +11,8 @@
 
 namespace App\Repository;
 
+use DateTimeInterface;
+use DateTime;
 use App\Entity\Comment;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
@@ -34,7 +36,7 @@ class CommentRepository extends ServiceEntityRepository
         return $comment->getId();
     }
 
-    public function doestAuthorPostMessageAfterThan(int $user_id, \DateTimeInterface $anti_flood_time, ?string $anonymous_id = null): bool
+    public function doestAuthorPostMessageAfterThan(int $user_id, DateTimeInterface $anti_flood_time, ?string $anonymous_id = null): bool
     {
         $qb = $this->createQueryBuilder('c');
         $qb->select('COUNT(1)');
@@ -100,7 +102,7 @@ class CommentRepository extends ServiceEntityRepository
         $qb->set('c.validated', ':validated');
         $qb->setParameter('validated', true);
         $qb->set('c.validation_date', ':validation_date');
-        $qb->setParameter('validation_date', new \DateTime());
+        $qb->setParameter('validation_date', new DateTime());
         $qb->where($qb->expr()->in('c.id', $comment_ids));
 
         $qb->getQuery()->getResult();
@@ -207,6 +209,7 @@ class CommentRepository extends ServiceEntityRepository
         if ($count_only) {
             return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR) ?? 0;
         } else {
+            /** @phpstan-ignore-next-line */
             return $qb->getQuery()->getResult();
         }
     }
@@ -265,7 +268,7 @@ class CommentRepository extends ServiceEntityRepository
      *
      * @return Comment[]|int
      */
-    public function getNewComments(array $forbidden_albums = [], \DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only = false): array|int
+    public function getNewComments(array $forbidden_albums = [], DateTimeInterface $start = null, DateTimeInterface $end = null, bool $count_only = false): array|int
     {
         $qb = $this->createQueryBuilder('c');
 
@@ -300,7 +303,7 @@ class CommentRepository extends ServiceEntityRepository
     /**
      * @return Comment[]|int
      */
-    public function getUnvalidatedComments(bool $count_only, \DateTimeInterface $start = null, \DateTimeInterface $end = null): array|int
+    public function getUnvalidatedComments(bool $count_only, DateTimeInterface $start = null, DateTimeInterface $end = null): array|int
     {
         $qb = $this->createQueryBuilder('c');
 

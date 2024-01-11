@@ -11,6 +11,8 @@
 
 namespace Phyxo\Theme;
 
+use Phyxo\Functions\Utils;
+use Exception;
 use App\DataMapper\UserMapper;
 use App\Entity\Theme;
 use Phyxo\Extension\Extensions;
@@ -312,14 +314,14 @@ class Themes extends Extensions
                 if (!empty($pem_versions) && !preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                     $version = $pem_versions[0]['name'];
                 }
-                $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);
+                $branch = Utils::get_branch_from_version($version);
                 foreach ($pem_versions as $pem_version) {
                     if (str_starts_with((string) $pem_version['name'], $branch)) {
                         $versions_to_check[] = $pem_version['id'];
                     }
                 }
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage());
             }
 
             if (empty($versions_to_check)) {
@@ -362,8 +364,8 @@ class Themes extends Extensions
                 foreach ($pem_themes as $theme) {
                     $this->server_themes[$theme['extension_id']] = $theme;
                 }
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage());
             }
             $this->server_themes_retrieved = true;
         }
@@ -407,15 +409,15 @@ class Themes extends Extensions
 
         try {
             $this->download($archive, $get_data);
-        } catch (\Exception $e) {
-            throw new \Exception("Cannot download theme archive");
+        } catch (Exception $e) {
+            throw new Exception("Cannot download theme archive");
         }
 
         $extract_path = $this->themes_root_path;
         try {
             $this->extractZipFiles($archive, self::CONFIG_FILE, $extract_path);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         } finally {
             unlink($archive);
         }
@@ -452,7 +454,7 @@ class Themes extends Extensions
     {
         $r = strcasecmp((string) $a['author'], (string) $b['author']);
         if ($r == 0) {
-            return \Phyxo\Functions\Utils::name_compare($a, $b);
+            return Utils::name_compare($a, $b);
         } else {
             return $r;
         }

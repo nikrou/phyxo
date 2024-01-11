@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use Exception;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\RateMapper;
 use App\DataMapper\TagMapper;
@@ -210,7 +211,7 @@ class AdminMaintenanceController extends AbstractController
                     if ($not_writable_files > 0) {
                         $this->addFlash('error', $translator->trans('Some files ({count}) could have not be removed.', ['count' => $not_writable_files], 'admin'));
                     }
-                } catch (\Exception) {
+                } catch (Exception) {
                     $this->addFlash('error', $translator->trans('Some files ({count}) could have not be removed.', [], 'admin'));
                 }
 

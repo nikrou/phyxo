@@ -11,9 +11,10 @@
 
 namespace App\EventSubscriber;
 
+use Doctrine\ORM\Id\SequenceGenerator;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
-use Symfony\Bundle\MakerBundle\DependencyInjection\CompilerPass\DoctrineAttributesCheckPass;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class TablePrefixSubscriber implements EventSubscriberInterface
@@ -29,6 +30,7 @@ class TablePrefixSubscriber implements EventSubscriberInterface
 
     public function loadClassMetadata(LoadClassMetadataEventArgs $event)
     {
+        /** @var ClassMetadata $classMetadata */
         $classMetadata = $event->getClassMetadata();
         if (!$classMetadata->isInheritanceTypeSingleTable() || $classMetadata->getName() === $classMetadata->rootEntityName) {
             $classMetadata->setPrimaryTable([
@@ -42,9 +44,8 @@ class TablePrefixSubscriber implements EventSubscriberInterface
 
             $classMetadata->setSequenceGeneratorDefinition($newDefinition);
             $em = $event->getEntityManager();
-            /** @phpstan-ignore-next-line */
             if (isset($classMetadata->idGenerator)) {
-                $sequenceGenerator = new \Doctrine\ORM\Id\SequenceGenerator(
+                $sequenceGenerator = new SequenceGenerator(
                     $em->getConfiguration()->getQuoteStrategy()->getSequenceName(
                         $newDefinition,
                         $classMetadata,

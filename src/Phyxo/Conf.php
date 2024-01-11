@@ -11,6 +11,7 @@
 
 namespace Phyxo;
 
+use ArrayAccess;
 use App\Entity\Config;
 use App\Repository\ConfigRepository;
 
@@ -21,7 +22,7 @@ use App\Repository\ConfigRepository;
  *
  *  Add prefix file_ or db_ to configuration keys to know if database update is needed
  */
-class Conf implements \ArrayAccess
+class Conf implements ArrayAccess
 {
     private $configRepository, $keys = [];
     final public const FILE_PREFIX = 'file_';

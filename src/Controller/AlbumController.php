@@ -11,6 +11,8 @@
 
 namespace App\Controller;
 
+use DateTime;
+use DateInterval;
 use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
@@ -486,8 +488,8 @@ class AlbumController extends AbstractController
         $image_ids = [];
         $user_representative_updates_for = [];
 
-        $recent_date = new \DateTime();
-        $recent_date->sub(new \DateInterval(sprintf('P%dD', $appUserService->getUser()->getUserInfos()->getRecentPeriod())));
+        $recent_date = new DateTime();
+        $recent_date->sub(new DateInterval(sprintf('P%dD', $appUserService->getUser()->getUserInfos()->getRecentPeriod())));
         $infos_of_images = [];
 
         [$is_child_date_last, $albums, $image_ids, $user_representative_updates_for] = $albumMapper->getAlbumThumbnails($appUserService->getUser(), $albumMapper->getRepository()->findRecentAlbums($recent_date));

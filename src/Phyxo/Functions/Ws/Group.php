@@ -11,6 +11,7 @@
 
 namespace Phyxo\Functions\Ws;
 
+use Exception;
 use App\Entity\Group as EntityGroup;
 use App\Entity\User;
 use Phyxo\Ws\Server;
@@ -117,7 +118,7 @@ class Group
 
         try {
             $service->getManagerRegistry()->getRepository(EntityGroup::class)->addOrUpdateGroup($group);
-        } catch (\Exception) {
+        } catch (Exception) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'This name is already used by another group.');
         }
 

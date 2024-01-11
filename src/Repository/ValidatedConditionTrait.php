@@ -13,24 +13,10 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 
-/**
- * @method EntityManagerInterface getEntityManager()
- */
-trait BaseRepositoryTrait
+trait ValidatedConditionTrait
 {
-    /**
-     * This is just an example. Use ->count([]) for the same result.
-     */
-    public function countAll(): int
-    {
-        return (int) $this->getEntityManager()
-            ->createQuery(sprintf('SELECT COUNT(a) FROM %s a', $this->getClassName()))
-            ->getSingleScalarResult();
-    }
-
     protected function addValidatedCondition(QueryBuilder $qb, int $user_id, bool $show_pending_added_tags = false, bool $show_pending_deleted_tags = false): QueryBuilder
     {
         if ($show_pending_added_tags) {

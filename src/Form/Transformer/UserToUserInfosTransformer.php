@@ -11,6 +11,7 @@
 
 namespace App\Form\Transformer;
 
+use LogicException;
 use App\Entity\UserInfos;
 use App\Form\Model\UserInfosModel;
 use App\Repository\LanguageRepository;
@@ -35,7 +36,7 @@ class UserToUserInfosTransformer implements DataTransformerInterface
     public function transform($userInfos): UserInfosModel
     {
         if (!$userInfos instanceof UserInfos) {
-            throw new \LogicException('The UserInfosType can only be used with UserInfos objects');
+            throw new LogicException('The UserInfosType can only be used with UserInfos objects');
         }
 
         $userInfosModel = new userInfosModel();

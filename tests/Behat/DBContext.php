@@ -36,8 +36,11 @@ use Symfony\Component\HttpKernel\KernelInterface;
 class DBContext implements Context
 {
     private string $sqlInitFile;
+
     private string $sqlCleanupFile;
+
     private KernelInterface $kernel;
+
     private Storage $storage;
 
     public function __construct(string $sql_init_file, string $sql_cleanup_file, Storage $storage, KernelInterface $kernel)
@@ -51,7 +54,6 @@ class DBContext implements Context
 
     protected function getContainer():  ContainerInterface
     {
-        /** @phpstan-ignore-next-line */
         return $this->kernel->getContainer()->get('test.service_container');
     }
 

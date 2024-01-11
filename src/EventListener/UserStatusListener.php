@@ -9,24 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace App\EventSubscriber;
+namespace App\EventListener;
 
 use App\Entity\User;
 use App\Entity\UserInfos;
-use Doctrine\Common\EventSubscriber;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
+use Doctrine\ORM\Event\PostLoadEventArgs;
 use Doctrine\ORM\Events;
-use Doctrine\Persistence\Event\LifecycleEventArgs;
 
-class UserStatusSubscriber implements EventSubscriber
+#[AsDoctrineListener(event: Events::postLoad)]
+class UserStatusListener
 {
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::postLoad
-        ];
-    }
-
-    public function postLoad(LifecycleEventArgs $args)
+    public function postLoad(PostLoadEventArgs $args)
     {
         $entity = $args->getObject();
 

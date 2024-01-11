@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use DateTime;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
@@ -91,7 +92,7 @@ class AdminPhotoController extends AbstractController
                 $image->setComment(htmlentities($request->request->get('description'), ENT_QUOTES, 'utf-8'));
             }
             if ($request->request->get('date_creation')) {
-                $image->setDateCreation(new \DateTime($request->request->get('date_creation')));
+                $image->setDateCreation(new DateTime($request->request->get('date_creation')));
             }
 
             $imageMapper->getRepository()->addOrUpdateImage($image);
@@ -183,7 +184,7 @@ class AdminPhotoController extends AbstractController
 
         // image level options
         $selected_level = $image->getLevel();
-        $tpl_params['level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($translator, $conf['available_permission_levels'], 'admin');
+        $tpl_params['level_options'] = Utils::getPrivacyLevelOptions($translator, $conf['available_permission_levels'], 'admin');
         $tpl_params['level_options_selected'] = $selected_level;
 
         // associate to albums
@@ -365,13 +366,13 @@ class AdminPhotoController extends AbstractController
     public function rotate(
         Request $request,
         int $image_id,
-        int $album_id = null,
         ImageStandardParams $image_std_params,
         ImageRepository $imageRepository,
         TranslatorInterface $translator,
         ImageLibraryGuesser $imageLibraryGuesser,
         DerivativeService $derivativeService,
         string $rootProjectDir,
+        int $album_id = null,
     ) {
         $tpl_params = [];
         $this->translator = $translator;

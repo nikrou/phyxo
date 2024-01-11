@@ -11,6 +11,7 @@
 
 namespace Phyxo\Ws;
 
+use Phyxo\Functions\HTTP;
 class Error
 {
     private $code;
@@ -19,7 +20,7 @@ class Error
     public function __construct($code, $codeText)
     {
         if ($code >= 400 && $code < 600) {
-            \Phyxo\Functions\HTTP::set_status_header($code, $codeText);
+            HTTP::set_status_header($code, $codeText);
         }
 
         $this->code = $code;

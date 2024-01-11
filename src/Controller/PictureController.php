@@ -11,6 +11,9 @@
 
 namespace App\Controller;
 
+use DateTimeInterface;
+use IntlDateFormatter;
+use DateTime;
 use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
@@ -49,10 +52,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class PictureController extends AbstractController
 {
     private UserMapper $userMapper;
+
     private TranslatorInterface $translator;
 
     /**
-     * @param array{current_day?: \DateTimeInterface, date_type?: string, year?: int, month?: int, day?: int } $extra
+     * @param array{current_day?: DateTimeInterface, date_type?: string, year?: int, month?: int, day?: int} $extra
      */
     public function picture(
         Request $request,
@@ -223,7 +227,7 @@ class PictureController extends AbstractController
         $tpl_params['U_METADATA'] = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id, 'metadata' => '']);
         $tpl_params['current']['unique_derivatives'] = $unique_derivatives;
 
-        $fmt = new \IntlDateFormatter($request->get('_locale'), \IntlDateFormatter::FULL, \IntlDateFormatter::NONE);
+        $fmt = new IntlDateFormatter($request->get('_locale'), IntlDateFormatter::FULL, IntlDateFormatter::NONE);
         $tpl_params['INFO_POSTED_DATE'] = [
             'label' => $fmt->format($picture['date_available']),
             'url' => $this->generateUrl(
@@ -253,23 +257,21 @@ class PictureController extends AbstractController
             ];
         }
 
-        /** @phpstan-ignore-next-line */
         if (!empty($picture['author'])) {
             $tpl_params['INFO_AUTHOR'] = $picture['author'];
         }
 
-        /** @phpstan-ignore-next-line */
         if (!empty($picture['comment'])) {
             $tpl_params['COMMENT_IMG'] = $picture['comment'];
         }
 
         $tpl_params['INFO_VISITS'] = $picture['hit'];
         $tpl_params['INFO_FILE'] = $picture['file'];
-        /** @phpstan-ignore-next-line */
+
         if (!empty($picture['filesize'])) {
             $tpl_params['INFO_FILESIZE'] = $translator->trans('{size} Kb', ['size' => $picture['filesize']]);
         }
-        /** @phpstan-ignore-next-line */
+
         if (isset($picture['width'], $picture['height'])) {
             $tpl_params['INFO_DIMENSIONS'] = $picture['width'] . '*' . $picture['height'];
         }
@@ -449,10 +451,10 @@ class PictureController extends AbstractController
                     $comment->setImage($image);
                     $comment->setUser($appUserService->getUser());
                     $comment->setAnonymousId(md5($request->getClientIp()));
-                    $comment->setDate(new \DateTime());
+                    $comment->setDate(new DateTime());
                     $comment->setValidated($validated);
                     if ($validated) {
-                        $comment->setValidationDate(new \DateTime());
+                        $comment->setValidationDate(new DateTime());
                     }
                     $commentRepository->addOrUpdateComment($comment);
 
@@ -535,7 +537,7 @@ class PictureController extends AbstractController
 
     public function pictureFromCalendar(int $image_id, int $year, int $month, int $day, string $date_type): Response
     {
-        $current_day = new \DateTime(sprintf('%d-%02d-%02d', $year, $month, $day));
+        $current_day = new DateTime(sprintf('%d-%02d-%02d', $year, $month, $day));
 
         return $this->forward(
             'App\Controller\PictureController::picture',
@@ -548,7 +550,6 @@ class PictureController extends AbstractController
         );
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function addRateInfos(RateRepository $rateRepository, Conf $conf, Image $image, Request $request, ?User $user): array
     {
         $tpl_params = [];
@@ -628,7 +629,6 @@ class PictureController extends AbstractController
         return $response;
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function addMetadataInfos(Metadata $metadata, Conf $conf, string $path): array
     {
         $tpl_params = [];

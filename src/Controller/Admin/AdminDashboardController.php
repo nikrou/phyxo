@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use Exception;
 use App\DataMapper\ImageMapper;
 use App\Kernel;
 use App\Repository\AlbumRepository;
@@ -21,7 +22,6 @@ use App\Repository\ImageTagRepository;
 use App\Repository\RateRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
-use App\Security\AppUserService;
 use Doctrine\Persistence\ManagerRegistry;
 use IntlDateFormatter;
 use Phyxo\Conf;
@@ -49,7 +49,6 @@ class AdminDashboardController extends AbstractController
         RateRepository $rateRepository,
         TagRepository $tagRepository,
         ImageTagRepository $imageTagRepository,
-        AppUserService $appUserService,
         ManagerRegistry $managerRegistry,
         bool $check_upgrade = false
     ): Response {
@@ -64,7 +63,7 @@ class AdminDashboardController extends AbstractController
                     $versions = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
                     $latest_version = $versions[0]['version'];
                 } else {
-                    throw new \Exception('Unable to check for upgrade.');
+                    throw new Exception('Unable to check for upgrade.');
                 }
 
                 if ($tpl_params['DEV']) {
@@ -75,7 +74,7 @@ class AdminDashboardController extends AbstractController
                 } else {
                     $tpl_params['infos'][] = $translator->trans('You are running the latest version of Phyxo.', [], 'admin');
                 }
-            } catch (\Exception) {
+            } catch (Exception) {
                 $tpl_params['errors'][] = $translator->trans('Unable to check for upgrade.', [], 'admin');
             }
         }

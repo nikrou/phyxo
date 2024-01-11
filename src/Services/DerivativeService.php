@@ -19,7 +19,7 @@ use Symfony\Component\Finder\Finder;
 
 class DerivativeService
 {
-    public function __construct(private string $mediaCacheDir, private string $rootProjectDir, private string $uploadDir)
+    public function __construct(private readonly string $mediaCacheDir, private readonly string $rootProjectDir, private readonly string $uploadDir)
     {
     }
 

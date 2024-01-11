@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use DateTimeInterface;
 use App\Repository\RateRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -35,7 +36,7 @@ class Rate
     private int $rate;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $date = null;
+    private ?DateTimeInterface $date = null;
 
     public function getUser(): ?User
     {
@@ -85,12 +86,12 @@ class Rate
         return $this;
     }
 
-    public function getDate(): ?\DateTimeInterface
+    public function getDate(): ?DateTimeInterface
     {
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setDate(DateTimeInterface $date): self
     {
         $this->date = $date;
 

@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use DateTimeInterface;
 use App\Repository\HistoryRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -38,10 +39,10 @@ class History
     private int $id;
 
     #[ORM\Column(type: 'date')]
-    private \DateTimeInterface $date;
+    private DateTimeInterface $date;
 
     #[ORM\Column(type: 'time')]
-    private \DateTimeInterface $time;
+    private DateTimeInterface $time;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
@@ -75,24 +76,24 @@ class History
         return $this->id;
     }
 
-    public function getDate(): ?\DateTimeInterface
+    public function getDate(): ?DateTimeInterface
     {
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setDate(DateTimeInterface $date): self
     {
         $this->date = $date;
 
         return $this;
     }
 
-    public function getTime(): ?\DateTimeInterface
+    public function getTime(): ?DateTimeInterface
     {
         return $this->time;
     }
 
-    public function setTime(\DateTimeInterface $time): self
+    public function setTime(DateTimeInterface $time): self
     {
         $this->time = $time;
 

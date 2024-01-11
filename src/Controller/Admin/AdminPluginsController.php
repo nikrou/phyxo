@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use Exception;
 use App\DataMapper\UserMapper;
 use App\Repository\PluginRepository;
 use Phyxo\Conf;
@@ -96,7 +97,7 @@ class AdminPluginsController extends AbstractController
 
         try {
             $tpl_params['incompatible_plugins'] = $plugins->getIncompatiblePlugins($conf['pem_plugins_category'], $params->get('core_version'));
-        } catch (\Exception) {
+        } catch (Exception) {
             // @TODO : do something usefull
         }
 
@@ -130,7 +131,7 @@ class AdminPluginsController extends AbstractController
             $this->addFlash('success', $translator->trans('Plugin has been successfully installed', [], 'admin'));
 
             return $this->redirectToRoute('admin_plugins_installed');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->addFlash('error', $translator->trans($e->getMessage(), [], 'admin'));
 
             return $this->redirectToRoute('admin_plugins_new');

@@ -11,6 +11,7 @@
 
 namespace App\Command;
 
+use Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputInterface;
@@ -36,7 +37,7 @@ class UserCreateCommand extends Command
         return is_readable($this->databaseYamlFile);
     }
 
-    public function configure()
+    public function configure(): void
     {
         $this->setHelp(file_get_contents(__DIR__ . '/../Resources/help/UserCreateCommand.txt'))
             ->addOption('username', null, InputOption::VALUE_REQUIRED, 'Username')
@@ -45,7 +46,7 @@ class UserCreateCommand extends Command
             ->addOption('status', null, InputOption::VALUE_REQUIRED, 'User status');
     }
 
-    public function interact(InputInterface $input, OutputInterface $output)
+    public function interact(InputInterface $input, OutputInterface $output): void
     {
         $io = new SymfonyStyle($input, $output);
         $io->title('Create user');
@@ -53,7 +54,7 @@ class UserCreateCommand extends Command
         if (($this->params['username'] = $input->getOption('username')) === null) {
             $this->params['username'] = $io->ask('Username', null, function($user) {
                 if (empty($user)) {
-                    throw new \Exception('Username cannot be empty.');
+                    throw new Exception('Username cannot be empty.');
                 }
 
                 return $user;
@@ -99,7 +100,7 @@ class UserCreateCommand extends Command
 
         try {
             $this->userManager->register($user);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $io->error($e->getMessage());
         }
 

@@ -11,6 +11,7 @@
 
 namespace App\Repository;
 
+use DateTimeInterface;
 use App\Entity\ImageAlbum;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -82,7 +83,7 @@ class ImageAlbumRepository extends ServiceEntityRepository
     /**
      * @param int[] $album_ids
      *
-     * @return array{_to: \DateTimeInterface, _from: \DateTimeInterface}
+     * @return array{_to: DateTimeInterface, _from: DateTimeInterface}
      */
     public function dateOfAlbums(array $album_ids)
     {
@@ -92,7 +93,7 @@ class ImageAlbumRepository extends ServiceEntityRepository
         $qb->where($qb->expr()->in('ia.album', $album_ids));
         $qb->groupBy('ia.album');
 
-        return $qb->getQuery()->getResult();
+        return $qb->getQuery()->getSingleColumnResult();
     }
 
     /**

@@ -11,6 +11,7 @@
 
 namespace App\Utils;
 
+use DateTime;
 use App\Repository\UserRepository;
 use App\Repository\GroupRepository;
 use App\Entity\User;
@@ -40,8 +41,8 @@ class UserManager
             $userInfos->fromArray($guestUserInfos->toArray());
         }
 
-        $userInfos->setRegistrationDate(new \DateTime());
-        $userInfos->setLastModified(new \DateTime());
+        $userInfos->setRegistrationDate(new DateTime());
+        $userInfos->setLastModified(new DateTime());
         if (in_array('ROLE_WEBMASTER', $user->getRoles())) {
             $userInfos->setLevel(10); // @FIX: find a way to only inject that param instead of conf ; max($this->conf['available_permission_levels']);
         }

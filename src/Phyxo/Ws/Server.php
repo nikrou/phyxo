@@ -11,6 +11,7 @@
 
 namespace Phyxo\Ws;
 
+use Exception;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
@@ -347,7 +348,7 @@ class Server
         }
 
         if (is_null($method)) {
-            $method = $request->get('method');
+            $method = $request->query->get('method');
         }
 
         if (is_null($method)) {
@@ -358,7 +359,7 @@ class Server
             $response = $this->invoke($method, $params);
 
             return ['stat' => 'ok', 'result' => $response];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return ['stat' => 'fail', 'err' => 9999, 'message' => $e->getMessage()];
         }
     }

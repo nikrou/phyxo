@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use DateTimeInterface;
 use App\Repository\SearchRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -24,7 +25,7 @@ class Search
     private int $id;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $last_seen = null;
+    private ?DateTimeInterface $last_seen = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $rules = null;
@@ -34,12 +35,12 @@ class Search
         return $this->id;
     }
 
-    public function getLastSeen(): ?\DateTimeInterface
+    public function getLastSeen(): ?DateTimeInterface
     {
         return $this->last_seen;
     }
 
-    public function setLastSeen(?\DateTimeInterface $last_seen): self
+    public function setLastSeen(?DateTimeInterface $last_seen): self
     {
         $this->last_seen = $last_seen;
 

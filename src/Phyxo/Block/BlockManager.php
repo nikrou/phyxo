@@ -103,11 +103,7 @@ class BlockManager
 
     public function getBlock(string $block_id): ?DisplayBlock
     {
-        if (isset($this->display_blocks[$block_id])) {
-            return $this->display_blocks[$block_id];
-        }
-
-        return null;
+        return $this->display_blocks[$block_id] ?? null;
     }
 
     public function setBlockPosition(string $block_id, int $position): void

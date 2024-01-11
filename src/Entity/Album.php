@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use DateTimeInterface;
 use App\Repository\AlbumRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -39,7 +40,7 @@ class Album
      * @var Collection<int, Album>
      */
     #[ORM\OneToMany(targetEntity: Album::class, mappedBy: 'parent')]
-    private \Doctrine\Common\Collections\Collection $children;
+    private Collection $children;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $comment = null;
@@ -75,31 +76,31 @@ class Album
     private ?string $permalink = null;
 
     #[ORM\Column(name: 'lastmodified', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $last_modified = null;
+    private ?DateTimeInterface $last_modified = null;
 
     /**
      * @var Collection<int, Group>
      */
     #[ORM\ManyToMany(targetEntity: Group::class, mappedBy: 'group_access', cascade: ['persist', 'remove'])]
-    private \Doctrine\Common\Collections\Collection $group_access;
+    private Collection $group_access;
 
     /**
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'user_access')]
-    private \Doctrine\Common\Collections\Collection $user_access;
+    private Collection $user_access;
 
     /**
      * @var Collection<int, ImageAlbum>
      */
     #[ORM\OneToMany(targetEntity: ImageAlbum::class, mappedBy: 'album', cascade: ['persist', 'remove'])]
-    private \Doctrine\Common\Collections\Collection $imageAlbums;
+    private Collection $imageAlbums;
 
     /**
      * @var Collection<int, UserCacheAlbum>
      */
     #[ORM\OneToMany(targetEntity: UserCacheAlbum::class, mappedBy: 'album')]
-    private \Doctrine\Common\Collections\Collection $userCacheAlbums;
+    private Collection $userCacheAlbums;
 
     public function __construct()
     {
@@ -259,12 +260,12 @@ class Album
         return $this;
     }
 
-    public function getLastModified(): ?\DateTimeInterface
+    public function getLastModified(): ?DateTimeInterface
     {
         return $this->last_modified;
     }
 
-    public function setLastModified(?\DateTimeInterface $last_modified): self
+    public function setLastModified(?DateTimeInterface $last_modified): self
     {
         $this->last_modified = $last_modified;
 
@@ -461,7 +462,6 @@ class Album
         return $this;
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function toArray(): array
     {
         return [

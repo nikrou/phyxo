@@ -11,6 +11,8 @@
 
 namespace Phyxo\Plugin;
 
+use Exception;
+use Phyxo\Functions\Utils;
 use App\DataMapper\UserMapper;
 use App\Entity\Plugin;
 use Phyxo\Plugin\DummyPluginMaintain;
@@ -109,7 +111,7 @@ class Plugins extends Extensions
                     $new_version = $this->fs_plugins[$plugin_id]['version'];
                     $plugin_maintain->update($previous_version, $new_version, $error);
                     $this->pluginRepository->updateVersion($plugin_id, $new_version);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $error = $e->getMessage();
                 }
                 break;
@@ -273,13 +275,13 @@ class Plugins extends Extensions
             if (!empty($pem_versions) && !preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                 $version = $pem_versions[0]['name'];
             }
-            $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);
+            $branch = Utils::get_branch_from_version($version);
             foreach ($pem_versions as $pem_version) {
                 if (str_starts_with((string) $pem_version['name'], $branch)) {
                     $versions_to_check[] = $pem_version['id'];
                 }
             }
-        } catch (\Exception) {
+        } catch (Exception) {
             return null; // throw new \Exception($e->getMessage());
         }
 
@@ -332,8 +334,8 @@ class Plugins extends Extensions
                 foreach ($pem_plugins as $plugin) {
                     $this->server_plugins[$plugin['extension_id']] = $plugin;
                 }
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage());
             }
 
             $this->server_plugins_retrieved = true;
@@ -390,8 +392,8 @@ class Plugins extends Extensions
             }
 
             return $incompatible_plugins;
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -432,15 +434,15 @@ class Plugins extends Extensions
 
         try {
             $this->download($archive, $get_data);
-        } catch (\Exception $e) {
-            throw new \Exception("Cannot download plugin file");
+        } catch (Exception $e) {
+            throw new Exception("Cannot download plugin file");
         }
 
         $extract_path = $this->plugins_root_path;
         try {
             $this->extractZipFiles($archive, self::CONFIG_FILE, $extract_path);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         } finally {
             unlink($archive);
         }
@@ -477,7 +479,7 @@ class Plugins extends Extensions
     {
         $r = strcasecmp((string) $a['author'], (string) $b['author']);
         if ($r == 0) {
-            return \Phyxo\Functions\Utils::name_compare($a, $b);
+            return Utils::name_compare($a, $b);
         } else {
             return $r;
         }

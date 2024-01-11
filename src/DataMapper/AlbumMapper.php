@@ -11,6 +11,8 @@
 
 namespace App\DataMapper;
 
+use Exception;
+use DateTime;
 use App\Entity\Album;
 use App\Entity\ImageAlbum;
 use App\Entity\User;
@@ -46,7 +48,6 @@ class AlbumMapper
      * Returns template vars for main albums menu.
      * @param array{id?: int, id_uppercat?: int} $selected_album
      */
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getRecursiveAlbumsMenu(User $user, array $selected_album = []): array
     {
         $flat_albums = $this->getAlbumsMenu($user, $selected_album);
@@ -63,8 +64,7 @@ class AlbumMapper
         return $albums;
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
-    protected function insertAlbumInTree(&$categories, $category, $uppercats)
+    protected function insertAlbumInTree(&$categories, $category, $uppercats): void
     {
         if ($category['id'] != $uppercats) {
             $cats = explode(',', (string) $uppercats);
@@ -82,7 +82,6 @@ class AlbumMapper
      * Returns template vars for main albums menu.
      * @param array{id?: int, id_uppercat?: int} $selected_album
      */
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function getAlbumsMenu(User $user, array $selected_album = []): array
     {
         $albums = [];
@@ -120,8 +119,7 @@ class AlbumMapper
      * Get computed array of albums, that means cache data of all albums
      * available for the current user (count_categories, count_images, etc.).
      */
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
-    public function getComputedAlbums(int $level, array $forbidden_categories = [])
+    public function getComputedAlbums(int $level, array $forbidden_categories = []): array
     {
         $albums = [];
         $last_photo_date = null;
@@ -172,7 +170,6 @@ class AlbumMapper
     /**
      * Removes an album from computed array of albums and updates counters.
      */
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function removeComputedAlbum(array $albums, $album): array
     {
         if (isset($albums[$album['id_uppercat']])) {
@@ -198,7 +195,6 @@ class AlbumMapper
     /**
      * Generates breadcrumb from albums list.
      */
-    /** @phpstan-ignore-next-line */
     public function getAlbumDisplayName(array $album_informations, string $url = null): string
     {
         $output = '';
@@ -225,7 +221,6 @@ class AlbumMapper
         return $output;
     }
 
-    /** @phpstan-ignore-next-line */
     public function getAlbumsDisplayName(string $uppercats, string $route_name, array $params = []): array
     {
         $names = [];
@@ -240,7 +235,6 @@ class AlbumMapper
         return $names;
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getBreadcrumb(Album $album): array
     {
         $breadcumb = [];
@@ -315,7 +309,6 @@ class AlbumMapper
         return $output;
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function displaySelectAlbums(array $albums, array $selecteds, string $blockname, bool $fullname = true): array
     {
         $tpl_cats = [];
@@ -340,7 +333,6 @@ class AlbumMapper
      * Same as displaySelectAlbums but albums are ordered by rank
      * @see displaySelectAlbums()
      */
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function displaySelectAlbumsWrapper(array $albums, array $selecteds, string $blockname, bool $fullname = true): array
     {
         usort($albums, $this->globalRankCompare(...));
@@ -375,7 +367,7 @@ class AlbumMapper
                 // technically, you can't move a category with uppercats 12,125,13,14
                 // into a new parent category with uppercats 12,125,13,14,24
                 if (preg_match('/^' . $album['uppercats'] . '(,|$)/', $new_parent_uppercats)) {
-                    throw new \Exception($this->translator->trans('You cannot move an album in its own sub album'));
+                    throw new Exception($this->translator->trans('You cannot move an album in its own sub album'));
                 }
             }
         }
@@ -433,7 +425,7 @@ class AlbumMapper
     public function setAlbumsStatus(array $album_ids, string $status): void
     {
         if (!in_array($status, [Album::STATUS_PUBLIC, Album::STATUS_PRIVATE])) {
-            throw new \Exception("AlbumMapper::setAlbumsStatus invalid param $status");
+            throw new Exception("AlbumMapper::setAlbumsStatus invalid param $status");
         }
 
         // make public an album => all its parent albums become public
@@ -552,7 +544,6 @@ class AlbumMapper
      * Returns all uppercats Album ids of the given Album ids.
      * @param int[] $ids
      */
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getUppercatIds(array $ids): array
     {
         if (count($ids) < 1) {
@@ -647,7 +638,7 @@ class AlbumMapper
         }
 
         $album->setUppercats('');
-        $album->setLastModified(new \DateTime());
+        $album->setLastModified(new DateTime());
 
         $album_id = $this->albumRepository->addOrUpdateAlbum($album);
         if (!is_null($parent)) {
@@ -771,7 +762,6 @@ class AlbumMapper
     /**
      * @param int[] $ids
      */
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getAlbumsRefDate(array $ids, string $field = 'date_available', string $minmax = 'max')
     {
         // we need to work on the whole tree under each category, even if we don't want to sort sub categories
@@ -780,7 +770,7 @@ class AlbumMapper
         // search for the reference date of each album
         $ref_dates = [];
         foreach ($this->imageRepository->getReferenceDateForAlbums($field, $minmax, $album_ids) as $image) {
-            $ref_dates[$image['album_id']] = new \DateTime($image['ref_date']);
+            $ref_dates[$image['album_id']] = new DateTime($image['ref_date']);
         }
 
         // then iterate on all albums (having a ref_date or not) to find the reference_date, with a search on sub-albums
@@ -995,7 +985,6 @@ class AlbumMapper
      *
      * The list of ordered albums id is supposed to be in the same parent album
      */
-    /** @phpstan-ignore-next-line */ // @FIX: albums
     public function saveAlbumsOrder(array $albums): void
     {
         $current_rank_for_id_uppercat = [];
@@ -1025,7 +1014,6 @@ class AlbumMapper
     /**
      * @param Album[] $albums
      */
-    /** @phpstan-ignore-next-line */ // @FIX: return type
     public function getAlbumThumbnails(User $user, array $albums): array
     {
         $album_thumbnails = [];
@@ -1076,7 +1064,6 @@ class AlbumMapper
     /**
      * @param Album[] $albums
      */
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getInfosOfImages(User $user, array $albums, array $image_ids, ImageMapper $imageMapper)
     {
         $infos_of_images = [];

@@ -11,6 +11,8 @@
 
 namespace Phyxo\Update;
 
+use Exception;
+use Phyxo\Functions\Utils;
 use App\DataMapper\UserMapper;
 use Phyxo\Plugin\Plugins;
 use Phyxo\Theme\Themes;
@@ -62,8 +64,8 @@ class Updates
             } else {
                 return false;
             }
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -109,8 +111,8 @@ class Updates
             if ($response->getStatusCode() == 200 && $response->getContent()) {
                 file_put_contents($zip_file, $response->getContent());
             }
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -138,7 +140,7 @@ class Updates
         if (count($not_writable) > 0) {
             $message = 'Some files or directories are not writable';
             $message .= '<pre>' . implode("\n", $not_writable) . '</pre>';
-            throw new \Exception($message);
+            throw new Exception($message);
         }
 
         // @TODO: remove arobase ; extract try to make a touch on every file but sometimes failed.
@@ -169,21 +171,21 @@ class Updates
             if ($response->getStatusCode() == 200 && $response->getContent()) {
                 $pem_versions = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
             } else {
-                throw new \Exception("Reponse from server is not readable");
+                throw new Exception("Reponse from server is not readable");
             }
 
             $version = $this->core_version;
             if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                 $version = $pem_versions[0]['name'];
             }
-            $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);
+            $branch = Utils::get_branch_from_version($version);
             foreach ($pem_versions as $pem_version) {
                 if (str_starts_with((string) $pem_version['name'], $branch)) {
                     $versions_to_check[] = $pem_version['id'];
                 }
             }
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
 
         if (empty($versions_to_check)) {
@@ -222,7 +224,7 @@ class Updates
             if ($response->getStatusCode() == 200 && $response->getContent()) {
                 $pem_exts = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
             } else {
-                throw new \Exception("Reponse from server is not readable");
+                throw new Exception("Reponse from server is not readable");
             }
             if (!is_array($pem_exts)) {
                 return [];
@@ -245,8 +247,8 @@ class Updates
 
             $this->checkMissingExtensions($ext_to_check);
             return [];
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
 
         return [];
@@ -261,8 +263,8 @@ class Updates
                 if ($response->getStatusCode() == 200 && $response->getContent()) {
                     $all_versions = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
                 }
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage());
             }
             if (!empty($all_versions)) {
                 $new_version = trim((string) $all_versions[0]['version']);

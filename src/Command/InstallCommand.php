@@ -11,6 +11,7 @@
 
 namespace App\Command;
 
+use Exception;
 use App\Install\PhyxoInstaller;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -39,7 +40,7 @@ class InstallCommand extends Command
         return !is_readable($this->databaseYamlFile);
     }
 
-    public function configure()
+    public function configure(): void
     {
         $this->setHelp(file_get_contents(__DIR__ . '/../Resources/help/InstallCommand.txt'))
 
@@ -51,7 +52,7 @@ class InstallCommand extends Command
             ->addOption('db_prefix', null, InputOption::VALUE_REQUIRED, 'Database prefix for tables', (string) $this->default_prefix);
     }
 
-    public function interact(InputInterface $input, OutputInterface $output)
+    public function interact(InputInterface $input, OutputInterface $output): void
     {
         if (!empty($_SERVER['DATABASE_URL'])) {
             return;
@@ -80,7 +81,7 @@ class InstallCommand extends Command
             if (($this->db_params['db_user'] = $input->getOption('db_user')) === null) {
                 $this->db_params['db_user'] = $io->ask('Database username', null, function($user) {
                     if (empty($user)) {
-                        throw new \Exception('Database username cannot be empty.');
+                        throw new Exception('Database username cannot be empty.');
                     }
 
                     return $user;
@@ -144,7 +145,7 @@ class InstallCommand extends Command
             $output = new NullOutput();
 
             $command->run(new ArrayInput($arguments), $output);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $io->error($e->getMessage());
             return (int) Command::FAILURE;
         }

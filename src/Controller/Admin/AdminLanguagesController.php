@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use Exception;
 use App\DataMapper\UserMapper;
 use App\Repository\LanguageRepository;
 use App\Repository\UserInfosRepository;
@@ -193,7 +194,7 @@ class AdminLanguagesController extends AbstractController
             $this->addFlash('success', $translator->trans('Language has been successfully installed', [], 'admin'));
 
             return $this->redirectToRoute('admin_languages_installed');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->addFlash('error', $translator->trans($e->getMessage(), [], 'admin'));
 
             return $this->redirectToRoute('admin_languages_new');

@@ -11,6 +11,7 @@
 
 namespace Phyxo\Functions\Ws;
 
+use Exception;
 use App\Entity\Group;
 use App\Entity\History;
 use App\Entity\Language;
@@ -188,7 +189,7 @@ class User
             if ($params['send_password_by_mail']) {
                 // send password by mail
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return new Error(Server::WS_ERR_INVALID_PARAM, $e->getMessage());
         }
 

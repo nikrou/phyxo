@@ -45,7 +45,7 @@ class Main
         }
 
         $max_urls = $params['max_urls'];
-        [$max_id, $image_count] = $service->getImageMapper()->getRepository()->findMaxIdAndCount();
+        [$max_id, $image_count] = $service->getImageMapper()->getRepository()->getMaxLastModified();
 
         if ($image_count === 0) {
             return [];
@@ -203,7 +203,6 @@ class Main
         $derivatives_arr = [];
         foreach ($derivatives as $type => $derivative) {
             $size = $derivative->getSize();
-            /** @phpstan-ignore-next-line */
             $size != null or $size = [null, null];
             $derivatives_arr[$type] = [
                 'url' => $service->getRouter()->generate('admin_media', ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()]),

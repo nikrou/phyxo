@@ -11,13 +11,14 @@
 
  namespace App\Form\Model;
 
+use DateTime;
 use App\Entity\User;
 
 class SearchRulesModel
 {
-    private ?\DateTime $start = null;
+    private ?DateTime $start = null;
 
-    private ?\DateTime $end = null;
+    private ?DateTime $end = null;
 
     private array $types = [];
 
@@ -31,26 +32,26 @@ class SearchRulesModel
 
     private ?User $user = null;
 
-    public function setStart(?\DateTime $start): self
+    public function setStart(?DateTime $start): self
     {
         $this->start = $start;
 
         return $this;
     }
 
-    public function getStart(): ?\DateTime
+    public function getStart(): ?DateTime
     {
         return $this->start;
     }
 
-    public function setEnd(?\DateTime $end): self
+    public function setEnd(?DateTime $end): self
     {
         $this->end = $end;
 
         return $this;
     }
 
-    public function getEnd(): ?\DateTime
+    public function getEnd(): ?DateTime
     {
         return $this->end;
     }

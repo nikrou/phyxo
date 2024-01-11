@@ -11,6 +11,9 @@
 
 namespace App\DataMapper;
 
+use DateTime;
+use Phyxo\Functions\Utils;
+use DateInterval;
 use App\Entity\Comment;
 use App\Entity\User;
 use App\Events\CommentEvent;
@@ -70,7 +73,7 @@ class CommentMapper
         if (isset($params['date'])) {
             $comment->setDate($params['date']);
         } else {
-            $comment->setDate(new \DateTime());
+            $comment->setDate(new DateTime());
         }
         $comment->setAnonymousId(isset($params['anonymous_id']) ? md5((string) $params['anonymous_id']) : md5('::1'));
         $comment->setValidated($params['validated'] ?? true);
@@ -130,7 +133,7 @@ class CommentMapper
                 if (!preg_match('/^https?/i', $comm['website_url'])) {
                     $comm['website_url'] = 'http://' . $comm['website_url'];
                 }
-                if (!\Phyxo\Functions\Utils::url_check_format($comm['website_url'])) {
+                if (!Utils::url_check_format($comm['website_url'])) {
                     $infos[] = $this->translator->trans('Your website URL is invalid');
                     $comment_action = 'reject';
                 }
@@ -152,8 +155,8 @@ class CommentMapper
 
         $anonymous_id = $comm['ip'];
         if ($comment_action !== 'reject' && $this->conf['anti-flood_time'] > 0 && !$this->userMapper->isAdmin()) { // anti-flood system
-            $anti_flood_date = new \DateTime();
-            $anti_flood_date->sub(new \DateInterval(sprintf('PT%dS', $this->conf['anti-flood-time'])));
+            $anti_flood_date = new DateTime();
+            $anti_flood_date->sub(new DateInterval(sprintf('PT%dS', $this->conf['anti-flood-time'])));
 
             if ($this->getRepository()->doestAuthorPostMessageAfterThan($comm['author_id'], $anti_flood_date, !$this->appUserService->isGuest() ? $anonymous_id : md5('::1'))) {
                 $infos[] = $this->translator->trans('Anti-flood system : please wait for a moment before trying to post another comment');
@@ -163,7 +166,7 @@ class CommentMapper
 
         if ($comment_action !== 'reject') {
             $comm['id'] = $this->createComment($comm['content'], $comm['image_id'], $comm['author'], $comm['author_id'], array_merge($comm, [
-                'date' => new \DateTime(),
+                'date' => new DateTime(),
                 'validated' => $comment_action === 'validate',
 
             ]));

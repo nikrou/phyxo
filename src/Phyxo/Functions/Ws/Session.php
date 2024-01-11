@@ -11,6 +11,7 @@
 
 namespace Phyxo\Functions\Ws;
 
+use DateTime;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\Server;
 
@@ -59,7 +60,7 @@ class Session
             $res[$key] = $service->getUserMapper()->getUser()->$getMethod();
         }
 
-        $res['current_datetime'] = new \DateTime();
+        $res['current_datetime'] = new DateTime();
         $res['version'] = $service->getCoreVersion();
 
         if ($service->getUserMapper()->isAdmin()) {

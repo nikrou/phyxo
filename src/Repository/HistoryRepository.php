@@ -87,6 +87,7 @@ class HistoryRepository extends ServiceEntityRepository
         if ($count_only) {
             $qb->select('COUNT(1)');
 
+            /** @phpstan-ignore-next-line */
             return $qb->getQuery()->getSingleScalarResult();
         } else {
             $qb->setMaxResults($limit);
@@ -100,17 +101,15 @@ class HistoryRepository extends ServiceEntityRepository
 
     /**
      * @param int[] $user_ids
-     *
-     * @return array<int>
      */
-    public function getMaxIdForUsers(array $user_ids)
+    public function getMaxIdForUsers(array $user_ids): int
     {
         $qb = $this->createQueryBuilder('h');
         $qb->select('MAX(h.id)');
         $qb->where($qb->expr()->in('h.user', $user_ids));
         $qb->groupBy('h.user');
 
-        return $qb->getQuery()->getResult();
+        return $qb->getQuery()->getSingleScalarResult();
     }
 
     public function deleteAll(): void

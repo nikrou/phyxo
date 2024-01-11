@@ -11,6 +11,7 @@
 
 namespace App\DataMapper;
 
+use Exception;
 use App\Repository\CaddieRepository;
 use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
@@ -22,6 +23,7 @@ use App\Repository\ImageTagRepository;
 use App\Repository\ImageRepository;
 use App\Repository\RateRepository;
 use App\Services\DerivativeService;
+use DateTimeInterface;
 use Phyxo\Functions\Utils;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -43,7 +45,6 @@ class ImageMapper
      * @param array{current_day?: DateTimeInterface, date_type?: string, year?: int, month?: int, day?: int } $extra
      * @param int[] $selection
      */
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getPicturesFromSelection($element_id, array $selection = [], string $section = '', int $start_id = 0, array $extra = []): array
     {
         $tpl_params = [];
@@ -238,7 +239,7 @@ class ImageMapper
             $files[] = $image->getPath();
 
             if ($image->getRepresentativeExt()) {
-                $files[] = \Phyxo\Functions\Utils::original_to_representative($files[0], $image->getRepresentativeExt());
+                $files[] = Utils::original_to_representative($files[0], $image->getRepresentativeExt());
             }
 
             $fs = new Filesystem();
@@ -247,7 +248,7 @@ class ImageMapper
                 foreach ($files as $path) {
                     try {
                         $fs->remove($path);
-                    } catch (\Exception) {
+                    } catch (Exception) {
                         $ok = false; //trigger_error('"' . $path . '" cannot be removed', E_USER_WARNING);
                     }
                 }
@@ -270,10 +271,8 @@ class ImageMapper
      * @param array $info hit, rating_score, nb_comments
      * @param string $title
      * @param string $comment
-     * @return string
      */
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
-    public function getThumbnailTitle($info, $title, $comment = ''): string
+    public function getThumbnailTitle(array $info, string $title, ?string $comment = ''): string
     {
         $details = [];
 

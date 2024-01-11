@@ -11,6 +11,7 @@
 
 namespace App\Services;
 
+use finfo;
 use Symfony\Component\Mime\MimeTypeGuesserInterface;
 
 class MimeTypeGuesser implements MimeTypeGuesserInterface
@@ -32,7 +33,7 @@ class MimeTypeGuesser implements MimeTypeGuesserInterface
             $mime_type = 'application/javascript';
             break;
           default:
-            $finfo = new \finfo(\FILEINFO_MIME_TYPE);
+            $finfo = new finfo(\FILEINFO_MIME_TYPE);
             $mime_type = $finfo->file($path);
             if (!$mime_type) {
                 $mime_type = 'text/plain';

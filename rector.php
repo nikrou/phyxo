@@ -24,14 +24,14 @@ return static function (RectorConfig $rectorConfig): void {
         __DIR__ . '/src'
     ]);
 
+    $rectorConfig->importNames();
+
     $rectorConfig->sets([
         DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
         SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
         SymfonySetList::SYMFONY_CODE_QUALITY,
         SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
-        SymfonyLevelSetList::UP_TO_SYMFONY_60,
-        SymfonyLevelSetList::UP_TO_SYMFONY_61,
-        SymfonyLevelSetList::UP_TO_SYMFONY_62,
+        SymfonyLevelSetList::UP_TO_SYMFONY_63,
         LevelSetList::UP_TO_PHP_80,
         LevelSetList::UP_TO_PHP_81,
     ]);

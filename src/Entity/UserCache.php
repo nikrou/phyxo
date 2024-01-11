@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use DateTimeInterface;
 use App\Repository\UserCacheRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -37,7 +38,7 @@ class UserCache
     private ?int $nb_total_images = 0;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $last_photo_date = null;
+    private ?DateTimeInterface $last_photo_date = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $nb_available_tags = 0;
@@ -90,8 +91,7 @@ class UserCache
     /**
      * @return int[]
      */
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
-    public function getForbiddenAlbums()
+    public function getForbiddenAlbums(): array
     {
         return json_decode($this->forbidden_albums, true, 512, JSON_THROW_ON_ERROR);
     }
@@ -118,12 +118,12 @@ class UserCache
         return $this;
     }
 
-    public function getLastPhotoDate(): ?\DateTimeInterface
+    public function getLastPhotoDate(): ?DateTimeInterface
     {
         return $this->last_photo_date;
     }
 
-    public function setLastPhotoDate(?\DateTimeInterface $last_photo_date): self
+    public function setLastPhotoDate(?DateTimeInterface $last_photo_date): self
     {
         $this->last_photo_date = $last_photo_date;
 
@@ -169,8 +169,7 @@ class UserCache
     /**
      * @return int[]
      */
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
-    public function getImageAccessList()
+    public function getImageAccessList(): array
     {
         return json_decode($this->image_access_list, true, 512, JSON_THROW_ON_ERROR);
     }

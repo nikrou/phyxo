@@ -11,6 +11,8 @@
 
 namespace App\Controller;
 
+use IntlDateFormatter;
+use DateTime;
 use App\Repository\ImageRepository;
 use App\Security\AppUserService;
 use Phyxo\Conf;
@@ -69,9 +71,9 @@ class CalendarController extends AbstractController
 
         $tpl_params['months'] = array_fill(1, 12, ['nb_images' => 0]);
 
-        $intl_date_formatter = new \IntlDateFormatter($request->get('_locale'), \IntlDateFormatter::FULL, \IntlDateFormatter::NONE, null, null, 'MMM');
+        $intl_date_formatter = new IntlDateFormatter($request->get('_locale'), IntlDateFormatter::FULL, IntlDateFormatter::NONE, null, null, 'MMM');
         for ($month = 1;$month <= 12;$month++) {
-            $tpl_params['months'][$month]['label'] = $intl_date_formatter->format(new \DateTime(sprintf('2022-%d-01', $month)));
+            $tpl_params['months'][$month]['label'] = $intl_date_formatter->format(new DateTime(sprintf('2022-%d-01', $month)));
         }
 
         $monthsWithPhotos = [];
@@ -102,10 +104,10 @@ class CalendarController extends AbstractController
         $tpl_params['date_type'] = $date_type;
         $tpl_params['year'] = $year;
         $tpl_params['month'] = $this->formatDatePart($month);
-        $tpl_params['month_date'] = new \DateTime("${year}-${month}-01");
+        $tpl_params['month_date'] = new DateTime("${year}-${month}-01");
         $tpl_params['number_of_images'] = 0;
 
-        $intl_date_formatter = new \IntlDateFormatter($request->get('_locale'), \IntlDateFormatter::FULL, \IntlDateFormatter::NONE, null, null, 'MMMM');
+        $intl_date_formatter = new IntlDateFormatter($request->get('_locale'), IntlDateFormatter::FULL, IntlDateFormatter::NONE, null, null, 'MMMM');
         $tpl_params['month_label'] = $intl_date_formatter->format($tpl_params['month_date']);
 
         $tpl_params['days'] = array_fill(1, (int) $tpl_params['month_date']->format('t'), ['nb_images' => 0]);
@@ -152,9 +154,9 @@ class CalendarController extends AbstractController
         $tpl_params['year'] = $year;
         $tpl_params['month'] = $this->formatDatePart($month);
         $tpl_params['day'] = $this->formatDatePart($day);
-        $tpl_params['current_day'] = new \DateTime("${year}-${month}-${day}");
+        $tpl_params['current_day'] = new DateTime("${year}-${month}-${day}");
 
-        $intl_date_formatter = new \IntlDateFormatter($request->get('_locale'), \IntlDateFormatter::FULL, \IntlDateFormatter::NONE, null, null, 'MMMM');
+        $intl_date_formatter = new IntlDateFormatter($request->get('_locale'), IntlDateFormatter::FULL, IntlDateFormatter::NONE, null, null, 'MMMM');
         $tpl_params['month_label'] = $intl_date_formatter->format($tpl_params['current_day']);
 
         $thumbnails = [];

@@ -11,6 +11,7 @@
 
 namespace App\DataMapper;
 
+use DateTime;
 use App\Entity\Rate;
 use Phyxo\Conf;
 use App\Repository\RateRepository;
@@ -66,7 +67,7 @@ class RateMapper
         $rate->setUser($this->userMapper->getUser());
         $rate->setImage($image);
         $rate->setAnonymousId($anonymous_id);
-        $rate->setDate(new \DateTime());
+        $rate->setDate(new DateTime());
         $rate->setRate($note);
 
         $this->getRepository()->addOrUpdateRate($rate);

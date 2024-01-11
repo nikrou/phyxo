@@ -89,7 +89,6 @@ class AdminAlbumsOptionsController extends AbstractController
         return $this->render('albums_options.html.twig', $tpl_params);
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function getCatsBySection(string $section, AlbumRepository $albumRepository): array
     {
         $cats_true = [];

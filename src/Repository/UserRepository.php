@@ -11,6 +11,7 @@
 
 namespace App\Repository;
 
+use DateTime;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -36,7 +37,7 @@ class UserRepository extends ServiceEntityRepository
 
     public function updateUser(User $user): void
     {
-        $user->getUserInfos()->setLastModified(new \DateTime());
+        $user->getUserInfos()->setLastModified(new DateTime());
 
         $this->_em->persist($user);
         $this->_em->flush();
@@ -52,7 +53,6 @@ class UserRepository extends ServiceEntityRepository
         return $qb->getQuery()->getOneOrNullResult();
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getList(): array
     {
         $qb = $this->createQueryBuilder('u');

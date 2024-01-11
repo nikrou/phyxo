@@ -30,7 +30,7 @@ class Image
     private ?string $file = null;
 
     #[ORM\Column(type: 'datetime')]
-    private \DateTimeInterface $date_available;
+    private DateTimeInterface $date_available;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTimeInterface $date_creation = null;
@@ -63,7 +63,7 @@ class Image
     private ?string $representative_ext = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $date_metadata_update = null;
+    private ?DateTimeInterface $date_metadata_update = null;
 
     #[ORM\Column(type: 'float', nullable: true)]
     private ?float $rating_score = null;
@@ -93,7 +93,7 @@ class Image
     private ?float $longitude = null;
 
     #[ORM\Column(name: 'lastmodified', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $last_modified = null;
+    private ?DateTimeInterface $last_modified = null;
 
     /**
      * @var Collection<int, ImageAlbum>
@@ -144,24 +144,24 @@ class Image
         return $this;
     }
 
-    public function getDateAvailable(): ?\DateTimeInterface
+    public function getDateAvailable(): ?DateTimeInterface
     {
         return $this->date_available;
     }
 
-    public function setDateAvailable(\DateTimeInterface $date_available): self
+    public function setDateAvailable(DateTimeInterface $date_available): self
     {
         $this->date_available = $date_available;
 
         return $this;
     }
 
-    public function getDateCreation(): ?\DateTimeInterface
+    public function getDateCreation(): ?DateTimeInterface
     {
         return $this->date_creation;
     }
 
-    public function setDateCreation(?\DateTimeInterface $date_creation): self
+    public function setDateCreation(?DateTimeInterface $date_creation): self
     {
         $this->date_creation = $date_creation;
 
@@ -276,12 +276,12 @@ class Image
         return $this;
     }
 
-    public function getDateMetadataUpdate(): ?\DateTimeInterface
+    public function getDateMetadataUpdate(): ?DateTimeInterface
     {
         return $this->date_metadata_update;
     }
 
-    public function setDateMetadataUpdate(\DateTimeInterface $date_metadata_update): self
+    public function setDateMetadataUpdate(DateTimeInterface $date_metadata_update): self
     {
         $this->date_metadata_update = $date_metadata_update;
 
@@ -396,12 +396,12 @@ class Image
         return $this;
     }
 
-    public function getLastModified(): ?\DateTimeInterface
+    public function getLastModified(): ?DateTimeInterface
     {
         return $this->last_modified;
     }
 
-    public function setLastModified(\DateTimeInterface $last_modified): self
+    public function setLastModified(DateTimeInterface $last_modified): self
     {
         $this->last_modified = $last_modified;
 
@@ -507,7 +507,6 @@ class Image
         return $this;
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function toArray(): array
     {
         return [
@@ -538,8 +537,7 @@ class Image
         ];
     }
 
-    /** @phpstan-ignore-next-line */
-    public function fromArray(array $values = [])
+    public function fromArray(array $values = []): void
     {
         if (isset($values['id'])) {
             $this->id = $values['id'];
@@ -669,7 +667,7 @@ class Image
         return $this;
     }
 
-    public function getDateByType(string $date_type): ?\DateTimeInterface
+    public function getDateByType(string $date_type): ?DateTimeInterface
     {
         return ($date_type === 'posted')? $this->getDateAvailable():$this->getDateCreation();
     }

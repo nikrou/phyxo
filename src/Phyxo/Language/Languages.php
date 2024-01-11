@@ -11,6 +11,8 @@
 
 namespace Phyxo\Language;
 
+use Exception;
+use Phyxo\Functions\Utils;
 use App\Entity\Language;
 use App\Repository\LanguageRepository;
 use Phyxo\Extension\Extensions;
@@ -33,7 +35,7 @@ class Languages extends Extensions
 
     private $server_languages_retrieved = false;
 
-    public function __construct(private readonly ?LanguageRepository $languageRepository = null, private string $defaultLanguage = '')
+    public function __construct(private readonly ?LanguageRepository $languageRepository = null, private readonly string $defaultLanguage = '')
     {
     }
 
@@ -80,7 +82,7 @@ class Languages extends Extensions
                 try {
                     $new_version = $this->getFsLanguages()[$language_id]['version'];
                     $this->languageRepository->updateVersion($language_id, $new_version);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $error = $e->getMessage();
                 }
                 break;
@@ -213,14 +215,14 @@ class Languages extends Extensions
                 if (!empty($pem_versions) && !preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                     $version = $pem_versions[0]['name'];
                 }
-                $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);
+                $branch = Utils::get_branch_from_version($version);
                 foreach ($pem_versions as $pem_version) {
                     if (str_starts_with((string) $pem_version['name'], $branch)) {
                         $versions_to_check[] = $pem_version['id'];
                     }
                 }
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage());
             }
 
             if (empty($versions_to_check)) {
@@ -263,8 +265,8 @@ class Languages extends Extensions
                     }
                 }
                 uasort($this->server_languages, $this->extensionNameCompare(...));
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage());
             }
 
             $this->server_languages_retrieved = true;
@@ -286,8 +288,8 @@ class Languages extends Extensions
         $this->directory_pattern = '/^$/';
         try {
             $this->download($archive, $get_data);
-        } catch (\Exception $e) {
-            throw new \Exception("Cannot download language archive");
+        } catch (Exception $e) {
+            throw new Exception("Cannot download language archive");
         }
 
         try {
@@ -298,8 +300,8 @@ class Languages extends Extensions
             } elseif ($action === 'upgrade') {
                 $this->performAction('update', $language_id);
             }
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         } finally {
             unlink($archive);
         }
@@ -325,16 +327,16 @@ class Languages extends Extensions
                 if ($results = @$zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $extract_path, PCLZIP_OPT_REPLACE_NEWER)) {
                     $errors = array_filter($results, fn($f) => ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory');
                     if (count($errors) > 0) {
-                        throw new \Exception("Error while extracting some files from archive");
+                        throw new Exception("Error while extracting some files from archive");
                     }
                 } else {
-                    throw new \Exception("Error while extracting archive");
+                    throw new Exception("Error while extracting archive");
                 }
             }
 
             return $language_id;
         } else {
-            throw new \Exception("Can't read or extract archive.");
+            throw new Exception("Can't read or extract archive.");
         }
     }
 

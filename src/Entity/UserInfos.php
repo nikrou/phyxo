@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use DateTimeInterface;
 use App\Repository\UserInfosRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -61,7 +62,7 @@ class UserInfos
     private string $language;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $registration_date = null;
+    private ?DateTimeInterface $registration_date = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $level = self::DEFAULT_LEVEL;
@@ -82,13 +83,13 @@ class UserInfos
     private bool $enabled_high = self::DEFAULT_ENABLED_HIGH;
 
     #[ORM\Column(name: 'lastmodified', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $last_modified = null;
+    private ?DateTimeInterface $last_modified = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $activation_key = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $activation_key_expire = null;
+    private ?DateTimeInterface $activation_key_expire = null;
 
     public function getStatus(): ?string
     {
@@ -150,12 +151,12 @@ class UserInfos
         return $this;
     }
 
-    public function getRegistrationDate(): ?\DateTimeInterface
+    public function getRegistrationDate(): ?DateTimeInterface
     {
         return $this->registration_date;
     }
 
-    public function setRegistrationDate(?\DateTimeInterface $registration_date): self
+    public function setRegistrationDate(?DateTimeInterface $registration_date): self
     {
         $this->registration_date = $registration_date;
 
@@ -328,12 +329,12 @@ class UserInfos
         $this->setLevel($data['level']);
     }
 
-    public function getLastModified(): ?\DateTimeInterface
+    public function getLastModified(): ?DateTimeInterface
     {
         return $this->last_modified;
     }
 
-    public function setLastModified(\DateTimeInterface $last_modified): self
+    public function setLastModified(DateTimeInterface $last_modified): self
     {
         $this->last_modified = $last_modified;
 
@@ -352,12 +353,12 @@ class UserInfos
         return $this;
     }
 
-    public function getActivationKeyExpire(): ?\DateTimeInterface
+    public function getActivationKeyExpire(): ?DateTimeInterface
     {
         return $this->activation_key_expire;
     }
 
-    public function setActivationKeyExpire(?\DateTimeInterface $activation_key_expire): self
+    public function setActivationKeyExpire(?DateTimeInterface $activation_key_expire): self
     {
         $this->activation_key_expire = $activation_key_expire;
 

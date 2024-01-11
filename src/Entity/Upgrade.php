@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use DateTimeInterface;
 use App\Repository\UpgradeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -23,7 +24,7 @@ class Upgrade
     private string $id;
 
     #[ORM\Column(type: 'datetime')]
-    private \DateTimeInterface $applied;
+    private DateTimeInterface $applied;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $description = null;
@@ -40,12 +41,12 @@ class Upgrade
         return $this->id;
     }
 
-    public function getApplied(): ?\DateTimeInterface
+    public function getApplied(): ?DateTimeInterface
     {
         return $this->applied;
     }
 
-    public function setApplied(\DateTimeInterface $applied): self
+    public function setApplied(DateTimeInterface $applied): self
     {
         $this->applied = $applied;
 

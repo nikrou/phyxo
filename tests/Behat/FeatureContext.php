@@ -29,7 +29,6 @@ class FeatureContext extends BaseContext
 
     protected function getContainer():  ContainerInterface
     {
-        /** @phpstan-ignore-next-line */
         return $this->kernel->getContainer()->get('test.service_container');
     }
 

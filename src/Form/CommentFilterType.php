@@ -11,6 +11,8 @@
 
 namespace App\Form;
 
+use DateTimeImmutable;
+use DateInterval;
 use App\Entity\Album;
 use App\Form\Model\CommentFilterModel;
 use App\Repository\AlbumRepository;
@@ -32,11 +34,11 @@ class CommentFilterType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $now = new \DateTimeImmutable();
+        $now = new DateTimeImmutable();
         $since_options = [
-            'today' => $now->sub(new \DateInterval('P1D')),
-            'last 7 days' => $now->sub(new \DateInterval('P7D')),
-            'last 30 days' => $now->sub(new \DateInterval('P30D')),
+            'today' => $now->sub(new DateInterval('P1D')),
+            'last 7 days' => $now->sub(new DateInterval('P7D')),
+            'last 30 days' => $now->sub(new DateInterval('P30D')),
             'the beginning' => null
         ];
 

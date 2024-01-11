@@ -11,6 +11,7 @@
 
 namespace Phyxo\Functions\Ws;
 
+use Exception;
 use App\Entity\Language;
 use App\Entity\Plugin;
 use App\Entity\Theme;
@@ -82,7 +83,7 @@ class Extension
             }
 
             return sprintf('%s has been successfully updated.', $extension_name);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $e->getMessage();
         }
     }

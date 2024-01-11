@@ -11,6 +11,8 @@
 
 namespace App\Install;
 
+use DateTime;
+use Exception;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Phyxo\Functions\Utils;
@@ -21,7 +23,18 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PhyxoInstaller
 {
-    private $phyxoVersion, $rootProjectDir, $translationsDir, $defaultTheme, $databaseYamlFile, $translator;
+    private $phyxoVersion,
+
+    $rootProjectDir,
+
+    $translationsDir,
+
+    $defaultTheme,
+
+    $databaseYamlFile,
+
+    $translator;
+
     private string $default_prefix = 'phyxo_';
 
     private array $dblayers = [
@@ -91,7 +104,7 @@ class PhyxoInstaller
         if ($db_params['db_layer'] === 'sqlite') {
             $connectionParams['path'] = $sqlite_db;
         }
-        /** @phpstan-ignore-next-line */ // @FIX: define driver as class
+
         $conn = DriverManager::getConnection($connectionParams, $config);
 
         // tables creation, based on phyxo_structure.sql
@@ -171,7 +184,7 @@ class PhyxoInstaller
         $raw_query = 'INSERT INTO phyxo_upgrade (id, applied, description) VALUES(:id, :applied, :description)';
         $raw_query = str_replace($this->default_prefix, $db_params['db_prefix'], $raw_query);
         $statement = $conn->prepare($raw_query);
-        $now = new \DateTime();
+        $now = new DateTime();
 
         foreach (Upgrade::getAvailableUpgradeIds($this->rootProjectDir) as $upgrade_id) {
             $statement->bindValue('id', $upgrade_id);
@@ -194,7 +207,7 @@ class PhyxoInstaller
 
         file_put_contents($this->databaseYamlFile . '.tmp', $file_content);
         if (!is_readable($this->databaseYamlFile . '.tmp')) {
-            throw new \Exception($this->translator->trans('Cannot create database configuration file "{filename}"', ['filename' => $this->databaseYamlFile], 'install'));
+            throw new Exception($this->translator->trans('Cannot create database configuration file "{filename}"', ['filename' => $this->databaseYamlFile], 'install'));
         }
     }
 

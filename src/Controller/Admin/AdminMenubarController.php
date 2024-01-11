@@ -90,7 +90,6 @@ class AdminMenubarController extends AbstractController
         return $this->redirectToRoute('admin_menubar');
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     private function makeConsecutive(array $blocks = [], array $orders = [], $step = 50): array
     {
         uasort($orders, fn($a, $b) => abs($a) - abs($b));

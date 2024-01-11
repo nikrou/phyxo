@@ -11,6 +11,8 @@
 
 namespace Phyxo\Functions\Ws;
 
+use DateTime;
+use Exception;
 use App\Entity\Comment;
 use App\Entity\Image as EntityImage;
 use App\Entity\ImageAlbum;
@@ -232,7 +234,7 @@ class Image
             $image_ids = array_flip($image_ids);
             foreach ($service->getImageMapper()->getRepository()->findBy(['id' => $image_ids]) as $image) {
                 $image_infos = $image->toArray();
-                $image_infos = array_merge($image_infos, \Phyxo\Functions\Ws\Main::stdGetUrls($image, $service));
+                $image_infos = array_merge($image_infos, Main::stdGetUrls($image, $service));
                 $images[$image_ids[$image['id']]] = $image_infos;
             }
             ksort($images, SORT_NUMERIC);
@@ -371,7 +373,7 @@ class Image
         $image = $service->getImageMapper()->getRepository()->find($params['image_id']);
 
         if (is_null($image)) {
-            return new \Phyxo\Ws\Error(404, "image_id not found");
+            return new Error(404, "image_id not found");
         }
 
         // we do not take the imported "thumb" into account
@@ -498,7 +500,7 @@ class Image
         }
 
         if (isset($params['date_creation'])) {
-            $image->setDateCreation(new \DateTime($params['date_creation']));
+            $image->setDateCreation(new DateTime($params['date_creation']));
         }
         $service->getImageMapper()->getRepository()->addOrUpdateImage($image);
 
@@ -582,7 +584,7 @@ class Image
         }
 
         if (isset($params['date_creation'])) {
-            $image->setDateCreation(new \DateTime($params['date_creation']));
+            $image->setDateCreation(new DateTime($params['date_creation']));
         }
 
         $service->getImageMapper()->getRepository()->addOrUpdateImage($image);
@@ -892,7 +894,7 @@ class Image
                     }
                 }
             }
-        } catch (\Exception) {
+        } catch (Exception) {
             return new Error(500, '[ws_images_setRelatedTags]  Something went wrong when updating tags');
         }
     }
@@ -938,7 +940,7 @@ class Image
         }
 
         if (isset($params['date_creation'])) {
-            $image->setDateCreation(new \DateTime($params['date_creation']));
+            $image->setDateCreation(new DateTime($params['date_creation']));
         }
 
         if (isset($params['file'])) {
@@ -1164,7 +1166,6 @@ class Image
 
     /**
      * Deletes chunks added with pwg.images.addChunk
-     * @param string $original_sum
      * @param string $type
      *
      * Function introduced for Piwigo 2.4 and the new "multiple size"
@@ -1212,13 +1213,13 @@ class Image
 
         $fs = new Filesystem();
         $file_path = null;
-        $now = new \DateTime();
+        $now = new DateTime();
         $upload_dir = $service->getUploadDir();
 
         if (isset($image_id)) { // this photo already exists, we update it
             $image = $service->getImageMapper()->getRepository()->find($image_id);
             if (is_null($image)) {
-                throw new \Exception('this photo does not exist in the database');
+                throw new Exception('this photo does not exist in the database');
             }
             $file_path = $image->getPath();
 
@@ -1247,15 +1248,15 @@ class Image
             } elseif ($type === IMAGETYPE_JPEG) {
                 $file_path .= 'jpg';
             } elseif (isset($service->getConf()['upload_form_all_types']) && $service->getConf()['upload_form_all_types']) {
-                $original_extension = strtolower(\Phyxo\Functions\Utils::get_extension($original_filename));
+                $original_extension = strtolower(Utils::get_extension($original_filename));
 
                 if (in_array($original_extension, $service->getConf()['file_ext'])) {
                     $file_path .= $original_extension;
                 } else {
-                    throw new \Exception('unexpected file type');
+                    throw new Exception('unexpected file type');
                 }
             } else {
-                throw new \Exception('forbidden file type');
+                throw new Exception('forbidden file type');
             }
 
             $fs->mkdir($filename_dir);

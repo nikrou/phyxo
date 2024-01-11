@@ -11,6 +11,7 @@
 
 namespace Phyxo\Extension;
 
+use Exception;
 use Symfony\Component\HttpClient\HttpClient;
 use PclZip;
 
@@ -30,10 +31,10 @@ class Extensions
             if ($response->getStatusCode() === 200 && $response->getContent()) {
                 return json_decode($response-> getContent(), true, 512, JSON_THROW_ON_ERROR);
             } else {
-                throw new \Exception("Response is not readable");
+                throw new Exception("Response is not readable");
             }
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -61,10 +62,10 @@ class Extensions
             if ($response->getStatusCode() === 200 && $response->getContent()) {
                 file_put_contents($filename, $response->getContent());
             } else {
-                throw new \Exception("Response is not readable");
+                throw new Exception("Response is not readable");
             }
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -87,7 +88,7 @@ class Extensions
 
                 if (!empty($this->directory_pattern)) {
                     if (!preg_match($this->directory_pattern, $root)) {
-                        throw new \Exception(sprintf('Root directory (%s) of archive does not follow expected pattern %s', $root, $this->directory_pattern));
+                        throw new Exception(sprintf('Root directory (%s) of archive does not follow expected pattern %s', $root, $this->directory_pattern));
                     }
                 }
 
@@ -95,16 +96,16 @@ class Extensions
                 if ($results = @$zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $root, PCLZIP_OPT_REPLACE_NEWER)) {
                     $errors = array_filter($results, fn($f) => ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory');
                     if (count($errors) > 0) {
-                        throw new \Exception("Error while extracting some files from archive");
+                        throw new Exception("Error while extracting some files from archive");
                     }
                 } else {
-                    throw new \Exception("Error while extracting archive");
+                    throw new Exception("Error while extracting archive");
                 }
             }
 
             return $root;
         } else {
-            throw new \Exception("Can't read or extract archive.");
+            throw new Exception("Can't read or extract archive.");
         }
     }
 }

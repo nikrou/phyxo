@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use DateTime;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\SearchMapper;
@@ -571,7 +572,7 @@ class AdminBatchManagerController extends AbstractController
                 $date_creation = $request->request->get('date_creation');
             }
 
-            $imageMapper->getRepository()->updateFieldForImages($collection, 'date_creation', new \DateTime($date_creation));
+            $imageMapper->getRepository()->updateFieldForImages($collection, 'date_creation', new DateTime($date_creation));
         } elseif ($action === 'level') { // privacy_level
             $imageMapper->getRepository()->updateFieldForImages($collection, 'level', $request->request->get('level'));
 
@@ -868,7 +869,6 @@ class AdminBatchManagerController extends AbstractController
         }
 
         if (!empty($bulk_manager_filter['search']) && !empty($bulk_manager_filter['search']['q'])) {
-            /** @phpstan-ignore-next-line */
             $result = $searchMapper->getQuickSearchResults($bulk_manager_filter['search']['q'], $this->user);
             // if (!empty($result['items']) && !empty($result['qs']['unmatched_terms'])) {
             //     // $tpl_params ??? $template->assign('no_search_results', $result['qs']['unmatched_terms']);
@@ -879,7 +879,6 @@ class AdminBatchManagerController extends AbstractController
         return $filter_sets;
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function setDimensions(ImageMapper $imageMapper, SessionInterface $session): array
     {
         $tpl_params = [];
@@ -1036,7 +1035,7 @@ class AdminBatchManagerController extends AbstractController
                     $image->setComment(htmlentities($request->request->get('description-' . $image->getId()), ENT_QUOTES, 'utf-8'));
                 }
 
-                $image->setDateCreation($request->request->get('date_creation-' . $image->getId()) ? new \DateTime($request->request->get('date_creation-' . $image->getId())) : null);
+                $image->setDateCreation($request->request->get('date_creation-' . $image->getId()) ? new DateTime($request->request->get('date_creation-' . $image->getId())) : null);
 
                 // tags management
                 $tag_ids = [];

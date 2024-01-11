@@ -11,6 +11,7 @@
 
 namespace Phyxo\Functions\Ws;
 
+use DateTime;
 use App\Entity\Tag as EntityTag;
 use Phyxo\Ws\Error;
 use Phyxo\Functions\Utils;
@@ -163,7 +164,7 @@ class Tag
             $tag = new EntityTag();
             $tag->setName($params['name']);
             $tag->setUrlName($params['name']);
-            $tag->setLastModified(new \DateTime());
+            $tag->setLastModified(new DateTime());
             $service->getTagMapper()->getRepository()->addOrUpdateTag($tag);
         }
 

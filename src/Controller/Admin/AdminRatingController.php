@@ -353,7 +353,6 @@ class AdminRatingController extends AbstractController
         return $this->render('rating_users.html.twig', $tpl_params);
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function avg_compare(array $a, array $b): int
     {
         $d = $a['avg'] - $b['avg'];
@@ -361,7 +360,6 @@ class AdminRatingController extends AbstractController
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function count_compare(array $a, array $b): int
     {
         $d = $a['count'] - $b['count'];
@@ -369,7 +367,6 @@ class AdminRatingController extends AbstractController
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function cv_compare(array $a, array $b): int
     {
         $d = $b['cv'] - $a['cv']; //desc
@@ -377,7 +374,6 @@ class AdminRatingController extends AbstractController
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function consensus_dev_compare(array $a, array $b): int
     {
         $d = $b['cd'] - $a['cd']; //desc
@@ -385,7 +381,6 @@ class AdminRatingController extends AbstractController
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function last_rate_compare(array $a, array $b): int
     {
         return -strcmp((string) $a['last_date'], (string) $b['last_date']);

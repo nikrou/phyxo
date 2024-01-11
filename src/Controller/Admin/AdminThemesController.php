@@ -11,6 +11,8 @@
 
 namespace App\Controller\Admin;
 
+use Exception;
+use DateTime;
 use App\DataMapper\UserMapper;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
@@ -272,7 +274,7 @@ class AdminThemesController extends AbstractController
             $this->addFlash('success', $translator->trans('Theme has been successfully installed', [], 'admin'));
 
             return $this->redirectToRoute('admin_themes_installed');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->addFlash('error', $translator->trans($e->getMessage(), [], 'admin'));
 
             return $this->redirectToRoute('admin_themes_new');
@@ -320,7 +322,7 @@ class AdminThemesController extends AbstractController
 
         $response = new BinaryFileResponse($path);
         $response->setEtag(md5_file($path));
-        $response->setLastModified((new \DateTime())->setTimestamp(filemtime($path)));
+        $response->setLastModified((new DateTime())->setTimestamp(filemtime($path)));
         $response->setMaxAge(3600);
         $response->setPublic();
         $response->headers->set('Content-Type', $mimeTypeGuesser->guessMimeType($path));

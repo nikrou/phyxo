@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use DateTimeInterface;
 use App\Repository\UserFeedRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
@@ -27,7 +28,7 @@ class UserFeed
     private int $id;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $last_check = null;
+    private ?DateTimeInterface $last_check = null;
 
     #[ORM\OneToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'user_id', nullable: false)]
@@ -47,12 +48,12 @@ class UserFeed
         return $this->id;
     }
 
-    public function getLastCheck(): ?\DateTimeInterface
+    public function getLastCheck(): ?DateTimeInterface
     {
         return $this->last_check;
     }
 
-    public function setLastCheck(?\DateTimeInterface $last_check): self
+    public function setLastCheck(?DateTimeInterface $last_check): self
     {
         $this->last_check = $last_check;
 

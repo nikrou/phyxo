@@ -11,6 +11,10 @@
 
 namespace App;
 
+use DateTime;
+use Exception;
+use Phyxo\Functions\Language;
+use Phyxo\Functions\Utils;
 use Phyxo\Conf;
 
 class Metadata
@@ -90,7 +94,7 @@ class Metadata
                         $day = 1;
                     }
 
-                    $iptc[$iptc_key] = \DateTime::createFromFormat('Y-m-d', "${year}-${month}-${day}");
+                    $iptc[$iptc_key] = DateTime::createFromFormat('Y-m-d', "${year}-${month}-${day}");
                 }
             }
         }
@@ -115,7 +119,7 @@ class Metadata
         $result = [];
 
         if (!function_exists('exif_read_data')) {
-            throw new \Exception('Exif extension not available, admin should disable exif use');
+            throw new Exception('Exif extension not available, admin should disable exif use');
         }
 
         // Read EXIF data
@@ -168,7 +172,7 @@ class Metadata
                 if (preg_match('/^(\d{4}).(\d{2}).(\d{2}) (\d{2}).(\d{2}).(\d{2})/', (string) $value, $matches)) {
                     if ($matches[1] != '0000' && $matches[2] != '00' && $matches[3] != '00'
                         && $matches[4] != '00' && $matches[5] != '00' && $matches[6] != '00') {
-                        $exif[$exif_key] = \DateTime::createFromFormat(
+                        $exif[$exif_key] = DateTime::createFromFormat(
                             'Y-m-d H:i:s',
                             $matches[1] . '-' . $matches[2] . '-' . $matches[3] . ' ' . $matches[4] . ':' . $matches[5] . ':' . $matches[6]
                         );
@@ -234,7 +238,7 @@ class Metadata
         if (preg_match('/[\x80-\xff]/', $value)) {
             // apparently mac uses some MacRoman crap encoding. I don't know
             // how to detect it so a plugin should do the trick.
-            if (($qual = \Phyxo\Functions\Language::qualify_utf8($value)) != 0) { // has non ascii chars
+            if (($qual = Language::qualify_utf8($value)) != 0) { // has non ascii chars
                 if ($qual > 0) {
                     $input_encoding = 'utf-8';
                 } else {
@@ -249,7 +253,7 @@ class Metadata
                     }
                 }
 
-                $value = \Phyxo\Functions\Utils::convert_charset($value, $input_encoding, 'utf-8');
+                $value = Utils::convert_charset($value, $input_encoding, 'utf-8');
             }
         }
 
@@ -298,7 +302,7 @@ class Metadata
         $infos['filesize'] = floor($fs / 1024);
 
         if (isset($infos['representative_ext'])) {
-            $file = \Phyxo\Functions\Utils::original_to_representative($file, $infos['representative_ext']);
+            $file = Utils::original_to_representative($file, $infos['representative_ext']);
         }
 
         if ($image_size = @getimagesize($file)) {

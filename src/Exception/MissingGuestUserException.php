@@ -11,6 +11,7 @@
 
 namespace App\Exception;
 
-class MissingGuestUserException extends \Exception
+use Exception;
+class MissingGuestUserException extends Exception
 {
 }

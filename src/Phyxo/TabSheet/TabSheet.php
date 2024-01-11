@@ -11,12 +11,14 @@
 
 namespace Phyxo\TabSheet;
 
+use IteratorAggregate;
+use ArrayIterator;
 use Traversable;
 
 /**
  * @phpstan-type Item array{caption: string, url: string, selected: bool, icon: string}
  */
-class TabSheet implements \IteratorAggregate
+class TabSheet implements IteratorAggregate
 {
     /**
      * @var array<string, Item>
@@ -50,10 +52,10 @@ class TabSheet implements \IteratorAggregate
     }
 
     /**
-     * @return \ArrayIterator<string, Item>
+     * @return ArrayIterator<string, Item>
      */
     public function getIterator(): Traversable
     {
-        return new \ArrayIterator($this->elements);
+        return new ArrayIterator($this->elements);
     }
 }

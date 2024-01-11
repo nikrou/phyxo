@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use DateTimeInterface;
 use App\Repository\TagRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -36,7 +37,7 @@ class Tag
     private string $url_name;
 
     #[ORM\Column(name: 'lastmodified', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $last_modified = null;
+    private ?DateTimeInterface $last_modified = null;
 
     /**
      * @var Collection<int, ImageTag>
@@ -87,12 +88,12 @@ class Tag
         return $this;
     }
 
-    public function getLastModified(): ?\DateTimeInterface
+    public function getLastModified(): ?DateTimeInterface
     {
         return $this->last_modified;
     }
 
-    public function setLastModified(?\DateTimeInterface $last_modified): self
+    public function setLastModified(?DateTimeInterface $last_modified): self
     {
         $this->last_modified = $last_modified;
 
@@ -185,7 +186,7 @@ class Tag
     }
 
     /**
-     * @return array{id: int, name: ?string, url_name: ?string, last_modified: ?\DateTimeInterface, counter: ?int, level: ?int, related_image_tag_infos: ImageTagInfos}
+     * @return array{id: int, name: ?string, url_name: ?string, last_modified: ?DateTimeInterface, counter: ?int, level: ?int, related_image_tag_infos: ImageTagInfos}
      */
     public function toArray(): array
     {

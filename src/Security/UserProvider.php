@@ -11,6 +11,7 @@
 
 namespace App\Security;
 
+use DateTime;
 use App\DataMapper\AlbumMapper;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -150,8 +151,8 @@ class UserProvider implements UserProviderInterface
                 $userCacheAlbum = new UserCacheAlbum();
                 $userCacheAlbum->setUser($user);
                 $userCacheAlbum->setAlbum($album);
-                $userCacheAlbum->setDateLast(new \DateTime($user_cache_albums[$album->getId()]['date_last']));
-                $userCacheAlbum->setMaxDateLast(new \DateTime($user_cache_albums[$album->getId()]['max_date_last']));
+                $userCacheAlbum->setDateLast(new DateTime($user_cache_albums[$album->getId()]['date_last']));
+                $userCacheAlbum->setMaxDateLast(new DateTime($user_cache_albums[$album->getId()]['max_date_last']));
                 $userCacheAlbum->setNbImages($user_cache_albums[$album->getId()]['nb_images']);
                 $userCacheAlbum->setCountImages($user_cache_albums[$album->getId()]['count_images']);
                 $userCacheAlbum->setNbAlbums($user_cache_albums[$album->getId()]['nb_categories']);

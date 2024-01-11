@@ -11,6 +11,7 @@
 
 namespace App\Form\Transformer;
 
+use LogicException;
 use App\Entity\User;
 use App\Form\Model\UserProfileModel;
 use App\Repository\UserRepository;
@@ -28,7 +29,7 @@ class UserToUserProfileTransformer implements DataTransformerInterface
     public function transform($user): UserProfileModel
     {
         if (!$user instanceof User) {
-            throw new \LogicException('The UserProfileType can only be used with User objects');
+            throw new LogicException('The UserProfileType can only be used with User objects');
         }
 
         $userProfileModel = new UserProfileModel();

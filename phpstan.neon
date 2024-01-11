@@ -13,4 +13,4 @@ parameters:
     objectManagerLoader: tools/phpstan-doctrine-orm-bootstrap.php
     allowNullablePropertyForRequiredField: true
 
-  reportUnmatchedIgnoredErrors: false
+  reportUnmatchedIgnoredErrors: true

@@ -11,6 +11,8 @@
 
 namespace App\Entity;
 
+use DateTimeInterface;
+use DateTime;
 use App\Repository\GroupRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -32,7 +34,7 @@ class Group
     private bool $is_default = false;
 
     #[ORM\Column(name: 'lastmodified', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $last_modified;
+    private ?DateTimeInterface $last_modified;
 
     /**
      *
@@ -55,7 +57,7 @@ class Group
     public function __construct()
     {
         $this->users = new ArrayCollection();
-        $this->setLastModified(new \DateTime());
+        $this->setLastModified(new DateTime());
         $this->group_access = new ArrayCollection();
     }
 
@@ -88,12 +90,12 @@ class Group
         return $this;
     }
 
-    public function getLastModified(): ?\DateTimeInterface
+    public function getLastModified(): ?DateTimeInterface
     {
         return $this->last_modified;
     }
 
-    public function setLastModified(\DateTimeInterface $last_modified): self
+    public function setLastModified(DateTimeInterface $last_modified): self
     {
         $this->last_modified = $last_modified;
 

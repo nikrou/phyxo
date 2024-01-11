@@ -13,7 +13,6 @@ namespace App\Repository;
 
 use App\Entity\Group;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\AbstractQuery;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -21,6 +20,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class GroupRepository extends ServiceEntityRepository
 {
+    use MaxLastModifiedTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Group::class);
@@ -32,17 +33,6 @@ class GroupRepository extends ServiceEntityRepository
         $this->_em->flush();
 
         return $group->getId();
-    }
-
-    /**
-     * @return array{max: int, count: int}
-     */
-    public function getMaxLastModified()
-    {
-        $qb = $this->createQueryBuilder('g');
-        $qb->select('MAX(g.last_modified) as max, COUNT(1) as count');
-
-        return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_ARRAY);
     }
 
     public function isGroupNameExists(string $name) : bool

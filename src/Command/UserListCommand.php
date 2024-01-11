@@ -40,7 +40,7 @@ class UserListCommand extends Command
         return is_readable($this->databaseYamlFile);
     }
 
-    public function configure()
+    public function configure(): void
     {
         $this->setHelp(file_get_contents(__DIR__ . '/../Resources/help/UserListCommand.txt'));
     }

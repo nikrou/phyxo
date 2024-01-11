@@ -20,7 +20,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ImageTagRepository extends ServiceEntityRepository
 {
-    use BaseRepositoryTrait;
+    use ValidatedConditionTrait;
 
     public function __construct(ManagerRegistry $registry)
     {

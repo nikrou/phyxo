@@ -11,6 +11,7 @@
 
 namespace App\Asset;
 
+use RuntimeException;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -62,7 +63,7 @@ class PathVersionStrategy implements VersionStrategyInterface
 
         $this->manifestData = array_merge($this->manifestData, json_decode(file_get_contents($path), true));
         if (json_last_error() > 0) {
-            throw new \RuntimeException(sprintf('Error parsing JSON from asset manifest file "%s" - %s', $path, json_last_error_msg()));
+            throw new RuntimeException(sprintf('Error parsing JSON from asset manifest file "%s" - %s', $path, json_last_error_msg()));
         }
     }
 
@@ -78,10 +79,6 @@ class PathVersionStrategy implements VersionStrategyInterface
 
         $composerConfig = json_decode(file_get_contents($composerFilePath), true, 512, JSON_THROW_ON_ERROR);
 
-        if (isset($composerConfig['extra']['public-dir'])) {
-            return $composerConfig['extra']['public-dir'];
-        }
-
-        return $defaultPublicDir;
+        return $composerConfig['extra']['public-dir'] ?? $defaultPublicDir;
     }
 }

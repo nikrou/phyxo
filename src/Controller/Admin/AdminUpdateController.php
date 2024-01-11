@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use Exception;
 use App\DataMapper\UserMapper;
 use App\Repository\PluginRepository;
 use App\Repository\ThemeRepository;
@@ -119,7 +120,7 @@ class AdminUpdateController extends AbstractController
                             }
                         }
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $tpl_params['LAST_ERROR_MESSAGE'] = $e->getMessage();
                 }
             }
@@ -162,7 +163,7 @@ class AdminUpdateController extends AbstractController
                     $this->addFlash('success', $translator->trans('Update complete.', [], 'admin'));
 
                     return $this->redirectToRoute('admin_home');
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $step = 0;
                     $tpl_params['UPGRADE_ERROR'] = $e->getMessage();
                 }
@@ -243,7 +244,7 @@ class AdminUpdateController extends AbstractController
                     $fs->remove($params->get('update_mode'));
 
                     return $this->redirectToRoute('admin_home');
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $step = 0;
                     $tpl_params['UPGRADE_ERROR'] = $e->getMessage();
                 }

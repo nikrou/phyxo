@@ -11,6 +11,9 @@
 
 namespace App\Controller;
 
+use Exception;
+use DateTime;
+use DateInterval;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -94,7 +97,7 @@ class SecurityController extends AbstractController
                 $user_manager->register($user);
 
                 return $userAuthenticator->authenticateUser($user, $loginFormAuthenticator, $request);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $tpl_params['errors'] = $e->getMessage();
             }
         }
@@ -160,7 +163,7 @@ class SecurityController extends AbstractController
             } else {
                 $activation_key = $user_manager->generateActivationKey();
                 $user->getUserInfos()->setActivationKey($activation_key);
-                $user->getUserInfos()->setActivationKeyExpire((new \DateTime())->add(new \DateInterval('PT1H')));
+                $user->getUserInfos()->setActivationKeyExpire((new DateTime())->add(new DateInterval('PT1H')));
                 $userRepository->updateUser($user);
 
                 $dispatcher->dispatch(new ActivationKeyEvent($activation_key, $user));
@@ -199,7 +202,7 @@ class SecurityController extends AbstractController
             }
 
             $tpl_params['form'] = $form->createView();
-        } catch (\Exception) {
+        } catch (Exception) {
             $this->addFlash('error', 'Activation key does not exist');
         }
 

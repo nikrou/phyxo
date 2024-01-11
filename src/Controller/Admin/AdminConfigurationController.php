@@ -11,6 +11,11 @@
 
 namespace App\Controller\Admin;
 
+use Phyxo\Functions\Utils;
+use Exception;
+use Phyxo\Functions\Upload;
+use Phyxo\Image\SizingParams;
+use Phyxo\Image\DerivativeParams;
 use App\DataMapper\UserMapper;
 use App\Form\DisplayConfigurationType;
 use App\Form\UserInfosType;
@@ -168,7 +173,6 @@ class AdminConfigurationController extends AbstractController
         return $this->redirectToRoute('admin_configuration', ['section' => 'sizes']);
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function mainConfiguration(Conf $conf): array
     {
         $tpl_params = [];
@@ -198,7 +202,6 @@ class AdminConfigurationController extends AbstractController
         return $tpl_params;
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function commentsConfiguration(Conf $conf): array
     {
         $tpl_params = [];
@@ -240,7 +243,6 @@ class AdminConfigurationController extends AbstractController
         return $this->render('configuration_display.html.twig', $tpl_params);
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function sizesConfiguration(Conf $conf, ImageStandardParams $image_std_params): array
     {
         $tpl_params = [];
@@ -297,7 +299,6 @@ class AdminConfigurationController extends AbstractController
         return $tpl_params;
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     protected function watermarkConfiguration(Conf $conf, string $themesDir, string $localDir, ImageStandardParams $image_std_params): array
     {
         $tpl_params = [];
@@ -419,7 +420,7 @@ class AdminConfigurationController extends AbstractController
                     if ($new_order_by = $request->request->all('order_by')) {
                         $order_by = [];
                         foreach ($new_order_by as $order) {
-                            $order_by[] = explode(' ', $order);
+                            $order_by[] = explode(' ', (string) $order);
                         }
 
                         // limit to the number of available parameters
@@ -505,9 +506,9 @@ class AdminConfigurationController extends AbstractController
                             $fs = new Filesystem();
                             $fs->mkdir($upload_dir);
 
-                            $watermarke['file'] = \Phyxo\Functions\Utils::get_filename_wo_extension($watermarkImage->getClientOriginalName()) . '.png';
+                            $watermarke['file'] = Utils::get_filename_wo_extension($watermarkImage->getClientOriginalName()) . '.png';
                             $watermarkImage->move($upload_dir, $watermarke['file']);
-                        } catch (\Exception) {
+                        } catch (Exception) {
                             $this->addFlash('error', $this->translator->trans('Add write access to the "{directory}" directory', ['directory' => $upload_dir], 'admin'));
                             $error = true;
                         }
@@ -645,7 +646,7 @@ class AdminConfigurationController extends AbstractController
                 }
 
                 $errors = [];
-                foreach (\Phyxo\Functions\Upload::save_upload_form_config($updates, $errors, $errors) as $update) {
+                foreach (Upload::save_upload_form_config($updates, $errors, $errors) as $update) {
                     $conf[$update['param']] = $update['value'];
                 }
 
@@ -734,26 +735,26 @@ class AdminConfigurationController extends AbstractController
                         $pderivative = $pderivatives[$type];
 
                         if ($pderivative['enabled']) {
-                            $derivative_params = new \Phyxo\Image\SizingParams(
+                            $derivative_params = new SizingParams(
                                 [intval($pderivative['w']), intval($pderivative['h'])],
                                 round($pderivative['crop'] / 100, 2),
                                 [intval($pderivative['minw']), intval($pderivative['minh'])]
                             );
-                            $new_params = new \Phyxo\Image\DerivativeParams($derivative_params);
+                            $new_params = new DerivativeParams($derivative_params);
 
                             $image_std_params->applyWatermark($new_params);
 
                             if (isset($enabled[$type])) {
                                 $old_params = $enabled[$type];
                                 $same = true;
-                                if (!\Phyxo\Image\DerivativeParams::size_equals($old_params->sizing->ideal_size, $new_params->sizing->ideal_size)
+                                if (!DerivativeParams::size_equals($old_params->sizing->ideal_size, $new_params->sizing->ideal_size)
                                     || $old_params->sizing->max_crop != $new_params->sizing->max_crop) {
                                     $same = false;
                                 }
 
                                 if ($same
                                         && $new_params->sizing->max_crop != 0
-                                        && !\Phyxo\Image\DerivativeParams::size_equals($old_params->sizing->min_size, $new_params->sizing->min_size)) {
+                                        && !DerivativeParams::size_equals($old_params->sizing->min_size, $new_params->sizing->min_size)) {
                                     $same = false;
                                 }
 

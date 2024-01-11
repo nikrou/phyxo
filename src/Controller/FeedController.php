@@ -11,6 +11,10 @@
 
 namespace App\Controller;
 
+use DateTime;
+use UniversalFeedCreator;
+use FeedItem;
+use DateInterval;
 use App\Entity\UserFeed;
 use Phyxo\Conf;
 use App\Repository\UserFeedRepository;
@@ -72,9 +76,9 @@ class FeedController extends AbstractController
             throw $this->createNotFoundException($translator->trans('Unknown feed identifier'));
         }
 
-        $now = new \DateTime();
+        $now = new DateTime();
 
-        $rss = new \UniversalFeedCreator();
+        $rss = new UniversalFeedCreator();
         $rss->title = $conf['gallery_title'];
         $rss->title .= ' (as ' . $appUserService->getUser()->getUserIdentifier() . ')';
 
@@ -84,7 +88,7 @@ class FeedController extends AbstractController
         if (!$image_only) {
             $news = $notification->news($feed->getLastCheck(), $now, true, true);
             if (count($news) > 0) {
-                $item = new \FeedItem();
+                $item = new FeedItem();
                 $item->title = $translator->trans('New on {date}', ['date' => $now->format('Y-m-d H:m:i')]);
                 $item->link = $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
@@ -109,7 +113,7 @@ class FeedController extends AbstractController
 
         if (empty($news)) { // update the last check from time to time to avoid deletion by maintenance tasks
             if (is_null($feed->getLastCheck()) || $now->diff($feed->getLastCheck())->format('s') > (30 * 24 * 3600)) {
-                $feed->setLastCheck($now->add(new \DateInterval('P15D')));
+                $feed->setLastCheck($now->add(new DateInterval('P15D')));
                 $userFeedRepository->addOrUpdateUserFeed($feed);
             }
         }
@@ -117,7 +121,7 @@ class FeedController extends AbstractController
         $dates = $notification->get_recent_post_dates_array($conf['recent_post_dates']['RSS']);
 
         foreach ($dates as $date_detail) { // for each recent post date we create a feed item
-            $item = new \FeedItem();
+            $item = new FeedItem();
             $date = $date_detail['date_available'];
             $item->title = $notification->get_title_recent_post_date($date_detail);
             $item->link = $this->generateUrl(

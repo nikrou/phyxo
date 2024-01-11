@@ -11,6 +11,7 @@
 
 namespace App\DataMapper;
 
+use DateTime;
 use App\Entity\Image;
 use App\Entity\ImageTag;
 use App\Entity\Tag;
@@ -69,7 +70,6 @@ class TagMapper
         return $tags;
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getPendingTags(): array
     {
         $tags = [];
@@ -222,7 +222,6 @@ class TagMapper
      * or "1234" (numeric characters only)
      *
      * @param string|string[] $raw_tags - array or comma separated string
-     * @param boolean $allow_create
      * @return int[]
      */
     public function getTagsIds(string|array $raw_tags, bool $allow_create = true): array
@@ -260,7 +259,7 @@ class TagMapper
                 $tag = new Tag();
                 $tag->setName($tag_name);
                 $tag->setUrlName($tag_name);
-                $tag->setLastModified(new \DateTime());
+                $tag->setLastModified(new DateTime());
                 $this->getRepository()->addOrUpdateTag($tag);
 
                 $this->invalidateUserCacheNbTags();
@@ -480,7 +479,7 @@ class TagMapper
      */
     public function sync_metadata(array $ids, User $user): void
     {
-        $now = new \DateTime();
+        $now = new DateTime();
 
         $tags_of = [];
         foreach ($this->imageRepository->findBy(['id' => $ids]) as $image) {

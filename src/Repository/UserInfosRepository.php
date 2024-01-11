@@ -11,10 +11,11 @@
 
 namespace App\Repository;
 
+use DateTime;
+use DateTimeInterface;
 use App\Entity\UserInfos;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -22,6 +23,8 @@ use Doctrine\ORM\QueryBuilder;
  */
 class UserInfosRepository extends ServiceEntityRepository
 {
+    use MaxLastModifiedTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, UserInfos::class);
@@ -29,21 +32,10 @@ class UserInfosRepository extends ServiceEntityRepository
 
     public function updateInfos(UserInfos $userInfos): void
     {
-        $userInfos->setLastModified(new \DateTime());
+        $userInfos->setLastModified(new DateTime());
 
         $this->_em->persist($userInfos);
         $this->_em->flush();
-    }
-
-    /**
-     * @return array{max: \DateTimeInterface, count: int}
-     */
-    public function getMaxLastModified()
-    {
-        $qb = $this->createQueryBuilder('u');
-        $qb->select('MAX(u.last_modified) as max, COUNT(1) as count');
-
-        return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_ARRAY);
     }
 
     /**
@@ -70,6 +62,7 @@ class UserInfosRepository extends ServiceEntityRepository
             $qb->where($qb->expr()->in('u.user', $user_ids));
         }
 
+        /** @phpstan-ignore-next-line */
         $qb->getQuery()->getResult();
     }
 
@@ -90,7 +83,7 @@ class UserInfosRepository extends ServiceEntityRepository
     /**
      * @return UserInfos[]
      */
-    public function getNewUsers(\DateTimeInterface $start = null, \DateTimeInterface $end = null)
+    public function getNewUsers(DateTimeInterface $start = null, DateTimeInterface $end = null)
     {
         $qb = $this->createQueryBuilder('u');
         $this->addBetweenDateCondition($qb, $start, $end);
@@ -98,7 +91,7 @@ class UserInfosRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function countNewUsers(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
+    public function countNewUsers(DateTimeInterface $start = null, DateTimeInterface $end = null): int
     {
         $qb = $this->createQueryBuilder('u');
         $qb->select('count(1)');
@@ -107,7 +100,7 @@ class UserInfosRepository extends ServiceEntityRepository
         return $qb->getQuery()->getSingleScalarResult();
     }
 
-    private function addBetweenDateCondition(QueryBuilder $qb, \DateTimeInterface $start = null, \DateTimeInterface $end = null): QueryBuilder
+    private function addBetweenDateCondition(QueryBuilder $qb, DateTimeInterface $start = null, DateTimeInterface $end = null): QueryBuilder
     {
         if (!is_null($start)) {
             $qb->andWhere('u.registration_date > :start');

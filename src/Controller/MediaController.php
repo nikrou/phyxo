@@ -11,6 +11,7 @@
 
 namespace App\Controller;
 
+use DateTime;
 use App\Entity\Image;
 use App\ImageLibraryGuesser;
 use App\Repository\ImageRepository;
@@ -301,7 +302,7 @@ class MediaController extends AbstractController
     {
         $response = new BinaryFileResponse($image_path);
         $response->setEtag(md5_file($image_path));
-        $response->setLastModified((new \DateTime())->setTimestamp(filemtime($image_path)));
+        $response->setLastModified((new DateTime())->setTimestamp(filemtime($image_path)));
         $response->setMaxAge(3600); //@TODO : read from conf
         $response->setPublic();
         $response->headers->set('Content-Type', $mimeTypeGuesser->guessMimeType($image_path));

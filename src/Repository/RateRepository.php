@@ -59,7 +59,6 @@ class RateRepository extends ServiceEntityRepository
         return $qb->getQuery()->getSingleScalarResult();
     }
 
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function getRatePerImage(int $user_id, string $order, int $limit, string $operator = null, int $offset = 0)
     {
         $qb = $this->createQueryBuilder('r');

@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use DateTimeInterface;
 use App\Repository\UserMailNotificationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -30,7 +31,7 @@ class UserMailNotification
     private bool $enabled = false;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $last_send = null;
+    private ?DateTimeInterface $last_send = null;
 
     public function getUser(): ?User
     {
@@ -68,12 +69,12 @@ class UserMailNotification
         return $this;
     }
 
-    public function getLastSend(): ?\DateTimeInterface
+    public function getLastSend(): ?DateTimeInterface
     {
         return $this->last_send;
     }
 
-    public function setLastSend(\DateTimeInterface $last_send): self
+    public function setLastSend(DateTimeInterface $last_send): self
     {
         $this->last_send = $last_send;
 

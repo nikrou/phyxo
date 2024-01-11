@@ -11,10 +11,12 @@
 
 namespace App\Repository;
 
+use DateTimeInterface;
+use DateTime;
+use DateInterval;
 use App\Entity\Album;
 use App\Entity\Image;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -23,6 +25,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ImageRepository extends ServiceEntityRepository
 {
+    use MaxLastModifiedTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Image::class);
@@ -51,7 +55,7 @@ class ImageRepository extends ServiceEntityRepository
     /**
      * @param int[] $ids
      */
-    public function updateFieldForImages(array $ids, string $field, string|\DateTimeInterface|null $value): void
+    public function updateFieldForImages(array $ids, string $field, string|DateTimeInterface|null $value): void
     {
         $qb = $this->createQueryBuilder('i');
         $qb->update();
@@ -159,7 +163,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return Image[]
      */
-    public function findRecentImages(\DateTimeInterface $recent_date, array $forbidden_albums = [], array $sorts = [])
+    public function findRecentImages(DateTimeInterface $recent_date, array $forbidden_albums = [], array $sorts = [])
     {
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
@@ -323,7 +327,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return Image[]|int
      */
-    public function getNewElements(array $forbidden_albums = [], \DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only = false): array|int
+    public function getNewElements(array $forbidden_albums = [], DateTimeInterface $start = null, DateTimeInterface $end = null, bool $count_only = false): array|int
     {
         $qb = $this->createQueryBuilder('i');
         if ($count_only) {
@@ -357,7 +361,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return Album[]|int
      */
-    public function getUpdatedAlbums(array $forbidden_albums = [], \DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $count_only = false): array|int
+    public function getUpdatedAlbums(array $forbidden_albums = [], DateTimeInterface $start = null, DateTimeInterface $end = null, bool $count_only = false): array|int
     {
         return $this->getNewElements($forbidden_albums, $start, $end, $count_only);
     }
@@ -367,7 +371,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return array<string, array{upp: ?string, img_count: int|string}>
      */
-    public function getRecentImages(int $limit, \DateTimeInterface $date_available = null, array $forbidden_albums = [])
+    public function getRecentImages(int $limit, DateTimeInterface $date_available = null, array $forbidden_albums = [])
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('DISTINCT(a.uppercats) AS upp, COUNT(i.id) AS img_count');
@@ -395,7 +399,7 @@ class ImageRepository extends ServiceEntityRepository
     /**
      * @param int[] $forbidden_albums
      *
-     * @return array<int, array{date_available: \DateTimeInterface, nb_elements: int<0, max>|numeric-string}>
+     * @return array<int, array{date_available: DateTimeInterface, nb_elements: (int<0, max> | numeric-string)}>
      */
     public function getRecentPostedImages(int $limit, array $forbidden_albums = [])
     {
@@ -704,7 +708,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return Image[]
      */
-    public function findImagesPerDate(\DateTimeInterface $date, string $date_type = 'posted', array $forbidden_albums = [])
+    public function findImagesPerDate(DateTimeInterface $date, string $date_type = 'posted', array $forbidden_albums = [])
     {
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
@@ -718,7 +722,7 @@ class ImageRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array{int, \DateTimeInterface, \DateTimeInterface}|array{}
+     * @return array{int, DateTimeInterface, DateTimeInterface}|array{}
      */
     public function getImagesInfosInAlbum(int $album_id)
     {
@@ -733,7 +737,7 @@ class ImageRepository extends ServiceEntityRepository
             return [];
         }
 
-        return [$results['count'], new \DateTime($results['min_date']), new \DateTime($results['max_date'])];
+        return [$results['count'], new DateTime($results['min_date']), new DateTime($results['max_date'])];
     }
 
     /**
@@ -795,9 +799,9 @@ class ImageRepository extends ServiceEntityRepository
     /**
      * @param int[] $image_ids
      *
-     * @return Image[]
+     * @return array<int, array<string, int|string|null>>
      */
-    public function findVirtualAlbumsWithImages(array $image_ids)
+    public function findVirtualAlbumsWithImages(array $image_ids): array
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('IDENTITY(ia.album) AS id');
@@ -840,7 +844,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findMaxDateAvailable() : ?\DateTimeInterface
+    public function findMaxDateAvailable() : ?DateTimeInterface
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('MAX(i.date_available) AS max_date');
@@ -848,13 +852,13 @@ class ImageRepository extends ServiceEntityRepository
         $single_result = $qb->getQuery()->getSingleResult();
 
         if (!is_null($single_result)) {
-            return new \DateTime($single_result['max_date']);
+            return new DateTime($single_result['max_date']);
         }
 
         return null;
     }
 
-    public function findMinDateAvailable(): ?\DateTimeInterface
+    public function findMinDateAvailable(): ?DateTimeInterface
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('MIN(i.date_available) AS min_date');
@@ -862,7 +866,7 @@ class ImageRepository extends ServiceEntityRepository
         $single_result = $qb->getQuery()->getSingleResult();
 
         if (!is_null($single_result)) {
-            return new \DateTime($single_result['min_date']);
+            return new DateTime($single_result['min_date']);
         }
 
         return null;
@@ -871,11 +875,11 @@ class ImageRepository extends ServiceEntityRepository
     /**
      * @return Image[]
      */
-    public function findImagesFromLastImport(\DateTimeInterface $max_date)
+    public function findImagesFromLastImport(DateTimeInterface $max_date)
     {
-        $max_date_one_day_before = new \DateTime();
+        $max_date_one_day_before = new DateTime();
         $max_date_one_day_before->setTimestamp($max_date->getTimestamp());
-        $max_date_one_day_before->sub(new \DateInterval('P1D'));
+        $max_date_one_day_before->sub(new DateInterval('P1D'));
 
         $qb = $this->createQueryBuilder('i');
         $qb->where('i.date_available >= :date1');
@@ -1134,28 +1138,6 @@ class ImageRepository extends ServiceEntityRepository
         $qb->where($qb->expr()->in('i.id', $ids));
 
         $qb->getQuery()->getResult();
-    }
-
-    /**
-     * @return array{max: \DateTimeInterface, count: int}
-     */
-    public function getMaxLastModified()
-    {
-        $qb = $this->createQueryBuilder('i');
-        $qb->select('MAX(i.last_modified) as max, COUNT(1) as count');
-
-        return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_ARRAY);
-    }
-
-    /**
-     * @return array{max: \DateTimeInterface, count: int}
-     */
-    public function findMaxIdAndCount()
-    {
-        $qb = $this->createQueryBuilder('i');
-        $qb->select('MAX(i.last_modified) as max, COUNT(1) as count');
-
-        return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_ARRAY);
     }
 
     public function findFirstDate(): int

@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use DateTimeInterface;
 use App\Repository\CommentRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -25,7 +26,7 @@ class Comment
     private int $id;
 
     #[ORM\Column(type: 'datetime')]
-    private \DateTimeInterface $date;
+    private DateTimeInterface $date;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $author = null;
@@ -48,7 +49,7 @@ class Comment
     private ?bool $validated = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $validation_date = null;
+    private ?DateTimeInterface $validation_date = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(name: 'author_id', nullable: true)]
@@ -63,12 +64,12 @@ class Comment
         return $this->id;
     }
 
-    public function getDate(): ?\DateTimeInterface
+    public function getDate(): ?DateTimeInterface
     {
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setDate(DateTimeInterface $date): self
     {
         $this->date = $date;
 
@@ -147,12 +148,12 @@ class Comment
         return $this;
     }
 
-    public function getValidationDate(): ?\DateTimeInterface
+    public function getValidationDate(): ?DateTimeInterface
     {
         return $this->validation_date;
     }
 
-    public function setValidationDate(?\DateTimeInterface $validation_date): self
+    public function setValidationDate(?DateTimeInterface $validation_date): self
     {
         $this->validation_date = $validation_date;
 

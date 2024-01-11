@@ -11,6 +11,7 @@
 
 namespace App\EventSubscriber;
 
+use DateTime;
 use App\DataMapper\UserMapper;
 use App\Entity\History;
 use App\Events\HistoryEvent;
@@ -48,7 +49,7 @@ class HistorySubscriber implements EventSubscriberInterface
             return;
         }
 
-        $now = new \DateTime();
+        $now = new DateTime();
         $history = new History();
         $history->setDate($now);
         $history->setTime($now);

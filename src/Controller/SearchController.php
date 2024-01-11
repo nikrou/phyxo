@@ -11,6 +11,7 @@
 
 namespace App\Controller;
 
+use DateTime;
 use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
@@ -45,7 +46,7 @@ class SearchController extends AbstractController
         } else {
             $search = new Search();
             $search->setRules(base64_encode(serialize($rules)));
-            $search->setLastSeen(new \DateTime());
+            $search->setLastSeen(new DateTime());
             $searchRepository->addSearch($search);
 
             $search_id = $search->getId();
@@ -209,7 +210,7 @@ class SearchController extends AbstractController
                 } else {
                     $search = new Search();
                     $search->setRules($encoded_rules);
-                    $search->setLastSeen(new \DateTime());
+                    $search->setLastSeen(new DateTime());
                     $searchRepository->addSearch($search);
                 }
 
@@ -273,10 +274,14 @@ class SearchController extends AbstractController
         /** @phpstan-ignore-next-line */
         if (!empty($search_results['qsearch_details'])) {
             $cats = [];
+            /** @phpstan-ignore-next-line */
             if (!empty($search_results['qsearch_details']['matching_cats_no_image'])) {
+                /** @phpstan-ignore-next-line */
                 $cats = array_merge($cats, $search_results['qsearch_details']['matching_cats_no_image']);
             }
+            /** @phpstan-ignore-next-line */
             if ($search_results['qsearch_details']['matching_cats']) {
+                /** @phpstan-ignore-next-line */
                 $cats = array_merge($cats, $search_results['qsearch_details']['matching_cats']);
             }
 
@@ -289,7 +294,9 @@ class SearchController extends AbstractController
                 $tpl_params['category_search_results'] = $hints;
             }
 
+            /** @phpstan-ignore-next-line */
             if (!empty($search_results['qsearch_details']['matching_tags'])) {
+                /** @phpstan-ignore-next-line */
                 foreach ($search_results['qsearch_details']['matching_tags'] as $tag) {
                     $tag['URL'] = $this->generateUrl('images_by_tags', ['tag_ids' => Utils::tagToUrl($tag)]);
                     $tpl_params['tag_search_results'] = $tag;
@@ -322,11 +329,13 @@ class SearchController extends AbstractController
 
             /** @phpstan-ignore-next-line */
             if (!empty($search_results['qsearch_details']) && !empty($search_results['qsearch_details']['unmatched_terms'])) {
+                /** @phpstan-ignore-next-line */
                 $tpl_params['no_search_results'] = $search_results['qsearch_details']['unmatched_terms'];
             }
         } else {
             /** @phpstan-ignore-next-line */
             if (!empty($search_results['qsearch_details']) && !empty($search_results['qsearch_details']['q'])) {
+                /** @phpstan-ignore-next-line */
                 $tpl_params['no_search_results'] = $search_results['qsearch_details']['q'];
             }
         }

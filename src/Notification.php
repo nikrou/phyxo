@@ -11,6 +11,9 @@
 
 namespace App;
 
+use DateTimeInterface;
+use Exception;
+use DateTime;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\Repository\CommentRepository;
@@ -38,8 +41,10 @@ class Notification
 {
     /** @var array<string, int|float|string|bool> $env */
     private array $env;
+
     /** @var string[] $infos */
     private array $infos = [];
+
     /** @var string[] $errors */
     private array $errors = [];
 
@@ -70,7 +75,7 @@ class Notification
     /**
      * Returns number of new comments between two dates.
      */
-    public function nb_new_comments(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
+    public function nb_new_comments(DateTimeInterface $start = null, DateTimeInterface $end = null): int
     {
         return $this->commentRepository->getNewComments($this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums(), $start, $end, $count_only = true);
     }
@@ -80,7 +85,7 @@ class Notification
      *
      * @return Comment[]
      */
-    public function new_comments(\DateTimeInterface $start = null, \DateTimeInterface $end = null): array
+    public function new_comments(DateTimeInterface $start = null, DateTimeInterface $end = null): array
     {
         return $this->commentRepository->getNewComments($this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums(), $start, $end);
     }
@@ -88,7 +93,7 @@ class Notification
     /**
      * Returns number of unvalidated comments between two dates.
      */
-    public function nb_unvalidated_comments(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
+    public function nb_unvalidated_comments(DateTimeInterface $start = null, DateTimeInterface $end = null): int
     {
         return $this->commentRepository->getUnvalidatedComments($count_only = true, $start, $end);
     }
@@ -96,7 +101,7 @@ class Notification
     /**
      * Returns number of new photos between two dates.
      */
-    public function nb_new_elements(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
+    public function nb_new_elements(DateTimeInterface $start = null, DateTimeInterface $end = null): int
     {
         return $this->imageMapper->getRepository()->getNewElements($this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums(), $start, $end, $count_only = true);
     }
@@ -106,7 +111,7 @@ class Notification
      *
      * @return Image[]
      */
-    public function new_elements(\DateTimeInterface $start = null, \DateTimeInterface $end = null): array
+    public function new_elements(DateTimeInterface $start = null, DateTimeInterface $end = null): array
     {
         return $this->imageMapper->getRepository()->getNewElements($this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums(), $start, $end);
     }
@@ -114,7 +119,7 @@ class Notification
     /**
      * Returns number of updated albums between two dates.
      */
-    public function nb_updated_albums(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
+    public function nb_updated_albums(DateTimeInterface $start = null, DateTimeInterface $end = null): int
     {
         return $this->imageMapper->getRepository()->getUpdatedAlbums($this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums(), $start, $end, $count_only = true);
     }
@@ -124,7 +129,7 @@ class Notification
      *
      * @return Album[]|int
      */
-    public function updated_albums(\DateTimeInterface $start = null, \DateTimeInterface $end = null): array|int
+    public function updated_albums(DateTimeInterface $start = null, DateTimeInterface $end = null): array|int
     {
         return $this->imageMapper->getRepository()->getUpdatedAlbums($this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums(), $start, $end);
     }
@@ -132,7 +137,7 @@ class Notification
     /**
      * Returns number of new users between two dates.
      */
-    public function nb_new_users(\DateTimeInterface $start = null, \DateTimeInterface $end = null): int
+    public function nb_new_users(DateTimeInterface $start = null, DateTimeInterface $end = null): int
     {
         return $this->userInfosRepository->countNewUsers($start, $end);
     }
@@ -142,7 +147,7 @@ class Notification
      *
      * @return UserInfos[]
      */
-    public function new_users(\DateTimeInterface $start = null, \DateTimeInterface $end = null)
+    public function new_users(DateTimeInterface $start = null, DateTimeInterface $end = null)
     {
         return $this->userInfosRepository->getNewUsers($start, $end);
     }
@@ -155,7 +160,7 @@ class Notification
      * unvalidated comments, number of new users.
      * @todo number of unvalidated elements
      */
-    public function news_exists(\DateTimeInterface $start = null, \DateTimeInterface $end = null): bool
+    public function news_exists(DateTimeInterface $start = null, DateTimeInterface $end = null): bool
     {
         return (($this->nb_new_comments($start, $end) > 0) || ($this->nb_new_elements($start, $end) > 0)
             || ($this->nb_updated_albums($start, $end) > 0) || (($this->userMapper->isAdmin())
@@ -193,7 +198,7 @@ class Notification
      * @param bool $add_url add html link around news
      * @return string[]
      */
-    public function news(\DateTimeInterface $start = null, \DateTimeInterface $end = null, bool $exclude_img_cats = false, bool $add_url = false): array
+    public function news(DateTimeInterface $start = null, DateTimeInterface $end = null, bool $exclude_img_cats = false, bool $add_url = false): array
     {
         $news = [];
 
@@ -253,7 +258,6 @@ class Notification
      * @param int $max_elements maximum number of elements per date
      * @param int $max_cats maximum number of categories per date
      */
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function get_recent_post_dates(int $max_dates, int $max_elements, int $max_cats): array
     {
         $dates = $this->imageMapper->getRepository()->getRecentPostedImages($max_dates, $this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums());
@@ -284,7 +288,6 @@ class Notification
      * Same as get_recent_post_dates() but parameters as an indexed array.
      * @see get_recent_post_dates()
      */
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function get_recent_post_dates_array(array $args): array
     {
         return $this->get_recent_post_dates(
@@ -300,7 +303,6 @@ class Notification
      *
      * @param array $date_detail returned value of get_recent_post_dates()
      */
-    /** @phpstan-ignore-next-line */
     public function get_html_description_recent_post_date(array $date_detail, array $picture_ext): string
     {
         $description = '<ul>';
@@ -355,7 +357,6 @@ class Notification
      *
      * @param array $date_detail returned value of get_recent_post_dates()
      */
-    /** @phpstan-ignore-next-line */
     public function get_title_recent_post_date($date_detail): string
     {
         $english_months = [1 => "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -387,7 +388,6 @@ class Notification
      *
      * @return User[]
      */
-    /** @phpstan-ignore-next-line */
     public function get_user_notifications(string $action, array $check_key_list = [], ?bool $enabled_filter_value = null): array
     {
         if (in_array($action, ['subscribe', 'send'])) {
@@ -439,7 +439,6 @@ class Notification
     }
 
     // Inc Counter success
-    /** @phpstan-ignore-next-line */
     public function inc_mail_sent_success($nbm_user): void
     {
         $this->env['sent_mail_count'] += 1;
@@ -447,7 +446,6 @@ class Notification
     }
 
     // Inc Counter failed
-    /** @phpstan-ignore-next-line */
     public function inc_mail_sent_failed($nbm_user): void
     {
         $this->env['error_on_mail_count'] += 1;
@@ -474,7 +472,6 @@ class Notification
     /**
      * @return string[]
      */
-    /** @phpstan-ignore-next-line */
     public function assign_vars_nbm_mail_content($nbm_user): array
     {
         return [
@@ -494,7 +491,6 @@ class Notification
      *
      * @return string[] check_key list treated
      */
-    /** @phpstan-ignore-next-line */
     public function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, bool $is_subscribe = false, $check_key_list = []): array
     {
         $check_key_treated = [];
@@ -554,7 +550,7 @@ class Notification
                             $mail_params
                         );
                         $this->inc_mail_sent_success($nbm_user);
-                    } catch (\Exception) {
+                    } catch (Exception) {
                         $this->inc_mail_sent_failed($nbm_user);
                         $do_update = false;
                     }
@@ -593,7 +589,6 @@ class Notification
      *
      * @return string[] check_key list treated
      */
-    /** @phpstan-ignore-next-line */
     public function unsubscribe_notification_by_mail($is_admin_request, $check_key_list = []): array
     {
         return $this->do_subscribe_unsubscribe_notification_by_mail($is_admin_request, false, $check_key_list);
@@ -606,7 +601,6 @@ class Notification
      *
      * @return string[] check_key list treated
      */
-    /** @phpstan-ignore-next-line */
     public function subscribe_notification_by_mail($is_admin_request, $check_key_list = []): array
     {
         return $this->do_subscribe_unsubscribe_notification_by_mail($is_admin_request, true, $check_key_list);
@@ -618,7 +612,6 @@ class Notification
      * @param $post_keyname: key of check_key post array
      * @param check_key_treated: array of check_key treated
      */
-    /** @phpstan-ignore-next-line */
     public function do_timeout_treatment($post_keyname, $check_key_treated = []): void
     {
         if ($this->env['is_sendmail_timeout']) {
@@ -676,7 +669,6 @@ class Notification
      * Return list of "selected" users for 'list_to_send'
      * Return list of "treated" check_key for 'send'
      */
-    /** @phpstan-ignore-next-line */ // @FIX: define return type
     public function do_action_send_mail_notification($action = 'list_to_send', $check_key_list = [], $customize_mail_content = '')
     {
         $return_list = [];
@@ -685,7 +677,7 @@ class Notification
             return [];
         }
 
-        $now = new \DateTime();
+        $now = new DateTime();
 
         $is_action_send = ($action == 'send');
 
@@ -794,7 +786,7 @@ class Notification
 
                                 $nbm_user->setLastSend($now);
                                 $this->userMailNotificationRepository->addOrUpdateUserMailNotification($nbm_user);
-                            } catch (\Exception) {
+                            } catch (Exception) {
                                 $this->inc_mail_sent_failed($nbm_user);
                             }
                         }
@@ -826,7 +818,6 @@ class Notification
         return $return_list;
     }
 
-    /** @phpstan-ignore-next-line */
     protected function sendMail(array $to, array $from, string $subject, array $params): void
     {
         $tpl_params = [

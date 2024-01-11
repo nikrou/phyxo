@@ -11,6 +11,10 @@
 
 namespace App\Controller;
 
+use Exception;
+use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\DriverManager;
+use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Language\Languages;
 use App\Entity\User;
@@ -256,7 +260,7 @@ class InstallController extends AbstractController
             if (empty($errors)) {
                 try {
                     $this->phyxoInstaller->installDatabase($db_params);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $errors[] = $e->getMessage();
                 }
             }
@@ -318,7 +322,7 @@ class InstallController extends AbstractController
 
             if (count($errors) === 0) {
                 $database_params = Yaml::parseFile($this->databaseYamlFile . '.tmp');
-                $config = new \Doctrine\DBAL\Configuration();
+                $config = new Configuration();
                 $connectionParams = [
                     'driver' => $database_params['parameters']['database_driver']
                 ];
@@ -330,9 +334,9 @@ class InstallController extends AbstractController
                     $connectionParams['user'] = $database_params['parameters']['database_user'];
                     $connectionParams['password'] = $database_params['parameters']['database_password'];
                 }
-                $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
+                $conn = DriverManager::getConnection($connectionParams, $config);
 
-                $now = new \DateTime();
+                $now = new DateTime();
                 $raw_query_user = 'INSERT INTO phyxo_users (username, mail_address, password) VALUES(:username, :mail_address, :password)';
                 $raw_query_user = str_replace($this->default_prefix, $database_params['parameters']['database_prefix'], $raw_query_user);
 
@@ -390,7 +394,7 @@ class InstallController extends AbstractController
                     $env_file_content = 'APP_ENV=prod' . "\n";
                     $env_file_content .= 'APP_SECRET=' . hash('sha256', openssl_random_pseudo_bytes(50)) . "\n";
                     file_put_contents($this->rootProjectDir . '/.env.local', $env_file_content, FILE_APPEND);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $errors[] = $e->getMessage();
                 }
             }

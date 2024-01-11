@@ -57,14 +57,14 @@ class AdminPhotosController extends AbstractController
         $this->translator = $translator;
 
         $upload_max_filesize = min(
-            \Phyxo\Functions\Utils::get_ini_size('upload_max_filesize'),
-            \Phyxo\Functions\Utils::get_ini_size('post_max_size')
+            Utils::get_ini_size('upload_max_filesize'),
+            Utils::get_ini_size('post_max_size')
         );
 
-        if ($upload_max_filesize == \Phyxo\Functions\Utils::get_ini_size('upload_max_filesize')) {
-            $upload_max_filesize_shorthand = \Phyxo\Functions\Utils::get_ini_size('upload_max_filesize', false);
+        if ($upload_max_filesize == Utils::get_ini_size('upload_max_filesize')) {
+            $upload_max_filesize_shorthand = Utils::get_ini_size('upload_max_filesize', false);
         } else {
-            $upload_max_filesize_shorthand = \Phyxo\Functions\Utils::get_ini_size('post_max_filesize', false);
+            $upload_max_filesize_shorthand = Utils::get_ini_size('post_max_filesize', false);
         }
 
         $tpl_params['upload_max_filesize'] = $upload_max_filesize;
@@ -72,7 +72,7 @@ class AdminPhotosController extends AbstractController
 
         // what is the maximum number of pixels permitted by the memory_limit?
         $fudge_factor = 1.7;
-        $available_memory = \Phyxo\Functions\Utils::get_ini_size('memory_limit') - memory_get_usage();
+        $available_memory = Utils::get_ini_size('memory_limit') - memory_get_usage();
         $max_upload_width = round(sqrt($available_memory / (2 * $fudge_factor)));
         $max_upload_height = round(2 * $max_upload_width / 3);
 

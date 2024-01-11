@@ -11,12 +11,12 @@
 
 namespace App\Entity;
 
+use DateTimeInterface;
 use App\Repository\UserCacheAlbumRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @phpstan-type UserCacheAlbumInfos array{album_id: ?int, max_date_last: ?\DateTimeInterface, date_last: ?\DateTimeInterface, nb_images: ?int, count_images: ?int,
- * nb_albums: ?int, count_albums: ?int, user_representative_picture: ?int}
+ * @phpstan-type UserCacheAlbumInfos array{album_id: ?int, max_date_last: ?DateTimeInterface, date_last: ?DateTimeInterface, nb_images: ?int, count_images: ?int, nb_albums: ?int, count_albums: ?int, user_representative_picture: ?int}
  */
 #[ORM\Table(name: 'user_cache_categories')]
 #[ORM\Entity(repositoryClass: UserCacheAlbumRepository::class)]
@@ -33,10 +33,10 @@ class UserCacheAlbum
     private Album $album;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $date_last = null;
+    private ?DateTimeInterface $date_last = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $max_date_last = null;
+    private ?DateTimeInterface $max_date_last = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $nb_images = null;
@@ -77,24 +77,24 @@ class UserCacheAlbum
         return $this;
     }
 
-    public function getDateLast(): ?\DateTimeInterface
+    public function getDateLast(): ?DateTimeInterface
     {
         return $this->date_last;
     }
 
-    public function setDateLast(?\DateTimeInterface $date_last): self
+    public function setDateLast(?DateTimeInterface $date_last): self
     {
         $this->date_last = $date_last;
 
         return $this;
     }
 
-    public function getMaxDateLast(): ?\DateTimeInterface
+    public function getMaxDateLast(): ?DateTimeInterface
     {
         return $this->max_date_last;
     }
 
-    public function setMaxDateLast(?\DateTimeInterface $max_date_last): self
+    public function setMaxDateLast(?DateTimeInterface $max_date_last): self
     {
         $this->max_date_last = $max_date_last;
 

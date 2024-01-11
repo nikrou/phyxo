@@ -11,6 +11,7 @@
 
 namespace App\Twig;
 
+use Exception;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\DerivativeParams;
 use Phyxo\Image\ImageStandardParams;
@@ -46,11 +47,11 @@ class DerivativeExtension extends AbstractExtension
         }
 
         if (empty($params['width'])) {
-            throw new \Exception('define_derivative missing width');
+            throw new Exception('define_derivative missing width');
         }
 
         if (empty($params['height'])) {
-            throw new  \Exception('define_derivative missing height');
+            throw new  Exception('define_derivative missing height');
         }
 
         $w = intval($params['width']);
@@ -69,13 +70,13 @@ class DerivativeExtension extends AbstractExtension
             if ($crop) {
                 $minw = empty($params['min_width']) ? $w : intval($params['min_width']);
                 if ($minw > $w) {
-                    throw new \Exception('define_derivative invalid min_width');
+                    throw new Exception('define_derivative invalid min_width');
                 }
 
                 $minh = empty($params['min_height']) ? $h : intval($params['min_height']);
 
                 if ($minh > $h) {
-                    throw new \Exception('define_derivative invalid min_height');
+                    throw new Exception('define_derivative invalid min_height');
                 }
             }
         }
@@ -88,7 +89,6 @@ class DerivativeExtension extends AbstractExtension
         return $this->image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
     }
 
-    /** @phpstan-ignore-next-line */
     public function derivativeFromImage(array $params = []): ?DerivativeImage
     {
         if (empty($params['image']) || empty($params['params'])) {

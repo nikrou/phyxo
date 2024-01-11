@@ -11,6 +11,7 @@
 
 namespace App\Repository;
 
+use DateTime;
 use App\Entity\Search;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -30,7 +31,7 @@ class SearchRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('s');
         $qb->update();
         $qb->set('s.last_seen', ':last_seen');
-        $qb->setParameter('last_seen', new \DateTime());
+        $qb->setParameter('last_seen', new DateTime());
         $qb->where('s.id = :id');
         $qb->setParameter('id', $id);
 
