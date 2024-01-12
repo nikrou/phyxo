@@ -88,7 +88,7 @@ class ThemesTest extends TestCase
         $this->assertEquals($order, array_keys($themes->getFsThemes()));
     }
 
-    public function sortThemesDataProvider()
+    public static function sortThemesDataProvider()
     {
         return [
             ['author', ['theme2', 'theme3', 'theme4', 'my theme dir with space', 'theme1']],

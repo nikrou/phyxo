@@ -106,10 +106,10 @@ class Utils
             return $str;
         }
         if ($source_charset == 'iso-8859-1' and $dest_charset == 'utf-8') {
-            return utf8_encode($str);
+            return mb_convert_encoding($str, 'UTF-8', 'ISO-8859-1');
         }
         if ($source_charset == 'utf-8' and $dest_charset == 'iso-8859-1') {
-            return utf8_decode($str);
+            return mb_convert_encoding($str, 'ISO-8859-1');
         }
         if (function_exists('iconv')) {
             return iconv($source_charset, $dest_charset, $str);
@@ -408,7 +408,7 @@ class Utils
         foreach ($returned as $repository) {
             if (isset($tables[$repository])) {
                 $tableInfos = $managerRegistry->getRepository($tables[$repository])->getMaxLastModified();
-                $max = (new DateTime(isset($tableInfos['max']) ? $tableInfos['max'] : 'now'))->getTimestamp();
+                $max = (new DateTime($tableInfos['max'] ?? 'now'))->getTimestamp();
                 $keys[$repository] = sprintf('%s_%s', $max, $tableInfos['count']);
             }
         }

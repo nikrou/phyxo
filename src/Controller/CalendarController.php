@@ -104,7 +104,7 @@ class CalendarController extends AbstractController
         $tpl_params['date_type'] = $date_type;
         $tpl_params['year'] = $year;
         $tpl_params['month'] = $this->formatDatePart($month);
-        $tpl_params['month_date'] = new DateTime("${year}-${month}-01");
+        $tpl_params['month_date'] = new DateTime("{$year}-{$month}-01");
         $tpl_params['number_of_images'] = 0;
 
         $intl_date_formatter = new IntlDateFormatter($request->get('_locale'), IntlDateFormatter::FULL, IntlDateFormatter::NONE, null, null, 'MMMM');
@@ -154,7 +154,7 @@ class CalendarController extends AbstractController
         $tpl_params['year'] = $year;
         $tpl_params['month'] = $this->formatDatePart($month);
         $tpl_params['day'] = $this->formatDatePart($day);
-        $tpl_params['current_day'] = new DateTime("${year}-${month}-${day}");
+        $tpl_params['current_day'] = new DateTime("{$year}-{$month}-{$day}");
 
         $intl_date_formatter = new IntlDateFormatter($request->get('_locale'), IntlDateFormatter::FULL, IntlDateFormatter::NONE, null, null, 'MMMM');
         $tpl_params['month_label'] = $intl_date_formatter->format($tpl_params['current_day']);

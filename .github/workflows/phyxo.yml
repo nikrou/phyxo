@@ -64,7 +64,7 @@ jobs:
         run: ./bin/console phyxo:user:create --username guest --password '' --mail_address '' --status guest
 
       - name: Unit tests
-        run: ./bin/simple-phpunit --testdox
+        run: composer phpunit
 
       - name: Run Behat tests
         run: ./bin/behat --colors --no-interaction -vvv -c behat.yml.dist --suite=web

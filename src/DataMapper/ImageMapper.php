@@ -269,7 +269,6 @@ class ImageMapper
      * Add info to the title of the thumbnail based on photo properties.
      *
      * @param array $info hit, rating_score, nb_comments
-     * @param string $title
      * @param string $comment
      */
     public function getThumbnailTitle(array $info, string $title, ?string $comment = ''): string

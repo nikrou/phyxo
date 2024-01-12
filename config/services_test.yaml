@@ -8,8 +8,8 @@ services:
     public: true # Only for tests
 
     bind:
-      $sql_init_file: '%kernel.project_dir%/features/sql/db_init.sql'
-      $sql_cleanup_file: '%kernel.project_dir%/features/sql/db_cleanup.sql'
+      $sqlInitFile: '%kernel.project_dir%/features/sql/db_init.sql'
+      $sqlCleanupFile: '%kernel.project_dir%/features/sql/db_cleanup.sql'
 
   App\Tests\Behat\:
     resource: '../tests/Behat/*'

@@ -16,10 +16,7 @@ class Storage
     /** @var array<string> $data */
     private array $data;
 
-    /**
-     * @param mixed $value
-     */
-    public function set(string $name, $value): void
+    public function set(string $name, mixed $value): void
     {
         $this->data[$name] = $value;
     }

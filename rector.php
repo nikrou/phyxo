@@ -21,7 +21,8 @@ use Rector\Symfony\Set\SymfonySetList;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->paths([
-        __DIR__ . '/src'
+        __DIR__ . '/src',
+        __DIR__ . '/tests/Behat'
     ]);
 
     $rectorConfig->importNames();
@@ -34,6 +35,7 @@ return static function (RectorConfig $rectorConfig): void {
         SymfonyLevelSetList::UP_TO_SYMFONY_63,
         LevelSetList::UP_TO_PHP_80,
         LevelSetList::UP_TO_PHP_81,
+        LevelSetList::UP_TO_PHP_82,
     ]);
 
     $rectorConfig->rules([

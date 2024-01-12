@@ -93,7 +93,7 @@ class PluginsTest extends TestCase
         $this->assertEquals($order, array_keys($plugins->getFsPlugins()));
     }
 
-    public function _testExtractPluginWithEmptyOrInvalidArchive()
+    public function testExtractPluginWithEmptyOrInvalidArchive()
     {
         $workspace = $this->mirrorToWorkspace();
 
@@ -216,7 +216,7 @@ class PluginsTest extends TestCase
             ->isEqualTo(array_merge($new_plugin, $this->getLocalPlugins()));
     }
 
-    public function sortPluginsDataProvider()
+    public static function sortPluginsDataProvider()
     {
         return [
             ['author', ['Plugin2', 'Plugin3', 'Plugin4', 'plugin_lowercase', 'Plugin1']],

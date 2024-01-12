@@ -11,6 +11,8 @@
 
 namespace App\Tests\Behat;
 
+use RuntimeException;
+use Exception;
 use Behat\Behat\Context\Context;
 use Behat\Mink\Element\NodeElement;
 use Behat\MinkExtension\Context\RawMinkContext;
@@ -29,11 +31,9 @@ use Closure;
 abstract class BaseContext extends RawMinkContext implements Context
 {
     /**
-     * @param mixed $parameters
-     *
      * @return mixed
      */
-    public function __call(string $method, $parameters)
+    public function __call(string $method, mixed $parameters)
     {
         $page = $this->getSession()->getPage();
         if (method_exists($page, $method)) {
@@ -45,7 +45,7 @@ abstract class BaseContext extends RawMinkContext implements Context
             return call_user_func_array([$session, $method], $parameters);
         }
 
-        throw new \RuntimeException(sprintf('The "%s()" method does not exist in DocumentElement(page) nor Mink(session).', $method));
+        throw new RuntimeException(sprintf('The "%s()" method does not exist in DocumentElement(page) nor Mink(session).', $method));
     }
 
     /**
@@ -61,7 +61,7 @@ abstract class BaseContext extends RawMinkContext implements Context
                 $closure();
 
                 return;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 if ($i == $tries) {
                     throw $e;
                 }
@@ -79,7 +79,7 @@ abstract class BaseContext extends RawMinkContext implements Context
         $element = $parent->find('css', sprintf('*[data-testid="%s"]', $data_id));
 
         if ($element === null) {
-            throw new \Exception(sprintf('Element with data-testid="%s" not found', $data_id));
+            throw new Exception(sprintf('Element with data-testid="%s" not found', $data_id));
         }
 
         return $element;

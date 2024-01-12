@@ -11,20 +11,16 @@
 
 namespace App\Tests\Behat;
 
+use Exception;
+use DateTime;
 use Behat\Gherkin\Node\PyStringNode;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class FeatureContext extends BaseContext
 {
-    private KernelInterface $kernel;
-
-    private Storage $storage;
-
-    public function __construct(KernelInterface $kernel, Storage $storage)
+    public function __construct(private readonly KernelInterface $kernel, private readonly Storage $storage)
     {
-        $this->kernel = $kernel;
-        $this->storage = $storage;
     }
 
     protected function getContainer():  ContainerInterface
@@ -94,7 +90,7 @@ class FeatureContext extends BaseContext
     {
         $image_id = $this->storage->get('image_' . $photo_name)->getId();
         if (!$this->isPhotoInPage($image_id)) {
-            throw new \Exception(sprintf('Photo "%s" not found in the page', $photo_name));
+            throw new Exception(sprintf('Photo "%s" not found in the page', $photo_name));
         }
     }
 
@@ -105,7 +101,7 @@ class FeatureContext extends BaseContext
     {
         $image_id = $this->storage->get('image_' . $photo_name)->getId();
         if ($this->isPhotoInPage($image_id)) {
-            throw new \Exception(sprintf('Photo "%s" was found in the page but should not', $photo_name));
+            throw new Exception(sprintf('Photo "%s" was found in the page but should not', $photo_name));
         }
     }
 
@@ -120,7 +116,7 @@ class FeatureContext extends BaseContext
     public function iShouldNotBeAbleToEditTags(): void
     {
         if ($this->beAbleToEditTags()) {
-            throw new \Exception('User can edit tags but should not');
+            throw new Exception('User can edit tags but should not');
         }
     }
 
@@ -130,7 +126,7 @@ class FeatureContext extends BaseContext
     public function iShouldBeAbleToEditTags(): void
     {
         if (!$this->beAbleToEditTags()) {
-            throw new \Exception('User cannot edit tags but should be able to');
+            throw new Exception('User cannot edit tags but should be able to');
         }
     }
 
@@ -141,12 +137,12 @@ class FeatureContext extends BaseContext
     {
         $tags = $this->getPage()->find('css', '#Tags');
         if ($tags === null) {
-            throw new \Exception('No tags found on the page');
+            throw new Exception('No tags found on the page');
         }
 
         $tag_link = $tags->find('xpath', '//*[contains(text(), "' . $tag_name . '")]');
         if ($tag_link === null) {
-            throw new \Exception(sprintf('Tag "%s" not found on the page but should be', $tag_name));
+            throw new Exception(sprintf('Tag "%s" not found on the page but should be', $tag_name));
         }
     }
 
@@ -159,7 +155,7 @@ class FeatureContext extends BaseContext
         if ($tags !== null) {
             $tag_link = $tags->find('xpath', '//*[contains(text(), "' . $tag_name . '")]');
             if ($tag_link !== null) {
-                throw new \Exception(sprintf('Tag "%s" found on the page but should not be', $tag_name));
+                throw new Exception(sprintf('Tag "%s" found on the page but should not be', $tag_name));
             }
         }
     }
@@ -178,7 +174,7 @@ class FeatureContext extends BaseContext
         $link = $parentNode->findLink($link_label);
 
         if ($link === null) {
-            throw new \Exception(sprintf('Link "%s" not found on the page but should be', $link_label));
+            throw new Exception(sprintf('Link "%s" not found on the page but should be', $link_label));
         }
     }
 
@@ -190,7 +186,7 @@ class FeatureContext extends BaseContext
         $link = $this->findLink($link_label);
 
         if ($link !== null) {
-            throw new \Exception(sprintf('Link "%s" found on the page but should not be', $link_label));
+            throw new Exception(sprintf('Link "%s" found on the page but should not be', $link_label));
         }
     }
 
@@ -201,7 +197,7 @@ class FeatureContext extends BaseContext
     {
         $album = $this->getPage()->find('css', sprintf('*[data-id="%d"]', $this->storage->get('album_' . $album_name)->getId()));
         if ($description !== $this->findByDataTestid('album-description', $album)->getText()) {
-            throw new \Exception(sprintf('Description "%s" for album "%s" not found but should be', $description, $album_name));
+            throw new Exception(sprintf('Description "%s" for album "%s" not found but should be', $description, $album_name));
         }
     }
 
@@ -219,7 +215,7 @@ class FeatureContext extends BaseContext
         // }
 
         if ($nb_images !== $element->getText()) {
-            throw new \Exception(sprintf('Number of images "%s" for album "%s" not found but should be', $nb_images, $album_name));
+            throw new Exception(sprintf('Number of images "%s" for album "%s" not found but should be', $nb_images, $album_name));
         }
     }
 
@@ -233,7 +229,7 @@ class FeatureContext extends BaseContext
         $element = $div_album->find('css', '*[data-testid="number_of_photos"]');
 
         if ($nb_images !== $element->getText()) {
-            throw new \Exception(sprintf('Number of images "%s" for album "%s" not found but should be', $nb_images, $album_name));
+            throw new Exception(sprintf('Number of images "%s" for album "%s" not found but should be', $nb_images, $album_name));
         }
     }
 
@@ -252,14 +248,14 @@ class FeatureContext extends BaseContext
     {
         $picture_derivatives = $this->getPage()->find('css', '*[data-testid="picture.derivatives"]');
         if (is_null($picture_derivatives)) {
-            throw new \Exception("Cannot find picture derivatives");
+            throw new Exception("Cannot find picture derivatives");
         }
 
         // $derivative = $picture_derivatives->find('css', sprintf('*[data-type-save="%s"]', $type_map));
         $derivative = $picture_derivatives->find('css', sprintf('#derivative%s', $type_map));
 
         if (is_null($derivative)) {
-            throw new \Exception("Cannot find image of size ${type_map}");
+            throw new Exception("Cannot find image of size {$type_map}");
         }
 
         $this->visit($derivative->getAttribute('data-url'));
@@ -282,16 +278,16 @@ class FeatureContext extends BaseContext
         $selectField = $this->findField($from);
 
         if ($selectField === null) {
-            throw new \Exception(sprintf('The select "%s" was not found in the page', $from));
+            throw new Exception(sprintf('The select "%s" was not found in the page', $from));
         }
 
         $optionField = $selectField->find('xpath', "//option[@selected]");
         if ($optionField === null) {
-            throw new \Exception(sprintf('No option is selected in the %s select', $from));
+            throw new Exception(sprintf('No option is selected in the %s select', $from));
         }
 
         if ($optionField->getValue() !== $option) {
-            throw new \Exception(sprintf('The option "%s" was not selected but should be', $option));
+            throw new Exception(sprintf('The option "%s" was not selected but should be', $option));
         }
     }
 
@@ -303,11 +299,11 @@ class FeatureContext extends BaseContext
         $radioButton = $this->getSession()->getPage()->find('css', sprintf('input[type="radio"][name="%s"][value="%s"]', $name, $value));
 
         if (is_null($radioButton)) {
-            throw new \Exception(sprintf('Button radio "%s" with value "%s" not found but should be', $name, $value));
+            throw new Exception(sprintf('Button radio "%s" with value "%s" not found but should be', $name, $value));
         }
 
         if (!$radioButton->isChecked()) {
-            throw new \Exception(sprintf('Button radio "%s" with value "%s" should be checked but is not', $name, $value));
+            throw new Exception(sprintf('Button radio "%s" with value "%s" should be checked but is not', $name, $value));
         }
     }
 
@@ -318,7 +314,7 @@ class FeatureContext extends BaseContext
     {
         $link = $this->findLink($href);
         if (!is_null($link)) {
-            throw new \Exception(sprintf('Link with href "%s" was found but shoud not', $link->getAttribute('href')));
+            throw new Exception(sprintf('Link with href "%s" was found but shoud not', $link->getAttribute('href')));
         }
     }
 
@@ -329,7 +325,7 @@ class FeatureContext extends BaseContext
     {
         $select = $this->findField($element);
         if (is_null($select)) {
-            throw new \Exception(sprintf('Select "%s" not found but should be', $element));
+            throw new Exception(sprintf('Select "%s" not found but should be', $element));
         }
 
         $options = [];
@@ -345,7 +341,7 @@ class FeatureContext extends BaseContext
         sort($expectedOptions);
 
         if (array_diff($options, $expectedOptions) !== array_diff($expectedOptions, $options)) {
-            throw new \Exception(sprintf('Element "%s" should contain "%s" but contains "%s".', $element, implode('|', $expectedOptions), implode('|', $options)));
+            throw new Exception(sprintf('Element "%s" should contain "%s" but contains "%s".', $element, implode('|', $expectedOptions), implode('|', $options)));
         }
     }
 
@@ -356,16 +352,16 @@ class FeatureContext extends BaseContext
     {
         $rowGroup = $this->getPage()->find('css', sprintf('table tr:contains("%s")', $group));
         if (is_null($rowGroup)) {
-            throw new \Exception(sprintf('Cannot find a group "%s" on the page', $group));
+            throw new Exception(sprintf('Cannot find a group "%s" on the page', $group));
         }
         $members = $rowGroup->find('css', 'td[class="members"]');
         if (is_null($members)) {
-            throw new \Exception(sprintf('Cannot find members cell for group "%s" on the page', $group));
+            throw new Exception(sprintf('Cannot find members cell for group "%s" on the page', $group));
         }
-        $foundMembers = explode(' ', $members->getText());
+        $foundMembers = explode(' ', (string) $members->getText());
         $expectedMembers = explode(',', $users);
         if (array_diff($foundMembers, $expectedMembers) !== array_diff($expectedMembers, $foundMembers)) {
-            throw new \Exception(sprintf('Members for group "%s" are "%s" but should be "%s".', $group, implode(',', $foundMembers), $users));
+            throw new Exception(sprintf('Members for group "%s" are "%s" but should be "%s".', $group, implode(',', $foundMembers), $users));
         }
     }
 
@@ -376,7 +372,7 @@ class FeatureContext extends BaseContext
     {
         $rowGroup = $this->getPage()->find('css', sprintf('table tr:contains("%s")', $group));
         if (is_null($rowGroup)) {
-            throw new \Exception(sprintf('Cannot find a group "%s" on the page', $group));
+            throw new Exception(sprintf('Cannot find a group "%s" on the page', $group));
         }
         $rowGroup->clickLink('Permissions');
     }
@@ -389,7 +385,7 @@ class FeatureContext extends BaseContext
         $album = $this->storage->get('album_' . $album_name);
         $divAlbum = $this->getPage()->find('css', sprintf('#album-%d', $album->getId()));
         if (is_null($divAlbum)) {
-            throw new \Exception(sprintf('Cannot find an album "%s" on the page', $album_name));
+            throw new Exception(sprintf('Cannot find an album "%s" on the page', $album_name));
         }
         $divAlbum->clickLink('Edit');
     }
@@ -410,13 +406,13 @@ class FeatureContext extends BaseContext
     {
         $select = $this->findField($element);
         if (is_null($select)) {
-            throw new \Exception(sprintf('Select "%s" not found but should be', $element));
+            throw new Exception(sprintf('Select "%s" not found but should be', $element));
         }
 
         $options = [];
         $albums_value = $select->getAttribute('data-value');
         if (!is_null($albums_value)) {
-            $options = json_decode($albums_value, true);
+            $options = json_decode((string) $albums_value, true);
         }
 
         $expectedOptions = [$this->storage->get('album_' . $album_name)->getId()];
@@ -424,7 +420,7 @@ class FeatureContext extends BaseContext
         sort($expectedOptions);
 
         if (array_diff($options, $expectedOptions) !== array_diff($expectedOptions, $options)) {
-            throw new \Exception(sprintf('Element "%s" should contain "%s" but contains "%s".', $element, implode('|', $expectedOptions), implode('|', $options)));
+            throw new Exception(sprintf('Element "%s" should contain "%s" but contains "%s".', $element, implode('|', $expectedOptions), implode('|', $options)));
         }
     }
 
@@ -435,23 +431,21 @@ class FeatureContext extends BaseContext
     {
         $select = $this->findField($element);
         if (is_null($select)) {
-            throw new \Exception(sprintf('Select "%s" not found but should be', $element));
+            throw new Exception(sprintf('Select "%s" not found but should be', $element));
         }
 
         $tags = [];
         $tags_value = $select->getAttribute('data-value');
         if (!is_null($tags_value)) {
             $tags = array_map(
-                function($tag) {
-                    return $tag['name'];
-                },
-                json_decode($tags_value, true)
+                fn($tag) => $tag['name'],
+                json_decode((string) $tags_value, true)
             );
         }
 
         $expectedTags = explode(',', $list_tags);
         if (array_diff($tags, $expectedTags) !== array_diff($expectedTags, $tags)) {
-            throw new \Exception(sprintf('Element "%s" should contain "%s" but contains "%s".', $element, implode('|', $expectedTags), implode('|', $tags)));
+            throw new Exception(sprintf('Element "%s" should contain "%s" but contains "%s".', $element, implode('|', $expectedTags), implode('|', $tags)));
         }
     }
 
@@ -464,15 +458,15 @@ class FeatureContext extends BaseContext
     {
         $field = $this->findField($field_name);
         if (is_null($field)) {
-            throw new \Exception(sprintf('Field "%s" not found but should be', $field_name));
+            throw new Exception(sprintf('Field "%s" not found but should be', $field_name));
         }
 
         if ($date === 'now') {
-            $date = (new \DateTime())->format('Y-m-d');
+            $date = (new DateTime())->format('Y-m-d');
         }
 
         if ($field->getValue() !== $date) {
-            throw new \Exception(sprintf('Field "%s" should contain "%s" but contains "%s"', $field_name, $field->getValue(), $date));
+            throw new Exception(sprintf('Field "%s" should contain "%s" but contains "%s"', $field_name, $field->getValue(), $date));
         }
     }
 
@@ -486,7 +480,7 @@ class FeatureContext extends BaseContext
         $album = $this->storage->get('album_' . $album_name);
         $divAlbum = $this->getPage()->find('css', sprintf('#album-%d', $album->getId()));
         if (is_null($divAlbum)) {
-            throw new \Exception(sprintf('Cannot find an album "%s" on the page', $album_name));
+            throw new Exception(sprintf('Cannot find an album "%s" on the page', $album_name));
         }
         $divAlbum->clickLink($link_label);
     }
@@ -499,7 +493,7 @@ class FeatureContext extends BaseContext
     {
         $divThumbnails = $this->getPage()->findAll('css', '.thumbnail');
         if (count($divThumbnails) !== $nb_thumbnails) {
-            throw new \Exception(sprintf('Number of thumbnails should be "%s" but "%s" found', $nb_thumbnails, count($divThumbnails)));
+            throw new Exception(sprintf('Number of thumbnails should be "%s" but "%s" found', $nb_thumbnails, count($divThumbnails)));
         }
     }
 
@@ -511,11 +505,11 @@ class FeatureContext extends BaseContext
     {
         $divThumbnail = $this->getPage()->find('css', sprintf('[data-testid="%s"] .number-of-images', $datePart));
         if (is_null($divThumbnail)) {
-            throw new \Exception(sprintf('Cannot find thumbnail with date part "%s" on the page', $datePart));
+            throw new Exception(sprintf('Cannot find thumbnail with date part "%s" on the page', $datePart));
         }
 
         if ($nb_images !== $divThumbnail->getText()) {
-            throw new \Exception(sprintf('Number of images for date part "%s" should be "%s" but "%s" found', $datePart, $nb_images, $divThumbnail->getText()));
+            throw new Exception(sprintf('Number of images for date part "%s" should be "%s" but "%s" found', $datePart, $nb_images, $divThumbnail->getText()));
         }
     }
 
@@ -527,11 +521,11 @@ class FeatureContext extends BaseContext
     {
         $td = $this->getPage()->find('css', sprintf('[data-testid="day-%d"] .number-of-images', $day));
         if (is_null($td)) {
-            throw new \Exception(sprintf('Cannot find calendar cell with day "%d" on the page', $day));
+            throw new Exception(sprintf('Cannot find calendar cell with day "%d" on the page', $day));
         }
 
         if ($nb_images !== (int) $td->getText()) {
-            throw new \Exception(sprintf('Number of images for day "%d" should be "%d" but "%s" found', $day, $nb_images, $td->getText()));
+            throw new Exception(sprintf('Number of images for day "%d" should be "%d" but "%s" found', $day, $nb_images, $td->getText()));
         }
     }
 
@@ -542,7 +536,7 @@ class FeatureContext extends BaseContext
     {
         $a_in_td = $this->getPage()->find('css', sprintf('[data-testid="day-%d"] a', $day));
         if (is_null($a_in_td)) {
-            throw new \Exception(sprintf('Cannot find calendar cell with day "%d" on the page', $day));
+            throw new Exception(sprintf('Cannot find calendar cell with day "%d" on the page', $day));
         }
 
         $a_in_td->click();

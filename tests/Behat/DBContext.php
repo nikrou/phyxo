@@ -11,6 +11,8 @@
 
 namespace App\Tests\Behat;
 
+use DateTime;
+use Exception;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
@@ -35,21 +37,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class DBContext implements Context
 {
-    private string $sqlInitFile;
-
-    private string $sqlCleanupFile;
-
-    private KernelInterface $kernel;
-
-    private Storage $storage;
-
-    public function __construct(string $sql_init_file, string $sql_cleanup_file, Storage $storage, KernelInterface $kernel)
+    public function __construct(private readonly string $sqlInitFile, private readonly string $sqlCleanupFile, private readonly Storage $storage, private readonly KernelInterface $kernel, private readonly UserManager $userManager, private readonly ManagerRegistry $managerRegistry, private readonly AlbumMapper $albumMapper, private Conf $conf, private readonly CommentRepository $commentRepository, private readonly ImageMapper $imageMapper, private readonly TagMapper $tagMapper, private readonly UserMapper $userMapper)
     {
-        $this->sqlInitFile = $sql_init_file;
-        $this->sqlCleanupFile = $sql_cleanup_file;
-        $this->storage = $storage;
-
-        $this->kernel = $kernel;
     }
 
     protected function getContainer():  ContainerInterface
@@ -71,15 +60,15 @@ class DBContext implements Context
             if (!empty($userRow['mail_address'])) {
                 $user->setMailAddress($userRow['mail_address']);
             }
-            $this->getContainer()->get(UserManager::class)->register($user);
+            $this->userManager->register($user);
 
             if (!empty($userRow['activation_key'])) {
                 $user->getUserInfos()->setActivationKey($userRow['activation_key']);
             }
             if (!empty($userRow['activation_key_expire'])) {
-                $user->getUserInfos()->setActivationKeyExpire(new \DateTime($userRow['activation_key_expire']));
+                $user->getUserInfos()->setActivationKeyExpire(new DateTime($userRow['activation_key_expire']));
             }
-            $userRepository = $this->getContainer()->get(ManagerRegistry::class)->getRepository(User::class);
+            $userRepository = $this->managerRegistry->getRepository(User::class);
             $userRepository->updateUser($user);
 
             $this->storage->set('user_' . $userRow['username'], $user);
@@ -92,16 +81,16 @@ class DBContext implements Context
      */
     public function someGroups(TableNode $table): void
     {
-        $groupRepository = $this->getContainer()->get(ManagerRegistry::class)->getRepository(Group::class);
+        $groupRepository = $this->managerRegistry->getRepository(Group::class);
 
         foreach ($table->getHash() as $groupRow) {
             $group = new Group();
             $group->setName($groupRow['name']);
             if (!empty($groupRow['users'])) {
-                foreach (explode(',', $groupRow['users']) as $user_name) {
+                foreach (explode(',', (string) $groupRow['users']) as $user_name) {
                     $user = $this->storage->get('user_' . trim($user_name));
                     if ($user === null) {
-                        throw new \Exception(sprintf('User "%s" not found in database', $user_name));
+                        throw new Exception(sprintf('User "%s" not found in database', $user_name));
                     }
                     $group->addUser($user);
                 }
@@ -123,7 +112,7 @@ class DBContext implements Context
             if (isset($albumRow['parent']) && $albumRow['parent'] != '') {
                 $parent = $this->storage->get('album_' . $albumRow['parent']);
             }
-            $album = $this->getContainer()->get(AlbumMapper::class)->createAlbum($albumRow['name'], 0, $parent, [], $albumRow);
+            $album = $this->albumMapper->createAlbum($albumRow['name'], 0, $parent, [], $albumRow);
             $this->storage->set('album_' . $albumRow['name'], $album);
         }
     }
@@ -148,9 +137,7 @@ class DBContext implements Context
     public function givenImages(TableNode $table): void
     {
         foreach ($table->getHash() as $image) {
-            $image_params = array_filter($image, function($k) {
-                return !in_array($k, ['album', 'tags']);
-            }, ARRAY_FILTER_USE_KEY);
+            $image_params = array_filter($image, fn($k) => !in_array($k, ['album', 'tags']), ARRAY_FILTER_USE_KEY);
 
             $this->addImage($image_params);
             if (!empty($image['album'])) {
@@ -158,7 +145,7 @@ class DBContext implements Context
             }
 
             if (!empty($image['tags'])) {
-                if (preg_match('`\[(.*)]`', $image['tags'], $matches)) {
+                if (preg_match('`\[(.*)]`', (string) $image['tags'], $matches)) {
                     $tags = array_map('trim', explode(',', $matches[1]));
                 } else {
                     $tags = [$image['tags']];
@@ -174,13 +161,13 @@ class DBContext implements Context
      */
     public function groupCanAccessAlbum(string $group_name, string $album_name): void
     {
-        $group = $this->getContainer()->get(ManagerRegistry::class)->getRepository(Group::class)->findOneByName($group_name);
+        $group = $this->managerRegistry->getRepository(Group::class)->findOneByName($group_name);
         if (is_null($group)) {
-            throw new \Exception(sprintf('Group with name "%s" do not exists', $group_name));
+            throw new Exception(sprintf('Group with name "%s" do not exists', $group_name));
         }
-        $album = $this->getContainer()->get(AlbumMapper::class)->getRepository()->findOneByName($album_name);
+        $album = $this->albumMapper->getRepository()->findOneByName($album_name);
         $album->addGroupAccess($group);
-        $this->getContainer()->get(AlbumMapper::class)->getRepository()->addOrUpdateAlbum($album);
+        $this->albumMapper->getRepository()->addOrUpdateAlbum($album);
     }
 
     /**
@@ -188,13 +175,13 @@ class DBContext implements Context
      */
     public function userCanAccessAlbum(string $username, string $album_name): void
     {
-        $user = $this->getContainer()->get(ManagerRegistry::class)->getRepository(User::class)->findOneByUsername($username);
+        $user = $this->managerRegistry->getRepository(User::class)->findOneByUsername($username);
         if (is_null($user)) {
-            throw new \Exception(sprintf('User with username "%s" do not exists', $username));
+            throw new Exception(sprintf('User with username "%s" do not exists', $username));
         }
-        $album = $this->getContainer()->get(AlbumMapper::class)->getRepository()->findOneByName($album_name);
+        $album = $this->albumMapper->getRepository()->findOneByName($album_name);
         $album->addUserAccess($user);
-        $this->getContainer()->get(AlbumMapper::class)->getRepository()->addOrUpdateAlbum($album);
+        $this->albumMapper->getRepository()->addOrUpdateAlbum($album);
     }
 
     /**
@@ -202,14 +189,14 @@ class DBContext implements Context
      */
     public function userCannotAccessAlbum(string $username, string $album_name): void
     {
-        $user = $this->getContainer()->get(ManagerRegistry::class)->getRepository(User::class)->findOneByUsername($username);
+        $user = $this->managerRegistry->getRepository(User::class)->findOneByUsername($username);
         if (is_null($user)) {
-            throw new \Exception(sprintf('User with username "%s" do not exists', $username));
+            throw new Exception(sprintf('User with username "%s" do not exists', $username));
         }
 
-        $album = $this->getContainer()->get(AlbumMapper::class)->getRepository()->findOneByName($album_name);
+        $album = $this->albumMapper->getRepository()->findOneByName($album_name);
         $album->removeUserAccess($user);
-        $this->getContainer()->get(AlbumMapper::class)->getRepository()->addOrUpdateAlbum($album);
+        $this->albumMapper->getRepository()->addOrUpdateAlbum($album);
     }
 
     /**
@@ -218,7 +205,7 @@ class DBContext implements Context
      */
     public function configForParamEqualsTo(string $param, string $value, string $type = 'string'): void
     {
-        $conf = $this->getContainer()->get(Conf::class);
+        $conf = $this->conf;
         $conf->addOrUpdateParam($param, $conf->dbToConf($value, $type), $type);
     }
 
@@ -228,11 +215,11 @@ class DBContext implements Context
     public function addTagOnPhoto(string $tag_name, string $photo_name, string $username): void
     {
         if (($image = $this->storage->get('image_' . $photo_name)) === null) {
-            throw new \Exception(sprintf('Photo with name "%s" do not exist', $photo_name));
+            throw new Exception(sprintf('Photo with name "%s" do not exist', $photo_name));
         }
 
         if (($user = $this->storage->get('user_' . $username)) === null) {
-            throw new \Exception(sprintf('User with name "%s" do not exist', $username));
+            throw new Exception(sprintf('User with name "%s" do not exist', $username));
         }
 
         $this->addTagsToImage([$tag_name], $image->getId(), $user->getId(), $validated = false);
@@ -244,11 +231,11 @@ class DBContext implements Context
     public function removeTagOnPhotoNotValidated(string $tag_name, string $photo_name, string $username): void
     {
         if (($image = $this->storage->get('image_' . $photo_name)) === null) {
-            throw new \Exception(sprintf('Photo with name "%s" do not exist', $photo_name));
+            throw new Exception(sprintf('Photo with name "%s" do not exist', $photo_name));
         }
 
         if (($user = $this->storage->get('user_' . $username)) === null) {
-            throw new \Exception(sprintf('User with name "%s" do not exist', $username));
+            throw new Exception(sprintf('User with name "%s" do not exist', $username));
         }
 
         $this->removeTagsFromImage([$tag_name], $image->getId(), $user->getId(), $validated = false);
@@ -263,11 +250,11 @@ class DBContext implements Context
         $comment->setUser($this->storage->get('user_' . $username));
         $comment->setImage($this->storage->get('image_' . $photo_name));
         $comment->setContent($comment_content);
-        $comment->setDate(new \DateTime());
+        $comment->setDate(new DateTime());
         $comment->setValidated(true);
         $comment->setAnonymousId(md5('::1'));
 
-        $comment_id = $this->getContainer()->get(CommentRepository::class)->addOrUpdateComment($comment);
+        $comment_id = $this->commentRepository->addOrUpdateComment($comment);
 
         $this->storage->set('comment_' . md5($comment_content), $comment_id);
     }
@@ -315,7 +302,7 @@ class DBContext implements Context
         $image->setHeight($image_dimensions[1]);
 
         $image->setMd5sum(md5_file($image->getFile()));
-        $now = new \DateTime('now');
+        $now = new DateTime('now');
         $upload_dir = sprintf('%s/%s', $this->getContainer()->getParameter('upload_dir'), $now->format('Y/m/d'));
 
         $image_path = sprintf('%s/%s-%s.jpg', $upload_dir, $now->format('YmdHis'), substr($image->getMd5sum(), 0, 8));
@@ -330,13 +317,13 @@ class DBContext implements Context
         }
 
         if (!empty($image_infos['date_creation'])) {
-            $image->setDateCreation(new \DateTime($image_infos['date_creation']));
+            $image->setDateCreation(new DateTime($image_infos['date_creation']));
         }
 
         $image->setFile(basename($image->getFile()));
         $image->setPath(substr($image_path, strlen($this->getContainer()->getParameter('root_project_dir')) + 1));
 
-        $this->getContainer()->get(ImageMapper::class)->getRepository()->addOrUpdateImage($image);
+        $this->imageMapper->getRepository()->addOrUpdateImage($image);
 
         $this->storage->set('image_' . $image_infos['name'], $image);
     }
@@ -344,26 +331,26 @@ class DBContext implements Context
     protected function associateImageToAlbum(string $image_name, string $album_name): void
     {
         try {
-            $album = $this->getContainer()->get(AlbumMapper::class)->getRepository()->findOneByName($album_name);
-        } catch (\Exception $e) {
-            throw new \Exception('Album with name ' . $album_name . ' does not exist');
+            $album = $this->albumMapper->getRepository()->findOneByName($album_name);
+        } catch (Exception) {
+            throw new Exception('Album with name ' . $album_name . ' does not exist');
         }
 
         $image_id = $this->storage->get('image_' . $image_name)->getId();
 
-        $this->getContainer()->get(AlbumMapper::class)->associateImagesToAlbums([$image_id], [$album->getId()]);
+        $this->albumMapper->associateImagesToAlbums([$image_id], [$album->getId()]);
     }
 
     protected function addTag(string $tag_name): void
     {
-        if (!is_null($this->getContainer()->get(TagMapper::class)->getRepository()->findOneBy(['name' => $tag_name]))) {
-            throw new \Exception("Tag already exists");
+        if (!is_null($this->tagMapper->getRepository()->findOneBy(['name' => $tag_name]))) {
+            throw new Exception("Tag already exists");
         } else {
             $tag = new Tag();
             $tag->setName($tag_name);
             $tag->setUrlName($tag_name);
-            $tag->setLastModified(new \DateTime());
-            $this->getContainer()->get(TagMapper::class)->getRepository()->addOrUpdateTag($tag);
+            $tag->setLastModified(new DateTime());
+            $this->tagMapper->getRepository()->addOrUpdateTag($tag);
 
             $this->storage->set('tag_' . $tag_name, $tag->getId());
         }
@@ -384,14 +371,14 @@ class DBContext implements Context
             $tag_ids[] = $tag_id;
         }
 
-        $image = $this->getContainer()->get(ImageMapper::class)->getRepository()->find($image_id);
+        $image = $this->imageMapper->getRepository()->find($image_id);
         if (!is_null($user_id)) {
-            $user = $this->getContainer()->get(ManagerRegistry::class)->getRepository(User::class)->find($user_id);
+            $user = $this->managerRegistry->getRepository(User::class)->find($user_id);
         } else {
-            $user = $this->getContainer()->get(UserMapper::class)->getDefaultUser();
+            $user = $this->userMapper->getDefaultUser();
         }
 
-        $this->getContainer()->get(TagMapper::class)->toBeValidatedTags($image, $tag_ids, $user, ImageTag::STATUS_TO_ADD, $validated);
+        $this->tagMapper->toBeValidatedTags($image, $tag_ids, $user, ImageTag::STATUS_TO_ADD, $validated);
     }
 
     /**
@@ -409,19 +396,19 @@ class DBContext implements Context
             $tag_ids[] = $tag_id;
         }
 
-        $conf = $this->getContainer()->get(Conf::class);
-        $image = $this->getContainer()->get(ImageMapper::class)->getRepository()->find($image_id);
+        $conf = $this->conf;
+        $image = $this->imageMapper->getRepository()->find($image_id);
         if (!is_null($user_id)) {
-            $user = $this->getContainer()->get(ManagerRegistry::class)->getRepository(User::class)->find($user_id);
+            $user = $this->managerRegistry->getRepository(User::class)->find($user_id);
         } else {
-            $user = $this->getContainer()->get(UserMapper::class)->getDefaultUser();
+            $user = $this->userMapper->getDefaultUser();
         }
 
         // if publish_tags_immediately (or delete_tags_immediately) is not set we consider its value is true
         if (isset($conf['publish_tags_immediately']) && $conf['publish_tags_immediately'] === false) {
-            $this->getContainer()->get(TagMapper::class)->toBeValidatedTags($image, $tag_ids, $user, ImageTag::STATUS_TO_DELETE, $validated);
+            $this->tagMapper->toBeValidatedTags($image, $tag_ids, $user, ImageTag::STATUS_TO_DELETE, $validated);
         } else {
-            $this->getContainer()->get(TagMapper::class)->dissociateTags($tag_ids, $image_id);
+            $this->tagMapper->dissociateTags($tag_ids, $image_id);
         }
     }
 
@@ -444,7 +431,7 @@ class DBContext implements Context
                 $query = trim($query);
                 $query = str_replace($replaced, $replacing, $query);
 
-                $this->getContainer()->get(ManagerRegistry::class)->getConnection()->query($query);
+                $this->managerRegistry->getConnection()->query($query);
                 $query = '';
             }
         }

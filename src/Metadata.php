@@ -94,7 +94,7 @@ class Metadata
                         $day = 1;
                     }
 
-                    $iptc[$iptc_key] = DateTime::createFromFormat('Y-m-d', "${year}-${month}-${day}");
+                    $iptc[$iptc_key] = DateTime::createFromFormat('Y-m-d', "{$year}-{$month}-{$day}");
                 }
             }
         }
