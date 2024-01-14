@@ -5,177 +5,91 @@ $(function () {
 
   getMethodList()
 
-  // manual set of ws_url
-  $('#urlForm').submit(function () {
-    ws_url = $(this).children("input[name='ws_url']").val()
-    getMethodList()
-    return false
-  })
-
-  // invoke buttons
   $('#invokeMethod').click(function () {
-    invokeMethod($('#methodName').html(), false)
-    return false
-  })
-  $('#invokeMethodBlank').click(function () {
-    invokeMethod($('#methodName').html(), true)
+    const method = $('#methodName').html()
+    callMethod(method, false)
+
     return false
   })
 
-  // resizable iframe
-  $('#increaseIframe').click(function () {
-    $('#iframeWrapper').css('height', $('#iframeWrapper').height() + 100)
-    adaptHeight()
-  })
-  $('#decreaseIframe').click(function () {
-    if ($('#iframeWrapper').height() > 200) {
-      $('#iframeWrapper').css('height', $('#iframeWrapper').height() - 100)
-      adaptHeight()
-    }
-  })
-
-  // mask all wrappers
   function resetDisplay() {
-    $('#errorWrapper').hide()
-    $('#methodWrapper').hide()
-    $('#methodName').hide()
-    $('#urlForm').hide()
+    $(
+      '#errorWrapper, #methodWrapper, #methodName, #methodDescription, #requestDisplay, #results'
+    ).hide()
     $('#methodDescription blockquote').empty()
-    $('#methodDescription').hide()
-    $('#requestDisplay').hide()
-    $('#invokeFrame').attr('src', '')
   }
 
-  // give the same size to methods list and main page
-  function adaptHeight() {
-    $('#the_page').css('height', 'auto')
-    $('#the_methods').css('height', 'auto')
-
-    const min_h =
-      $(window).height() -
-      $('#the_header').outerHeight() -
-      $('#the_footer').outerHeight() -
-      3
-    const h = Math.max(
-      min_h,
-      Math.max($('#the_methods').height(), $('#the_page').height())
-    )
-
-    $('#the_page').css('height', h)
-    $('#the_methods').css('height', h)
-  }
-
-  // display error wrapper
   function displayError(error) {
     resetDisplay()
     $('#errorWrapper')
       .html('<b>Error:</b> ' + error)
       .show()
-    adaptHeight()
   }
 
-  // display ws_url form
-  function askForUrl() {
-    displayError("can't contact web-services, please give absolute url to 'ws'")
-    if ($("#urlForm input[name='ws_url']").val() == '') {
-      $("#urlForm input[name='ws_url']").val(ws_url)
-    }
-    $('#urlForm').show()
-  }
-
-  // parse JSON
-  function parsePwgJSON(json) {
-    let resp = {}
-    try {
-      resp = jQuery.parseJSON(json)
-      if (
-        (resp == null) |
-        (resp.result == null) |
-        (resp.stat == null) |
-        (resp.stat != 'ok')
-      ) {
-        throw new Error()
-      }
-    } catch (e) {
-      displayError('unable to parse JSON string')
-      resp = { stat: 'ko', result: 'null' }
-    }
-
-    return resp.result
-  }
-
-  // fetch methods list
   function getMethodList() {
     resetDisplay()
 
-    $.ajax({
-      type: 'GET',
-      url: ws_url,
-      data: { method: 'reflection.getMethodList' },
-    })
-      .done(function (result) {
-        result = parsePwgJSON(result)
+    fetch(
+      ws_url +
+        '?' +
+        new URLSearchParams({
+          method: 'reflection.getMethodList',
+        })
+    )
+      .then((data) => data.json())
+      .then((response) => {
+        const methods = response.result.methods
+        const methodList = methods.map(
+          (method) =>
+            `<button type="button" class="method list-group-item list-group-item-action">${method}</button>`
+        )
+        $('#methodsList').html(methodList.join('')).show()
 
-        if (result != null) {
-          const methods = result.methods
-
-          var ml = ''
-          for (var i = 0; i < methods.length; i++) {
-            ml += '<li><a href="#top">' + methods[i] + '</a></li>'
-          }
-          $('#methodsList').html(ml).show()
-
-          adaptHeight()
-
-          // trigger method selection
-          $('#methodsList li a').click(function () {
-            selectMethod($(this).html())
-          })
-        }
+        $('#methodsList button.method').on('click', function () {
+          selectMethod($(this).html())
+        })
       })
-      .fail(function (jqXHR, textStatus, errorThrown) {
-        askForUrl()
-      })
+      .catch((err) => displayError)
   }
 
-  // select method
   function selectMethod(methodName) {
+    resetDisplay()
     $('#introMessage').hide()
     if (cachedMethods.methodName) {
       fillNewMethod(methodName)
-    } else {
-      $.ajax({
-        type: 'GET',
-        url: ws_url,
-        data: { method: 'reflection.getMethodDetails', methodName: methodName },
-      })
-        .done(function (result) {
-          result = parsePwgJSON(result)
-
-          if (result != null) {
-            if (result.options.post_only || result.options.admin_only) {
-              var onlys = '<div class="onlys">'
-              if (result.options.post_only) {
-                onlys += 'POST only. '
-              }
-              if (result.options.admin_only) {
-                onlys += 'Admin only. '
-              }
-              onlys += '</div>'
-
-              result.description = onlys + result.description
-            }
-            cachedMethods[methodName] = result
-            fillNewMethod(methodName)
-          }
-        })
-        .fail(function (jqXHR, textStatus, errorThrown) {
-          displayError('unknown error')
-        })
     }
+
+    fetch(
+      ws_url +
+        '?' +
+        new URLSearchParams({
+          method: 'reflection.getMethodDetails',
+          methodName,
+        })
+    )
+      .then((data) => data.json())
+      .then((response) => response.result)
+      .then((result) => {
+        if (result.options.post_only || result.options.admin_only) {
+          let onlys = '<div class="btn btn-danger admin">'
+          if (result.options.post_only) {
+            onlys += 'POST only. '
+          }
+
+          if (result.options.admin_only) {
+            onlys += 'Admin only. '
+          }
+
+          onlys += '</div>'
+
+          result.description = onlys + result.description
+        }
+        cachedMethods[methodName] = result
+        fillNewMethod(methodName)
+      })
+      .catch((err) => displayError)
   }
 
-  // display method details
   function fillNewMethod(methodName) {
     resetDisplay()
 
@@ -192,18 +106,19 @@ $(function () {
 
     var methodParams = ''
     if (method.params && method.params.length > 0) {
-      for (var i = 0; i < method.params.length; i++) {
-        var param = method.params[i],
-          isOptional = param.optional,
-          acceptArray = param.acceptArray,
-          defaultValue = param.defaultValue == null ? '' : param.defaultValue,
-          info =
-            param.info == null
-              ? ''
-              : '<a class="methodInfo" title="' +
-                param.info.replace(/"/g, '&quot;') +
-                '">i</a>',
-          type = ''
+      method.params.forEach((param) => {
+        const isOptional = param.optional
+        const acceptArray = param.acceptArray
+        const defaultValue =
+          param.defaultValue == null ? '' : param.defaultValue
+        const info =
+          param.info == null
+            ? ''
+            : `<a class="methodInfo" title="${param.info.replace(
+                /"/g,
+                '&quot;'
+              )}">i</a>`
+        let type = ''
 
         if (param.type.match(/bool/)) type += '<span class=type>B</span>'
         if (param.type.match(/int/)) type += '<span class=type>I</span>'
@@ -213,47 +128,31 @@ $(function () {
           type += '<span class=subtype>&oslash;</span>'
 
         // if an array is direclty printed, the delimiter is a comma where we use a pipe
-        if (typeof defaultValue == 'object') {
+        if (typeof defaultValue === 'object') {
           defaultValue = defaultValue.join('|')
         }
 
-        methodParams +=
-          '<tr>' +
-          '<td>' +
-          param.name +
-          info +
-          '</td>' +
-          '<td class="mini">' +
-          (isOptional ? '?' : '*') +
-          (acceptArray ? ' []' : '') +
-          '</td>' +
-          '<td class="mini">' +
-          type +
-          '</td>' +
-          '<td class="input"><input type="text" class="methodParameterValue" data-id="' +
-          i +
-          '" value="' +
-          defaultValue +
-          '"></td>' +
-          '<td class="mini"><input type="checkbox" class="methodParameterSend" data-id="' +
-          i +
-          '" ' +
-          (isOptional ? '' : 'checked="checked"') +
-          '></td>' +
-          '</tr>'
-      }
+        methodParams += `<tr>
+          <td>${param.name} ${info}</td>
+          <td>${isOptional ? '?' : '*'} ${acceptArray ? ' []' : ''}</td>
+          <td>${type}</td>
+          <td><input type="text" class="form-control methodParameterValue" data-id="${
+            param.name
+          }" value="${defaultValue}"></td>
+          <td><input type="checkbox" class="form-check-input methodParameterSend" data-id="${
+            param.name
+          }" ${isOptional ? '' : 'checked="checked"'}></td>
+        </tr>`
+      })
     } else {
       methodParams =
-        '<tr><td colspan="4">This method takes no parameters</td></tr>'
+        '<tr><td colspan="5">This method takes no parameters</td></tr>'
     }
 
     $('#methodParams tbody').html(methodParams)
     $('#methodWrapper').show()
 
-    adaptHeight()
-
-    // trigger field modification
-    $('input.methodParameterValue').change(function () {
+    $('input.methodParameterValue').on('change', function () {
       $("input.methodParameterSend[data-id='" + $(this).data('id') + "']").attr(
         'checked',
         'checked'
@@ -261,109 +160,97 @@ $(function () {
     })
   }
 
-  // invoke method
-  function invokeMethod(methodName, newWindow) {
-    var method = cachedMethods[methodName]
+  function callMethod(methodName) {
+    const method = cachedMethods[methodName]
+    let fetch_url = `${ws_url}?method=${method.name}`
+    const http_method =
+      $('#requestFormat').val() !== undefined
+        ? $('#requestFormat').val()
+        : 'GET'
 
-    var reqUrl = ws_url + '?'
+    let fetch_params = {}
+    if (http_method === 'post') {
+      fetch_params.headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      } // @TODO: send application/json but need to retrieve stream in WS
 
-    // GET
-    if ($('#requestFormat').val() == 'get') {
-      reqUrl += '&method=' + methodName
+      fetch_params.body = method.params
+        .filter((param) => {
+          return $(
+            "input.methodParameterSend[data-id='" + param.name + "']"
+          ).is(':checked')
+        })
+        .map((param) => {
+          const value = $(
+            "input.methodParameterValue[data-id='" + param.name + "']"
+          ).val()
 
-      for (var i = 0; i < method.params.length; i++) {
-        if (
-          !$("input.methodParameterSend[data-id='" + i + "']").is(':checked')
-        ) {
-          continue
-        }
+          const splittedValue = value.split('|')
+          if (param.acceptArray && splittedValue.length > 1) {
+            return splittedValue
+              .map(
+                (value) => param.name + '[]' + '=' + encodeURIComponent(value)
+              )
+              .join('&')
+          } else {
+            return param.name + '=' + encodeURIComponent(value)
+          }
+        })
+        .join('&')
 
-        var paramValue = $(
-          "input.methodParameterValue[data-id='" + i + "']"
-        ).val()
+      $('#requestDisplay')
+        .show()
+        .find('.url')
+        .html(fetch_url)
+        .end()
+        .find('.params')
+        .show()
+        .html(JSON.stringify(fetch_params, null, 4))
+    } else {
+      const searchParams = new URLSearchParams()
 
-        var paramSplitted = paramValue.split('|')
-        if (method.params[i].acceptArray && paramSplitted.length > 1) {
-          $.each(paramSplitted, function (v) {
-            reqUrl += '&' + method.params[i].name + '[]=' + paramSplitted[v]
-          })
-        } else {
-          reqUrl += '&' + method.params[i].name + '=' + paramValue
-        }
-      }
+      method.params
+        .filter((param) => {
+          return $(
+            "input.methodParameterSend[data-id='" + param.name + "']"
+          ).is(':checked')
+        })
+        .forEach((param) => {
+          const value = $(
+            "input.methodParameterValue[data-id='" + param.name + "']"
+          ).val()
 
-      if (newWindow) {
-        window.open(reqUrl)
-      } else {
-        $('#invokeFrame').attr('src', reqUrl)
+          const splittedValue = value.split('|')
+          if (param.acceptArray && splittedValue.length > 1) {
+            splittedValue.forEach((value) =>
+              searchParams.append(param.name + '[]', value)
+            )
+          } else {
+            searchParams.append(param.name, value)
+          }
+        })
+
+      if (searchParams.size > 0) {
+        fetch_url += '&' + searchParams
       }
 
       $('#requestDisplay')
         .show()
         .find('.url')
-        .html(reqUrl)
+        .html(fetch_url)
         .end()
         .find('.params')
         .hide()
-    } else {
-      // POST
-      var params = {}
-
-      var form = $('#invokeForm')
-      form.attr('action', reqUrl)
-
-      var t = '<input type="hidden" name="method" value="' + methodName + '">'
-
-      for (var i = 0; i < method.params.length; i++) {
-        if (
-          !$("input.methodParameterSend[data-id='" + i + "']").is(':checked')
-        ) {
-          continue
-        }
-
-        var paramValue = $(
-            "input.methodParameterValue[data-id='" + i + "']"
-          ).val(),
-          paramName = method.params[i].name,
-          paramSplitted = paramValue.split('|')
-
-        if (method.params[i].acceptArray && paramSplitted.length > 1) {
-          params[paramName] = []
-
-          $.each(paramSplitted, function (i, value) {
-            params[paramName].push(value)
-            t +=
-              '<input type="hidden" name="' +
-              paramName +
-              '[]" value="' +
-              value +
-              '">'
-          })
-        } else {
-          params[paramName] = paramValue
-          t +=
-            '<input type="hidden" name="' +
-            paramName +
-            '" value="' +
-            paramValue +
-            '">'
-        }
-      }
-
-      form.html(t)
-      form.attr('target', newWindow ? '_blank' : 'invokeFrame')
-      form.submit()
-
-      $('#requestDisplay')
-        .show()
-        .find('.url')
-        .html(reqUrl)
-        .end()
-        .find('.params')
-        .show()
-        .html(JSON.stringify(params, null, 4))
     }
 
-    return false
+    fetch_params.method = http_method
+    fetch_params.credentials = 'same-origin'
+
+    fetch(fetch_url, fetch_params)
+      .then((response) => response.json())
+      .then((response) => {
+        $('#results').show().find('pre').html(JSON.stringify(response, null, 2))
+      })
+      .catch((err) => displayError)
   }
 })
