@@ -555,6 +555,6 @@ class FeatureContext extends BaseContext
 
     private function getCookieName(): string
     {
-        return $this->getContainer()->getParameter('remember_cookie');
+        return $this->getContainer()->getParameter('remember_cookie'); // @TODO : retrieve from config
     }
 }

@@ -38,14 +38,6 @@ class UserProvider implements UserProviderInterface
         return User::class === $class;
     }
 
-    /**
-     * @deprecated since Symfony 5.3, use loadUserByIdentifier() instead
-     */
-    public function loadUserByUsername(string $username): User
-    {
-        return $this->loadUserByIdentifier($username);
-    }
-
     // @throws UsernameNotFoundException if the user is not found
     public function loadUserByIdentifier(string $identifier): User
     {

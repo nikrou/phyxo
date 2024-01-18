@@ -249,7 +249,10 @@ $(function () {
     fetch(fetch_url, fetch_params)
       .then((response) => response.json())
       .then((response) => {
-        $('#results').show().find('pre').html(JSON.stringify(response, null, 2))
+        $('#results')
+          .show()
+          .find('pre')
+          .html(JSON.stringify(response, null, 2))
       })
       .catch((err) => displayError)
   }
