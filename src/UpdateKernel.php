@@ -13,6 +13,8 @@ namespace App;
 
 class UpdateKernel extends Kernel
 {
+    use IdentityGeneratorTrait;
+
     public function getCacheDir(): string
     {
         return $this->getProjectDir() . '/var/cache/' . $this->environment . '/update/';

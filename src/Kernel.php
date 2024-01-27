@@ -18,6 +18,8 @@ class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
 
+    use IdentityGeneratorTrait;
+
     public function getProjectDir(): string
     {
         return realpath(__DIR__ . '/../');
