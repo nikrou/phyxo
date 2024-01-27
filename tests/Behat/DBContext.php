@@ -33,17 +33,28 @@ use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\Conf;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 class DBContext implements Context
 {
-    public function __construct(private readonly string $sqlInitFile, private readonly string $sqlCleanupFile, private readonly Storage $storage, private readonly KernelInterface $kernel, private readonly UserManager $userManager, private readonly ManagerRegistry $managerRegistry, private readonly AlbumMapper $albumMapper, private Conf $conf, private readonly CommentRepository $commentRepository, private readonly ImageMapper $imageMapper, private readonly TagMapper $tagMapper, private readonly UserMapper $userMapper)
-    {
+    public function __construct(
+        private readonly string $sqlInitFile,
+        private readonly string $sqlCleanupFile,
+        private readonly Storage $storage,
+        private readonly ContainerInterface $driverContainer,
+        private readonly UserManager $userManager,
+        private readonly ManagerRegistry $managerRegistry,
+        private readonly AlbumMapper $albumMapper,
+        private Conf $conf,
+        private readonly CommentRepository $commentRepository,
+        private readonly ImageMapper $imageMapper,
+        private readonly TagMapper $tagMapper,
+        private readonly UserMapper $userMapper
+    ) {
     }
 
     protected function getContainer():  ContainerInterface
     {
-        return $this->kernel->getContainer()->get('test.service_container');
+        return $this->driverContainer;
     }
 
     /**

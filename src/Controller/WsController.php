@@ -25,11 +25,13 @@ use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
 use App\ImageLibraryGuesser;
 use App\Security\AppUserService;
+use App\Security\UserProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Utils\UserManager;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -57,7 +59,8 @@ class WsController extends AbstractController
         Request $request,
         ManagerRegistry $managerRegistry,
         AlbumMapper $albumMapper,
-        ImageLibraryGuesser $imageLibraryGuesser
+        ImageLibraryGuesser $imageLibraryGuesser,
+        UserProvider $userProvider
     ): Response {
         $this->service = new Server($params->get('upload_dir'));
         $this->service->setRequest($request);
@@ -80,10 +83,11 @@ class WsController extends AbstractController
         $this->service->setManagerRegistry($managerRegistry);
         $this->service->setImageLibrary($imageLibraryGuesser->getLibrary());
         $this->service->setParams($params);
+        $this->service->setUserProvider($userProvider);
 
         $this->addDefaultMethods();
 
-        return new Response(json_encode($this->service->run($request), JSON_THROW_ON_ERROR));
+        return new JsonResponse($this->service->run($request));
     }
 
     protected function addDefaultMethods(): void

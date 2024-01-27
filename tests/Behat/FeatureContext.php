@@ -15,17 +15,16 @@ use Exception;
 use DateTime;
 use Behat\Gherkin\Node\PyStringNode;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 class FeatureContext extends BaseContext
 {
-    public function __construct(private readonly KernelInterface $kernel, private readonly Storage $storage)
+    public function __construct(private ContainerInterface $driverContainer, private readonly Storage $storage)
     {
     }
 
     protected function getContainer():  ContainerInterface
     {
-        return $this->kernel->getContainer()->get('test.service_container');
+        return $this->driverContainer;
     }
 
     /**
@@ -555,6 +554,6 @@ class FeatureContext extends BaseContext
 
     private function getCookieName(): string
     {
-        return $this->getContainer()->getParameter('remember_cookie'); // @TODO : retrieve from config
+        return $this->getContainer()->getParameter('remember_cookie');
     }
 }

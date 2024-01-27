@@ -10,6 +10,8 @@ services:
     bind:
       $sqlInitFile: '%kernel.project_dir%/features/sql/db_init.sql'
       $sqlCleanupFile: '%kernel.project_dir%/features/sql/db_cleanup.sql'
+      $phyxoVersion: '%core_version%'
+      $apiBaseUrl: '%api_base_url%'
 
   App\Tests\Behat\:
     resource: '../tests/Behat/*'

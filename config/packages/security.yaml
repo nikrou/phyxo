@@ -22,6 +22,14 @@ security:
       pattern: ^/(_(profiler|wdt)|css|images|js)/
       security: false
 
+    api:
+      lazy: true
+      pattern: ws
+      provider: app_user_provider
+      custom_authenticator:
+        - App\Security\LoginApiAuthenticator
+
+
     install:
       pattern: ^/admin/install
       security: false

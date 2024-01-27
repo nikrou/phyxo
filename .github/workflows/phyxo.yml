@@ -38,13 +38,13 @@ jobs:
       - name: Setup PHP, extensions and composer with shivammathur/setup-php
         uses: shivammathur/setup-php@v2
         with:
-          tools: composer
+          tools: composer, symfony-cli
           php-version: ${{ matrix.php-versions }}
           coverage: xdebug
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo, mysql, pdo_mysql
         env:
-          update: true
-
+          APP_ENV: test
+          DATABASE_URL: "mysql://root:root@localhost/phyxo"
       - name: Install dependencies
         run: composer install
 
@@ -66,8 +66,11 @@ jobs:
       - name: Unit tests
         run: composer phpunit
 
+      - name: symfony local server
+        run: symfony server:start --port 1080 --no-tls --daemon
+
       - name: Run Behat tests
-        run: ./bin/behat --colors --no-interaction -vvv -c behat.yml.dist --suite=web
+        run: ./bin/behat --colors --no-interaction -vvv -c behat.yml.dist
   #
   # release:
   #   name: Phyxo release

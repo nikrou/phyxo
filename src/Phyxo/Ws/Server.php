@@ -23,6 +23,7 @@ use App\DataMapper\RateMapper;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
 use App\Security\AppUserService;
+use App\Security\UserProvider;
 use App\Utils\UserManager;
 use Doctrine\Persistence\ManagerRegistry;
 use Imagine\Image\ImagineInterface;
@@ -75,6 +76,8 @@ class Server
     $managerRegistry,
 
     $imageLibrary;
+
+    private UserProvider $userProvider;
 
     private array $_methods = [];
 
@@ -302,6 +305,16 @@ class Server
         return $this->imageLibrary;
     }
 
+    public function setUserProvider(UserProvider $userProvider): void
+    {
+        $this->userProvider = $userProvider;
+    }
+
+    public function getUserProvider(): UserProvider
+    {
+        return $this->userProvider;
+    }
+
     /**
      * Runs the web service call (handler and response encoder should have been created)
      */
@@ -356,9 +369,7 @@ class Server
         }
 
         try {
-            $response = $this->invoke($method, $params);
-
-            return ['stat' => 'ok', 'result' => $response];
+            return ['stat' => 'ok', 'result' => $this->invoke($method, $params)];
         } catch (Exception $e) {
             return ['stat' => 'fail', 'err' => 9999, 'message' => $e->getMessage()];
         }
@@ -592,28 +603,7 @@ class Server
             return new Error(self::WS_ERR_MISSING_PARAM, 'Missing parameters: ' . implode(',', $missing_params));
         }
 
-        if ($result = $this->isInvokeAllowed($methodName, $params)) {
-            $result = call_user_func_array($method['callback'], [$params, &$this]);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Event handler for method invocation security check. Should return a Phyxo\Ws\Error
-     * if the preconditions are not satifsied for method invocation.
-     */
-    public function isInvokeAllowed(string $methodName, array $params = []): bool
-    {
-        if (str_starts_with($methodName, 'reflection.')) { // OK for reflection
-            return true;
-        }
-
-        if (!$this->userMapper->isClassicUser()) {
-            return false;
-        }
-
-        return true;
+        return call_user_func_array($method['callback'], [$params, &$this]);
     }
 
     /**

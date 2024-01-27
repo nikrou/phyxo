@@ -11,6 +11,7 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Entity\User;
 use DateTime;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\Server;
@@ -26,11 +27,11 @@ class Session
      */
     public static function login($params, Server $service)
     {
-        if ($service->getUserMapper()->tryLogUser($params['username'], $params['password'], false)) {
+        if ($service->getAppUserService()->getUser() !== null) {
             return true;
+        } else {
+            return new Error(999, 'Invalid username/password');
         }
-
-        return new Error(999, 'Invalid username/password');
     }
 
     /**

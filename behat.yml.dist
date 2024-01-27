@@ -3,7 +3,10 @@ default:
     locale: en
 
   extensions:
-    FriendsOfBehat\SymfonyExtension: ~
+    FriendsOfBehat\SymfonyExtension:
+      bootstrap: tests/bootstrap.php
+      kernel:
+        environment: test
 
     Behat\MinkExtension:
       base_url: 'http://localhost:1080/'
@@ -26,3 +29,13 @@ default:
         - App\Tests\Behat\DBContext: ~
 
         - Behat\MinkExtension\Context\MinkContext: ~
+
+    api:
+      paths:
+        - '%paths.base%/features/api'
+
+      contexts:
+        - App\Tests\Behat\DBContext: ~
+
+        - App\Tests\Behat\ApiContext: ~
+

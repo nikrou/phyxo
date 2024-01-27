@@ -2,3 +2,4 @@ parameters:
     upload_dir: '%kernel.project_dir%/tests/upload'
     media_cache_dir: '%kernel.project_dir%/tests/media'
     default_date_type: 'created'
+    api_base_url: '%env(string:API_BASE_URL)%'
