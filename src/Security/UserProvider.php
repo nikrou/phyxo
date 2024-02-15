@@ -29,8 +29,14 @@ use Symfony\Component\Security\Csrf\Exception\TokenNotFoundException;
 
 class UserProvider implements UserProviderInterface
 {
-    public function __construct(private readonly UserRepository $userRepository, private readonly ImageAlbumRepository $imageAlbumRepository, private readonly ImageRepository $imageRepository, private readonly AlbumMapper $albumMapper, private readonly UserCacheRepository $userCacheRepository, private readonly UserCacheAlbumRepository $userCacheAlbumRepository)
-    {
+    public function __construct(
+        private readonly UserRepository $userRepository,
+        private readonly ImageAlbumRepository $imageAlbumRepository,
+        private readonly ImageRepository $imageRepository,
+        private readonly AlbumMapper $albumMapper,
+        private readonly UserCacheRepository $userCacheRepository,
+        private readonly UserCacheAlbumRepository $userCacheAlbumRepository
+    ) {
     }
 
     public function supportsClass(string $class): bool
@@ -143,8 +149,12 @@ class UserProvider implements UserProviderInterface
                 $userCacheAlbum = new UserCacheAlbum();
                 $userCacheAlbum->setUser($user);
                 $userCacheAlbum->setAlbum($album);
-                $userCacheAlbum->setDateLast(new DateTime($user_cache_albums[$album->getId()]['date_last']));
-                $userCacheAlbum->setMaxDateLast(new DateTime($user_cache_albums[$album->getId()]['max_date_last']));
+                if ($user_cache_albums[$album->getId()]['date_last']) {
+                    $userCacheAlbum->setDateLast(new DateTime($user_cache_albums[$album->getId()]['date_last']));
+                }
+                if ($user_cache_albums[$album->getId()]['max_date_last']) {
+                    $userCacheAlbum->setMaxDateLast(new DateTime($user_cache_albums[$album->getId()]['max_date_last']));
+                }
                 $userCacheAlbum->setNbImages($user_cache_albums[$album->getId()]['nb_images']);
                 $userCacheAlbum->setCountImages($user_cache_albums[$album->getId()]['count_images']);
                 $userCacheAlbum->setNbAlbums($user_cache_albums[$album->getId()]['nb_categories']);

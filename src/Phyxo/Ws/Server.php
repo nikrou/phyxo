@@ -323,12 +323,12 @@ class Server
         // add reflection methods
         $this->addMethod(
             'reflection.getMethodList',
-            \Phyxo\Ws\Server::getMethodList(...)
+            self::getMethodList(...)
         );
 
         $this->addMethod(
             'reflection.getMethodDetails',
-            \Phyxo\Ws\Server::getMethodDetails(...),
+            self::getMethodDetails(...),
             ['methodName']
         );
 
