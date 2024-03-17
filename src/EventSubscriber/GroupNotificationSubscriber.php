@@ -24,20 +24,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class GroupNotificationSubscriber implements EventSubscriberInterface
 {
-    private $mailer, $conf, $router, $userMapper, $translator;
-
     public function __construct(
-        MailerInterface $mailer,
-        Conf $conf,
-        RouterInterface $router,
-        UserMapper $userMapper,
-        TranslatorInterface $translator
+        private MailerInterface $mailer,
+        private Conf $conf,
+        private RouterInterface $router,
+        private UserMapper $userMapper,
+        private TranslatorInterface $translator
     ) {
-        $this->mailer = $mailer;
-        $this->conf = $conf;
-        $this->router = $router;
-        $this->userMapper = $userMapper;
-        $this->translator = $translator;
     }
 
     public static function getSubscribedEvents():array
@@ -47,7 +40,7 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onGroupNotify(GroupEvent $event)
+    public function onGroupNotify(GroupEvent $event): void
     {
         $webmaster = $this->userMapper->getWebmaster();
         $subject = $this->translator->trans('[{title}] Visit album {album}', ['title' => $this->conf['gallery_title'], 'album' => $event->getCategory()['name']], 'admin');

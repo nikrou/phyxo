@@ -32,7 +32,7 @@ class CoreInstalledSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onKernelTerminate(TerminateEvent $event)
+    public function onKernelTerminate(TerminateEvent $event): bool
     {
         if (!$event->isMainRequest()) {
             return false;
@@ -49,5 +49,7 @@ class CoreInstalledSubscriber implements EventSubscriberInterface
         $output = new NullOutput();
 
         $application->run($input, $output);
+
+        return true;
     }
 }

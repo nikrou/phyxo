@@ -25,8 +25,13 @@ class ThemeConfigSubscriber implements EventSubscriberInterface
 {
     private readonly Themes $themes;
 
-    public function __construct(ThemeRepository $themeRepository, UserMapper $userMapper, private readonly Conf $conf, private readonly Environment $twig)
-    {
+    public function __construct(
+        ThemeRepository $themeRepository,
+        UserMapper $userMapper,
+        private readonly Conf $conf,
+        private readonly Environment $twig,
+        private readonly string $default_theme
+    ) {
         $this->themes = new Themes($themeRepository, $userMapper);
     }
 
@@ -36,13 +41,21 @@ class ThemeConfigSubscriber implements EventSubscriberInterface
             return;
         }
 
-        foreach ($this->themes->getDbThemes() as $theme) {
-            $className = AbstractTheme::getClassName($theme->getId());
+        if (count($this->themes->getDbThemes()) === 0) {
+            $className = AbstractTheme::getClassName($this->default_theme);
 
             if (class_exists($className)) {
                 $theme_instance = new $className($this->conf);
-
                 $this->twig->addGlobal('theme_config', $theme_instance->getConfig());
+            }
+        } else {
+            foreach ($this->themes->getDbThemes() as $theme) {
+                $className = AbstractTheme::getClassName($theme->getId());
+
+                if (class_exists($className)) {
+                    $theme_instance = new $className($this->conf);
+                    $this->twig->addGlobal('theme_config', $theme_instance->getConfig());
+                }
             }
         }
     }

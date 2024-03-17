@@ -23,7 +23,7 @@ class SameAuthorValidator extends ConstraintValidator
     {
     }
 
-    public function validate($value, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof SameAuthor) {
             throw new UnexpectedTypeException($constraint, SameAuthor::class);

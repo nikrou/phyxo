@@ -32,7 +32,7 @@ class TagVoter extends Voter
     {
     }
 
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, mixed $subject): bool
     {
         if (!in_array($attribute, [self::ADD, self::DELETE])) {
             return false;
@@ -45,7 +45,7 @@ class TagVoter extends Voter
         return true;
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 
@@ -65,7 +65,7 @@ class TagVoter extends Voter
         };
     }
 
-    private function canAddTag(Image $image, UserInterface $user)
+    private function canAddTag(Image $image, UserInterface $user): bool
     {
         if (empty($this->conf['tags_permission_add'])) {
             return false;
@@ -74,7 +74,7 @@ class TagVoter extends Voter
         return $this->security->isGranted(User::getRoleFromStatus($this->conf['tags_permission_add']));
     }
 
-    private function canDeleteTag(Image $image, UserInterface $user)
+    private function canDeleteTag(Image $image, UserInterface $user): bool
     {
         if (empty($this->conf['tags_permission_delete'])) {
             return false;

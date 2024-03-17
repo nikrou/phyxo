@@ -49,9 +49,13 @@ return $config
         'single_line_comment_style' => true,
 
         // spaces
-        'binary_operator_spaces' => ['operators' => ['=>' => 'single_space', '=' => 'single_space']],
+        'binary_operator_spaces' => [
+            'operators' => ['=>' => 'single_space', '=' => 'single_space'],
+        ],
         'concat_space' => ['spacing' => 'one'],
         'no_spaces_inside_parenthesis' => true,
+        'single_space_around_construct' => true,
+        'object_operator_without_whitespace' => true,
 
         // global
         'blank_line_after_opening_tag' => true,

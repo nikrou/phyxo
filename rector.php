@@ -22,7 +22,7 @@ use Rector\Symfony\Set\SymfonySetList;
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->paths([
         __DIR__ . '/src',
-        __DIR__ . '/tests/Behat'
+        __DIR__ . '/tests'
     ]);
 
     $rectorConfig->importNames();
@@ -32,7 +32,7 @@ return static function (RectorConfig $rectorConfig): void {
         SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
         SymfonySetList::SYMFONY_CODE_QUALITY,
         SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
-        SymfonyLevelSetList::UP_TO_SYMFONY_63,
+        SymfonyLevelSetList::UP_TO_SYMFONY_62,
         LevelSetList::UP_TO_PHP_80,
         LevelSetList::UP_TO_PHP_81,
         LevelSetList::UP_TO_PHP_82,

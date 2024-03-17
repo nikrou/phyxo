@@ -18,7 +18,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ExtensionTranslationSubscriber implements EventSubscriberInterface
 {
-    private $runtimeTranslator, $themesDir;
+    private $runtimeTranslator,
+
+    $themesDir;
 
     public function __construct(RuntimeTranslator $runtimeTranslator, string $themesDir)
     {
@@ -33,7 +35,7 @@ class ExtensionTranslationSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function loadExtensionTranslation(RequestEvent $event)
+    public function loadExtensionTranslation(RequestEvent $event): void
     {
         if ($event->isMainRequest() === false) {
             return;

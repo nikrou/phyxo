@@ -57,7 +57,7 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function registerPlugins(RequestEvent $event)
+    public function registerPlugins(RequestEvent $event): void
     {
         if ($event->isMainRequest() === false) {
             return;
@@ -77,7 +77,7 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function checkAvailability(ConsoleCommandEvent $event)
+    public function checkAvailability(ConsoleCommandEvent $event): void
     {
         $command = $event->getCommand();
         $application = $command->getApplication();

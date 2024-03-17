@@ -24,7 +24,9 @@ use App\Repository\ConfigRepository;
  */
 class Conf implements ArrayAccess
 {
-    private $configRepository, $keys = [];
+    private $configRepository,
+
+    $keys = [];
     final public const FILE_PREFIX = 'file_';
     final public const DB_PREFIX = 'db_';
 
