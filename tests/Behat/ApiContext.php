@@ -24,9 +24,9 @@ use Psr\Http\Message\ResponseInterface;
 
 class ApiContext implements Context
 {
-    private Client $client;
+    private readonly Client $client;
 
-    private Request $request;
+    private readonly Request $request;
 
     private ResponseInterface $response;
 
@@ -34,7 +34,7 @@ class ApiContext implements Context
 
     private $json_decoded = false;
 
-    public function __construct(private string $phyxoVersion, string $apiBaseUrl, private ContainerInterface $driverContainer)
+    public function __construct(private string $phyxoVersion, string $apiBaseUrl, private readonly ContainerInterface $driverContainer)
     {
         $this->client = new Client(['base_uri' => $apiBaseUrl, 'cookies' => new CookieJar(), 'exceptions' => true]);
         $this->request = new Request('GET', $apiBaseUrl);
@@ -152,8 +152,8 @@ class ApiContext implements Context
 
     private function getProperty($data, $property)
     {
-        if (strrpos($property, '/') !== false) {
-            $parts = explode('/', $property);
+        if (strrpos((string) $property, '/') !== false) {
+            $parts = explode('/', (string) $property);
             $n = 0;
             while ($n < count($parts)) {
                 if (is_null($data[$parts[$n]]) && ($n + 1) == count($parts)) {

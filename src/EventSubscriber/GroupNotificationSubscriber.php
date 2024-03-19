@@ -25,11 +25,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class GroupNotificationSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private MailerInterface $mailer,
+        private readonly MailerInterface $mailer,
         private Conf $conf,
-        private RouterInterface $router,
-        private UserMapper $userMapper,
-        private TranslatorInterface $translator
+        private readonly RouterInterface $router,
+        private readonly UserMapper $userMapper,
+        private readonly TranslatorInterface $translator
     ) {
     }
 

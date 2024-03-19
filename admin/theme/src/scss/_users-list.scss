@@ -3,22 +3,33 @@
 @import 'bootstrap-slider/src/sass/bootstrap-slider.scss';
 
 .table tbody tr.selected {
-    background-color: $pink;
-    color: $white;
+  background-color: $pink;
+  color: $white;
 }
 
 .table tbody .details-control {
-    color: $blue;
-    cursor: pointer;
+  color: $blue;
+  cursor: pointer;
 }
 
 .slider label {
-    margin-right: 1em;
+  margin-right: 1em;
+}
+
+.dt-search {
+  text-align: right;
+  margin-bottom: 1em;
+}
+
+.dt-container .dt-paging {
+  padding: 1em 0;
+  .pagination {
+    float: right;
+  }
 }
 
 #users-list_wrapper {
-    .select-info {
-	display: block;
-    }
-
+  .select-info {
+    display: block;
+  }
 }

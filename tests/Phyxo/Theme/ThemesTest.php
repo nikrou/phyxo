@@ -23,8 +23,8 @@ class ThemesTest extends TestCase
 {
     use ProphecyTrait;
 
-    const THEMES_PATH = __DIR__ . '/../../fixtures/themes';
-    const THEMES_DIR = __DIR__ . '/../../tmp/themes';
+    final public const THEMES_PATH = __DIR__ . '/../../fixtures/themes';
+    final public const THEMES_DIR = __DIR__ . '/../../tmp/themes';
 
     public function setUp(): void
     {

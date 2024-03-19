@@ -32,6 +32,10 @@ class UserInfosModel
 
     private ?Theme $theme = null;
 
+    private string $status;
+
+    private int $level = 0;
+
     private ?bool $show_nb_comments = null;
 
     private ?bool $show_nb_hits = null;
@@ -96,6 +100,30 @@ class UserInfosModel
         $this->language = $language;
 
         return $this;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function setLevel(int $Level): self
+    {
+        $this->level = $Level;
+
+        return $this;
+    }
+
+    public function getLevel(): int
+    {
+        return $this->level;
     }
 
     public function getExpand(): bool

@@ -32,9 +32,7 @@ return static function (RectorConfig $rectorConfig): void {
         SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
         SymfonySetList::SYMFONY_CODE_QUALITY,
         SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
-        SymfonyLevelSetList::UP_TO_SYMFONY_62,
-        LevelSetList::UP_TO_PHP_80,
-        LevelSetList::UP_TO_PHP_81,
+        SymfonyLevelSetList::UP_TO_SYMFONY_64,
         LevelSetList::UP_TO_PHP_82,
     ]);
 

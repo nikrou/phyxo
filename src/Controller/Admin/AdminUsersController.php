@@ -14,17 +14,24 @@ namespace App\Controller\Admin;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\User;
+use App\Form\Model\UserProfileModel;
+use App\Form\UserCreationType;
+use App\Form\UserProfileType;
 use App\Repository\GroupRepository;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\UserRepository;
 use App\Security\AppUserService;
+use App\Utils\UserManager;
+use Exception;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -100,7 +107,8 @@ class AdminUsersController extends AbstractController
         $tpl_params = array_merge($tpl_params, [
             'F_ADD_ACTION' => $this->generateUrl('admin_users'),
             'F_USER_PERM' => $this->generateUrl('admin_user_perm', ['user_id' => $dummy_user]),
-            'F_USER_PERM_DUMMY_USER' => $dummy_user,
+            'F_DUMMY_USER' => $dummy_user,
+            'F_EDIT_USER' => $this->generateUrl('admin_user_edit', ['user_id' => $dummy_user]),
             'NB_IMAGE_PAGE' => $guestUserInfos->getNbImagePage(),
             'RECENT_PERIOD' => $guestUserInfos->getRecentPeriod(),
             'theme_options' => $themes,
@@ -192,7 +200,6 @@ class AdminUsersController extends AbstractController
 
         $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_option_true'));
 
-
         $albums = [];
         foreach ($albumMapper->getRepository()->findUnauthorized([...$authorized_ids, ...$group_authorized]) as $album) {
             $albums[] = $album;
@@ -205,5 +212,89 @@ class AdminUsersController extends AbstractController
         $tpl_params['tabsheet'] = $this->setTabsheet('perm', $user_id);
 
         return $this->render('user_perm.html.twig', $tpl_params);
+    }
+
+    public function add(Request $request, UserPasswordHasherInterface $passwordHasher, UserManager $userManager, TranslatorInterface $translator): Response
+    {
+        $tpl_params = [];
+        $this->translator = $translator;
+
+        $form = $this->createForm(UserCreationType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UserProfileModel $userProfileModel */
+            $userProfileModel = $form->getData();
+
+            $user = new User();
+            $user->setUsername($userProfileModel->getUsername());
+            if ($userProfileModel->getCurrentPassword()) {
+                $user->setPassword($passwordHasher->hashPassword($user, $userProfileModel->getCurrentPassword()));
+            }
+            $user->setMailAddress($userProfileModel->getMailAddress());
+            $user->addRole('ROLE_NORMAL');
+
+            try {
+                $userManager->register($user);
+
+                $this->addFlash('info', $translator->trans('User has been added'));
+                return $this->redirectToRoute('admin_users');
+            } catch (Exception $e) {
+                $tpl_params['errors'] = $e->getMessage();
+            }
+        }
+
+        $tpl_params['form'] = $form->createView();
+        $tpl_params['tabsheet'] = $this->setTabsheet('edit');
+        $tpl_params['add_user'] = true;
+
+        return $this->render('user_form.html.twig', $tpl_params);
+    }
+
+    public function edit(
+        int $user_id,
+        Request $request,
+        UserRepository $userRepository,
+        TranslatorInterface $translator,
+        UserPasswordHasherInterface $passwordHasher,
+        AppUserService $appUserService,
+    ): Response {
+        $tpl_params = [];
+        $this->translator = $translator;
+
+        $user = $userRepository->find($user_id);
+        if (is_null($user)) {
+            return new Response('User not found ', Response::HTTP_NOT_FOUND);
+        }
+
+        /** @var Form $form */
+        $form = $this->createForm(UserProfileType::class, $user, [UserProfileType::IN_ADMIN_OPTION => true]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user = $form->getData();
+            if ($form->getClickedButton()->getName() === 'resetToDefault') {
+                $guestUser = $appUserService->getDefaultUser();
+                $user->getUserInfos()->fromArray($guestUser->getUserInfos()->toArray());
+                $userRepository->updateUser($user);
+                $request->getSession()->set('_theme', $guestUser->getTheme());
+
+                $this->addFlash('info', $translator->trans('User settings are now the default ones'));
+            } else {
+                if (!is_null($user->getPlainPassword())) {
+                    $user->setPassword($passwordHasher->hashPassword($user, $user->getPlainPassword()));
+                }
+                $userRepository->updateUser($user);
+
+                $this->addFlash('info', $translator->trans('User settings have been updated'));
+            }
+
+            return $this->redirectToRoute('admin_users');
+        }
+
+        $tpl_params['form'] = $form->createView();
+        $tpl_params['tabsheet'] = $this->setTabsheet('edit');
+
+        return $this->render('user_form.html.twig', $tpl_params);
     }
 }

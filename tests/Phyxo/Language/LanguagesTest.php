@@ -21,7 +21,7 @@ class LanguagesTest extends TestCase
 {
     use ProphecyTrait;
 
-    const LANGUAGES_PATH = __DIR__ . '/../../fixtures/translations/';
+    final public const LANGUAGES_PATH = __DIR__ . '/../../fixtures/translations/';
 
     public function testFsLanguages()
     {

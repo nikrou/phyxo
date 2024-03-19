@@ -11,62 +11,7 @@ import 'sprintf-js'
 
 $(function () {
   const users_list = $('#users-list')
-  const addUserForm = $('#addUserForm')
   let datatable
-
-  if ($('#addUserForm').length > 0) {
-    $('.alert').hide()
-    $('#addUserForm').on('submit', function () {
-      const url = `${ws_url}?method=pwg.users.add`
-
-      const username = addUserForm.find('[data-field="username"]').val()
-      const password = addUserForm.find('[data-field="password"]').val()
-      const email = addUserForm.find('[data-field="email"]').val()
-
-      const fetch_params = {
-        method: 'POST',
-        mode: 'same-origin',
-        credentials: 'same-origin',
-        headers: new Headers({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ username, password, email }),
-      }
-
-      fetch(url, fetch_params)
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.stat == 'ok') {
-            $(
-              '#addUserForm input[type="text"], #addUserForm input[name="password"]'
-            ).val('')
-            addUserForm.collapse()
-            const new_user = data.result.users[0]
-            $('.alert')
-              .addClass('alert-info')
-              .addClass('show')
-              .append(
-                '<p>&#x2714; ' +
-                  sprintf(phyxo_msg.new_user_pattern, new_user.username) +
-                  '</p>'
-              )
-              .show()
-          } else {
-            $('.alert')
-              .addClass('alert-danger')
-              .addClass('show')
-              .append('<p>&#x2718; ' + data.message + '</p>')
-              .show()
-          }
-        })
-        .catch((err) => {
-          $('.alert')
-            .addClass('alert-danger')
-            .addClass('show')
-            .append('<p>&#x2718; ' + err.message + '</p>')
-            .show()
-        })
-    })
-    $('#permitAction').hide()
-  }
 
   if (users_list.length > 0) {
     datatable = users_list.DataTable({
@@ -123,11 +68,7 @@ $(function () {
         {
           targets: 1,
           render: function (data, type, user, meta) {
-            return (
-              '<span class="details-control"><i class="fa fa-edit"></i> ' +
-              data +
-              '</span>'
-            )
+            return `<a href="${adminUserEdit.replace(dummyUser, user.id)}" class="details-control"><i class="fa fa-edit"></i>${data}</a>`
           },
         },
         {
@@ -143,13 +84,7 @@ $(function () {
         {
           targets: 5,
           render: function (data, type, user, meta) {
-            const level_keys = Object.keys(levels)
-
-            if (data && level_keys.includes(data)) {
-              return levels[data]
-            } else {
-              return ''
-            }
+            return levels[data] ?? ''
           },
         },
       ],
@@ -309,6 +244,8 @@ $(function () {
         }
 
         user.groupOptions.push(option)
+
+        console.log('user groups', user)
       })
 
       user.themeOptions = []
@@ -683,10 +620,14 @@ $(function () {
       let method = 'pwg.users.setInfo'
       const rowData = datatable.rows({ selected: true }).data()
 
+      console.log('rowData', rowData)
+      console.log('rowData selected', datatable.rows({ selected: true }))
+
       const data = {
         user_id: rowData.toArray().map((data) => data.id),
       }
 
+      console.log('action', action)
       switch (action) {
         case 'delete':
           if (!$('input[name="confirm_deletion"]').is(':checked')) {
@@ -698,6 +639,9 @@ $(function () {
         case 'group_associate':
           method = 'pwg.groups.addUser'
           data.group_id = $('select[name="associate"]').prop('value')
+
+          console.log('value', data)
+
           break
         case 'group_dissociate':
           method = 'pwg.groups.deleteUser'

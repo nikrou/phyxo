@@ -20,7 +20,7 @@ class ConfTest extends TestCase
 {
     use ProphecyTrait;
 
-    const TESTS_CONFIG_PATH = __DIR__ . '/../fixtures/config';
+    final public const TESTS_CONFIG_PATH = __DIR__ . '/../fixtures/config';
 
     public function testLoadFile(): void
     {

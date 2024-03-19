@@ -15,6 +15,8 @@ use App\Entity\UserInfos;
 
 class UserProfileModel
 {
+    private ?int $id = null;
+
     private ?string $username = null;
 
     private ?string $current_password = null;
@@ -24,6 +26,18 @@ class UserProfileModel
     private ?string $mail_address = null;
 
     private ?UserInfos $user_infos = null;
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
 
     public function getUsername(): ?string
     {

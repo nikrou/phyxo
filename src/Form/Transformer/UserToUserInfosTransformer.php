@@ -21,13 +21,8 @@ use Symfony\Component\Form\DataTransformerInterface;
 
 class UserToUserInfosTransformer implements DataTransformerInterface
 {
-    private $languageRepository, $themeRepository, $userRepository;
-
-    public function __construct(LanguageRepository $languageRepository, ThemeRepository $themeRepository, UserRepository $userRepository)
+    public function __construct(private readonly LanguageRepository $languageRepository, private readonly ThemeRepository $themeRepository, private readonly UserRepository $userRepository)
     {
-        $this->languageRepository = $languageRepository;
-        $this->themeRepository = $themeRepository;
-        $this->userRepository = $userRepository;
     }
 
     /**
@@ -43,6 +38,8 @@ class UserToUserInfosTransformer implements DataTransformerInterface
         $userInfosModel->setUsername($userInfos->getUser()->getUserIdentifier());
         $userInfosModel->setTheme($this->themeRepository->findOneBy(['id' => $userInfos->getTheme()]));
         $userInfosModel->setLanguage($this->languageRepository->findOneBy(['id' => $userInfos->getLanguage()]));
+        $userInfosModel->setStatus($userInfos->getStatus());
+        $userInfosModel->setLevel($userInfos->getLevel());
         $userInfosModel->setRecentPeriod($userInfos->getRecentPeriod());
         $userInfosModel->setNbImagePage($userInfos->getNbImagePage());
         $userInfosModel->setExpand($userInfos->wantExpand());
@@ -53,7 +50,7 @@ class UserToUserInfosTransformer implements DataTransformerInterface
     }
 
     /**
-     *  @param userInfosModel $userInfosModel
+     *  @param UserInfosModel $userInfosModel
      */
     public function reverseTransform($userInfosModel): UserInfos
     {
@@ -65,6 +62,14 @@ class UserToUserInfosTransformer implements DataTransformerInterface
 
         if ($userInfosModel->getLanguage()) {
             $userInfos->setLanguage($userInfosModel->getLanguage()->getId());
+        }
+
+        if ($userInfosModel->getStatus()) {
+            $userInfos->setStatus($userInfosModel->getStatus());
+        }
+
+        if ($userInfosModel->getLevel()) {
+            $userInfos->setLevel($userInfosModel->getLevel());
         }
 
         if ($userInfosModel->getRecentPeriod()) {

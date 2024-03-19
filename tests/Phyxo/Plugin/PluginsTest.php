@@ -23,9 +23,9 @@ class PluginsTest extends TestCase
 {
     use ProphecyTrait;
 
-    const PLUGINS_PATH = __DIR__ . '/../../fixtures/plugins';
-    const PLUGINS_DIR = __DIR__ . '/../../tmp/plugins';
-    const PLUGINS_ZIP_PATH = __DIR__ . '/../../fixtures/zip';
+    final public const PLUGINS_PATH = __DIR__ . '/../../fixtures/plugins';
+    final public const PLUGINS_DIR = __DIR__ . '/../../tmp/plugins';
+    final public const PLUGINS_ZIP_PATH = __DIR__ . '/../../fixtures/zip';
 
     public function setUp(): void
     {
@@ -179,7 +179,7 @@ class PluginsTest extends TestCase
         };
 
         $plugin_id = 'myPlugin1';
-        $plugins->extractPluginFiles('install', 10, 'myPlugin1', $plugin_id);
+        $plugins->extractPluginFiles('install', 10);
         $plugins->getFsPlugin($plugin_id); // refresh plugins list
 
         $new_plugin = [
@@ -205,7 +205,7 @@ class PluginsTest extends TestCase
         };
 
         $plugin_id = 'myPlugin1';
-        $plugins->extractPluginFiles('upgrade', 10, 'myPlugin1', $plugin_id);
+        $plugins->extractPluginFiles('upgrade', 10);
         $plugins->getFsPlugin($plugin_id); // refresh plugins list
 
         $plugins->sortFsPlugins('id');

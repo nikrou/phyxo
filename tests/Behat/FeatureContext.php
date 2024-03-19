@@ -18,7 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class FeatureContext extends BaseContext
 {
-    public function __construct(private ContainerInterface $driverContainer, private readonly Storage $storage)
+    public function __construct(private readonly ContainerInterface $driverContainer, private readonly Storage $storage)
     {
     }
 

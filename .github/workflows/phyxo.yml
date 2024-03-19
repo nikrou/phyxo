@@ -70,7 +70,7 @@ jobs:
         run: symfony server:start --port 1080 --no-tls --daemon
 
       - name: Run Behat tests
-        run: ./bin/behat --colors --no-interaction -vvv -c behat.yml.dist
+        run: ./bin/behat --colors --no-interaction -vvv -c behat.yml.dist  --suite=web
   #
   # release:
   #   name: Phyxo release

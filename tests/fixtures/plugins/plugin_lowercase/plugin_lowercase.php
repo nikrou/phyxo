@@ -15,7 +15,7 @@ use Phyxo\Extension\AbstractPlugin;
 
 class plugin_lowercase extends AbstractPlugin
 {
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [];
     }

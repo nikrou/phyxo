@@ -2,6 +2,16 @@ admin_users:
   path: /users
   controller: App\Controller\Admin\AdminUsersController::list
 
+admin_user_add:
+  path: /users/add
+  controller: App\Controller\Admin\AdminUsersController::add
+
+admin_user_edit:
+  path: /users/{user_id}/edit
+  controller: App\Controller\Admin\AdminUsersController::edit
+  requirements:
+    user_id: \d+
+
 admin_user_perm:
   path: /user/{user_id}/perm
   controller: App\Controller\Admin\AdminUsersController::perm
