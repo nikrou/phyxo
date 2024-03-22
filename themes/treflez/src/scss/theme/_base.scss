@@ -46,15 +46,63 @@ body {
 }
 
 //
-#theImage {
+#mainImage {
   padding-bottom: 1em;
+  display: flex;
+  align-items: center;
+
+  figure {
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+
+    $figure-control-color: #00bc8c;
+
+    .previous,
+    .next {
+      position: absolute;
+      top: 0;
+      z-index: 2;
+      display: block;
+      width: 50%;
+      height: 100%;
+      opacity: 0;
+      color: $figure-control-color;
+      font-size: 5em;
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+
+      i {
+        margin: auto 0;
+      }
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+
+    .previous {
+      left: 0;
+    }
+
+    .next {
+      right: 0;
+
+      i {
+        align-self: flex-end;
+      }
+    }
+  }
 }
+
 .placeholder > img,
-#theImage > img,
-#theImage #video-modal > .embed-responsive,
+#mainImage > img,
+#mainImage #video-modal > .embed-responsive,
 .col-thumbnail > div > img {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 }
+
 .thumbnail-active > a > img {
   border: 1px solid white;
 }

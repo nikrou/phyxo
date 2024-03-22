@@ -1,171 +1,163 @@
 {% extends "__layout.html.twig" %}
 
 {% block html_head %}
-    {{parent()}}
+	{{parent()}}
 
-    {% if TAGS_PERMISSION_DELETE or TAGS_PERMISSION_ADD %}
+	{% if TAGS_PERMISSION_DELETE or TAGS_PERMISSION_ADD %}
+		<script>
+			var user_tags = user_tags || {};
+user_tags.allow_delete = {{ TAGS_PERMISSION_DELETE }};
+user_tags.allow_creation = {{ TAGS_PERMISSION_ALLOW_CREATION }};
+user_tags.ws_getList = "{{ USER_TAGS_WS_GETLIST }}";
+user_tags.tags_updated = "{{ " Tags updated "|trans }}";
+		</script>
+	{% endif %}
+
 	<script>
-	 var user_tags = user_tags || {};
-	 user_tags.allow_delete = {{TAGS_PERMISSION_DELETE}};
-	 user_tags.allow_creation = {{TAGS_PERMISSION_ALLOW_CREATION}};
-	 user_tags.ws_getList = "{{USER_TAGS_WS_GETLIST}}";
-	 user_tags.tags_updated = "{{"Tags updated"|trans}}";
+		var phyxo_update_your_rating = "{{ 'Update your rating'|trans }}";
+var phyxo_rating_1 = "{{ '%d rate'|trans }}";
+var phyxo_ratings = "{{ '%d rates'|trans }}";
+var phyxo_image_id = {{ current.id }};
+var phyxo_hide_exif_data = "{{ 'Hide EXIF data'|trans }}";
+var phyxo_show_exif_data = "{{ 'Show EXIF data'|trans }}";
 	</script>
-    {% endif %}
 
-    <script>
-     var phyxo_update_your_rating = "{{'Update your rating'|trans}}";
-     var phyxo_rating_1 = "{{'%d rate'|trans}}";
-     var phyxo_ratings = "{{'%d rates'|trans}}";
-     var phyxo_image_id = {{current.id}};
-     var phyxo_hide_exif_data = "{{'Hide EXIF data'|trans}}";
-     var phyxo_show_exif_data = "{{'Show EXIF data'|trans}}";
-    </script>
+	{% if theme_config.slick_enabled and thumbnails is defined and thumbnails|length > 1 %}
+		{{ include('_slick_js.html.twig') }}
+	{% endif %}
 
-    {% if theme_config.slick_enabled and thumbnails is defined and thumbnails|length > 1 %}
-	{{ include('_slick_js.html.twig') }}
-    {% endif %}
-
-    {% if theme_config.photoswipe %}
-	<script>
-	 var phyxo_photoswipe_config = {
-	     gallery: '#carousel-container',
-	     loop: {{theme_config.loop ? 'true': 'false'}}
-	 }
-	</script>
-    {% endif %}
+	{% if theme_config.photoswipe %}
+		<script>
+			var phyxo_photoswipe_config = {
+gallery: '#carousel-container',
+loop: {{ theme_config.loop ? 'true': 'false' }}
+}
+		</script>
+	{% endif %}
 {% endblock %}
 
 {% block content %}
-    {{ include('_picture_nav.html.twig') }}
+	{{ include('_picture_nav.html.twig') }}
 
-    <div id="main-picture-container" class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
-	{{ include('_infos_errors.html.twig') }}
+	<div id="main-picture-container" class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
+		{{ include('_infos_errors.html.twig') }}
 
-	<div class="row justify-content-center">
-	    {{ include('_picture_nav_buttons.html.twig') }}
+		<div class="row justify-content-center">
+			{{ include('_picture_nav_buttons.html.twig') }}
+		</div>
+
+		<div id="mainImage" class="row justify-content-center mb-3">
+			{{ include('_picture_content.html.twig') }}
+		</div>
+
+		{% if theme_config.picture_info == 'sidebar' %}
+			{{ include('_picture_info_sidebar.html.twig') }}
+		{% endif %}
+
+		<div id="theImageComment" class="row justify-content-center mb-3">
+			{% if COMMENT_IMG is defined %}
+				<div class="text-center col-lg-10 -col-md-12 mx-auto">
+					<section id="important-info">
+						<h5 class="imageComment">{{COMMENT_IMG|raw('html')}}</h5>
+					</section>
+				</div>
+			{% endif %}
+		</div>
+
+		{% if theme_config.social_enabled %}
+			<div id="theImageShareButtons" class="row justify-content-center{% if not theme_config.slick_enabled %} pb-4{% endif %}">
+				<section id="share">
+					<h4 class="sr-only">{{'Social networks'|trans}}</h4>
+					{% if theme_config.social_twitter %}
+						<a href="http://twitter.com/share?text={{'current.TITLE'}}&amp;url=//{{app.request.uri}}" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;" title="Share on Twitter" {% if theme_config.social_buttons %} class="btn btn-sm btn-social btn-raised btn-twitter" {% endif %}>
+							<i class="fa fa-twitter"></i>
+							{% if theme_config.social_buttons %}
+								Twitter
+							{% endif %}
+						</a>
+					{% endif %}
+					{% if theme_config.social_facebook %}
+						<a href="https://www.facebook.com/sharer/sharer.php?u=//{{app.request.uri}}" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;" title="Share on Facebook" {% if theme_config.social_buttons %} class="btn btn-sm btn-social btn-raised btn-facebook" {% endif %}>
+							<i class="fa fa-facebook"></i>
+							{% if theme_config.social_buttons %}
+								Facebook
+							{% endif %}
+						</a>
+					{% endif %}
+					{% if theme_config.social_google_plus %}
+						<a href="https://plus.google.com/share?url=//{{app.request.Host}}{{app.request.uri}}" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;" title="Share on Google+" {% if theme_config.social_buttons %} class="btn btn-sm btn-social btn-raised btn-google" {% endif %}>
+							<i class="fa fa-google"></i>
+							{% if theme_config.social_buttons %}
+								Google+
+							{% endif %}
+						</a>
+					{% endif %}
+					{% if theme_config.social_pinterest %}
+						<a href="https://www.pinterest.com/pin/create/button/?url=//{{app.request.uri}}&media={{ media_path(current.selected_derivative) }}" onclick="window.open(this.href, 'pinterest-share', 'width=490,height=530');return false;" title="Pin on Pinterest" {% if theme_config.social_buttons %} class="btn btn-sm btn-social btn-raised btn-pinterest" {% endif %}>
+							<i class="fa fa-pinterest"></i>
+							{% if theme_config.social_buttons %}
+								Pinterest
+							{% endif %}
+						</a>
+					{% endif %}
+					{% if theme_config.social_vk %}
+						<a href="https://vkontakte.ru/share.php?url=//{{app.request.uri}}&image={{ media_path(current.selected_derivative) }}" onclick="window.open(this.href, 'vk-share', 'width=490,height=530');return false;" title="Share on VK" {% if theme_config.social_buttons %} class="btn btn-sm btn-social btn-raised btn-vk" {% endif %}>
+							<i class="fa fa-vk"></i>
+							{% if theme_config.social_buttons %}
+								VK
+							{% endif %}
+						</a>
+					{% endif %}
+				</section>
+			</div>
+		{% endif %}
 	</div>
 
-	<div id="theImage" class="row d-block justify-content-center mb-3">
-	    {{ include('_picture_content.html.twig') }}
+	<div id="carousel-container" class="container">
+		{% if thumbnails is defined and (theme_config.slick_enabled or theme_config.photoswipe) %}
+			<div id="theImageCarousel" class="row mx-0{% if not theme_config.slick_enabled %} d-none{% endif %}">
+				<div class="col-lg-10 col-md-12 mx-auto">
+					<div id="thumbnailCarousel" class="slick-carousel{% if theme_config.slick_centered %} center{% endif %}">
+						{% for thumbnail in thumbnails %}
+							{% set derivative = derivative_from_image({image: thumbnail.image, params: derivative_params_square}) %}
+							{% set derivative_xxlarge = derivative_from_image({image: thumbnail.image, params: derivative_params_xxlarge}) %}
+							<div class="text-center thumbnail{% if thumbnail.id == current.id and not theme_config.slick_infinite %} thumbnail-active{% endif %}">
+								<a href="{{thumbnail.URL}}" {% if theme_config.photoswipe %} data-pswp-src="{{ media_path(derivative_xxlarge) }}" data-pswp-width="{{thumbnail.width}}" data-pswp-height="{{thumbnail.height}}" {% endif %}>
+									<img src="{{ media_path(derivative) }}" alt="{{thumbnail.TN_ALT}}" title="{{thumbnail.TN_TITLE|raw('html')}}">
+									<div class="sr-only photoswipe-caption-content">
+										{{thumbnail.DESCRIPTION}}
+									</div>
+								</a>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+
+			{% if theme_config.photoswipe and theme_config.slick_infinite %}
+				<div id="photoSwipeData">
+					{% for thumbnail in thumbnails %}
+						{% set derivative_medium = derivative_from_image({image: thumbnail.image, params: derivative_params_medium}) %}
+						{% set derivative_large = derivative_from_image({image: thumbnail.image, params: derivative_params_large}) %}
+						{% set derivative_xxlarge = derivative_from_image({image: thumbnail.image, params: derivative_params_xxlarge}) %}
+						<a {% if thumbnail.id == current.id %} id="thumbnail-active" {% endif %} href="{{thumbnail.URL}}" data-index="{{loop.index}}" data-name="{{thumbnail.NAME}}" data-description="{{thumbnail.DESCRIPTION}}" data-src-xlarge="{{ media_path(derivative_xxlarge) }}" data-size-xlarge="{{derivative_xxlarge.getLiteralSize()}}" data-src-large="{{ media_path(derivative_large) }}" data-size-large="{{derivative_large.getLiteralSize()}}" data-src-medium="{{ media_path(derivative_medium) }}" data-size-medium="{{derivative_medium.getLiteralSize()}}" {% if thumbnail.EXIF is defined %} {% if theme_config.photoswipe_metadata %} data-exif-make="{{thumbnail.EXIF.make}}" data-exif-model="{{thumbnail.EXIF.model}}" data-exif-lens="{{thumbnail.EXIF.lens}}" data-exif-iso="{{thumbnail.EXIF.iso}}" data-exif-apperture="{{thumbnail.EXIF.apperture}}" data-exif-shutter-speed="{{thumbnail.EXIF.shutter_speed}}" data-exif-focal-length="{{thumbnail.EXIF.focal_length}}" data-date-created="{{thumbnail.DATE_CREATED}}" {% endif %} {% endif %}></a>
+					{% endfor %}
+				</div>
+			{% endif %}
+		{% endif %}
 	</div>
 
-	{% if theme_config.picture_info == 'sidebar' %}
- 	    {{ include('_picture_info_sidebar.html.twig') }}
-	{% endif %}
-
-	<div id="theImageComment" class="row justify-content-center mb-3">
-	    {% if COMMENT_IMG is defined %}
-		<div class="text-center col-lg-10 -col-md-12 mx-auto">
-		    <section id="important-info">
-			<h5 class="imageComment">{{COMMENT_IMG|raw('html')}}</h5>
-		    </section>
+	<div id="info-container" class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
+		<div id="theImageInfos" class="row justify-content-center">
+			{% if theme_config.picture_info == 'cards' %}
+				{{ include('_picture_info_cards.html.twig') }}
+			{% elseif theme_config.picture_info == 'tabs' %}
+				{{ include('_picture_info_tabs.html.twig') }}
+			{% elseif theme_config.picture_info == 'sidebar' or theme_config.picture_info == 'disabled' %}
+				<div class="col-lg-8 col-md-10 col-12 mx-auto">
+					{{ include('_picture_info_comments.html.twig') }}
+				</div>
+			{% endif %}
 		</div>
-	    {% endif %}
 	</div>
-
-	{% if theme_config.social_enabled %}
-	    <div id="theImageShareButtons" class="row justify-content-center{% if not theme_config.slick_enabled %} pb-4{% endif %}">
-		<section id="share">
-		    <h4 class="sr-only">{{'Social networks'|trans}}</h4>
-		    {% if theme_config.social_twitter %}
-			<a href="http://twitter.com/share?text={{'current.TITLE'}}&amp;url=//{{app.request.uri}}"
-			   onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;" title="Share on Twitter"{% if theme_config.social_buttons %} class="btn btn-sm btn-social btn-raised btn-twitter"{% endif %}>
-			    <i class="fa fa-twitter"></i>{% if theme_config.social_buttons %} Twitter{% endif %}
-			</a>
-		    {% endif %}
-		    {% if theme_config.social_facebook %}
-			<a href="https://www.facebook.com/sharer/sharer.php?u=//{{app.request.uri}}"
-			   onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;" title="Share on Facebook"{% if theme_config.social_buttons %} class="btn btn-sm btn-social btn-raised btn-facebook"{% endif %}>
-			    <i class="fa fa-facebook"></i>{% if theme_config.social_buttons %} Facebook{% endif %}
-			</a>
-		    {% endif %}
-		    {% if theme_config.social_google_plus %}
-			<a href="https://plus.google.com/share?url=//{{app.request.Host}}{{app.request.uri}}"
-			   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;" title="Share on Google+"{% if theme_config.social_buttons %} class="btn btn-sm btn-social btn-raised btn-google"{% endif %}>
-			    <i class="fa fa-google"></i>{% if theme_config.social_buttons %} Google+{% endif %}
-			</a>
-		    {% endif %}
-		    {% if theme_config.social_pinterest %}
-			<a href="https://www.pinterest.com/pin/create/button/?url=//{{app.request.uri}}&media={{ media_path(current.selected_derivative) }}"
-			   onclick="window.open(this.href, 'pinterest-share', 'width=490,height=530');return false;" title="Pin on Pinterest"{% if theme_config.social_buttons %} class="btn btn-sm btn-social btn-raised btn-pinterest"{% endif %}>
-			    <i class="fa fa-pinterest"></i>{% if theme_config.social_buttons %} Pinterest{% endif %}
-			</a>
-		    {% endif %}
-		    {% if theme_config.social_vk %}
-			<a href="https://vkontakte.ru/share.php?url=//{{app.request.uri}}&image={{ media_path(current.selected_derivative) }}"
-			   onclick="window.open(this.href, 'vk-share', 'width=490,height=530');return false;" title="Share on VK"{% if theme_config.social_buttons %} class="btn btn-sm btn-social btn-raised btn-vk"{% endif %}>
-			    <i class="fa fa-vk"></i>{% if theme_config.social_buttons %} VK{% endif %}
-			</a>
-		    {% endif %}
-		</section>
-	    </div>
-	{% endif %}
-    </div>
-
-    <div id="carousel-container" class="container">
-	{% if thumbnails is defined and (theme_config.slick_enabled or theme_config.photoswipe) %}
-	    <div id="theImageCarousel" class="row mx-0{% if not theme_config.slick_enabled %} d-none{% endif %}">
-		<div class="col-lg-10 col-md-12 mx-auto">
-		    <div id="thumbnailCarousel" class="slick-carousel{% if theme_config.slick_centered %} center{% endif %}">
-			{% for thumbnail in thumbnails %}
-			    {% set derivative = derivative_from_image({image: thumbnail.image, params: derivative_params_square}) %}
-			    {% set derivative_xxlarge = derivative_from_image({image: thumbnail.image, params: derivative_params_xxlarge}) %}
-			    <div class="text-center thumbnail{% if thumbnail.id == current.id and not theme_config.slick_infinite %} thumbnail-active{% endif %}">
-				<a href="{{thumbnail.URL}}"
-				   {% if theme_config.photoswipe %}
-				   data-pswp-src="{{ media_path(derivative_xxlarge) }}"
-				   data-pswp-width="{{thumbnail.width}}"
-				   data-pswp-height="{{thumbnail.height}}"
-				   {% endif %}
-				>
-				    <img src="{{ media_path(derivative) }}" alt="{{thumbnail.TN_ALT}}" title="{{thumbnail.TN_TITLE|raw('html')}}">
-				    <div class="sr-only photoswipe-caption-content">
-					{{thumbnail.DESCRIPTION}}
-				    </div>
-				</a>
-			    </div>
-			{% endfor %}
-		    </div>
-		</div>
-	    </div>
-
-	    {% if theme_config.photoswipe and theme_config.slick_infinite %}
-		<div id="photoSwipeData">
-		    {% for thumbnail in thumbnails %}
-			{% set derivative_medium = derivative_from_image({image: thumbnail.image, params: derivative_params_medium}) %}
-			{% set derivative_large = derivative_from_image({image: thumbnail.image, params: derivative_params_large}) %}
-			{% set derivative_xxlarge = derivative_from_image({image: thumbnail.image, params: derivative_params_xxlarge}) %}
-			<a
-			    {% if thumbnail.id == current.id %} id="thumbnail-active"{% endif %}
-			    href="{{thumbnail.URL}}" data-index="{{loop.index}}" data-name="{{thumbnail.NAME}}"
-			    data-description="{{thumbnail.DESCRIPTION}}" data-src-xlarge="{{ media_path(derivative_xxlarge) }}" data-size-xlarge="{{derivative_xxlarge.getLiteralSize()}}"
-			    data-src-large="{{ media_path(derivative_large) }}" data-size-large="{{derivative_large.getLiteralSize()}}" data-src-medium="{{ media_path(derivative_medium) }}"
-			    data-size-medium="{{derivative_medium.getLiteralSize()}}"
-			    {% if thumbnail.EXIF is defined %}
-			    {% if theme_config.photoswipe_metadata %} data-exif-make="{{thumbnail.EXIF.make}}"
-			    data-exif-model="{{thumbnail.EXIF.model}}" data-exif-lens="{{thumbnail.EXIF.lens}}" data-exif-iso="{{thumbnail.EXIF.iso}}" data-exif-apperture="{{thumbnail.EXIF.apperture}}"
-			    data-exif-shutter-speed="{{thumbnail.EXIF.shutter_speed}}" data-exif-focal-length="{{thumbnail.EXIF.focal_length}}" data-date-created="{{thumbnail.DATE_CREATED}}"
-			    {% endif %}
-			    {% endif %}>
-			</a>
-		    {% endfor %}
-		</div>
-	    {% endif %}
-	{% endif %}
-    </div>
-
-    <div id="info-container" class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
-	<div id="theImageInfos" class="row justify-content-center">
-	    {% if theme_config.picture_info == 'cards' %}
-		{{ include('_picture_info_cards.html.twig') }}
-	    {% elseif theme_config.picture_info == 'tabs' %}
-		{{ include('_picture_info_tabs.html.twig') }}
-	    {% elseif theme_config.picture_info == 'sidebar' or theme_config.picture_info == 'disabled' %}
-		<div class="col-lg-8 col-md-10 col-12 mx-auto">
-		    {{ include('_picture_info_comments.html.twig') }}
-		</div>
-	    {% endif %}
-	</div>
-    </div>
 {% endblock %}

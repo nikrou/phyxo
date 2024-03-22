@@ -1,9 +1,16 @@
 import './jquery-mobile-events'
-import 'jquery.cookie'
+
+function setCookie(name, value, days = 365) {
+  const date = new Date()
+  date.setDate(date.getDate() + days)
+  document.cookie = `${name}=${encodeURIComponent(
+    value
+  )}; expires=${date.toUTCString()}; path=/`
+}
 
 $(function () {
-  if ($('#theImage').length) {
-    $('#theImage img').on('swipeleft swiperight', function (event) {
+  if ($('#mainImage').length) {
+    $('#mainImage img').on('swipeleft swiperight', function (event) {
       if (event.type == 'swipeleft') {
         $('#navigationButtons a#navNextPicture i').trigger('click')
       } else if (event.type == 'swiperight') {
@@ -14,26 +21,18 @@ $(function () {
     })
   }
 
-  function changeImgSrc(url, typeSave, typeMap) {
-    const mainImage = document.getElementById('theMainImage')
+  $('[data-action="changeImgSrc"]').on('click', function (e) {
+    const mainImage = document.getElementById('mainImageTag')
+    const url = $(this).data('url')
+    const typeMap = $(this).data('type-map')
     if (mainImage) {
       mainImage.removeAttribute('width')
       mainImage.removeAttribute('height')
       mainImage.src = url
-      mainImage.useMap = '#map' + typeMap
     }
     $('.derivative-li').removeClass('active')
-    $('#derivative' + typeMap).addClass('active')
-
-    $.cookie('picture_deriv', typeSave)
-  }
-
-  $('[data-action="changeImgSrc"]').on('click', function (e) {
-    changeImgSrc(
-      $(this).data('url'),
-      $(this).data('type-save'),
-      $(this).data('type-map')
-    )
+    $(`#derivative${typeMap}`).addClass('active')
+    setCookie('picture_deriv', typeMap)
   })
 
   if ($('.comments-list').length) {

@@ -1,33 +1,45 @@
 {% if current.path == 'mp4' %}
-    {% if current.height < current.width %}
-	<div id="video-modal" class="col-lg-8 col-md-10 col-sm-12 mx-auto">
-	    {% if current.height / current.width * 100 < 60 %}
-		<div class="embed-responsive embed-responsive-16by9">
-	    {% else %}
-		    <div class="embed-responsive embed-responsive-custom" style="padding-bottom:{{current.height / current.width * 100}}%">
-	    {% endif %}
-    {% else %}
-	    <div id="video-modal" class="col-lg-3 col-md-5 col-sm-6 col-xs-8 mx-auto">
-		<div class="embed-responsive embed-responsive-9by16">
-    {% endif %}
-    <video id="video" class="embed-responsive-item" width="100%" height="auto" controls preload="auto" poster="{{ media_path(current.selected_derivative) }}">
-	<source src="{{asset('themes/treflez/' ~ current.path)}}" type="video/mp4"></source>
-    </video>
-		</div>
-	    </div>
-{% else %}
-	    <img src="{{ media_path(current.selected_derivative) }}" alt="{% if ALT_IMG is defined %}ALT_IMG{% endif %}" id="theMainImage" usemap="#map{{current.selected_derivative.getType()}}" title="{% if COMMENT_IMG is defined %}{{COMMENT_IMG|raw('html')}}{% else %}{% if current.TITLE_ESC is defined %}{{current.TITLE_ESC}}{% endif %}{% if ALT_IMG is defined %} - {{ALT_IMG}}{% endif %}{% endif %}">
-
-	    {% for derivative in current.unique_derivatives %}
-		<map name="map{{derivative.getType()}}">
-		    {% set size = derivative.getSize() %}
-		    {% if previous is defined %}
-			<area shape=rect coords="0,0,{{(size[0]/4)|number_format}},{{size[1]|number_format}}" href="{{previous.U_IMG}}" title="{{'Previous'|trans}}{% if previous.TITLE_ESC is defined %} : {{previous.TITLE_ESC}}{% endif %}" alt="{% if previous.TITLE_ESC is defined %}{{previous.TITLE_ESC}}{% endif %}">
-		    {% endif %}
-		    <area shape=rect coords="{{(size[0]/4)|number_format}},0,{{(size[0]/1.34)|number_format}},{{(size[1]/4)|number_format}}" href="{{U_UP}}" title="{{'Thumbnails'|trans}}" alt="{{'Thumbnails'|trans}}">
-		    {% if next is defined %}
-			<area shape=rect coords="{{(size[0]/1.33)|number_format}},0,{{size[0]|number_format}},{{size[1]|number_format}}" href="{{next.U_IMG}}" title="{{'Next'|trans}}{% if next.TITLE_ESC is defined %} : {{next.TITLE_ESC}}{% endif %}" alt="{% if next.TITLE_ESC is defined %}{{next.TITLE_ESC}}{% endif %}">
-		    {% endif %}
-		</map>
-	    {% endfor %}
-{% endif %}
+	{% if current.height < current.width %}
+		<div id="video-modal" class="col-lg-8 col-md-10 col-sm-12 mx-auto">
+			{% if current.height / current.width * 100 < 60 %}
+				<div class="embed-responsive embed-responsive-16by9">
+				{% else %}
+					<div class="embed-responsive embed-responsive-custom" style="padding-bottom:{{current.height / current.width * 100}}%">
+					{% endif %}
+				{% else %}
+					<div id="video-modal" class="col-lg-3 col-md-5 col-sm-6 col-xs-8 mx-auto">
+						<div class="embed-responsive embed-responsive-9by16">
+						{% endif %}
+						<video id="video" class="embed-responsive-item" width="100%" height="auto" controls preload="auto" poster="{{ media_path(current.selected_derivative) }}">
+							<source src="{{asset('themes/treflez/' ~ current.path)}}" type="video/mp4"></source>
+					</video>
+				</div>
+			</div>
+		{% else %}
+			<figure>
+				{% if previous is defined %}
+					<a class="previous" href="{{previous.U_IMG}}" title="{{'Previous'|trans}}">
+						<i class="fa fa-chevron-left" aria-hidden="true"></i>
+					</a>
+				{% endif %}
+				<img id="mainImageTag" src="{{ media_path(current.selected_derivative) }}" loading="auto" alt="{% if ALT_IMG is defined %}ALT_IMG{% endif %}">
+				{% if next is defined %}
+					<a class="next" href="{{next.U_IMG}}" title="{{'Next'|trans}}">
+						<i class="fa fa-chevron-right" aria-hidden="true"></i>
+					</a>
+				{% endif %}
+				<figcaption>
+					{% if COMMENT_IMG is defined %}
+						{{COMMENT_IMG|raw('html')}}
+					{% else %}
+						{% if current.TITLE_ESC is defined %}
+							{{current.TITLE_ESC}}
+						{% endif %}
+						{% if ALT_IMG is defined %}
+							-
+							{{ALT_IMG}}
+						{% endif %}
+					{% endif %}
+				</figcaption>
+			</figure>
+		{% endif %}
