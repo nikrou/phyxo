@@ -58,5 +58,5 @@ when@prod:
             deprecation:
                 type: stream
                 channels: [deprecation]
-                # path: php://stderr
-                path: "%kernel.logs_dir%/%kernel.environment%.log"
+                path: php://stderr
+                formatter: monolog.formatter.json
