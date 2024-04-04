@@ -16,11 +16,13 @@ use DateTime;
 use App\DataMapper\UserMapper;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
+use App\Utils\DirectoryManager;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Theme\Themes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\MimeTypeGuesserInterface;
@@ -129,7 +131,7 @@ class AdminThemesController extends AbstractController
             $tpl_themes[] = $tpl_theme;
         }
 
-        usort($tpl_themes, function($a, $b) {
+        usort($tpl_themes, function ($a, $b) {
             if (!empty($a['IS_DEFAULT'])) {
                 return -1;
             }
@@ -234,7 +236,11 @@ class AdminThemesController extends AbstractController
         UserMapper $userMapper,
         ThemeRepository $themeRepository,
         UserInfosRepository $userInfosRepository,
-        ParameterBagInterface $params
+        ParameterBagInterface $params,
+        DirectoryManager $directoryManager,
+        string $themesDir,
+        string $publicThemesDir,
+        Filesystem $fs
     ): Response {
         $themes = new Themes($themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
@@ -248,6 +254,17 @@ class AdminThemesController extends AbstractController
             $userInfosRepository->updateFieldForUsers('theme', $theme, $user_ids);
         } else {
             $error = $themes->performAction($action, $theme);
+            if ($action === 'activate') {
+                if (is_dir($originDir = $themesDir . '/' . $theme . '/build')) {
+                    try {
+                        $targetDir = $publicThemesDir . '/' . $theme;
+                        $fs->remove($targetDir);
+                        $directoryManager->relativeSymlinkWithFallback($originDir, $targetDir);
+                    } catch (Exception $e) {
+                        $error = 'Cannot copy web theme assets: ' . $e->getMessage();
+                    }
+                }
+            }
         }
 
         if (!empty($error)) {

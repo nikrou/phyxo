@@ -22,14 +22,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class HistorySubscriber implements EventSubscriberInterface
 {
-    private $conf, $appUserService, $userMapper, $historyRepository;
-
-    public function __construct(Conf $conf, AppUserService $appUserService, UserMapper $userMapper, HistoryRepository $historyRepository)
+    public function __construct(
+        private Conf $conf,
+        private readonly AppUserService $appUserService,
+        private readonly UserMapper $userMapper,
+        private readonly HistoryRepository $historyRepository
+    )
     {
-        $this->conf = $conf;
-        $this->appUserService = $appUserService;
-        $this->userMapper = $userMapper;
-        $this->historyRepository = $historyRepository;
     }
 
     public static function getSubscribedEvents(): array

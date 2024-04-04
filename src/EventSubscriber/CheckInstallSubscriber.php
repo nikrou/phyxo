@@ -19,12 +19,8 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class CheckInstallSubscriber implements EventSubscriberInterface
 {
-    private $urlGenerator, $databaseYamlFile;
-
-    public function __construct(UrlGeneratorInterface $urlGenerator, string $databaseYamlFile)
+    public function __construct(private readonly UrlGeneratorInterface $urlGenerator, private readonly string $databaseYamlFile)
     {
-        $this->urlGenerator = $urlGenerator;
-        $this->databaseYamlFile = $databaseYamlFile;
     }
 
     public function onKernelException(ExceptionEvent $event)

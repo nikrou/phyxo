@@ -24,15 +24,12 @@ use App\Repository\ConfigRepository;
  */
 class Conf implements ArrayAccess
 {
-    private $configRepository,
-
-    $keys = [];
+    private $keys = [];
     final public const FILE_PREFIX = 'file_';
     final public const DB_PREFIX = 'db_';
 
-    public function __construct(ConfigRepository $configRepository)
+    public function __construct(private readonly ConfigRepository $configRepository)
     {
-        $this->configRepository = $configRepository;
     }
 
     public function init(string $default_config_file, string $user_config_file = ''): void

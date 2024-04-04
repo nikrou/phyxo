@@ -31,7 +31,23 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ImageMapper
 {
-    public function __construct(private readonly RouterInterface $router, private readonly UserMapper $userMapper, private Conf $conf, private readonly ImageStandardParams $image_std_params, private readonly AlbumMapper $albumMapper, private readonly HistoryRepository $historyRepository, private readonly TranslatorInterface $translator, private readonly ImageRepository $imageRepository, private readonly ImageAlbumRepository $imageAlbumRepository, private readonly CommentRepository $commentRepository, private readonly CaddieRepository $caddieRepository, private readonly FavoriteRepository $favoriteRepository, private readonly RateRepository $rateRepository, private readonly ImageTagRepository $imageTagRepository, private readonly DerivativeService $derivativeService)
+    public function __construct(
+        private readonly RouterInterface $router,
+        private readonly UserMapper $userMapper,
+        private Conf $conf,
+        private readonly ImageStandardParams $image_std_params,
+        private readonly AlbumMapper $albumMapper,
+        private readonly HistoryRepository $historyRepository,
+        private readonly TranslatorInterface $translator,
+        private readonly ImageRepository $imageRepository,
+        private readonly ImageAlbumRepository $imageAlbumRepository,
+        private readonly CommentRepository $commentRepository,
+        private readonly CaddieRepository $caddieRepository,
+        private readonly FavoriteRepository $favoriteRepository,
+        private readonly RateRepository $rateRepository,
+        private readonly ImageTagRepository $imageTagRepository,
+        private readonly DerivativeService $derivativeService
+    )
     {
     }
 

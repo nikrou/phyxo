@@ -19,15 +19,13 @@ use App\Security\AppUserService;
 
 class RateMapper
 {
-    private $conf, $userMapper, $imageMapper, $rateRepository, $appUserService;
-
-    public function __construct(Conf $conf, UserMapper $userMapper, ImageMapper $imageMapper, RateRepository $rateRepository, AppUserService $appUserService)
-    {
-        $this->conf = $conf;
-        $this->userMapper = $userMapper;
-        $this->imageMapper = $imageMapper;
-        $this->rateRepository = $rateRepository;
-        $this->appUserService = $appUserService;
+    public function __construct(
+        private Conf $conf,
+        private readonly UserMapper $userMapper,
+        private readonly ImageMapper $imageMapper,
+        private readonly RateRepository $rateRepository,
+        private readonly AppUserService $appUserService
+    ) {
     }
 
     public function getRepository(): RateRepository

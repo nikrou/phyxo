@@ -15,14 +15,13 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class GroupEvent extends Event
 {
-    private $group, $category, $image_url, $mail_content;
-
-    public function __construct(int $group, array $category, string $image_url, string $mail_content)
+    public function __construct(
+        private readonly int $group,
+        private readonly array $category,
+        private readonly string $image_url,
+        private readonly string $mail_content
+    )
     {
-        $this->group = $group;
-        $this->category = $category;
-        $this->image_url = $image_url;
-        $this->mail_content = $mail_content;
     }
 
     public function getGroup()

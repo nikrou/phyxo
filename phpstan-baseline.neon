@@ -21,9 +21,6 @@ parameters:
     - message: '#Empty array passed to foreach.#'
       path: src/Controller/Admin/AdminRatingController.php
 
-    - message: '#Call to function is_null\(\) with Symfony\\Component\\HttpFoundation\\RequestStack will always evaluate to false.#'
-      path: src/Asset/PathVersionStrategy.php
-
     # need refactoring
     - message: '#Negated boolean expression is always true.#'
       path: src/Controller/Admin/AdminNotificationController.php

@@ -28,20 +28,12 @@ const IS_DEV = process.env.NODE_ENV !== 'production'
 
 const PUBLIC_PATH = IS_DEV
   ? `http://${HOST}:${PORT}/`
-  : `${PATH_PREFIX}themes/treflez/${TARGET_NAME}/`
+  : `${PATH_PREFIX}themes/treflez/`
 
 const PATHS = {
   theme: path.join(__dirname, 'src', 'js'),
   admin: path.join(__dirname, 'src', 'admin', 'js'),
-  target: path.join(
-    __dirname,
-    '..',
-    '..',
-    'public',
-    'themes',
-    'treflez',
-    TARGET_NAME
-  ),
+  target: path.join(__dirname, TARGET_NAME),
 }
 
 module.exports = {

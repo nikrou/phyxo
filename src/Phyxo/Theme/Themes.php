@@ -26,13 +26,23 @@ use Symfony\Component\Yaml\Yaml;
 class Themes extends Extensions
 {
     final public const CONFIG_FILE = 'config.yaml';
-    private $themes_root_path, $userMapper;
-    private $fs_themes = [], $db_themes = [], $server_themes = [];
-    private $fs_themes_retrieved = false, $db_themes_retrieved = false, $server_themes_retrieved = false;
 
-    public function __construct(private readonly ThemeRepository $themeRepository, UserMapper $userMapper)
+    private $themes_root_path;
+
+    private $fs_themes = [];
+
+    private $db_themes = [];
+
+    private $server_themes = [];
+
+    private $fs_themes_retrieved = false;
+
+    private $db_themes_retrieved = false;
+
+    private $server_themes_retrieved = false;
+
+    public function __construct(private readonly ThemeRepository $themeRepository, private readonly UserMapper $userMapper)
     {
-        $this->userMapper = $userMapper;
     }
 
     public function setRootPath(string $themes_root_path)
@@ -50,7 +60,7 @@ class Themes extends Extensions
         $classname = $theme_id . '_maintain';
 
         if (file_exists($file_to_include)) {
-            include_once($file_to_include);
+            include_once ($file_to_include);
 
             if (class_exists($classname)) {
                 return new $classname($theme_id);

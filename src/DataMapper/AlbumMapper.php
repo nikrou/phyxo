@@ -35,7 +35,16 @@ class AlbumMapper
 
     private bool $albums_retrieved = false;
 
-    public function __construct(private Conf $conf, private readonly AlbumRepository $albumRepository, private readonly RouterInterface $router, private readonly TranslatorInterface $translator, private readonly UserRepository $userRepository, private readonly UserCacheAlbumRepository $userCacheAlbumRepository, private readonly ImageAlbumRepository $imageAlbumRepository, private readonly ImageRepository $imageRepository)
+    public function __construct(
+        private Conf $conf,
+        private readonly AlbumRepository $albumRepository,
+        private readonly RouterInterface $router,
+        private readonly TranslatorInterface $translator,
+        private readonly UserRepository $userRepository,
+        private readonly UserCacheAlbumRepository $userCacheAlbumRepository,
+        private readonly ImageAlbumRepository $imageAlbumRepository,
+        private readonly ImageRepository $imageRepository
+    )
     {
     }
 

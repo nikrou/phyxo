@@ -244,8 +244,6 @@ $(function () {
         }
 
         user.groupOptions.push(option)
-
-        console.log('user groups', user)
       })
 
       user.themeOptions = []
@@ -619,15 +617,10 @@ $(function () {
       const action = $('select[name="selectAction"]').prop('value')
       let method = 'pwg.users.setInfo'
       const rowData = datatable.rows({ selected: true }).data()
-
-      console.log('rowData', rowData)
-      console.log('rowData selected', datatable.rows({ selected: true }))
-
       const data = {
         user_id: rowData.toArray().map((data) => data.id),
       }
 
-      console.log('action', action)
       switch (action) {
         case 'delete':
           if (!$('input[name="confirm_deletion"]').is(':checked')) {
@@ -639,9 +632,6 @@ $(function () {
         case 'group_associate':
           method = 'pwg.groups.addUser'
           data.group_id = $('select[name="associate"]').prop('value')
-
-          console.log('value', data)
-
           break
         case 'group_dissociate':
           method = 'pwg.groups.deleteUser'

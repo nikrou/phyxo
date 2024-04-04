@@ -12,7 +12,6 @@
 namespace App\DataMapper;
 
 use App\Entity\User;
-use App\Entity\UserInfos;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
@@ -30,12 +29,32 @@ use App\Security\AppUserService;
 class UserMapper
 {
     private User $default_user;
+
     private bool $default_user_retrieved = false;
+
     private User $webmaster;
+
     private bool $webmaster_retrieved = false;
 
-    public function __construct(private readonly AuthorizationCheckerInterface $authorizationChecker, private readonly ThemeRepository $themeRepository, private readonly UserRepository $userRepository, private readonly UserInfosRepository $userInfosRepository, private readonly string $defaultTheme, private readonly CommentRepository $commentRepository, private readonly TagMapper $tagMapper, private readonly string $defaultLanguage, private readonly string $themesDir, private readonly AppUserService $appUserService, private readonly UserMailNotificationRepository $userMailNotificationRepository, private readonly UserFeedRepository $userFeedRepository, private readonly UserCacheRepository $userCacheRepository, private readonly UserCacheAlbumRepository $userCacheAlbumRepository, private readonly CaddieRepository $caddieRepository, private readonly FavoriteRepository $favoriteRepository, private readonly ImageTagRepository $imageTagRepository)
-    {
+    public function __construct(
+        private readonly AuthorizationCheckerInterface $authorizationChecker,
+        private readonly ThemeRepository $themeRepository,
+        private readonly UserRepository $userRepository,
+        private readonly UserInfosRepository $userInfosRepository,
+        private readonly string $defaultTheme,
+        private readonly CommentRepository $commentRepository,
+        private readonly TagMapper $tagMapper,
+        private readonly string $defaultLanguage,
+        private readonly string $themesDir,
+        private readonly AppUserService $appUserService,
+        private readonly UserMailNotificationRepository $userMailNotificationRepository,
+        private readonly UserFeedRepository $userFeedRepository,
+        private readonly UserCacheRepository $userCacheRepository,
+        private readonly UserCacheAlbumRepository $userCacheAlbumRepository,
+        private readonly CaddieRepository $caddieRepository,
+        private readonly FavoriteRepository $favoriteRepository,
+        private readonly ImageTagRepository $imageTagRepository
+    ) {
     }
 
     public function getRepository(): UserRepository
@@ -83,14 +102,14 @@ class UserMapper
     public function getDefaultTheme(): string
     {
         $theme = is_null($this->getDefaultUser()) ? $this->defaultTheme : $this->getDefaultUser()->getUserInfos()->getTheme();
-        if (is_readable($this->themesDir . '/' . $theme . '/' . 'themeconf.inc.php')) {
+        if (is_readable($this->themesDir . '/' . $theme . '/' . 'config.yaml')) {
             return $theme;
         }
 
         // let's find the first available theme
         $theme = $this->themeRepository->findOneBy([]);
 
-        return $theme->getName();
+        return $theme->getId();
     }
 
     /**

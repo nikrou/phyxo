@@ -1,0 +1,19 @@
+The <info>%command.name%</info> command installs all themes web assets into a given
+directory (e.g. the <comment>public</comment> directory).
+
+  <info>php %command.full_name% public</info>
+
+A "themes" directory will be created inside the target directory and the
+"build" directory of each theme will be copied into it.
+
+You can install assets for a theme by usign <comment>theme</comment> argument.
+By default installation applies for all themes
+
+To create a symlink to each theme instead of copying its assets, use the
+<info>--symlink</info> option (will fall back to hard copies when symbolic links aren't possible:
+
+  <info>php %command.full_name% public --symlink</info>
+
+To make symlink relative, add the <info>--relative</info> option:
+
+  <info>php %command.full_name% public --symlink --relative</info>

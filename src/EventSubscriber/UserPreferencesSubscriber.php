@@ -22,12 +22,8 @@ use Symfony\Component\Security\Http\SecurityEvents;
 
 class UserPreferencesSubscriber implements EventSubscriberInterface
 {
-    private $rememberMeCookie, $kernel;
-
-    public function __construct(string $rememberMeCookie, KernelInterface $kernel)
+    public function __construct(private readonly string $rememberMeCookie, private readonly KernelInterface $kernel)
     {
-        $this->rememberMeCookie = $rememberMeCookie;
-        $this->kernel = $kernel;
     }
 
     public function onInteractiveLogin(InteractiveLoginEvent $event, string $eventName, EventDispatcherInterface $dispatcher)

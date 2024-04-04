@@ -24,15 +24,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentNotificationSubscriber implements EventSubscriberInterface
 {
-    private $router, $mailer, $conf, $userMapper, $translator;
-
-    public function __construct(MailerInterface $mailer, Conf $conf, RouterInterface $router, UserMapper $userMapper, TranslatorInterface $translator)
+    public function __construct(
+        private readonly MailerInterface $mailer,
+        private Conf $conf,
+        private readonly RouterInterface $router,
+        private readonly UserMapper $userMapper,
+        private readonly TranslatorInterface $translator
+    )
     {
-        $this->mailer = $mailer;
-        $this->conf = $conf;
-        $this->router = $router;
-        $this->userMapper = $userMapper;
-        $this->translator = $translator;
     }
 
     public static function getSubscribedEvents(): array

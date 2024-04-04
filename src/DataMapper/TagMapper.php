@@ -29,7 +29,16 @@ use Symfony\Component\Routing\RouterInterface;
 
 class TagMapper
 {
-    public function __construct(private readonly Conf $conf, private readonly ImageStandardParams $image_std_params, private readonly RouterInterface $router, private readonly Metadata $metadata, private readonly ImageTagRepository $imageTagRepository, private readonly UserCacheRepository $userCacheRepository, private readonly ImageRepository $imageRepository, private readonly TagRepository $tagRepository)
+    public function __construct(
+        private readonly Conf $conf,
+        private readonly ImageStandardParams $image_std_params,
+        private readonly RouterInterface $router,
+        private readonly Metadata $metadata,
+        private readonly ImageTagRepository $imageTagRepository,
+        private readonly UserCacheRepository $userCacheRepository,
+        private readonly ImageRepository $imageRepository,
+        private readonly TagRepository $tagRepository
+    )
     {
     }
 

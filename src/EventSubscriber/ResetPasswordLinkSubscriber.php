@@ -24,15 +24,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ResetPasswordLinkSubscriber implements EventSubscriberInterface
 {
-    private $mailer, $userMapper, $conf, $router, $translator;
-
-    public function __construct(MailerInterface $mailer, UserMapper $userMapper, Conf $conf, RouterInterface $router, TranslatorInterface $translator)
-    {
-        $this->mailer = $mailer;
-        $this->userMapper = $userMapper;
-        $this->conf = $conf;
-        $this->router = $router;
-        $this->translator = $translator;
+    public function __construct(
+        private readonly MailerInterface $mailer,
+        private readonly UserMapper $userMapper,
+        private Conf $conf,
+        private readonly RouterInterface $router,
+        private readonly TranslatorInterface $translator
+    ) {
     }
 
     public static function getSubscribedEvents(): array

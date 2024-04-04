@@ -18,14 +18,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ExtensionTranslationSubscriber implements EventSubscriberInterface
 {
-    private $runtimeTranslator,
-
-    $themesDir;
-
-    public function __construct(RuntimeTranslator $runtimeTranslator, string $themesDir)
+    public function __construct(private readonly RuntimeTranslator $runtimeTranslator, private readonly string $themesDir)
     {
-        $this->runtimeTranslator = $runtimeTranslator;
-        $this->themesDir = $themesDir;
     }
 
     public static function getSubscribedEvents(): array

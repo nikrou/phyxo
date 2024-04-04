@@ -285,6 +285,7 @@ class AdminUsersController extends AbstractController
                     $user->setPassword($passwordHasher->hashPassword($user, $user->getPlainPassword()));
                 }
                 $userRepository->updateUser($user);
+                $request->getSession()->set('_theme', $user->getTheme());
 
                 $this->addFlash('info', $translator->trans('User settings have been updated'));
             }

@@ -8,7 +8,9 @@ framework:
   handle_all_throwables: true
 
   assets:
-    version_strategy: 'App\Asset\PathVersionStrategy'
+    packages:
+      admin:
+        json_manifest_path: "%kernel.project_dir%/public/admin/theme/build/manifest.json"
 
   # Enables session support. Note that the session will ONLY be started if you read or write from it.
   session:

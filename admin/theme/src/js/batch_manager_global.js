@@ -49,8 +49,9 @@ $(function () {
     if ($('input[name=setSelected]').is(':checked')) {
       nbSelected = nb_thumbs_set
     } else {
-      nbSelected = $('.thumbnails input[type=checkbox]').filter(':checked')
-        .length
+      nbSelected = $('.thumbnails input[type=checkbox]').filter(
+        ':checked'
+      ).length
     }
 
     if (nbSelected == 0) {
@@ -254,7 +255,6 @@ $(function () {
   $('ul.thumbnails').enableShiftClick()
 
   $('.removeFilter').click(function () {
-    console.log('clic removeFilter')
     var filter = $(this).parent('li').attr('id')
     filter_disable(filter)
 

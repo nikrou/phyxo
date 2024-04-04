@@ -28,28 +28,17 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentMapper
 {
-    private $conf, $userMapper, $eventDispatcher, $translator, $userRepository, $userCacheRepository, $commentRepository, $imageRepository, $appUserService;
-
     public function __construct(
-        Conf $conf,
-        UserMapper $userMapper,
-        EventDispatcherInterface $eventDispatcher,
-        TranslatorInterface $translator,
-        UserRepository $userRepository,
-        UserCacheRepository $userCacheRepository,
-        CommentRepository $commentRepository,
-        ImageRepository $imageRepository,
-        AppUserService $appUserService
+        private Conf $conf,
+        private readonly UserMapper $userMapper,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly TranslatorInterface $translator,
+        private readonly UserRepository $userRepository,
+        private readonly UserCacheRepository $userCacheRepository,
+        private readonly CommentRepository $commentRepository,
+        private readonly ImageRepository $imageRepository,
+        private readonly AppUserService $appUserService
     ) {
-        $this->conf = $conf;
-        $this->userMapper = $userMapper;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->translator = $translator;
-        $this->userRepository = $userRepository;
-        $this->userCacheRepository = $userCacheRepository;
-        $this->commentRepository = $commentRepository;
-        $this->imageRepository = $imageRepository;
-        $this->appUserService = $appUserService;
     }
 
     public function getRepository(): CommentRepository

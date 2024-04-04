@@ -15,7 +15,7 @@
 	</title>
 
 	{% block stylesheets %}
-	    <link rel="stylesheet" href="{{asset('app.css')}}">
+	    <link rel="stylesheet" href="{{asset('app.css', 'admin')}}">
 	{% endblock %}
 	{% block html_head %}{% endblock %}
     </head>
@@ -149,7 +149,7 @@
 	     var phyxo_root_url = "{{app.request.basepath}}/";
 	     var phyxo = phyxo || {};
 	    </script>
-	    <script src="{{asset('app.js')}}"></script>
+	    <script src="{{asset('app.js', 'admin')}}"></script>
 	{% endblock %}
     </body>
 </html>

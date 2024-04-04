@@ -9,36 +9,36 @@
  * file that was distributed with this source code.
  */
 
- namespace Themes\treflez;
+namespace Themes\treflez;
 
 use Phyxo\Conf;
 use Phyxo\Extension\AbstractTheme;
 use Symfony\Component\HttpFoundation\Request;
 
- class Treflez extends AbstractTheme
- {
-     private Config $config;
+class Treflez extends AbstractTheme
+{
+    private Config $config;
 
-     public function __construct(Conf $conf)
-     {
-         $this->config = new Config($conf);
-     }
+    public function __construct(Conf $conf)
+    {
+        $this->config = new Config($conf);
+    }
 
-     public function getConfig(): array
-     {
-         return $this->config->getConfig();
-     }
+    public function getConfig(): array
+    {
+        return $this->config->getConfig();
+    }
 
-     public function getAdminTemplate(): string
-     {
-         return 'admin/template/settings.html.twig';
-     }
+    public function getAdminTemplate(): string
+    {
+        return 'admin/template/settings.html.twig';
+    }
 
-     public function handleFormRequest(Request $request): void
-     {
-         if ($request->isMethod('POST')) {
-             $this->config->fromPost($request->request->all());
-             $this->config->save();
-         }
-     }
- }
+    public function handleFormRequest(Request $request): void
+    {
+        if ($request->isMethod('POST')) {
+            $this->config->fromPost($request->request->all());
+            $this->config->save();
+        }
+    }
+}

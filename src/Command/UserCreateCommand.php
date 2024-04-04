@@ -22,7 +22,10 @@ use App\Entity\User;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-#[AsCommand('phyxo:user:create')]
+#[AsCommand(
+    name: 'phyxo:user:create',
+    description: 'Creates user'
+)]
 class UserCreateCommand extends Command
 {
     private array $params = ['username' => '', 'password' => '', 'mail_address' => ''];
@@ -52,7 +55,7 @@ class UserCreateCommand extends Command
         $io->title('Create user');
 
         if (($this->params['username'] = $input->getOption('username')) === null) {
-            $this->params['username'] = $io->ask('Username', null, function($user) {
+            $this->params['username'] = $io->ask('Username', null, function ($user) {
                 if (empty($user)) {
                     throw new Exception('Username cannot be empty.');
                 }

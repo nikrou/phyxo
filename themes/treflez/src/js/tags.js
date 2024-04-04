@@ -1,9 +1,7 @@
-import './jquery.awesomeCloud';
+import './jquery.awesomeCloud'
 
 $(function () {
   if ($('#tagCloudCanvas').length > 0) {
-    console.log('will build the cloud');
-
     $('#tagCloudCanvas').awesomeCloud({
       size: {
         grid: 12,
@@ -20,6 +18,6 @@ $(function () {
       },
       font: "'Helvetica Neue',Helvetica,Arial,sans-serif",
       shape: 'circle',
-    });
+    })
   }
-});
+})

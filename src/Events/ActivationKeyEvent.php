@@ -16,12 +16,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class ActivationKeyEvent extends Event
 {
-    private $activation_key, $user;
-
-    public function __construct(string $activation_key, User $user)
+    public function __construct(private readonly string $activation_key, private readonly User $user)
     {
-        $this->activation_key = $activation_key;
-        $this->user = $user;
     }
 
     public function getActivationKey(): string

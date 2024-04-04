@@ -18,7 +18,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use App\Repository\UserRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 
-#[AsCommand('phyxo:user:list')]
+#[AsCommand(
+    name: 'phyxo:user:list',
+    description: 'Shows list of users'
+)]
 class UserListCommand extends Command
 {
     private array $Fields = [

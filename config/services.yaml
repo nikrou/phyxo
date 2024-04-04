@@ -24,6 +24,7 @@ services:
       $varDir: '%kernel.project_dir%/var'
       $uploadDir: '%upload_dir%'
       $themesDir: '%themes_dir%'
+      $publicThemesDir: '%public_themes_dir%'
       $pluginsDir: '%plugins_dir%'
       $languagesDir: '%languages_dir%'
       $translationsDir: '%translator.default_path%'
@@ -113,3 +114,5 @@ services:
       $translator: '@App\Utils\RuntimeTranslator.inner'
       $cache: '@cache.app'
       $formatter: '@translator.formatter.default'
+
+  Symfony\Component\Asset\Context\RequestStackContext: '@assets.context'

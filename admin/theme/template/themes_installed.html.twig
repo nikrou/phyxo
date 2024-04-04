@@ -60,13 +60,13 @@
 					    <button type="button" class="btn btn-sm btn-info disabled" title="{{theme.DEACTIVATE_TOOLTIP}}">{{'Deactivate'|trans}}</button>
 					{% endif %}
 
-					{% if not theme.IS_DEFAULT is defined %}
+					{% if not theme.IS_DEFAULT %}
 					    <a href="{{theme.set_default}}" class="btn btn-sm btn-success" title="{{'Set as default theme for unregistered and new users'|trans}}">
 						{{'Default'|trans}}
 					    </a>
 					{% endif %}
 
-					{% if theme.ADMIN_URI is defined %}
+					{% if theme.ADMIN_URI %}
 					    <a class="btn btn-sm btn-warning" href="{{theme.ADMIN_URI}}" title="{{'Configuration'|trans}}">{{'Configuration'|trans}}</a>
 					{% endif %}
 				    {% else %}

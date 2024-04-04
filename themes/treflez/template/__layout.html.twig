@@ -12,7 +12,7 @@
 	<title>
 	    {% block title %}Phyxo{% endblock %}
 	</title>
-	<link rel="start" title="{{'Home'|trans}}" href="{{path('homepage')}}" >
+	<link rel="start" title="{{'Home'|trans}}" href="{{path('homepage')}}">
 	<link rel="search" title="{{'Search'|trans}}" href="{{path('search')}}">
 	{% if first.U_IMG is defined %}
 	    <link rel="first" title="{{'First'|trans}}" href="{{first.U_IMG}}">
@@ -31,7 +31,7 @@
 	{% endif %}
 	{% block html_head %}{% endblock %}
 	{% block stylesheets %}
-	    <link rel="stylesheet" href="{{asset('theme.css')}}">
+	    <link rel="stylesheet" href="{{phyxo_asset('theme.css', 'treflez/manifest.json')}}">
 	{% endblock %}
 	{{publicHeadContent()}}
     </head>
@@ -65,8 +65,7 @@
 		</nav>
 	    {% endblock %}
 
-	    <div class="main-content">
-		{% block content %}{% endblock %}
+	    <div class="main-content"> {% block content %}{% endblock %}
 	    </div>
 
 	    <div class="copyright container">
@@ -76,9 +75,9 @@
 	    </div>
 	    {% block html_footer %}{% endblock %}
 	    {% block javascripts %}
-		<script src="{{asset('theme.js')}}"></script>
+		<script src="{{phyxo_asset('theme.js', 'treflez/manifest.json')}}"></script>
 		<script>
-		 var phyxo_root_url = "{{app.request.basepath}}/";
+		 var phyxo_root_url = "{{ app.request.basepath }}/";
 		</script>
 	    {% endblock %}
 	    {{publicFooterContent()}}

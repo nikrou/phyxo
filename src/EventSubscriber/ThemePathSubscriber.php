@@ -19,13 +19,11 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ThemePathSubscriber implements EventSubscriberInterface
 {
-    private $themeLoader, $themesDir, $defaultTheme;
-
-    public function __construct(ThemeLoader $themeLoader, string $themesDir, string $defaultTheme)
-    {
-        $this->themeLoader = $themeLoader;
-        $this->themesDir = $themesDir;
-        $this->defaultTheme = $defaultTheme;
+    public function __construct(
+        private readonly ThemeLoader $themeLoader,
+        private readonly string $themesDir,
+        private readonly string $defaultTheme
+    ) {
     }
 
     public static function getSubscribedEvents(): array

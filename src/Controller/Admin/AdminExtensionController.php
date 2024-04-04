@@ -29,6 +29,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminExtensionController extends AbstractController
 {
     protected ParameterBagInterface $params;
+
     protected Conf $conf;
 
     public function theme(
@@ -59,11 +60,12 @@ class AdminExtensionController extends AbstractController
         }
         $themeLoader->addPath($themesDir . '/' . $theme);
         $themeConfig = new $className($this->conf);
+
         if ($request->isMethod('POST')) {
             $themeConfig->handleFormRequest($request);
-            $tpl_params['theme_config'] = $themeConfig->getConfig();
             $this->addFlash('success', $translator->trans('Configuration has been updated'));
         }
+        $tpl_params['theme_config'] = $themeConfig->getConfig();
 
         return $this->render($themeConfig->getAdminTemplate(), $tpl_params);
     }
@@ -101,7 +103,7 @@ class AdminExtensionController extends AbstractController
                 $template_filename = '';
                 $tpl_params = [];
 
-                include_once($pluginConfiguration);
+                include_once ($pluginConfiguration);
 
                 return [
                     'template_filename' => $template_filename,

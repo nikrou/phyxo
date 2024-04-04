@@ -15,12 +15,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class CommentEvent extends Event
 {
-    private $comment, $action;
-
-    public function __construct(array $comment, string $action)
+    public function __construct(private readonly array $comment, private readonly string $action)
     {
-        $this->comment = $comment;
-        $this->action = $action;
     }
 
     public function getComment()

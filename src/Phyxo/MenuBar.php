@@ -12,7 +12,6 @@
 namespace Phyxo;
 
 use App\DataMapper\AlbumMapper;
-use Phyxo\Conf;
 use Phyxo\Block\BlockManager;
 use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\UserMapper;
@@ -24,28 +23,25 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MenuBar
 {
-    private $conf, $menu, $router, $albumMapper, $appUserService, $userMapper, $tagMapper, $translator;
-    private $route = null, $items = [], $tags = [], $defaultDateType;
+    private $menu;
+
+    private $route = null;
+
+    private $items = [];
+
+    private $tags = [];
 
     public function __construct(
-        Conf $conf,
-        RouterInterface $router,
-        AlbumMapper $albumMapper,
-        AppUserService $appUserService,
-        UserMapper $userMapper,
-        TagMapper $tagMapper,
-        TranslatorInterface $translator,
-        string $defaultDateType,
+        private Conf $conf,
+        private readonly RouterInterface $router,
+        private readonly AlbumMapper $albumMapper,
+        private readonly AppUserService $appUserService,
+        private readonly UserMapper $userMapper,
+        private readonly TagMapper $tagMapper,
+        private readonly TranslatorInterface $translator,
+        private readonly string $defaultDateType,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->conf = $conf;
-        $this->router = $router;
-        $this->albumMapper = $albumMapper;
-        $this->appUserService = $appUserService;
-        $this->userMapper = $userMapper;
-        $this->tagMapper = $tagMapper;
-        $this->translator = $translator;
-        $this->defaultDateType = $defaultDateType;
     }
 
     public function setRoute(string $route)
@@ -53,12 +49,12 @@ class MenuBar
         $this->route = $route;
     }
 
-    public function  setCurrentImages(array $items = [])
+    public function setCurrentImages(array $items = [])
     {
         $this->items = $items;
     }
 
-    public function  setCurrentTags(array $tags = [])
+    public function setCurrentTags(array $tags = [])
     {
         $this->tags = $tags;
     }

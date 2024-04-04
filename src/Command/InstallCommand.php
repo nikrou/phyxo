@@ -23,7 +23,10 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Input\ArrayInput;
 
-#[AsCommand('phyxo:install')]
+#[AsCommand(
+    name: 'phyxo:install',
+    description: 'Installs phyxo'
+)]
 class InstallCommand extends Command
 {
     private array $db_params = ['db_layer' => '', 'db_host' => '', 'db_name' => '', 'db_user' => '', 'db_password' => '', 'db_prefix' => ''];
@@ -79,7 +82,7 @@ class InstallCommand extends Command
             }
 
             if (($this->db_params['db_user'] = $input->getOption('db_user')) === null) {
-                $this->db_params['db_user'] = $io->ask('Database username', null, function($user) {
+                $this->db_params['db_user'] = $io->ask('Database username', null, function ($user) {
                     if (empty($user)) {
                         throw new Exception('Database username cannot be empty.');
                     }

@@ -1,8 +1,6 @@
 import '../scss/admin.scss'
 
 $(function () {
-  console.log('admin treflez')
-
   $('ul.nav-tabs li a').click(function (e) {
     e.preventDefault()
 
