@@ -308,7 +308,7 @@ class AdminAlbumController extends AbstractController
         // template thumbnail initialization
         $current_rank = 1;
         $derivativeParams = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
-        foreach ($imageMapper->getRepository()->findImagesInAlbum($album_id, [['RANK', 'ASC']]) as $image) {
+        foreach ($imageMapper->getRepository()->findImagesInAlbum($album_id, [['rank', 'asc']]) as $image) {
             $derivative = new DerivativeImage($image, $derivativeParams, $image_std_params);
 
             if ($image->getName()) {
@@ -391,18 +391,18 @@ class AdminAlbumController extends AbstractController
 
             if ($request->request->get('status') === Album::STATUS_PRIVATE) {
                 // manage groups
-                if (!$request->request->get('groups')) {
+                if (!$request->request->has('groups')) {
                     $album->clearAllGroupAccess();
 
-                // need to clear group access for sub-albums
-                // $subcats = $albumRepository->getSubcatIds([$album_id]);
+                    // need to clear group access for sub-albums
+                    // $subcats = $albumRepository->getSubcatIds([$album_id]);
                 } else {
                     $sub_albums = null;
                     if ($request->request->get('apply_on_sub')) {
                         $sub_albums = $albumMapper->getRepository()->getSubAlbums([$album_id]);
                     }
 
-                    foreach ($groupRepository->findBy(['id' => $request->request->get('groups')]) as $group) {
+                    foreach ($groupRepository->findBy(['id' => $request->request->all('groups')]) as $group) {
                         $album->addGroupAccess($group);
                         if (!is_null($sub_albums)) {
                             foreach ($sub_albums as $sub_album) {
@@ -413,17 +413,17 @@ class AdminAlbumController extends AbstractController
                 }
 
                 // users
-                if (!$request->request->get('users')) {
+                if (!$request->request->has('users')) {
                     $album->clearAllUserAccess();
 
-                // need to clear user access for sub albums
+                    // need to clear user access for sub albums
                 } else {
                     $sub_albums = null;
                     if ($request->request->get('apply_on_sub')) {
                         $sub_albums = $albumMapper->getRepository()->getSubAlbums([$album_id]);
                     }
 
-                    foreach ($userRepository->findBy(['id' => $request->request->get('users')]) as $user) {
+                    foreach ($userRepository->findBy(['id' => $request->request->all('users')]) as $user) {
                         $album->addUserAccess($user);
                         if (!is_null($sub_albums)) {
                             foreach ($sub_albums as $sub_album) {
@@ -640,7 +640,7 @@ class AdminAlbumController extends AbstractController
             }
         }
 
-        return  $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
+        return $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
     }
 
     public function delete(int $album_id, AlbumMapper $albumMapper, ImageMapper $imageMapper, UserMapper $userMapper, TranslatorInterface $translator, int $parent_id = null): Response

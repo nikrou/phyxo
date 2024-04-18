@@ -96,7 +96,7 @@ class AdminMaintenanceController extends AbstractController
                     $tagMapper->deleteOrphanTags();
                     $this->addFlash('success', $translator->trans('Orphan tags deleted', [], 'admin'));
 
-                    return  $this->redirectToRoute('admin_maintenance');
+                    return $this->redirectToRoute('admin_maintenance');
                 }
             case 'app_cache':
                 {
@@ -130,17 +130,17 @@ class AdminMaintenanceController extends AbstractController
             case 'history_detail':
                 {
                     $historyRepository->deleteAll();
-                    return  $this->redirectToRoute('admin_maintenance');
+                    return $this->redirectToRoute('admin_maintenance');
                 }
             case 'history_summary':
                 {
                     $historySummaryRepository->deleteAll();
-                    return  $this->redirectToRoute('admin_maintenance');
+                    return $this->redirectToRoute('admin_maintenance');
                 }
             case 'feeds':
                 {
                     $userFeedRepository->deleteUserFeedNotChecked();
-                    return  $this->redirectToRoute('admin_maintenance');
+                    return $this->redirectToRoute('admin_maintenance');
                 }
             case 'database':
                 {
@@ -172,23 +172,23 @@ class AdminMaintenanceController extends AbstractController
                     $upgrade_file = $params->get('kernel.project_dir') . '/install/upgrade_' . $current_release . '.php';
                     if (is_readable($upgrade_file)) {
                         // ob_start();
-                        include($upgrade_file);
+                        include ($upgrade_file);
                         // ob_end_clean();
                     }
 
-                    return  $this->redirectToRoute('admin_maintenance');
+                    return $this->redirectToRoute('admin_maintenance');
                 }
             case 'search':
                 {
                     $searchRepository->purge();
 
-                    return  $this->redirectToRoute('admin_maintenance');
+                    return $this->redirectToRoute('admin_maintenance');
                 }
             case 'obsolete':
                 {
                     $obsolete_file = $obsolete_file = $params->get('install_dir') . '/obsolete.list';
                     if (!is_readable($obsolete_file)) {
-                        return  $this->redirectToRoute('admin_maintenance');
+                        return $this->redirectToRoute('admin_maintenance');
                     }
 
                     $fs = new Filesystem();
@@ -269,13 +269,13 @@ class AdminMaintenanceController extends AbstractController
     private function fixConfiguration(Conf $conf): void
     {
         $conf->addOrUpdateParam('order_by', $conf['order_by'], 'json');
-        $conf->addOrUpdateParam('order_by', $conf['order_by_inside_category'], 'json');
+        $conf->addOrUpdateParam('order_by_inside_category', $conf['order_by_inside_category'], 'json');
     }
 
     public function derivatives(string $type, ImageStandardParams $image_std_params, DerivativeService $derivativeService): Response
     {
         $derivativeService->clearCache([$type], $image_std_params->getAllTypes());
 
-        return  $this->redirectToRoute('admin_maintenance');
+        return $this->redirectToRoute('admin_maintenance');
     }
 }

@@ -753,7 +753,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->setParameter('album_id', $album_id);
 
         foreach ($order_by as $order_by_element) {
-            $qb->addOrderBy('i.' . $order_by_element[0], $order_by_element[1]);
+            $qb->addOrderBy('ia.' . $order_by_element[0], $order_by_element[1]);
         }
 
         return $qb->getQuery()->getResult();

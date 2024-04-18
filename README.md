@@ -20,7 +20,9 @@ This project uses a database and support all database engines managed by [DBAL](
 
 [Download](https://download.phyxo.net/?C=M;O=A) the latest stable version and unarchive it.
 Transfer the content to your web space with any FTP client.
-Open your website and install database and first user through web interface.
+Open your website (https://example.com/phyxo/public/index.php or your domain name) and install database and first user through web interface.
+
+You can found more informations on [Installation from source page](../../wiki/Installation-from-source#finish-installation-in-your-favorite-browser)
 
 ### From source
 
