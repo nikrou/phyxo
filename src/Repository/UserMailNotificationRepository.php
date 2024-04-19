@@ -58,10 +58,8 @@ class UserMailNotificationRepository extends ServiceEntityRepository
         }
 
 
-        if (count($orders) > 0) {
-            foreach ($orders as $order_by) {
-                $qb->orderBy($order_by);
-            }
+        foreach ($orders as $order_by) {
+            $qb->orderBy($order_by);
         }
 
         return $qb->getQuery()->getResult();

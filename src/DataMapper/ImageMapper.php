@@ -137,7 +137,7 @@ class ImageMapper
             }
 
             if (isset($nb_comments_of, $nb_comments_of[$picture['image']->getId()])) {
-                $picture['NB_COMMENTS'] = $picture['nb_comments'] = (int) $nb_comments_of[$picture['image']->getId()];
+                $picture['NB_COMMENTS'] = $picture['nb_comments'] = $nb_comments_of[$picture['image']->getId()];
             }
 
             $name = Utils::render_element_name($picture);
@@ -308,12 +308,10 @@ class ImageMapper
         }
 
         if (!empty($comment)) {
-            $comment = strip_tags((string) $comment);
+            $comment = strip_tags($comment);
             $title .= ' ' . substr($comment, 0, 100) . (strlen($comment) > 100 ? '...' : '');
         }
 
-        $title = htmlspecialchars(strip_tags((string) $title));
-
-        return $title;
+        return htmlspecialchars(strip_tags($title));
     }
 }

@@ -16,7 +16,7 @@ namespace Phyxo\Block;
  */
 class RegisteredBlock
 {
-    private $dataCallback = null;
+    private $dataCallback;
 
     public function __construct(private readonly string $id, private readonly string $name, private readonly string $owner, callable $dataCallback = null)
     {

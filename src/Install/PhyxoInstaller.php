@@ -223,7 +223,7 @@ class PhyxoInstaller
         $sql_lines = file($filepath);
         $query = '';
         foreach ($sql_lines as $sql_line) {
-            $sql_line = trim((string) $sql_line);
+            $sql_line = trim($sql_line);
             if (preg_match('/(^--|^$)/', $sql_line)) {
                 continue;
             }

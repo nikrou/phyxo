@@ -30,7 +30,7 @@ class ApiContext implements Context
 
     private ResponseInterface $response;
 
-    private $json_data = null;
+    private $json_data;
 
     private $json_decoded = false;
 

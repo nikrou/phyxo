@@ -137,7 +137,7 @@ class AdminRatingController extends AbstractController
                 'AVG_RATE' => round($image['avg_rates'], 2),
                 'SUM_RATE' => $image['sum_rates'],
                 'NB_RATES' => (int) $image['nb_rates'],
-                'NB_RATES_TOTAL' => (int) $nb_rates,
+                'NB_RATES_TOTAL' => $nb_rates,
                 'FILE' => $image['file'],
                 'rates' => []
             ];
@@ -263,7 +263,7 @@ class AdminRatingController extends AbstractController
         //all image averages
         $all_img_sum = [];
         foreach ($rateRepository->calculateAverageByImage() as $rate) {
-            $all_img_sum[(int)$rate['image']] = ['avg' => (float)$rate['avg']];
+            $all_img_sum[$rate['image']] = ['avg' => (float)$rate['avg']];
         }
 
         $best_rated = [];
@@ -334,7 +334,6 @@ class AdminRatingController extends AbstractController
         }
 
         $tpl_params['order_by_options_selected'] = [$order_by_index];
-        $x = uasort($by_user_ratings, [$this, $available_order_by[$order_by_index][1]]);
 
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_rating_users');
         $tpl_params['F_MIN_RATES'] = $filter_min_rates;

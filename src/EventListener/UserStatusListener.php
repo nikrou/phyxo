@@ -29,9 +29,7 @@ class UserStatusListener
                 $entity->getUser()->addRole(User::getRoleFromStatus($entity->getStatus()));
             }
         } elseif ($entity instanceof User) {
-            if ($entity->getUserInfos() !== null) {
-                $entity->addRole(User::getRoleFromStatus($entity->getUserInfos()->getStatus()));
-            }
+            $entity->addRole(User::getRoleFromStatus($entity->getUserInfos()->getStatus()));
         }
     }
 }

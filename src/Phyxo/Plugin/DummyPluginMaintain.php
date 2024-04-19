@@ -21,16 +21,12 @@ class DummyPluginMaintain implements PluginMaintain
 
     public function install(string $plugin_version): array
     {
-        $errors = [];
-
-        return $errors;
+        return [];
     }
 
     public function activate(string $plugin_version): array
     {
-        $errors = [];
-
-        return $errors;
+        return [];
     }
 
     public function deactivate()
@@ -43,8 +39,6 @@ class DummyPluginMaintain implements PluginMaintain
 
     public function update(string $old_version, string $new_version): array
     {
-        $errors = [];
-
-        return $errors;
+        return [];
     }
 }

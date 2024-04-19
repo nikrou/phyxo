@@ -598,7 +598,7 @@ class Image
             } else {
                 $tag_names = preg_split('~(?<!\\\),~', (string) $params['tags']);
                 foreach ($tag_names as $tag_name) {
-                    $tag_ids[] = $service->getTagMapper()->tagIdFromTagName(preg_replace('#\\\\*,#', ',', (string) $tag_name));
+                    $tag_ids[] = $service->getTagMapper()->tagIdFromTagName(preg_replace('#\\\\*,#', ',', $tag_name));
                 }
             }
 
@@ -1080,9 +1080,7 @@ class Image
             $rank = 'auto';
             $rank_on_album[$album_id] = $rank;
 
-            if ($rank === 'auto') {
-                $search_current_ranks = true;
-            }
+            $search_current_ranks = true;
         }
 
         $album_ids = array_unique($album_ids);
@@ -1110,7 +1108,7 @@ class Image
             }
 
             if ($rank_on_album[$album->getId()] === 'auto') {
-                $rank_on_album[$album->getId()] = $current_rank_of[$album->getId()] + 1;
+                $rank_on_album[$album->getId()] = 1;
             }
 
             $image_album = new ImageAlbum();
@@ -1150,8 +1148,6 @@ class Image
         }
 
         sort($chunks);
-
-        $i = 0;
 
         foreach ($chunks as $chunk) {
             $string = file_get_contents($chunk);

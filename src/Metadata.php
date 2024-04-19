@@ -102,10 +102,10 @@ class Metadata
         if (isset($iptc['keywords'])) {
             // official keywords separator is the comma
             $iptc['keywords'] = preg_replace('/[.;]/', ',', (string) $iptc['keywords']);
-            $iptc['keywords'] = preg_replace('/,+/', ',', $iptc['keywords']);
-            $iptc['keywords'] = preg_replace('/^,+|,+$/', '', $iptc['keywords']);
+            $iptc['keywords'] = preg_replace('/,+/', ',', (string) $iptc['keywords']);
+            $iptc['keywords'] = preg_replace('/^,+|,+$/', '', (string) $iptc['keywords']);
 
-            $iptc['keywords'] = implode(',', array_unique(explode(',', $iptc['keywords'])));
+            $iptc['keywords'] = implode(',', array_unique(explode(',', (string) $iptc['keywords'])));
         }
 
         return $iptc;
@@ -185,10 +185,6 @@ class Metadata
                     unset($exif[$exif_key]);
                     continue;
                 }
-            }
-
-            if (!empty($exif[$exif_key])) {
-                $exif[$exif_key] = $exif[$exif_key];
             }
         }
 

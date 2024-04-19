@@ -21,9 +21,7 @@ class DummyThemeMaintain implements ThemeMaintain
 
     public function activate($theme_version): array
     {
-        $errors = [];
-
-        return $errors;
+        return [];
     }
 
     public function deactivate()

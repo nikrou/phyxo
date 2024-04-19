@@ -37,9 +37,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         self::STATUS_GUEST => 'ROLE_USER'
     ];
 
-    /** @phpstan-ignore-next-line */
-    private $salt;
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -149,7 +146,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->username;
+        return $this->username;
     }
 
     public function getPassword(): ?string
@@ -516,7 +513,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
 
     public function getLang(): ?string
     {
-        return preg_replace('`_.*`', '', $this->getUserInfos()->getLanguage());
+        return preg_replace('`_.*`', '', (string) $this->getUserInfos()->getLanguage());
     }
 
     public function getTheme(): ?string

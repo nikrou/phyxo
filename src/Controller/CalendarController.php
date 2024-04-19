@@ -124,7 +124,7 @@ class CalendarController extends AbstractController
                     'date_type' => $date_type,
                     'year' => $year,
                     'month' => $this->formatDatePart($month),
-                    'day' => $this->formatDatePart((int) $rowDay['day'])
+                    'day' => $this->formatDatePart($rowDay['day'])
                 ]
             );
         }

@@ -109,7 +109,7 @@ trait CommentControllerTrait
             }
 
             $start = 0;
-            if (($comment_id === 0) && $appUserService->canManageComment('edit', $comment->getUser()->getId())) {
+            if ($appUserService->canManageComment('edit', $comment->getUser()->getId())) {
                 $tpl_comment['U_EDIT'] = $this->generateUrl('comment_edit', array_merge(
                     ['_fragment' => 'comment-' . $comment->getId(), 'start' => $start, 'comment_id' => $comment->getId()],
                     $request->query->all()

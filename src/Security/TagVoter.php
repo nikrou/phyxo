@@ -56,30 +56,26 @@ class TagVoter extends Voter
         if ($this->security->isGranted('ROLE_WEBMASTER')) {
             return true;
         }
-
-        $image = $subject;
         return match ($attribute) {
-            self::ADD => $this->canAddTag($image, $user),
-            self::DELETE => $this->canDeleteTag($image, $user),
+            self::ADD => $this->canAddTag(),
+            self::DELETE => $this->canDeleteTag(),
             default => throw new LogicException('This code should not be reached!'),
         };
     }
 
-    private function canAddTag(Image $image, UserInterface $user): bool
+    private function canAddTag(): bool
     {
         if (empty($this->conf['tags_permission_add'])) {
             return false;
         }
-
         return $this->security->isGranted(User::getRoleFromStatus($this->conf['tags_permission_add']));
     }
 
-    private function canDeleteTag(Image $image, UserInterface $user): bool
+    private function canDeleteTag(): bool
     {
         if (empty($this->conf['tags_permission_delete'])) {
             return false;
         }
-
         return $this->security->isGranted(User::getRoleFromStatus($this->conf['tags_permission_delete']));
     }
 }

@@ -136,7 +136,7 @@ class Languages extends Extensions
     {
         if (!$this->fs_languages_retrieved) {
             foreach (glob($this->languages_root_path . '/messages+intl-icu.*.php') as $messages_file) {
-                if (!preg_match('`.*messages\+intl\-icu\.([a-zA-Z0-9-_]+)\.php`', (string) $messages_file, $matches)) {
+                if (!preg_match('`.*messages\+intl\-icu\.([a-zA-Z0-9-_]+)\.php`', $messages_file, $matches)) {
                     continue;
                 }
                 $language_code = $matches[1];

@@ -232,8 +232,7 @@ class TagController extends AbstractController
                 $title .= '</a>';
             }
         }
-        $title .= '</li>';
 
-        return $title;
+        return $title . '</li>';
     }
 }

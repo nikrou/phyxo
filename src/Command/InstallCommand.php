@@ -52,7 +52,7 @@ class InstallCommand extends Command
             ->addOption('db_user', null, InputOption::VALUE_OPTIONAL, 'Database username')
             ->addOption('db_password', null, InputOption::VALUE_OPTIONAL, 'Database password')
             ->addOption('db_name', null, InputOption::VALUE_REQUIRED, 'Database name')
-            ->addOption('db_prefix', null, InputOption::VALUE_REQUIRED, 'Database prefix for tables', (string) $this->default_prefix);
+            ->addOption('db_prefix', null, InputOption::VALUE_REQUIRED, 'Database prefix for tables', $this->default_prefix);
     }
 
     public function interact(InputInterface $input, OutputInterface $output): void
@@ -126,7 +126,7 @@ class InstallCommand extends Command
             $this->db_params['db_prefix'] = $input->getOption('db_prefix') ?: $this->default_prefix;
         } else {
             if (!$io->askQuestion(new ConfirmationQuestion("Install Phyxo using these settings?", true))) {
-                return (int) Command::SUCCESS;
+                return Command::SUCCESS;
             }
         }
 
@@ -150,7 +150,7 @@ class InstallCommand extends Command
             $command->run(new ArrayInput($arguments), $output);
         } catch (Exception $e) {
             $io->error($e->getMessage());
-            return (int) Command::FAILURE;
+            return Command::FAILURE;
         }
 
         $this->writeInfo($io, "What's next?");
@@ -160,7 +160,7 @@ class InstallCommand extends Command
             'Go to http://your.hostname/path/to/phyxo and start using your application'
         ]);
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 
     protected function writeInfo($io, string $message)

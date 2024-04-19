@@ -31,10 +31,6 @@ class Plugin
     #[ORM\Column(type: 'string', length: 64, nullable: true)]
     private ?string $version = null;
 
-    public function __construct()
-    {
-    }
-
     public function setId(string $id): self
     {
         $this->id = $id;

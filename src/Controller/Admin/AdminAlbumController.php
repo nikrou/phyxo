@@ -182,7 +182,7 @@ class AdminAlbumController extends AbstractController
             $uppercats = '';
             $local_dir = '';
             $uppercats = $album->getUppercats();
-            $upper_array = explode(',', $uppercats);
+            $upper_array = explode(',', (string) $uppercats);
             $database_dirs = [];
             foreach ($albumMapper->getRepository()->findBy(['id' => $uppercats]) as $uppercat_album) {
                 $database_dirs[$uppercat_album->getId()] = $uppercat_album->getDir();
@@ -346,7 +346,7 @@ class AdminAlbumController extends AbstractController
             'rank ASC' => $translator->trans('Manual sort order', [], 'admin'),
         ];
 
-        $image_order = explode(',', $album->getImageOrder());
+        $image_order = explode(',', (string) $album->getImageOrder());
         for ($i = 0; $i < 3; $i++) { // 3 fields
             if (isset($image_order[$i])) {
                 $tpl_params['image_order'][] = $image_order[$i];

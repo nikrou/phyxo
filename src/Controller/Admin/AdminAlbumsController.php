@@ -78,7 +78,7 @@ class AdminAlbumsController extends AbstractController
 
             foreach (array_keys($albums) as $album_id) {
                 foreach ($all_albums as $id => $uppercats) {
-                    if (preg_match('/(^|,)' . $album_id . ',/', $uppercats)) {
+                    if (preg_match('/(^|,)' . $album_id . ',/', (string) $uppercats)) {
                         $subcats_of[$album_id][] = $id;
                     }
                 }

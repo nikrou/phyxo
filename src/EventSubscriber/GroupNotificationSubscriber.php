@@ -65,7 +65,7 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
 
         $message = (new TemplatedEmail())->subject($subject);
 
-        foreach ($languages as $language => $users) {
+        foreach ($languages as $users) {
             //@switch to language in template (@see switch_lang_to and switch_lang_back from Mail class)
             foreach ($users as $user) {
                 $message->addBcc($user->getMailAddress(), $user->getUsername());

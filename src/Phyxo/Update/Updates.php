@@ -24,13 +24,29 @@ use Symfony\Component\HttpClient\HttpClient;
 
 class Updates
 {
-    private $versions = [], $version = [];
-    private array $types = ['plugins' => 'plugins', 'themes' => 'themes', 'languages' => 'language'];
-    private $update_url, $pem_url, $missing = [];
-    private $core_need_update = false, $extensions_need_update = [];
+    private $versions = [];
 
-    public function __construct(private readonly UserMapper $userMapper, private readonly string $core_version, private readonly Plugins $plugins, private readonly Themes $themes, private readonly Languages $languages)
-    {
+    private $version = [];
+
+    private array $types = ['plugins' => 'plugins', 'themes' => 'themes', 'languages' => 'language'];
+
+    private $update_url;
+
+    private $pem_url;
+
+    private $missing = [];
+
+    private $core_need_update = false;
+
+    private $extensions_need_update = [];
+
+    public function __construct(
+        private readonly UserMapper $userMapper,
+        private readonly string $core_version,
+        private readonly Plugins $plugins,
+        private readonly Themes $themes,
+        private readonly Languages $languages
+    ) {
     }
 
     public function setUpdateUrl($url)
@@ -130,7 +146,6 @@ class Updates
         foreach ($zip->listContent() as $file) {
             $filename = str_replace('phyxo/', '', (string) $file['filename']);
             $dest = $dest_dir = $root . '/' . $filename;
-            while (!is_dir($dest_dir = dirname($dest_dir)));
 
             if ((file_exists($dest) && !is_writable($dest)) || (!file_exists($dest) && !is_writable($dest_dir))) {
                 $not_writable[] = $filename;
@@ -144,7 +159,7 @@ class Updates
         }
 
         // @TODO: remove arobase ; extract try to make a touch on every file but sometimes failed.
-        $result = @$zip->extract(
+        @$zip->extract(
             PCLZIP_OPT_PATH,
             __DIR__ . '/../../../',
             PCLZIP_OPT_REMOVE_PATH,
@@ -250,8 +265,6 @@ class Updates
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
-
-        return [];
     }
 
     public function checkCoreUpgrade()

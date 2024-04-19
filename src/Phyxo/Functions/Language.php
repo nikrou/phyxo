@@ -243,8 +243,8 @@ class Language
     {
         $str = $safe = self::transliterate($str);
         $str = preg_replace('/[^\x80-\xffa-z0-9_\s\'\:\/\[\],-]/', '', $str);
-        $str = preg_replace('/[\s\'\:\/\[\],-]+/', ' ', trim($str));
-        $res = str_replace(' ', '_', $str);
+        $str = preg_replace('/[\s\'\:\/\[\],-]+/', ' ', trim((string) $str));
+        $res = str_replace(' ', '_', (string) $str);
 
         if (empty($res)) {
             $res = str_replace(' ', '_', $safe);

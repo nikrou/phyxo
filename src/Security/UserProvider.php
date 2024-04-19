@@ -61,10 +61,10 @@ class UserProvider implements UserProviderInterface
 
     public function refreshUser(UserInterface $user): User
     {
-        return $this->fetchUser($user->getUserIdentifier(), $force_refresh = true);
+        return $this->fetchUser($user->getUserIdentifier());
     }
 
-    private function fetchUser(string $identifier, bool $force_refresh = false): User
+    private function fetchUser(string $identifier): User
     {
         // @TODO : find a way to cache some request: if ($this->user_data === null || $force_refresh) -> tests failed
         $user = $this->userRepository->findOneBy(['username' => $identifier]);

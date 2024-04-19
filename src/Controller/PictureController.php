@@ -300,16 +300,14 @@ class PictureController extends AbstractController
 
         // related tags
         $tags = $tagMapper->getRelatedTags($appUserService->getUser(), $image_id, -1);
-        if (count($tags) > 0) {
-            foreach ($tags as $tag) {
-                $tpl_params['related_tags'][] = array_merge(
-                    $tag->toArray(),
-                    [
-                        'URL' => $this->generateUrl('images_by_tags', ['tag_ids' => $tag->toUrl()]),
-                        'U_TAG_IMAGE' => $this->generateUrl('images_by_tags', ['tag_ids' => $tag->toUrl()]),
-                    ]
-                );
-            }
+        foreach ($tags as $tag) {
+            $tpl_params['related_tags'][] = array_merge(
+                $tag->toArray(),
+                [
+                    'URL' => $this->generateUrl('images_by_tags', ['tag_ids' => $tag->toUrl()]),
+                    'U_TAG_IMAGE' => $this->generateUrl('images_by_tags', ['tag_ids' => $tag->toUrl()]),
+                ]
+            );
         }
 
         $image = $imageMapper->getRepository()->find($image_id);
@@ -450,7 +448,7 @@ class PictureController extends AbstractController
                     $comment->setWebsiteUrl($imageCommentModel->getWebsiteUrl());
                     $comment->setImage($image);
                     $comment->setUser($appUserService->getUser());
-                    $comment->setAnonymousId(md5($request->getClientIp()));
+                    $comment->setAnonymousId(md5((string) $request->getClientIp()));
                     $comment->setDate(new DateTime());
                     $comment->setValidated($validated);
                     if ($validated) {
@@ -650,7 +648,6 @@ class PictureController extends AbstractController
                 foreach ($conf['show_exif_fields'] as $field) {
                     if (!str_contains((string) $field, ';')) {
                         if (isset($exif[$field])) {
-                            $key = $field;
                             $key = $this->translator->trans('exif_field_' . $field);
 
                             $tpl_meta['lines'][$key] = $exif[$field];
@@ -680,7 +677,6 @@ class PictureController extends AbstractController
                 ];
 
                 foreach ($iptc as $field => $value) {
-                    $key = $field;
                     $key = $this->translator->trans($field);
 
                     $tpl_meta['lines'][$key] = $value;

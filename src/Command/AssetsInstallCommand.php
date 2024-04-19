@@ -38,7 +38,7 @@ class AssetsInstallCommand extends Command
         private readonly ThemeRepository $themeRepository,
         private readonly UserMapper $userMapper,
         private readonly DirectoryManager $directoryManager,
-        private Filesystem $fs
+        private readonly Filesystem $fs
     ) {
         parent::__construct();
     }

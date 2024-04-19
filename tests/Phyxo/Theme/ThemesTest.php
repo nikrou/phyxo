@@ -14,6 +14,7 @@ namespace App\Tests\Phyxo\Theme;
 use App\DataMapper\UserMapper;
 use App\Entity\User;
 use App\Repository\ThemeRepository;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Phyxo\Theme\Themes;
 use Prophecy\PhpUnit\ProphecyTrait;
@@ -64,9 +65,7 @@ class ThemesTest extends TestCase
         $this->assertEquals($this->getLocalThemes(), $themes->getFsThemes());
     }
 
-    /**
-     * @dataProvider sortThemesDataProvider
-     */
+    #[DataProvider('sortThemesDataProvider')]
     public function testSortThemes(string $sort_type, array $order)
     {
         $workspace = $this->mirrorToWorkspace();

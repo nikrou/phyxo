@@ -81,18 +81,16 @@ class AdminPluginsController extends AbstractController
             array_keys($plugins->getFsPlugins())
         );
 
-        if (count($missing_plugin_ids) > 0) {
-            foreach ($missing_plugin_ids as $plugin_id) {
-                $tpl_plugin = [
-                    'ID' => $plugin_id,
-                    'NAME' => $plugin_id,
-                    'VERSION' => $plugins->getDbPlugins()[$plugin_id]->getVersion(),
-                    'DESC' => $translator->trans('Error! This plugin is missing but it is installed! Uninstall it now.', [], 'admin'),
-                    'state' => 'missing',
-                ];
-                $tpl_plugins[] = $tpl_plugin;
-                $tpl_params['plugins_by_state'][$tpl_plugin['state']]++;
-            }
+        foreach ($missing_plugin_ids as $plugin_id) {
+            $tpl_plugin = [
+                'ID' => $plugin_id,
+                'NAME' => $plugin_id,
+                'VERSION' => $plugins->getDbPlugins()[$plugin_id]->getVersion(),
+                'DESC' => $translator->trans('Error! This plugin is missing but it is installed! Uninstall it now.', [], 'admin'),
+                'state' => 'missing',
+            ];
+            $tpl_plugins[] = $tpl_plugin;
+            $tpl_params['plugins_by_state'][$tpl_plugin['state']]++;
         }
 
         try {

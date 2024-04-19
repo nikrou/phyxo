@@ -39,14 +39,8 @@ class FeedController extends AbstractController
             $feed->setUser($appUserService->getUser());
             $userFeedRepository->addOrUpdateUserFeed($feed);
         }
-
-        if ($appUserService->isGuest()) {
-            $tpl_params['U_FEED'] = $this->generateUrl('feed', ['feed_id' => $feed->getUuid()]);
-            $tpl_params['U_FEED_IMAGE_ONLY'] = $this->generateUrl('feed_image_only', ['feed_id' => $feed->getUuid()]);
-        } else {
-            $tpl_params['U_FEED'] = $this->generateUrl('feed', ['feed_id' => $feed->getUuid()]);
-            $tpl_params['U_FEED_IMAGE_ONLY'] = $this->generateUrl('feed_image_only', ['feed_id' => $feed->getUuid()]);
-        }
+        $tpl_params['U_FEED'] = $this->generateUrl('feed', ['feed_id' => $feed->getUuid()]);
+        $tpl_params['U_FEED_IMAGE_ONLY'] = $this->generateUrl('feed_image_only', ['feed_id' => $feed->getUuid()]);
 
         return $this->render('notification.html.twig', $tpl_params);
     }

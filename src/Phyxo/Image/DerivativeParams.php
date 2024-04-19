@@ -94,7 +94,7 @@ class DerivativeParams
             return (string) $s[0];
         }
 
-        return (string) $s[0] . 'x' . $s[1];
+        return $s[0] . 'x' . $s[1];
     }
 
     public static function size_equals(array $s1, array $s2): bool

@@ -345,11 +345,9 @@ class Notification
                 . ' (' . $this->translator->trans('number_of_new_photos', ['count' => $cat['img_count']]) . ')'
                 . '</li>';
         }
-        $description .= '</ul>';
-
         $description .= '</ul>'; // @TODO: fix html output. Cannot have two </ul>
 
-        return $description;
+        return $description . '</ul>';
     }
 
     /**
@@ -364,9 +362,8 @@ class Notification
         $date = $date_detail['date_available'];
 
         $title = $this->translator->trans('number_of_new_photos', ['count' => $date_detail['nb_elements']]);
-        $title .= ' (' . $this->translator->trans($english_months[$date->format('n')]) . ' ' . $date->format('d') . ')';
 
-        return $title;
+        return $title . (' (' . $this->translator->trans($english_months[$date->format('n')]) . ' ' . $date->format('d') . ')');
     }
 
     /*
@@ -527,8 +524,6 @@ class Notification
                 $do_update = true;
                 if ($nbm_user->getUser()->getMailAddress()) {
                     $subject = ($is_subscribe ? $this->translator->trans('Subscribe to notification by mail') : $this->translator->trans('Unsubscribe from notification by mail'));
-
-                    $mail_params = [];
                     $mail_params = $this->assign_vars_nbm_mail_content($nbm_user);
 
                     $section_action_by = ($is_subscribe ? 'subscribe_by_' : 'unsubscribe_by_');

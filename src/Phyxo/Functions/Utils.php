@@ -130,7 +130,7 @@ class Utils
 
         if ($nb_elements > $nb_element_page) {
             try {
-                $cur_page = $navbar['CURRENT_PAGE'] = (int) $start / $nb_element_page + 1;
+                $cur_page = $navbar['CURRENT_PAGE'] = $start / $nb_element_page + 1;
                 $maximum = (int) ceil($nb_elements / $nb_element_page);
 
                 $start = (int) ceil($nb_element_page * ($start / $nb_element_page));
@@ -269,7 +269,7 @@ class Utils
         $replacement = '<a href="$1" rel="nofollow">$1</a>';
         $content = preg_replace($pattern, $replacement, $content);
 
-        $content = nl2br($content);
+        $content = nl2br((string) $content);
 
         // replace _word_ by an underlined word
         $pattern = '/\b_(\S*)_\b/';
@@ -279,16 +279,15 @@ class Utils
         // replace *word* by a bolded word
         $pattern = '/\b\*(\S*)\*\b/';
         $replacement = '<span style="font-weight:bold;">$1</span>';
-        $content = preg_replace($pattern, $replacement, $content);
+        $content = preg_replace($pattern, $replacement, (string) $content);
 
         // replace /word/ by an italic word
         $pattern = "/\/(\S*)\/(\s)/";
         $replacement = '<span style="font-style:italic;">$1$2</span>';
-        $content = preg_replace($pattern, $replacement, $content);
 
         // @TODO : add a trigger
 
-        return $content;
+        return preg_replace($pattern, $replacement, (string) $content);
     }
 
     /**

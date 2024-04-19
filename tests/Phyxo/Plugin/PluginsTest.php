@@ -13,6 +13,7 @@ namespace App\Tests\Phyxo\Plugin;
 
 use App\DataMapper\UserMapper;
 use App\Repository\PluginRepository;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Phyxo\Plugin\Plugins;
 use Prophecy\Argument;
@@ -68,9 +69,7 @@ class PluginsTest extends TestCase
         $this->assertEquals($this->getLocalPlugins(), $plugins->getFsPlugins());
     }
 
-    /**
-     * @dataProvider sortPluginsDataProvider
-     */
+    #[DataProvider('sortPluginsDataProvider')]
     public function testSortPlugins(string $sort_type, array $order)
     {
         $workspace = $this->mirrorToWorkspace();
@@ -109,8 +108,6 @@ class PluginsTest extends TestCase
         $pluginRepository = $this->prophesize(PluginRepository::class);
         $plugins = new Plugins($pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
-
-        $plugin_id = 'myPlugin';
         $this->expectExceptionMessage("Cannot download plugin file");
         $plugins->extractPluginFiles('install', 10);
     }

@@ -144,10 +144,8 @@ class ImageRepository extends ServiceEntityRepository
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
-        if (count($sorts) > 0) {
-            foreach ($sorts as $order_by) {
-                $qb->orderBy('i.' . $order_by[0], $order_by[1] ?? null);
-            }
+        foreach ($sorts as $order_by) {
+            $qb->orderBy('i.' . $order_by[0], $order_by[1] ?? null);
         }
 
         if (!is_null($limit)) {
@@ -175,10 +173,8 @@ class ImageRepository extends ServiceEntityRepository
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
-        if (count($sorts) > 0) {
-            foreach ($sorts as $order_by) {
-                $qb->orderBy('i.' . $order_by[0], $order_by[1] ?? null);
-            }
+        foreach ($sorts as $order_by) {
+            $qb->orderBy('i.' . $order_by[0], $order_by[1] ?? null);
         }
 
         return $qb->getQuery()->getResult();
@@ -212,10 +208,8 @@ class ImageRepository extends ServiceEntityRepository
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
-        if (count($sorts) > 0) {
-            foreach ($sorts as $order_by) {
-                $qb->orderBy('i.' . $order_by[0], $order_by[1] ?? null);
-            }
+        foreach ($sorts as $order_by) {
+            $qb->orderBy('i.' . $order_by[0], $order_by[1] ?? null);
         }
 
         $qb->setMaxResults($limit);
@@ -835,10 +829,8 @@ class ImageRepository extends ServiceEntityRepository
         $qb->setMaxResults($limit);
         $qb->setFirstResult($offset);
 
-        if (is_array($order_by)) {
-            foreach ($order_by as $order_by_element) {
-                $qb->addOrderBy('i.' . $order_by_element[0], $order_by_element[1]);
-            }
+        foreach ($order_by as $order_by_element) {
+            $qb->addOrderBy('i.' . $order_by_element[0], $order_by_element[1]);
         }
 
         return $qb->getQuery()->getResult();

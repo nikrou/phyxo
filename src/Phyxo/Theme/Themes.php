@@ -106,14 +106,11 @@ class Themes extends Extensions
                 }
 
                 $theme_maintain->activate($this->fs_themes[$theme_id]['version'], $error);
-
-                if ($error === '') {
-                    $theme = new Theme();
-                    $theme->setId($theme_id);
-                    $theme->setVersion($this->fs_themes[$theme_id]['version']);
-                    $theme->setName($this->fs_themes[$theme_id]['name']);
-                    $this->themeRepository->addTheme($theme);
-                }
+                $theme = new Theme();
+                $theme->setId($theme_id);
+                $theme->setVersion($this->fs_themes[$theme_id]['version']);
+                $theme->setName($this->fs_themes[$theme_id]['name']);
+                $this->themeRepository->addTheme($theme);
                 break;
 
             case 'deactivate':
@@ -231,7 +228,7 @@ class Themes extends Extensions
                     continue;
                 }
 
-                $this->getFsTheme(basename((string) $theme_dir));
+                $this->getFsTheme(basename($theme_dir));
             }
 
             $this->fs_themes_retrieved = true;

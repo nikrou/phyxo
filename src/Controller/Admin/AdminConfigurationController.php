@@ -306,7 +306,7 @@ class AdminConfigurationController extends AbstractController
         $watermark_files = [];
 
         foreach (glob($themesDir . '/*/watermarks/*.png') as $file) {
-            $watermark_files[] = 'themes' . substr((string) $file, strlen($themesDir));
+            $watermark_files[] = 'themes' . substr($file, strlen($themesDir));
         }
 
         if (($glob = glob($localDir . '/watermarks/*.png')) !== false) {

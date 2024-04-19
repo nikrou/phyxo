@@ -331,8 +331,7 @@ class AdminHistoryController extends AbstractController
             if ($line->getTagIds()) {
                 $tags_string = preg_replace_callback(
                     '/(\d+)/',
-                    fn($m) => /** @phpstan-ignore-next-line */
-isset($name_of_tag[$m[1]]) ? $name_of_tag[$m[1]]['url'] : $m[1],
+                    fn($m) => isset($name_of_tag[$m[1]]) ? $name_of_tag[$m[1]]['url'] : $m[1],
                     str_replace(
                         ',',
                         ', ',
@@ -367,7 +366,7 @@ isset($name_of_tag[$m[1]]) ? $name_of_tag[$m[1]]['url'] : $m[1],
 
         $summary['nb_members'] = count($username_of);
         $member_strings = [];
-        foreach ($username_of as $user_id => $user_name) {
+        foreach ($username_of as $user_name) {
             $member_strings[] = $user_name;
         }
 

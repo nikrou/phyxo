@@ -107,7 +107,7 @@ class AlbumMapper
                         ' / '
                     ),
                     'URL' => $this->router->generate('album', ['album_id' => $album->getId()]),
-                    'LEVEL' => substr_count($album->getGlobalRank(), '.') + 1,
+                    'LEVEL' => substr_count((string) $album->getGlobalRank(), '.') + 1,
                     'SELECTED' => isset($selected_album['id']) && $selected_album['id'] === $album->getId() ? true : false,
                     'IS_UPPERCAT' => isset($selected_album['id_uppercat']) && $selected_album['id_uppercat'] === $album->getId() ? true : false,
                     'count_images' => $album->getUserCacheAlbums()->first()->getCountImages(),
@@ -249,7 +249,7 @@ class AlbumMapper
         $breadcumb = [];
 
         $upper_names = [];
-        $upper_ids = explode(',', $album->getUppercats());
+        $upper_ids = explode(',', (string) $album->getUppercats());
         if (count($upper_ids) === 1) { // no need to make a query for level 1
             $upper_names = [
                 [
@@ -375,7 +375,7 @@ class AlbumMapper
             foreach ($albums as $album) {
                 // technically, you can't move a category with uppercats 12,125,13,14
                 // into a new parent category with uppercats 12,125,13,14,24
-                if (preg_match('/^' . $album['uppercats'] . '(,|$)/', $new_parent_uppercats)) {
+                if (preg_match('/^' . $album['uppercats'] . '(,|$)/', (string) $new_parent_uppercats)) {
                     throw new Exception($this->translator->trans('You cannot move an album in its own sub album'));
                 }
             }
@@ -410,7 +410,7 @@ class AlbumMapper
      */
     public function updateUppercats(): void
     {
-        foreach ($this->getCacheAlbums() as $id => $album) {
+        foreach ($this->getCacheAlbums() as $album) {
             $upper_list = [];
 
             $uppercat = $album;
@@ -491,7 +491,7 @@ class AlbumMapper
                 $is_top = true;
 
                 if ($album->getParent()) {
-                    foreach (explode(',', $album->getUppercats()) as $id_uppercat) {
+                    foreach (explode(',', (string) $album->getUppercats()) as $id_uppercat) {
                         if (isset($top_albums[$id_uppercat])) {
                             $is_top = false;
                             break;
@@ -561,7 +561,7 @@ class AlbumMapper
 
         $uppercats = [];
         foreach ($ids as $id) {
-            $uppercats = array_merge($uppercats, explode(',', $this->getCacheAlbums()[$id]->getUppercats()));
+            $uppercats = array_merge($uppercats, explode(',', (string) $this->getCacheAlbums()[$id]->getUppercats()));
         }
 
         return array_unique($uppercats);
@@ -656,7 +656,7 @@ class AlbumMapper
             $album->setUppercats((string) $album_id);
             $album->setGlobalRank((string) $album_id);
         }
-        $album_id = $this->albumRepository->addOrUpdateAlbum($album);
+        $this->albumRepository->addOrUpdateAlbum($album);
 
         if ($album->getStatus() === Album::STATUS_PRIVATE) {
             if ($album->getParent() && (!empty($options['inherit']) || $this->conf['inheritance_by_default'])) {
@@ -688,7 +688,7 @@ class AlbumMapper
      */
     public function globalRankCompare(Album $a, Album $b): int
     {
-        return strnatcasecmp($a->getGlobalRank(), $b->getGlobalRank());
+        return strnatcasecmp((string) $a->getGlobalRank(), (string) $b->getGlobalRank());
     }
 
     /**
@@ -755,7 +755,7 @@ class AlbumMapper
 
         foreach ($albums as $id => $album) {
             /** @phpstan-ignore-next-line */
-            $new_global_rank = preg_replace_callback('/(\d+)/', $map_callback, str_replace(',', '.', $album['uppercats']));
+            $new_global_rank = preg_replace_callback('/(\d+)/', $map_callback, str_replace(',', '.', (string) $album['uppercats']));
 
             if ($album['rank_changed'] || $new_global_rank !== $album['global_rank']) {
                 $album_to_update = $this->getCacheAlbums()[$id];
@@ -793,7 +793,7 @@ class AlbumMapper
             $subcat_ids = [];
 
             foreach ($uppercats_of as $id => $album) {
-                if (preg_match('/(^|,)' . $album_id . '(,|$)/', $album->getUppercats())) {
+                if (preg_match('/(^|,)' . $album_id . '(,|$)/', (string) $album->getUppercats())) {
                     $subcat_ids[] = $id;
                 }
             }

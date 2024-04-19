@@ -740,10 +740,8 @@ class AdminBatchManagerController extends AbstractController
                     }
 
                     $ids = [];
-                    if (count($array_of_ids_string) > 0) {
-                        foreach ($array_of_ids_string as $ids_string) {
-                            $ids = array_merge($ids, explode(',', $ids_string));
-                        }
+                    foreach ($array_of_ids_string as $ids_string) {
+                        $ids = array_merge($ids, explode(',', $ids_string));
                     }
 
                     $filter_sets[] = $ids;

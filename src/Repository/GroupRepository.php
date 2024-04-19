@@ -111,7 +111,7 @@ class GroupRepository extends ServiceEntityRepository
         $qb->leftJoin('g.users', 'u'); // @TODO : no lazy because of count
 
         if (!is_null($name)) {
-            $qb->where($qb->expr()->lower('g.name'), ':name');
+            $qb->where($qb->expr()->eq("lower('g.name')", ':name'));
             $qb->setParameter('name', $name);
         }
 

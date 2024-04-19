@@ -93,13 +93,10 @@ class Plugins extends Extensions
                 }
 
                 $plugin_maintain->install($this->fs_plugins[$plugin_id]['version'], $error);
-
-                if ($error === '') {
-                    $plugin = new Plugin();
-                    $plugin->setId($plugin_id);
-                    $plugin->setVersion($this->fs_plugins[$plugin_id]['version']);
-                    $this->pluginRepository->addPlugin($plugin);
-                }
+                $plugin = new Plugin();
+                $plugin->setId($plugin_id);
+                $plugin->setVersion($this->fs_plugins[$plugin_id]['version']);
+                $this->pluginRepository->addPlugin($plugin);
                 break;
 
             case 'update':
@@ -183,7 +180,7 @@ class Plugins extends Extensions
                     continue;
                 }
 
-                $this->getFsPlugin(basename((string) $plugin_dir));
+                $this->getFsPlugin(basename($plugin_dir));
             }
             $this->fs_plugins_retrieved = true;
         }

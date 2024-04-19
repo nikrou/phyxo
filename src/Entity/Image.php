@@ -410,12 +410,12 @@ class Image
 
     public function getPathBasename(): string
     {
-        return (($pos = strrpos($this->getPath(), '.')) === false) ? $this->getPath() : substr($this->getPath(), 0, $pos);
+        return (($pos = strrpos((string) $this->getPath(), '.')) === false) ? $this->getPath() : substr((string) $this->getPath(), 0, $pos);
     }
 
     public function getExtension(): string
     {
-        return (($pos = strrpos($this->getPath(), '.')) === false) ? '' : substr($this->getPath(), $pos + 1);
+        return (($pos = strrpos((string) $this->getPath(), '.')) === false) ? '' : substr((string) $this->getPath(), $pos + 1);
     }
 
     /**

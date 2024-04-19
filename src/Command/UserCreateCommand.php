@@ -107,6 +107,6 @@ class UserCreateCommand extends Command
             $io->error($e->getMessage());
         }
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

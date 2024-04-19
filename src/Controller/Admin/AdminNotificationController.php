@@ -148,8 +148,6 @@ class AdminNotificationController extends AbstractController
         $this->translator = $translator;
         $must_repost = false;
 
-        $conf_derivatives = $conf['derivatives'];
-
         $tpl_var = [];
         $tpl_var['CUSTOMIZE_MAIL_CONTENT'] = $conf['nbm_complementary_mail_content'];
 

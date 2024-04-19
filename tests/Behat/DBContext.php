@@ -316,7 +316,7 @@ class DBContext implements Context
         $now = new DateTime('now');
         $upload_dir = sprintf('%s/%s', $this->getContainer()->getParameter('upload_dir'), $now->format('Y/m/d'));
 
-        $image_path = sprintf('%s/%s-%s.jpg', $upload_dir, $now->format('YmdHis'), substr($image->getMd5sum(), 0, 8));
+        $image_path = sprintf('%s/%s-%s.jpg', $upload_dir, $now->format('YmdHis'), substr((string) $image->getMd5sum(), 0, 8));
         $image->setDateAvailable($now);
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0777, true);
@@ -331,7 +331,7 @@ class DBContext implements Context
             $image->setDateCreation(new DateTime($image_infos['date_creation']));
         }
 
-        $image->setFile(basename($image->getFile()));
+        $image->setFile(basename((string) $image->getFile()));
         $image->setPath(substr($image_path, strlen($this->getContainer()->getParameter('root_project_dir')) + 1));
 
         $this->imageMapper->getRepository()->addOrUpdateImage($image);

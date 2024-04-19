@@ -66,6 +66,9 @@ jobs:
       - name: Unit tests
         run: composer phpunit
 
+      - name: Fake admin theme
+        run: mkdir -p public/admin/theme/build && echo '{}' > public/admin/theme/build/manifest.json
+
       - name: symfony local server
         run: symfony server:start --port 1080 --no-tls --daemon
 

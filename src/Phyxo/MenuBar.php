@@ -25,7 +25,7 @@ class MenuBar
 {
     private $menu;
 
-    private $route = null;
+    private $route;
 
     private $items = [];
 

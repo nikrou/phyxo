@@ -16,28 +16,32 @@ use Rector\Config\RectorConfig;
 use Rector\Doctrine\Set\DoctrineSetList;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\Set\ValueObject\LevelSetList;
-use Rector\Symfony\Set\SymfonyLevelSetList;
 use Rector\Symfony\Set\SymfonySetList;
 
-return static function (RectorConfig $rectorConfig): void {
-    $rectorConfig->paths([
+return RectorConfig::configure()
+    ->withPaths([
         __DIR__ . '/src',
         __DIR__ . '/tests'
-    ]);
+    ])
 
-    $rectorConfig->importNames();
+    ->withImportNames()
 
-    $rectorConfig->sets([
+    ->withSets([
         DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
         SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
         SymfonySetList::SYMFONY_CODE_QUALITY,
         SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
-        SymfonyLevelSetList::UP_TO_SYMFONY_64,
         LevelSetList::UP_TO_PHP_82,
-    ]);
+    ])
 
-    $rectorConfig->rules([
+    ->withRules([
         ClassPropertyAssignToConstructorPromotionRector::class,
         InlineConstructorDefaultToPropertyRector::class,
-    ]);
-};
+    ])
+
+    ->withPreparedSets(
+        deadCode: true,
+        // codeQuality: true,
+        // naming: true,
+        // privatization: true
+    );

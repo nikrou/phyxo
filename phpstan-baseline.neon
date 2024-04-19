@@ -9,9 +9,6 @@ parameters:
       path: src/Phyxo/Image/ImageStandardParams.php
 
     # need refactoring
-    - message: '#Unreachable statement - code above always terminates.#'
-      path: src/Phyxo/Update/Updates.php
-
     - message: '#Result of && is always false#'
       path: src/DataMapper/AlbumMapper.php
 
