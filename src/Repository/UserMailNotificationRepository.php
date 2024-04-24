@@ -28,8 +28,8 @@ class UserMailNotificationRepository extends ServiceEntityRepository
 
     public function addOrUpdateUserMailNotification(UserMailNotification $user_mail_notification): void
     {
-        $this->_em->persist($user_mail_notification);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($user_mail_notification);
+        $this->getEntityManager()->flush();
     }
 
     /**
@@ -73,7 +73,7 @@ class UserMailNotificationRepository extends ServiceEntityRepository
         $subQuery = $this->createQueryBuilder('n');
         $subQuery->select('identity(n.user)');
 
-        $qb = $this->_em->createQueryBuilder();
+        $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->from(User::class, 'u');
         $qb->select('u');
         $qb->where('u.mail_address != \'\'');

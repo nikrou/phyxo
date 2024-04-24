@@ -27,8 +27,8 @@ class FavoriteRepository extends ServiceEntityRepository
 
     public function addOrUpdateFavorite(Favorite $favorite): void
     {
-        $this->_em->persist($favorite);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($favorite);
+        $this->getEntityManager()->flush();
     }
 
     /**

@@ -29,8 +29,8 @@ class GroupRepository extends ServiceEntityRepository
 
     public function addOrUpdateGroup(Group $group): int
     {
-        $this->_em->persist($group);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($group);
+        $this->getEntityManager()->flush();
 
         return $group->getId();
     }
@@ -82,9 +82,9 @@ class GroupRepository extends ServiceEntityRepository
             foreach ($group->getUsers() as $user) {
                 $group->removeUser($user);
             }
-            $this->_em->remove($group);
+            $this->getEntityManager()->remove($group);
         }
-        $this->_em->flush();
+        $this->getEntityManager()->flush();
     }
 
     /**

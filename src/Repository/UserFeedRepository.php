@@ -27,8 +27,8 @@ class UserFeedRepository extends ServiceEntityRepository
 
     public function addOrUpdateUserFeed(UserFeed $user_feed): int
     {
-        $this->_em->persist($user_feed);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($user_feed);
+        $this->getEntityManager()->flush();
 
         return $user_feed->getId();
     }

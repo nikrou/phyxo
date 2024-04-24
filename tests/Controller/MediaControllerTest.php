@@ -27,13 +27,13 @@ class MediaControllerTest extends WebTestCase
 {
     use ProphecyTrait;
 
-    private $fixtures_dir = __DIR__ . '/../fixtures/media',
+    private $fixtures_dir = __DIR__ . '/../fixtures/media';
 
-    $sample_image = 'sample.jpg',
+    private $sample_image = 'sample.jpg';
 
-    $image_paths = '',
+    private $image_paths = '';
 
-    $derivative_path = '';
+    private $derivative_path = '';
 
     private $imageRepository;
 

@@ -34,8 +34,8 @@ class UserInfosRepository extends ServiceEntityRepository
     {
         $userInfos->setLastModified(new DateTime());
 
-        $this->_em->persist($userInfos);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($userInfos);
+        $this->getEntityManager()->flush();
     }
 
     /**

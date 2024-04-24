@@ -50,7 +50,11 @@ trait ValidatedConditionTrait
             $qb->expr()->eq('it.status', 1)
         );
 
-        $orConditions = [$addedAndValidated, $deletedAndNotValidated];
+        $orConditions = [$addedAndValidated];
+
+        if ($deletedAndNotValidated) {
+            $orConditions[] = $deletedAndNotValidated;
+        }
 
         $qb->andWhere($qb->expr()->orX(...$orConditions));
 

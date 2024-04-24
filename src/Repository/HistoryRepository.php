@@ -28,8 +28,8 @@ class HistoryRepository extends ServiceEntityRepository
 
     public function addOrUpdateHistory(History $history): int
     {
-        $this->_em->persist($history);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($history);
+        $this->getEntityManager()->flush();
 
         return $history->getId();
     }

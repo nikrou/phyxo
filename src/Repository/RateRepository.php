@@ -29,8 +29,8 @@ class RateRepository extends ServiceEntityRepository
 
     public function addOrUpdateRate(Rate $rate): void
     {
-        $this->_em->persist($rate);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($rate);
+        $this->getEntityManager()->flush();
     }
 
     /**
@@ -137,8 +137,8 @@ class RateRepository extends ServiceEntityRepository
 
     public function delete(Rate $rate): void
     {
-        $this->_em->remove($rate);
-        $this->_em->flush();
+        $this->getEntityManager()->remove($rate);
+        $this->getEntityManager()->flush();
     }
 
     /**

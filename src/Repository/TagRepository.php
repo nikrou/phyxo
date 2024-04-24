@@ -31,8 +31,8 @@ class TagRepository extends ServiceEntityRepository
 
     public function addOrUpdateTag(Tag $tag): int
     {
-        $this->_em->persist($tag);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($tag);
+        $this->getEntityManager()->flush();
 
         return $tag->getId();
     }
@@ -44,7 +44,7 @@ class TagRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('t');
         if (!empty($q)) {
-            $qb->where($qb->expr()->like($qb->expr()->lower('t.name'), ':q'));
+            $qb->where($qb->expr()->like("lower('t.name')", ':q'));
             $qb->setParameter('q', '%' . strtolower($q) . '%');
         }
 
@@ -179,8 +179,8 @@ class TagRepository extends ServiceEntityRepository
 
     public function delete(Tag $tag): void
     {
-        $this->_em->remove($tag);
-        $this->_em->flush();
+        $this->getEntityManager()->remove($tag);
+        $this->getEntityManager()->flush();
     }
 
     /**

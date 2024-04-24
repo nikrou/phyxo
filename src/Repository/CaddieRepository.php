@@ -27,8 +27,8 @@ class CaddieRepository extends ServiceEntityRepository
 
     public function addOrUpdateCaddie(Caddie $caddie): void
     {
-        $this->_em->persist($caddie);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($caddie);
+        $this->getEntityManager()->flush();
     }
 
     public function emptyCaddies(int $user_id): void

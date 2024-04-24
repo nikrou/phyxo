@@ -18,7 +18,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\ImageMapper;
-use App\Entity\UserCacheAlbum;
 use App\Repository\UserCacheAlbumRepository;
 use App\Security\AppUserService;
 use Phyxo\Functions\Utils;
@@ -124,12 +123,7 @@ class AlbumController extends AbstractController
             $tpl_thumbnails_var = [];
 
             foreach ($albums as $currentAlbum) {
-                $userCacheAlbum = $appUserService->getUser()->getUserCacheAlbums()->filter(fn(UserCacheAlbum $uca) => $uca->getAlbum()->getId() === $currentAlbum->getId())->first();
-
-                if (!$userCacheAlbum || $userCacheAlbum->getCountImages() === 0) {
-                    continue;
-                }
-
+                $userCacheAlbum = $currentAlbum->getUserCacheAlbum();
                 $name = $albumMapper->getAlbumsDisplayNameCache($currentAlbum->getUppercats());
 
                 $representative_infos = $infos_of_images[$currentAlbum->getRepresentativePictureId()];
@@ -387,18 +381,13 @@ class AlbumController extends AbstractController
         if (count($albums) > 0) {
             $tpl_thumbnails_var = [];
             foreach ($albums as $album) {
-                $userCacheAlbum = $appUserService->getUser()->getUserCacheAlbums()->filter(fn(UserCacheAlbum $uca) => $uca->getAlbum()->getId() === $album->getId())->first();
-
-                if (!$userCacheAlbum || $userCacheAlbum->getCountImages() === 0) {
-                    continue;
-                }
-
                 $name = $albumMapper->getAlbumsDisplayNameCache($album->getUppercats());
                 $representative_infos = null;
                 if (isset($infos_of_images[$album->getRepresentativePictureId()])) {
                     $representative_infos = $infos_of_images[$album->getRepresentativePictureId()];
                 }
 
+                $userCacheAlbum = $album->getUserCacheAlbum();
                 $tpl_var = array_merge(
                     $album->toArray(),
                     [
@@ -507,12 +496,7 @@ class AlbumController extends AbstractController
         if (count($albums) > 0) {
             $tpl_thumbnails_var = [];
             foreach ($albums as $album) {
-                $userCacheAlbum = $appUserService->getUser()->getUserCacheAlbums()->filter(fn(UserCacheAlbum $uca) => $uca->getAlbum()->getId() === $album->getId())->first();
-
-                if (!$userCacheAlbum || $userCacheAlbum->getCountImages() === 0) {
-                    continue;
-                }
-
+                $userCacheAlbum = $album->getUserCacheAlbum();
                 $name = $albumMapper->getAlbumsDisplayNameCache($album->getUppercats());
 
                 $representative_infos = $infos_of_images[$album->getRepresentativePictureId()];

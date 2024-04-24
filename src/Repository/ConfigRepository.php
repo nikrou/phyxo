@@ -27,14 +27,14 @@ class ConfigRepository extends ServiceEntityRepository
 
     public function addOrUpdateConfig(Config $config): void
     {
-        $this->_em->persist($config);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($config);
+        $this->getEntityManager()->flush();
     }
 
     public function addParam(Config $config): void
     {
-        $this->_em->persist($config);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($config);
+        $this->getEntityManager()->flush();
     }
 
     /**
@@ -56,10 +56,10 @@ class ConfigRepository extends ServiceEntityRepository
     {
         $entities = $this->findBy(['param' => array_values($params)]);
         foreach ($entities as $entity) {
-            $this->_em->remove($entity);
+            $this->getEntityManager()->remove($entity);
         }
         if (count($entities) > 0) {
-            $this->_em->flush();
+            $this->getEntityManager()->flush();
         }
     }
 }

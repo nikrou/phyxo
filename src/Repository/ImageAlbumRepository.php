@@ -28,8 +28,8 @@ class ImageAlbumRepository extends ServiceEntityRepository
 
     public function addOrUpdateImageAlbum(ImageAlbum $image_album): void
     {
-        $this->_em->persist($image_album);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($image_album);
+        $this->getEntityManager()->flush();
     }
 
     /**

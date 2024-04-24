@@ -16,7 +16,6 @@ use DateTime;
 use App\Entity\Album;
 use App\Entity\ImageAlbum;
 use App\Entity\User;
-use App\Entity\UserCacheAlbum;
 use App\Repository\AlbumRepository;
 use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageRepository;
@@ -44,8 +43,7 @@ class AlbumMapper
         private readonly UserCacheAlbumRepository $userCacheAlbumRepository,
         private readonly ImageAlbumRepository $imageAlbumRepository,
         private readonly ImageRepository $imageRepository
-    )
-    {
+    ) {
     }
 
     public function getRepository(): AlbumRepository
@@ -95,25 +93,30 @@ class AlbumMapper
     {
         $albums = [];
         foreach ($this->getRepository()->getAlbumsForMenu($user->getId(), $user->getUserInfos()->getForbiddenAlbums()) as $album) {
+            $userCacheAlbum = $album->getUserCacheAlbum();
+
+            $title = $this->getDisplayImagesCount(
+                $userCacheAlbum->getNbImages(),
+                $userCacheAlbum->getCountImages(),
+                $userCacheAlbum->getCountAlbums(),
+                false,
+                ' / '
+            );
+
             $album_infos = array_merge(
                 $album->toArray(),
                 [
                     'NAME' => $album->getName(),
-                    'TITLE' => $this->getDisplayImagesCount(
-                        $album->getUserCacheAlbums()->first()->getNbImages(),
-                        $album->getUserCacheAlbums()->first()->getCountImages(),
-                        $album->getUserCacheAlbums()->first()->getCountAlbums(),
-                        false,
-                        ' / '
-                    ),
+                    'TITLE' => $title,
                     'URL' => $this->router->generate('album', ['album_id' => $album->getId()]),
                     'LEVEL' => substr_count((string) $album->getGlobalRank(), '.') + 1,
                     'SELECTED' => isset($selected_album['id']) && $selected_album['id'] === $album->getId() ? true : false,
                     'IS_UPPERCAT' => isset($selected_album['id_uppercat']) && $selected_album['id_uppercat'] === $album->getId() ? true : false,
-                    'count_images' => $album->getUserCacheAlbums()->first()->getCountImages(),
+                    'count_images' => $userCacheAlbum->getCountImages(),
                     'icon_ts' => ''
                 ]
             );
+
             // if ($this->conf['index_new_icon'] && !empty($row['max_date_last'])) { // @FIX : cf BUGS
             //     $row['icon_ts'] = $this->em->getRepository(BaseRepository::class)->getIcon($row['max_date_last'], $user, $child_date_last);
             // }
@@ -146,11 +149,7 @@ class AlbumMapper
         }
 
         foreach ($albums as $album) {
-            if (empty($album['id_uppercat'])) {
-                continue;
-            }
-
-            if (empty($albums[$album['id_uppercat']])) {
+            if (!isset($album['id_uppercat']) || !isset($albums[$album['id_uppercat']])) {
                 continue;
             }
 
@@ -165,7 +164,7 @@ class AlbumMapper
                     $parent['max_date_last'] = $album['date_last'];
                 }
 
-                if (!isset($parent['id_uppercat'])) {
+                if (!isset($parent['id_uppercat']) || !isset($albums[$parent['id_uppercat']])) {
                     break;
                 }
                 $parent = &$albums[$parent['id_uppercat']];
@@ -1031,12 +1030,7 @@ class AlbumMapper
         $is_child_date_last = false;
 
         foreach ($albums as $album) {
-            $userCacheAlbum = $user->getUserCacheAlbums()->filter(fn(UserCacheAlbum $uca) => $uca->getAlbum()->getId() === $album->getId())->first();
-
-            if (!$userCacheAlbum) {
-                continue;
-            }
-
+            $userCacheAlbum = $album->getUserCacheAlbum();
             $is_child_date_last = $userCacheAlbum->getMaxDateLast() > $userCacheAlbum->getDateLast();
 
             if ($userCacheAlbum->getUserRepresentativePicture()) {

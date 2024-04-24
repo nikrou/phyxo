@@ -96,11 +96,8 @@ class Album
     #[ORM\OneToMany(targetEntity: ImageAlbum::class, mappedBy: 'album', cascade: ['persist', 'remove'])]
     private Collection $imageAlbums;
 
-    /**
-     * @var Collection<int, UserCacheAlbum>
-     */
-    #[ORM\OneToMany(targetEntity: UserCacheAlbum::class, mappedBy: 'album')]
-    private Collection $userCacheAlbums;
+    #[ORM\OneToOne(targetEntity: UserCacheAlbum::class, mappedBy: 'album', cascade: ['persist', 'remove'])]
+    private ?UserCacheAlbum $userCacheAlbum = null;
 
     public function __construct()
     {
@@ -108,7 +105,6 @@ class Album
         $this->group_access = new ArrayCollection();
         $this->user_access = new ArrayCollection();
         $this->imageAlbums = new ArrayCollection();
-        $this->userCacheAlbums = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -431,33 +427,14 @@ class Album
         return $this;
     }
 
-    /**
-     * @return Collection<int, UserCacheAlbum>
-     */
-    public function getUserCacheAlbums(): Collection
+    public function getUserCacheAlbum(): UserCacheAlbum
     {
-        return $this->userCacheAlbums;
+        return $this->userCacheAlbum;
     }
 
-    public function addUserCacheAlbum(UserCacheAlbum $userCacheAlbum): self
+    public function setUserCacheAlbum(UserCacheAlbum $userCacheAlbum): self
     {
-        if (!$this->userCacheAlbums->contains($userCacheAlbum)) {
-            $this->userCacheAlbums[] = $userCacheAlbum;
-            $userCacheAlbum->setAlbum($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUserCacheAlbum(UserCacheAlbum $userCacheAlbum): self
-    {
-        if ($this->userCacheAlbums->contains($userCacheAlbum)) {
-            $this->userCacheAlbums->removeElement($userCacheAlbum);
-            // set the owning side to null (unless already changed)
-            if ($userCacheAlbum->getAlbum() === $this) {
-                $userCacheAlbum->setAlbum($this);
-            }
-        }
+        $this->userCacheAlbum = $userCacheAlbum;
 
         return $this;
     }

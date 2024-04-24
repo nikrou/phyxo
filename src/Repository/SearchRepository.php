@@ -40,8 +40,8 @@ class SearchRepository extends ServiceEntityRepository
 
     public function addSearch(Search $search): void
     {
-        $this->_em->persist($search);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($search);
+        $this->getEntityManager()->flush();
     }
 
     public function purge(): void

@@ -29,8 +29,8 @@ class UserRepository extends ServiceEntityRepository
 
     public function addUser(User $user): int
     {
-        $this->_em->persist($user);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
 
         return $user->getId();
     }
@@ -39,8 +39,8 @@ class UserRepository extends ServiceEntityRepository
     {
         $user->getUserInfos()->setLastModified(new DateTime());
 
-        $this->_em->persist($user);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
     }
 
     public function findOneByStatus(string $status): ?User
@@ -101,8 +101,9 @@ class UserRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('u');
         $qb->where('u.username = :username');
+        $qb->setParameter('username', $value);
         $qb->orWhere('u.mail_address = :mail_address');
-        $qb->setParameters(['username' => $value, 'mail_address' => $value]);
+        $qb->setParameter('mail_address', $value);
 
         return $qb->getQuery()->getOneOrNullResult();
     }

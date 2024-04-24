@@ -32,8 +32,8 @@ class AlbumRepository extends ServiceEntityRepository
 
     public function addOrUpdateAlbum(Album $album): int
     {
-        $this->_em->persist($album);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($album);
+        $this->getEntityManager()->flush();
 
         return $album->getId();
     }
@@ -76,8 +76,8 @@ class AlbumRepository extends ServiceEntityRepository
     public function getAlbumsForMenu(int $user_id, array $forbidden_albums = [])
     {
         $qb = $this->createQueryBuilder('a');
-        $qb->leftJoin('a.userCacheAlbums', 'ia', Join::WITH, 'ia.user = :user_id');
-        $qb->addSelect('ia');
+        $qb->leftJoin('a.userCacheAlbum', 'uca', Join::WITH, 'uca.user = :user_id');
+        $qb->addSelect('uca');
         $qb->setParameter('user_id', $user_id);
 
         $this->getQueryBuilderForFindAllowedAlbums($forbidden_albums, $qb);
@@ -282,7 +282,7 @@ class AlbumRepository extends ServiceEntityRepository
     public function findByParentId(int $user_id, ?int $parent_id = null)
     {
         $qb = $this->createQueryBuilder('a');
-        $qb->leftJoin('a.userCacheAlbums', 'ia', Join::WITH, 'ia.user = :user');
+        $qb->leftJoin('a.userCacheAlbum', 'uca', Join::WITH, 'uca.user = :user');
         $qb->setParameter('user', $user_id);
 
         $qb->where('a.parent = :parent');
@@ -413,7 +413,7 @@ class AlbumRepository extends ServiceEntityRepository
     public function findParentAlbums(int $user_id)
     {
         $qb = $this->createQueryBuilder('a');
-        $qb->leftJoin('a.userCacheAlbums', 'uca', Join::WITH, 'uca.user = :user');
+        $qb->leftJoin('a.userCacheAlbum', 'uca', Join::WITH, 'uca.user = :user');
         $qb->setParameter('user', $user_id);
         $qb->where($qb->expr()->isNull('a.parent'));
 
@@ -456,8 +456,8 @@ class AlbumRepository extends ServiceEntityRepository
     public function findRecentAlbums(?DateTimeInterface $recent_date, ?DateTimeInterface $last_photo_date = null)
     {
         $qb = $this->createQueryBuilder('a');
-        $qb->leftJoin('a.userCacheAlbums', 'ia');
-        $qb->where('ia.date_last >= :recent_date');
+        $qb->leftJoin('a.userCacheAlbum', 'uca');
+        $qb->where('uca.date_last >= :recent_date');
         $qb->setParameter('recent_date', $recent_date);
 
         return $qb->getQuery()->getResult();
@@ -471,7 +471,7 @@ class AlbumRepository extends ServiceEntityRepository
     public function findNoParentsAuthorizedAlbums(int $user_id, array $forbidden_albums = [], bool $public_and_visible = false)
     {
         $qb = $this->createQueryBuilder('a');
-        $qb->leftJoin('a.userCacheAlbums', 'uca', Join::WITH, 'uca.user = :user');
+        $qb->leftJoin('a.userCacheAlbum', 'uca', Join::WITH, 'uca.user = :user');
         $qb->setParameter('user', $user_id);
 
         if ($public_and_visible) {
@@ -515,7 +515,7 @@ class AlbumRepository extends ServiceEntityRepository
     public function findAuthorizedAlbumsAndParents(int $user_id, int $album_id, array $forbidden_albums = [], bool $public_and_visible = false)
     {
         $qb = $this->createQueryBuilder('a');
-        $qb->leftJoin('a.userCacheAlbums', 'uca', Join::WITH, 'uca.user = :user');
+        $qb->leftJoin('a.userCacheAlbum', 'uca', Join::WITH, 'uca.user = :user');
         $qb->setParameter('user', $user_id);
 
         if ($public_and_visible) {
@@ -559,7 +559,7 @@ class AlbumRepository extends ServiceEntityRepository
     public function findAuthorizedAlbumsInSubAlbums(int $user_id, int $album_id, array $forbidden_albums = [], bool $public_and_visible = false)
     {
         $qb = $this->createQueryBuilder('a');
-        $qb->leftJoin('a.userCacheAlbums', 'uca', Join::WITH, 'uca.user = :user');
+        $qb->leftJoin('a.userCacheAlbum', 'uca', Join::WITH, 'uca.user = :user');
         $qb->setParameter('user', $user_id);
 
         if ($public_and_visible) {
@@ -584,7 +584,7 @@ class AlbumRepository extends ServiceEntityRepository
     public function findAuthorizedAlbums(int $user_id, array $forbidden_albums = [], bool $public_and_visible = false)
     {
         $qb = $this->createQueryBuilder('a');
-        $qb->leftJoin('a.userCacheAlbums', 'uca', Join::WITH, 'uca.user = :user');
+        $qb->leftJoin('a.userCacheAlbum', 'uca', Join::WITH, 'uca.user = :user');
         $qb->setParameter('user', $user_id);
 
         if ($public_and_visible) {

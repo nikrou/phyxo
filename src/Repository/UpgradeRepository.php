@@ -27,8 +27,8 @@ class UpgradeRepository extends ServiceEntityRepository
 
     public function addUpgrade(Upgrade $upgrade): string
     {
-        $this->_em->persist($upgrade);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($upgrade);
+        $this->getEntityManager()->flush();
 
         return $upgrade->getId();
     }

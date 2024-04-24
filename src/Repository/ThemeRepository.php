@@ -27,8 +27,8 @@ class ThemeRepository extends ServiceEntityRepository
 
     public function addTheme(Theme $theme): void
     {
-        $this->_em->persist($theme);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($theme);
+        $this->getEntityManager()->flush();
     }
 
     /**

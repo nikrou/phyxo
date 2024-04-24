@@ -27,8 +27,8 @@ class UserCacheRepository extends ServiceEntityRepository
 
     public function addOrUpdateUserCache(UserCache $userCache): void
     {
-        $this->_em->persist($userCache);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($userCache);
+        $this->getEntityManager()->flush();
     }
 
     public function deleteAll(): void

@@ -13,6 +13,7 @@ namespace App\Repository;
 
 use App\Entity\HistorySummary;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -27,8 +28,8 @@ class HistorySummaryRepository extends ServiceEntityRepository
 
     public function addOrUpdateHistorySummary(HistorySummary $historySummary): int
     {
-        $this->_em->persist($historySummary);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($historySummary);
+        $this->getEntityManager()->flush();
 
         return $historySummary->getId();
     }
@@ -87,20 +88,20 @@ class HistorySummaryRepository extends ServiceEntityRepository
             $qb->andWhere('h.day = :day');
             $qb->andWhere($qb->expr()->isNotNull('h.hour'));
             $qb->orderBy('h.year, h.month, h.day, h.hour', 'ASC');
-            $qb->setParameters(['year' => $year, 'month' => $month, 'day' => $day]);
+            $qb->setParameters(new ArrayCollection(['year' => $year, 'month' => $month, 'day' => $day]));
         } elseif (!is_null($month)) {
             $qb->where('h.year = :year');
             $qb->andWhere('h.month = :month');
             $qb->andWhere($qb->expr()->isNotNull('h.day'));
             $qb->andWhere($qb->expr()->isNull('h.hour'));
             $qb->orderBy('h.year, h.month, h.day', 'ASC');
-            $qb->setParameters(['year' => $year, 'month' => $month]);
+            $qb->setParameters(new ArrayCollection(['year' => $year, 'month' => $month]));
         } elseif (!is_null($year)) {
             $qb->where('h.year = :year');
             $qb->andWhere($qb->expr()->isNotNull('h.month'));
             $qb->andWhere($qb->expr()->isNull('h.day'));
             $qb->orderBy('h.year, h.month', 'ASC');
-            $qb->setParameters(['year' => $year]);
+            $qb->setParameter('year', $year);
         } else {
             $qb->where($qb->expr()->isNotNull('h.year'));
             $qb->andWhere($qb->expr()->isNull('h.month'));

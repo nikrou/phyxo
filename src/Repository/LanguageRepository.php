@@ -27,8 +27,8 @@ class LanguageRepository extends ServiceEntityRepository
 
     public function addLanguage(Language $language): void
     {
-        $this->_em->persist($language);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($language);
+        $this->getEntityManager()->flush();
     }
 
     public function updateVersion(string $language_id, string $version): void

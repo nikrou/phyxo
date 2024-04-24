@@ -30,8 +30,8 @@ class CommentRepository extends ServiceEntityRepository
 
     public function addOrUpdateComment(Comment $comment): int
     {
-        $this->_em->persist($comment);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($comment);
+        $this->getEntityManager()->flush();
 
         return $comment->getId();
     }

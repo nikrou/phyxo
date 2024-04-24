@@ -34,8 +34,8 @@ class ImageRepository extends ServiceEntityRepository
 
     public function addOrUpdateImage(Image $image): int
     {
-        $this->_em->persist($image);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($image);
+        $this->getEntityManager()->flush();
 
         return $image->getId();
     }
@@ -543,7 +543,7 @@ class ImageRepository extends ServiceEntityRepository
         $rsm = new ResultSetMappingBuilder($this->getEntityManager());
         $rsm->addRootEntityFromClassMetadata(Image::class, 'i');
 
-        $query = $this->_em->createNativeQuery($sql, $rsm);
+        $query = $this->getEntityManager()->createNativeQuery($sql, $rsm);
         foreach ($years as $index => $year) {
             $query->setParameter($index, $year);
         }
@@ -610,7 +610,7 @@ class ImageRepository extends ServiceEntityRepository
         $rsm = new ResultSetMappingBuilder($this->getEntityManager());
         $rsm->addRootEntityFromClassMetadata(Image::class, 'i');
 
-        $query = $this->_em->createNativeQuery($sql, $rsm);
+        $query = $this->getEntityManager()->createNativeQuery($sql, $rsm);
         $query->setParameter('year', $year);
         foreach ($months as $index => $month) {
             $query->setParameter($index, $month);
@@ -687,7 +687,7 @@ class ImageRepository extends ServiceEntityRepository
         $rsm = new ResultSetMappingBuilder($this->getEntityManager());
         $rsm->addRootEntityFromClassMetadata(Image::class, 'i');
 
-        $query = $this->_em->createNativeQuery($sql, $rsm);
+        $query = $this->getEntityManager()->createNativeQuery($sql, $rsm);
         $query->setParameter('year', $year);
         $query->setParameter('month', $month);
         foreach ($days as $index => $day) {
@@ -1034,8 +1034,8 @@ class ImageRepository extends ServiceEntityRepository
         }
 
         $qb->andWhere(
-            $qb->expr()->orX($qb->expr()->like($qb->expr()->lower('i.name'), ':name')),
-            $qb->expr()->orX($qb->expr()->like($qb->expr()->lower('i.comment'), ':name'))
+            $qb->expr()->orX($qb->expr()->like("lower('i.name')", ':name')),
+            $qb->expr()->orX($qb->expr()->like("lower('i.comment')", ':name'))
         );
 
         $qb->setParameter('name', $search_value);

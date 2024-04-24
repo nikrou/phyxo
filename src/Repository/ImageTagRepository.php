@@ -29,8 +29,8 @@ class ImageTagRepository extends ServiceEntityRepository
 
     public function addOrUpdateImageTag(ImageTag $image_tag): void
     {
-        $this->_em->persist($image_tag);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($image_tag);
+        $this->getEntityManager()->flush();
     }
 
     /**

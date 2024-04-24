@@ -42,8 +42,8 @@ class PluginRepository extends ServiceEntityRepository
 
     public function addPlugin(Plugin $plugin): void
     {
-        $this->_em->persist($plugin);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($plugin);
+        $this->getEntityManager()->flush();
     }
 
     public function updateVersion(string $plugin_id, string $version): void

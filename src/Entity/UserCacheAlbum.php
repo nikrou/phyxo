@@ -28,7 +28,7 @@ class UserCacheAlbum
     private User $user;
 
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'userCacheAlbums', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: Album::class, inversedBy: 'userCacheAlbum', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(name: 'cat_id', nullable: false)]
     private Album $album;
 
