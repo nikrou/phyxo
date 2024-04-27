@@ -104,7 +104,7 @@ class AlbumController extends AbstractController
         $user_representative_updates_for = [];
         $infos_of_images = [];
 
-        [$is_child_date_last, $albums, $image_ids, $user_representative_updates_for] = $albumMapper->getAlbumThumbnails(
+        [$albums, $image_ids, $user_representative_updates_for] = $albumMapper->getAlbumThumbnails(
             $appUserService->getUser(),
             $albumMapper->getRepository()->findByParentId($appUserService->getUser()->getId(), $album_id)
         );
@@ -146,14 +146,6 @@ class AlbumController extends AbstractController
                     'name' => $currentAlbum->getName(),
                     'icon_ts' => '',
                 ];
-
-                if ($conf['index_new_icon']) {
-                    // $tpl_var['icon_ts'] = $em->getRepository(BaseRepository::class)->getIcon(
-                    //     $userCacheAlbum->getMaxDateLast()->format('Y-m-d H:m:i'),
-                    //     $appUserService->getUser(),
-                    //     $is_child_date_last
-                    // );
-                }
 
                 $tpl_thumbnails_var[] = $tpl_var;
             }
@@ -363,7 +355,7 @@ class AlbumController extends AbstractController
         $image_ids = [];
         $user_representative_updates_for = [];
 
-        [$is_child_date_last, $albums, $image_ids, $user_representative_updates_for] = $albumMapper->getAlbumThumbnails(
+        [$albums, $image_ids, $user_representative_updates_for] = $albumMapper->getAlbumThumbnails(
             $appUserService->getUser(),
             $albumMapper->getRepository()->findParentAlbums($appUserService->getUser()->getId())
         );
@@ -396,9 +388,9 @@ class AlbumController extends AbstractController
                         'TN_TITLE' => $imageMapper->getThumbnailTitle(['rating_score' => '', 'nb_comments' => ''], $album->getName(), $album->getComment()),
                         'URL' => $this->generateUrl('album', ['album_id' => $album->getId(), 'start' => $start]),
                         'CAPTION_NB_IMAGES' => $albumMapper->getDisplayImagesCount(
-                            $userCacheAlbum->getNbImages(),
-                            $userCacheAlbum->getCountImages(),
-                            $userCacheAlbum->getCountAlbums(),
+                            $userCacheAlbum->getNbImages() ?? 0,
+                            $userCacheAlbum->getCountImages() ?? 0,
+                            $userCacheAlbum->getCountAlbums() ?? 0,
                             true,
                             '<br>'
                         ),
@@ -408,13 +400,6 @@ class AlbumController extends AbstractController
                         'icon_ts' => '',
                     ]
                 );
-
-                if ($conf['index_new_icon']) {
-                    // $tpl_var['icon_ts'] = $em->getRepository(BaseRepository::class)->getIcon(
-                    //     $userCacheAlbum->getMaxDateLast()->format('Y-m-d H:m:i'),
-                    //     $appUserService->getUser(), $is_child_date_last
-                    // );
-                }
 
                 $tpl_thumbnails_var[] = $tpl_var;
             }
@@ -481,7 +466,7 @@ class AlbumController extends AbstractController
         $recent_date->sub(new DateInterval(sprintf('P%dD', $appUserService->getUser()->getUserInfos()->getRecentPeriod())));
         $infos_of_images = [];
 
-        [$is_child_date_last, $albums, $image_ids, $user_representative_updates_for] = $albumMapper->getAlbumThumbnails($appUserService->getUser(), $albumMapper->getRepository()->findRecentAlbums($recent_date));
+        [$albums, $image_ids, $user_representative_updates_for] = $albumMapper->getAlbumThumbnails($appUserService->getUser(), $albumMapper->getRepository()->findRecentAlbums($recent_date));
 
         if (count($albums) > 0) {
             $infos_of_images = $albumMapper->getInfosOfImages($appUserService->getUser(), $albums, $image_ids, $imageMapper);
@@ -519,13 +504,6 @@ class AlbumController extends AbstractController
                     'name' => $album->getName(),
                     'icon_ts' => '',
                 ];
-
-                if ($conf['index_new_icon']) {
-                    // $tpl_var['icon_ts'] = $em->getRepository(BaseRepository::class)->getIcon(
-                    //     $userCacheAlbum->getMaxDateLast()->format('Y-m-d H:m:i'),
-                    //     $appUserService->getUser(), $is_child_date_last
-                    // );
-                }
 
                 $tpl_thumbnails_var[] = $tpl_var;
             }

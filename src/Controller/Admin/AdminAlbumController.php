@@ -173,25 +173,8 @@ class AdminAlbumController extends AbstractController
             $tpl_params['INTRO'] = $translator->trans('This album contains no photo.', [], 'admin');
         }
 
-        if ($album->isVirtual()) {
-            $tpl_params['U_DELETE'] = $this->generateUrl('admin_album_delete', ['album_id' => $album_id, 'parent_id' => $parent_id]);
-            $tpl_params['parent_category'] = $album->getParent() ? [$album->getParent()->getId()] : [];
-        } else {
-            $album = $albumMapper->getRepository()->find($album_id);
-
-            $uppercats = '';
-            $local_dir = '';
-            $uppercats = $album->getUppercats();
-            $upper_array = explode(',', (string) $uppercats);
-            $database_dirs = [];
-            foreach ($albumMapper->getRepository()->findBy(['id' => $uppercats]) as $uppercat_album) {
-                $database_dirs[$uppercat_album->getId()] = $uppercat_album->getDir();
-            }
-
-            foreach ($upper_array as $id) {
-                $local_dir .= $database_dirs[$id] . '/';
-            }
-        }
+        $tpl_params['U_DELETE'] = $this->generateUrl('admin_album_delete', ['album_id' => $album_id, 'parent_id' => $parent_id]);
+        $tpl_params['parent_category'] = $album->getParent() ? [$album->getParent()->getId()] : [];
 
         if ($album_has_images || $album->getRepresentativePictureId()) {
             $tpl_params['representant'] = [];

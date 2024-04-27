@@ -427,7 +427,7 @@ class Album
         return $this;
     }
 
-    public function getUserCacheAlbum(): UserCacheAlbum
+    public function getUserCacheAlbum(): ?UserCacheAlbum
     {
         return $this->userCacheAlbum;
     }

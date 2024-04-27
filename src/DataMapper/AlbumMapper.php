@@ -94,11 +94,13 @@ class AlbumMapper
         $albums = [];
         foreach ($this->getRepository()->getAlbumsForMenu($user->getId(), $user->getUserInfos()->getForbiddenAlbums()) as $album) {
             $userCacheAlbum = $album->getUserCacheAlbum();
-
+            if (!$userCacheAlbum) {
+                continue;
+            }
             $title = $this->getDisplayImagesCount(
-                $userCacheAlbum->getNbImages(),
-                $userCacheAlbum->getCountImages(),
-                $userCacheAlbum->getCountAlbums(),
+                $userCacheAlbum->getNbImages() ?? 0,
+                $userCacheAlbum->getCountImages() ?? 0,
+                $userCacheAlbum->getCountAlbums() ?? 0,
                 false,
                 ' / '
             );
@@ -1027,11 +1029,12 @@ class AlbumMapper
         $album_thumbnails = [];
         $user_representative_updates_for = [];
         $image_ids = [];
-        $is_child_date_last = false;
 
         foreach ($albums as $album) {
             $userCacheAlbum = $album->getUserCacheAlbum();
-            $is_child_date_last = $userCacheAlbum->getMaxDateLast() > $userCacheAlbum->getDateLast();
+            if (!$userCacheAlbum) {
+                continue;
+            }
 
             if ($userCacheAlbum->getUserRepresentativePicture()) {
                 $image_id = $userCacheAlbum->getUserRepresentativePicture();
@@ -1061,7 +1064,7 @@ class AlbumMapper
 
         usort($album_thumbnails, $this->globalRankCompare(...));
 
-        return [$is_child_date_last, $album_thumbnails, $image_ids, $user_representative_updates_for];
+        return [$album_thumbnails, $image_ids, $user_representative_updates_for];
     }
 
     /**

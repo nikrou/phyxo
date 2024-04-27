@@ -43,24 +43,30 @@ config: clean ## prepare environment for building archive
 	# remove doc and useless stuff
 	find $(DIST)/$(APP_NAME)/vendor -path '*/.git/*' | xargs rm -fr ;
 
-	rm -fr $(DIST)/$(APP_NAME)/vendor/symfony/*/Tests				\
-		$(DIST)/$(APP_NAME)/vendor/symfony/var-dumper/Test			\
-		$(DIST)/$(APP_NAME)/vendor/symfony/mime/Test				\
-		$(DIST)/$(APP_NAME)/vendor/symfony/http-client-contracts/Test		\
-		$(DIST)/$(APP_NAME)/vendor/symfony/validator/Test			\
-		$(DIST)/$(APP_NAME)/vendor/symfony/mailer/Test				\
-		$(DIST)/$(APP_NAME)/vendor/symfony/http-foundation/Test			\
-		$(DIST)/$(APP_NAME)/vendor/symfony/framework-bundle/Test		\
-		$(DIST)/$(APP_NAME)/vendor/symfony/service-contracts/Test		\
-		$(DIST)/$(APP_NAME)/vendor/symfony/doctrine-bridge/Test			\
-		$(DIST)/$(APP_NAME)/vendor/symfony/service-contracts/Test		\
-		$(DIST)/$(APP_NAME)/vendor/doctrine/deprecations/test_fixtures		\
-		$(DIST)/$(APP_NAME)/vendor/psr/log/Psr/Log/Test				\
-		$(DIST)/$(APP_NAME)/vendor/twig/twig/src/Test				\
-		$(DIST)/$(APP_NAME)/vendor/doctrine/deprecations/tests			\
-		$(DIST)/$(APP_NAME)/vendor/laminas/laminas-eventmanager/src/Test	\
-		$(DIST)/$(APP_NAME)/vendor/openpsa/universalfeedcreator/test		\
-		$(DIST)/$(APP_NAME)/vendor/twig/twig/doc
+	rm -fr $(DIST)/$(APP_NAME)/vendor/symfony/*/Tests					\
+		$(DIST)/$(APP_NAME)/vendor/symfony/var-dumper/Test				\
+		$(DIST)/$(APP_NAME)/vendor/symfony/mime/Test					\
+		$(DIST)/$(APP_NAME)/vendor/symfony/http-client-contracts/Test			\
+		$(DIST)/$(APP_NAME)/vendor/symfony/validator/Test				\
+		$(DIST)/$(APP_NAME)/vendor/symfony/mailer/Test					\
+		$(DIST)/$(APP_NAME)/vendor/symfony/http-foundation/Test				\
+		$(DIST)/$(APP_NAME)/vendor/symfony/framework-bundle/Test			\
+		$(DIST)/$(APP_NAME)/vendor/symfony/service-contracts/Test			\
+		$(DIST)/$(APP_NAME)/vendor/symfony/doctrine-bridge/Test				\
+		$(DIST)/$(APP_NAME)/vendor/symfony/service-contracts/Test			\
+		$(DIST)/$(APP_NAME)/vendor/doctrine/deprecations/test_fixtures			\
+		$(DIST)/$(APP_NAME)/vendor/psr/log/Psr/Log/Test					\
+		$(DIST)/$(APP_NAME)/vendor/twig/twig/src/Test					\
+		$(DIST)/$(APP_NAME)/vendor/doctrine/deprecations/tests				\
+		$(DIST)/$(APP_NAME)/vendor/laminas/laminas-eventmanager/src/Test		\
+		$(DIST)/$(APP_NAME)/vendor/openpsa/universalfeedcreator/test			\
+		$(DIST)/$(APP_NAME)/vendor/twig/twig/doc					\
+		$(DIST)/$(APP_NAME)/vendor/imagine/imagine/src/resources			\
+		$(DIST)/$(APP_NAME)/vendor/symfony/intl/Resources/data/transliterator/emoji/	\
+		$(DIST)/$(APP_NAME)/vendor/symfony/intl/Resources/data/currencies		\
+		$(DIST)/$(APP_NAME)/vendor/symfony/intl/Resources/data/timezones
+
+	find $(DIST)/$(APP_NAME)/vendor/symfony/intl/Resources/data/locales/* | grep -v '(fr|en)' | xargs rm -fr ;
 
 	# empty dirs
 	mkdir -p $(DIST)/$(APP_NAME)/upload $(DIST)/$(APP_NAME)/media							\

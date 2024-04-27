@@ -117,14 +117,7 @@ class AdminAlbumsController extends AbstractController
                 'IS_PRIVATE' => $album->getStatus() === Album::STATUS_PRIVATE,
             ];
 
-            if ($album->isVirtual()) {
-                $tpl_cat['U_DELETE'] = $this->generateUrl('admin_album_delete', ['album_id' => $album->getId(), 'parent_id' => $parent_id]);
-            } else {
-                if ($conf['enable_synchronization']) {
-                    $tpl_cat['U_SYNC'] = $this->generateUrl('admin_site_update');
-                }
-            }
-
+            $tpl_cat['U_DELETE'] = $this->generateUrl('admin_album_delete', ['album_id' => $album->getId(), 'parent_id' => $parent_id]);
             $tpl_params['categories'][] = $tpl_cat;
         }
 

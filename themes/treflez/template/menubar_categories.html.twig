@@ -3,15 +3,17 @@
     <div class="dropdown-menu dropdown-menu-right" role="menu">
 	{% set ref_level = 0 %}
 	{% for cat in block.data.MENU_CATEGORIES %}
-            <a class="dropdown-item{% if cat.SELECTED %} active{% endif %}" data-level="{{cat.LEVEL -1}}" href="{{cat.URL}}">
-		{{cat.NAME}}
-		{% if cat.count_images > 0 %}
-		    <span class="badge badge-secondary ml-2" title="{{cat.TITLE}}">{{cat.count_images}}</span>
-		{% endif %}
-		{%  if cat.icon_ts %}
-		    <i class="fa fa-exclamation"></i>
-		{% endif %}
-            </a>
+	    {% if cat.NAME is defined %}
+		<a class="dropdown-item{% if cat.SELECTED %} active{% endif %}" data-level="{{cat.LEVEL -1}}" href="{{cat.URL}}">
+		    {{cat.NAME}}
+		    {% if cat.count_images > 0 %}
+			<span class="badge badge-secondary ml-2" title="{{cat.TITLE}}">{{cat.count_images}}</span>
+		    {% endif %}
+		    {%  if cat.icon_ts %}
+			<i class="fa fa-exclamation"></i>
+		    {% endif %}
+		</a>
+	    {% endif %}
 	{% endfor %}
         <div class="dropdown-divider"></div>
         <div class="dropdown-header">{{'number_of_photos'|trans({'count': block.data.NB_PICTURE})}}</div>

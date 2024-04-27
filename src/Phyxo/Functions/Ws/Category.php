@@ -16,6 +16,7 @@ use App\Entity\ImageAlbum;
 use App\Entity\User;
 use App\Entity\UserCacheAlbum;
 use App\Entity\UserInfos;
+use App\Repository\UserCacheAlbumRepository;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\Server;
 use Phyxo\Image\DerivativeImage;
@@ -126,7 +127,7 @@ class Category
         $image_ids = [];
         $user_representative_updates_for = [];
 
-        [$is_child_date_last, $albums, $image_ids] = $service->getAlbumMapper()->getAlbumThumbnails($service->getUserMapper()->getUser(), $albumsList);
+        [$albums, $image_ids] = $service->getAlbumMapper()->getAlbumThumbnails($service->getUserMapper()->getUser(), $albumsList);
 
         // management of the album thumbnail -- starts here
         if ((is_countable($albums) ? count($albums) : 0) > 0) {
@@ -139,9 +140,10 @@ class Category
          * or else the real guest may see thumbnail that he should not
          */
         if (!$params['public'] && count($user_representative_updates_for)) {
-            $managerRegistry = $service->getManagerRegistry();
+            /** @var UserCacheAlbumRepository $userCacheAlbumRepository */
+            $userCacheAlbumRepository = $service->getManagerRegistry()->getRepository(UserCacheAlbum::class);
             foreach ($user_representative_updates_for as $album_id => $image_id) {
-                $managerRegistry->getRepository(UserCacheAlbum::class)->updateUserRepresentativePicture($service->getUserMapper()->getUser()->getId(), $album_id, $image_id);
+                $userCacheAlbumRepository->updateUserRepresentativePicture($service->getUserMapper()->getUser()->getId(), $album_id, $image_id);
             }
         }
 

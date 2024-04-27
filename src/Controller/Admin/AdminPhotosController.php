@@ -31,13 +31,10 @@ class AdminPhotosController extends AbstractController
 {
     private TranslatorInterface $translator;
 
-    protected function setTabsheet(string $section = 'direct', bool $enable_synchronization = false): TabSheet
+    protected function setTabsheet(string $section = 'direct'): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('direct', $this->translator->trans('Web Form', [], 'admin'), $this->generateUrl('admin_photos_add', ['section' => 'direct']), 'fa-upload');
-        if ($enable_synchronization) {
-            $tabsheet->add('ftp', $this->translator->trans('FTP + Synchronization', [], 'admin'), $this->generateUrl('admin_photos_add', ['section' => 'ftp']), 'fa-exchange');
-        }
         $tabsheet->select($section);
 
         return $tabsheet;
@@ -158,7 +155,7 @@ class AdminPhotosController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_photos_add');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_photos_add');
         $tpl_params['PAGE_TITLE'] = $translator->trans('Photo', [], 'admin');
-        $tpl_params['tabsheet'] = $this->setTabsheet('direct', $conf['enable_synchronization']);
+        $tpl_params['tabsheet'] = $this->setTabsheet('direct');
 
         return $this->render('photos_add_direct.html.twig', $tpl_params);
     }

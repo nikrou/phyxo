@@ -112,6 +112,16 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    public function removePhysicalAlbums(): void
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->update();
+        $qb->set('a.dir', ':dir');
+        $qb->setParameter('dir', null);
+
+        $qb->getQuery()->getResult();
+    }
+
     public function countByType(bool $virtual = false): int
     {
         $qb = $this->createQueryBuilder('a');

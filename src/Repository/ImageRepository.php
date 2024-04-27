@@ -1186,4 +1186,16 @@ class ImageRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    /**
+     * @return Image[]
+     */
+    public function findImagesInPhysicalAlbums(): array
+    {
+        $qb = $this->createQueryBuilder('i');
+        $qb->where($qb->expr()->notLike('i.path', ':upload'));
+        $qb->setParameter('upload', '%upload%');
+
+        return $qb->getQuery()->getResult();
+    }
 }

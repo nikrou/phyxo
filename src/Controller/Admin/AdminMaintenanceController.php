@@ -18,6 +18,7 @@ use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
 use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
+use App\Repository\ImageRepository;
 use App\Repository\SearchRepository;
 use App\Repository\UpgradeRepository;
 use App\Repository\UserFeedRepository;
@@ -38,6 +39,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminMaintenanceController extends AbstractController
 {
+    public function __construct(private readonly ImageRepository $imageRepository, private readonly Filesystem $fs, private readonly string $uploadDir, private readonly string $rootProjectDir)
+    {
+    }
+
     public function index(
         Request $request,
         ?string $action,
@@ -54,7 +59,7 @@ class AdminMaintenanceController extends AbstractController
         SearchRepository $searchRepository,
         UserFeedRepository $userFeedRepository,
         AlbumMapper $albumMapper,
-        UpgradeRepository $upgradeRepository
+        UpgradeRepository $upgradeRepository,
     ): Response {
         $purge_urls = [];
         $tpl_params = [];
@@ -76,12 +81,20 @@ class AdminMaintenanceController extends AbstractController
                     $conf['gallery_locked'] = false;
                     return $this->redirectToRoute('admin_maintenance');
                 }
-            case 'categories':
+            case 'albums':
                 {
                     $albumMapper->updateUppercats();
                     $albumMapper->updateAlbums();
                     $albumMapper->updateGlobalRank();
                     $userMapper->invalidateUserCache(true);
+
+                    return $this->redirectToRoute('admin_maintenance');
+                }
+            case 'albums_virtualize':
+                {
+                    $this->virtualizeAlbums();
+                    $albumMapper->getRepository()->removePhysicalAlbums();
+                    $this->addFlash('success', $translator->trans('All albums were virtualized.', [], 'admin'));
 
                     return $this->redirectToRoute('admin_maintenance');
                 }
@@ -234,7 +247,8 @@ class AdminMaintenanceController extends AbstractController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Maintenance', [], 'admin');
 
         $tpl_params = array_merge($tpl_params, [
-            'U_MAINT_CATEGORIES' => $this->generateUrl('admin_maintenance', ['action' => 'categories']),
+            'U_MAINT_ALBUMS' => $this->generateUrl('admin_maintenance', ['action' => 'albums']),
+            'U_MAINT_ALBUMS_VIRTUALIZE' => $this->generateUrl('admin_maintenance', ['action' => 'albums_virtualize']),
             'U_MAINT_IMAGES' => $this->generateUrl('admin_maintenance', ['action' => 'images']),
             'U_MAINT_ORPHAN_TAGS' => $this->generateUrl('admin_maintenance', ['action' => 'delete_orphan_tags']),
             'U_MAINT_APP_CACHE' => $this->generateUrl('admin_maintenance', ['action' => 'app_cache']),
@@ -270,6 +284,40 @@ class AdminMaintenanceController extends AbstractController
     {
         $conf->addOrUpdateParam('order_by', $conf['order_by'], 'json');
         $conf->addOrUpdateParam('order_by_inside_category', $conf['order_by_inside_category'], 'json');
+    }
+
+    private function virtualizeAlbums(): void
+    {
+        $baseDirectory = dirname(__DIR__, 2);
+
+        foreach ($this->imageRepository->findImagesInPhysicalAlbums() as $image) {
+            $currentPath = $baseDirectory . '/' . $image->getPath();
+
+            if (file_exists($currentPath)) {
+                $image->setMd5sum(md5_file($image->getPath()));
+                $filenameDirectory = sprintf(
+                    '%s/%s/%s/%s',
+                    $this->uploadDir,
+                    $image->getDateAvailable()->format('Y'),
+                    $image->getDateAvailable()->format('m'),
+                    $image->getDateAvailable()->format('d')
+                );
+                $this->fs->mkdir($filenameDirectory);
+                $newPath = sprintf(
+                    '%s/%s-%s.%s',
+                    $filenameDirectory,
+                    $image->getDateAvailable()->format('YmdHis'),
+                    substr((string) $image->getMd5sum(), 0, 8),
+                    pathinfo($currentPath, PATHINFO_EXTENSION)
+                );
+                $relativePath = sprintf('./%s/%s', $this->fs->makePathRelative(dirname($newPath), $this->rootProjectDir), basename($newPath));
+
+                $image->setStorageCategoryId(null);
+                $image->setPath($relativePath);
+                $this->imageRepository->addOrUpdateImage($image);
+                $this->fs->copy($currentPath, $newPath);
+            }
+        }
     }
 
     public function derivatives(string $type, ImageStandardParams $image_std_params, DerivativeService $derivativeService): Response

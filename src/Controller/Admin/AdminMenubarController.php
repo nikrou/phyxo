@@ -115,7 +115,6 @@ class AdminMenubarController extends AbstractController
     {
         $tpl_params = [
             'USERNAME' => $appUserService->getUser()->getUserIdentifier(),
-            'ENABLE_SYNCHRONIZATION' => $conf['enable_synchronization'],
             'U_HISTORY_STAT' => $this->generateUrl('admin_history'),
             'U_MAINTENANCE' => $this->generateUrl('admin_maintenance'),
             'U_CONFIG_GENERAL' => $this->generateUrl('admin_configuration'),
@@ -124,7 +123,6 @@ class AdminMenubarController extends AbstractController
             'U_CONFIG_THEMES' => $this->generateUrl('admin_themes_installed'),
             'U_ALBUMS' => $this->generateUrl('admin_albums'),
             'U_ALBUMS_OPTIONS' => $this->generateUrl('admin_albums_options'),
-            'U_CAT_UPDATE' => $conf['enable_synchronization'] ? $this->generateUrl('admin_synchronize', ['site' => 1]): '',
             'U_RATING' => $this->generateUrl('admin_rating'),
             'U_RECENT_SET' => $this->generateUrl('admin_batch_manager_global', ['filter' => 'last_import']),
             'U_BATCH' => $this->generateUrl('admin_batch_manager_global'),

@@ -69,7 +69,7 @@
 			{% set status_title = 'Public album'|trans %}
 		    {% endif %}
 
-		    <div class="album{% if category.IS_VIRTUAL is defined %} virtual{% endif %}" id="album-{{category.ID}}">
+		    <div class="album" id="album-{{category.ID}}">
 			<p class="album-title">
 			    <i class="fa infos {{status_icon}}" title="{{status_title}}"></i>
 			    <i class="drag_button move visibility-hidden" title="{{'Drag to re-order'|trans}}"></i>

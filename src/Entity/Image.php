@@ -317,7 +317,7 @@ class Image
         return $this->storage_category_id;
     }
 
-    public function setStorageCategoryId(int $storage_category_id): self
+    public function setStorageCategoryId(?int $storage_category_id): self
     {
         $this->storage_category_id = $storage_category_id;
 

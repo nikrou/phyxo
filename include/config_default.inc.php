@@ -404,9 +404,6 @@ $conf['filter_pages'] = [
     'register' => ['cancel' => true],
 ];
 
-// enable the synchronization method for adding photos
-$conf['enable_synchronization'] = false;
-
 // permitted characters for files/directoris during synchronization
 $conf['sync_chars_regex'] = '/^[a-zA-Z0-9-_.]+$/';
 
