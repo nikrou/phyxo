@@ -1,3 +1,8 @@
+# Phyxo 3.0.0 - 2024-04-27
+
+- upgrade to symfony 6.4 (php 8.2 at least)
+- Refactoring to simplify new theme integration
+
 # Phyxo 2.5.0 - 2023-04-24
 
 - allow to manually rotate images from batch actions
