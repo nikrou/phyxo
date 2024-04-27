@@ -1,3 +1,7 @@
+# Phyxo 4.0.0 - YYYY-MM-DD
+
+- Not yet released
+
 # Phyxo 3.0.0 - 2024-04-27
 
 - upgrade to symfony 6.4 (php 8.2 at least)
