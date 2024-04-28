@@ -1,14 +1,50 @@
 <?php
-/*
- * This file is part of Phyxo package
- *
- * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
- * Licensed under the GPL version 2.0 license.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
 
-$lang['Congratulations, Phyxo installation is completed'] = 'Congratulations.  Phyxo installation is completed';
-
-return $lang;
+return array (
+  'Congratulations, Phyxo installation is completed' => 'Congratulations.  Phyxo installation is completed',
+  'Version' => '__Version',
+  'Installation' => '__Installation',
+  'Installation steps' => '__Installation steps',
+  'Default gallery language' => '__Default gallery language',
+  'Save and continue' => '__Save and continue',
+  'Check directories permissions' => '__Check directories permissions',
+  'The installation process requires for the following directories at least read' => '__The installation process requires for the following directories at least read',
+  'Directory does not exist' => '__Directory does not exist',
+  'readable' => '__readable',
+  'writable' => '__writable',
+  'The installation process requires for the following directories read and write access' => '__The installation process requires for the following directories read and write access',
+  'After check permissions' => '__After check permissions',
+  'retry' => '__retry',
+  'Database configuration' => '__Database configuration',
+  'Database type' => '__Database type',
+  'Host' => '__Host',
+  'localhost or other, supplied by your host provider' => '__localhost or other, supplied by your host provider',
+  'User' => '__User',
+  'user login given by your host provider' => '__user login given by your host provider',
+  'Password' => '__Password',
+  'user password given by your host provider' => '__user password given by your host provider',
+  'Database name' => '__Database name',
+  'also given by your host provider' => '__also given by your host provider',
+  'Database table prefix' => '__Database table prefix',
+  'database tables names will be prefixed with it (enables you to manage better your tables)' => '__database tables names will be prefixed with it (enables you to manage better your tables)',
+  'Create first user' => '__Create first user',
+  'Username' => '__Username',
+  'It will be shown to the visitors. It is necessary for website administration' => '__It will be shown to the visitors. It is necessary for website administration',
+  'Keep it confidential, it enables you to access administration panel' => '__Keep it confidential, it enables you to access administration panel',
+  'Password [confirm]' => '__Password [confirm]',
+  'verification' => '__verification',
+  'Email address' => '__Email address',
+  'Visitors will be able to contact site administrator with this mail' => '__Visitors will be able to contact site administrator with this mail',
+  'Visit Gallery' => '__Visit Gallery',
+  'Database user is mandatory' => '__Database user is mandatory',
+  'Database password is mandatory' => '__Database password is mandatory',
+  'Database name is mandatory' => '__Database name is mandatory',
+  'Username is missing. Please enter the username.' => '__Username is missing. Please enter the username.',
+  'Password is missing. Please enter the password.' => '__Password is missing. Please enter the password.',
+  'Password confirmation is missing. Please confirm the chosen password.' => '__Password confirmation is missing. Please confirm the chosen password.',
+  'The passwords do not match' => '__The passwords do not match',
+  'mail address must be like xxx@yyy.eee (example : jack@altern.org)' => '__mail address must be like xxx@yyy.eee (example : jack@altern.org)',
+  'Just another Phyxo gallery' => '__Just another Phyxo gallery',
+  'Welcome to my photo gallery' => '__Welcome to my photo gallery',
+  'Cannot create database configuration file "{filename}"' => '__Cannot create database configuration file "{filename}"',
+);

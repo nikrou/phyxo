@@ -4,7 +4,7 @@ Feature: Rate photos
   I want to rate pictures
 
   Background: init
-     Given some users:
+    Given some users:
       | username | password | status |
       | user1    | pass1    | normal |
       | user2    | pass2    | normal |
@@ -12,7 +12,7 @@ Feature: Rate photos
       | name    |
       | album 1 |
     And some images:
-      | name    |  album  |
+      | name    | album   |
       | photo 1 | album 1 |
       | photo 2 | album 1 |
     And user "user1" can access album "album 1"

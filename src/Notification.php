@@ -643,7 +643,7 @@ class Notification
 
                 $this->userMailNotificationRepository->addOrUpdateUserMailNotification($nbm_user);
 
-                $this->infos[] = $this->translator->trans('User {username} [{mail_address] added.', ['username' => $new_user->getUsername(), 'mail_address' => $new_user->getMailAddress()]);
+                $this->infos[] = $this->translator->trans('User %username% [%mail_address%] added.', ['username' => $new_user->getUsername(), 'mail_address' => $new_user->getMailAddress()], 'admin');
             }
 
             // Update field enabled with specific function
