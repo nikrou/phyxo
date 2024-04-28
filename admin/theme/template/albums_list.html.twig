@@ -2,107 +2,133 @@
 {% extends "__layout.html.twig" %}
 
 {% block breadcrumb_items %}
-    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Albums'|trans}}</a></li>
-    <li class="breadcrumb-item">{{'Album list management'|trans}}</li>
+  <li class="breadcrumb-item">
+    <a href="{{U_PAGE}}">{{'Albums'|trans}}</a>
+  </li>
+  <li class="breadcrumb-item">{{'Album list management'|trans}}</li>
 {% endblock %}
 
 {% block content %}
-    <p>
-	<a class="btn btn-submit" data-toggle="collapse" href="#create-album">{{'Create a new album'|trans}}</a>
-	{% if categories is defined %}<a class="btn btn-submit" data-toggle="collapse" href="#apply-automatic-sort-order">{{'Apply automatic sort order'|trans}}</a>{% endif %}
-	{% if PARENT_EDIT is defined %}<a class="btn btn-edit" href="{{PARENT_EDIT}}"></span>{{'Edit'|trans}}</a>{% endif %}
-    </p>
-
-    <div id="create-album" class="collapse">
-	<form id="formCreateAlbum" action="{{F_ACTION_CREATE}}" method="post">
-	    <div class="fieldset">
-		<h3>{{'Create a new album'|trans}}</h3>
-		<p>
-		    <label for="virtual_name">{{'Album name'|trans}}</label>
-		    <input class="form-control" type="text" name="virtual_name" id="virtual_name" maxlength="255">
-		</p>
-
-		<p>
-		    <input class="btn btn-submit" name="submitAdd" type="submit" value="{{'Create'|trans}}">
-		    <a class="btn btn-cancel" href="#create-album" data-toggle="collapse">{{'Cancel'|trans}}</a>
-		</p>
-	    </div>
-	</form>
-    </div>
-
-    {% if categories %}
-	<form id="apply-automatic-sort-order" action="{{F_ACTION_UPDATE}}" method="post" class="collapse">
-	    <div class="fieldset">
-		<h3>{{'Automatic sort order'|trans}}</h3>
-
-		<p><strong>{{'Sort order'|trans}}</strong></p>
-		{% for sort_code, sort_label in sort_orders %}
-		    <p><label><input type="radio" value="{{sort_code}}" name="order_by" {% if sort_code == sort_order_checked %}checked="checked"{% endif %}> {{sort_label}}</label></p>
-		{% endfor %}
-
-		<p>
-		    <label><input type="checkbox" name="recursive"> <strong>{{'Apply to sub-albums'|trans}}</strong></label>
-		</p>
-
-		<p>
-		    <input class="btn btn-submit" name="submitAutoOrder" type="submit" value="{{'Save order'|trans}}">
-		    <a href="#apply-automatic-sort-order" class="btn btn-cancel" data-toggle="collapse">{{'Cancel'|trans}}</a>
-		</p>
-	    </div>
-	</form>
+  <p>
+    <a class="btn btn-submit" data-toggle="collapse" href="#create-album">{{'Create a new album'|trans}}</a>
+    {% if categories is defined %}
+      <a class="btn btn-submit" data-toggle="collapse" href="#apply-automatic-sort-order">{{'Apply automatic sort order'|trans}}</a>
     {% endif %}
+    {% if PARENT_EDIT is defined %}
+      <a class="btn btn-edit" href="{{PARENT_EDIT}}"></span>
+      {{'Edit'|trans}}</a>
+  {% endif %}
+</p>
 
-    <form id="categoryOrdering" action="{{F_ACTION_UPDATE}}" method="post">
-	<p id="manualOrder" class="collapse">
-	    <input class="btn btn-submit3" name="submitManualOrder" type="submit" value="{{'Save manual order'|trans}}">
-	    ... {{'or'|trans}} <a href="#manualOrder" class="btn btn-cancel" data-toggle="collapse">{{'cancel manual order'|trans}}</a>
-	</p>
+<div id="create-album" class="collapse">
+  <form id="formCreateAlbum" action="{{F_ACTION_CREATE}}" method="post">
+    <div class="fieldset">
+      <h3>{{'Create a new album'|trans}}</h3>
+      <p>
+        <label for="album_name">{{'Album name'|trans}}</label>
+        <input class="form-control" type="text" name="album_name" id="album_name" maxlength="255">
+      </p>
 
-	{% if categories %}
-	    <div class="albums">
-		{% for category in categories %}
-		    {% if category.IS_PRIVATE %}
-			{% set status_icon = 'fa-lock' %}
-			{% set status_title = 'Private album'|trans %}
-		    {% else %}
-			{% set status_icon = 'fa-unlock' %}
-			{% set status_title = 'Public album'|trans %}
-		    {% endif %}
+      <p>
+        <input class="btn btn-submit" name="submitAdd" type="submit" value="{{'Create'|trans}}">
+        <a class="btn btn-cancel" href="#create-album" data-toggle="collapse">{{'Cancel'|trans}}</a>
+      </p>
+    </div>
+  </form>
+</div>
 
-		    <div class="album" id="album-{{category.ID}}">
-			<p class="album-title">
-			    <i class="fa infos {{status_icon}}" title="{{status_title}}"></i>
-			    <i class="drag_button move visibility-hidden" title="{{'Drag to re-order'|trans}}"></i>
-			    <strong><a href="{{category.U_CHILDREN}}" title="{{'manage sub-albums'|trans}}">{{category.NAME}}</a></strong>
-			    <span class="albumInfos">
-				<span class="userSeparator">&middot;</span>
-				<span data-testid="number_of_photos">{{'number_of_photos'|trans({'count': category.NB_PHOTOS})}}</span>
-				<span class="userSeparator">&middot;</span>
-				<span data-testid="number_of_photos_in_sub_albums">
-				    {{'number_of_photos'|trans({'count': category.NB_SUB_PHOTOS})}}
-				    {{'number_of_photos_in_sub_albums'|trans({'count': category.NB_SUB_ALBUMS})}}
-				</span>
-			    </span>
-			</p>
+{% if categories %}
+  <form id="apply-automatic-sort-order" action="{{F_ACTION_UPDATE}}" method="post" class="collapse">
+    <div class="fieldset">
+      <h3>{{'Automatic sort order'|trans}}</h3>
 
-			<input type="hidden" name="catOrd[{{category.ID}}]" value="{{category.RANK}}">
+      <p>
+        <strong>{{'Sort order'|trans}}</strong>
+      </p>
+      {% for sort_code, sort_label in sort_orders %}
+        <p>
+          <label><input type="radio" value="{{sort_code}}" name="order_by" {% if sort_code == sort_order_checked %} checked="checked" {% endif %}>
+            {{sort_label}}</label>
+        </p>
+      {% endfor %}
 
-			<p class="album-actions">
-			    <a class="btn btn-sm btn-edit" href="{{category.U_EDIT}}"><i class="fa fa-pencil"></i>{{'Edit'|trans}}</a>
-			    <a class="btn btn-sm btn-info" href="{{category.U_CHILDREN}}"><i class="fa fa-sitemap"></i>{{'manage sub-albums'|trans}}</a>
-			    {% if category.U_SYNC is defined %}
-				<a href="{{category.U_SYNC}}"><i class="fa fa-exchange"></i>{{'Synchronize'|trans}}</a>
-			    {% endif %}
-			    {% if category.U_DELETE is defined %}
-				<a class="btn btn-sm btn-danger" href="{{category.U_DELETE}}" onclick="return confirm('{{'Are you sure?'|trans}}');">
-				    <i class="fa fa-trash"></i>{{'delete album'|trans}}
-				</a>
-			    {% endif %}
-			    <a class="btn btn-sm btn-warning" href="{{category.U_JUMPTO}}"><i class="fa fa-eye"></i> {{'jump to album'|trans}}</a>
-			</p>
-		    </div>
-		{% endfor %}
-	    </div>
-	{% endif %}
-    </form>
-{% endblock %}
+      <p>
+        <label><input type="checkbox" name="recursive">
+          <strong>{{'Apply to sub-albums'|trans}}</strong>
+        </label>
+      </p>
+
+      <p>
+        <input class="btn btn-submit" name="submitAutoOrder" type="submit" value="{{'Save order'|trans}}">
+        <a href="#apply-automatic-sort-order" class="btn btn-cancel" data-toggle="collapse">{{'Cancel'|trans}}</a>
+      </p>
+    </div>
+  </form>
+{% endif %}
+
+<form id="categoryOrdering" action="{{F_ACTION_UPDATE}}" method="post">
+  <p id="manualOrder" class="collapse">
+    <input class="btn btn-submit3" name="submitManualOrder" type="submit" value="{{'Save manual order'|trans}}">
+    ...
+    {{'or'|trans}}
+    <a href="#manualOrder" class="btn btn-cancel" data-toggle="collapse">{{'cancel manual order'|trans}}</a>
+  </p>
+
+  {% if categories %}
+    <div class="albums">
+      {% for category in categories %}
+        {% if category.IS_PRIVATE %}
+          {% set status_icon = 'fa-lock' %}
+          {% set status_title = 'Private album'|trans %}
+        {% else %}
+          {% set status_icon = 'fa-unlock' %}
+          {% set status_title = 'Public album'|trans %}
+        {% endif %}
+
+        <div class="album" id="album-{{category.ID}}">
+          <p class="album-title">
+            <i class="fa infos {{status_icon}}" title="{{status_title}}"></i>
+            <i class="drag_button move visibility-hidden" title="{{'Drag to re-order'|trans}}"></i>
+            <strong>
+              <a href="{{category.U_CHILDREN}}" title="{{'manage sub-albums'|trans}}">{{category.NAME}}</a>
+            </strong>
+            <span class="albumInfos">
+              <span class="userSeparator">&middot;</span>
+              <span data-testid="number_of_photos">{{'number_of_photos'|trans({'count': category.NB_PHOTOS})}}</span>
+              <span class="userSeparator">&middot;</span>
+              <span data-testid="number_of_photos_in_sub_albums">
+                {{'number_of_photos'|trans({'count': category.NB_SUB_PHOTOS})}}
+                {{'number_of_photos_in_sub_albums'|trans({'count': category.NB_SUB_ALBUMS})}}
+              </span>
+            </span>
+          </p>
+
+          <input type="hidden" name="catOrd[{{category.ID}}]" value="{{category.RANK}}">
+
+          <p class="album-actions">
+            <a class="btn btn-sm btn-edit" href="{{category.U_EDIT}}">
+              <i class="fa fa-pencil"></i>
+              {{'Edit'|trans}}</a>
+            <a class="btn btn-sm btn-info" href="{{category.U_CHILDREN}}">
+              <i class="fa fa-sitemap"></i>
+              {{'manage sub-albums'|trans}}</a>
+            {% if category.U_SYNC is defined %}
+              <a href="{{category.U_SYNC}}">
+                <i class="fa fa-exchange"></i>
+                {{'Synchronize'|trans}}</a>
+            {% endif %}
+            {% if category.U_DELETE is defined %}
+              <a class="btn btn-sm btn-danger" href="{{category.U_DELETE}}" onclick="return confirm('{{'Are you sure?'|trans}}');">
+                <i class="fa fa-trash"></i>
+                {{'delete album'|trans}}
+              </a>
+            {% endif %}
+            <a class="btn btn-sm btn-warning" href="{{category.U_JUMPTO}}">
+              <i class="fa fa-eye"></i>
+              {{'jump to album'|trans}}</a>
+          </p>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</form>{% endblock %}

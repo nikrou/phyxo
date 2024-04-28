@@ -438,7 +438,7 @@ class WsController extends AbstractController
                 'parent' => ['type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
             ],
             'Move album(s).
-    <br>Set parent as 0 to move to gallery root. Only virtual categories can be moved.',
+    <br>Set parent as 0 to move to gallery root.',
             ['admin_only' => true, 'post_only' => true]
         );
 

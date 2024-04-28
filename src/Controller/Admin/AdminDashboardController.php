@@ -80,10 +80,6 @@ class AdminDashboardController extends AbstractController
         }
 
         $nb_elements = $imageMapper->getRepository()->count([]);
-        $nb_categories = $albumRepository->count([]);
-        $nb_virtual = $albumRepository->countByType($virtual = true);
-        $nb_physical = $albumRepository->countByType($virtual = false);
-        $nb_image_category = $imageAlbumRepository->count([]);
         $nb_tags = $tagRepository->count([]);
         $nb_image_tag = $imageTagRepository->count([]);
         $nb_users = $userRepository->count([]);
@@ -99,10 +95,8 @@ class AdminDashboardController extends AbstractController
                 'DB_ENGINE' => $managerRegistry->getConnection()->getDatabasePlatform()->getName(),
                 'DB_VERSION' => $managerRegistry->getConnection()->getWrappedConnection()->getServerVersion(),
                 'DB_ELEMENTS' => $translator->trans('number_of_photos', ['count' => $nb_elements], 'admin'),
-                'DB_CATEGORIES' => $translator->trans('number_of_albums_including', ['count' => $nb_categories], 'admin'),
-                'PHYSICAL_CATEGORIES' => $translator->trans('number_of_physicals', ['count' => $nb_physical], 'admin'),
-                'VIRTUAL_CATEGORIES' => $translator->trans('number_of_virtuals', ['count' => $nb_virtual], 'admin'),
-                'DB_IMAGE_CATEGORY' => $translator->trans('number_of_associations', ['count' => $nb_image_category], 'admin'),
+                'DB_ALBUMS' => $translator->trans('number_of_albums', ['count' => $albumRepository->count([])], 'admin'),
+                'DB_IMAGE_ALBUM' => $translator->trans('number_of_associations', ['count' => $imageAlbumRepository->count([])], 'admin'),
                 'DB_TAGS' => $translator->trans('number_of_tags', ['count' => $nb_tags], 'admin'),
                 'DB_IMAGE_TAG' => $translator->trans('number_of_associations', ['count' => $nb_image_tag], 'admin'),
                 'NB_PENDING_TAGS' => $imageTagRepository->getPendingTags($count_only = true),

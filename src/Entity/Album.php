@@ -268,11 +268,6 @@ class Album
         return $this;
     }
 
-    public function isVirtual(): bool
-    {
-        return !$this->dir;
-    }
-
     public function getParent(): ?Album
     {
         return $this->parent;

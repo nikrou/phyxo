@@ -271,7 +271,7 @@ class Category
 
         $service->getUserMapper()->invalidateUserCache();
 
-        return ['info' => 'Virtual album added', 'id' => $album->getId()];
+        return ['info' => 'Album added', 'id' => $album->getId()];
     }
 
     /**
@@ -435,18 +435,6 @@ class Category
         // we can't move physical categories
         $categories_in_db = [];
         foreach ($service->getAlbumMapper()->getRepository()->findBy(['id' => $category_ids]) as $album) {
-            // we break on error at first physical album detected
-            if (!$album->isVirtual()) {
-                return new Error(
-                    403,
-                    sprintf(
-                        'Album %s (%u) is not a virtual album, you cannot move it',
-                        $album->getName(),
-                        $album->getId()
-                    )
-                );
-            }
-
             $categories_in_db[$album->getId()] = $album;
         }
 

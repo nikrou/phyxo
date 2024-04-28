@@ -109,8 +109,6 @@ class Main
         $infos['version'] = $service->getCoreVersion();
         $infos['nb_elements'] = $service->getImageMapper()->getRepository()->count([]);
         $infos['nb_categories'] = $service->getAlbumMapper()->getRepository()->count([]);
-        $infos['nb_virtual'] = $service->getAlbumMapper()->getRepository()->countByType($virtual = true);
-        $infos['nb_physical'] = $service->getAlbumMapper()->getRepository()->countByType($virtual = false);
         $infos['nb_image_category'] = $service->getManagerRegistry()->getRepository(ImageAlbum::class)->count([]);
         $infos['nb_tags'] = $service->getTagMapper()->getRepository()->count([]);
         $infos['nb_image_tag'] = $service->getManagerRegistry()->getRepository(ImageTag::class)->count([]);

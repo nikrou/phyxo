@@ -11,9 +11,7 @@
 
 $lang['number_of_photos'] = "{count, plural, =0 {aucune photo} one {une photo} other {# photos}}";
 $lang['number_of_photos_deleted'] = "{count, plural, =0 {aucune photo supprimée} one {une photo a été supprimée} other {# photos ont été supprimées}}";
-$lang['number_of_physicals'] = "{count, plural, =0 {aucun physique} one {un physique} other {# physiques}}";
-$lang['number_of_virtuals'] = "{count, plural, =0 {aucun virtuel} one {un virtuel} other {# virtuels}}";
-$lang['number_of_albums_including'] = "{count, plural, =0 {aucun album} one {un album dont} other {# albums dont}}";
+$lang['number_of_albums'] = "{count, plural, =0 {aucun album} one {un album} other {# albums}}";
 $lang['number_of_associations'] = "{count, plural, =0 {aucune association} one {une association} other {# associations}}";
 $lang['number_of_groups'] = "{count, plural, =0 {aucun groupe} one {un groupe} other {# groupes}}";
 $lang['number_of_tags'] = "{count, plural, =0 {aucun tag} one {un tag} other {# tags}}";

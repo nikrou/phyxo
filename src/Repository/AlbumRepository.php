@@ -85,33 +85,6 @@ class AlbumRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    /**
-     * @param int[] $ids
-     *
-     * @return Album[]
-     */
-    public function findPhysicalAlbums(array $ids = [])
-    {
-        $qb = $this->createQueryBuilder('a');
-        if (count($ids) > 0) {
-            $qb->where($qb->expr()->in('a.id', $ids));
-        }
-        $qb->andWhere($qb->expr()->isNotNull('a.dir'));
-
-        return $qb->getQuery()->getResult();
-    }
-
-    /**
-     * @return Album[]
-     */
-    public function findVirtualAlbums()
-    {
-        $qb = $this->createQueryBuilder('a');
-        $qb->andWhere($qb->expr()->isNull('a.dir'));
-
-        return $qb->getQuery()->getResult();
-    }
-
     public function removePhysicalAlbums(): void
     {
         $qb = $this->createQueryBuilder('a');
@@ -120,19 +93,6 @@ class AlbumRepository extends ServiceEntityRepository
         $qb->setParameter('dir', null);
 
         $qb->getQuery()->getResult();
-    }
-
-    public function countByType(bool $virtual = false): int
-    {
-        $qb = $this->createQueryBuilder('a');
-        $qb->select('count(1)');
-        if ($virtual) {
-            $qb->where($qb->expr()->isNull('a.dir'));
-        } else {
-            $qb->where($qb->expr()->isNotNull('a.dir'));
-        }
-
-        return $qb->getQuery()->getSingleScalarResult();
     }
 
     protected function addCriteriaSubAlbum(QueryBuilder $qb, string $crieria): QueryBuilder

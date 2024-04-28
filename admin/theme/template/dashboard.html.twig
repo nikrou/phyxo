@@ -2,72 +2,80 @@
 {% extends "__layout.html.twig" %}
 
 {% block javascript %}
-    {{parent()}}
-    <script>
-     var ws_url = '{{ws}}';
-     var phyxo_need_update_msg = '<a href="{{U_UPDATE}}">{{'A new version of Phyxo is available.'|trans}}</a>';
-     var ext_need_update_msg = '<a href="{{U_UPDATE_EXTENSIONS}}">{{'Some upgrades are available for extensions.'|trans}}</a>';
-     var phyxo_is_uptodate_msg = "{{'You are running the latest version of Phyxo.'|trans}}";
-    </script>
+  {{parent()}}
+  <script>
+    var ws_url = '{{ ws }}';
+    var phyxo_need_update_msg = '<a href="      {{ U_UPDATE }}">     {{ ' A new version of Phyxo is available.'|trans }}</a>';
+    var ext_need_update_msg = '<a href="      {{ U_UPDATE_EXTENSIONS }}">     {{ ' Some upgrades are available for extensions.'|trans }}</a>';
+    var phyxo_is_uptodate_msg = "{{ 'You are running the latest version of Phyxo.'|trans }}";
+  </script>
 {% endblock %}
 
 {% block content %}
 
-    <h2>{{'Phyxo Administration'|trans}}</h2>
-    <dl>
-	<dt>{{'Phyxo version'|trans}}</dt>
-	<dd>
-	    <ul>
-		<li>
-		    <a href="{{PHYXO_URL}}" class="externalLink">Phyxo</a> {{PHYXO_VERSION}}&nbsp;
-		    {% if not DEV is defined %}
-			<span>(<a id="check-upgrade" href="{{U_CHECK_UPGRADE}}">{{'Check for upgrade'|trans}}</a>)</span>
-		    {% endif %}
-		</li>
-		<li>Symfony: {{SYMFONY_VERSION}}</li>
-	    </ul>
-	</dd>
+  <h2>{{'Phyxo Administration'|trans}}</h2>
+  <dl>
+    <dt>{{'Phyxo version'|trans}}</dt>
+    <dd>
+      <ul>
+        <li>
+          <a href="{{PHYXO_URL}}" class="externalLink">Phyxo</a>
+          {{PHYXO_VERSION}}&nbsp;
+          {% if not DEV is defined %}
+            <span>(<a id="check-upgrade" href="{{U_CHECK_UPGRADE}}">{{'Check for upgrade'|trans}}</a>)</span>
+          {% endif %}
+        </li>
+        <li>Symfony:
+          {{SYMFONY_VERSION}}</li>
+      </ul>
+    </dd>
 
-	<dt>{{'Environment'|trans}}</dt>
-	<dd>
-	    <ul>
-		<li>{{'Operating system'|trans}}: {{OS}}</li>
-		<li>PHP: {{PHP_VERSION}}</li>
-		<li>{{DB_ENGINE}}: {{DB_VERSION}}</li>
-		{% if GRAPHICS_LIBRARY is defined %}
-		    <li>{{'Graphics Library'|trans}}: {{GRAPHICS_LIBRARY}}</li>
-		{% endif %}
-	    </ul>
-	</dd>
+    <dt>{{'Environment'|trans}}</dt>
+    <dd>
+      <ul>
+        <li>{{'Operating system'|trans}}:
+          {{OS}}</li>
+        <li>PHP:
+          {{PHP_VERSION}}</li>
+        <li>{{DB_ENGINE}}:
+          {{DB_VERSION}}</li>
+        {% if GRAPHICS_LIBRARY is defined %}
+          <li>{{'Graphics Library'|trans}}:
+            {{GRAPHICS_LIBRARY}}</li>
+        {% endif %}
+      </ul>
+    </dd>
 
-	<dt>{{'Database'|trans}}</dt>
-	<dd>
-	    <ul>
-		<li>
-		    {{DB_ELEMENTS}}
-		    {% if first_added is defined %}
-			({{first_added}})
-		    {% endif %}
-		</li>
-		<li>{{DB_CATEGORIES}} {{PHYSICAL_CATEGORIES}} {{'and'|trans}} {{VIRTUAL_CATEGORIES}} ({{DB_IMAGE_CATEGORY}})</li>
-		<li>
-		    {{DB_TAGS}} ({{DB_IMAGE_TAG}})
-		    {% if NB_PENDING_TAGS is defined %}
-			(<a href="{{U_PENDING_TAGS}}">{{'waiting_for_validation'|trans({'count': NB_PENDING_TAGS})}}</a>)
-		    {% endif %}
-		</li>
-		<li>{{DB_USERS}}</li>
-		<li>{{DB_GROUPS}}</li>
-		{% if DB_COMMENTS is defined %}
-		    <li>
-			{{DB_COMMENTS}}
-			{% if NB_PENDING_COMMENTS is defined %}
-			    (<a href="{{U_PENDING_COMMENTS}}">{{'waiting_for_validation'|trans({'count': NB_PENDING_COMMENTS})}}</a>)
-			{% endif %}
-		    </li>
-		{% endif %}
-		<li>{{DB_RATES}}</li>
-	    </ul>
-	</dd>
-    </dl>
+    <dt>{{'Database'|trans}}</dt>
+    <dd>
+      <ul>
+        <li>
+          {{DB_ELEMENTS}}
+          {% if first_added is defined %}
+            ({{first_added}})
+          {% endif %}
+        </li>
+        <li>{{DB_ALBUMS}}
+          ({{DB_IMAGE_ALBUM}})</li>
+        <li>
+          {{DB_TAGS}}
+          ({{DB_IMAGE_TAG}})
+          {% if NB_PENDING_TAGS is defined %}
+            (<a href="{{U_PENDING_TAGS}}">{{'waiting_for_validation'|trans({'count': NB_PENDING_TAGS})}}</a>)
+          {% endif %}
+        </li>
+        <li>{{DB_USERS}}</li>
+        <li>{{DB_GROUPS}}</li>
+        {% if DB_COMMENTS is defined %}
+          <li>
+            {{DB_COMMENTS}}
+            {% if NB_PENDING_COMMENTS is defined %}
+              (<a href="{{U_PENDING_COMMENTS}}">{{'waiting_for_validation'|trans({'count': NB_PENDING_COMMENTS})}}</a>)
+            {% endif %}
+          </li>
+        {% endif %}
+        <li>{{DB_RATES}}</li>
+      </ul>
+    </dd>
+  </dl>
 {% endblock %}

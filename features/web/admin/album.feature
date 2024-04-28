@@ -24,12 +24,12 @@ Feature: Album
     And I should see link "album 2" in ".main-content"
 
     When I go to "admin/albums/move"
-    Then the select "Virtual albums to move" should contain:
+    Then the select "Albums to move" should contain:
       """
       album 1
       album 2
       """
-    When  I select "album 2" from "Virtual albums to move"
+    When  I select "album 2" from "Albums to move"
     And I select "album 1" from "New parent album"
     And I press "Submit"
     When I go to the homepage

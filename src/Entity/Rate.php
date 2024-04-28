@@ -24,6 +24,7 @@ class Rate
     #[ORM\JoinColumn(name: 'user_id', nullable: false)]
     private User $user;
 
+    #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Image::class, inversedBy: 'rates')]
     #[ORM\JoinColumn(name: 'element_id', nullable: false)]
     private Image $image;

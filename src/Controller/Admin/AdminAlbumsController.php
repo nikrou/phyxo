@@ -113,7 +113,6 @@ class AdminAlbumsController extends AbstractController
                 'U_JUMPTO' => $this->generateUrl('album', ['album_id' => $album->getId()]),
                 'U_CHILDREN' => $this->generateUrl('admin_albums', ['parent_id' => $album->getId()]),
                 'U_EDIT' => $this->generateUrl('admin_album', ['album_id' => $album->getId(), 'parent_id' => $parent_id]),
-                'IS_VIRTUAL' => $album->isVirtual(),
                 'IS_PRIVATE' => $album->getStatus() === Album::STATUS_PRIVATE,
             ];
 
@@ -203,22 +202,17 @@ class AdminAlbumsController extends AbstractController
             return $this->redirectToRoute('admin_albums_move', ['parent_id' => $parent_id]);
         }
 
-        $virtual_albums = [];
-        foreach ($albumRepository->findVirtualAlbums() as $album) {
-            $virtual_albums[] = $album;
-        }
-        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($virtual_albums, [], 'category_to_move_options'));
-
         $albums = [];
         foreach ($albumRepository->findAll() as $album) {
             $albums[] = $album;
         }
-        $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_parent_options'));
+        $tpl_params = array_merge(
+            $tpl_params,
+            $albumMapper->displaySelectAlbumsWrapper($albums, [], 'album_to_move_options'),
+            $albumMapper->displaySelectAlbumsWrapper($albums, [], 'album_parent_options')
+        );
 
-        $tpl_params['F_ACTION'] = $this->generateUrl('admin_albums_move', ['parent_id' => $parent_id]);
-        $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums_move');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums');
-        $tpl_params['PAGE_TITLE'] = $translator->trans('Albums', [], 'admin');
         $tpl_params['tabsheet'] = $this->setTabsheet('move');
 
         return $this->render('albums_move.html.twig', $tpl_params);

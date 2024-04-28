@@ -113,8 +113,7 @@ class AdminAlbumController extends AbstractController
                 }
 
                 $parent = $request->request->get('parent');
-                // only move virtual albums
-                if (!$album->getDir() && $album->getParent() && $album->getParent()->getId() !== $parent) {
+                if ($album->getParent() && $album->getParent()->getId() !== $parent) {
                     $albumMapper->moveAlbums([$album_id], $parent == 0 ? null : $parent);
                 }
 
@@ -597,10 +596,10 @@ class AdminAlbumController extends AbstractController
         int $parent_id = null
     ): Response {
         if ($request->isMethod('POST')) {
-            $virtual_name = $request->request->get('virtual_name');
+            $album_name = $request->request->get('album_name');
 
             // is the given category name only containing blank spaces ?
-            if (preg_match('/^\s*$/', $virtual_name)) {
+            if (preg_match('/^\s*$/', $album_name)) {
                 $this->addFlash('error', $translator->trans('The name of an album must not be empty', [], 'admin'));
             } else {
                 $admin_ids = [];
@@ -616,10 +615,10 @@ class AdminAlbumController extends AbstractController
                 if (!is_null($parent_id)) {
                     $parent = $albumMapper->getRepository()->find($parent_id);
                 }
-                $albumMapper->createAlbum($virtual_name, $appUserService->getUser()->getId(), $parent, $admin_ids, $params);
+                $albumMapper->createAlbum($album_name, $appUserService->getUser()->getId(), $parent, $admin_ids, $params);
                 $userMapper->invalidateUserCache();
 
-                $this->addFlash('success', $translator->trans('Virtual album added', [], 'admin'));
+                $this->addFlash('success', $translator->trans('Album added', [], 'admin'));
             }
         }
 
@@ -637,7 +636,7 @@ class AdminAlbumController extends AbstractController
         }
         $imageMapper->deleteElements($element_ids);
 
-        $this->addFlash('success', $translator->trans('Virtual album deleted', [], 'admin'));
+        $this->addFlash('success', $translator->trans('Album deleted', [], 'admin'));
         $albumMapper->updateGlobalRank();
         $userMapper->invalidateUserCache();
 

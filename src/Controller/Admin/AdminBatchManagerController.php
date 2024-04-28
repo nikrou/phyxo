@@ -298,11 +298,11 @@ class AdminBatchManagerController extends AbstractController
         }
         $tpl_params['filter_category_selected'] = $selected_category;
 
-        // Dissociate from a category : categories listed for dissociation can only
-        // represent virtual links. We can't create orphans. Links to physical categories can't be broken.
+        // Dissociate from an album : albums listed for dissociation can only
+        // represent virtual links. We can't create orphans. Links to physical albums can't be broken.
         if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
             $tpl_params['associated_categories'] = [];
-            foreach ($imageMapper->getRepository()->findVirtualAlbumsWithImages($current_set) as $album) {
+            foreach ($imageMapper->getRepository()->findAlbumsWithImages($current_set) as $album) {
                 $tpl_params['associated_categories'][] = $album['id'];
             }
 
@@ -512,11 +512,6 @@ class AdminBatchManagerController extends AbstractController
             // let's refresh the page because we the current set might be modified
             if ($this->getFilter($request->getSession())['prefilter'] === 'no_album') {
                 $redirect = true;
-            } elseif ($this->getFilter($request->getSession())['prefilter'] === 'no_virtual_album') {
-                $album = $albumMapper->getRepository()->find($request->request->get('associate'));
-                if ($album->isVirtual()) {
-                    $redirect = true;
-                }
             }
         } elseif ($action === 'move') {
             $albumMapper->moveImagesToAlbums($collection, [$request->request->get('move')]);
@@ -526,19 +521,14 @@ class AdminBatchManagerController extends AbstractController
             // let's refresh the page because we the current set might be modified
             if ($this->getFilter($request->getSession())['prefilter'] === 'no_album') {
                 $redirect = true;
-            } elseif ($this->getFilter($request->getSession())['prefilter'] === 'no_virtual_album') {
-                $album = $albumMapper->getRepository()->find($request->request->get('move'));
-                if ($album->isVirtual()) {
-                    $redirect = true;
-                }
             } elseif (isset($this->getFilter($request->getSession())['category']) && $this->getFilter($request->getSession())['category'] !== $request->request->get('move')) {
                 $redirect = true;
             }
         } elseif ($action === 'dissociate') {
             // physical links must not be broken, so we must first retrieve image_id
-            // which create virtual links with the category to "dissociate from".
+            // which create virtual links with the album to "dissociate from".
             $dissociables = [];
-            foreach ($imageMapper->getRepository()->findImagesInVirtualAlbum($collection, $request->request->get('dissociate')) as $image) {
+            foreach ($imageMapper->getRepository()->findImagesByAlbum($collection, $request->request->get('dissociate')) as $image) {
                 $dissociables[] = $image->getId();
             }
 
@@ -688,23 +678,6 @@ class AdminBatchManagerController extends AbstractController
                         }
                         $filter_sets[] = $image_ids;
                     }
-                    break;
-
-                case 'no_virtual_album':
-                    // we are searching elements not linked to any virtual category
-                    $all_elements = [];
-                    foreach ($imageMapper->getRepository()->findAll() as $image) {
-                        $all_elements[] = $image->getId();
-                    }
-
-                    $linked_to_virtual = [];
-                    foreach ($albumRepository->findVirtualAlbums() as $album) {
-                        foreach ($album->getImageAlbums() as $image_album) {
-                            $linked_to_virtual[] = $image_album->getImage()->getId();
-                        }
-                    }
-
-                    $filter_sets[] = array_diff($all_elements, $linked_to_virtual);
                     break;
 
                 case 'no_album':
@@ -1099,11 +1072,11 @@ class AdminBatchManagerController extends AbstractController
         }
         $tpl_params['filter_category_selected'] = $selected_category;
 
-        // Dissociate from a category : categories listed for dissociation can only
-        // represent virtual links. We can't create orphans. Links to physical categories can't be broken.
+        // Dissociate from an album : albums listed for dissociation can only
+        // represent virtual links. We can't create orphans. Links to physical albums can't be broken.
         if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
             $tpl_params['associated_categories'] = [];
-            foreach ($imageMapper->getRepository()->findVirtualAlbumsWithImages($current_set) as $album) {
+            foreach ($imageMapper->getRepository()->findAlbumsWithImages($current_set) as $album) {
                 $tpl_params['associated_categories'][] = $album['id'];
             }
 

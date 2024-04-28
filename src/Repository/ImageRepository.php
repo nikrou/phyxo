@@ -775,7 +775,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return Image[]
      */
-    public function findImagesInVirtualAlbum(array $image_ids, int $album_id)
+    public function findImagesByAlbum(array $image_ids, int $album_id)
     {
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
@@ -795,7 +795,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return array<int, array<string, int|string|null>>
      */
-    public function findVirtualAlbumsWithImages(array $image_ids): array
+    public function findAlbumsWithImages(array $image_ids): array
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('IDENTITY(ia.album) AS id');

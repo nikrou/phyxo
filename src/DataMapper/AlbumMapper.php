@@ -351,7 +351,7 @@ class AlbumMapper
     }
 
     /**
-     * Change the parent album of the given albums. The albums are supposed virtual.
+     * Change the parent album of the given albums.
      * @param int[] $ids
      */
     public function moveAlbums(array $ids, int $new_parent = null): void

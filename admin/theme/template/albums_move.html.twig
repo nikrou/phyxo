@@ -2,37 +2,39 @@
 {% extends "__layout.html.twig" %}
 
 {% block breadcrumb_items %}
-    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Albums'|trans}}</a></li>
-    <li class="breadcrumb-item">{{'Move albums'|trans}}</li>
+  <li class="breadcrumb-item">
+    <a href="{{ path('admin_albums_move') }}">{{'Albums'|trans}}</a>
+  </li>
+  <li class="breadcrumb-item">{{'Move albums'|trans}}</li>
 {% endblock %}
 
 {% block content %}
-    <form method="post" action="{{F_ACTION}}" class="filter" id="catMove">
-	<div class="fieldset">
-	    <h3>{{'Move albums'|trans}}</h3>
+  <form method="post" action="{{ path('admin_albums_move') }}" class="filter" id="catMove">
+    <div class="fieldset">
+      <h3>{{'Move albums'|trans}}</h3>
 
-	    <label>
-		{{'Virtual albums to move'|trans}}
-		<select class="custom-select" name="selection[]" multiple="multiple">
-		    {% for id, label in category_to_move_options %}
-			<option value="{{id}}">{{label}}</option>
-		    {% endfor %}
-		</select>
-	    </label>
+      <label>
+        {{'Albums to move'|trans}}
+        <select class="custom-select" name="selection[]" multiple="multiple">
+          {% for id, label in album_to_move_options %}
+            <option value="{{id}}">{{label}}</option>
+          {% endfor %}
+        </select>
+      </label>
 
-	    <label>
-		{{'New parent album'|trans}}
-		<select class="custom-select" name="parent">
-		    <option value="0">------------</option>
-		    {% for id, label in category_parent_options %}
-			<option value="{{id}}">{{label}}</option>
-		    {% endfor %}
-		</select>
-	    </label>
-	</div>
+      <label>
+        {{'New parent album'|trans}}
+        <select class="custom-select" name="parent">
+          <option value="0">------------</option>
+          {% for id, label in album_parent_options %}
+            <option value="{{id}}">{{label}}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
 
-	<p>
-	    <input class="btn btn-submit" type="submit" name="submit" value="{{'Submit'|trans}}">
-	</p>
-    </form>
+    <p>
+      <input class="btn btn-submit" type="submit" name="submit" value="{{'Submit'|trans}}">
+    </p>
+  </form>
 {% endblock %}
