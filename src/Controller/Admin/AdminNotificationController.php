@@ -146,7 +146,6 @@ class AdminNotificationController extends AbstractController
     {
         $tpl_params = [];
         $this->translator = $translator;
-        $must_repost = false;
 
         $tpl_var = [];
         $tpl_var['CUSTOMIZE_MAIL_CONTENT'] = $conf['nbm_complementary_mail_content'];
@@ -168,7 +167,7 @@ class AdminNotificationController extends AbstractController
         $data_users = $notification->do_action_send_mail_notification('list_to_send', [], '');
 
         foreach ($data_users as $nbm_user) {
-            if ((!$must_repost) || (($must_repost) && in_array($nbm_user->getCheckKey(), $request->request->all('send_selection')))) {
+            if (in_array($nbm_user->getCheckKey(), $request->request->all('send_selection'))) {
                 $tpl_var['users'][] = [
                     'ID' => $nbm_user->getCheckKey(),
                     'CHECKED' => ($request->request->get('send_selection') && !in_array($nbm_user->getCheckKey(), $request->request->all('send_selection'))) ? '' : 'checked="checked"',

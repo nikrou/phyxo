@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\PluginRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -22,13 +23,13 @@ class Plugin
     final public const INACTIVE = 'inactive';
 
     #[ORM\Id]
-    #[ORM\Column(type: 'string', length: 40)]
+    #[ORM\Column(type: Types::STRING, length: 40)]
     private string $id;
 
-    #[ORM\Column(type: 'string', length: 25)]
+    #[ORM\Column(type: Types::STRING, length: 25)]
     private string $state = self::INACTIVE;
 
-    #[ORM\Column(type: 'string', length: 64, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 64, nullable: true)]
     private ?string $version = null;
 
     public function setId(string $id): self

@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use DateTimeInterface;
 use App\Repository\CommentRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -22,33 +23,33 @@ class Comment
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: Types::INTEGER)]
     private int $id;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private DateTimeInterface $date;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $author = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Email(message: "The email '{{ value }}' is not a valid email.")]
     private ?string $email = null;
 
-    #[ORM\Column(type: 'string', length: 45, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 45, nullable: true)]
     private ?string $anonymous_id = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Url(message: "The url '{{ value }}' is not a valid url")]
     private ?string $website_url = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $content = null;
 
-    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     private ?bool $validated = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $validation_date = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'comments')]

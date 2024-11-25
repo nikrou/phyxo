@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use DateTimeInterface;
 use App\Repository\AlbumRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -26,10 +27,10 @@ class Album
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: Types::INTEGER)]
     private int $id;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private string $name;
 
     #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'children', cascade: ['persist', 'remove'])]
@@ -42,40 +43,40 @@ class Album
     #[ORM\OneToMany(targetEntity: Album::class, mappedBy: 'parent')]
     private Collection $children;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $comment = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $dir = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $rank = null;
 
-    #[ORM\Column(type: 'string', length: 25)]
+    #[ORM\Column(type: Types::STRING, length: 25)]
     private string $status = self::STATUS_PUBLIC;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     private bool $visible = true;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $representative_picture_id = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $uppercats = null;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     private bool $commentable = true;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private string $global_rank;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $image_order = null;
 
-    #[ORM\Column(type: 'string', unique: true, length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, unique: true, length: 255, nullable: true)]
     private ?string $permalink = null;
 
-    #[ORM\Column(name: 'lastmodified', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'lastmodified', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $last_modified = null;
 
     /**

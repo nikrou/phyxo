@@ -45,9 +45,4 @@
 /admin/theme/node_modules
 /admin/theme/build
 /public/admin/
-
-###> phpstan/phpstan ###
-phpstan.neon
-###< phpstan/phpstan ###
-
 /galleries

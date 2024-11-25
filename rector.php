@@ -32,6 +32,7 @@ return RectorConfig::configure()
         SymfonySetList::SYMFONY_CODE_QUALITY,
         SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
         LevelSetList::UP_TO_PHP_82,
+        DoctrineSetList::DOCTRINE_CODE_QUALITY
     ])
 
     ->withRules([

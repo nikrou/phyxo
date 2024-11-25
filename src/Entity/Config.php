@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\ConfigRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -19,16 +20,16 @@ use Doctrine\ORM\Mapping as ORM;
 class Config
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'string', length: 40)]
+    #[ORM\Column(type: Types::STRING, length: 40)]
     private string $param;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $value = null;
 
-    #[ORM\Column(type: 'string', length: 15, nullable: true, options: ['default' => 'string'])]
+    #[ORM\Column(type: Types::STRING, length: 15, nullable: true, options: ['default' => 'string'])]
     private ?string $type = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $comment = null;
 
     public function getParam(): ?string

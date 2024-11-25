@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use DateTimeInterface;
 use App\Repository\RateRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -30,13 +31,13 @@ class Rate
     private Image $image;
 
     #[ORM\Id]
-    #[ORM\Column(type: 'string', length: 45)]
+    #[ORM\Column(type: Types::STRING, length: 45)]
     private string $anonymous_id;
 
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: Types::INTEGER)]
     private int $rate;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $date = null;
 
     public function getUser(): ?User

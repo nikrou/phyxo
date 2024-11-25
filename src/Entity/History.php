@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use DateTimeInterface;
 use App\Repository\HistoryRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -35,40 +36,40 @@ class History
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: Types::INTEGER)]
     private int $id;
 
-    #[ORM\Column(type: 'date')]
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
     private DateTimeInterface $date;
 
-    #[ORM\Column(type: 'time')]
+    #[ORM\Column(type: Types::TIME_MUTABLE)]
     private DateTimeInterface $time;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
     private User $user;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private string $ip;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private string $section;
 
     #[ORM\ManyToOne(targetEntity: Album::class)]
     #[ORM\JoinColumn(name: 'category_id', nullable: true)]
     private ?Album $album = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $tag_ids = '';
 
     #[ORM\ManyToOne(targetEntity: Image::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?Image $image = null;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     private bool $summarized = false;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $image_type = self::IMAGE_TYPE_PICTURE;
 
     public function getId(): int

@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\ThemeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -19,13 +20,13 @@ use Doctrine\ORM\Mapping as ORM;
  class Theme
  {
      #[ORM\Id]
-     #[ORM\Column(type: 'string', length: 40)]
+     #[ORM\Column(type: Types::STRING, length: 40)]
      private string $id;
 
-     #[ORM\Column(type: 'string', length: 64, nullable: true)]
+     #[ORM\Column(type: Types::STRING, length: 64, nullable: true)]
      private ?string $version = null;
 
-     #[ORM\Column(type: 'string', length: 64)]
+     #[ORM\Column(type: Types::STRING, length: 64)]
      private string $name;
 
      public function setId(string $id): self

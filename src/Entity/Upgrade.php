@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use DateTimeInterface;
 use App\Repository\UpgradeRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -20,13 +21,13 @@ use Doctrine\ORM\Mapping as ORM;
 class Upgrade
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'string', length: 40)]
+    #[ORM\Column(type: Types::STRING, length: 40)]
     private string $id;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private DateTimeInterface $applied;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $description = null;
 
     public function setId(string $id): self

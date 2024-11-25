@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use DateTimeInterface;
 use DateTime;
 use App\Repository\GroupRepository;
@@ -24,16 +25,16 @@ class Group
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: Types::INTEGER)]
     private int $id;
 
-    #[ORM\Column(type: 'string', unique: true, length: 255)]
+    #[ORM\Column(type: Types::STRING, unique: true, length: 255)]
     private string $name;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     private bool $is_default = false;
 
-    #[ORM\Column(name: 'lastmodified', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'lastmodified', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $last_modified;
 
     /**

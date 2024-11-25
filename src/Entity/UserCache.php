@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use DateTimeInterface;
 use App\Repository\UserCacheRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -25,31 +26,31 @@ class UserCache
     #[ORM\OneToOne(targetEntity: User::class, inversedBy: 'userCache', cascade: ['persist', 'remove'])]
     private User $user;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     private bool $need_update = true;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $cache_update_time = null;
 
-    #[ORM\Column(name: 'forbidden_categories', type: 'text')]
+    #[ORM\Column(name: 'forbidden_categories', type: Types::TEXT)]
     private string $forbidden_albums = '[]';
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $nb_total_images = 0;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $last_photo_date = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $nb_available_tags = 0;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $nb_available_comments = 0;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private string $image_access_type = self::ACCESS_NOT_IN;
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: Types::TEXT)]
     private string $image_access_list = '[]';
 
     public function getUser(): User

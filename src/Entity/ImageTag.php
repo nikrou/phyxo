@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\ImageTagRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -30,14 +31,14 @@ class ImageTag
     #[ORM\JoinColumn(nullable: false)]
     private Tag $tag;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     private bool $validated = true;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'created_by', nullable: true)]
     private ?User $created_by = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $status = self::STATUS_TO_ADD;
 
     public function getImage(): ?Image

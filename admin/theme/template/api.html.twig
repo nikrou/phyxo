@@ -2,7 +2,7 @@
 {% extends "__layout.html.twig" %}
 
 {% block html_head %}
-<link type="text/css" rel="stylesheet" href="{{asset('api.css')}}">
+<link type="text/css" rel="stylesheet" href="{{asset('api.css', 'admin')}}">
 {% endblock %}
 
 {% block breadcrumb_items %}
@@ -109,7 +109,7 @@
 <script>
   var ws_url = '{{ ws }}';
 </script>
-<script src="{{asset('api.js')}}"></script>
+<script src="{{asset('api.js', 'admin')}}"></script>
 {% endblock %}
 
 

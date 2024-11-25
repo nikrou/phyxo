@@ -52,7 +52,7 @@ class AdminConfigurationController extends AbstractController
     private array $sizes_checkboxes = ['original_resize'];
 
     /** @var array<string> $comments_checkboxes */
-    private  array $comments_checkboxes = [
+    private array $comments_checkboxes = [
         'activate_comments',
         'comments_forall',
         'comments_validation',
@@ -270,7 +270,8 @@ class AdminConfigurationController extends AbstractController
             $tpl_var['must_square'] = ($type == ImageStandardParams::IMG_SQUARE ? true : false);
             $tpl_var['must_enable'] = ($type == ImageStandardParams::IMG_SQUARE || $type == ImageStandardParams::IMG_THUMB || $type == $conf['derivative_default_size']) ? true : false;
 
-            if (!empty($enabled[$type]) && ($params = $enabled[$type])) {
+            if (!empty($enabled[$type])) {
+                $params = $enabled[$type];
                 $tpl_var['enabled'] = true;
             } else {
                 $tpl_var['enabled'] = false;

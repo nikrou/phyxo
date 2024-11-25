@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\ImageAlbumRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -28,7 +29,7 @@ class ImageAlbum
     #[ORM\JoinColumn(name: 'category_id', nullable: false)]
     private Album $album;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $rank = null;
 
     public function getImage(): ?Image

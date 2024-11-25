@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use DateTimeInterface;
 use App\Repository\UserCacheAlbumRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -32,25 +33,25 @@ class UserCacheAlbum
     #[ORM\JoinColumn(name: 'cat_id', nullable: false)]
     private Album $album;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $date_last = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $max_date_last = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $nb_images = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $count_images = null;
 
-    #[ORM\Column(name: 'nb_categories', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'nb_categories', type: Types::INTEGER, nullable: true)]
     private ?int $nb_albums = null;
 
-    #[ORM\Column(name: 'count_categories', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'count_categories', type: Types::INTEGER, nullable: true)]
     private ?int $count_albums = null;
 
-    #[ORM\Column(name: 'user_representative_picture_id', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'user_representative_picture_id', type: Types::INTEGER, nullable: true)]
     private ?int $user_representative_picture = null;
 
     public function getUser(): ?User

@@ -87,6 +87,7 @@
 		}
 	},
 	"scripts": {
+		"behat": "behat --stop-on-failure",
 		"phpunit": "phpunit --testdox",
 		"phpstan": "phpstan analyse",
     "rector": "rector process",

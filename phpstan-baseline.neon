@@ -12,21 +12,8 @@ parameters:
     - message: '#Result of && is always false#'
       path: src/DataMapper/AlbumMapper.php
 
-    - message: '#Right side of && is always false.#'
-      path: src/Phyxo/Functions/Ws/Category.php
-
     - message: '#Empty array passed to foreach.#'
       path: src/Controller/Admin/AdminRatingController.php
-
-    # need refactoring
-    - message: '#Negated boolean expression is always true.#'
-      path: src/Controller/Admin/AdminNotificationController.php
-    - message: '#Result of \|\| is always true.#'
-      path: src/Controller/Admin/AdminNotificationController.php
-
-    # need refactoring
-    - message: '#Right side of && is always true\.#'
-      path: src/Controller/Admin/AdminConfigurationController.php
 
     # No more ws functions ?
     - message: '#.*#'

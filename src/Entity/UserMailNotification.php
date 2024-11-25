@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use DateTimeInterface;
 use App\Repository\UserMailNotificationRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -24,13 +25,13 @@ class UserMailNotification
     #[ORM\JoinColumn(name: 'user_id', nullable: false)]
     private User $user;
 
-    #[ORM\Column(type: 'string', length: 16, nullable: true, unique: true)]
+    #[ORM\Column(type: Types::STRING, length: 16, nullable: true, unique: true)]
     private ?string $check_key = '';
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     private bool $enabled = false;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $last_send = null;
 
     public function getUser(): ?User
