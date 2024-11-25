@@ -6,40 +6,33 @@ jobs:
   tests:
     name: Phyxo tests
     runs-on: ubuntu-22.04
-    continue-on-error: ${{ matrix.php-version == '8.3' }}
     strategy:
       fail-fast: false
       matrix:
-        php-versions: [8.2, 8.3]
-        # experimental: [false]
-        mysql: [5.7]
-        # include:
-        #   - mysql: 5.7
-        #   - php-version: 8.0
-        #     experimental: true
+        php-version: [8.2, 8.3]
+        db-version: [mysql-5.7, mysql-8.0, mariadb-10.2]
 
     env:
       APP_ENV: test
-      DATABASE_URL: 'mysql://root:root@127.0.0.1/phyxo?serverVersion=${{ matrix.mysql }}'
+      DATABASE_URL: 'mysql://root:root@127.0.0.1/phyxo?serverVersion=${{ matrix.db-version }}'
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Shutdown default MySQL
         run: sudo service mysql stop
 
       - name: Setup MySQL
-        uses: mirromutth/mysql-action@v1.1
+        uses: shogo82148/actions-setup-mysql@v1
         with:
-          mysql version: '${{ matrix.mysql }}'
-          mysql root password: 'root'
+          mysql version: '${{ matrix.db-version }}'
 
       - name: Setup PHP, extensions and composer with shivammathur/setup-php
         uses: shivammathur/setup-php@v2
         with:
           tools: composer, symfony-cli
-          php-version: ${{ matrix.php-versions }}
+          php-version: ${{ matrix.php-version }}
           coverage: xdebug
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo, mysql, pdo_mysql
         env:
