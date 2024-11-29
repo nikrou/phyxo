@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: [8.2, 8.3]
+        php-versions: [8.2, 8.3, 8.4]
         # experimental: [false]
         mysql: [5.7]
         # include:
@@ -44,7 +44,8 @@ jobs:
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo, mysql, pdo_mysql
         env:
           APP_ENV: test
-          DATABASE_URL: "mysql://root:root@localhost/phyxo"
+          DATABASE_URL: "mysql://root:root@localhost/phyxo?serverVersion=${{ matrix.mysql }}"
+
       - name: Install dependencies
         run: composer install
 
