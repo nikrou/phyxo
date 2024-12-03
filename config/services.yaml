@@ -4,23 +4,16 @@
 imports:
   - { resource: parameters.yaml }
 
-framework:
-  csrf_protection: ~
-  session:
-    handler_id: App\SessionHandler
-    name: '%main_cookie%'
-
 services:
   # default configuration for services in *this* file
   _defaults:
     autowire: true      # Automatically injects dependencies in your services.
     autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+    public: false
 
     bind:
       $rememberMeCookie: '%remember_cookie%'
-      $databaseYamlFile: '%database_yaml_file%'
       $localDir: '%local_dir%'
-      $configDir: '%kernel.project_dir%/config'
       $varDir: '%kernel.project_dir%/var'
       $uploadDir: '%upload_dir%'
       $themesDir: '%themes_dir%'
@@ -39,8 +32,13 @@ services:
       $startParam: '%start_param%'
       $adminThemeDir: '%admin_theme_dir%'
       $graphicsLibrary: '%graphics_library%'
-      $prefix: '%database_prefix%'
+      $prefix: '%env(DATABASE_PREFIX)%'
       $defaultDateType: '%default_date_type%'
+
+  _instanceof:
+    # services whose classes are instances of AbstractPlugin will be tagged automatically
+    Phyxo\Extension\AbstractPlugin:
+      tags: ['phyxo.console_command']
 
   # makes classes in src/ available to be used as services
   # this creates a service per class whose id is the fully-qualified class name
@@ -67,9 +65,6 @@ services:
     resource: '../plugins/*/Command/*'
     tags: ['phyxo.console_command']
 
-  Phyxo\Extension\ExtensionCollection:
-    arguments: [!tagged_iterator 'phyxo.console_command']
-
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
 
@@ -77,6 +72,10 @@ services:
     class: App\EventSubscriber\TablePrefixSubscriber
     tags:
       - { name: doctrine.event_listener, event: loadClassMetadata, method: loadClassMetadata }
+
+  Phyxo\Extension\ExtensionCollection:
+    arguments:
+      - !tagged_iterator phyxo.console_command
 
   Phyxo\Plugin\Plugins: ~
 
@@ -103,9 +102,10 @@ services:
     public: true
     alias: 'Phyxo\Upgrade'
 
-  App\SessionHandler:
+  Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler:
     arguments:
-      - { driver: '%database_driver%', name: '%database_name%', host: '%database_host%', user: '%database_user%', password: '%database_password%', prefix: '%database_prefix%' }
+      - '%env(DATABASE_URL)%'
+      - { db_table: 'phyxo_sessions' }
 
   App\Utils\RuntimeTranslator:
     decorates: 'translator'

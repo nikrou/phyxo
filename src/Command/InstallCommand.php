@@ -30,17 +30,17 @@ use Symfony\Component\Console\Input\ArrayInput;
 class InstallCommand extends Command
 {
     private array $db_params = ['db_layer' => '', 'db_host' => '', 'db_name' => '', 'db_user' => '', 'db_password' => '', 'db_prefix' => ''];
+    private string $localEnvFile = '';
 
-    private string $default_prefix = 'phyxo_';
-
-    public function __construct(private readonly PhyxoInstaller $phyxoInstaller, private readonly string $databaseYamlFile, private readonly string $rootProjectDir)
+    public function __construct(private readonly PhyxoInstaller $phyxoInstaller, private readonly string $rootProjectDir, private readonly string $prefix)
     {
         parent::__construct();
+        $this->localEnvFile = sprintf('%s/.env.local', $this->rootProjectDir);
     }
 
     public function isEnabled(): bool
     {
-        return !is_readable($this->databaseYamlFile);
+        return !is_readable($this->localEnvFile);
     }
 
     public function configure(): void
@@ -52,12 +52,12 @@ class InstallCommand extends Command
             ->addOption('db_user', null, InputOption::VALUE_OPTIONAL, 'Database username')
             ->addOption('db_password', null, InputOption::VALUE_OPTIONAL, 'Database password')
             ->addOption('db_name', null, InputOption::VALUE_REQUIRED, 'Database name')
-            ->addOption('db_prefix', null, InputOption::VALUE_REQUIRED, 'Database prefix for tables', $this->default_prefix);
+            ->addOption('db_prefix', null, InputOption::VALUE_REQUIRED, 'Database prefix for tables', $this->prefix);
     }
 
     public function interact(InputInterface $input, OutputInterface $output): void
     {
-        if (!empty($_SERVER['DATABASE_URL'])) {
+        if (!$this->isEnabled()) {
             return;
         }
 
@@ -98,7 +98,7 @@ class InstallCommand extends Command
                 $this->db_params['db_password'] = $io->askHidden('Database password');
                 $input->setOption('db_password', $this->db_params['db_password']);
             } else {
-                $io->text(sprintf('<info>Database password is:</info> %s', $io->isVerbose() ? $this->db_params['db_password']: '****'));
+                $io->text(sprintf('<info>Database password is:</info> %s', $io->isVerbose() ? $this->db_params['db_password'] : '****'));
             }
         }
 
@@ -121,9 +121,15 @@ class InstallCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
+        if (!$this->isEnabled()) {
+            $io->error('Phyxo already installed!');
+
+            return Command::FAILURE;
+        }
+
         if (!empty($_SERVER['DATABASE_URL'])) {
             $this->db_params['dsn'] = $_SERVER['DATABASE_URL'];
-            $this->db_params['db_prefix'] = $input->getOption('db_prefix') ?: $this->default_prefix;
+            $this->db_params['db_prefix'] = $input->getOption('db_prefix') ?: $this->prefix;
         } else {
             if (!$io->askQuestion(new ConfirmationQuestion("Install Phyxo using these settings?", true))) {
                 return Command::SUCCESS;
@@ -132,8 +138,7 @@ class InstallCommand extends Command
 
         try {
             $this->phyxoInstaller->installDatabase($this->db_params);
-
-            rename($this->databaseYamlFile . '.tmp', $this->databaseYamlFile);
+            rename($this->localEnvFile . '.tmp', $this->localEnvFile);
 
             $env_file_content = 'APP_ENV=prod' . "\n";
             $env_file_content .= 'APP_SECRET=' . hash('sha256', openssl_random_pseudo_bytes(50)) . "\n";

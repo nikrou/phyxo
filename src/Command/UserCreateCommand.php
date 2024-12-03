@@ -29,15 +29,17 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class UserCreateCommand extends Command
 {
     private array $params = ['username' => '', 'password' => '', 'mail_address' => ''];
+    private string $localEnvFile = '';
 
-    public function __construct(private readonly UserManager $userManager, private readonly UserPasswordHasherInterface $passwordHasher, private readonly string $databaseYamlFile)
+    public function __construct(private readonly UserManager $userManager, private readonly UserPasswordHasherInterface $passwordHasher, private readonly string $rootProjectDir)
     {
         parent::__construct();
+        $this->localEnvFile = sprintf('%s/.env.local', $this->rootProjectDir);
     }
 
     public function isEnabled(): bool
     {
-        return is_readable($this->databaseYamlFile);
+        return is_readable($this->localEnvFile);
     }
 
     public function configure(): void
@@ -71,7 +73,7 @@ class UserCreateCommand extends Command
             $this->params['password'] = $io->askHidden('Password for username');
             $input->setOption('password', $this->params['password']);
         } else {
-            $io->text(sprintf('<info>Password is:</info> %s', $io->isVerbose() ? $this->params['password']: '****'));
+            $io->text(sprintf('<info>Password is:</info> %s', $io->isVerbose() ? $this->params['password'] : '****'));
         }
 
         if (($this->params['mail_address'] = $input->getOption('mail_address')) === null) {

@@ -36,7 +36,7 @@ config: clean ## prepare environment for building archive
 	$(COMPOSER) install --no-dev -o -d $(DIST)/$(APP_NAME) --no-scripts
 
 	rm -f $(DIST)/$(APP_NAME)/bin/phpunit $(DIST)/$(APP_NAME)/bin/simple-phpunit $(DIST)/$(APP_NAME)/phpunit.xml.dist
-	rm -fr $(DIST)/$(APP_NAME)/config/packages/dev $(DIST)/$(APP_NAME)/config/packages/test $(DIST)/$(APP_NAME)/config/routes/dev $(DIST)/$(APP_NAME)/config/database.yaml
+	rm -fr $(DIST)/$(APP_NAME)/config/packages/dev $(DIST)/$(APP_NAME)/config/packages/test
 	rm -f $(DIST)/$(APP_NAME)/config/services_dev.yaml $(DIST)/$(APP_NAME)/config/services_test.yaml
 	rm -f $(DIST)/$(APP_NAME)/src/Log.php $(DIST)/$(APP_NAME)/config/services_prod.yaml $(DIST)/$(APP_NAME)/config/parameters_test.yaml
 

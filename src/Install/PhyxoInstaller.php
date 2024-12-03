@@ -12,9 +12,9 @@
 namespace App\Install;
 
 use DateTime;
-use Exception;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
+use Exception;
 use Phyxo\Functions\Utils;
 use Phyxo\Language\Languages;
 use Phyxo\Upgrade;
@@ -23,20 +23,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PhyxoInstaller
 {
-    private $phyxoVersion,
-
-    $rootProjectDir,
-
-    $translationsDir,
-
-    $defaultTheme,
-
-    $databaseYamlFile,
-
-    $translator;
-
-    private string $default_prefix = 'phyxo_';
-
+    private string $localEnvFile = '';
     private array $dblayers = [
         'mysql' => [
             'engine' => 'MySQL, MariaDB, Percona Server, ...',
@@ -54,14 +41,15 @@ class PhyxoInstaller
         ]
     ];
 
-    public function __construct(string $phyxoVersion, string $rootProjectDir, string $translationsDir, string $defaultTheme, string $databaseYamlFile, TranslatorInterface $translator)
-    {
-        $this->phyxoVersion = $phyxoVersion;
-        $this->rootProjectDir = $rootProjectDir;
-        $this->translationsDir = $translationsDir;
-        $this->defaultTheme = $defaultTheme;
-        $this->databaseYamlFile = $databaseYamlFile;
-        $this->translator = $translator;
+    public function __construct(
+        private string $phyxoVersion,
+        private string $rootProjectDir,
+        private string $translationsDir,
+        private string $defaultTheme,
+        private string $prefix,
+        private TranslatorInterface $translator
+    ) {
+        $this->localEnvFile = sprintf('%s/.env.local', $this->rootProjectDir);
     }
 
     public function availableEngines()
@@ -111,7 +99,7 @@ class PhyxoInstaller
         $structure_queries = $this->getQueriesFromFile(
             $db_params['db_layer'],
             $this->rootProjectDir . '/install/phyxo_structure-' . $db_params['db_layer'] . '.sql',
-            $this->default_prefix,
+            $this->prefix,
             $db_params['db_prefix']
         );
         foreach ($structure_queries as $query) {
@@ -122,7 +110,7 @@ class PhyxoInstaller
         $config_queries = $this->getQueriesFromFile(
             $db_params['db_layer'],
             $this->rootProjectDir . '/install/config.sql',
-            $this->default_prefix,
+            $this->prefix,
             $db_params['db_prefix']
         );
         foreach ($config_queries as $query) {
@@ -130,7 +118,7 @@ class PhyxoInstaller
         }
 
         $raw_query = 'INSERT INTO phyxo_config (param, type, value, comment) VALUES(:param, :type, :value, :comment)';
-        $raw_query = str_replace($this->default_prefix, $db_params['db_prefix'], $raw_query);
+        $raw_query = str_replace($this->prefix, $db_params['db_prefix'], $raw_query);
         $statement = $conn->prepare($raw_query);
 
         $statement->bindValue('param', 'secret_key');
@@ -158,7 +146,7 @@ class PhyxoInstaller
         $statement->executeStatement();
 
         $raw_query = 'INSERT INTO phyxo_languages (id, version, name) VALUES(:id, :version, :name)';
-        $raw_query = str_replace($this->default_prefix, $db_params['db_prefix'], $raw_query);
+        $raw_query = str_replace($this->prefix, $db_params['db_prefix'], $raw_query);
         $statement = $conn->prepare($raw_query);
 
         $languages = new Languages();
@@ -172,7 +160,7 @@ class PhyxoInstaller
 
         // activate default theme
         $raw_query = 'INSERT INTO phyxo_themes (id, version, name) VALUES(:id, :version, :name)';
-        $raw_query = str_replace($this->default_prefix, $db_params['db_prefix'], $raw_query);
+        $raw_query = str_replace($this->prefix, $db_params['db_prefix'], $raw_query);
         $statement = $conn->prepare($raw_query);
         $statement->bindValue('id', $this->defaultTheme);
         $statement->bindValue('version', $this->phyxoVersion);
@@ -182,7 +170,7 @@ class PhyxoInstaller
         // Available upgrades must be ignored after a fresh installation.
         // To make Phyxo avoid upgrading, we must tell it upgrades have already been made.
         $raw_query = 'INSERT INTO phyxo_upgrade (id, applied, description) VALUES(:id, :applied, :description)';
-        $raw_query = str_replace($this->default_prefix, $db_params['db_prefix'], $raw_query);
+        $raw_query = str_replace($this->prefix, $db_params['db_prefix'], $raw_query);
         $statement = $conn->prepare($raw_query);
         $now = new DateTime();
 
@@ -193,21 +181,27 @@ class PhyxoInstaller
             $statement->executeStatement();
         }
 
-        $file_content = 'parameters:' . "\n";
+        $file_content = "\n";
         if ($db_params['db_layer'] !== 'sqlite') {
-            $file_content .= '  database_driver: \'pdo_' . $db_params['db_layer'] . "'\n";
-            $file_content .= '  database_host: \'' . $db_params['db_host'] . "'\n";
-            $file_content .= '  database_name: \'' . $db_params['db_name'] . "'\n";
-            $file_content .= '  database_user: \'' . $db_params['db_user'] . "'\n";
-            $file_content .= '  database_password: \'' . $db_params['db_password'] . "'\n";
+            $file_content .= sprintf(
+                'DATABASE_URL=%s://%s:%s@%s/%s' . "\n",
+                $db_params['db_layer'],
+                $db_params['db_user'],
+                urlencode(
+                    $db_params['db_password']
+                ),
+                $db_params['db_host'],
+                $db_params['db_name']
+            );
         } else {
-            $file_content .= '  env(DATABASE_URL): "sqlite:///%kernel.project_dir%/db/' . $db_params['db_name'] . "\"\n";
+            $file_content .= 'DATABASE_URL="sqlite:///%kernel.project_dir%/db/' . $db_params['db_name'] . "\"\n";
         }
-        $file_content .= '  database_prefix: \'' . $db_params['db_prefix'] . "'\n\n";
+        $file_content .= 'DATABASE_PREFIX=\'' . $db_params['db_prefix'] . "'\n\n";
 
-        file_put_contents($this->databaseYamlFile . '.tmp', $file_content);
-        if (!is_readable($this->databaseYamlFile . '.tmp')) {
-            throw new Exception($this->translator->trans('Cannot create database configuration file "{filename}"', ['filename' => $this->databaseYamlFile], 'install'));
+        $temporayFile = $this->localEnvFile . '.tmp';
+        file_put_contents($temporayFile, $file_content, FILE_APPEND);
+        if (!is_readable($temporayFile)) {
+            throw new Exception($this->translator->trans('Cannot create database configuration file "{filename}"', ['filename' => $temporayFile], 'install'));
         }
     }
 

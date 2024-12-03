@@ -263,7 +263,7 @@ class AdminRatingController extends AbstractController
         //all image averages
         $all_img_sum = [];
         foreach ($rateRepository->calculateAverageByImage() as $rate) {
-            $all_img_sum[$rate['image']] = ['avg' => (float)$rate['avg']];
+            $all_img_sum[$rate['image']] = ['avg' => (float) $rate['avg']];
         }
 
         $best_rated = [];
@@ -310,11 +310,11 @@ class AdminRatingController extends AbstractController
             ];
         }
 
-        $by_user_ratings = array_filter($by_user_ratings, function($rating) use ($filter_min_rates) {
-            if ($rating['count'] > $filter_min_rates) {
-                return $rating;
+        foreach ($by_user_ratings as $id => $rating) {
+            if ($rating['count'] <= $filter_min_rates) {
+                unset($by_user_ratings[$id]);
             }
-        });
+        }
 
         $order_by_index = 4;
         if ($request->get('order_by') && is_numeric($request->get('order_by'))) {

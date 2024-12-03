@@ -12,11 +12,12 @@
 namespace Phyxo\Extension;
 
 use Traversable;
+
 class ExtensionCollection
 {
-    private $extensions_by_class,
+    private $extensions_by_class;
 
-    $extensions_by_name = [];
+    private array $extensions_by_name = [];
 
     public function __construct(iterable $extensions)
     {

@@ -9,10 +9,8 @@
 /local/config/config.inc.php
 /local/config/database.*.php
 /local/watermarks/
-/.env.local
-/.env.local.php
-/.env.*.local
-/config/secrets/prod/prod.decrypt.private.php
+/.env.*
+!/.env
 
 ;; tests
 /coverage

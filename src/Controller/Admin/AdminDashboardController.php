@@ -22,8 +22,9 @@ use App\Repository\ImageTagRepository;
 use App\Repository\RateRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
-use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\DBAL\Connection;
 use IntlDateFormatter;
+use PDO;
 use Phyxo\Conf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -49,7 +50,7 @@ class AdminDashboardController extends AbstractController
         RateRepository $rateRepository,
         TagRepository $tagRepository,
         ImageTagRepository $imageTagRepository,
-        ManagerRegistry $managerRegistry,
+        Connection $connection,
         bool $check_upgrade = false
     ): Response {
         $tpl_params = [];
@@ -86,14 +87,17 @@ class AdminDashboardController extends AbstractController
         $nb_groups = $groupRepository->count([]);
         $nb_rates = $rateRepository->count([]);
 
+        /** @var PDO $nativeConnection */
+        $nativeConnection = $connection->getNativeConnection();
+
         $tpl_params = array_merge(
             $tpl_params,
             [
                 'OS' => PHP_OS,
                 'PHP_VERSION' => \PHP_VERSION,
                 'SYMFONY_VERSION' => Kernel::VERSION,
-                'DB_ENGINE' => $managerRegistry->getConnection()->getDatabasePlatform()->getName(),
-                'DB_VERSION' => $managerRegistry->getConnection()->getWrappedConnection()->getServerVersion(),
+                'DB_ENGINE' => $nativeConnection->getAttribute(PDO::ATTR_DRIVER_NAME),
+                'DB_VERSION' => $nativeConnection->getAttribute(PDO::ATTR_SERVER_VERSION),
                 'DB_ELEMENTS' => $translator->trans('number_of_photos', ['count' => $nb_elements], 'admin'),
                 'DB_ALBUMS' => $translator->trans('number_of_albums', ['count' => $albumRepository->count([])], 'admin'),
                 'DB_IMAGE_ALBUM' => $translator->trans('number_of_associations', ['count' => $imageAlbumRepository->count([])], 'admin'),

@@ -7,4 +7,4 @@ doctrine_migrations:
 
     storage:
       table_storage:
-            table_name: '%database_prefix%migration_versions'
+            table_name: '%env(DATABASE_PREFIX)%migration_versions'

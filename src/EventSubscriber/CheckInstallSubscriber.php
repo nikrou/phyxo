@@ -19,8 +19,11 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class CheckInstallSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly UrlGeneratorInterface $urlGenerator, private readonly string $databaseYamlFile)
+    private string $localEnvFile = '';
+
+    public function __construct(private readonly UrlGeneratorInterface $urlGenerator, private readonly string $rootProjectDir)
     {
+        $this->localEnvFile = sprintf('%s/.env.local', $this->rootProjectDir);
     }
 
     public function onKernelException(ExceptionEvent $event)
@@ -29,7 +32,7 @@ class CheckInstallSubscriber implements EventSubscriberInterface
             return false;
         }
 
-        if (is_readable($this->databaseYamlFile)) {
+        if (is_readable($this->localEnvFile)) {
             return false;
         }
 

@@ -28,8 +28,10 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use App\Entity\User;
 use App\Repository\CommentRepository;
+use App\Repository\GroupRepository;
+use App\Repository\UserRepository;
 use App\Utils\UserManager;
-use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\DBAL\Connection;
 use Phyxo\Conf;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -42,17 +44,20 @@ class DBContext implements Context
         private readonly Storage $storage,
         private readonly ContainerInterface $driverContainer,
         private readonly UserManager $userManager,
-        private readonly ManagerRegistry $managerRegistry,
         private readonly AlbumMapper $albumMapper,
         private Conf $conf,
+        private readonly UserRepository $userRepository,
+        private readonly GroupRepository $groupRepository,
         private readonly CommentRepository $commentRepository,
         private readonly ImageMapper $imageMapper,
         private readonly TagMapper $tagMapper,
-        private readonly UserMapper $userMapper
+        private readonly UserMapper $userMapper,
+        private readonly string $prefix,
+        private Connection $connection
     ) {
     }
 
-    protected function getContainer():  ContainerInterface
+    protected function getContainer(): ContainerInterface
     {
         return $this->driverContainer;
     }
@@ -79,8 +84,7 @@ class DBContext implements Context
             if (!empty($userRow['activation_key_expire'])) {
                 $user->getUserInfos()->setActivationKeyExpire(new DateTime($userRow['activation_key_expire']));
             }
-            $userRepository = $this->managerRegistry->getRepository(User::class);
-            $userRepository->updateUser($user);
+            $this->userRepository->updateUser($user);
 
             $this->storage->set('user_' . $userRow['username'], $user);
         }
@@ -92,8 +96,6 @@ class DBContext implements Context
      */
     public function someGroups(TableNode $table): void
     {
-        $groupRepository = $this->managerRegistry->getRepository(Group::class);
-
         foreach ($table->getHash() as $groupRow) {
             $group = new Group();
             $group->setName($groupRow['name']);
@@ -107,7 +109,7 @@ class DBContext implements Context
                 }
             }
 
-            $groupRepository->addOrUpdateGroup($group);
+            $this->groupRepository->addOrUpdateGroup($group);
             $this->storage->set('group_' . $groupRow['name'], $group);
         }
     }
@@ -172,7 +174,7 @@ class DBContext implements Context
      */
     public function groupCanAccessAlbum(string $group_name, string $album_name): void
     {
-        $group = $this->managerRegistry->getRepository(Group::class)->findOneByName($group_name);
+        $group = $this->groupRepository->findOneByName($group_name);
         if (is_null($group)) {
             throw new Exception(sprintf('Group with name "%s" do not exists', $group_name));
         }
@@ -186,7 +188,7 @@ class DBContext implements Context
      */
     public function userCanAccessAlbum(string $username, string $album_name): void
     {
-        $user = $this->managerRegistry->getRepository(User::class)->findOneByUsername($username);
+        $user = $this->userRepository->findOneByUsername($username);
         if (is_null($user)) {
             throw new Exception(sprintf('User with username "%s" do not exists', $username));
         }
@@ -200,7 +202,7 @@ class DBContext implements Context
      */
     public function userCannotAccessAlbum(string $username, string $album_name): void
     {
-        $user = $this->managerRegistry->getRepository(User::class)->findOneByUsername($username);
+        $user = $this->userRepository->findOneByUsername($username);
         if (is_null($user)) {
             throw new Exception(sprintf('User with username "%s" do not exists', $username));
         }
@@ -275,7 +277,7 @@ class DBContext implements Context
      */
     public function prepareDB(BeforeScenarioScope $scope): void
     {
-        $this->executeSqlFile($this->sqlInitFile, $this->getContainer()->getParameter('database_prefix'), 'phyxo_');
+        $this->executeSqlFile($this->sqlInitFile, $this->prefix, 'phyxo_');
         $this->cleanUploadAndMediaDirectories();
     }
 
@@ -284,7 +286,7 @@ class DBContext implements Context
      */
     public function cleanDB(AfterScenarioScope $scope): void
     {
-        $this->executeSqlFile($this->sqlCleanupFile, $this->getContainer()->getParameter('database_prefix'), 'phyxo_');
+        $this->executeSqlFile($this->sqlCleanupFile, $this->prefix, 'phyxo_');
         $this->cleanUploadAndMediaDirectories();
     }
 
@@ -384,7 +386,7 @@ class DBContext implements Context
 
         $image = $this->imageMapper->getRepository()->find($image_id);
         if (!is_null($user_id)) {
-            $user = $this->managerRegistry->getRepository(User::class)->find($user_id);
+            $user = $this->userRepository->find($user_id);
         } else {
             $user = $this->userMapper->getDefaultUser();
         }
@@ -410,7 +412,7 @@ class DBContext implements Context
         $conf = $this->conf;
         $image = $this->imageMapper->getRepository()->find($image_id);
         if (!is_null($user_id)) {
-            $user = $this->managerRegistry->getRepository(User::class)->find($user_id);
+            $user = $this->userRepository->find($user_id);
         } else {
             $user = $this->userMapper->getDefaultUser();
         }
@@ -442,7 +444,7 @@ class DBContext implements Context
                 $query = trim($query);
                 $query = str_replace($replaced, $replacing, $query);
 
-                $this->managerRegistry->getConnection()->query($query);
+                $this->connection->query($query);
                 $query = '';
             }
         }

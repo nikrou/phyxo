@@ -124,7 +124,7 @@ class RateRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array{array{image: int, avg: int}}
+     * @return array{array{image: int, avg: numeric-string}}
      */
     public function calculateAverageByImage()
     {

@@ -13,16 +13,16 @@ namespace App\Controller;
 
 use Exception;
 use Doctrine\DBAL\Configuration;
-use Doctrine\DBAL\DriverManager;
 use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Language\Languages;
 use App\Entity\User;
 use App\Install\PhyxoInstaller;
+use Doctrine\DBAL\DriverManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class InstallController extends AbstractController
@@ -38,7 +38,7 @@ class InstallController extends AbstractController
 
     /** @var array<string, string> */
     private ?array $languages_options = null;
-    private string $default_prefix = 'phyxo_';
+    private string $localEnvFile = '';
 
     public function __construct(
         private readonly string $translationsDir,
@@ -48,15 +48,15 @@ class InstallController extends AbstractController
         private readonly string $mediaCacheDir,
         private readonly string $themesDir,
         private readonly string $pluginsDir,
-        private readonly string $databaseYamlFile,
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly string $uploadDir,
         private readonly TranslatorInterface $translator,
         private readonly string $rootProjectDir,
         private readonly string $varDir,
-        private readonly string $configDir,
-        private readonly string $localDir
+        private readonly string $localDir,
+        private readonly string $prefix
     ) {
+        $this->localEnvFile = sprintf('%s/.env.local', $this->rootProjectDir);
     }
 
     public function index(Request $request, string $step = 'language'): Response
@@ -64,8 +64,8 @@ class InstallController extends AbstractController
         $tpl_params = [];
         $tpl_params['STEPS'] = $this->Steps;
 
-        if (is_readable($this->databaseYamlFile) && ($step !== 'success')) {
-            return  $this->redirectToRoute('homepage', []);
+        if (is_readable($this->localEnvFile) && ($step !== 'success')) {
+            return $this->redirectToRoute('homepage', []);
         }
 
         $languages = new Languages(null);
@@ -91,7 +91,7 @@ class InstallController extends AbstractController
         $tpl_params = array_merge($tpl_params, $this->$stepMethod($request));
 
         if ($step !== $tpl_params['STEP']) {
-            return  $this->redirectToRoute('install', ['step' => $tpl_params['STEP'], 'language' => $language]);
+            return $this->redirectToRoute('install', ['step' => $tpl_params['STEP'], 'language' => $language]);
         }
         $tpl_params['lang_info'] = ['code' => preg_replace('`_.*`', '', (string) $language), 'direction' => 'ltr']; // @TODO: retrieve from common place
         $tpl_params['LANGUAGE'] = $language;
@@ -151,11 +151,6 @@ class InstallController extends AbstractController
                 'readable' => false,
                 'writable' => false,
                 'path' => $this->mediaCacheDir,
-            ],
-            'config' => [
-                'readable' => false,
-                'writable' => false,
-                'path' => $this->configDir,
             ],
             'local' => [
                 'readable' => false,
@@ -228,7 +223,7 @@ class InstallController extends AbstractController
             'db_name' => '',
             'db_user' => '',
             'db_password' => '',
-            'db_prefix' => $this->default_prefix,
+            'db_prefix' => $this->prefix,
         ];
 
         if ($request->isMethod('POST')) {
@@ -321,36 +316,43 @@ class InstallController extends AbstractController
             }
 
             if (count($errors) === 0) {
-                $database_params = Yaml::parseFile($this->databaseYamlFile . '.tmp');
-                $config = new Configuration();
+                $envParams = (new Dotenv())->parse(file_get_contents($this->localEnvFile . '.tmp'));
+                $_params = parse_url((string) $envParams['DATABASE_URL']);
                 $connectionParams = [
-                    'driver' => $database_params['parameters']['database_driver']
+                    'dsn' => $envParams['DATABASE_URL'],
+                    'dbname' => substr($_params['path'], 1),
+                    'user' => $_params['user'],
+                    'password' => $_params['pass'],
+                    'host' => $_params['host'],
+                    'driver' => 'pdo_' . $_params['scheme'],
+                    'path' => ''
                 ];
-                if ($database_params['parameters']['database_driver'] === 'pdo_sqlite') {
-                    $connectionParams['path'] = str_replace('%kernel.project_dir%', $this->rootProjectDir, (string) $database_params['parameters']['database_path']);
-                } else {
-                    $connectionParams['host'] = $database_params['parameters']['database_host'];
-                    $connectionParams['dbname'] = $database_params['parameters']['database_name'];
-                    $connectionParams['user'] = $database_params['parameters']['database_user'];
-                    $connectionParams['password'] = $database_params['parameters']['database_password'];
+                unset($_params);
+
+                if ($connectionParams['driver'] === 'pdo_sqlite') {
+                    $connectionParams['path'] = sprintf('%s/db/%s', $this->rootProjectDir, $connectionParams['dbname']);
                 }
+
+                $databasePrefix = $envParams['DATABASE_PREFIX'];
+
+                $config = new Configuration();
                 $conn = DriverManager::getConnection($connectionParams, $config);
 
                 $now = new DateTime();
                 $raw_query_user = 'INSERT INTO phyxo_users (username, mail_address, password) VALUES(:username, :mail_address, :password)';
-                $raw_query_user = str_replace($this->default_prefix, $database_params['parameters']['database_prefix'], $raw_query_user);
+                $raw_query_user = str_replace($this->prefix, $databasePrefix, $raw_query_user);
 
                 $raw_query_user_infos = 'INSERT INTO phyxo_user_infos (user_id, status, nb_image_page, language, expand, show_nb_comments, show_nb_hits, recent_period,';
                 $raw_query_user_infos .= ' theme, enabled_high, level, registration_date)';
                 $raw_query_user_infos .= ' VALUES(:user_id, :status, :nb_image_page, :language, :expand, :show_nb_comments, :show_nb_hits, :recent_period,';
                 $raw_query_user_infos .= ' :theme, :enabled_high, :level, :registration_date)';
-                $raw_query_user_infos = str_replace($this->default_prefix, $database_params['parameters']['database_prefix'], $raw_query_user_infos);
+                $raw_query_user_infos = str_replace($this->prefix, $databasePrefix, $raw_query_user_infos);
 
                 $statement = $conn->prepare($raw_query_user);
                 $statement->bindValue('username', $db_params['username']);
                 $statement->bindValue('mail_address', $db_params['mail_address']);
                 $statement->bindValue('password', $this->passwordHasher->hashPassword(new User(), $db_params['password']));
-                $statement->execute();
+                $statement->executeQuery();
                 $user_id = $conn->lastInsertId();
 
                 $statement = $conn->prepare($raw_query_user_infos);
@@ -366,13 +368,13 @@ class InstallController extends AbstractController
                 $statement->bindValue('enabled_high', 1);
                 $statement->bindValue('level', 10); // @FIX: find a way to only inject that param instead of conf ; max($this->conf['available_permission_levels']);
                 $statement->bindValue('registration_date', $now->format('Y-m-d H:m:i'));
-                $statement->execute();
+                $statement->executeQuery();
 
                 $statement = $conn->prepare($raw_query_user);
                 $statement->bindValue('username', 'guest');
                 $statement->bindValue('mail_address', null);
                 $statement->bindValue('password', null);
-                $statement->execute();
+                $statement->executeQuery();
                 $user_id = $conn->lastInsertId();
 
                 $statement = $conn->prepare($raw_query_user_infos);
@@ -388,12 +390,12 @@ class InstallController extends AbstractController
                 $statement->bindValue('enabled_high', 1);
                 $statement->bindValue('level', 0);
                 $statement->bindValue('registration_date', $now->format('Y-m-d H:m:i'));
-                $statement->execute();
+                $statement->executeQuery();
 
                 try {
                     $env_file_content = 'APP_ENV=prod' . "\n";
                     $env_file_content .= 'APP_SECRET=' . hash('sha256', openssl_random_pseudo_bytes(50)) . "\n";
-                    file_put_contents($this->rootProjectDir . '/.env.local', $env_file_content, FILE_APPEND);
+                    file_put_contents($this->localEnvFile . '.tmp', $env_file_content, FILE_APPEND);
                 } catch (Exception $e) {
                     $errors[] = $e->getMessage();
                 }
@@ -418,7 +420,7 @@ class InstallController extends AbstractController
     public function successStep(Request $request)
     {
         $tpl_params = [];
-        rename($this->databaseYamlFile . '.tmp', $this->databaseYamlFile);
+        rename($this->localEnvFile . '.tmp', $this->localEnvFile);
 
         $tpl_params['STEP'] = 'success';
         $tpl_params['HOMEPAGE_URL'] = $this->generateUrl('homepage');

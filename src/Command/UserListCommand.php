@@ -32,15 +32,17 @@ class UserListCommand extends Command
         'language' => 'Language',
         'theme' => 'Theme',
     ];
+    private string $localEnvFile = '';
 
-    public function __construct(private readonly UserRepository $userRepository, private readonly string $databaseYamlFile)
+    public function __construct(private readonly UserRepository $userRepository, private readonly string $rootProjectDir)
     {
         parent::__construct();
+        $this->localEnvFile = sprintf('%s/.env.local', $this->rootProjectDir);
     }
 
     public function isEnabled(): bool
     {
-        return is_readable($this->databaseYamlFile);
+        return is_readable($this->localEnvFile);
     }
 
     public function configure(): void

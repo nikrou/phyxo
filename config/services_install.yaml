@@ -4,6 +4,10 @@
 imports:
   - { resource: parameters.yaml }
 
+framework:
+  session:
+    handler_id: null
+  
 services:
   # default configuration for services in *this* file
   _defaults:
@@ -16,9 +20,7 @@ services:
 
     bind:
       $rememberMeCookie: '%remember_cookie%'
-      $databaseYamlFile: '%database_yaml_file%'
       $localDir: '%local_dir%'
-      $configDir: '%kernel.project_dir%/config'
       $varDir: '%kernel.project_dir%/var'
       $uploadDir: '%upload_dir%'
       $themesDir: '%themes_dir%'
@@ -37,14 +39,14 @@ services:
       $startParam: '%start_param%'
       $adminThemeDir: '%admin_theme_dir%'
       $graphicsLibrary: '%graphics_library%'
-      $prefix: '%database_prefix%'
+      $prefix: '%env(DATABASE_PREFIX)%'
       $defaultDateType: '%default_date_type%'
 
   # makes classes in src/ available to be used as services
   # this creates a service per class whose id is the fully-qualified class name
   App\:
     resource: '../src/*'
-    exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Phyxo,LegacyPages,Command}'
+    exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Phyxo,Command}'
 
   App\Security\LoginFormAuthenticator:
     autowire: false
@@ -75,6 +77,10 @@ services:
     autoconfigure: false
 
   App\Twig\DerivativeExtension:
+    autowire: false
+    autoconfigure: false
+
+  Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler:
     autowire: false
     autoconfigure: false
 

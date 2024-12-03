@@ -16,7 +16,7 @@ use App\UpdateKernel;
 require_once dirname(__DIR__) . '/vendor/autoload_runtime.php';
 
 return function (array $context) {
-    if (is_readable(dirname(__DIR__) . '/config/database.yaml')) {
+    if (is_readable(dirname(__DIR__) . '/.env.local')) {
         if (is_readable(dirname(__DIR__) . '/.update.mode')) {
             $kernel = new UpdateKernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
         } else {

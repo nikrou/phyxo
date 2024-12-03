@@ -37,9 +37,9 @@
 		"symfony/validator": "6.*",
 		"symfony/yaml": "6.*",
 		"twig/cssinliner-extra": "^3.4",
-		"twig/extra-bundle": "^2.12|^3.4",
+		"twig/extra-bundle": "^3.4",
 		"twig/intl-extra": "^3.4.2",
-		"twig/twig": "^2.12|^3.4.3"
+		"twig/twig": "^3.4.3"
 	},
 	"require-dev": {
 		"behat/behat": "^3.11",
@@ -87,7 +87,7 @@
 		}
 	},
 	"scripts": {
-		"behat": "behat --stop-on-failure",
+		"behat": "behat --stop-on-failure --suite=web",
 		"phpunit": "phpunit --testdox",
 		"phpstan": "phpstan analyse",
     "rector": "rector process",

@@ -15,18 +15,18 @@ use App\Kernel;
 use App\UpdateKernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 
-if (!is_dir(dirname(__DIR__).'/vendor')) {
+if (!is_dir(dirname(__DIR__) . '/vendor')) {
     throw new LogicException('Dependencies are missing. Try running "composer install".');
 }
 
-if (!is_file(dirname(__DIR__).'/vendor/autoload_runtime.php')) {
+if (!is_file(dirname(__DIR__) . '/vendor/autoload_runtime.php')) {
     throw new LogicException('Symfony Runtime is missing. Try running "composer require symfony/runtime".');
 }
 
 require_once dirname(__DIR__) . '/vendor/autoload_runtime.php';
 
 return function (array $context) {
-    if (is_readable(dirname(__DIR__) . '/config/database.yaml')) {
+    if (!empty($_SERVER['DATABASE_URL'])) {
         if (is_readable(dirname(__DIR__) . '/.update.mode')) {
             $kernel = new UpdateKernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
         } else {
