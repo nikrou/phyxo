@@ -11,6 +11,7 @@
 
 namespace App\Tests\Controller;
 
+use Symfony\Component\HttpFoundation\Request;
 use DateTime;
 use Symfony\Component\HttpFoundation\Response;
 use Phyxo\Image\ImageStandardParams;
@@ -75,7 +76,7 @@ class MediaControllerTest extends WebTestCase
         self::ensureKernelShutdown();
 
         $client = static::createClient();
-        $client->request('GET', '/media/tests/upload/dummy-sq.jpg');
+        $client->request(Request::METHOD_GET, '/media/tests/upload/dummy-sq.jpg');
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
     }
@@ -86,7 +87,7 @@ class MediaControllerTest extends WebTestCase
         $client = static::createClient();
         $container = static::getContainer();
         $container->set(ImageRepository::class, $this->imageRepository->reveal());
-        $client->request('GET', sprintf('/media/%s', $this->image_paths['sq']));
+        $client->request(Request::METHOD_GET, sprintf('/media/%s', $this->image_paths['sq']));
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }
@@ -97,7 +98,7 @@ class MediaControllerTest extends WebTestCase
         $client = static::createClient();
         $container = static::getContainer();
         $container->set(ImageRepository::class, $this->imageRepository->reveal());
-        $client->request('GET', sprintf('/media/%s', $this->image_paths['sq']));
+        $client->request(Request::METHOD_GET, sprintf('/media/%s', $this->image_paths['sq']));
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         $this->assertTrue(
@@ -115,7 +116,7 @@ class MediaControllerTest extends WebTestCase
 
         // same path, image not changed so http status code must be 304
         $client->request(
-            'GET',
+            Request::METHOD_GET,
             sprintf('/media/%s', $this->image_paths['sq']),
             [],
             [],
@@ -135,7 +136,7 @@ class MediaControllerTest extends WebTestCase
         $client = static::createClient();
         $container = static::getContainer();
         $container->set(ImageRepository::class, $this->imageRepository->reveal());
-        $client->request('GET', sprintf('/media/%s', $this->image_paths['unknown']));
+        $client->request(Request::METHOD_GET, sprintf('/media/%s', $this->image_paths['unknown']));
 
         $this->assertEquals(Response::HTTP_FORBIDDEN, $client->getResponse()->getStatusCode());
     }
@@ -155,7 +156,7 @@ class MediaControllerTest extends WebTestCase
         $image_std_params->makeCustom($width, $height, 1, $width, $height);
         $this->assertTrue($image_std_params->hasCustom($custom));
 
-        $client->request('GET', sprintf('/media/%s', $this->image_paths['custom']));
+        $client->request(Request::METHOD_GET, sprintf('/media/%s', $this->image_paths['custom']));
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }
 
@@ -165,7 +166,7 @@ class MediaControllerTest extends WebTestCase
         $client = static::createClient();
         $container = static::getContainer();
         $container->set(ImageRepository::class, $this->imageRepository->reveal());
-        $client->request('GET', sprintf('/media/%s', $this->image_paths['sq']));
+        $client->request(Request::METHOD_GET, sprintf('/media/%s', $this->image_paths['sq']));
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }
@@ -176,7 +177,7 @@ class MediaControllerTest extends WebTestCase
         $client = static::createClient();
         $container = static::getContainer();
         $container->set(ImageRepository::class, $this->imageRepository->reveal());
-        $client->request('GET', sprintf('/admin/media/%s', $this->image_paths['sq']));
+        $client->request(Request::METHOD_GET, sprintf('/admin/media/%s', $this->image_paths['sq']));
         $client->followRedirect();
 
         $this->assertEquals(Response::HTTP_FORBIDDEN, $client->getResponse()->getStatusCode());
@@ -201,7 +202,7 @@ class MediaControllerTest extends WebTestCase
 
         $container = static::getContainer();
         $container->set(ImageRepository::class, $this->imageRepository->reveal());
-        $client->request('GET', sprintf('/admin/media/%s', $this->image_paths['sq']));
+        $client->request(Request::METHOD_GET, sprintf('/admin/media/%s', $this->image_paths['sq']));
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }

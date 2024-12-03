@@ -34,7 +34,7 @@ class ApiContext implements Context
 
     private $json_decoded = false;
 
-    public function __construct(private string $phyxoVersion, string $apiBaseUrl, private readonly ContainerInterface $driverContainer)
+    public function __construct(private readonly string $phyxoVersion, string $apiBaseUrl, private readonly ContainerInterface $driverContainer)
     {
         $this->client = new Client(['base_uri' => $apiBaseUrl, 'cookies' => new CookieJar(), 'exceptions' => true]);
         $this->request = new Request('GET', $apiBaseUrl);

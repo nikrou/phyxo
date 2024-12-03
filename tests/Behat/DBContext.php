@@ -45,7 +45,7 @@ class DBContext implements Context
         private readonly ContainerInterface $driverContainer,
         private readonly UserManager $userManager,
         private readonly AlbumMapper $albumMapper,
-        private Conf $conf,
+        private readonly Conf $conf,
         private readonly UserRepository $userRepository,
         private readonly GroupRepository $groupRepository,
         private readonly CommentRepository $commentRepository,
@@ -53,7 +53,7 @@ class DBContext implements Context
         private readonly TagMapper $tagMapper,
         private readonly UserMapper $userMapper,
         private readonly string $prefix,
-        private Connection $connection
+        private readonly Connection $connection
     ) {
     }
 

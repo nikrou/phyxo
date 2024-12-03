@@ -69,14 +69,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     private Collection $groups;
 
     /**
-     * @var ArrayCollection<int, UserCacheAlbum>
+     * @var Collection<int, UserCacheAlbum>
      */
     #[ORM\OneToMany(targetEntity: UserCacheAlbum::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private Collection $userCacheAlbums;
 
     /**
      *
-     * @var ArrayCollection<int, Album>
+     * @var Collection<int, Album>
      */
     #[ORM\JoinTable(name: 'user_access')]
     #[ORM\JoinColumn(name: 'user_id')]

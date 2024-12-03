@@ -42,12 +42,12 @@ class PhyxoInstaller
     ];
 
     public function __construct(
-        private string $phyxoVersion,
-        private string $rootProjectDir,
-        private string $translationsDir,
-        private string $defaultTheme,
-        private string $prefix,
-        private TranslatorInterface $translator
+        private readonly string $phyxoVersion,
+        private readonly string $rootProjectDir,
+        private readonly string $translationsDir,
+        private readonly string $defaultTheme,
+        private readonly string $prefix,
+        private readonly TranslatorInterface $translator
     ) {
         $this->localEnvFile = sprintf('%s/.env.local', $this->rootProjectDir);
     }
@@ -188,7 +188,7 @@ class PhyxoInstaller
                 $db_params['db_layer'],
                 $db_params['db_user'],
                 urlencode(
-                    $db_params['db_password']
+                    (string) $db_params['db_password']
                 ),
                 $db_params['db_host'],
                 $db_params['db_name']
