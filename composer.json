@@ -74,6 +74,10 @@
 		}
 	},
 	"autoload": {
+		"exclude-from-classmap": [
+			"Symfony\\Bridge\\Twig\\NodeVisitor"
+		],
+		"files": [".overrides/TranslationDefaultDomainNodeVisitor.php"],
 		"psr-4": {
 			"Phyxo\\": "src/Phyxo/",
 			"App\\": "src/",
