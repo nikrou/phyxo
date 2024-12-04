@@ -56,7 +56,7 @@
 	    {% endif %}
 	{% endif %}
 
-	{% if display_mode == 'letters' and letters %}
+	{% if display_mode == 'letters' and letters is defined %}
 	    <div id="tagLetters">
 		{% for letter in letters %}
 		    <div class="card w-100 mb-3">

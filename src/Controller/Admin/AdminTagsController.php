@@ -310,7 +310,7 @@ class AdminTagsController extends AbstractController
         $tpl_params = [];
         $this->translator = $translator;
 
-        if ($request->isMethod('POST') && $request->request->get('tag_ids')) {
+        if ($request->isMethod('POST') && $request->request->has('tag_ids')) {
             if ($request->request->get('validate')) {
                 $tagMapper->validateTags($request->request->all('tag_ids'));
                 $this->addFlash('success', $translator->trans('Tags have been validated', [], 'admin'));

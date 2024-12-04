@@ -72,7 +72,7 @@ class ImageCommentType extends AbstractType
         }
 
         if ($this->conf['comments_enable_website']) {
-            $builder->add('website_url', UrlType::class, ['label' => 'Website', 'required' => false]);
+            $builder->add('website_url', UrlType::class, ['label' => 'Website', 'required' => false, 'default_protocol' => 'https']);
         }
 
         $builder->add('content', TextareaType::class, ['label' => 'Comment', 'attr' => ['cols' => 50, 'rows' => 5], 'required' => true]);
