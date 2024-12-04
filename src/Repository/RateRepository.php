@@ -112,7 +112,7 @@ class RateRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array{array{image: int, rcount: int, rsum: int}}
+     * @return array<int, array{image: int, rcount: int<0, max>, rsum: numeric-string}>
      */
     public function calculateRateByImage()
     {

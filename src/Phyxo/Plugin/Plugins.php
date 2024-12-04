@@ -31,11 +31,9 @@ class Plugins extends Extensions
     private $server_plugins_retrieved = false;
     private array $default_plugins = [];
     private $plugins_root_path;
-    private $userMapper;
 
-    public function __construct(private readonly PluginRepository $pluginRepository, UserMapper $userMapper)
+    public function __construct(private readonly PluginRepository $pluginRepository, private readonly UserMapper $userMapper)
     {
-        $this->userMapper = $userMapper;
     }
 
     public function setRootPath(string $plugins_root_path)

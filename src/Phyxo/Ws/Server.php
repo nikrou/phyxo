@@ -35,7 +35,6 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class Server
 {
-    private $upload_dir;
     private $tagMapper;
     private $commentMapper;
     private $appUserService;
@@ -72,9 +71,8 @@ class Server
     final public const WS_ERR_INVALID_PARAM = 1003;
     final public const WS_XML_ATTRIBUTES = 'attributes_xml_';
 
-    public function __construct(string $upload_dir = '.')
+    public function __construct(private readonly string $upload_dir = '.')
     {
-        $this->upload_dir = $upload_dir;
     }
 
     public function setParams(ParameterBagInterface $params)

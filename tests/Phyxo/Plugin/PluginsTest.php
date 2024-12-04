@@ -23,7 +23,6 @@ use Symfony\Component\Filesystem\Filesystem;
 class PluginsTest extends TestCase
 {
     use ProphecyTrait;
-
     final public const PLUGINS_PATH = __DIR__ . '/../../fixtures/plugins';
     final public const PLUGINS_DIR = __DIR__ . '/../../tmp/plugins';
     final public const PLUGINS_ZIP_PATH = __DIR__ . '/../../fixtures/zip';
@@ -56,7 +55,7 @@ class PluginsTest extends TestCase
 
         $userMapper = $this->prophesize(UserMapper::class);
         $userMapper->getUser()->willReturn(new class {
-            function getLanguage()
+            public function getLanguage()
             {
                 return 'en_GB';
             }
@@ -76,7 +75,7 @@ class PluginsTest extends TestCase
 
         $userMapper = $this->prophesize(UserMapper::class);
         $userMapper->getUser()->willReturn(new class {
-            function getLanguage()
+            public function getLanguage()
             {
                 return 'en_GB';
             }
@@ -99,7 +98,7 @@ class PluginsTest extends TestCase
         $userMapper = $this->prophesize(UserMapper::class);
 
         $userMapper->getUser()->willReturn(new class {
-            function getLanguage()
+            public function getLanguage()
             {
                 return 'en_GB';
             }
@@ -108,6 +107,7 @@ class PluginsTest extends TestCase
         $pluginRepository = $this->prophesize(PluginRepository::class);
         $plugins = new Plugins($pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
+        $plugins->setExtensionsURL('./');
         $this->expectExceptionMessage("Cannot download plugin file");
         $plugins->extractPluginFiles('install', 10);
     }
@@ -118,7 +118,7 @@ class PluginsTest extends TestCase
 
         $userMapper = $this->prophesize(UserMapper::class);
         $userMapper->getUser()->willReturn(new class {
-            function getLanguage()
+            public function getLanguage()
             {
                 return 'en_GB';
             }
@@ -160,7 +160,7 @@ class PluginsTest extends TestCase
 
         $userMapper = $this->prophesize(UserMapper::class);
         $userMapper->getUser()->willReturn(new class {
-            function getLanguage()
+            public function getLanguage()
             {
                 return 'en_GB';
             }

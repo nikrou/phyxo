@@ -21,7 +21,7 @@ use App\Entity\Image;
 class DerivativeImage
 {
     // @TODO $params is DerivativeParams but problem in Ws/Main
-    public function __construct(private Image $image, private $params, private ImageStandardParams $image_std_params)
+    public function __construct(private readonly Image $image, private $params, private readonly ImageStandardParams $image_std_params)
     {
     }
 

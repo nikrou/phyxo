@@ -28,7 +28,6 @@ class ImageStandardParams
     final public const IMG_XLARGE = 'xlarge';
     final public const IMG_XXLARGE = 'xxlarge';
     final public const IMG_CUSTOM = 'custom';
-    private $conf;
     private $derivatives;
     private $all_type_map = [];
     private $type_map = [];
@@ -41,11 +40,9 @@ class ImageStandardParams
         self::IMG_MEDIUM, self::IMG_LARGE, self::IMG_XLARGE, self::IMG_XXLARGE
     ];
 
-    public function __construct(Conf $conf)
+    public function __construct(private Conf $conf)
     {
-        $this->conf = $conf;
-
-        $this->derivatives = $conf[$this->conf_key];
+        $this->derivatives = $this->conf[$this->conf_key];
 
         $this->loadFromConf();
     }

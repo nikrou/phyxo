@@ -178,7 +178,7 @@ class AdminTagsController extends AbstractController
                 $destination_tag = $tagMapper->getRepository()->find($request->request->get('destination_tag'));
                 $tag_ids = $request->request->all('tags');
 
-                if (is_array($tag_ids) && count($tag_ids) > 1) {
+                if (count($tag_ids) > 1) {
                     $tags_deleted = [];
                     foreach ($tagMapper->getRepository()->findBy(['id' => $request->request->get('tags')]) as $tag) {
                         $existing_tag_images = $tag->getImageTags();
