@@ -14,31 +14,18 @@ namespace App\Form\Model;
 class DisplayConfigurationModel
 {
     private bool $menubar_filter_icon;
-
     private bool $index_new_icon;
-
     private bool $index_sort_order_input;
-
     private bool $index_flat_icon;
-
     private bool $index_posted_date_icon;
-
     private bool $index_created_date_icon;
-
     private int $nb_categories_page;
-
     private bool $picture_metadata_icon;
-
     private bool $picture_download_icon;
-
     private bool $picture_favorite_icon;
-
     private bool $picture_navigation_icons;
-
     private bool $picture_navigation_thumb;
-
     private bool $picture_menu;
-
     private array $picture_informations;
 
     public function setMenubarFilterIcon(bool $menubar_filter_icon): self

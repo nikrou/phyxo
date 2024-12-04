@@ -17,7 +17,6 @@ use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
-
     use IdentityGeneratorTrait;
 
     public function getProjectDir(): string

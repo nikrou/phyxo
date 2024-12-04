@@ -11,8 +11,6 @@
 
 namespace Phyxo\Image;
 
-use Phyxo\Image\DerivativeParams;
-
 /**
  * Small utility to manipulate a 'rectangle'.
  */

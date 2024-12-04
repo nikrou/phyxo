@@ -25,19 +25,12 @@ use Symfony\Component\HttpClient\HttpClient;
 class Updates
 {
     private $versions = [];
-
     private $version = [];
-
     private array $types = ['plugins' => 'plugins', 'themes' => 'themes', 'languages' => 'language'];
-
     private $update_url;
-
     private $pem_url;
-
     private $missing = [];
-
     private $core_need_update = false;
-
     private $extensions_need_update = [];
 
     public function __construct(

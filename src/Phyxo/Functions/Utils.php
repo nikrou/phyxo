@@ -140,7 +140,7 @@ class Utils
 
                 if ($cur_page > 1) {
                     $navbar['URL_FIRST'] = $router->generate($route, $query_params);
-                    $navbar['URL_PREV'] = $router->generate(($cur_page > 2 ? $route_with_start:$route), array_merge($query_params, [$start_param => $previous]));
+                    $navbar['URL_PREV'] = $router->generate(($cur_page > 2 ? $route_with_start : $route), array_merge($query_params, [$start_param => $previous]));
                 }
                 if ($cur_page < $maximum) {
                     $navbar['URL_NEXT'] = $router->generate($route_with_start, array_merge($query_params, [$start_param => $next < $last ? $next : $last]));

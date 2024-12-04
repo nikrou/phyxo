@@ -364,7 +364,7 @@ class SearchController extends AbstractController
         if (isset($rules['q'])) {
             $tpl_params['search_words'] = $rules['q'];
         } else {
-            $tpl_params['INTRODUCTION'] = $rules['mode'] === 'OR'? $translator->trans('At least one listed rule must be satisfied.') : $translator->trans('Each listed rule must be satisfied.');
+            $tpl_params['INTRODUCTION'] = $rules['mode'] === 'OR' ? $translator->trans('At least one listed rule must be satisfied.') : $translator->trans('Each listed rule must be satisfied.');
         }
 
         if (isset($rules['fields']['allwords'])) {

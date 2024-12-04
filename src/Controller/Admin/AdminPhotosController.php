@@ -86,7 +86,6 @@ class AdminPhotosController extends AbstractController
             $tpl_params['max_upload_resolution'] = $max_upload_resolution;
         }
 
-
         //warn the user if the picture will be resized after upload
         if ($conf['original_resize']) {
             $tpl_params['original_resize_maxwidth'] = $conf['original_resize_maxwidth'];
@@ -129,7 +128,6 @@ class AdminPhotosController extends AbstractController
         if (!function_exists('gd_info')) {
             $tpl_params['setup_errors'][] = $translator->trans('GD library is missing', [], 'admin');
         }
-
 
         if ($conf['use_exif'] && !function_exists('exif_read_data')) {
             $tpl_params['setup_warnings'][] = $translator->trans('Exif extension not available, admin should disable exif use', [], 'admin');

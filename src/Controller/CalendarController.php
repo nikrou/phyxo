@@ -45,7 +45,7 @@ class CalendarController extends AbstractController
         }
 
         $years = array_keys($tpl_params['years']);
-        for ($year = $years[0];$year > $years[count($years) - 1];$year--) {
+        for ($year = $years[0]; $year > $years[count($years) - 1]; $year--) {
             if (!isset($tpl_params['years'][$year])) {
                 $tpl_params['years'][$year] = [
                     'label' => $year,
@@ -72,7 +72,7 @@ class CalendarController extends AbstractController
         $tpl_params['months'] = array_fill(1, 12, ['nb_images' => 0]);
 
         $intl_date_formatter = new IntlDateFormatter($request->get('_locale'), IntlDateFormatter::FULL, IntlDateFormatter::NONE, null, null, 'MMM');
-        for ($month = 1;$month <= 12;$month++) {
+        for ($month = 1; $month <= 12; $month++) {
             $tpl_params['months'][$month]['label'] = $intl_date_formatter->format(new DateTime(sprintf('2022-%d-01', $month)));
         }
 

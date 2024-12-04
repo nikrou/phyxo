@@ -30,8 +30,7 @@ class CommentNotificationSubscriber implements EventSubscriberInterface
         private readonly RouterInterface $router,
         private readonly UserMapper $userMapper,
         private readonly TranslatorInterface $translator
-    )
-    {
+    ) {
     }
 
     public static function getSubscribedEvents(): array

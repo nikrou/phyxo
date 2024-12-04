@@ -20,8 +20,7 @@ class GroupEvent extends Event
         private readonly array $category,
         private readonly string $image_url,
         private readonly string $mail_content
-    )
-    {
+    ) {
     }
 
     public function getGroup()

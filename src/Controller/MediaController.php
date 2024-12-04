@@ -30,7 +30,6 @@ use Symfony\Component\Mime\MimeTypeGuesserInterface;
 class MediaController extends AbstractController
 {
     protected ImageStandardParams $image_std_params;
-
     private bool $forAdmin = false;
 
     public function derivative(

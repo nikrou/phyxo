@@ -22,17 +22,11 @@ use Symfony\Component\Filesystem\Filesystem;
 class Languages extends Extensions
 {
     private $languages_root_path;
-
     private $fs_languages = [];
-
     private $fs_languages_retrieved = false;
-
     private $db_languages = [];
-
     private $db_languages_retrieved = false;
-
     private $server_languages = [];
-
     private $server_languages_retrieved = false;
 
     public function __construct(private readonly ?LanguageRepository $languageRepository = null, private readonly string $defaultLanguage = '')

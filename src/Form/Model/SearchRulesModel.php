@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
- namespace App\Form\Model;
+namespace App\Form\Model;
 
 use DateTime;
 use App\Entity\User;
@@ -17,19 +17,12 @@ use App\Entity\User;
 class SearchRulesModel
 {
     private ?DateTime $start = null;
-
     private ?DateTime $end = null;
-
     private array $types = [];
-
     private ?int $image_id = null;
-
     private array $image_ids = [];
-
     private ?string $filename = null;
-
     private string $display_thumbnail;
-
     private ?User $user = null;
 
     public function setStart(?DateTime $start): self

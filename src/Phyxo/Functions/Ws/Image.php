@@ -116,7 +116,7 @@ class Image
             $tag['page_url'] = $service->getRouter()->generate('picture', ['image_id' => $image->getId(), 'type' => 'tags', 'element_id' => Utils::tagToUrl($tag)]);
 
             unset($tag['counter']);
-            $tag['id'] = (int)$tag['id'];
+            $tag['id'] = (int) $tag['id'];
             $related_tags[$i] = $tag;
         }
 
@@ -130,9 +130,9 @@ class Image
         if (is_null($rating['score'])) {
             $rate_summary = $service->getManagerRegistry()->getRepository(Rate::class)->calculateRateSummary($image->getId());
 
-            $rating['score'] = (float)$rating['score'];
+            $rating['score'] = (float) $rating['score'];
             $rating['average'] = round($rate_summary['average'], 2);
-            $rating['count'] = (int)$rate_summary['count'];
+            $rating['count'] = (int) $rate_summary['count'];
         }
 
         //---------------------------------------------------------- related comments
@@ -200,7 +200,7 @@ class Image
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid image_id or access denied');
         }
 
-        $result = $service->getRateMapper()->ratePicture($params['image_id'], (int)$params['rate'], $service->getRequest()->getClientIp());
+        $result = $service->getRateMapper()->ratePicture($params['image_id'], (int) $params['rate'], $service->getRequest()->getClientIp());
 
         if (is_null($result['score'])) {
             return new Error(403, 'Forbidden or rate not in ' . implode(',', $service->getConf()['rate_items']));
@@ -265,7 +265,7 @@ class Image
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid level');
         }
 
-        $service->getImageMapper()->getRepository()->updateFieldForImages($params['image_id'], 'level', (int)$params['level']);
+        $service->getImageMapper()->getRepository()->updateFieldForImages($params['image_id'], 'level', (int) $params['level']);
         $service->getUserMapper()->invalidateUserCache();
     }
 
@@ -1091,7 +1091,6 @@ class Image
                 '[\Phyxo\Functions\Ws\Images::addImageAlbumRelations] there is no category defined in "' . $categories_string . '"'
             );
         }
-
 
         $image = $service->getImageMapper()->getRepository()->find($image_id);
 

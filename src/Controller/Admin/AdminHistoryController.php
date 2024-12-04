@@ -514,7 +514,6 @@ class AdminHistoryController extends AbstractController
         // | 2005-08-25-21 |      151 |
         // +---------------+----------+
 
-
         $updates = [];
 
         if (isset($first_time_key)) {

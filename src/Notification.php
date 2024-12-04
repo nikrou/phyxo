@@ -551,7 +551,6 @@ class Notification
                     }
                 }
 
-
                 if ($do_update) {
                     $nbm_user->setEnabled($is_subscribe);
                     $this->userMailNotificationRepository->addOrUpdateUserMailNotification($nbm_user);
@@ -807,7 +806,6 @@ class Notification
             $return_list = $data_users;
         }
 
-
         // Return list of "selected" users for 'list_to_send'
         // Return list of "treated" check_key for 'send'
         return $return_list;
@@ -825,11 +823,11 @@ class Notification
         $tpl_params = array_merge($tpl_params, $params);
 
         $message = (new TemplatedEmail())
-                ->subject('[' . $this->conf['gallery_title'] . '] ' . $subject)
-                ->to(new Address($to['email'], $to['name']))
-                ->textTemplate('mail/text/notification.text.twig')
-                ->htmlTemplate('mail/html/notification.html.twig')
-                ->context($tpl_params);
+            ->subject('[' . $this->conf['gallery_title'] . '] ' . $subject)
+            ->to(new Address($to['email'], $to['name']))
+            ->textTemplate('mail/text/notification.text.twig')
+            ->htmlTemplate('mail/html/notification.html.twig')
+            ->context($tpl_params);
 
         $message->from(new Address($from['email'], $from['name']));
         $message->replyTo(new Address($from['email'], $from['name']));

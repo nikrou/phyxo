@@ -15,7 +15,6 @@ use Exception;
 use Phyxo\Functions\Utils;
 use App\DataMapper\UserMapper;
 use App\Entity\Plugin;
-use Phyxo\Plugin\DummyPluginMaintain;
 use Phyxo\Extension\Extensions;
 use App\Repository\PluginRepository;
 use Symfony\Component\Filesystem\Filesystem;
@@ -24,7 +23,6 @@ use Symfony\Component\Yaml\Yaml;
 class Plugins extends Extensions
 {
     final public const CONFIG_FILE = 'config.yaml';
-
     private $fs_plugins = [], $db_plugins = [], $server_plugins = [];
     private $fs_plugins_retrieved = false, $db_plugins_retrieved = false, $server_plugins_retrieved = false;
     private array $default_plugins = [];
@@ -51,12 +49,12 @@ class Plugins extends Extensions
         $classname = $plugin_id . '_maintain';
 
         if (is_readable($file_to_include . '.class.php')) {
-            include_once($file_to_include . '.class.php');
+            include_once $file_to_include . '.class.php';
             return new $classname($plugin_id);
         }
 
         if (is_readable($file_to_include . '.inc.php')) {
-            include_once($file_to_include . '.inc.php');
+            include_once $file_to_include . '.inc.php';
 
             if (class_exists($classname)) {
                 return new $classname($plugin_id);
@@ -69,7 +67,7 @@ class Plugins extends Extensions
     /**
      * Perform requested actions
      */
-    public function performAction(string $action, string $plugin_id, int $revision = null):  string
+    public function performAction(string $action, string $plugin_id, int $revision = null): string
     {
         if (!$this->db_plugins_retrieved) {
             $this->getDbPlugins();

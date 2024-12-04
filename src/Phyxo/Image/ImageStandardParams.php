@@ -17,9 +17,7 @@ use Phyxo\Conf;
 class ImageStandardParams
 {
     private string $conf_key = 'derivatives';
-
     final public const IMG_ORIGINAL = 'original';
-
     final public const IMG_SQUARE = 'square';
     final public const IMG_THUMB = 'thumb';
     final public const IMG_XXSMALL = '2small';
@@ -30,11 +28,9 @@ class ImageStandardParams
     final public const IMG_XLARGE = 'xlarge';
     final public const IMG_XXLARGE = 'xxlarge';
     final public const IMG_CUSTOM = 'custom';
-
     private $conf, $derivatives;
     private $all_type_map = [], $type_map = [], $watermark = [], $customs = [], $quality = 95, $undefined_type_map = [];
-
-    private  array $all_types = [
+    private array $all_types = [
         self::IMG_SQUARE, self::IMG_THUMB, self::IMG_XXSMALL, self::IMG_XSMALL, self::IMG_SMALL,
         self::IMG_MEDIUM, self::IMG_LARGE, self::IMG_XLARGE, self::IMG_XXLARGE
     ];

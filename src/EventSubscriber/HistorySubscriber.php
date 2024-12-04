@@ -27,8 +27,7 @@ class HistorySubscriber implements EventSubscriberInterface
         private readonly AppUserService $appUserService,
         private readonly UserMapper $userMapper,
         private readonly HistoryRepository $historyRepository
-    )
-    {
+    ) {
     }
 
     public static function getSubscribedEvents(): array

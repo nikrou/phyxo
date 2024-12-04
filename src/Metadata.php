@@ -19,14 +19,8 @@ use Phyxo\Conf;
 
 class Metadata
 {
-    private $root_dir,
-
-    $conf;
-
-    public function __construct(Conf $conf, string $rootProjectDir)
+    public function __construct(private Conf $conf, private readonly string $rootProjectDir)
     {
-        $this->conf = $conf;
-        $this->root_dir = $rootProjectDir;
     }
 
     /**
@@ -288,7 +282,7 @@ class Metadata
      */
     public function getSyncMetadata(array $infos): array
     {
-        $file = $this->root_dir . '/' . $infos['path'];
+        $file = $this->rootProjectDir . '/' . $infos['path'];
         $fs = @filesize($file);
 
         if ($fs === false) {

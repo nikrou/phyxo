@@ -16,15 +16,10 @@ use App\Entity\UserInfos;
 class UserProfileModel
 {
     private ?int $id = null;
-
     private ?string $username = null;
-
     private ?string $current_password = null;
-
     private ?string $new_password = null;
-
     private ?string $mail_address = null;
-
     private ?UserInfos $user_infos = null;
 
     public function setId(int $id): self

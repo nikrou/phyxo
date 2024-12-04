@@ -16,52 +16,52 @@ use App\Repository\ThemeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'themes')]
- #[ORM\Entity(repositoryClass: ThemeRepository::class)]
- class Theme
- {
-     #[ORM\Id]
-     #[ORM\Column(type: Types::STRING, length: 40)]
-     private string $id;
+#[ORM\Entity(repositoryClass: ThemeRepository::class)]
+class Theme
+{
+    #[ORM\Id]
+    #[ORM\Column(type: Types::STRING, length: 40)]
+    private string $id;
 
-     #[ORM\Column(type: Types::STRING, length: 64, nullable: true)]
-     private ?string $version = null;
+    #[ORM\Column(type: Types::STRING, length: 64, nullable: true)]
+    private ?string $version = null;
 
-     #[ORM\Column(type: Types::STRING, length: 64)]
-     private string $name;
+    #[ORM\Column(type: Types::STRING, length: 64)]
+    private string $name;
 
-     public function setId(string $id): self
-     {
-         $this->id = $id;
+    public function setId(string $id): self
+    {
+        $this->id = $id;
 
-         return $this;
-     }
+        return $this;
+    }
 
-     public function getId(): ?string
-     {
-         return $this->id;
-     }
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
 
-     public function getVersion(): ?string
-     {
-         return $this->version;
-     }
+    public function getVersion(): ?string
+    {
+        return $this->version;
+    }
 
-     public function setVersion(?string $version): self
-     {
-         $this->version = $version;
+    public function setVersion(?string $version): self
+    {
+        $this->version = $version;
 
-         return $this;
-     }
+        return $this;
+    }
 
-     public function getName(): ?string
-     {
-         return $this->name;
-     }
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
 
-     public function setName(string $name): self
-     {
-         $this->name = $name;
+    public function setName(string $name): self
+    {
+        $this->name = $name;
 
-         return $this;
-     }
- }
+        return $this;
+    }
+}

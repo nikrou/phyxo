@@ -27,19 +27,12 @@ class UserInfosModel
      * @var mixed|null
      */
     private $nb_image_page;
-
     private ?Language $language = null;
-
     private ?Theme $theme = null;
-
     private string $status;
-
     private int $level = 0;
-
     private ?bool $show_nb_comments = null;
-
     private ?bool $show_nb_hits = null;
-
     private ?bool $expand = null;
 
     public function setUsername(string $username): self

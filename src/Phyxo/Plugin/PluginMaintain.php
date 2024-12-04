@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
- namespace Phyxo\Plugin;
+namespace Phyxo\Plugin;
 
 interface PluginMaintain
 {

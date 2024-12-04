@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
- namespace App\Twig;
+namespace App\Twig;
 
 use App\Services\AssetsManager;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;

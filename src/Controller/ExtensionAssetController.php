@@ -41,7 +41,7 @@ class ExtensionAssetController extends AbstractController
         }
 
         $response = new StreamedResponse();
-        $response->setCallback(function() use ($path) {
+        $response->setCallback(function () use ($path) {
             readfile($path);
         });
         $response->setEtag(md5_file($path));

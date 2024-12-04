@@ -38,8 +38,7 @@ class TagMapper
         private readonly UserCacheRepository $userCacheRepository,
         private readonly ImageRepository $imageRepository,
         private readonly TagRepository $tagRepository
-    )
-    {
+    ) {
     }
 
     public function getRepository(): TagRepository

@@ -33,7 +33,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminUpdateController extends AbstractController
 {
     private TranslatorInterface $translator;
-
     private string $defaultTheme;
 
     protected function setTabsheet(string $section = 'core'): TabSheet
@@ -213,8 +212,8 @@ class AdminUpdateController extends AbstractController
                         $current_release = '1.1.0';
                     } elseif (!in_array(145, $applied_upgrades)) {
                         $current_release = '1.2.0';
-                    // } elseif (in_array('validated', $columns_of[$em->getConnection()->getPrefix() . 'tags'])) {
-                    //     $current_release = '1.3.0';
+                        // } elseif (in_array('validated', $columns_of[$em->getConnection()->getPrefix() . 'tags'])) {
+                        //     $current_release = '1.3.0';
                     } elseif (!in_array(146, $applied_upgrades)) {
                         $current_release = '1.5.0';
                     } elseif (!in_array(147, $applied_upgrades)) {
@@ -230,7 +229,7 @@ class AdminUpdateController extends AbstractController
                     $upgrade_file = $params->get('kernel.project_dir') . '/install/upgrade_' . $current_release . '.php';
                     if (is_readable($upgrade_file)) {
                         ob_start();
-                        include($upgrade_file);
+                        include $upgrade_file;
                         ob_end_clean();
                     }
 

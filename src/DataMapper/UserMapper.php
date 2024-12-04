@@ -29,11 +29,8 @@ use App\Security\AppUserService;
 class UserMapper
 {
     private User $default_user;
-
     private bool $default_user_retrieved = false;
-
     private User $webmaster;
-
     private bool $webmaster_retrieved = false;
 
     public function __construct(

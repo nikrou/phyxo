@@ -334,7 +334,6 @@ class WsController extends AbstractController
             ['admin_only' => true]
         );
 
-
         $this->service->addMethod(
             'pwg.images.add',
             '\Phyxo\Functions\Ws\Image::add',

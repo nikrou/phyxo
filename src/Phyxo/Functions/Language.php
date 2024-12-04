@@ -11,8 +11,6 @@
 
 namespace Phyxo\Functions;
 
-use App\Repository\LanguageRepository;
-
 class Language
 {
     /**

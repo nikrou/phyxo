@@ -28,7 +28,7 @@ class DisplayConfigurationType extends AbstractType
 
         $builder->add('main_page', FormGroupType::class, [
             'title' => 'Main page',
-            'fields' => function(FormBuilderInterface $builder) {
+            'fields' => function (FormBuilderInterface $builder) {
                 $builder->add(
                     'menubar_filter_icon',
                     CheckboxType::class,
@@ -72,7 +72,7 @@ class DisplayConfigurationType extends AbstractType
 
         $builder->add('photo_page', FormGroupType::class, [
             'title' => 'Photo page',
-            'fields' => function(FormBuilderInterface $builder) {
+            'fields' => function (FormBuilderInterface $builder) {
                 $builder->add(
                     'picture_metadata_icon',
                     CheckboxType::class,
@@ -96,7 +96,7 @@ class DisplayConfigurationType extends AbstractType
 
         $builder->add('photo_properties', FormGroupType::class, [
             'title' => 'Photo properties',
-            'fields' => function(FormBuilderInterface $builder) {
+            'fields' => function (FormBuilderInterface $builder) {
                 $builder->add('author', CheckboxType::class);
                 $builder->add('created_on', CheckboxType::class);
                 $builder->add('posted_on', CheckboxType::class);

@@ -11,8 +11,6 @@
 
 namespace Phyxo\Plugin;
 
-use Phyxo\Plugin\PluginMaintain;
-
 class DummyPluginMaintain implements PluginMaintain
 {
     public function __construct(protected string $plugin_id)

@@ -475,7 +475,7 @@ class ImageRepository extends ServiceEntityRepository
     // Calendar images
     protected function getFieldFromDateType(string $date_type = 'posted'): string
     {
-        return ($date_type === 'posted') ? 'date_available' :  'date_creation';
+        return ($date_type === 'posted') ? 'date_available' : 'date_creation';
     }
 
     /**

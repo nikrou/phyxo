@@ -24,11 +24,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class MenuBar
 {
     private $menu;
-
     private $route;
-
     private $items = [];
-
     private $tags = [];
 
     public function __construct(

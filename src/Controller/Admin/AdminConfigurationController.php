@@ -357,7 +357,6 @@ class AdminConfigurationController extends AbstractController
             'position' => $position,
         ];
 
-
         return $tpl_params;
     }
 

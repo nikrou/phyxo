@@ -44,3 +44,4 @@
 /admin/theme/build
 /public/admin/
 /galleries
+/.php-cs-fixer.cache

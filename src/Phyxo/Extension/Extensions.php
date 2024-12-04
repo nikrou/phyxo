@@ -18,10 +18,8 @@ use PclZip;
 class Extensions
 {
     final public const TYPES = ['plugins', 'themes', 'languages'];
-
-    protected $directory_pattern = '',
-
-    $pem_url;
+    protected string $directory_pattern = '';
+    protected string $pem_url;
 
     public function getJsonFromServer($url, $params = [])
     {
@@ -29,7 +27,7 @@ class Extensions
             $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $url, ['query' => $params]);
             if ($response->getStatusCode() === 200 && $response->getContent()) {
-                return json_decode($response-> getContent(), true, 512, JSON_THROW_ON_ERROR);
+                return json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
             } else {
                 throw new Exception("Response is not readable");
             }

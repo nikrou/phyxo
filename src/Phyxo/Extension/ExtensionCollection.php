@@ -16,7 +16,6 @@ use Traversable;
 class ExtensionCollection
 {
     private $extensions_by_class;
-
     private array $extensions_by_name = [];
 
     public function __construct(iterable $extensions)

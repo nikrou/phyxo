@@ -30,7 +30,6 @@ use Symfony\Component\Validator\Constraints\Email;
 class UserProfileType extends AbstractType
 {
     final public const IN_ADMIN_OPTION = 'in_admin';
-
     final public const RESET_BUTTON = 'reset_button';
 
     public function __construct(private readonly UserRepository $userRepository)

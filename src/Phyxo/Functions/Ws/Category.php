@@ -134,7 +134,6 @@ class Category
             $infos_of_images = $service->getAlbumMapper()->getInfosOfImages($service->getUserMapper()->getUser(), $albums, $image_ids, $service->getImageMapper());
         }
 
-
         /* compared to code in include/category_cats, we only persist the new
          * user_representative if we have used $user['id'] and not the guest id,
          * or else the real guest may see thumbnail that he should not
@@ -169,7 +168,7 @@ class Category
                     'name' => $album->getName(),
                     'comment' => $album->getComment(),
                     'uppercats' => $album->getUppercats(),
-                    'id_uppercat' => $album->getParent() !== null  ? $album->getParent()->getId() : null,
+                    'id_uppercat' => $album->getParent() !== null ? $album->getParent()->getId() : null,
                     'global_rank' => $album->getGlobalRank(),
                     'nb_images' => $album->getUserCacheAlbum()->getNbImages(),
                     'nb_total_images' => $album->getUserCacheAlbum()->getCountImages(),

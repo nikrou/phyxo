@@ -18,12 +18,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ImageCommentModel
 {
     private ?string $author = null;
-
     private ?User $user = null;
 
     #[Assert\Email(message: 'Please enter a valid mail address')]
     private ?string $mail_address = null;
-
     private ?Image $image = null;
 
     #[Assert\NotBlank(message: 'Please enter a message for your comment')]
@@ -33,7 +31,6 @@ class ImageCommentModel
      * @Assert\URL(message="Please enter a valid Website URL")
      */
     private ?string $website_url = null;
-
     private ?string $client_ip = null;
 
     public function setUser(User $user): self

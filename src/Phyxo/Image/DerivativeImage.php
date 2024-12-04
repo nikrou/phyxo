@@ -20,18 +20,9 @@ use App\Entity\Image;
  */
 class DerivativeImage
 {
-    private $image,
-
-    $params,
-
-    $image_std_params;
-
     // @TODO $params is DerivativeParams but problem in Ws/Main
-    public function __construct(Image $image, $params, ImageStandardParams $image_std_params)
+    public function __construct(private Image $image, private $params, private ImageStandardParams $image_std_params)
     {
-        $this->image = $image;
-        $this->params = $params;
-        $this->image_std_params = $image_std_params;
     }
 
     public function getExtension(): string

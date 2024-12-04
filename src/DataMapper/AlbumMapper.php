@@ -31,7 +31,6 @@ class AlbumMapper
      *  @var array<int, Album> $cache
      */
     private array $cache;
-
     private bool $albums_retrieved = false;
 
     public function __construct(
@@ -389,7 +388,6 @@ class AlbumMapper
             }
             $this->getCacheAlbums()[$id]->setParent($parent_album);
         }
-
 
         $this->updateUppercats();
         $this->updateGlobalRank();

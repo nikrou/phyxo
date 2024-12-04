@@ -33,11 +33,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class UserInfosType extends AbstractType
 {
     final public const IN_ADMIN_OPTION = 'in_admin';
-
     final public const TITLE_OPTION = 'title';
-
     final public const FORM_GROUP_OPTION = 'form_group';
-
     final public const WITH_SUBMIT_BUTTONS_OPTION = 'with_submit_buttons';
 
     public function __construct(

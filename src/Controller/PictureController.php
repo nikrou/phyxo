@@ -52,7 +52,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class PictureController extends AbstractController
 {
     private UserMapper $userMapper;
-
     private TranslatorInterface $translator;
 
     /**
@@ -386,7 +385,6 @@ class PictureController extends AbstractController
                             ]
                         );
                     }
-
 
                     if ($appUserService->canManageComment('validate', $comment->getUser()->getId()) && !$comment->isValidated()) {
                         $validateForm = $this->createForm(

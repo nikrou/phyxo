@@ -18,8 +18,10 @@ class DerivativeParams
 {
     /** @var string among IMG_* */
     public $type = ImageStandardParams::IMG_CUSTOM;
+
     /** @var int used for non-custom images to regenerate the cached files */
     public $last_mod_time = 0;
+
     /** @var bool */
     public $use_watermark = false;
 

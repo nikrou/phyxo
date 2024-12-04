@@ -45,9 +45,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminBatchManagerController extends AbstractController
 {
     private TranslatorInterface $translator;
-
     private DerivativeService $derivativeService;
-
     private readonly User $user;
 
     public function __construct(AppUserService $appUserService)
@@ -83,7 +81,7 @@ class AdminBatchManagerController extends AbstractController
      */
     protected function getFilter(SessionInterface $session): array
     {
-        $filter = $session->has('bulk_manager_filter') ? $session->get('bulk_manager_filter'): [];
+        $filter = $session->has('bulk_manager_filter') ? $session->get('bulk_manager_filter') : [];
         if (!isset($filter['prefilter'])) {
             $filter['prefilter'] = null;
         }
@@ -884,7 +882,6 @@ class AdminBatchManagerController extends AbstractController
         $dimensions['heights'] = implode(',', $heights);
         $ratios = array_unique($ratios);
         $dimensions['ratios'] = implode(',', $ratios);
-
 
         $dimensions['bounds'] = [
             'min_width' => $widths[0],

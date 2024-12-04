@@ -46,10 +46,10 @@ class AssetsInstallCommand extends Command
     protected function configure(): void
     {
         $this->setHelp(file_get_contents(__DIR__ . '/../Resources/help/AssetsInstallCommand.txt'))
-         ->addArgument('target', InputArgument::OPTIONAL, 'The target directory', null)
-         ->addArgument('theme', InputArgument::OPTIONAL, 'Apply only for that theme', null)
-         ->addOption('symlink', null, InputOption::VALUE_NONE, 'Symlink the assets instead of copying them')
-         ->addOption('relative', null, InputOption::VALUE_NONE, 'Make relative symlinks');
+            ->addArgument('target', InputArgument::OPTIONAL, 'The target directory', null)
+            ->addArgument('theme', InputArgument::OPTIONAL, 'Apply only for that theme', null)
+            ->addOption('symlink', null, InputOption::VALUE_NONE, 'Symlink the assets instead of copying them')
+            ->addOption('relative', null, InputOption::VALUE_NONE, 'Make relative symlinks');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

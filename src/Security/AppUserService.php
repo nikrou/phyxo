@@ -20,9 +20,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class AppUserService
 {
     private User $user;
-
     private User $guest_user;
-
     private bool $guest_user_retrieved = false;
 
     public function __construct(private readonly Security $security, private readonly UserProvider $userProvider, private readonly Conf $conf, private readonly AuthorizationCheckerInterface $authorizationChecker)

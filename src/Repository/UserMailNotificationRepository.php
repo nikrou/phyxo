@@ -57,7 +57,6 @@ class UserMailNotificationRepository extends ServiceEntityRepository
             $qb->andWhere($qb->expr()->in('n.check_key', $check_keys));
         }
 
-
         foreach ($orders as $order_by) {
             $qb->orderBy($order_by);
         }

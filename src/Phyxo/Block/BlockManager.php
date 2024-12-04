@@ -12,13 +12,11 @@
 namespace Phyxo\Block;
 
 use App\Events\BlockEvent;
-use Phyxo\Block\DisplayBlock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class BlockManager
 {
     private array $menuBlockConfig = [];
-
     protected array $registered_blocks = [];
     protected array $display_blocks = [];
 

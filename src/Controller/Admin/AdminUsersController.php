@@ -135,7 +135,6 @@ class AdminUsersController extends AbstractController
             }
         }
 
-
         $tpl_params['label_of_status'] = $label_of_status;
         $tpl_params['pref_status_options'] = $pref_status_options;
         $tpl_params['pref_status_selected'] = 'normal';

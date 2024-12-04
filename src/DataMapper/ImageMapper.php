@@ -47,8 +47,7 @@ class ImageMapper
         private readonly RateRepository $rateRepository,
         private readonly ImageTagRepository $imageTagRepository,
         private readonly DerivativeService $derivativeService
-    )
-    {
+    ) {
     }
 
     public function getRepository(): ImageRepository

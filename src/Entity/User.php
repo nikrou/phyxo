@@ -28,9 +28,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     final public const STATUS_ADMIN = 'admin';
     final public const STATUS_NORMAL = 'normal';
     final public const STATUS_GUEST = 'guest';
-
     final public const ALL_STATUS = [self::STATUS_WEBMASTER, self::STATUS_ADMIN, self::STATUS_NORMAL, self::STATUS_GUEST];
-
     final public const STATUS_TO_ROLE = [
         self::STATUS_WEBMASTER => 'ROLE_WEBMASTER',
         self::STATUS_ADMIN => 'ROLE_ADMIN',
@@ -48,7 +46,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $password = null;
-
     private ?string $plain_password = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]

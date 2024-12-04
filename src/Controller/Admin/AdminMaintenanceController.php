@@ -185,7 +185,7 @@ class AdminMaintenanceController extends AbstractController
                     $upgrade_file = $params->get('kernel.project_dir') . '/install/upgrade_' . $current_release . '.php';
                     if (is_readable($upgrade_file)) {
                         // ob_start();
-                        include ($upgrade_file);
+                        include $upgrade_file;
                         // ob_end_clean();
                     }
 

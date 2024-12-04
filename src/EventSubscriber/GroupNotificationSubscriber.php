@@ -73,9 +73,9 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
         }
 
         $message
-          ->textTemplate('mail/text/cat_group_info.text.twig')
-          ->htmlTemplate('mail/html/cat_group_info.html.twig')
-          ->context($params);
+            ->textTemplate('mail/text/cat_group_info.text.twig')
+            ->htmlTemplate('mail/html/cat_group_info.html.twig')
+            ->context($params);
 
         if (!empty($this->conf['mail_sender_email'])) {
             if (!empty($this->conf['mail_sender_name'])) {

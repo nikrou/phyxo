@@ -35,52 +35,11 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class Server
 {
-    private $upload_dir,
-
-    $tagMapper,
-
-    $commentMapper,
-
-    $appUserService,
-
-    $userMapper,
-
-    $albumMapper,
-
-    $rateMapper,
-
-    $searchMapper,
-
-    $imageMapper;
-
-    private $phyxoVersion,
-
-    $conf,
-
-    $router,
-
-    $image_std_params,
-
-    $userManager,
-
-    $passwordHasher,
-
-    $pem_url,
-
-    $security;
-
-    private $params,
-
-    $request,
-
-    $managerRegistry,
-
-    $imageLibrary;
-
+    private $upload_dir, $tagMapper, $commentMapper, $appUserService, $userMapper, $albumMapper, $rateMapper, $searchMapper, $imageMapper;
+    private $phyxoVersion, $conf, $router, $image_std_params, $userManager, $passwordHasher, $pem_url, $security;
+    private $params, $request, $managerRegistry, $imageLibrary;
     private UserProvider $userProvider;
-
     private array $_methods = [];
-
     final public const WS_PARAM_ACCEPT_ARRAY = 0x010000;
     final public const WS_PARAM_FORCE_ARRAY = 0x030000;
     final public const WS_PARAM_OPTIONAL = 0x040000;
@@ -365,7 +324,7 @@ class Server
         }
 
         if (is_null($method)) {
-            return  new Error(self::WS_ERR_INVALID_METHOD, 'Missing "method" name');
+            return new Error(self::WS_ERR_INVALID_METHOD, 'Missing "method" name');
         }
 
         try {

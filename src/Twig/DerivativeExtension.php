@@ -51,7 +51,7 @@ class DerivativeExtension extends AbstractExtension
         }
 
         if (empty($params['height'])) {
-            throw new  Exception('define_derivative missing height');
+            throw new Exception('define_derivative missing height');
         }
 
         $w = intval($params['width']);

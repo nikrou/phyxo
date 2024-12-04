@@ -35,14 +35,14 @@ class FormGroupType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
-          ->setDefaults([
-              'title' => '',
-              'inherit_data' => true,
-              'options' => [],
-              'fields' => [],
-              'label' => false,
-          ])
-          ->addAllowedTypes('fields', ['array', 'callable']);
+            ->setDefaults([
+                'title' => '',
+                'inherit_data' => true,
+                'options' => [],
+                'fields' => [],
+                'label' => false,
+            ])
+            ->addAllowedTypes('fields', ['array', 'callable']);
     }
 
     public function buildView(FormView $view, FormInterface $form, array $options): void

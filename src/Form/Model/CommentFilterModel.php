@@ -21,14 +21,12 @@ class CommentFilterModel
      * @var mixed|string|null
      */
     private $keyword;
-
     private ?string $author = null;
 
     /**
      * @var mixed|Album|null
      */
     private $album;
-
     private array $albums = [];
 
     /**

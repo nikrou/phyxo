@@ -179,7 +179,6 @@ class CommentRepository extends ServiceEntityRepository
             $qb->where($qb->expr()->notIn('ia.album', $filter_params['forbidden_categories']));
         }
 
-
         if (isset($filter_params['album_ids'])) {
             $qb->where($qb->expr()->in('ia.album', $filter_params['album_ids']));
         }

@@ -21,7 +21,6 @@ use Doctrine\Persistence\ManagerRegistry;
 class TagRepository extends ServiceEntityRepository
 {
     use MaxLastModifiedTrait;
-
     use ValidatedConditionTrait;
 
     public function __construct(ManagerRegistry $registry)

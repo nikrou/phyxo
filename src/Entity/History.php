@@ -29,7 +29,6 @@ class History
     final public const SECTION_BEST_RATED = 'best_rated';
     final public const SECTION_RECENT_PICS = 'recent_pics';
     final public const SECTION_RECENT_ALBUMS = 'recent_cats';
-
     final public const IMAGE_TYPE_PICTURE = 'picture';
     final public const IMAGE_TYPE_HIGH = 'high';
     final public const IMAGE_TYPE_OTHER = 'other';

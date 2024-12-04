@@ -11,8 +11,6 @@
 
 namespace Phyxo\Functions;
 
-use App\Repository\ConfigRepository;
-
 class Upload
 {
     public static function get_upload_form_config()

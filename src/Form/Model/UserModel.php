@@ -21,7 +21,6 @@ class UserModel
     #[Assert\NotBlank(message: 'Please enter your password')]
     private ?string $password = null;
 
-
     #[Assert\Email]
     private ?string $mail_address = null;
 

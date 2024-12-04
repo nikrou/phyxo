@@ -118,7 +118,7 @@ class Tag
                     $url = $service->getRouter()->generate('images_by_tags', ['tag_ids' => Utils::tagToUrl($tags_by_id[$tag_id])]);
                     $page_url = $service->getRouter()->generate('picture', ['image_id' => $image->getId(), 'type' => 'tags', 'element_id' => Utils::tagToUrl($tags_by_id[$tag_id])]);
                     $image_tags[] = [
-                        'id' => (int)$tag_id,
+                        'id' => (int) $tag_id,
                         'url' => $url,
                         'page_url' => $page_url,
                     ];
@@ -183,7 +183,7 @@ class Tag
 
         for ($i = 0; $i < count($tags); $i++) {
             if (!empty($params['sort_by_counter'])) {
-                $tags[$i]['counter'] = (int)$tags[$i]['counter'];
+                $tags[$i]['counter'] = (int) $tags[$i]['counter'];
             }
             //$tags[$i]['url'] = $service->getRouter()->generate('images_by_tags', ['tag_ids' => $tags[$i]->toUrl()]);
         }

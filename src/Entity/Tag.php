@@ -45,9 +45,7 @@ class Tag
      */
     #[ORM\OneToMany(targetEntity: ImageTag::class, mappedBy: 'tag', cascade: ['persist', 'remove'])]
     private Collection $imageTags;
-
     private int $counter = 0;
-
     private int $level = 0;
 
     /**

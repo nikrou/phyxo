@@ -31,18 +31,17 @@ class UserInfos
     final public const DEFAULT_SHOW_NB_COMMENTS = false;
     final public const DEFAULT_SHOW_NB_HITS = false;
     final public const DEFAULT_ENABLED_HIGH = false;
-
     private int $nb_total_images;
+
     /**
      * @var int[] $forbidden_albums
      */
-
     private array $forbidden_albums = [];
+
     /**
      * @var int[] $image_access_list
      */
     private array $image_access_list = [];
-
     private string $image_access_type = 'NOT IN';
 
     #[ORM\Id]
