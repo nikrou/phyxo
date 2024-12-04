@@ -35,9 +35,27 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class Server
 {
-    private $upload_dir, $tagMapper, $commentMapper, $appUserService, $userMapper, $albumMapper, $rateMapper, $searchMapper, $imageMapper;
-    private $phyxoVersion, $conf, $router, $image_std_params, $userManager, $passwordHasher, $pem_url, $security;
-    private $params, $request, $managerRegistry, $imageLibrary;
+    private $upload_dir;
+    private $tagMapper;
+    private $commentMapper;
+    private $appUserService;
+    private $userMapper;
+    private $albumMapper;
+    private $rateMapper;
+    private $searchMapper;
+    private $imageMapper;
+    private $phyxoVersion;
+    private $conf;
+    private $router;
+    private $image_std_params;
+    private $userManager;
+    private $passwordHasher;
+    private $pem_url;
+    private $security;
+    private $params;
+    private $request;
+    private $managerRegistry;
+    private $imageLibrary;
     private UserProvider $userProvider;
     private array $_methods = [];
     final public const WS_PARAM_ACCEPT_ARRAY = 0x010000;
@@ -572,7 +590,7 @@ class Server
     {
         $methods = array_filter(
             $service->_methods,
-            fn($m) => !isset($m['options']['hidden']) || !$m['options']['hidden']
+            fn ($m) => !isset($m['options']['hidden']) || !$m['options']['hidden']
         );
         return ['methods' => array_keys($methods)];
     }

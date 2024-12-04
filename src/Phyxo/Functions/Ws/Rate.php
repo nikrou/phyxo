@@ -23,7 +23,7 @@ class Rate
      *    @option int user_id
      *    @option string anonymous_id (optional)
      */
-    function delete($params, Server $service)
+    public function delete($params, Server $service)
     {
         $changes = $service->getManagerRegistry()->getRepository(EntityRate::class)->deleteWithConditions(
             $params['user_id'],

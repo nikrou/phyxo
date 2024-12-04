@@ -492,7 +492,7 @@ class PictureController extends AbstractController
                 implode(
                     ',',
                     array_map(
-                        fn($tag) => $tag->getId(),
+                        fn ($tag) => $tag->getId(),
                         $tags
                     )
                 )

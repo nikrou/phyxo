@@ -398,7 +398,7 @@ class Album
 
     public function addImageAlbum(ImageAlbum $imageAlbum): self
     {
-        $predicate = fn($key, $element) => $element->getImage()->getId() === $imageAlbum->getImage()->getId();
+        $predicate = fn ($key, $element) => $element->getImage()->getId() === $imageAlbum->getImage()->getId();
 
         if (!$this->imageAlbums->exists($predicate)) {
             $this->imageAlbums[] = $imageAlbum;
@@ -410,7 +410,7 @@ class Album
 
     public function removeImageAlbum(ImageAlbum $imageAlbum): self
     {
-        $predicate = fn($key, $element) => $element->getImage()->getId() === $imageAlbum->getImage()->getId();
+        $predicate = fn ($key, $element) => $element->getImage()->getId() === $imageAlbum->getImage()->getId();
 
         if ($this->imageAlbums->exists($predicate)) {
             $this->imageAlbums->removeElement($imageAlbum);

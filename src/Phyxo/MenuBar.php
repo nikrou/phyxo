@@ -127,7 +127,7 @@ class MenuBar
                     $this->appUserService->getUser(),
                     $this->items,
                     $this->conf['menubar_tag_cloud_items_number'],
-                    array_map(fn($tag) => $tag->getId(), $this->tags)
+                    array_map(fn ($tag) => $tag->getId(), $this->tags)
                 );
 
                 $tags = $this->tagMapper->addLevelToTags($tags);
@@ -137,7 +137,7 @@ class MenuBar
                         [
                             'U_ADD' => $this->router->generate(
                                 'images_by_tags',
-                                ['tag_ids' => implode('/', array_map(fn(EntityTag $tag) => $tag->toUrl(), array_merge($this->tags, [$tag])))]
+                                ['tag_ids' => implode('/', array_map(fn (EntityTag $tag) => $tag->toUrl(), array_merge($this->tags, [$tag])))]
                             ),
                             'URL' => $this->router->generate(
                                 'images_by_tags',

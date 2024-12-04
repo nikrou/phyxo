@@ -28,13 +28,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ImageCommentType extends AbstractType
 {
-    private $userMapper, $conf, $appUserService;
-
-    public function __construct(UserMapper $userMapper, Conf $conf, AppUserService $appUserService)
+    public function __construct(private UserMapper $userMapper, private Conf $conf, private AppUserService $appUserService)
     {
-        $this->userMapper = $userMapper;
-        $this->conf = $conf;
-        $this->appUserService = $appUserService;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void

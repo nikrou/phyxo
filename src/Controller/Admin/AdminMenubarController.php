@@ -92,7 +92,7 @@ class AdminMenubarController extends AbstractController
 
     private function makeConsecutive(array $blocks = [], array $orders = [], $step = 50): array
     {
-        uasort($orders, fn($a, $b) => abs($a) - abs($b));
+        uasort($orders, fn ($a, $b) => abs($a) - abs($b));
 
         $idx = 1;
         foreach ($blocks as $id => $block) {

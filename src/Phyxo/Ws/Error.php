@@ -12,6 +12,7 @@
 namespace Phyxo\Ws;
 
 use Phyxo\Functions\HTTP;
+
 class Error
 {
     private $code;

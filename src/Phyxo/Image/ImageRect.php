@@ -22,7 +22,10 @@ class ImageRect
      * @var int $r
      * @var int $b
      */
-    public $l, $t, $r, $b;
+    public $l;
+    public $t;
+    public $r;
+    public $b;
 
     /**
      * @param int[] $l width and height

@@ -55,8 +55,8 @@ class PhyxoInstaller
     public function availableEngines()
     {
         return array_map(
-            fn($dblayer) => $dblayer['engine'],
-            array_filter($this->dblayers, fn($dblayer) => (isset($dblayer['function_available']) && function_exists($dblayer['function_available']))
+            fn ($dblayer) => $dblayer['engine'],
+            array_filter($this->dblayers, fn ($dblayer) => (isset($dblayer['function_available']) && function_exists($dblayer['function_available']))
             || (isset($dblayer['class_available']) && class_exists($dblayer['class_available'])))
         );
     }

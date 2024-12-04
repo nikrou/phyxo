@@ -23,10 +23,15 @@ use Symfony\Component\Yaml\Yaml;
 class Plugins extends Extensions
 {
     final public const CONFIG_FILE = 'config.yaml';
-    private $fs_plugins = [], $db_plugins = [], $server_plugins = [];
-    private $fs_plugins_retrieved = false, $db_plugins_retrieved = false, $server_plugins_retrieved = false;
+    private $fs_plugins = [];
+    private $db_plugins = [];
+    private $server_plugins = [];
+    private $fs_plugins_retrieved = false;
+    private $db_plugins_retrieved = false;
+    private $server_plugins_retrieved = false;
     private array $default_plugins = [];
-    private $plugins_root_path, $userMapper;
+    private $plugins_root_path;
+    private $userMapper;
 
     public function __construct(private readonly PluginRepository $pluginRepository, UserMapper $userMapper)
     {

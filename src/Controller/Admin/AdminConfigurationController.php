@@ -432,7 +432,7 @@ class AdminConfigurationController extends AbstractController
                         }
 
                         // there is no rank outside categories
-                        $order_by = array_filter($order_by, fn($order) => json_encode($order) !== json_encode(['rank', 'ASC']));
+                        $order_by = array_filter($order_by, fn ($order) => json_encode($order) !== json_encode(['rank', 'ASC']));
                         if (json_encode($conf['order_by']) !== json_encode($order_by)) {
                             $conf->addOrUpdateParam('order_by', $order_by, 'json');
                             $conf_updated = true;

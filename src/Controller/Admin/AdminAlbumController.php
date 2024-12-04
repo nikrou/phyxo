@@ -569,7 +569,7 @@ class AdminAlbumController extends AbstractController
             }
 
             if (count($group_ids) > 0) {
-                $tpl_params['group_mail_options'] = array_filter($all_groups, fn($key) => in_array($key, $group_ids), ARRAY_FILTER_USE_KEY);
+                $tpl_params['group_mail_options'] = array_filter($all_groups, fn ($key) => in_array($key, $group_ids), ARRAY_FILTER_USE_KEY);
             }
         }
 

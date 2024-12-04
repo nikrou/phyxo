@@ -852,7 +852,7 @@ class Image
         foreach ($service->getTagMapper()->getRepository()->getTagsByImage($params['image_id']) as $tag) {
             $current_tags_ids[] = $tag->getId();
         }
-        $current_tags = array_map(fn($id) => '~~' . $id . '~~', $current_tags_ids);
+        $current_tags = array_map(fn ($id) => '~~' . $id . '~~', $current_tags_ids);
         $removed_tags = array_diff($current_tags, $params['tags']);
         $new_tags = array_diff($params['tags'], $current_tags);
 

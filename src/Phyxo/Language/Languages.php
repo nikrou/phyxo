@@ -319,7 +319,7 @@ class Languages extends Extensions
             if (!empty($main_filepath)) {
                 // @TODO: use native zip library ; use arobase before
                 if ($results = @$zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $extract_path, PCLZIP_OPT_REPLACE_NEWER)) {
-                    $errors = array_filter($results, fn($f) => ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory');
+                    $errors = array_filter($results, fn ($f) => ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory');
                     if (count($errors) > 0) {
                         throw new Exception("Error while extracting some files from archive");
                     }

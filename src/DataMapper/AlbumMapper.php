@@ -750,7 +750,7 @@ class AlbumMapper
             ];
         }
 
-        $map_callback = fn($m) => $albums[$m[1]]['rank'];
+        $map_callback = fn ($m) => $albums[$m[1]]['rank'];
 
         foreach ($albums as $id => $album) {
             /** @phpstan-ignore-next-line */

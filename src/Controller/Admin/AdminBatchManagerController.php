@@ -656,7 +656,7 @@ class AdminBatchManagerController extends AbstractController
             switch ($bulk_manager_filter['prefilter']) {
                 case 'caddie':
 
-                    $filter_sets[] = $this->user->getCaddies()->map(fn(Caddie $caddie) => $caddie->getImage()->getId())->toArray();
+                    $filter_sets[] = $this->user->getCaddies()->map(fn (Caddie $caddie) => $caddie->getImage()->getId())->toArray();
 
                     break;
 

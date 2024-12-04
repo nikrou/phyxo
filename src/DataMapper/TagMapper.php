@@ -144,7 +144,7 @@ class TagMapper
             $this->conf['show_pending_deleted_tags'] ?? false
         );
         foreach ($related_tags as $tag) {
-            $image_tag = $tag->getImageTags()->filter(fn(ImageTag $it) => $it->getTag()->getId() === $tag->getId())->first();
+            $image_tag = $tag->getImageTags()->filter(fn (ImageTag $it) => $it->getTag()->getId() === $tag->getId())->first();
 
             $tag->setRelatedImageTagInfos($image_tag);
             $tags[] = $tag;
@@ -172,7 +172,7 @@ class TagMapper
             $tag = $row[0];
             $tag->setCounter($row['counter']);
 
-            $image_tag = $tag->getImageTags()->filter(fn(ImageTag $it) => $it->getTag()->getId() === $tag->getId())->first();
+            $image_tag = $tag->getImageTags()->filter(fn (ImageTag $it) => $it->getTag()->getId() === $tag->getId())->first();
 
             $tag->setRelatedImageTagInfos($image_tag);
             $tags[] = $tag;
@@ -515,7 +515,7 @@ class TagMapper
             $image->fromArray(
                 array_filter(
                     $metadata,
-                    fn($m) => in_array($m, $update_fields),
+                    fn ($m) => in_array($m, $update_fields),
                     ARRAY_FILTER_USE_KEY
                 )
             );

@@ -331,7 +331,7 @@ class AdminHistoryController extends AbstractController
             if ($line->getTagIds()) {
                 $tags_string = preg_replace_callback(
                     '/(\d+)/',
-                    fn($m) => isset($name_of_tag[$m[1]]) ? $name_of_tag[$m[1]]['url'] : $m[1],
+                    fn ($m) => isset($name_of_tag[$m[1]]) ? $name_of_tag[$m[1]]['url'] : $m[1],
                     str_replace(
                         ',',
                         ', ',
