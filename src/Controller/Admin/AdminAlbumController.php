@@ -63,7 +63,7 @@ class AdminAlbumController extends AbstractController
         ImageAlbumRepository $imageAlbumRepository,
         ImageMapper $imageMapper,
         ManagerRegistry $managerRegistry,
-        int $parent_id = null
+        ?int $parent_id = null
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;

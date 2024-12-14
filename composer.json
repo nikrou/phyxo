@@ -74,10 +74,6 @@
 		}
 	},
 	"autoload": {
-		"exclude-from-classmap": [
-			"Symfony\\Bridge\\Twig\\NodeVisitor"
-		],
-		"files": [".overrides/TranslationDefaultDomainNodeVisitor.php"],
 		"psr-4": {
 			"Phyxo\\": "src/Phyxo/",
 			"App\\": "src/",
@@ -91,10 +87,10 @@
 		}
 	},
 	"scripts": {
-		"behat": "behat --stop-on-failure --suite=web",
-		"phpunit": "phpunit --testdox",
-		"phpstan": "phpstan analyse",
-    "rector": "rector process",
+		"behat": "@php behat --stop-on-failure --suite=web",
+		"phpunit": "@php phpunit --testdox",
+		"phpstan": "@php phpstan analyse",
+    "rector": "@php rector process",
 		"auto-scripts": {
 			"cache:clear": "symfony-cmd",
 			"assets:install %PUBLIC_DIR%": "symfony-cmd"

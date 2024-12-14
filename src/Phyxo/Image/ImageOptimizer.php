@@ -203,7 +203,7 @@ class ImageOptimizer
     /**
      * @return array{width: int, height: int, crop?: array{width: int, height: int, x: int, y: int}}
      */
-    public function getResizeDimensions(int $width, int $height, int $maxWidth, int $maxHeight, int $rotation = null, bool $crop = false, bool $followOrientation = true): array
+    public function getResizeDimensions(int $width, int $height, int $maxWidth, int $maxHeight, ?int $rotation = null, bool $crop = false, bool $followOrientation = true): array
     {
         $rotateForDimensions = false;
         if (!is_null($rotation) && in_array(abs($rotation), [90, 270])) {
@@ -275,7 +275,7 @@ class ImageOptimizer
     /**
      * @return array{source: string, destination: string, width: int, height: int, size: string, time: string|null, library: string}
      */
-    private function getResizeResult(string $destinationFilePath, int $width, int $height, float $time = null)
+    private function getResizeResult(string $destinationFilePath, int $width, int $height, ?float $time = null)
     {
         return [
             'source' => $this->sourceFilePath,

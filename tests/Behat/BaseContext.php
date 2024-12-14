@@ -71,7 +71,7 @@ abstract class BaseContext extends RawMinkContext implements Context
         }
     }
 
-    public function findByDataTestid(string $data_id, NodeElement $parent = null): NodeElement
+    public function findByDataTestid(string $data_id, ?NodeElement $parent = null): NodeElement
     {
         if (!$parent instanceof NodeElement) {
             $parent = $this->getSession()->getPage();

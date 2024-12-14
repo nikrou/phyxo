@@ -150,7 +150,7 @@ class DBContext implements Context
     public function givenImages(TableNode $table): void
     {
         foreach ($table->getHash() as $image) {
-            $image_params = array_filter($image, fn($k) => !in_array($k, ['album', 'tags']), ARRAY_FILTER_USE_KEY);
+            $image_params = array_filter($image, fn ($k) => !in_array($k, ['album', 'tags']), ARRAY_FILTER_USE_KEY);
 
             $this->addImage($image_params);
             if (!empty($image['album'])) {
@@ -372,7 +372,7 @@ class DBContext implements Context
     /**
      * @param array<string> $tags
      */
-    protected function addTagsToImage(array $tags, int $image_id, int $user_id = null, bool $validated = true): void
+    protected function addTagsToImage(array $tags, int $image_id, ?int $user_id = null, bool $validated = true): void
     {
         $tag_ids = [];
 
@@ -393,7 +393,7 @@ class DBContext implements Context
     /**
      * @param array<string> $tags
      */
-    protected function removeTagsFromImage(array $tags, int $image_id, int $user_id = null, bool $validated = true): void
+    protected function removeTagsFromImage(array $tags, int $image_id, ?int $user_id = null, bool $validated = true): void
     {
         $tag_ids = [];
 
@@ -436,7 +436,7 @@ class DBContext implements Context
                 $query = trim($query);
                 $query = str_replace($replaced, $replacing, $query);
 
-                $this->connection->query($query);
+                $this->connection->executeQuery($query);
                 $query = '';
             }
         }
