@@ -29,11 +29,7 @@ class AdminMenubarController extends AbstractController
     {
         $tpl_params = [];
 
-        if (is_null($conf['blk_menubar'])) {
-            $mb_conf = [];
-        } else {
-            $mb_conf = $conf['blk_menubar'];
-        }
+        $mb_conf = is_null($conf['blk_menubar']) ? [] : $conf['blk_menubar'];
 
         $menu = new BlockManager('menubar');
         $menu->loadDefaultBlocks();
@@ -67,11 +63,7 @@ class AdminMenubarController extends AbstractController
             $menu->loadRegisteredBlocks($eventDispatcher);
             $reg_blocks = $menu->getRegisteredBlocks();
 
-            if (is_null($conf['blk_menubar'])) {
-                $mb_conf = [];
-            } else {
-                $mb_conf = $conf['blk_menubar'];
-            }
+            $mb_conf = is_null($conf['blk_menubar']) ? [] : $conf['blk_menubar'];
 
             foreach ($mb_conf as $id => $pos) {
                 $hide = $request->request->get('hide_' . $id);
@@ -95,7 +87,7 @@ class AdminMenubarController extends AbstractController
         uasort($orders, fn ($a, $b) => abs($a) - abs($b));
 
         $idx = 1;
-        foreach ($blocks as $id => $block) {
+        foreach (array_keys($blocks) as $id) {
             if (!isset($orders[$id])) {
                 $orders[$id] = $idx * 50;
             }

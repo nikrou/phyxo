@@ -42,7 +42,7 @@ class FavoriteRepository extends ServiceEntityRepository
         $qb->where('f.user = :user_id');
         $qb->setParameter('user_id', $user_id);
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->leftJoin('f.image', 'i');
             $qb->leftJoin('i.imageAlbums', 'ia');
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));

@@ -43,7 +43,7 @@ class TablePrefixSubscriber implements EventSubscriberInterface
 
             $classMetadata->setSequenceGeneratorDefinition($newDefinition);
             $em = $event->getEntityManager();
-            if (isset($classMetadata->idGenerator)) {
+            if ($classMetadata->idGenerator !== null) {
                 $sequenceGenerator = new SequenceGenerator(
                     $em->getConfiguration()->getQuoteStrategy()->getSequenceName(
                         $newDefinition,

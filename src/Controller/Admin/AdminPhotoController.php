@@ -69,7 +69,7 @@ class AdminPhotoController extends AbstractController
         ImageAlbumRepository $imageAlbumRepository,
         RateRepository $rateRepository,
         ManagerRegistry $managerRegistry,
-        int $category_id = null
+        ?int $category_id = null
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -113,12 +113,12 @@ class AdminPhotoController extends AbstractController
 
             // thumbnail for albums
             $no_longer_thumbnail_for = array_diff($represented_albums, $request->request->all('represent'));
-            if (count($no_longer_thumbnail_for) > 0) {
+            if ($no_longer_thumbnail_for !== []) {
                 $albumMapper->setRandomRepresentant($no_longer_thumbnail_for);
             }
 
             $new_thumbnail_for = array_diff($request->request->all('represent'), $represented_albums);
-            if (count($new_thumbnail_for) > 0) {
+            if ($new_thumbnail_for !== []) {
                 $albumMapper->getRepository()->updateAlbums(['representative_picture_id' => $image_id], $new_thumbnail_for);
             }
 
@@ -221,14 +221,12 @@ class AdminPhotoController extends AbstractController
         $url_img = '';
         if ($category_id && in_array($category_id, $authorizeds)) {
             $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'album', 'element_id' => $category_id]);
-        } else {
-            if (count($authorizeds) > 0) {
-                $album_id = $authorizeds[0];
-                $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'album', 'element_id' => $cache_albums[$album_id]->getId()]);
-            }
+        } elseif ($authorizeds !== []) {
+            $album_id = $authorizeds[0];
+            $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'album', 'element_id' => $cache_albums[$album_id]->getId()]);
         }
 
-        if (!empty($url_img)) {
+        if ($url_img !== '' && $url_img !== '0') {
             $tpl_params['U_JUMPTO'] = $url_img;
         }
 
@@ -254,7 +252,7 @@ class AdminPhotoController extends AbstractController
         UserMapper $userMapper,
         ImageMapper $imageMapper,
         ImageAlbumRepository $imageAlbumRepository,
-        int $category_id = null
+        ?int $category_id = null
     ): Response {
         $imageMapper->deleteElements([$image_id], true);
         $userMapper->invalidateUserCache();
@@ -275,7 +273,7 @@ class AdminPhotoController extends AbstractController
 
         $authorizeds = array_diff($image_albums, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums());
 
-        if (count($authorizeds) > 0) {
+        if ($authorizeds !== []) {
             return $this->redirectToRoute('admin_album', ['album_id' => $authorizeds[0]]);
         }
 
@@ -284,7 +282,7 @@ class AdminPhotoController extends AbstractController
         return $this->redirectToRoute('admin_home');
     }
 
-    public function syncMetadata(int $image_id, AppUserService $appUserService, TagMapper $tagMapper, TranslatorInterface $translator, int $category_id = null): Response
+    public function syncMetadata(int $image_id, AppUserService $appUserService, TagMapper $tagMapper, TranslatorInterface $translator, ?int $category_id = null): Response
     {
         $tagMapper->sync_metadata([$image_id], $appUserService->getUser());
         $this->addFlash('success', $translator->trans('Metadata synchronized from file', [], 'admin'));
@@ -299,7 +297,7 @@ class AdminPhotoController extends AbstractController
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
         DerivativeService $derivativeService,
-        int $category_id = null
+        ?int $category_id = null
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -307,7 +305,7 @@ class AdminPhotoController extends AbstractController
         $image = $imageMapper->getRepository()->find($image_id);
 
         if ($request->isMethod('POST')) {
-            if (strlen($request->request->get('l')) === 0) {
+            if ((string) $request->request->get('l') === '') {
                 $image->setCoi('');
             } else {
                 $image->setCoi(
@@ -372,7 +370,7 @@ class AdminPhotoController extends AbstractController
         ImageLibraryGuesser $imageLibraryGuesser,
         DerivativeService $derivativeService,
         string $rootProjectDir,
-        int $album_id = null,
+        ?int $album_id = null,
     ) {
         $tpl_params = [];
         $this->translator = $translator;

@@ -25,10 +25,7 @@ class UserToUserInfosTransformer implements DataTransformerInterface
     {
     }
 
-    /**
-     * @param UserInfos $userInfos
-     */
-    public function transform($userInfos): UserInfosModel
+    public function transform(mixed $userInfos): UserInfosModel
     {
         if (!$userInfos instanceof UserInfos) {
             throw new LogicException('The UserInfosType can only be used with UserInfos objects');

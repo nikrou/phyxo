@@ -41,7 +41,7 @@ class Languages extends Extensions
     /**
      * Perform requested actions
      */
-    public function performAction(string $action, string $language_id, string $revision_id = null)
+    public function performAction(string $action, string $language_id, ?string $revision_id = null)
     {
         if (!$this->db_languages_retrieved) {
             $this->getDbLanguages();
@@ -159,7 +159,8 @@ class Languages extends Extensions
                 if (preg_match("|Author URI:\\s*(https?:\\/\\/.+)|", $language_data, $val)) {
                     $language['author uri'] = trim($val[1]);
                 }
-                if (!empty($language['uri']) and strpos($language['uri'], 'extension_view.php?eid=')) {
+                /** @phpstan-ignore-next-line */
+                if (isset($language['uri']) && ($language['uri'] !== '' && $language['uri'] !== '0') && strpos($language['uri'], 'extension_view.php?eid=')) {
                     [, $extension] = explode('extension_view.php?eid=', $language['uri']);
                     if (is_numeric($extension)) {
                         $language['extension'] = $extension;
@@ -216,10 +217,10 @@ class Languages extends Extensions
                     }
                 }
             } catch (Exception $e) {
-                throw new Exception($e->getMessage());
+                throw new Exception($e->getMessage(), $e->getCode(), $e);
             }
 
-            if (empty($versions_to_check)) {
+            if ($versions_to_check === []) {
                 return [];
             }
 
@@ -239,7 +240,7 @@ class Languages extends Extensions
                 'lang' => 'en_GB', // @TODO: inject user language
                 'get_nb_downloads' => 'true',
             ]);
-            if (!empty($languages_to_check)) {
+            if ($languages_to_check !== []) {
                 if ($new) {
                     $get_data['extension_exclude'] = implode(',', $languages_to_check);
                 } else {
@@ -260,7 +261,7 @@ class Languages extends Extensions
                 }
                 uasort($this->server_languages, $this->extensionNameCompare(...));
             } catch (Exception $e) {
-                throw new Exception($e->getMessage());
+                throw new Exception($e->getMessage(), $e->getCode(), $e);
             }
 
             $this->server_languages_retrieved = true;
@@ -283,7 +284,7 @@ class Languages extends Extensions
         try {
             $this->download($archive, $get_data);
         } catch (Exception $e) {
-            throw new Exception("Cannot download language archive");
+            throw new Exception("Cannot download language archive", $e->getCode(), $e);
         }
 
         try {
@@ -295,7 +296,7 @@ class Languages extends Extensions
                 $this->performAction('update', $language_id);
             }
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         } finally {
             unlink($archive);
         }
@@ -320,7 +321,7 @@ class Languages extends Extensions
                 // @TODO: use native zip library ; use arobase before
                 if ($results = @$zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $extract_path, PCLZIP_OPT_REPLACE_NEWER)) {
                     $errors = array_filter($results, fn ($f) => ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory');
-                    if (count($errors) > 0) {
+                    if ($errors !== []) {
                         throw new Exception("Error while extracting some files from archive");
                     }
                 } else {

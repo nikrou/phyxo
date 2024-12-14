@@ -11,6 +11,7 @@
 
 namespace App\DataMapper;
 
+use App\Entity\Image;
 use Exception;
 use DateTime;
 use App\Entity\Album;
@@ -111,8 +112,8 @@ class AlbumMapper
                     'TITLE' => $title,
                     'URL' => $this->router->generate('album', ['album_id' => $album->getId()]),
                     'LEVEL' => substr_count((string) $album->getGlobalRank(), '.') + 1,
-                    'SELECTED' => isset($selected_album['id']) && $selected_album['id'] === $album->getId() ? true : false,
-                    'IS_UPPERCAT' => isset($selected_album['id_uppercat']) && $selected_album['id_uppercat'] === $album->getId() ? true : false,
+                    'SELECTED' => isset($selected_album['id']) && $selected_album['id'] === $album->getId(),
+                    'IS_UPPERCAT' => isset($selected_album['id_uppercat']) && $selected_album['id_uppercat'] === $album->getId(),
                     'count_images' => $userCacheAlbum->getCountImages(),
                     'icon_ts' => ''
                 ]
@@ -204,7 +205,7 @@ class AlbumMapper
     /**
      * Generates breadcrumb from albums list.
      */
-    public function getAlbumDisplayName(array $album_informations, string $url = null): string
+    public function getAlbumDisplayName(array $album_informations, ?string $url = null): string
     {
         $output = '';
         $is_first = true;
@@ -287,7 +288,7 @@ class AlbumMapper
         if ($single_link) {
             $single_url = $this->router->generate('album', ['album_id' => $all_albums[count($all_albums) - 1]]);
             $output .= '<a href="' . $single_url . '"';
-            if (!empty($link_class)) {
+            if ($link_class !== '' && $link_class !== '0') {
                 $output .= ' class="' . $link_class . '"';
             }
             $output .= '>';
@@ -344,7 +345,7 @@ class AlbumMapper
      */
     public function displaySelectAlbumsWrapper(array $albums, array $selecteds, string $blockname, bool $fullname = true): array
     {
-        usort($albums, $this->globalRankCompare(...));
+        usort($albums, self::globalRankCompare(...));
 
         return $this->displaySelectAlbums($albums, $selecteds, $blockname, $fullname);
     }
@@ -353,9 +354,9 @@ class AlbumMapper
      * Change the parent album of the given albums.
      * @param int[] $ids
      */
-    public function moveAlbums(array $ids, int $new_parent = null): void
+    public function moveAlbums(array $ids, ?int $new_parent = null): void
     {
-        if (count($ids) === 0) {
+        if ($ids === []) {
             return;
         }
 
@@ -484,7 +485,7 @@ class AlbumMapper
             foreach ($this->albumRepository->findBy(['id' => $album_ids]) as $album) {
                 $all_albums[] = $album;
             }
-            usort($all_albums, $this->globalRankCompare(...));
+            usort($all_albums, self::globalRankCompare(...));
 
             foreach ($all_albums as $album) {
                 $is_top = true;
@@ -513,7 +514,7 @@ class AlbumMapper
             /** @var Album[] $parent_albums */
             $parent_albums = [];
 
-            if (count($parent_ids) > 0) {
+            if ($parent_ids !== []) {
                 foreach ($this->albumRepository->findBy(['id' => $parent_ids]) as $album) {
                     $parent_albums[] = $album->getId();
                 }
@@ -574,7 +575,7 @@ class AlbumMapper
     public function addPermissionOnAlbum(array $album_ids, array $user_ids, bool $apply_on_sub = false): void
     {
         // check for emptiness
-        if (count($album_ids) === 0 || count($user_ids) === 0) {
+        if ($album_ids === [] || $user_ids === []) {
             return;
         }
 
@@ -584,7 +585,7 @@ class AlbumMapper
             $cat_ids = array_merge($cat_ids, $this->albumRepository->getSubcatIds($album_ids));
         }
 
-        if (count($cat_ids) > 0) {
+        if ($cat_ids !== []) {
             $users = $this->userRepository->findBy(['id' => $user_ids]);
 
             foreach ($this->albumRepository->findByIdsAndStatus($cat_ids, Album::STATUS_PRIVATE) as $album) {
@@ -685,7 +686,7 @@ class AlbumMapper
     /**
      * Callback used for sorting by global_rank
      */
-    public function globalRankCompare(Album $a, Album $b): int
+    public static function globalRankCompare(Album $a, Album $b): int
     {
         return strnatcasecmp((string) $a->getGlobalRank(), (string) $b->getGlobalRank());
     }
@@ -737,6 +738,7 @@ class AlbumMapper
         $current_parent = null;
 
         foreach ($this->getCacheAlbums() as $id => $album) {
+            /** @phpstan-ignore-next-line */
             if (!is_null($current_parent) && $album->getParent()->getId() !== $current_parent->getId()) {
                 $current_rank = 0;
                 $current_parent = $album->getParent();
@@ -804,8 +806,8 @@ class AlbumMapper
                 }
             }
 
-            if (count($to_compare) > 0) {
-                $ref_dates[$album_id] = 'max' == $minmax ? max($to_compare) : min($to_compare);
+            if ($to_compare !== []) {
+                $ref_dates[$album_id] = 'max' === $minmax ? max($to_compare) : min($to_compare);
             } else {
                 $ref_dates[$album_id] = null;
             }
@@ -911,7 +913,7 @@ class AlbumMapper
      */
     public function deleteAlbums(array $ids = []): void
     {
-        if (count($ids) === 0) {
+        if ($ids === []) {
             return;
         }
 
@@ -971,7 +973,7 @@ class AlbumMapper
      */
     public function moveImagesToAlbums(array $image_ids = [], array $album_ids = []): void
     {
-        if (count($image_ids) === 0) {
+        if ($image_ids === []) {
             return;
         }
 
@@ -983,7 +985,7 @@ class AlbumMapper
         // let's first break links with all old albums but their "storage album"
         $this->imageAlbumRepository->deleteByAlbum($album_ids, $image_ids);
 
-        if (count($new_album_ids) > 0) {
+        if ($new_album_ids !== []) {
             $this->associateImagesToAlbums($image_ids, $new_album_ids);
         }
     }
@@ -1039,11 +1041,11 @@ class AlbumMapper
             } elseif ($album->getRepresentativePictureId()) { // if a representative picture is set, it has priority
                 $image_id = $album->getRepresentativePictureId();
             } elseif ($this->conf['allow_random_representative']) { // searching a random representant among elements in sub-categories
-                if ($random_image = $this->imageRepository->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenAlbums())) {
+                if (($random_image = $this->imageRepository->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenAlbums())) instanceof Image) {
                     $image_id = $random_image->getId();
                 }
             } elseif ($userCacheAlbum->getCountAlbums() > 0 && $userCacheAlbum->getCountImages() > 0) { // searching a random representant among representant of sub-categories
-                if ($random_image = $this->getRepository()->findRandomRepresentantAmongSubAlbums($album->getUppercats())) {
+                if (($random_image = $this->getRepository()->findRandomRepresentantAmongSubAlbums($album->getUppercats())) instanceof Album) {
                     $image_id = $random_image->getId();
                 }
             }
@@ -1060,7 +1062,7 @@ class AlbumMapper
             unset($image_id);
         }
 
-        usort($album_thumbnails, $this->globalRankCompare(...));
+        usort($album_thumbnails, self::globalRankCompare(...));
 
         return [$album_thumbnails, $image_ids, $user_representative_updates_for];
     }
@@ -1082,31 +1084,29 @@ class AlbumMapper
         }
 
         $missing_image_ids = array_values(array_diff($image_ids, $bad_level_ids, array_keys($infos_of_images)));
-        if (count($missing_image_ids)) {
-            // problem: we must not display the thumbnail of a photo which has a higher privacy level than user privacy level
-            foreach ($missing_image_ids as $id) {
-                // * what is the represented album?
-                // * find a random photo matching user permissions
-                // * register it at user_representative_picture_id
-                // * set it as the representative_picture_id for the album
+        // problem: we must not display the thumbnail of a photo which has a higher privacy level than user privacy level
+        foreach ($missing_image_ids as $id) {
+            // * what is the represented album?
+            // * find a random photo matching user permissions
+            // * register it at user_representative_picture_id
+            // * set it as the representative_picture_id for the album
 
-                foreach ($albums as $album) {
-                    if ($album->getRepresentativePictureId() === $id) {
-                        // searching a random representant among elements in sub-categories
-                        $random_image = $this->imageRepository->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenAlbums());
+            foreach ($albums as $album) {
+                if ($album->getRepresentativePictureId() === $id) {
+                    // searching a random representant among elements in sub-categories
+                    $random_image = $this->imageRepository->getRandomImageInAlbum($album->getId(), $album->getUppercats(), $user->getUserInfos()->getForbiddenAlbums());
 
-                        if (!is_null($random_image) && !in_array($random_image->getId(), $image_ids)) {
-                            $infos_of_images[$random_image->getId()] = [$random_image->toArray(), 'image' => $random_image];
+                    if (!is_null($random_image) && !in_array($random_image->getId(), $image_ids)) {
+                        $infos_of_images[$random_image->getId()] = [$random_image->toArray(), 'image' => $random_image];
 
-                            if ($this->conf['representative_cache_on_level']) {
-                                // @TODO save representative picture in cache
-                            }
-
-                            $album->setRepresentativePictureId($random_image->getId());
+                        if ($this->conf['representative_cache_on_level']) {
+                            // @TODO save representative picture in cache
                         }
 
-                        $this->getRepository()->addOrUpdateAlbum($album);
+                        $album->setRepresentativePictureId($random_image->getId());
                     }
+
+                    $this->getRepository()->addOrUpdateAlbum($album);
                 }
             }
         }

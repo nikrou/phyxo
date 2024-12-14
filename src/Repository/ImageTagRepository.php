@@ -82,7 +82,7 @@ class ImageTagRepository extends ServiceEntityRepository
 
         $this->addValidatedCondition($qb, $user_id, $show_pending_added_tags, $show_pending_deleted_tags);
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->leftJoin('it.image', 'i');
             $qb->leftJoin('i.imageAlbums', 'ia');
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));

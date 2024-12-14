@@ -20,7 +20,7 @@ class Language
     {
         $content = '';
 
-        if (!empty($dirname)) {
+        if ($dirname !== '' && $dirname !== '0') {
             $filename = $dirname . '/' . $filename;
         }
 
@@ -64,7 +64,7 @@ class Language
                 return -1;
             } // Does not match any model
             for ($j = 0; $j < $n; $j++) { // n bytes matching 10bbbbbb follow ?
-                if ((++$i == strlen($Str)) || ((ord($Str[$i]) & 0xC0) != 0x80)) {
+                if ((++$i === strlen($Str)) || ((ord($Str[$i]) & 0xC0) != 0x80)) {
                     return -1;
                 }
             }

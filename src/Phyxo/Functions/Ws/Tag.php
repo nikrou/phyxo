@@ -96,7 +96,7 @@ class Tag
 
         $image_tag_map = [];
         // build list of image ids with associated tags per image
-        if (count($image_ids) > 0 && !$params['tag_mode_and']) {
+        if ($image_ids !== [] && !$params['tag_mode_and']) {
             $image_tag_map = [];
             foreach ($service->getTagMapper()->getRepository()->findImageTags($tag_ids, $image_ids) as $tag) {
                 $image_tag_map[$tag->getImage()->getId()][] = $tag->getId();
@@ -104,7 +104,7 @@ class Tag
         }
 
         $images = [];
-        if (!empty($image_ids)) {
+        if ($image_ids !== []) {
             $rank_of = array_flip($image_ids);
 
             foreach ($service->getImageMapper()->getRepository()->findBy(['id' => $image_ids]) as $image) {
@@ -180,8 +180,9 @@ class Tag
         } else {
             usort($tags, [$service->getTagMapper(), 'alphaCompare']);
         }
+        $counter = count($tags);
 
-        for ($i = 0; $i < count($tags); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if (!empty($params['sort_by_counter'])) {
                 $tags[$i]['counter'] = (int) $tags[$i]['counter'];
             }

@@ -53,7 +53,7 @@ class UserMailNotificationRepository extends ServiceEntityRepository
             $qb->setParameter('enabled', $enabled_filter_value);
         }
 
-        if (count($check_keys) > 0) {
+        if ($check_keys !== []) {
             $qb->andWhere($qb->expr()->in('n.check_key', $check_keys));
         }
 

@@ -98,11 +98,9 @@ class CommentMapper
             $comm['author_id'] = $this->userMapper->getDefaultUser()->getId();
 
             // if a guest try to use the name of an already existing user, he must be rejected
-            if ($comm['author'] !== 'guest') {
-                if ($this->userRepository->isUserExists($comm['author'])) {
-                    $infos[] = $this->translator->trans('This login is already used by another user');
-                    $comment_action = 'reject';
-                }
+            if ($comm['author'] !== 'guest' && $this->userRepository->isUserExists($comm['author'])) {
+                $infos[] = $this->translator->trans('This login is already used by another user');
+                $comment_action = 'reject';
             }
         } else {
             $comm['author'] = $this->getUser()->getUserIdentifier();
@@ -131,7 +129,7 @@ class CommentMapper
 
         // email
         if (empty($comm['email'])) {
-            if (!empty($this->getUser()->getMailAddress())) {
+            if (!in_array($this->getUser()->getMailAddress(), [null, '', '0'], true)) {
                 $comm['email'] = $this->getUser()->getMailAddress();
             } elseif ($this->conf['comments_email_mandatory']) {
                 $infos[] = $this->translator->trans('Email address is missing. Please specify an email address.');
@@ -147,7 +145,7 @@ class CommentMapper
             $anti_flood_date = new DateTime();
             $anti_flood_date->sub(new DateInterval(sprintf('PT%dS', $this->conf['anti-flood-time'])));
 
-            if ($this->getRepository()->doestAuthorPostMessageAfterThan($comm['author_id'], $anti_flood_date, !$this->appUserService->isGuest() ? $anonymous_id : md5('::1'))) {
+            if ($this->getRepository()->doestAuthorPostMessageAfterThan($comm['author_id'], $anti_flood_date, $this->appUserService->isGuest() ? md5('::1') : $anonymous_id)) {
                 $infos[] = $this->translator->trans('Anti-flood system : please wait for a moment before trying to post another comment');
                 $comment_action = 'reject';
             }
@@ -161,8 +159,8 @@ class CommentMapper
             ]));
 
             $this->userCacheRepository->invalidateNumberAvailableComments();
-            if (($this->conf['email_admin_on_comment'] && 'validate' == $comment_action)
-                || ($this->conf['email_admin_on_comment_validation'] && 'moderate' == $comment_action)) {
+            if (($this->conf['email_admin_on_comment'] && 'validate' === $comment_action)
+                || ($this->conf['email_admin_on_comment_validation'] && 'moderate' === $comment_action)) {
                 $this->eventDispatcher->dispatch(new CommentEvent($comm, $comment_action));
             }
         }

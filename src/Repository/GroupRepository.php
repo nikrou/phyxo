@@ -115,7 +115,7 @@ class GroupRepository extends ServiceEntityRepository
             $qb->setParameter('name', $name);
         }
 
-        if (count($group_ids) > 0) {
+        if ($group_ids !== []) {
             $qb->andWhere($qb->expr()->in('g.id', $group_ids));
         }
 
@@ -145,7 +145,7 @@ class GroupRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('g');
         $qb->leftJoin('g.group_access', 'ga');
 
-        if (count($album_ids) > 0) {
+        if ($album_ids !== []) {
             $qb->where($qb->expr()->in('ga.cat_id', $album_ids));
         }
 

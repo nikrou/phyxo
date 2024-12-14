@@ -74,7 +74,7 @@ class Updates
                 return false;
             }
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -121,7 +121,7 @@ class Updates
                 file_put_contents($zip_file, $response->getContent());
             }
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -145,7 +145,7 @@ class Updates
                 continue;
             }
         }
-        if (count($not_writable) > 0) {
+        if ($not_writable !== []) {
             $message = 'Some files or directories are not writable';
             $message .= '<pre>' . implode("\n", $not_writable) . '</pre>';
             throw new Exception($message);
@@ -193,10 +193,10 @@ class Updates
                 }
             }
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
 
-        if (empty($versions_to_check)) {
+        if ($versions_to_check === []) {
             return false;
         }
 
@@ -222,7 +222,7 @@ class Updates
         $url .= '?' . http_build_query($get_data, '', '&');
 
         $post_data = [];
-        if (!empty($ext_to_check)) {
+        if ($ext_to_check !== []) {
             $post_data['extension_include'] = implode(',', array_keys($ext_to_check));
         }
 
@@ -256,7 +256,7 @@ class Updates
             $this->checkMissingExtensions($ext_to_check);
             return [];
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -270,7 +270,7 @@ class Updates
                     $all_versions = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
                 }
             } catch (Exception $e) {
-                throw new Exception($e->getMessage());
+                throw new Exception($e->getMessage(), $e->getCode(), $e);
             }
             if (!empty($all_versions)) {
                 $new_version = trim((string) $all_versions[0]['version']);
@@ -322,6 +322,7 @@ class Updates
                 }
             }
         }
+        return null;
     }
 
     protected function checkMissingExtensions($missing)
@@ -329,8 +330,7 @@ class Updates
         foreach ($missing as $id => $type) {
             $default = 'default_' . $type;
             foreach ($this->getType($type)->getFsExtensions() as $ext_id => $ext) {
-                if (isset($ext['extension']) and $id == $ext['extension']
-                    and !in_array($ext_id, $this->$default)) {
+                if (isset($ext['extension']) && $id == $ext['extension'] && !in_array($ext_id, $this->$default)) {
                     $this->missing[$type][] = $ext;
                     break;
                 }

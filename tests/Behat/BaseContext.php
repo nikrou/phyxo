@@ -62,7 +62,7 @@ abstract class BaseContext extends RawMinkContext implements Context
 
                 return;
             } catch (Exception $e) {
-                if ($i == $tries) {
+                if ($i === $tries) {
                     throw $e;
                 }
             }
@@ -73,7 +73,7 @@ abstract class BaseContext extends RawMinkContext implements Context
 
     public function findByDataTestid(string $data_id, NodeElement $parent = null): NodeElement
     {
-        if ($parent === null) {
+        if (!$parent instanceof NodeElement) {
             $parent = $this->getSession()->getPage();
         }
         $element = $parent->find('css', sprintf('*[data-testid="%s"]', $data_id));

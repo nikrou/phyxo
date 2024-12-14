@@ -50,7 +50,7 @@ class FavoriteController extends AbstractController
             $tpl_params['items'][] = $favorite->getImage()->getId();
         }
 
-        if (count($tpl_params['items']) > 0) {
+        if ($tpl_params['items'] !== []) {
             $tpl_params['favorite'] = ['U_FAVORITE' => $this->generateUrl('remove_all_favorites')];
 
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();

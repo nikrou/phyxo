@@ -157,7 +157,7 @@ class AdminGroupsController extends AbstractController
     public function action(Request $request, string $action, GroupRepository $groupRepository, TranslatorInterface $translator): Response
     {
         $group_selection = $request->request->all('group_selection');
-        if (count($group_selection) === 0) {
+        if ($group_selection === []) {
             $this->addFlash('error', $translator->trans('Select at least one group', [], 'admin'));
 
             return $this->redirectToRoute('admin_groups');

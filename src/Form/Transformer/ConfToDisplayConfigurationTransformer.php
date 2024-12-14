@@ -48,24 +48,6 @@ class ConfToDisplayConfigurationTransformer implements DataTransformerInterface
      */
     public function reverseTransform($displayConfigurationModel): array
     {
-        $partial_conf = [];
-        $partial_conf['menubar_filter_icon'] = ['value' => $displayConfigurationModel->getMenubarFilterIcon(), 'type' => 'boolean'];
-        $partial_conf['index_new_icon'] = ['value' => $displayConfigurationModel->getIndexNewIcon(), 'type' => 'boolean'];
-        $partial_conf['index_flat_icon'] = ['value' => $displayConfigurationModel->getIndexFlatIcon(), 'type' => 'boolean'];
-        $partial_conf['index_sort_order_input'] = ['value' => $displayConfigurationModel->getIndexSortOrderInput(), 'type' => 'boolean'];
-        $partial_conf['index_posted_date_icon'] = ['value' => $displayConfigurationModel->getIndexPostedDateIcon(), 'type' => 'boolean'];
-        $partial_conf['index_created_date_icon'] = ['value' => $displayConfigurationModel->getIndexCreatedDateIcon(), 'type' => 'boolean'];
-        $partial_conf['nb_categories_page'] = ['value' => $displayConfigurationModel->getNbCategoriesPage(), 'type' => 'integer'];
-
-        $partial_conf['picture_metadata_icon'] = ['value' => $displayConfigurationModel->getPictureMetadataIcon(), 'type' => 'boolean'];
-        $partial_conf['picture_download_icon'] = ['value' => $displayConfigurationModel->getPictureDownloadIcon(), 'type' => 'boolean'];
-        $partial_conf['picture_favorite_icon'] = ['value' => $displayConfigurationModel->getPictureFavoriteIcon(), 'type' => 'boolean'];
-        $partial_conf['picture_navigation_icons'] = ['value' => $displayConfigurationModel->getPictureNavigationIcons(), 'type' => 'boolean'];
-        $partial_conf['picture_navigation_thumb'] = ['value' => $displayConfigurationModel->getPictureNavigationThumb(), 'type' => 'boolean'];
-        $partial_conf['picture_menu'] = ['value' => $displayConfigurationModel->getPictureMenu(), 'type' => 'boolean'];
-
-        $partial_conf['picture_informations'] = ['value' => $displayConfigurationModel->getPictureInformations(), 'type' => 'json'];
-
-        return $partial_conf;
+        return ['menubar_filter_icon' => ['value' => $displayConfigurationModel->getMenubarFilterIcon(), 'type' => 'boolean'], 'index_new_icon' => ['value' => $displayConfigurationModel->getIndexNewIcon(), 'type' => 'boolean'], 'index_flat_icon' => ['value' => $displayConfigurationModel->getIndexFlatIcon(), 'type' => 'boolean'], 'index_sort_order_input' => ['value' => $displayConfigurationModel->getIndexSortOrderInput(), 'type' => 'boolean'], 'index_posted_date_icon' => ['value' => $displayConfigurationModel->getIndexPostedDateIcon(), 'type' => 'boolean'], 'index_created_date_icon' => ['value' => $displayConfigurationModel->getIndexCreatedDateIcon(), 'type' => 'boolean'], 'nb_categories_page' => ['value' => $displayConfigurationModel->getNbCategoriesPage(), 'type' => 'integer'], 'picture_metadata_icon' => ['value' => $displayConfigurationModel->getPictureMetadataIcon(), 'type' => 'boolean'], 'picture_download_icon' => ['value' => $displayConfigurationModel->getPictureDownloadIcon(), 'type' => 'boolean'], 'picture_favorite_icon' => ['value' => $displayConfigurationModel->getPictureFavoriteIcon(), 'type' => 'boolean'], 'picture_navigation_icons' => ['value' => $displayConfigurationModel->getPictureNavigationIcons(), 'type' => 'boolean'], 'picture_navigation_thumb' => ['value' => $displayConfigurationModel->getPictureNavigationThumb(), 'type' => 'boolean'], 'picture_menu' => ['value' => $displayConfigurationModel->getPictureMenu(), 'type' => 'boolean'], 'picture_informations' => ['value' => $displayConfigurationModel->getPictureInformations(), 'type' => 'json']];
     }
 }

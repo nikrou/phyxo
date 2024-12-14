@@ -77,7 +77,7 @@ class AdminUsersController extends AbstractController
         }
 
         $tpl_params['users'] = $users;
-        $tpl_params['all_users'] = join(',', $user_ids);
+        $tpl_params['all_users'] = implode(',', $user_ids);
         $tpl_params['ACTIVATE_COMMENTS'] = $conf['activate_comments'];
         $tpl_params['Double_Password'] = $conf['double_password_type_in_admin'];
 

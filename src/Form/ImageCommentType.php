@@ -54,7 +54,7 @@ class ImageCommentType extends AbstractType
             );
         }
 
-        if (!$this->userMapper->isClassicUser() || empty($this->appUserService->getUser()->getMailAddress())) {
+        if (!$this->userMapper->isClassicUser() || in_array($this->appUserService->getUser()->getMailAddress(), [null, '', '0'], true)) {
             $builder->add(
                 'mail_address',
                 EmailType::class,

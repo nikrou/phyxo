@@ -59,7 +59,7 @@ class AdminUpdateController extends AbstractController
         Plugins $plugins,
         Themes $themes,
         Languages $languages,
-        string $version = null,
+        ?string $version = null,
         int $step = 0
     ): Response {
         $tpl_params = [];

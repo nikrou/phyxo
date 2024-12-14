@@ -72,7 +72,7 @@ class DBContext implements Context
             $user = new User();
             $user->setUsername($userRow['username']);
             $user->setPassword($this->getContainer()->get('security.password_hasher')->hashPassword($user, $userRow['password']));
-            $user->addRole(User::getRoleFromStatus(!empty($userRow['status']) ? $userRow['status'] : User::STATUS_NORMAL));
+            $user->addRole(User::getRoleFromStatus(empty($userRow['status']) ? User::STATUS_NORMAL : $userRow['status']));
             if (!empty($userRow['mail_address'])) {
                 $user->setMailAddress($userRow['mail_address']);
             }
@@ -385,11 +385,7 @@ class DBContext implements Context
         }
 
         $image = $this->imageMapper->getRepository()->find($image_id);
-        if (!is_null($user_id)) {
-            $user = $this->userRepository->find($user_id);
-        } else {
-            $user = $this->userMapper->getDefaultUser();
-        }
+        $user = is_null($user_id) ? $this->userMapper->getDefaultUser() : $this->userRepository->find($user_id);
 
         $this->tagMapper->toBeValidatedTags($image, $tag_ids, $user, ImageTag::STATUS_TO_ADD, $validated);
     }
@@ -411,11 +407,7 @@ class DBContext implements Context
 
         $conf = $this->conf;
         $image = $this->imageMapper->getRepository()->find($image_id);
-        if (!is_null($user_id)) {
-            $user = $this->userRepository->find($user_id);
-        } else {
-            $user = $this->userMapper->getDefaultUser();
-        }
+        $user = is_null($user_id) ? $this->userMapper->getDefaultUser() : $this->userRepository->find($user_id);
 
         // if publish_tags_immediately (or delete_tags_immediately) is not set we consider its value is true
         if (isset($conf['publish_tags_immediately']) && $conf['publish_tags_immediately'] === false) {

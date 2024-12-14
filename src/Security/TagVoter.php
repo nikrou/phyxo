@@ -37,12 +37,7 @@ class TagVoter extends Voter
         if (!in_array($attribute, [self::ADD, self::DELETE])) {
             return false;
         }
-
-        if (!$subject instanceof Image) {
-            return false;
-        }
-
-        return true;
+        return $subject instanceof Image;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool

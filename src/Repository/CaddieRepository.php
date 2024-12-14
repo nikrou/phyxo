@@ -44,7 +44,7 @@ class CaddieRepository extends ServiceEntityRepository
     /**
      * @param int[] $image_ids
      */
-    public function deleteElements(array $image_ids, int $user_id = null): void
+    public function deleteElements(array $image_ids, ?int $user_id = null): void
     {
         $qb = $this->createQueryBuilder('c');
         $qb->delete();

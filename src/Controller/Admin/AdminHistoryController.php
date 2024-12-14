@@ -64,9 +64,9 @@ class AdminHistoryController extends AbstractController
         Conf $conf,
         HistorySummaryRepository $historySummaryRepository,
         HistoryRepository $historyRepository,
-        int $year = null,
-        int $month = null,
-        int $day = null
+        ?int $year = null,
+        ?int $month = null,
+        ?int $day = null
     ): Response {
         $tpl_params = [];
         $this->refreshSummary($historyRepository, $historySummaryRepository);
@@ -126,7 +126,7 @@ class AdminHistoryController extends AbstractController
         $min_x = min(array_keys($datas));
         $max_x = max(array_keys($datas));
 
-        if (count($datas) > 0) {
+        if ($datas !== []) {
             for ($i = $min_x; $i <= $max_x; $i++) {
                 if (!isset($datas[$i])) {
                     $datas[$i] = 0;
@@ -176,7 +176,7 @@ class AdminHistoryController extends AbstractController
         TagRepository $tagRepository,
         HistoryRepository $historyRepository,
         RouterInterface $router,
-        int $search_id = null
+        ?int $search_id = null
     ): Response {
         $tpl_params = [];
         $search = null;
@@ -307,10 +307,8 @@ class AdminHistoryController extends AbstractController
         $guest_id = $userMapper->getDefaultUser()->getId();
 
         foreach ($history_lines as $line) {
-            if ($line->getImageType() && $line->getImageType() === 'high') {
-                if (isset($image_infos[$line->getImage()->getId()]['filesize'])) {
-                    $summary['total_filesize'] += $image_infos[$line->getImage()->getId()]->getFilesize();
-                }
+            if ($line->getImageType() && $line->getImageType() === 'high' && isset($image_infos[$line->getImage()->getId()]['filesize'])) {
+                $summary['total_filesize'] += $image_infos[$line->getImage()->getId()]->getFilesize();
             }
 
             if ($line->getUser()->getId() === $guest_id) {
@@ -357,7 +355,7 @@ class AdminHistoryController extends AbstractController
         }
 
         $summary['nb_guests'] = 0;
-        if (count(array_keys($summary['guests_ip'])) > 0) {
+        if (array_keys($summary['guests_ip']) !== []) {
             $summary['nb_guests'] = count(array_keys($summary['guests_ip']));
 
             // we delete the "guest" from the $username_of hash so that it is avoided in next steps
@@ -385,7 +383,7 @@ class AdminHistoryController extends AbstractController
         ];
     }
 
-    protected function getImageString(ImageStandardParams $image_std_params, History $line, array $image_infos = [], SearchRulesModel $rules = null): string
+    protected function getImageString(ImageStandardParams $image_std_params, History $line, array $image_infos = [], ?SearchRulesModel $rules = null): string
     {
         $image_string = '';
 

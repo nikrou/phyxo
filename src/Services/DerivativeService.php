@@ -28,7 +28,8 @@ class DerivativeService
      */
     public function clearCache(array $types, array $all_types)
     {
-        for ($i = 0; $i < count($types); $i++) {
+        $counter = count($types);
+        for ($i = 0; $i < $counter; $i++) {
             $type = $types[$i];
             if ($type === ImageStandardParams::IMG_CUSTOM) {
                 $pattern = DerivativeParams::derivative_to_url($type) . '[a-zA-Z0-9]+';
@@ -77,11 +78,7 @@ class DerivativeService
         }
 
         $dot = strrpos($relative_path, '.');
-        if ($type == 'all') {
-            $pattern = '-.*';
-        } else {
-            $pattern = '-' . DerivativeParams::derivative_to_url($type) . '.*';
-        }
+        $pattern = $type == 'all' ? '-.*' : '-' . DerivativeParams::derivative_to_url($type) . '.*';
         $pattern = '#' . substr_replace($relative_path, $pattern, $dot, 0) . '#';
 
         $finder = new Finder();

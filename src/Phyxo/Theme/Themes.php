@@ -185,7 +185,7 @@ class Themes extends Extensions
         $children = [];
 
         foreach ($this->getFsThemes() as $test_child) {
-            if (isset($test_child['parent']) and $test_child['parent'] == $theme_id) {
+            if (isset($test_child['parent']) && $test_child['parent'] == $theme_id) {
                 $children[] = $test_child['name'];
             }
         }
@@ -321,10 +321,10 @@ class Themes extends Extensions
                     }
                 }
             } catch (Exception $e) {
-                throw new Exception($e->getMessage());
+                throw new Exception($e->getMessage(), $e->getCode(), $e);
             }
 
-            if (empty($versions_to_check)) {
+            if ($versions_to_check === []) {
                 return [];
             }
 
@@ -348,7 +348,7 @@ class Themes extends Extensions
                 ]
             );
 
-            if (!empty($themes_to_check)) {
+            if ($themes_to_check !== []) {
                 if ($new) {
                     $get_data['extension_exclude'] = implode(',', $themes_to_check);
                 } else {
@@ -365,7 +365,7 @@ class Themes extends Extensions
                     $this->server_themes[$theme['extension_id']] = $theme;
                 }
             } catch (Exception $e) {
-                throw new Exception($e->getMessage());
+                throw new Exception($e->getMessage(), $e->getCode(), $e);
             }
             $this->server_themes_retrieved = true;
         }
@@ -410,14 +410,14 @@ class Themes extends Extensions
         try {
             $this->download($archive, $get_data);
         } catch (Exception $e) {
-            throw new Exception("Cannot download theme archive");
+            throw new Exception("Cannot download theme archive", $e->getCode(), $e);
         }
 
         $extract_path = $this->themes_root_path;
         try {
             $this->extractZipFiles($archive, self::CONFIG_FILE, $extract_path);
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         } finally {
             unlink($archive);
         }

@@ -15,7 +15,6 @@ use App\DataMapper\AlbumMapper;
 use App\Entity\Album;
 use App\Repository\AlbumRepository;
 use App\Repository\ImageAlbumRepository;
-use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,12 +37,11 @@ class AdminAlbumsController extends AbstractController
     }
 
     public function list(
-        Conf $conf,
         AlbumRepository $albumRepository,
         CsrfTokenManagerInterface $csrfTokenManager,
         TranslatorInterface $translator,
         ImageAlbumRepository $imageAlbumRepository,
-        int $parent_id = null
+        ?int $parent_id = null
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -67,7 +65,7 @@ class AdminAlbumsController extends AbstractController
         }
 
         // get the albums containing images directly
-        if (count($albums) > 0) {
+        if ($albums !== []) {
             $nb_photos_in = $imageAlbumRepository->countImagesByAlbum();
 
             $all_albums = [];
@@ -131,7 +129,7 @@ class AdminAlbumsController extends AbstractController
         return $this->render('albums_list.html.twig', $tpl_params);
     }
 
-    public function update(Request $request, AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator, int $parent_id = null): Response
+    public function update(Request $request, AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator, ?int $parent_id = null): Response
     {
         if ($request->isMethod('POST')) {
             if ($request->request->get('submitManualOrder')) { // save manual category ordering
@@ -162,15 +160,11 @@ class AdminAlbumsController extends AbstractController
                 if (str_starts_with($order_by_field, 'date_')) {
                     $order_by_date = true;
 
-                    $ref_dates = $albumMapper->getAlbumsRefDate($category_ids, $order_by_field, 'ASC' == $order_by_asc ? 'min' : 'max');
+                    $ref_dates = $albumMapper->getAlbumsRefDate($category_ids, $order_by_field, 'ASC' === $order_by_asc ? 'min' : 'max');
                 }
 
                 foreach ($albumRepository->findBy(['id' => $category_ids]) as $album) {
-                    if ($order_by_date) {
-                        $sort[] = $ref_dates[$album->getId()];
-                    } else {
-                        $sort[] = $album->getName();
-                    }
+                    $sort[] = $order_by_date ? $ref_dates[$album->getId()] : $album->getName();
 
                     $categories[] = [
                         'id' => $album->getId(),
@@ -178,7 +172,7 @@ class AdminAlbumsController extends AbstractController
                     ];
                 }
 
-                array_multisort($sort, SORT_REGULAR, 'ASC' == $order_by_asc ? SORT_ASC : SORT_DESC, $categories);
+                array_multisort($sort, SORT_REGULAR, 'ASC' === $order_by_asc ? SORT_ASC : SORT_DESC, $categories);
 
                 $albumMapper->saveAlbumsOrder($categories);
                 $this->addFlash('success', $translator->trans('Albums automatically sorted', [], 'admin'));
@@ -188,7 +182,7 @@ class AdminAlbumsController extends AbstractController
         return $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
     }
 
-    public function move(Request $request, AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator, int $parent_id = null): Response
+    public function move(Request $request, AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator, ?int $parent_id = null): Response
     {
         $tpl_params = [];
         $this->translator = $translator;

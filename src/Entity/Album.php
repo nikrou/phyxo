@@ -440,7 +440,7 @@ class Album
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
-            'id_uppercat' => $this->getParent() ? $this->getParent()->getId() : null,
+            'id_uppercat' => $this->getParent() instanceof \App\Entity\Album ? $this->getParent()->getId() : null,
             'comment' => $this->getComment(),
             'dir' => $this->getDir(),
             'rank' => $this->getRank(),

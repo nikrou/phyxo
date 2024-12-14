@@ -315,16 +315,13 @@ class Server
 
         if ($request->getContentTypeFormat() === 'json') {
             $request_params = json_decode($request->getContent(), true);
-
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new BadRequestHttpException('invalid json body: ' . json_last_error_msg());
             }
+        } elseif ($request->isMethod('POST')) {
+            $request_params = $request->request->all();
         } else {
-            if ($request->isMethod('POST')) {
-                $request_params = $request->request->all();
-            } else {
-                $request_params = $request->query->all();
-            }
+            $request_params = $request->query->all();
         }
 
         foreach ($request_params as $name => $value) {
@@ -370,10 +367,6 @@ class Server
      */
     public function addMethod(string $methodName, $callback, array $params = [], string $description = '', array $options = [])
     {
-        if (!is_array($params)) {
-            $params = [];
-        }
-
         if (range(0, count($params) - 1) === array_keys($params)) {
             $params = array_flip($params);
         }
@@ -433,9 +426,9 @@ class Server
             //Receive the RAW post data.
             $content = trim(file_get_contents("php://input"));
 
-            return !empty($content);
+            return $content !== '' && $content !== '0';
         } else {
-            return !empty($_POST);
+            return $_POST !== [];
         }
     }
 
@@ -443,10 +436,8 @@ class Server
     {
         if ($param == null) {
             $param = [];
-        } else {
-            if (!is_array($param)) {
-                $param = [$param];
-            }
+        } elseif (!is_array($param)) {
+            $param = [$param];
         }
     }
 
@@ -479,8 +470,7 @@ class Server
                 unset($value);
             } elseif (self::hasFlag($type, self::WS_TYPE_FLOAT)) {
                 foreach ($param as &$value) {
-                    if (($value = filter_var($value, FILTER_VALIDATE_FLOAT)) === false
-                        or (isset($opts['options']['min_range']) and $value < $opts['options']['min_range'])) {
+                    if ($value = filter_var($value, FILTER_VALIDATE_FLOAT) === false || isset($opts['options']['min_range']) && $value < $opts['options']['min_range']) {
                         return new Error(self::WS_ERR_INVALID_PARAM, $name . ' must only contain' . $msg . ' floats');
                     }
                 }
@@ -496,8 +486,7 @@ class Server
                     return new Error(self::WS_ERR_INVALID_PARAM, $name . ' must be an' . $msg . ' integer');
                 }
             } elseif (self::hasFlag($type, self::WS_TYPE_FLOAT)) {
-                if (($param = filter_var($param, FILTER_VALIDATE_FLOAT)) === false
-                    or (isset($opts['options']['min_range']) and $param < $opts['options']['min_range'])) {
+                if ($param = filter_var($param, FILTER_VALIDATE_FLOAT) === false || isset($opts['options']['min_range']) && $param < $opts['options']['min_range']) {
                     return new Error(self::WS_ERR_INVALID_PARAM, $name . ' must be a' . $msg . ' float');
                 }
             }
@@ -548,11 +537,11 @@ class Server
                         self::makeArrayParam($params[$name]);
                     }
                 }
-            } elseif ($params[$name] === '' and !self::hasFlag($flags, self::WS_PARAM_OPTIONAL)) { // parameter provided but empty
+            } elseif ($params[$name] === '' && !self::hasFlag($flags, self::WS_PARAM_OPTIONAL)) { // parameter provided but empty
                 $missing_params[] = $name;
             } else { // parameter provided - do some basic checks
                 $the_param = $params[$name];
-                if (is_array($the_param) and !self::hasFlag($flags, self::WS_PARAM_ACCEPT_ARRAY)) {
+                if (is_array($the_param) && !self::hasFlag($flags, self::WS_PARAM_ACCEPT_ARRAY)) {
                     return new Error(self::WS_ERR_INVALID_PARAM, $name . ' must be scalar');
                 }
 
@@ -560,13 +549,11 @@ class Server
                     self::makeArrayParam($the_param);
                 }
 
-                if ($options['type'] > 0) {
-                    if (($ret = self::checkType($the_param, $options['type'], $name)) !== null) {
-                        return $ret;
-                    }
+                if ($options['type'] > 0 && $ret = self::checkType($the_param, $options['type'], $name) !== null) {
+                    return $ret;
                 }
 
-                if (isset($options['maxValue']) and $the_param > $options['maxValue']) {
+                if (isset($options['maxValue']) && $the_param > $options['maxValue']) {
                     $the_param = $options['maxValue'];
                 }
 
@@ -574,7 +561,7 @@ class Server
             }
         }
 
-        if (count($missing_params)) {
+        if ($missing_params !== []) {
             return new Error(self::WS_ERR_MISSING_PARAM, 'Missing parameters: ' . implode(',', $missing_params));
         }
 

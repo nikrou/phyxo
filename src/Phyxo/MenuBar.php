@@ -101,7 +101,7 @@ class MenuBar
                 $block->data[] = $tpl_var;
             }
 
-            if (!empty($block->data)) {
+            if ($block->data !== []) {
                 $block->template = 'menubar_links';
             }
         }

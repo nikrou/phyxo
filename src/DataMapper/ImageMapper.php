@@ -64,7 +64,7 @@ class ImageMapper
     {
         $tpl_params = [];
 
-        if (count($selection) === 0) {
+        if ($selection === []) {
             return [];
         }
 
@@ -86,12 +86,10 @@ class ImageMapper
             $section = 'album';
         }
 
-        if (count($pictures) > 0) {
-            if ($this->conf['activate_comments'] && $this->userMapper->getUser()->getUserInfos()->getShowNbComments()) {
-                $nb_comments_of = [];
-                foreach ($this->commentRepository->countGroupByImage($selection) as $comment) {
-                    $nb_comments_of[$comment['image_id']] = $comment['nb_comments'];
-                }
+        if ($pictures !== [] && ($this->conf['activate_comments'] && $this->userMapper->getUser()->getUserInfos()->getShowNbComments())) {
+            $nb_comments_of = [];
+            foreach ($this->commentRepository->countGroupByImage($selection) as $comment) {
+                $nb_comments_of[$comment['image_id']] = $comment['nb_comments'];
             }
         }
 
@@ -105,7 +103,7 @@ class ImageMapper
                         'element_id' => $element_id,
                     ]
                 );
-            } elseif (in_array($section, ['calendar_categories'])) {
+            } elseif ($section === 'calendar_categories') {
                 $url = $this->router->generate(
                     'picture_categories_from_calendar',
                     [
@@ -114,7 +112,7 @@ class ImageMapper
                         'extra' => 'extr',
                     ]
                 );
-            } elseif (in_array($section, ['from_calendar'])) {
+            } elseif ($section === 'from_calendar') {
                 $url = $this->router->generate(
                     'picture_from_calendar',
                     [
@@ -229,7 +227,7 @@ class ImageMapper
         foreach ($this->albumMapper->getRepository()->findRepresentants($ids) as $album) {
             $album_ids[] = $album->getId();
         }
-        if (count($album_ids) > 0) {
+        if ($album_ids !== []) {
             $this->albumMapper->updateAlbums($album_ids);
         }
 
@@ -302,11 +300,11 @@ class ImageMapper
             $details[] = $this->translator->trans('number_of_comments', ['count' => $info['nb_comments']]);
         }
 
-        if (count($details) > 0) {
+        if ($details !== []) {
             $title .= ' (' . implode(', ', $details) . ')';
         }
 
-        if (!empty($comment)) {
+        if ($comment !== null && $comment !== '' && $comment !== '0') {
             $comment = strip_tags($comment);
             $title .= ' ' . substr($comment, 0, 100) . (strlen($comment) > 100 ? '...' : '');
         }

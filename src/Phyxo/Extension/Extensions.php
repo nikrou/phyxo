@@ -32,7 +32,7 @@ class Extensions
                 throw new Exception("Response is not readable");
             }
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -63,7 +63,7 @@ class Extensions
                 throw new Exception("Response is not readable");
             }
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -84,16 +84,14 @@ class Extensions
                 $root = basename(dirname((string) $main_filepath)); // dirname($main_filepath) cannot be null throw Exception if needed
                 $extract_path .= '/' . $root;
 
-                if (!empty($this->directory_pattern)) {
-                    if (!preg_match($this->directory_pattern, $root)) {
-                        throw new Exception(sprintf('Root directory (%s) of archive does not follow expected pattern %s', $root, $this->directory_pattern));
-                    }
+                if ($this->directory_pattern !== '' && $this->directory_pattern !== '0' && !preg_match($this->directory_pattern, $root)) {
+                    throw new Exception(sprintf('Root directory (%s) of archive does not follow expected pattern %s', $root, $this->directory_pattern));
                 }
 
                 // @TODO: use native zip library ; use arobase before
                 if ($results = @$zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $root, PCLZIP_OPT_REPLACE_NEWER)) {
                     $errors = array_filter($results, fn ($f) => ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory');
-                    if (count($errors) > 0) {
+                    if ($errors !== []) {
                         throw new Exception("Error while extracting some files from archive");
                     }
                 } else {

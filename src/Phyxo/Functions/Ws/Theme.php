@@ -30,7 +30,7 @@ class Theme
         $themes = new Themes($service->getManagerRegistry()->getRepository(EntityTheme::class), $service->getUserMapper());
         $errors = $themes->performAction($params['action'], $params['theme']);
 
-        if (!empty($errors)) {
+        if ($errors !== '' && $errors !== '0') {
             return new Error(500, $errors);
         }
 

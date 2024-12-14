@@ -68,11 +68,11 @@ class ApiContext implements Context
     public function iSendARequestWithValues(string $http_method, string $method, ?TableNode $values = null)
     {
         $requestOptions = [];
-        if ($http_method == 'GET') {
+        if ($http_method === 'GET') {
             $requestOptions['query']['method'] = $method;
-        } elseif ($http_method == 'POST') {
+        } elseif ($http_method === 'POST') {
             $requestOptions['form_params'] = [];
-            if ($values !== null) {
+            if ($values instanceof TableNode) {
                 foreach ($values->getColumnsHash() as $columHash) {
                     $requestOptions['form_params'] = $columHash;
                 }
@@ -156,7 +156,7 @@ class ApiContext implements Context
             $parts = explode('/', (string) $property);
             $n = 0;
             while ($n < count($parts)) {
-                if (is_null($data[$parts[$n]]) && ($n + 1) == count($parts)) {
+                if (is_null($data[$parts[$n]]) && $n + 1 === count($parts)) {
                     $data = '';
                 } else {
                     if (!isset($data[$parts[$n]])) {

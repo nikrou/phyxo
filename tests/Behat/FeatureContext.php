@@ -165,11 +165,7 @@ class FeatureContext extends BaseContext
      */
     public function iShouldSeeLink(string $link_label, string $parent = ''): void
     {
-        if (!empty($parent)) {
-            $parentNode = $this->getSession()->getPage()->find('css', $parent);
-        } else {
-            $parentNode = $this->getSession()->getPage();
-        }
+        $parentNode = $parent === '' || $parent === '0' ? $this->getSession()->getPage() : $this->getSession()->getPage()->find('css', $parent);
         $link = $parentNode->findLink($link_label);
 
         if ($link === null) {

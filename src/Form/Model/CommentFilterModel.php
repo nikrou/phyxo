@@ -86,7 +86,7 @@ class CommentFilterModel
             $params['keyword'] = $this->keyword;
         }
 
-        if (count($this->albums) > 0) {
+        if ($this->albums !== []) {
             $params['album_ids'] = $this->albums;
         }
 

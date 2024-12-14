@@ -61,13 +61,9 @@ class AdminCommentsController extends AbstractController
             }
         }
 
-        foreach ($commentRepository->getCommentsOnImages($validated = $section === 'pending' ? false : true, $conf['comments_page_nb_comments'], $start) as $comment) {
+        foreach ($commentRepository->getCommentsOnImages($validated = $section !== 'pending', $conf['comments_page_nb_comments'], $start) as $comment) {
             $derivative = new DerivativeImage($comment->getImage(), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
-            if (!is_null($comment->getUser())) {
-                $author_name = $comment->getUser()->getUsername();
-            } else {
-                $author_name = $comment->getAuthor();
-            }
+            $author_name = is_null($comment->getUser()) ? $comment->getAuthor() : $comment->getUser()->getUsername();
 
             $tpl_params['comments'][] = [
                 'U_PICTURE' => $this->generateUrl('admin_photo', ['image_id' => $comment->getImage()->getId()]),
@@ -89,7 +85,7 @@ class AdminCommentsController extends AbstractController
             $router,
             'admin_comments',
             ['section' => $section],
-            ('pending' == $section ? $nb_pending : $nb_total - $nb_pending),
+            ('pending' === $section ? $nb_pending : $nb_total - $nb_pending),
             $start,
             $conf['comments_page_nb_comments']
         );

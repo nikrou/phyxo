@@ -105,7 +105,7 @@ class Image
         }
         usort($related_categories, '\Phyxo\Functions\Utils::global_rank_compare');
 
-        if (count($related_categories) === 0) {
+        if ($related_categories === []) {
             return new Error(401, 'Access denied');
         }
 
@@ -230,7 +230,7 @@ class Image
             $params['per_page']
         );
 
-        if (count($image_ids)) {
+        if ($image_ids !== []) {
             $image_ids = array_flip($image_ids);
             foreach ($service->getImageMapper()->getRepository()->findBy(['id' => $image_ids]) as $image) {
                 $image_infos = $image->toArray();
@@ -267,6 +267,7 @@ class Image
 
         $service->getImageMapper()->getRepository()->updateFieldForImages($params['image_id'], 'level', (int) $params['level']);
         $service->getUserMapper()->invalidateUserCache();
+        return null;
     }
 
     /**
@@ -357,6 +358,7 @@ class Image
                 'an error has occured while writting chunk ' . $params['position'] . ' for ' . $params['type']
             );
         }
+        return null;
     }
 
     /**
@@ -419,6 +421,7 @@ class Image
             $image->getMd5sum() // we force the md5sum to remain the same
         );
         $service->getTagMapper()->sync_metadata([$image_id]);
+        return null;
     }
 
     /**
@@ -550,10 +553,8 @@ class Image
             return new Error(405, 'The image (file) is missing');
         }
 
-        if ($params['image_id'] > 0) {
-            if (is_null($service->getImageMapper()->getRepository()->find($params['image_id']))) {
-                return new Error(404, 'image_id not found');
-            }
+        if ($params['image_id'] > 0 && is_null($service->getImageMapper()->getRepository()->find($params['image_id']))) {
+            return new Error(404, 'image_id not found');
         }
 
         $image_id = self::addUploadedFile(
@@ -644,7 +645,7 @@ class Image
         // Get a file name
         if (isset($_REQUEST["name"])) {
             $fileName = $_REQUEST["name"];
-        } elseif (!empty($_FILES)) {
+        } elseif ($_FILES !== []) {
             $fileName = $_FILES["file"]["name"];
         } else {
             $fileName = uniqid("file_");
@@ -657,23 +658,20 @@ class Image
         $chunks = isset($_REQUEST["chunks"]) ? intval($_REQUEST["chunks"]) : 0;
 
         // Open temp file
-        if (!$out = @fopen("{$filePath}.part", $chunks ? "ab" : "wb")) {
+        if (!$out = @fopen("{$filePath}.part", $chunks !== 0 ? "ab" : "wb")) {
             die('{"jsonrpc" : "2.0", "error" : {"code": 102, "message": "Failed to open output stream."}, "id" : "id"}');
         }
 
-        if (!empty($_FILES)) {
+        if ($_FILES !== []) {
             if ($_FILES["file"]["error"] || !is_uploaded_file($_FILES["file"]["tmp_name"])) {
                 die('{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "Failed to move uploaded file."}, "id" : "id"}');
             }
-
             // Read binary input stream and append it to temp file
             if (!$in = @fopen($_FILES["file"]["tmp_name"], "rb")) {
                 die('{"jsonrpc" : "2.0", "error" : {"code": 101, "message": "Failed to open input stream."}, "id" : "id"}');
             }
-        } else {
-            if (!$in = @fopen("php://input", "rb")) {
-                die('{"jsonrpc" : "2.0", "error" : {"code": 101, "message": "Failed to open input stream."}, "id" : "id"}');
-            }
+        } elseif (!$in = @fopen("php://input", "rb")) {
+            die('{"jsonrpc" : "2.0", "error" : {"code": 101, "message": "Failed to open input stream."}, "id" : "id"}');
         }
 
         while ($buff = fread($in, 4096)) {
@@ -719,6 +717,7 @@ class Image
                 ]
             ];
         }
+        return null;
     }
 
     /**
@@ -817,11 +816,7 @@ class Image
         }
 
         if (isset($compare_type)) {
-            if (md5_file($image->getPath()) != $params[$compare_type . '_sum']) {
-                $ret[$compare_type] = 'differs';
-            } else {
-                $ret[$compare_type] = 'equals';
-            }
+            $ret[$compare_type] = md5_file($image->getPath()) != $params[$compare_type . '_sum'] ? 'differs' : 'equals';
         }
 
         return $ret;
@@ -856,15 +851,11 @@ class Image
         $removed_tags = array_diff($current_tags, $params['tags']);
         $new_tags = array_diff($params['tags'], $current_tags);
 
-        if (count($removed_tags) > 0) {
-            if ($service->getSecurity()->isGranted(TagVoter::DELETE, $image) == false) {
-                return new Error(403, 'You are not allowed to delete tags');
-            }
+        if (count($removed_tags) > 0 && $service->getSecurity()->isGranted(TagVoter::DELETE, $image) == false) {
+            return new Error(403, 'You are not allowed to delete tags');
         }
-        if (count($new_tags) > 0) {
-            if ($service->getSecurity()->isGranted(TagVoter::ADD, $image) == false) {
-                return new Error(403, 'You are not allowed to add tags');
-            }
+        if (count($new_tags) > 0 && $service->getSecurity()->isGranted(TagVoter::ADD, $image) == false) {
+            return new Error(403, 'You are not allowed to add tags');
         }
 
         try {
@@ -876,7 +867,7 @@ class Image
                 }
             } else {
                 // if publish_tags_immediately (or delete_tags_immediately) is not set we consider its value is 1
-                if (count($removed_tags) > 0) {
+                if ($removed_tags !== []) {
                     $removed_tags_ids = $service->getTagMapper()->getTagsIds($removed_tags);
                     if (isset($service->getConf()['delete_tags_immediately']) && $service->getConf()['delete_tags_immediately'] == 0) {
                         $service->getTagMapper()->toBeValidatedTags($image, $removed_tags_ids, $service->getUserMapper()->getUser(), ImageTag::STATUS_TO_DELETE);
@@ -885,7 +876,7 @@ class Image
                     }
                 }
 
-                if (count($new_tags) > 0) {
+                if ($new_tags !== []) {
                     $new_tags_ids = $service->getTagMapper()->getTagsIds($new_tags);
                     if (isset($service->getConf()['publish_tags_immediately']) && $service->getConf()['publish_tags_immediately'] == 0) {
                         $service->getTagMapper()->toBeValidatedTags($image, $new_tags_ids, $service->getUserMapper()->getUser(), ImageTag::STATUS_TO_ADD);
@@ -897,6 +888,7 @@ class Image
         } catch (Exception) {
             return new Error(500, '[ws_images_setRelatedTags]  Something went wrong when updating tags');
         }
+        return null;
     }
 
     /**
@@ -961,7 +953,7 @@ class Image
                 $service,
                 $params['image_id'],
                 $params['categories'],
-                ('replace' == $params['multiple_value_mode'] ? true : false)
+                ('replace' == $params['multiple_value_mode'])
             );
         }
 
@@ -992,6 +984,7 @@ class Image
         }
 
         $service->getUserMapper()->invalidateUserCache();
+        return null;
     }
 
     /**
@@ -1038,10 +1031,8 @@ class Image
             if (!is_writable(dirname((string) $service->getUploadDir()))) {
                 $message = sprintf('Create the "%s" directory at the root of your Phyxo installation', basename((string) $service->getUploadDir()));
             }
-        } else {
-            if (!is_writable($service->getUploadDir())) {
-                $message = sprintf('Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation', basename((string) $service->getUploadDir()));
-            }
+        } elseif (!is_writable($service->getUploadDir())) {
+            $message = sprintf('Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation', basename((string) $service->getUploadDir()));
         }
 
         return ['message' => $message, 'ready_for_upload' => $message === ''];
@@ -1085,7 +1076,7 @@ class Image
 
         $album_ids = array_unique($album_ids);
 
-        if (count($album_ids) === 0) {
+        if ($album_ids === []) {
             return new Error(
                 500,
                 '[\Phyxo\Functions\Ws\Images::addImageAlbumRelations] there is no category defined in "' . $categories_string . '"'
@@ -1118,6 +1109,7 @@ class Image
         }
 
         $service->getAlbumMapper()->updateAlbums($album_ids);
+        return null;
     }
 
     /**
@@ -1157,6 +1149,7 @@ class Image
 
             unlink($chunk);
         }
+        return null;
     }
 
     /**
@@ -1200,11 +1193,7 @@ class Image
 
         // TODO
         // * check md5sum (already exists?)
-        if (isset($original_md5sum)) {
-            $md5sum = $original_md5sum;
-        } else {
-            $md5sum = md5_file($source_filepath);
-        }
+        $md5sum = $original_md5sum ?? md5_file($source_filepath);
 
         $fs = new Filesystem();
         $file_path = null;
@@ -1283,7 +1272,7 @@ class Image
 
         if (isset($image_id)) {
             $image = $service->getImageMapper()->getRepository()->find($image_id);
-            $image->setFile(!empty($original_filename) ? $original_filename : basename((string) $file_path));
+            $image->setFile($original_filename === '' || $original_filename === '0' ? basename((string) $file_path) : $original_filename);
             $image->setFilesize($filesize);
             $image->setWidth($width);
             $image->setHeight($height);
@@ -1297,7 +1286,7 @@ class Image
             $service->getImageMapper()->getRepository()->addOrUpdateImage($image);
         } else {
             $image = new EntityImage();
-            $image->setFile(!empty($original_filename) ? $original_filename : basename((string) $file_path));
+            $image->setFile($original_filename === '' || $original_filename === '0' ? basename((string) $file_path) : $original_filename);
             $image->setName(Utils::get_name_from_file($image->getFile()));
             $image->setDateAvailable($now);
             $image->setPath(preg_replace('#^' . preg_quote(dirname((string) $upload_dir)) . '#', '.', realpath($file_path)));
@@ -1319,7 +1308,7 @@ class Image
             $image_id = $service->getImageMapper()->getRepository()->addOrUpdateImage($image);
         }
 
-        if (count($categories) > 0) {
+        if ($categories !== []) {
             $service->getAlbumMapper()->associateImagesToAlbums([$image_id], $categories);
         }
 

@@ -235,8 +235,9 @@ class ImageStandardParams
         }
 
         $this->all_type_map = $this->type_map;
+        $counter = count($this->all_types);
 
-        for ($i = 0; $i < count($this->all_types); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             $tocheck = $this->all_types[$i];
             if (!isset($this->type_map[$tocheck])) {
                 for ($j = $i - 1; $j >= 0; $j--) {

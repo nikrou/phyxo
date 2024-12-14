@@ -267,7 +267,7 @@ class CommentRepository extends ServiceEntityRepository
      *
      * @return Comment[]|int
      */
-    public function getNewComments(array $forbidden_albums = [], DateTimeInterface $start = null, DateTimeInterface $end = null, bool $count_only = false): array|int
+    public function getNewComments(array $forbidden_albums = [], ?DateTimeInterface $start = null, ?DateTimeInterface $end = null, bool $count_only = false): array|int
     {
         $qb = $this->createQueryBuilder('c');
 
@@ -278,7 +278,7 @@ class CommentRepository extends ServiceEntityRepository
         $qb->leftJoin('c.image', 'i');
         $qb->leftJoin('i.imageAlbums', 'ia');
 
-        if (count($forbidden_albums)) {
+        if ($forbidden_albums !== []) {
             $qb->where($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -302,7 +302,7 @@ class CommentRepository extends ServiceEntityRepository
     /**
      * @return Comment[]|int
      */
-    public function getUnvalidatedComments(bool $count_only, DateTimeInterface $start = null, DateTimeInterface $end = null): array|int
+    public function getUnvalidatedComments(bool $count_only, ?DateTimeInterface $start = null, ?DateTimeInterface $end = null): array|int
     {
         $qb = $this->createQueryBuilder('c');
 
@@ -340,7 +340,7 @@ class CommentRepository extends ServiceEntityRepository
         $qb->leftJoin('c.image', 'i');
         $qb->leftJoin('i.imageAlbums', 'ia');
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->where($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 

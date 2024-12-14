@@ -65,7 +65,7 @@ class Extension
                 if (isset($extension->getDbPlugins()[$extension_id]) && $extension->getDbPlugins()[$extension_id]->getState() === Plugin::ACTIVE) {
                     $extension->performAction('deactivate', $extension_id);
 
-                    return;
+                    return null;
                 }
 
                 $extension->performAction('update', $extension_id, $revision);
@@ -155,11 +155,7 @@ class Extension
 
         $result['phyxo_need_update'] = $update->isCoreNeedUpdate();
 
-        if (!empty($service->getConf()['updates_ignored'])) {
-            $updates_ignored = $service->getConf()['updates_ignored'];
-        } else {
-            $updates_ignored = [];
-        }
+        $updates_ignored = empty($service->getConf()['updates_ignored']) ? [] : $service->getConf()['updates_ignored'];
 
         if (!$update->isExtensionsNeedUpdate()) {
             $service->getConf()->addOrUpdateParam('updates_ignored', $update->checkExtensions($updates_ignored));

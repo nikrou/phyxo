@@ -44,19 +44,17 @@ class RateMapper
 
         $user_anonymous = $this->appUserService->isGuest();
 
-        if ($user_anonymous) {
-            if ($anonymous_id !== $save_anonymous_id) { // client has changed his IP address or he's trying to fool us
-                $rate = $this->getRepository()->findOneBy([
-                    'user' => $this->userMapper->getUser()->getId(),
-                    'image' => $image_id,
-                    'anonymous_id' => $anonymous_id
-                ]);
-                if (!is_null($rate)) {
-                    $this->getRepository()->delete($rate);
-                }
-
-                $this->getRepository()->updateAnonymousIdField($anonymous_id, $this->userMapper->getUser()->getId(), $save_anonymous_id);
+        if ($user_anonymous && $anonymous_id !== $save_anonymous_id) {
+            // client has changed his IP address or he's trying to fool us
+            $rate = $this->getRepository()->findOneBy([
+                'user' => $this->userMapper->getUser()->getId(),
+                'image' => $image_id,
+                'anonymous_id' => $anonymous_id
+            ]);
+            if (!is_null($rate)) {
+                $this->getRepository()->delete($rate);
             }
+            $this->getRepository()->updateAnonymousIdField($anonymous_id, $this->userMapper->getUser()->getId(), $save_anonymous_id);
         }
 
         $this->getRepository()->deleteImageRateForUser($this->userMapper->getUser()->getId(), $image_id, $user_anonymous ? $anonymous_id : null);

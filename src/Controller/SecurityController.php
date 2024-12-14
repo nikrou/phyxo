@@ -11,6 +11,7 @@
 
 namespace App\Controller;
 
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Exception;
 use DateTime;
 use DateInterval;
@@ -60,7 +61,7 @@ class SecurityController extends AbstractController
             'password_route' => $this->generateUrl('forgot_password'),
             'last_username' => $last_username,
             'csrf_token' => $token,
-            'errors' => $error ? $translator->trans('Invalid credentials') : '',
+            'errors' => $error instanceof AuthenticationException ? $translator->trans('Invalid credentials') : '',
         ]);
 
         $status_code = 200;

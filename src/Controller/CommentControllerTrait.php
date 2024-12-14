@@ -12,6 +12,7 @@
 namespace App\Controller;
 
 use App\Form\DeleteCommentType;
+use App\Form\EditCommentType;
 use App\Form\ValidateCommentType;
 use App\Repository\CommentRepository;
 use App\Security\AppUserService;

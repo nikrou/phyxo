@@ -81,7 +81,7 @@ class FeedController extends AbstractController
         $news = [];
         if (!$image_only) {
             $news = $notification->news($feed->getLastCheck(), $now, true, true);
-            if (count($news) > 0) {
+            if ($news !== []) {
                 $item = new FeedItem();
                 $item->title = $translator->trans('New on {date}', ['date' => $now->format('Y-m-d H:m:i')]);
                 $item->link = $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL);
@@ -105,11 +105,10 @@ class FeedController extends AbstractController
             }
         }
 
-        if (empty($news)) { // update the last check from time to time to avoid deletion by maintenance tasks
-            if (is_null($feed->getLastCheck()) || $now->diff($feed->getLastCheck())->format('s') > (30 * 24 * 3600)) {
-                $feed->setLastCheck($now->add(new DateInterval('P15D')));
-                $userFeedRepository->addOrUpdateUserFeed($feed);
-            }
+        // update the last check from time to time to avoid deletion by maintenance tasks
+        if ($news === [] && (is_null($feed->getLastCheck()) || $now->diff($feed->getLastCheck())->format('s') > 30 * 24 * 3600)) {
+            $feed->setLastCheck($now->add(new DateInterval('P15D')));
+            $userFeedRepository->addOrUpdateUserFeed($feed);
         }
 
         $dates = $notification->get_recent_post_dates_array($conf['recent_post_dates']['RSS']);
@@ -137,7 +136,7 @@ class FeedController extends AbstractController
 
             $item->date = $date->format('c');
             $item->author = $conf['rss_feed_author'];
-            $item->guid = sprintf('%s', 'pics-' . $date->format('c'));
+            $item->guid = 'pics-' . $date->format('c');
 
             $rss->addItem($item);
         }

@@ -201,7 +201,9 @@ class Main
         $derivatives_arr = [];
         foreach ($derivatives as $type => $derivative) {
             $size = $derivative->getSize();
-            $size != null or $size = [null, null];
+            if ($size == null) {
+                $size = [null, null];
+            }
             $derivatives_arr[$type] = [
                 'url' => $service->getRouter()->generate('admin_media', ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()]),
                 'width' => $size[0],

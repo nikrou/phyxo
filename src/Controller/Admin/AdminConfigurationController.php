@@ -259,16 +259,12 @@ class AdminConfigurationController extends AbstractController
 
         // derivatives = multiple size
         $enabled = $image_std_params->getDefinedTypeMap();
-        if (!empty($conf['disabled_derivatives'])) {
-            $disabled = $conf['disabled_derivatives'];
-        } else {
-            $disabled = [];
-        }
+        $disabled = empty($conf['disabled_derivatives']) ? [] : $conf['disabled_derivatives'];
 
         foreach ($image_std_params->getAllTypes() as $type) {
             $tpl_var = [];
-            $tpl_var['must_square'] = ($type == ImageStandardParams::IMG_SQUARE ? true : false);
-            $tpl_var['must_enable'] = ($type == ImageStandardParams::IMG_SQUARE || $type == ImageStandardParams::IMG_THUMB || $type == $conf['derivative_default_size']) ? true : false;
+            $tpl_var['must_square'] = ($type == ImageStandardParams::IMG_SQUARE);
+            $tpl_var['must_enable'] = $type == ImageStandardParams::IMG_SQUARE || $type == ImageStandardParams::IMG_THUMB || $type == $conf['derivative_default_size'];
 
             if (!empty($enabled[$type])) {
                 $params = $enabled[$type];
@@ -326,19 +322,19 @@ class AdminConfigurationController extends AbstractController
         $wm = $image_std_params->getWatermark();
 
         $position = 'custom';
-        if ($wm->xpos == 0 and $wm->ypos == 0) {
+        if ($wm->xpos == 0 && $wm->ypos == 0) {
             $position = 'topleft';
         }
-        if ($wm->xpos == 100 and $wm->ypos == 0) {
+        if ($wm->xpos == 100 && $wm->ypos == 0) {
             $position = 'topright';
         }
-        if ($wm->xpos == 50 and $wm->ypos == 50) {
+        if ($wm->xpos == 50 && $wm->ypos == 50) {
             $position = 'middle';
         }
-        if ($wm->xpos == 0 and $wm->ypos == 100) {
+        if ($wm->xpos == 0 && $wm->ypos == 100) {
             $position = 'bottomleft';
         }
-        if ($wm->xpos == 100 and $wm->ypos == 100) {
+        if ($wm->xpos == 100 && $wm->ypos == 100) {
             $position = 'bottomright';
         }
 
@@ -427,7 +423,7 @@ class AdminConfigurationController extends AbstractController
                         $order_by = $order_by_inside_category = array_slice($order_by, 0, (int) ceil(count($this->sort_fields) / 2));
 
                         // must define a default order_by if user want to order by rank only
-                        if (count($order_by) === 0) {
+                        if ($order_by === []) {
                             $order_by = ['id', 'ASC'];
                         }
 
@@ -456,11 +452,9 @@ class AdminConfigurationController extends AbstractController
                     }
                 }
 
-                if (($mail_theme = $request->request->get('mail_theme')) && isset($this->mail_themes[$mail_theme])) {
-                    if ($conf['mail_theme'] !== $mail_theme) {
-                        $conf_updated = true;
-                        $conf['mail_theme'] = $mail_theme;
-                    }
+                if (($mail_theme = $request->request->get('mail_theme')) && isset($this->mail_themes[$mail_theme]) && $conf['mail_theme'] !== $mail_theme) {
+                    $conf_updated = true;
+                    $conf['mail_theme'] = $mail_theme;
                 }
             } elseif ($section === 'comments') {
                 if ($request->request->get('nb_comment_page')) {
@@ -606,10 +600,10 @@ class AdminConfigurationController extends AbstractController
                         $image_std_params->applyWatermark($params);
 
                         $changed = $params->use_watermark != $old_use_watermark;
-                        if (!$changed and $params->use_watermark) {
+                        if (!$changed && $params->use_watermark) {
                             $changed = $watermark_changed;
                         }
-                        if (!$changed and $params->use_watermark) {
+                        if (!$changed && $params->use_watermark) {
                             // if thresholds change and before/after the threshold is lower than the corresponding derivative side -> some derivatives might switch the watermark
                             $changed |= $watermark_params->min_size[0] != $old_watermark->min_size[0] && ($watermark_params->min_size[0] < $params->max_width() || $old_watermark->min_size[0] < $params->max_width());
                             $changed |= $watermark_params->min_size[1] != $old_watermark->min_size[1] && ($watermark_params->min_size[1] < $params->max_height() || $old_watermark->min_size[1] < $params->max_height());
@@ -623,7 +617,7 @@ class AdminConfigurationController extends AbstractController
 
                     $image_std_params->save();
 
-                    if (count($changed_types)) {
+                    if ($changed_types !== []) {
                         $derivativeService->clearCache($changed_types, $image_std_params->getAllTypes());
                     }
 
@@ -659,13 +653,13 @@ class AdminConfigurationController extends AbstractController
 
                 // step 1 - sanitize HTML input
                 foreach ($pderivatives as $type => &$pderivative) {
-                    if ($pderivative['must_square'] = ($type == ImageStandardParams::IMG_SQUARE ? true : false)) {
+                    if ($pderivative['must_square'] = ($type == ImageStandardParams::IMG_SQUARE)) {
                         $pderivative['h'] = $pderivative['w'];
                         $pderivative['minh'] = $pderivative['minw'] = $pderivative['w'];
                         $pderivative['crop'] = 100;
                     }
-                    $pderivative['must_enable'] = ($type == ImageStandardParams::IMG_SQUARE || $type == ImageStandardParams::IMG_THUMB || $type == $conf['derivative_default_size']) ? true : false;
-                    $pderivative['enabled'] = isset($pderivative['enabled']) || $pderivative['must_enable'] ? true : false;
+                    $pderivative['must_enable'] = $type == ImageStandardParams::IMG_SQUARE || $type == ImageStandardParams::IMG_THUMB || $type == $conf['derivative_default_size'];
+                    $pderivative['enabled'] = isset($pderivative['enabled']) || $pderivative['must_enable'];
 
                     if (isset($pderivative['crop'])) {
                         $pderivative['crop'] = 100;
@@ -702,33 +696,29 @@ class AdminConfigurationController extends AbstractController
                         }
                     } else {
                         $v = intval($pderivative['w']);
-                        if ($v <= 0 or $v <= $prev_w) {
+                        if ($v <= 0 || $v <= $prev_w) {
                             $errors[$type]['w'] = '>' . $prev_w;
                         }
 
                         $v = intval($pderivative['h']);
-                        if ($v <= 0 or $v <= $prev_h) {
+                        if ($v <= 0 || $v <= $prev_h) {
                             $errors[$type]['h'] = '>' . $prev_h;
                         }
                     }
 
-                    if ((is_countable($errors) ? count($errors) : 0) == 0) {
+                    if ($errors === []) {
                         $prev_w = intval($pderivative['w']);
                         $prev_h = intval($pderivative['h']);
                     }
                 }
 
                 // step 3 - save data
-                if ((is_countable($errors) ? count($errors) : 0) == 0) {
+                if ($errors === []) {
                     $quality_changed = $image_std_params->getQuality() != intval($request->request->get('resize_quality'));
                     $image_std_params->setQuality(intval($request->request->get('resize_quality')));
 
                     $enabled = $image_std_params->getDefinedTypeMap();
-                    if (!empty($conf['disabled_derivatives'])) {
-                        $disabled = $conf['disabled_derivatives'];
-                    } else {
-                        $disabled = [];
-                    }
+                    $disabled = empty($conf['disabled_derivatives']) ? [] : $conf['disabled_derivatives'];
                     $changed_types = [];
 
                     foreach ($image_std_params->getAllTypes() as $type) {
@@ -741,9 +731,7 @@ class AdminConfigurationController extends AbstractController
                                 [intval($pderivative['minw']), intval($pderivative['minh'])]
                             );
                             $new_params = new DerivativeParams($derivative_params);
-
                             $image_std_params->applyWatermark($new_params);
-
                             if (isset($enabled[$type])) {
                                 $old_params = $enabled[$type];
                                 $same = true;
@@ -769,12 +757,12 @@ class AdminConfigurationController extends AbstractController
                                 $enabled[$type] = $new_params;
                                 unset($disabled[$type]);
                             }
-                        } else { // disabled
-                            if (isset($enabled[$type])) { // now disabled, before was enabled
-                                $changed_types[] = $type;
-                                $disabled[$type] = $enabled[$type];
-                                unset($enabled[$type]);
-                            }
+                        } elseif (isset($enabled[$type])) {
+                            // disabled
+                            // now disabled, before was enabled
+                            $changed_types[] = $type;
+                            $disabled[$type] = $enabled[$type];
+                            unset($enabled[$type]);
                         }
                     }
 
@@ -799,7 +787,7 @@ class AdminConfigurationController extends AbstractController
                         $conf->addOrUpdateParam('disabled_derivatives', $disabled, 'base64');
                     }
 
-                    if (count($changed_types)) {
+                    if ($changed_types !== []) {
                         $derivativeService->clearCache($changed_types, $image_std_params->getAllTypes());
                     }
                 }

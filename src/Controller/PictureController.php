@@ -112,7 +112,7 @@ class PictureController extends AbstractController
             }
         }
 
-        if (count($tpl_params['items']) > 0) {
+        if ($tpl_params['items'] !== []) {
             $tpl_params = array_merge(
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection($element_id, $tpl_params['items'], $type, 0, $extra)
@@ -293,7 +293,7 @@ class PictureController extends AbstractController
             $is_favorite = $favoriteRepository->isFavorite($appUserService->getUser()->getId(), $image_id);
             $tpl_params['favorite'] = [
                 'IS_FAVORITE' => $is_favorite,
-                'U_FAVORITE' => $this->generateUrl(!$is_favorite ? 'add_to_favorites' : 'remove_from_favorites', ['image_id' => $image_id])
+                'U_FAVORITE' => $this->generateUrl($is_favorite ? 'remove_from_favorites' : 'add_to_favorites', ['image_id' => $image_id])
             ];
         }
 
@@ -433,11 +433,7 @@ class PictureController extends AbstractController
                 if ($comment_form->isSubmitted() && $comment_form->isValid()) {
                     $imageCommentModel = $comment_form->getData();
 
-                    if (!$conf['comments_validation'] || $appUserService->isAdmin()) {
-                        $validated = true;
-                    } else {
-                        $validated = false;
-                    }
+                    $validated = !$conf['comments_validation'] || $appUserService->isAdmin();
 
                     $comment = new Comment();
                     $comment->setContent($imageCommentModel->getContent());
@@ -472,13 +468,11 @@ class PictureController extends AbstractController
                 'url' => $this->generateUrl('random_list', ['list' => $element_id]),
                 'label' => $translator->trans('Random photos'),
             ]];
-        } else {
+        } elseif ((is_countable($tpl_params['related_categories']) ? count($tpl_params['related_categories']) : 0) > 1) {
             // @TODO: assign TITLE another way
-            if ((is_countable($tpl_params['related_categories']) ? count($tpl_params['related_categories']) : 0) > 1) {
-                $tpl_params['TITLE'] = [$tpl_params['related_categories'][0]];
-            } else {
-                $tpl_params['TITLE'] = $tpl_params['related_categories'];
-            }
+            $tpl_params['TITLE'] = [$tpl_params['related_categories'][0]];
+        } else {
+            $tpl_params['TITLE'] = $tpl_params['related_categories'];
         }
 
         $historyEvent = new HistoryEvent($history_section);
@@ -487,7 +481,7 @@ class PictureController extends AbstractController
             $historyEvent->setAlbum($album);
         }
 
-        if (count($tags) > 0) {
+        if ($tags !== []) {
             $historyEvent->setTagIds(
                 implode(
                     ',',
@@ -637,7 +631,7 @@ class PictureController extends AbstractController
 
             $exif = $metadata->getExifData($path, $exif_mapping);
 
-            if (count($exif) > 0) {
+            if ($exif !== []) {
                 $tpl_meta = [
                     'TITLE' => $this->translator->trans('EXIF Metadata'),
                     'lines' => [],
@@ -668,7 +662,7 @@ class PictureController extends AbstractController
         if ($conf['show_iptc']) {
             $iptc = $metadata->getIptcData($path, $conf['show_iptc_mapping'], ', ');
 
-            if (count($iptc) > 0) {
+            if ($iptc !== []) {
                 $tpl_meta = [
                     'TITLE' => $this->translator->trans('IPTC Metadata'),
                     'lines' => [],

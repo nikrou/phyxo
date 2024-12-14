@@ -42,7 +42,7 @@ class BlockManager
     /**
      * Triggers a notice that allows plugins of menu blocks to register the blocks.
      */
-    public function loadRegisteredBlocks(EventDispatcherInterface $eventDispatcher = null): void
+    public function loadRegisteredBlocks(?EventDispatcherInterface $eventDispatcher = null): void
     {
         if (!is_null($eventDispatcher)) {
             $eventDispatcher->dispatch(new BlockEvent($this));

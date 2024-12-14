@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Image;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\Entity\Caddie;
@@ -48,7 +49,7 @@ class AdminPhotosController extends AbstractController
         TranslatorInterface $translator,
         ImageMapper $imageMapper,
         ManagerRegistry $managerRegistry,
-        int $album_id = null
+        ?int $album_id = null
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -108,12 +109,10 @@ class AdminPhotosController extends AbstractController
             }
         } elseif ($request->getSession()->has('selected_category')) {
             $selected_category = json_decode((string) $request->getSession()->get('selected_category'), true, 512, JSON_THROW_ON_ERROR);
-        } else {
+        } elseif (($last_image = $imageMapper->getRepository()->findAlbumWithLastImageAdded()) instanceof Image) {
             // we need to know the category in which the last photo was added
-            if ($last_image = $imageMapper->getRepository()->findAlbumWithLastImageAdded()) {
-                if ($first_image_albums = $last_image->getImageAlbums()->first()) {
-                    $selected_category = [$first_image_albums->getAlbum()->getId()];
-                }
+            if ($first_image_albums = $last_image->getImageAlbums()->first()) {
+                $selected_category = [$first_image_albums->getAlbum()->getId()];
             }
         }
 

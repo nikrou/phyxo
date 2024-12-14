@@ -41,6 +41,7 @@ class CheckInstallSubscriber implements EventSubscriberInterface
             $response = new RedirectResponse($install_url);
             $event->setResponse($response);
         }
+        return null;
     }
 
     public static function getSubscribedEvents(): array

@@ -47,7 +47,7 @@ class IndexController extends AbstractController
             $tpl_params['items'][] = $image->getId();
         }
 
-        if (count($tpl_params['items']) > 0) {
+        if ($tpl_params['items'] !== []) {
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
@@ -154,7 +154,7 @@ class IndexController extends AbstractController
             $tpl_params['items'][] = $image->getId();
         }
 
-        if (count($tpl_params['items']) > 0) {
+        if ($tpl_params['items'] !== []) {
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             if (count($tpl_params['items']) > $nb_image_page) {
@@ -219,7 +219,7 @@ class IndexController extends AbstractController
             $tpl_params['items'][] = $image->getId();
         }
 
-        if (count($tpl_params['items']) > 0) {
+        if ($tpl_params['items'] !== []) {
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params = array_merge(

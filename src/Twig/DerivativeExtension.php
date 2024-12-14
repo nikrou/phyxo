@@ -67,7 +67,7 @@ class DerivativeExtension extends AbstractExtension
                 $crop = (int) round($params['crop'] / 100, 2);
             }
 
-            if ($crop) {
+            if ($crop !== 0) {
                 $minw = empty($params['min_width']) ? $w : intval($params['min_width']);
                 if ($minw > $w) {
                     throw new Exception('define_derivative invalid min_width');

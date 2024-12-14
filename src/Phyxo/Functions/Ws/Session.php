@@ -27,7 +27,7 @@ class Session
      */
     public static function login($params, Server $service)
     {
-        if ($service->getAppUserService()->getUser() !== null) {
+        if ($service->getAppUserService()->getUser() instanceof User) {
             return true;
         } else {
             return new Error(999, 'Invalid username/password');

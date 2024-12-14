@@ -55,7 +55,7 @@ class AssetsInstallCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $targetArg = rtrim($input->getArgument('target') ?? '', '/');
-        if (!$targetArg) {
+        if ($targetArg === '' || $targetArg === '0') {
             $targetArg = $this->rootProjectDir . '/public';
         }
 
@@ -137,7 +137,7 @@ class AssetsInstallCommand extends Command
 
         $io->newLine();
 
-        if ($rows) {
+        if ($rows !== []) {
             $io->table(['', 'Theme', 'Method / Error'], $rows);
         }
 
@@ -147,7 +147,7 @@ class AssetsInstallCommand extends Command
             if ($copyUsed) {
                 $io->note('Some assets were installed via copy. If you make changes to these assets you have to run this command again.');
             }
-            $io->success($rows ? 'All assets were successfully installed.' : 'No assets were provided by any themes.');
+            $io->success($rows !== [] ? 'All assets were successfully installed.' : 'No assets were provided by any themes.');
         }
 
         return (int) $exitCode;

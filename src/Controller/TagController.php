@@ -93,7 +93,7 @@ class TagController extends AbstractController
             }
 
             // flush last letter
-            if (count($letter['tags']) > 0) {
+            if ($letter['tags'] !== []) {
                 unset($letter['CHANGE_COLUMN']);
                 $letter['TITLE'] = $current_letter;
                 $tpl_params['letters'][] = $letter;
@@ -161,7 +161,7 @@ class TagController extends AbstractController
             $tpl_params['items'][] = $image->getId();
         }
 
-        if (count($tpl_params['items']) > 0) {
+        if ($tpl_params['items'] !== []) {
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
@@ -210,8 +210,9 @@ class TagController extends AbstractController
         $title .= '<a href="' . $this->generateUrl('tags') . '" title="' . $translator->trans('display available tags') . '">';
         $title .= $translator->trans('number_of_tags', ['count' => count($tags)]);
         $title .= '</a>&nbsp;';
+        $counter = count($tags);
 
-        for ($i = 0; $i < count($tags); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             $title .= $i > 0 ? ' + ' : '';
             $title .= '<a href="' . $this->generateUrl('images_by_tags', ['tag_ids' => $tags[$i]->toUrl()]) . '"';
             $title .= ' title="' . $translator->trans('display photos linked to this tag') . '">';

@@ -105,10 +105,10 @@ class Utils
         if ($source_charset == $dest_charset) {
             return $str;
         }
-        if ($source_charset == 'iso-8859-1' and $dest_charset == 'utf-8') {
+        if ($source_charset == 'iso-8859-1' && $dest_charset == 'utf-8') {
             return mb_convert_encoding($str, 'UTF-8', 'ISO-8859-1');
         }
-        if ($source_charset == 'utf-8' and $dest_charset == 'iso-8859-1') {
+        if ($source_charset == 'utf-8' && $dest_charset == 'iso-8859-1') {
             return mb_convert_encoding($str, 'ISO-8859-1');
         }
         if (function_exists('iconv')) {
@@ -172,7 +172,7 @@ class Utils
             if (0 == $level) {
                 $label = $translator->trans('Everybody', [], $domain);
             } else {
-                if (strlen($label)) {
+                if (strlen($label) !== 0) {
                     $label .= ', ';
                 }
                 $label .= $translator->trans('Level ' . $level, [], $domain);
@@ -394,11 +394,7 @@ class Utils
             'tags' => Tag::class,
         ];
 
-        if (empty($requested)) {
-            $returned = array_keys($tables);
-        } else {
-            $returned = array_intersect($requested, array_keys($tables));
-        }
+        $returned = $requested === [] ? array_keys($tables) : array_intersect($requested, array_keys($tables));
 
         $keys = [
             '_hash' => md5($base_url),
@@ -421,12 +417,7 @@ class Utils
         // rotation must be applied to the resized photo, then we should test
         // invert width and height.
         $file_infos = self::image_infos($image_filepath);
-
-        if ($file_infos['width'] > $max_width || $file_infos['height'] > $max_height) {
-            return true;
-        }
-
-        return false;
+        return $file_infos['width'] > $max_width || $file_infos['height'] > $max_height;
     }
 
     public static function image_infos($path): array
@@ -467,7 +458,7 @@ class Utils
 
         if (!is_null($multiply_by)) {
             $value = (int) substr((string) $value, 0, -1);
-            $value = $value * $multiply_by;
+            $value *= $multiply_by;
         }
 
         return $value;

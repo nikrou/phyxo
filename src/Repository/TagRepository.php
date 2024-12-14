@@ -42,7 +42,7 @@ class TagRepository extends ServiceEntityRepository
     public function searchAll(string $q = '')
     {
         $qb = $this->createQueryBuilder('t');
-        if (!empty($q)) {
+        if ($q !== '' && $q !== '0') {
             $qb->where($qb->expr()->like("lower('t.name')", ':q'));
             $qb->setParameter('q', '%' . strtolower($q) . '%');
         }
@@ -72,15 +72,15 @@ class TagRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('t');
 
-        if (count($ids) > 0) {
+        if ($ids !== []) {
             $qb->where($qb->expr()->in('t.id', $ids));
         }
 
-        if (count($names) > 0) {
+        if ($names !== []) {
             $qb->orWhere($qb->expr()->in('t.name', $names));
         }
 
-        if (count($url_names) > 0) {
+        if ($url_names !== []) {
             $qb->orWhere($qb->expr()->in('t.url_name', $url_names));
         }
 
@@ -99,13 +99,13 @@ class TagRepository extends ServiceEntityRepository
         $qb->leftJoin('t.imageTags', 'it');
         $qb->addSelect('COUNT(1) AS counter');
 
-        if (count($items) > 0) {
+        if ($items !== []) {
             $qb->where($qb->expr()->in('it.image', $items));
         }
 
         $this->addValidatedCondition($qb, $user_id);
 
-        if (count($excluded_tag_ids) > 0) {
+        if ($excluded_tag_ids !== []) {
             $qb->andWhere($qb->expr()->notIn('t.id', $excluded_tag_ids));
         }
 

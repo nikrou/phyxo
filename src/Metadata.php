@@ -76,20 +76,16 @@ class Metadata
         $iptc = $this->getIptcData($file, $map);
 
         foreach ($iptc as $iptc_key => $value) {
-            if (in_array($iptc_key, ['date_creation', 'date_available'])) {
-                if (preg_match('/(\d{4})(\d{2})(\d{2})/', (string) $value, $matches)) {
-                    $year = (int) $matches[1];
-                    $month = (int) $matches[2];
-                    $day = (int) $matches[3];
-
-                    if (!checkdate($month, $day, $year)) {
-                        // we suppose the year is correct
-                        $month = 1;
-                        $day = 1;
-                    }
-
-                    $iptc[$iptc_key] = DateTime::createFromFormat('Y-m-d', "{$year}-{$month}-{$day}");
+            if (in_array($iptc_key, ['date_creation', 'date_available']) && preg_match('/(\d{4})(\d{2})(\d{2})/', (string) $value, $matches)) {
+                $year = (int) $matches[1];
+                $month = (int) $matches[2];
+                $day = (int) $matches[3];
+                if (!checkdate($month, $day, $year)) {
+                    // we suppose the year is correct
+                    $month = 1;
+                    $day = 1;
                 }
+                $iptc[$iptc_key] = DateTime::createFromFormat('Y-m-d', "{$year}-{$month}-{$day}");
             }
         }
 
@@ -134,12 +130,9 @@ class Metadata
 
             // GPS data
             $gps_exif = array_intersect_key($exif, array_flip(['GPSLatitudeRef', 'GPSLatitude', 'GPSLongitudeRef', 'GPSLongitude']));
-            if (count($gps_exif) === 4) {
-                if (is_array($gps_exif['GPSLatitude']) && in_array($gps_exif['GPSLatitudeRef'], ['S', 'N'])
-                    && is_array($gps_exif['GPSLongitude']) && in_array($gps_exif['GPSLongitudeRef'], ['W', 'E'])) {
-                    $result['latitude'] = $this->parseExifGpsData($gps_exif['GPSLatitude'], $gps_exif['GPSLatitudeRef']);
-                    $result['longitude'] = $this->parseExifGpsData($gps_exif['GPSLongitude'], $gps_exif['GPSLongitudeRef']);
-                }
+            if (count($gps_exif) === 4 && (is_array($gps_exif['GPSLatitude']) && in_array($gps_exif['GPSLatitudeRef'], ['S', 'N']) && is_array($gps_exif['GPSLongitude']) && in_array($gps_exif['GPSLongitudeRef'], ['W', 'E']))) {
+                $result['latitude'] = $this->parseExifGpsData($gps_exif['GPSLatitude'], $gps_exif['GPSLatitudeRef']);
+                $result['longitude'] = $this->parseExifGpsData($gps_exif['GPSLongitude'], $gps_exif['GPSLongitudeRef']);
             }
         }
 
@@ -164,8 +157,8 @@ class Metadata
         foreach ($exif as $exif_key => $value) {
             if (in_array($exif_key, ['date_creation', 'date_available'])) {
                 if (preg_match('/^(\d{4}).(\d{2}).(\d{2}) (\d{2}).(\d{2}).(\d{2})/', (string) $value, $matches)) {
-                    if ($matches[1] != '0000' && $matches[2] != '00' && $matches[3] != '00'
-                        && $matches[4] != '00' && $matches[5] != '00' && $matches[6] != '00') {
+                    if ($matches[1] !== '0000' && $matches[2] !== '00' && $matches[3] !== '00'
+                        && $matches[4] !== '00' && $matches[5] !== '00' && $matches[6] !== '00') {
                         $exif[$exif_key] = DateTime::createFromFormat(
                             'Y-m-d H:i:s',
                             $matches[1] . '-' . $matches[2] . '-' . $matches[3] . ' ' . $matches[4] . ':' . $matches[5] . ':' . $matches[6]
@@ -206,7 +199,7 @@ class Metadata
         $v = (int) $raw[0] + (int) $raw[1] / 60 + (int) $raw[2] / 3600;
 
         $ref = strtoupper($ref);
-        if ($ref == 'S' or $ref == 'W') {
+        if ($ref === 'S' || $ref === 'W') {
             $v = -$v;
         }
 
@@ -219,32 +212,30 @@ class Metadata
     public function cleanIptcValue(string $value): string
     {
         // strip leading zeros (weird Kodak Scanner software)
-        while (isset($value[0]) && $value[0] == chr(0)) {
+        while (isset($value[0]) && $value[0] === chr(0)) {
             $value = substr($value, 1);
         }
         // remove binary nulls
         $value = str_replace(chr(0x00), ' ', $value);
 
-        if (preg_match('/[\x80-\xff]/', $value)) {
-            // apparently mac uses some MacRoman crap encoding. I don't know
-            // how to detect it so a plugin should do the trick.
-            if (($qual = Language::qualify_utf8($value)) != 0) { // has non ascii chars
-                if ($qual > 0) {
-                    $input_encoding = 'utf-8';
-                } else {
-                    $input_encoding = 'iso-8859-1';
-                    if (function_exists('iconv') || function_exists('mb_convert_encoding')) {
-                        // using windows-1252 because it supports additional characters
-                        // such as "oe" in a single character (ligature). About the
-                        // difference between Windows-1252 and ISO-8859-1: the characters
-                        // 0x80-0x9F will not convert correctly. But these are control
-                        // characters which are almost never used.
-                        $input_encoding = 'windows-1252';
-                    }
+        // apparently mac uses some MacRoman crap encoding. I don't know
+        // how to detect it so a plugin should do the trick.
+        if (preg_match('/[\x80-\xff]/', $value) && ($qual = Language::qualify_utf8($value)) != 0) {
+            // has non ascii chars
+            if ($qual > 0) {
+                $input_encoding = 'utf-8';
+            } else {
+                $input_encoding = 'iso-8859-1';
+                if (function_exists('iconv') || function_exists('mb_convert_encoding')) {
+                    // using windows-1252 because it supports additional characters
+                    // such as "oe" in a single character (ligature). About the
+                    // difference between Windows-1252 and ISO-8859-1: the characters
+                    // 0x80-0x9F will not convert correctly. But these are control
+                    // characters which are almost never used.
+                    $input_encoding = 'windows-1252';
                 }
-
-                $value = Utils::convert_charset($value, $input_encoding, 'utf-8');
             }
+            $value = Utils::convert_charset($value, $input_encoding, 'utf-8');
         }
 
         return $value;

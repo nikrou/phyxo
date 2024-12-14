@@ -58,7 +58,7 @@ class UserInfosRepository extends ServiceEntityRepository
             $qb->set('u.' . $field, ':' . $field);
             $qb->setParameter($field, $value);
         }
-        if (count($user_ids) > 0) {
+        if ($user_ids !== []) {
             $qb->where($qb->expr()->in('u.user', $user_ids));
         }
 
@@ -83,7 +83,7 @@ class UserInfosRepository extends ServiceEntityRepository
     /**
      * @return UserInfos[]
      */
-    public function getNewUsers(DateTimeInterface $start = null, DateTimeInterface $end = null)
+    public function getNewUsers(?DateTimeInterface $start = null, ?DateTimeInterface $end = null)
     {
         $qb = $this->createQueryBuilder('u');
         $this->addBetweenDateCondition($qb, $start, $end);
@@ -91,7 +91,7 @@ class UserInfosRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function countNewUsers(DateTimeInterface $start = null, DateTimeInterface $end = null): int
+    public function countNewUsers(?DateTimeInterface $start = null, ?DateTimeInterface $end = null): int
     {
         $qb = $this->createQueryBuilder('u');
         $qb->select('count(1)');
@@ -100,7 +100,7 @@ class UserInfosRepository extends ServiceEntityRepository
         return $qb->getQuery()->getSingleScalarResult();
     }
 
-    private function addBetweenDateCondition(QueryBuilder $qb, DateTimeInterface $start = null, DateTimeInterface $end = null): QueryBuilder
+    private function addBetweenDateCondition(QueryBuilder $qb, ?DateTimeInterface $start = null, ?DateTimeInterface $end = null): QueryBuilder
     {
         if (!is_null($start)) {
             $qb->andWhere('u.registration_date > :start');

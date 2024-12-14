@@ -52,7 +52,7 @@ class UserProvider implements UserProviderInterface
 
     public function loadByActivationKey(string $key): User
     {
-        if (($user = $this->fetchUserByActivationKey($key)) === null) {
+        if (!($user = $this->fetchUserByActivationKey($key)) instanceof User) {
             throw new TokenNotFoundException(sprintf('Activation key "%s" does not exist.', $key));
         }
 
@@ -137,7 +137,7 @@ class UserProvider implements UserProviderInterface
                         $this->albumMapper->removeComputedAlbum($user_cache_albums, $album_infos);
                     }
                 }
-                if (count($forbidden_ids) > 0) {
+                if ($forbidden_ids !== []) {
                     $forbidden_albums = array_merge($forbidden_albums, $forbidden_ids);
                 }
             }

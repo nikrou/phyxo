@@ -38,9 +38,9 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         return $request->isMethod('POST') && $request->attributes->get('_route') === 'login';
     }
 
-    public function start(Request $request, AuthenticationException $authException = null): Response
+    public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
-        if ($authException !== null) {
+        if ($authException instanceof AuthenticationException) {
             $request->getSession()->set('_redirect', true);
         }
 

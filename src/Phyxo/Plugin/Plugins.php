@@ -70,7 +70,7 @@ class Plugins extends Extensions
     /**
      * Perform requested actions
      */
-    public function performAction(string $action, string $plugin_id, int $revision = null): string
+    public function performAction(string $action, string $plugin_id, ?int $revision = null): string
     {
         if (!$this->db_plugins_retrieved) {
             $this->getDbPlugins();
@@ -232,7 +232,7 @@ class Plugins extends Extensions
             $this->db_plugins_retrieved = true;
         }
 
-        if (!empty($id)) {
+        if ($id !== '' && $id !== '0') {
             return $this->db_plugins[$id] ?? [];
         } else {
             return $this->db_plugins;
@@ -315,7 +315,7 @@ class Plugins extends Extensions
                 'get_nb_downloads' => 'true',
             ];
 
-            if (!empty($plugins_to_check)) {
+            if ($plugins_to_check !== []) {
                 if ($new) {
                     $get_data['extension_exclude'] = implode(',', $plugins_to_check);
                 } else {
@@ -333,7 +333,7 @@ class Plugins extends Extensions
                     $this->server_plugins[$plugin['extension_id']] = $plugin;
                 }
             } catch (Exception $e) {
-                throw new Exception($e->getMessage());
+                throw new Exception($e->getMessage(), $e->getCode(), $e);
             }
 
             $this->server_plugins_retrieved = true;
@@ -391,7 +391,7 @@ class Plugins extends Extensions
 
             return $incompatible_plugins;
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -433,14 +433,14 @@ class Plugins extends Extensions
         try {
             $this->download($archive, $get_data);
         } catch (Exception $e) {
-            throw new Exception("Cannot download plugin file");
+            throw new Exception("Cannot download plugin file", $e->getCode(), $e);
         }
 
         $extract_path = $this->plugins_root_path;
         try {
             $this->extractZipFiles($archive, self::CONFIG_FILE, $extract_path);
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         } finally {
             unlink($archive);
         }

@@ -41,7 +41,7 @@ class AdminAlbumController extends AbstractController
 {
     private TranslatorInterface $translator;
 
-    protected function setTabsheet(int $album_id, string $section = 'properties', int $parent_id = null): TabSheet
+    protected function setTabsheet(int $album_id, string $section = 'properties', ?int $parent_id = null): TabSheet
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('properties', $this->translator->trans('Properties', [], 'admin'), $this->generateUrl('admin_album', ['album_id' => $album_id, 'parent_id' => $parent_id]), 'fa-pencil');
@@ -91,7 +91,7 @@ class AdminAlbumController extends AbstractController
                 }
 
                 if ($conf['activate_comments']) {
-                    $album->setCommentable($request->request->get('commentable') === 'true' ? true : false);
+                    $album->setCommentable($request->request->get('commentable') === 'true');
                     $need_update = true;
                 }
 
@@ -221,7 +221,7 @@ class AdminAlbumController extends AbstractController
         AlbumMapper $albumMapper,
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
-        int $parent_id = null
+        ?int $parent_id = null
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -250,11 +250,12 @@ class AdminAlbumController extends AbstractController
                 $image_order_choice = $request->request->get('image_order_choice');
             }
 
-            $image_order = null;
+            $image_order = '';
             if ($image_order_choice === 'user_define') {
                 for ($i = 0; $i < 3; $i++) {
-                    if ($request->request->get('image_order')[$i]) {
-                        if (!empty($image_order)) {
+                    /** @phpstan-ignore-next-line */
+                    if ($request->request->get('image_order')[$i] !== '' && $request->request->get('image_order')[$i] !== '0') {
+                        if ($image_order !== '') {
                             $image_order .= ',';
                         }
                         $image_order .= $request->request->get('image_order')[$i];
@@ -330,11 +331,7 @@ class AdminAlbumController extends AbstractController
 
         $image_order = explode(',', (string) $album->getImageOrder());
         for ($i = 0; $i < 3; $i++) { // 3 fields
-            if (isset($image_order[$i])) {
-                $tpl_params['image_order'][] = $image_order[$i];
-            } else {
-                $tpl_params['image_order'][] = '';
-            }
+            $tpl_params['image_order'][] = $image_order[$i] ?? '';
         }
 
         $tpl_params['image_order_choice'] = $image_order_choice;
@@ -359,7 +356,7 @@ class AdminAlbumController extends AbstractController
         UserRepository $userRepository,
         GroupRepository $groupRepository,
         ManagerRegistry $managerRegistry,
-        int $parent_id = null
+        ?int $parent_id = null
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -447,7 +444,7 @@ class AdminAlbumController extends AbstractController
         }
 
         $user_granted_indirect_ids = [];
-        if (count($tpl_params['groups_selected']) > 0) {
+        if ($tpl_params['groups_selected'] !== []) {
             $granted_groups = [];
 
             foreach ($groupRepository->findBy(['id' => $tpl_params['groups_selected']]) as $group) {
@@ -511,7 +508,7 @@ class AdminAlbumController extends AbstractController
         GroupRepository $groupRepository,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
-        int $parent_id = null
+        ?int $parent_id = null
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -552,7 +549,7 @@ class AdminAlbumController extends AbstractController
             $all_groups[$group->getId()] = $group->getName();
         }
 
-        if (count($all_groups) === 0) {
+        if ($all_groups === []) {
             $tpl_params['no_group_in_gallery'] = true;
         } else {
             if ($album->getStatus() === Album::STATUS_PRIVATE) {
@@ -561,14 +558,14 @@ class AdminAlbumController extends AbstractController
                     $group_ids[] = $group->getId();
                 }
 
-                if (count($group_ids) === 0) {
+                if ($group_ids === []) {
                     $tpl_params['U_PERMISSIONS'] = $this->generateUrl('admin_album_permissions', ['album_id' => $album_id, 'parent_id' => $parent_id]);
                 }
             } else {
                 $group_ids = array_keys($all_groups);
             }
 
-            if (count($group_ids) > 0) {
+            if ($group_ids !== []) {
                 $tpl_params['group_mail_options'] = array_filter($all_groups, fn ($key) => in_array($key, $group_ids), ARRAY_FILTER_USE_KEY);
             }
         }
@@ -593,7 +590,7 @@ class AdminAlbumController extends AbstractController
         UserMapper $userMapper,
         UserInfosRepository $userInfosRepository,
         TranslatorInterface $translator,
-        int $parent_id = null
+        ?int $parent_id = null
     ): Response {
         if ($request->isMethod('POST')) {
             $album_name = $request->request->get('album_name');
@@ -625,7 +622,7 @@ class AdminAlbumController extends AbstractController
         return $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
     }
 
-    public function delete(int $album_id, AlbumMapper $albumMapper, ImageMapper $imageMapper, UserMapper $userMapper, TranslatorInterface $translator, int $parent_id = null): Response
+    public function delete(int $album_id, AlbumMapper $albumMapper, ImageMapper $imageMapper, UserMapper $userMapper, TranslatorInterface $translator, ?int $parent_id = null): Response
     {
         $albumMapper->deleteAlbums([$album_id]);
 

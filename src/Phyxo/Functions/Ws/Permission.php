@@ -64,11 +64,7 @@ class Permission
             // indirect users
             $album_ids = [];
             if (!empty($params['cat_id'])) {
-                if (is_array($params['cat_id'])) {
-                    $album_ids = $params['cat_id'];
-                } else {
-                    $album_ids = [$params['cat_id']];
-                }
+                $album_ids = is_array($params['cat_id']) ? $params['cat_id'] : [$params['cat_id']];
             }
             foreach ($service->getUserMapper()->getRepository()->findWithAlbumsAccess($album_ids) as $user) {
                 $permissions[$album->getId()]['users_indirect'][] = $user->getId();
@@ -82,23 +78,18 @@ class Permission
 
         // filter by group and user
         foreach ($permissions as $album_id => &$album) {
-            if (!empty($params['group_id'])) {
-                if (empty($album['groups']) || count(array_intersect($album['groups'], $params['group_id'])) === 0) {
-                    unset($permissions[$album_id]);
-                    continue;
-                }
+            if (!empty($params['group_id']) && (empty($album['groups']) || count(array_intersect($album['groups'], $params['group_id'])) === 0)) {
+                unset($permissions[$album_id]);
+                continue;
             }
-            if (!empty($params['user_id'])) {
-                if ((empty($album['users_indirect']) || count(array_intersect($album['users_indirect'], $params['user_id'])) === 0)
-                    && (empty($album['users']) || count(array_intersect($album['users'], $params['user_id'])) === 0)) {
-                    unset($permissions[$album_id]);
-                    continue;
-                }
+            if (!empty($params['user_id']) && ((empty($album['users_indirect']) || count(array_intersect($album['users_indirect'], $params['user_id'])) === 0) && (empty($album['users']) || count(array_intersect($album['users'], $params['user_id'])) === 0))) {
+                unset($permissions[$album_id]);
+                continue;
             }
 
-            $album['groups'] = !empty($album['groups']) ? array_values(array_unique($album['groups'])) : [];
-            $album['users'] = !empty($album['users']) ? array_values(array_unique($album['users'])) : [];
-            $album['users_indirect'] = !empty($album['users_indirect']) ? array_values(array_unique($album['users_indirect'])) : [];
+            $album['groups'] = empty($album['groups']) ? [] : array_values(array_unique($album['groups']));
+            $album['users'] = empty($album['users']) ? [] : array_values(array_unique($album['users']));
+            $album['users_indirect'] = empty($album['users_indirect']) ? [] : array_values(array_unique($album['users_indirect']));
         }
 
         return ['categories' => array_values($permissions)];
@@ -133,14 +124,14 @@ class Permission
 
             foreach ($service->getAlbumMapper()->findByIdsAndStatus($album_ids, Album::STATUS_PRIVATE) as $album) {
                 $need_update = false;
-                if (count($groups) > 0) {
+                if ($groups !== []) {
                     $need_update = true;
                     foreach ($groups as $group) {
                         $album->addGroupAccess($group);
                     }
                 }
 
-                if (count($users) > 0) {
+                if ($users !== []) {
                     $need_update = true;
                     foreach ($users as $user) {
                         $album->addUserAcccess($user);

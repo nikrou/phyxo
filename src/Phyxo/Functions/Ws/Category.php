@@ -55,7 +55,7 @@ class Category
         }
 
         //-------------------------------------------------------- get the images
-        if (count($album_ids) > 0) {
+        if ($album_ids !== []) {
             foreach ($service->getImageMapper()->getRepository()->getImagesFromAlbums($album_ids, $params['per_page'], $params['per_page'] * $params['page']) as $image) {
                 $images[] = $image->toArray();
             }
@@ -303,6 +303,7 @@ class Category
         if ($perform_update) {
             $service->getAlbumMapper()->getRepository()->addOrUpdateAlbum($album);
         }
+        return null;
     }
 
     /**
@@ -331,6 +332,7 @@ class Category
 
         $service->getAlbumMapper()->getRepository()->addOrUpdateAlbum($album);
         $service->getManagerRegistry()->getRepository(UserCacheAlbum::class)->unsetUserRepresentativePictureForAlbum($params['category_id']);
+        return null;
     }
 
     /**
@@ -370,7 +372,7 @@ class Category
         }
 
         if (count($album_ids) == 0) {
-            return;
+            return null;
         }
 
         foreach ($service->getAlbumMapper()->getRepository()->findBy(['id' => $album_ids]) as $album) {
@@ -381,7 +383,7 @@ class Category
                     $image_ids_to_delete[] = $image_album->getImage()->getId();
                 }
                 $album->getImageAlbums()->clear();
-                if (count($image_ids_to_delete) > 0) {
+                if ($image_ids_to_delete !== []) {
                     $service->getImageMapper()->deleteElements($image_ids_to_delete, true);
                 }
             }
@@ -391,13 +393,14 @@ class Category
             foreach ($service->getImageMapper()->getRepository()->findBy(['storage_category_id' => $album_ids]) as $image) {
                 $image_ids[] = $image->getId();
             }
-            if (count($image_ids) > 0) {
+            if ($image_ids !== []) {
                 $service->getImageMapper()->deleteElements($image_ids);
             }
         }
 
         $service->getAlbumMapper()->deleteAlbums($album_ids);
         $service->getAlbumMapper()->updateGlobalRank();
+        return null;
     }
 
     /**
@@ -460,9 +463,10 @@ class Category
         $service->getAlbumMapper()->moveAlbums($category_ids, $params['parent'] === 0 ? null : $params['parent']);
         $service->getUserMapper()->invalidateUserCache();
 
-        if (count($page['errors']) != 0) {
+        if ($page['errors'] !== []) {
             return new Error(403, implode('; ', $page['errors']));
         }
+        return null;
     }
 
     /**

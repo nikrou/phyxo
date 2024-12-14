@@ -100,7 +100,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('i');
         $qb->where($qb->expr()->isNull('i.storage_category_id'));
 
-        if (count($album_ids) > 0) {
+        if ($album_ids !== []) {
             $qb->orWhere($qb->expr()->notIn('i.storage_category_id', $album_ids));
         }
 
@@ -121,7 +121,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->where('i.level > :level');
         $qb->setParameter('level', $level);
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -140,7 +140,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->leftJoin('i.imageAlbums', 'ia');
         $qb->where('i.hit > 0');
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -169,7 +169,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->where('i.date_available >= :recent_date');
         $qb->setParameter('recent_date', $recent_date);
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -204,7 +204,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->leftJoin('i.imageAlbums', 'ia');
         $qb->where($qb->expr()->isNotNull('i.rating_score'));
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -227,7 +227,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -268,7 +268,7 @@ class ImageRepository extends ServiceEntityRepository
             $qb->setParameter('uppercats', $uppercats . ',%');
         }
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_albums));
         }
         $nb_images = $qb->getQuery()->getSingleScalarResult();
@@ -285,7 +285,7 @@ class ImageRepository extends ServiceEntityRepository
                 $qb->setParameter('uppercats', $uppercats . ',%');
             }
 
-            if (count($forbidden_albums) > 0) {
+            if ($forbidden_albums !== []) {
                 $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_albums));
             }
             $qb->setFirstResult(random_int(0, $nb_images - 1));
@@ -309,7 +309,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->leftJoin('i.imageAlbums', 'ia');
         $qb->where($qb->expr()->in('i.id', $ids));
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -321,7 +321,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return Image[]|int
      */
-    public function getNewElements(array $forbidden_albums = [], DateTimeInterface $start = null, DateTimeInterface $end = null, bool $count_only = false): array|int
+    public function getNewElements(array $forbidden_albums = [], ?DateTimeInterface $start = null, ?DateTimeInterface $end = null, bool $count_only = false): array|int
     {
         $qb = $this->createQueryBuilder('i');
         if ($count_only) {
@@ -339,7 +339,7 @@ class ImageRepository extends ServiceEntityRepository
             $qb->setParameter('end', $end);
         }
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -355,7 +355,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return Album[]|int
      */
-    public function getUpdatedAlbums(array $forbidden_albums = [], DateTimeInterface $start = null, DateTimeInterface $end = null, bool $count_only = false): array|int
+    public function getUpdatedAlbums(array $forbidden_albums = [], ?DateTimeInterface $start = null, ?DateTimeInterface $end = null, bool $count_only = false): array|int
     {
         return $this->getNewElements($forbidden_albums, $start, $end, $count_only);
     }
@@ -365,7 +365,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return array<string, array{upp: ?string, img_count: int|string}>
      */
-    public function getRecentImages(int $limit, DateTimeInterface $date_available = null, array $forbidden_albums = [])
+    public function getRecentImages(int $limit, ?DateTimeInterface $date_available = null, array $forbidden_albums = [])
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('DISTINCT(a.uppercats) AS upp, COUNT(i.id) AS img_count');
@@ -374,7 +374,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->where('i.date_available = :date_avaiable');
         $qb->setParameter('date_avaiable', $date_available);
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -401,7 +401,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->select('i.date_available, COUNT(DISTINCT(i.id)) AS nb_elements');
         $qb->leftJoin('i.imageAlbums', 'ia');
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -429,7 +429,7 @@ class ImageRepository extends ServiceEntityRepository
         // $qb->select('DISTINCT(i.id) AS id');
         $qb->leftJoin('i.imageAlbums', 'ia');
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -457,7 +457,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->where('ia.album = :album_id');
         $qb->setParameter('album_id', $album_id);
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -493,12 +493,12 @@ class ImageRepository extends ServiceEntityRepository
 
         $andXExpression = [];
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $andXExpression[] = $qb->expr()->notIn('ia.album', ':ids');
             $qb->setParameter('ids', $forbidden_albums);
         }
 
-        if (count($andXExpression) > 0) {
+        if ($andXExpression !== []) {
             $qb->having($qb->expr()->andX(...$andXExpression));
         }
 
@@ -515,7 +515,7 @@ class ImageRepository extends ServiceEntityRepository
      */
     public function findOneImagePerYear(array $years = [], string $date_type = 'posted', array $forbidden_albums = [])
     {
-        if (count($years) === 0) {
+        if ($years === []) {
             return [];
         }
 
@@ -523,14 +523,14 @@ class ImageRepository extends ServiceEntityRepository
         $fmt .= ' LEFT JOIN phyxo_image_category ic ON i.id = ic.image_id';
         $fmt .= ' WHERE';
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $fmt .= ' ic.category_id NOT IN(%s) AND';
         }
 
         $fmt .= ' EXTRACT(YEAR FROM %s) = ?';
         $fmt .= ' LIMIT 1)';
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $sql_select = sprintf($fmt, implode(', ', $forbidden_albums), $this->getFieldFromDateType($date_type));
         } else {
             /** @phpstan-ignore-next-line */
@@ -566,7 +566,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->groupBy('month');
         $qb->orderBy('month', 'ASC');
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -581,7 +581,7 @@ class ImageRepository extends ServiceEntityRepository
      */
     public function findOneImagePerMonth(int $year, array $months = [], string $date_type = 'posted', array $forbidden_albums = [])
     {
-        if (count($months) === 0) {
+        if ($months === []) {
             return [];
         }
 
@@ -589,7 +589,7 @@ class ImageRepository extends ServiceEntityRepository
         $fmt .= ' LEFT JOIN phyxo_image_category ic ON i.id = ic.image_id';
         $fmt .= ' WHERE';
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $fmt .= ' ic.category_id NOT IN(%s) AND';
         }
 
@@ -597,7 +597,7 @@ class ImageRepository extends ServiceEntityRepository
         $fmt .= ' AND EXTRACT(YEAR FROM %s) = :year';
         $fmt .= ' LIMIT 1)';
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $sql_select = sprintf($fmt, implode(', ', $forbidden_albums), $this->getFieldFromDateType($date_type), $this->getFieldFromDateType($date_type));
         } else {
             /** @phpstan-ignore-next-line */
@@ -636,7 +636,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->setParameter('month', $month);
         $qb->orderBy('day', 'ASC');
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -651,7 +651,7 @@ class ImageRepository extends ServiceEntityRepository
      */
     public function findOneImagePerDay(int $year, int $month, array $days = [], string $date_type = 'posted', array $forbidden_albums = [])
     {
-        if (count($days) === 0) {
+        if ($days === []) {
             return [];
         }
 
@@ -659,7 +659,7 @@ class ImageRepository extends ServiceEntityRepository
         $fmt .= ' LEFT JOIN phyxo_image_category ic ON i.id = ic.image_id';
         $fmt .= ' WHERE';
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $fmt .= ' ic.category_id NOT IN(%s) AND';
         }
 
@@ -668,7 +668,7 @@ class ImageRepository extends ServiceEntityRepository
         $fmt .= ' AND EXTRACT(YEAR FROM %s) = :year';
         $fmt .= ' LIMIT 1)';
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $sql_select = sprintf(
                 $fmt,
                 implode(', ', $forbidden_albums),
@@ -708,7 +708,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->leftJoin('i.imageAlbums', 'ia');
         $qb->where('DATE(i.' . $this->getFieldFromDateType($date_type) . ') = :date');
         $qb->setParameter('date', $date);
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -991,7 +991,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->where($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
         $qb->andWhere($qb->expr()->isNotNull('i.author'));
@@ -1028,7 +1028,7 @@ class ImageRepository extends ServiceEntityRepository
         $search_value = '%' . str_replace(' ', '%', trim(strtolower($words))) . '%';
 
         $qb = $this->createQueryBuilder('i');
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->leftJoin('i.imageAlbums', 'ia');
             $qb->where($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
@@ -1054,7 +1054,7 @@ class ImageRepository extends ServiceEntityRepository
         $whereMethod = $rules['mode'] == 'AND' ? 'andWhere' : 'orWhere';
 
         $qb = $this->createQueryBuilder('i');
-        if (count($forbidden_albums) > 0 || isset($rules['fields']['cat'])) {
+        if ($forbidden_albums !== [] || isset($rules['fields']['cat'])) {
             $qb->leftJoin('i.imageAlbums', 'ia');
         }
 
@@ -1072,7 +1072,7 @@ class ImageRepository extends ServiceEntityRepository
                 }
             }
         }
-        if (count($clauses) > 0) {
+        if ($clauses !== []) {
             $qb->$whereMethod(...$clauses);
         }
 
@@ -1099,7 +1099,7 @@ class ImageRepository extends ServiceEntityRepository
             $qb->$whereMethod(...$clauses);
         }
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -1151,7 +1151,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->where('i.id = :image_id');
         $qb->setParameter('image_id', $image_id);
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
@@ -1166,7 +1166,7 @@ class ImageRepository extends ServiceEntityRepository
      */
     public function getImageIdsForTags(array $forbidden_albums = [], array $tag_ids = [], string $mode = 'AND')
     {
-        if (empty($tag_ids)) {
+        if ($tag_ids === []) {
             return [];
         }
 
@@ -1174,7 +1174,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->leftJoin('i.imageTags', 'it');
         $qb->where($qb->expr()->in('it.tag', $tag_ids));
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->leftJoin('i.imageAlbums', 'ia');
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }

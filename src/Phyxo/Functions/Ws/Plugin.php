@@ -31,11 +31,7 @@ class Plugin
         $plugin_list = [];
 
         foreach ($plugins->getFsPlugins() as $plugin_id => $fs_plugin) {
-            if (isset($plugins->getDbPlugins()[$plugin_id])) {
-                $state = $plugins->getDbPlugins()[$plugin_id]['state'];
-            } else {
-                $state = 'uninstalled';
-            }
+            $state = isset($plugins->getDbPlugins()[$plugin_id]) ? $plugins->getDbPlugins()[$plugin_id]['state'] : 'uninstalled';
 
             $plugin_list[] = [
                 'id' => $plugin_id,
@@ -62,8 +58,9 @@ class Plugin
         $plugins->setRootPath($service->getParams()->get('plugins_dir'));
         $error = $plugins->performAction($params['action'], $params['plugin']);
 
-        if (!empty($error)) {
+        if ($error !== '' && $error !== '0') {
             return new Error(500, $error);
         }
+        return null;
     }
 }

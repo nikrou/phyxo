@@ -70,7 +70,7 @@ class SearchController extends AbstractController
 
         $available_tags = $tagMapper->getAvailableTags($appUserService->getUser());
 
-        if (count($available_tags) > 0) {
+        if ($available_tags !== []) {
             usort($available_tags, $tagMapper->alphaCompare(...));
             $tpl_params['TAGS'] = $available_tags;
         }
@@ -151,12 +151,7 @@ class SearchController extends AbstractController
 
             /** @phpstan-ignore-next-line */
             if ($request->request->has('authors') && is_array($request->request->all('authors')) && (is_countable($request->request->all('authors')) ? count($request->request->all('authors')) : 0) > 0) {
-                $authors = [];
-
-                foreach ($request->request->all('authors') as $author) {
-                    $authors[] = $author;
-                }
-
+                $authors = $request->request->all('authors');
                 $rules['fields']['author'] = [
                     'words' => $authors,
                     'mode' => 'OR',
@@ -166,7 +161,7 @@ class SearchController extends AbstractController
             if ($request->request->has('cat')) {
                 $rules['fields']['cat'] = [
                     'words' => $request->request->all('cat'),
-                    'sub_inc' => ($request->request->get('subcats-included') == 1) ? true : false,
+                    'sub_inc' => $request->request->get('subcats-included') == 1,
                 ];
             }
 
@@ -197,7 +192,7 @@ class SearchController extends AbstractController
                 ];
             }
 
-            if (count($rules) > 0) {
+            if ($rules !== []) {
                 // default search mode : each clause must be respected
                 $rules['mode'] = 'AND';
 
@@ -285,7 +280,7 @@ class SearchController extends AbstractController
                 $cats = array_merge($cats, $search_results['qsearch_details']['matching_cats']);
             }
 
-            if (count($cats) > 0) {
+            if ($cats !== []) {
                 usort($cats, '\Phyxo\Functions\Utils::name_compare');
                 $hints = [];
                 foreach ($cats as $cat) {
@@ -304,9 +299,8 @@ class SearchController extends AbstractController
             }
         }
 
-        if (count($tpl_params['items']) > 0) {
+        if ($tpl_params['items'] !== []) {
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
-
             $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
                 $router,
                 'search_results',
@@ -316,7 +310,6 @@ class SearchController extends AbstractController
                 $nb_image_page,
                 $conf['paginate_pages_around']
             );
-
             $tpl_params = array_merge(
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
@@ -326,18 +319,15 @@ class SearchController extends AbstractController
                     $start
                 )
             );
-
             /** @phpstan-ignore-next-line */
             if (!empty($search_results['qsearch_details']) && !empty($search_results['qsearch_details']['unmatched_terms'])) {
                 /** @phpstan-ignore-next-line */
                 $tpl_params['no_search_results'] = $search_results['qsearch_details']['unmatched_terms'];
             }
-        } else {
             /** @phpstan-ignore-next-line */
-            if (!empty($search_results['qsearch_details']) && !empty($search_results['qsearch_details']['q'])) {
-                /** @phpstan-ignore-next-line */
-                $tpl_params['no_search_results'] = $search_results['qsearch_details']['q'];
-            }
+        } elseif (!empty($search_results['qsearch_details']) && !empty($search_results['qsearch_details']['q'])) {
+            /** @phpstan-ignore-next-line */
+            $tpl_params['no_search_results'] = $search_results['qsearch_details']['q'];
         }
 
         if ($request->cookies->has('category_view')) {
@@ -368,7 +358,7 @@ class SearchController extends AbstractController
         }
 
         if (isset($rules['fields']['allwords'])) {
-            $tpl_params['search_words'] = $translator->trans('searched words : {words}', ['words' => join(', ', $rules['fields']['allwords']['words'])]);
+            $tpl_params['search_words'] = $translator->trans('searched words : {words}', ['words' => implode(', ', $rules['fields']['allwords']['words'])]);
         }
 
         if (isset($rules['fields']['tags'])) {
@@ -381,7 +371,7 @@ class SearchController extends AbstractController
         }
 
         if (isset($rules['fields']['author'])) {
-            $tpl_params['search_words'] = $translator->trans('author(s) : {authors}', ['authors' => join(', ', array_map('strip_tags', $rules['fields']['author']['words']))]);
+            $tpl_params['search_words'] = $translator->trans('author(s) : {authors}', ['authors' => implode(', ', array_map('strip_tags', $rules['fields']['author']['words']))]);
         }
 
         if (isset($rules['fields']['cat'])) {
@@ -397,7 +387,7 @@ class SearchController extends AbstractController
             foreach ($albumMapper->getRepository()->findBy(['id' => $album_ids]) as $album) {
                 $albums[] = $album;
             }
-            usort($albums, [AlbumMapper::class, 'globalRankCompare']);
+            usort($albums, AlbumMapper::globalRankCompare(...));
 
             foreach ($albums as $album) {
                 $tpl_params['search_categories'] = $albumMapper->getAlbumsDisplayName($album->getUppercats(), 'album');

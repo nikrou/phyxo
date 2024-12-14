@@ -119,7 +119,7 @@ class User
             $users[$user['id']] = $user;
         }
 
-        if (count($users) > 0) {
+        if ($users !== []) {
             foreach ($users as $cur_user) {
                 $fmt = new IntlDateFormatter($service->getUserMapper()->getUser()->getLocale(), IntlDateFormatter::FULL, IntlDateFormatter::NONE);
 
@@ -141,7 +141,7 @@ class User
                     $history_ids[] = $history->getId();
                 }
 
-                if (count($history_ids) > 0) {
+                if ($history_ids !== []) {
                     foreach ($service->getManagerRegistry()->getRepository(History::class)->findBy(['id' => $history_ids]) as $history) {
                         $last_visit = $history->getDate();
                         $last_visit->setTime(...explode(':', $history->getTime()->format('h:i:s')));
@@ -171,10 +171,8 @@ class User
      */
     public static function add($params, Server $service)
     {
-        if ($service->getConf()['double_password_type_in_admin']) {
-            if ($params['password'] != $params['password_confirm']) {
-                return new Error(Server::WS_ERR_INVALID_PARAM, 'The passwords do not match');
-            }
+        if ($service->getConf()['double_password_type_in_admin'] && $params['password'] != $params['password_confirm']) {
+            return new Error(Server::WS_ERR_INVALID_PARAM, 'The passwords do not match');
         }
 
         try {
@@ -368,7 +366,7 @@ class User
             $service->getManagerRegistry()->getRepository(UserInfos::class)->updateFieldForUsers('status', $update_status, $params['user_id_for_status']);
         }
 
-        if (count($updates_infos) > 0) {
+        if ($updates_infos !== []) {
             $service->getManagerRegistry()->getRepository(UserInfos::class)->updateFieldsForUsers($updates_infos, $params['user_id']);
         }
 

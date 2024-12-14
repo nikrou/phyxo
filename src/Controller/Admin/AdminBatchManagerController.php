@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use DateTimeInterface;
 use DateTime;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
@@ -69,7 +70,7 @@ class AdminBatchManagerController extends AbstractController
     protected function appendFilter(SessionInterface $session, array $filter = []): void
     {
         $previous_filter = $this->getFilter($session);
-        if (empty($previous_filter)) {
+        if ($previous_filter === []) {
             $previous_filter = [];
         }
 
@@ -110,7 +111,7 @@ class AdminBatchManagerController extends AbstractController
         ManagerRegistry $managerRegistry,
         string $rootProjectDir,
         ImageLibraryGuesser $imageLibraryGuesser,
-        string $filter = null,
+        ?string $filter = null,
         int $start = 0
     ): Response {
         $tpl_params = [];
@@ -166,13 +167,10 @@ class AdminBatchManagerController extends AbstractController
                 }
             }
 
-            if ($request->request->get('filter_level_use')) {
-                if (in_array($request->request->get('filter_level'), $conf['available_permission_levels'])) {
-                    $this->appendFilter($request->getSession(), ['level' => $request->request->get('filter_level')]);
-
-                    if ($request->request->get('filter_level_include_lower')) {
-                        $this->appendFilter($request->getSession(), ['level_include_lower' => true]);
-                    }
+            if ($request->request->get('filter_level_use') && in_array($request->request->get('filter_level'), $conf['available_permission_levels'])) {
+                $this->appendFilter($request->getSession(), ['level' => $request->request->get('filter_level')]);
+                if ($request->request->get('filter_level_include_lower')) {
+                    $this->appendFilter($request->getSession(), ['level_include_lower' => true]);
                 }
             }
 
@@ -309,7 +307,7 @@ class AdminBatchManagerController extends AbstractController
         }
 
         // creation date
-        $tpl_params['DATE_CREATION'] = !$request->request->get('date_creation') ? date('Y-m-d') . ' 00:00:00' : $request->request->get('date_creation');
+        $tpl_params['DATE_CREATION'] = $request->request->get('date_creation') ?: date('Y-m-d') . ' 00:00:00';
 
         // image level options
         $tpl_params['level_options'] = Utils::getPrivacyLevelOptions($translator, $conf['available_permission_levels'], 'admin');
@@ -332,12 +330,10 @@ class AdminBatchManagerController extends AbstractController
                 $nb_images = (int) $request->get('display');
             }
             $request->getSession()->set('unit_display', $nb_images);
+        } elseif ($request->getSession()->has('unit_display')) {
+            $nb_images = $request->getSession()->get('unit_display');
         } else {
-            if ($request->getSession()->has('unit_display')) {
-                $nb_images = $request->getSession()->get('unit_display');
-            } else {
-                $nb_images = 20;
-            }
+            $nb_images = 20;
         }
         $nb_thumbs_page = 0;
 
@@ -468,7 +464,7 @@ class AdminBatchManagerController extends AbstractController
         array $collection = [],
     ): ?Response {
         // if the user tries to apply an action, it means that there is at least 1 photo in the selection
-        if (count($collection) === 0 && !$request->request->get('submitFilter')) {
+        if ($collection === [] && !$request->request->get('submitFilter')) {
             $this->addFlash('error', $this->translator->trans('Select at least one photo', [], 'admin'));
             return null;
         }
@@ -494,7 +490,7 @@ class AdminBatchManagerController extends AbstractController
             if ($request->request->has('del_tags')) {
                 $imageTagRepository->deleteByImagesAndTags($collection, $request->request->all('del_tags'));
 
-                if (!empty($this->getFilter($request->getSession())['tags']) && count(array_intersect($this->getFilter($request->getSession())['tags'], $request->request->all('del_tags'))) > 0) {
+                if (!empty($this->getFilter($request->getSession())['tags']) && array_intersect($this->getFilter($request->getSession())['tags'], $request->request->all('del_tags')) !== []) {
                     $redirect = true;
                 }
             } else {
@@ -530,7 +526,7 @@ class AdminBatchManagerController extends AbstractController
                 $dissociables[] = $image->getId();
             }
 
-            if (count($dissociables) > 0) {
+            if ($dissociables !== []) {
                 $imageAlbumRepository->deleteByAlbum([$request->request->get('dissociate')], $dissociables);
                 $this->addFlash('success', $this->translator->trans('Information data registered in database', [], 'admin'));
 
@@ -538,20 +534,10 @@ class AdminBatchManagerController extends AbstractController
                 $redirect = true;
             }
         } elseif ($action === 'author') {
-            if ($request->request->get('remove_author')) {
-                $author = null;
-            } else {
-                $author = $request->request->get('author');
-            }
-
+            $author = $request->request->get('remove_author') ? null : $request->request->get('author');
             $imageMapper->getRepository()->updateFieldForImages($collection, 'author', $author);
         } elseif ($action === 'title') {
-            if ($request->request->get('remove_title')) {
-                $title = null;
-            } else {
-                $title = $request->request->get('title');
-            }
-
+            $title = $request->request->get('remove_title') ? null : $request->request->get('title');
             $imageMapper->getRepository()->updateFieldForImages($collection, 'name', $title);
         } elseif ($action === 'date_creation') {
             if ($request->request->get('remove_date_creation') || !$request->request->get('date_creation')) {
@@ -564,10 +550,8 @@ class AdminBatchManagerController extends AbstractController
         } elseif ($action === 'level') { // privacy_level
             $imageMapper->getRepository()->updateFieldForImages($collection, 'level', $request->request->get('level'));
 
-            if (!empty($this->getFilter($request->getSession())['level'])) {
-                if ($request->request->get('level') < $this->getFilter($request->getSession())['level']) {
-                    $redirect = true;
-                }
+            if (!empty($this->getFilter($request->getSession())['level']) && $request->request->get('level') < $this->getFilter($request->getSession())['level']) {
+                $redirect = true;
             }
         } elseif ($action === 'add_to_caddie') {
             $userCaddies = $this->user->getCaddies();
@@ -669,7 +653,7 @@ class AdminBatchManagerController extends AbstractController
                     break;
 
                 case 'last_import':
-                    if ($max_date_available = $imageMapper->getRepository()->findMaxDateAvailable()) {
+                    if (($max_date_available = $imageMapper->getRepository()->findMaxDateAvailable()) instanceof DateTimeInterface) {
                         $image_ids = [];
                         foreach ($imageMapper->getRepository()->findImagesFromLastImport($max_date_available) as $image) {
                             $image_ids[] = $image->getId();
@@ -870,7 +854,7 @@ class AdminBatchManagerController extends AbstractController
             $filesizes[] = sprintf('%.1f', $image->getFilesize() / 1024);
         }
 
-        if (count($widths) === 0) { // arbitrary values, only used when no photos on the gallery
+        if ($widths === []) { // arbitrary values, only used when no photos on the gallery
             $widths = [600, 1920, 3500];
             $heights = [480, 1080, 2300];
             $ratios = [1.25, 1.52, 1.78];
@@ -909,9 +893,9 @@ class AdminBatchManagerController extends AbstractController
         foreach ($ratios as $ratio) {
             if ($ratio < 0.95) {
                 $ratio_categories['portrait'][] = $ratio;
-            } elseif ($ratio >= 0.95 and $ratio <= 1.05) {
+            } elseif ($ratio >= 0.95 && $ratio <= 1.05) {
                 $ratio_categories['square'][] = $ratio;
-            } elseif ($ratio > 1.05 and $ratio < 2) {
+            } elseif ($ratio > 1.05 && $ratio < 2) {
                 $ratio_categories['landscape'][] = $ratio;
             } elseif ($ratio >= 2) {
                 $ratio_categories['panorama'][] = $ratio;
@@ -919,7 +903,7 @@ class AdminBatchManagerController extends AbstractController
         }
 
         foreach (array_keys($ratio_categories) as $type) {
-            if (count($ratio_categories[$type]) > 0) {
+            if ($ratio_categories[$type] !== []) {
                 $dimensions['ratio_' . $type] = [
                     'min' => $ratio_categories[$type][0],
                     'max' => end($ratio_categories[$type]),
@@ -938,7 +922,7 @@ class AdminBatchManagerController extends AbstractController
 
         $tpl_params['dimensions'] = $dimensions;
 
-        if (count($filesizes) === 0) { // arbitrary values, only used when no photos on the gallery
+        if ($filesizes === []) { // arbitrary values, only used when no photos on the gallery
             $filesizes = [0, 1, 2, 5, 8, 15];
         }
 
@@ -983,7 +967,7 @@ class AdminBatchManagerController extends AbstractController
         FavoriteRepository $favoriteRepository,
         RouterInterface $router,
         ManagerRegistry $managerRegistry,
-        string $filter = null,
+        ?string $filter = null,
         int $start = 0
     ): Response {
         $tpl_params = [];
@@ -1082,7 +1066,7 @@ class AdminBatchManagerController extends AbstractController
         }
 
         // creation date
-        $tpl_params['DATE_CREATION'] = !$request->request->get('date_creation') ? date('Y-m-d') . ' 00:00:00' : $request->request->get('date_creation');
+        $tpl_params['DATE_CREATION'] = $request->request->get('date_creation') ?: date('Y-m-d') . ' 00:00:00';
 
         // image level options
         $tpl_params['level_options'] = Utils::getPrivacyLevelOptions($translator, $conf['available_permission_levels'], 'admin');
@@ -1103,12 +1087,10 @@ class AdminBatchManagerController extends AbstractController
         if ($request->get('display')) {
             $nb_images = (int) $request->get('display');
             $request->getSession()->set('global_display', $nb_images);
+        } elseif ($request->getSession()->has('global_display')) {
+            $nb_images = $request->getSession()->get('global_display');
         } else {
-            if ($request->getSession()->has('global_display')) {
-                $nb_images = $request->getSession()->get('global_display');
-            } else {
-                $nb_images = 5;
-            }
+            $nb_images = 5;
         }
         if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
             $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_unit', ['filter' => $filter], is_countable($current_set) ? count($current_set) : 0, $start, $nb_images);

@@ -41,11 +41,11 @@ class ImageAlbumRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('ia');
         $qb->select('count(distinct(ia.image))');
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->where($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 
-        if (count($image_ids) > 0) {
+        if ($image_ids !== []) {
             if ($access_type === 'NOT IN') {
                 $qb->andWhere($qb->expr()->notIn('ia.image', $image_ids));
             } else {
@@ -190,18 +190,18 @@ class ImageAlbumRepository extends ServiceEntityRepository
      */
     public function deleteByAlbum(array $ids = [], array $image_ids = []): void
     {
-        if (count($ids) === 0 && count($image_ids) === 0) {
+        if ($ids === [] && $image_ids === []) {
             return;
         }
 
         $qb = $this->createQueryBuilder('ia');
         $qb->delete();
 
-        if (count($ids) > 0) {
+        if ($ids !== []) {
             $qb->where($qb->expr()->in('ia.album', $ids));
         }
 
-        if (count($image_ids) > 0) {
+        if ($image_ids !== []) {
             $qb->andWhere($qb->expr()->in('ia.image', $image_ids));
         }
 
@@ -216,7 +216,7 @@ class ImageAlbumRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('ia');
         $qb->delete();
 
-        if (count($ids) > 0) {
+        if ($ids !== []) {
             $qb->where($qb->expr()->in('ia.image', $ids));
         }
 
@@ -243,7 +243,7 @@ class ImageAlbumRepository extends ServiceEntityRepository
         $qb->where('ia.image = :image_id');
         $qb->setParameter('image_id', $image_id);
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
 

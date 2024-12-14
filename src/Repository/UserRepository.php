@@ -127,7 +127,7 @@ class UserRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('u');
         $qb->leftJoin('u.user_access', 'ua');
 
-        if (count($album_ids) > 0) {
+        if ($album_ids !== []) {
             $qb->where($qb->expr()->in('ua.cat_id', $album_ids));
         }
 

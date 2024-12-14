@@ -223,11 +223,7 @@ class MediaController extends AbstractController
 
         if (is_readable($derivative_src)) {
             $derivative_mtime = filemtime($derivative_src);
-            if ($derivative_mtime < $src_mtime) {
-                $need_generate = true;
-            } else {
-                $need_generate = false;
-            }
+            $need_generate = $derivative_mtime < $src_mtime;
         }
 
         return $need_generate;

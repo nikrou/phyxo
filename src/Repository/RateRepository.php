@@ -46,7 +46,7 @@ class RateRepository extends ServiceEntityRepository
         return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_SCALAR);
     }
 
-    public function countImagesRatedForUser(int $user_id, string $operator = null) : int
+    public function countImagesRatedForUser(int $user_id, ?string $operator = null) : int
     {
         $qb = $this->createQueryBuilder('r');
         $qb->select('COUNT(DISTINCT(r.image))');
@@ -59,7 +59,7 @@ class RateRepository extends ServiceEntityRepository
         return $qb->getQuery()->getSingleScalarResult();
     }
 
-    public function getRatePerImage(int $user_id, string $order, int $limit, string $operator = null, int $offset = 0)
+    public function getRatePerImage(int $user_id, string $order, int $limit, ?string $operator = null, int $offset = 0)
     {
         $qb = $this->createQueryBuilder('r');
         $qb->leftJoin('r.image', 'i');

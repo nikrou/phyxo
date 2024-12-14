@@ -181,7 +181,7 @@ class AlbumRepository extends ServiceEntityRepository
     /**
      * @param int[] $forbidden_albums
      */
-    public function getQueryBuilderForFindAllowedAlbums(array $forbidden_albums = [], QueryBuilder $qb = null): QueryBuilder
+    public function getQueryBuilderForFindAllowedAlbums(array $forbidden_albums = [], ? QueryBuilder $qb = null): QueryBuilder
     {
         $method = 'andWhere';
 
@@ -190,7 +190,7 @@ class AlbumRepository extends ServiceEntityRepository
             $method = 'where';
         }
 
-        if (count($forbidden_albums) > 0) {
+        if ($forbidden_albums !== []) {
             $qb->$method($qb->expr()->notIn('a.id', $forbidden_albums));
         }
 
@@ -239,7 +239,7 @@ class AlbumRepository extends ServiceEntityRepository
         $qb->where('a.status = :status');
         $qb->setParameter('status', Album::STATUS_PRIVATE);
 
-        if (count($album_ids) > 0) {
+        if ($album_ids !== []) {
             $qb->andWhere($qb->expr()->notIn('a.id', $album_ids));
         }
 
@@ -321,7 +321,7 @@ class AlbumRepository extends ServiceEntityRepository
         $qb->andWhere('a.status = :status');
         $qb->setParameter('status', Album::STATUS_PRIVATE);
 
-        if (count($exclude_album_ids) > 0) {
+        if ($exclude_album_ids !== []) {
             $qb->andWhere($qb->expr()->notIn('a.id', $exclude_album_ids));
         }
 
@@ -582,7 +582,7 @@ class AlbumRepository extends ServiceEntityRepository
         $qb->leftJoin('a.imageAlbums', 'ia');
         $qb->leftJoin('ia.image', 'i', Join::WITH, 'a.representative_picture_id = i.id');
         $qb->where($qb->expr()->isNotNull('a.representative_picture_id'));
-        if (count($album_ids) > 0) {
+        if ($album_ids !== []) {
             $qb->andWhere($qb->expr()->in('a.id', $album_ids));
         }
         $qb->andWhere($qb->expr()->isNotNull('i.id'));
@@ -606,7 +606,7 @@ class AlbumRepository extends ServiceEntityRepository
         $qb->select('DISTINCT(a.id)');
         $qb->leftJoin('a.imageAlbums', 'ia');
         $qb->where($qb->expr()->isNull('a.representative_picture_id'));
-        if (count($album_ids) > 0) {
+        if ($album_ids !== []) {
             $qb->andWhere($qb->expr()->in('a.id', $album_ids));
         }
         $qb->andWhere($qb->expr()->isNotNull('ia.image'));

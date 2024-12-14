@@ -65,7 +65,7 @@ class DerivativeImage
         $rotation = intval($this->image->getRotation()) % 4;
         // 1 or 5 =>  90 clockwise
         // 3 or 7 => 270 clockwise
-        if ($rotation % 2) {
+        if ($rotation % 2 !== 0) {
             $width = $this->image->getHeight();
             $height = $this->image->getWidth();
         }
@@ -85,7 +85,7 @@ class DerivativeImage
             $this->params->add_url_tokens($tokens);
         }
 
-        return sprintf('%s', implode('', $tokens));
+        return implode('', $tokens);
     }
 
     /**
@@ -94,7 +94,7 @@ class DerivativeImage
     public function getLiteralSize(): string
     {
         $size = $this->getSize();
-        if (!$size) {
+        if ($size === []) {
             return '';
         }
 
@@ -111,7 +111,7 @@ class DerivativeImage
 
     private function buildInfos(): array
     {
-        if (count($this->getSize()) > 0 && $this->params->is_identity($this->getSize())) {
+        if ($this->getSize() !== [] && $this->params->is_identity($this->getSize())) {
             // the source image is smaller than what we should do - we do not upsample
             if (!$this->params->will_watermark($this->getSize(), $this->image_std_params) && !$this->image->getRotation()) {
                 // no watermark, no rotation required -> we will use the source image
@@ -124,7 +124,8 @@ class DerivativeImage
             }
 
             $defined_types = array_keys($this->image_std_params->getDefinedTypeMap());
-            for ($i = 0; $i < count($defined_types); $i++) {
+            $counter = count($defined_types);
+            for ($i = 0; $i < $counter; $i++) {
                 if ($defined_types[$i] == $this->params->type) {
                     for ($i--; $i >= 0; $i--) {
                         $smaller = $this->image_std_params->getByType($defined_types[$i]);

@@ -11,6 +11,8 @@
 
 namespace App\EventSubscriber;
 
+use App\Entity\Album;
+use App\Entity\Image;
 use DateTime;
 use App\DataMapper\UserMapper;
 use App\Entity\History;
@@ -53,10 +55,10 @@ class HistorySubscriber implements EventSubscriberInterface
         $history->setTime($now);
         $history->setSection($event->getSection());
         $history->setUser($this->appUserService->getUser());
-        if ($event->getAlbum()) {
+        if ($event->getAlbum() instanceof Album) {
             $history->setAlbum($event->getAlbum());
         }
-        if ($event->getImage()) {
+        if ($event->getImage() instanceof Image) {
             $history->setImage($event->getImage());
         }
         $history->setIp(md5($event->getIp()));

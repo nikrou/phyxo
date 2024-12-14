@@ -100,8 +100,9 @@ class AdminRatingController extends AbstractController
             [$translator->trans('Creation date', [], 'admin'), 'date_creation DESC'],
             [$translator->trans('Post date', [], 'admin'), 'date_available DESC'],
         ];
+        $counter = count($available_order_by);
 
-        for ($i = 0; $i < count($available_order_by); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             $tpl_params['order_by_options'][] = $available_order_by[$i][0];
         }
         $tpl_params['order_by_options_selected'] = [$order_by_index];
@@ -221,11 +222,7 @@ class AdminRatingController extends AbstractController
                 $users_by_id[$rate->getUser()->getId()] = ['name' => '???' . $rate->getUser()->getId(), 'anon' => false];
             }
             $usr = $users_by_id[$rate->getUser()->getId()];
-            if ($usr['anon']) {
-                $user_key = $usr['name'] . '(' . $rate->getAnonymousId() . ')';
-            } else {
-                $user_key = $usr['name'];
-            }
+            $user_key = $usr['anon'] ? $usr['name'] . '(' . $rate->getAnonymousId() . ')' : $usr['name'];
             $rating = &$by_user_ratings[$user_key];
             if (is_null($rating)) {
                 $rating = $by_user_rating_model;
@@ -247,7 +244,7 @@ class AdminRatingController extends AbstractController
 
         // get image tn urls
         $image_urls = [];
-        if (count($image_ids) > 0) {
+        if ($image_ids !== []) {
             $d_params = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
             foreach ($imageMapper->getRepository()->findBy(['id' => array_keys($image_ids)]) as $image) {
                 $derivative = new DerivativeImage($image, $d_params, $image_std_params);
@@ -295,7 +292,7 @@ class AdminRatingController extends AbstractController
             }
 
             $consensus_dev /= $c;
-            if ($consensus_dev_top_count) {
+            if ($consensus_dev_top_count !== 0) {
                 $consensus_dev_top /= $consensus_dev_top_count;
             }
 
@@ -306,7 +303,7 @@ class AdminRatingController extends AbstractController
                 'avg' => $s / $c,
                 'cv' => $s == 0 ? -1 : sqrt($var) / ($s / $c), // http://en.wikipedia.org/wiki/Coefficient_of_variation
                 'cd' => $consensus_dev,
-                'cdtop' => $consensus_dev_top_count ? $consensus_dev_top : '',
+                'cdtop' => $consensus_dev_top_count !== 0 ? $consensus_dev_top : '',
             ];
         }
 
@@ -328,8 +325,9 @@ class AdminRatingController extends AbstractController
             [$translator->trans('Consensus deviation', [], 'admin'), 'consensus_dev_compare'],
             [$translator->trans('Last', [], 'admin'), 'last_rate_compare'],
         ];
+        $counter = count($available_order_by);
 
-        for ($i = 0; $i < count($available_order_by); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             $tpl_params['order_by_options'][] = $available_order_by[$i][0];
         }
 

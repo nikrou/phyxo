@@ -39,7 +39,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Notification
 {
-    /** @var array<string, int|float|string|bool> $env */
+    /** @var array<string, User|int|float|string|bool> $env */
     private array $env;
 
     /** @var string[] $infos */
@@ -75,7 +75,7 @@ class Notification
     /**
      * Returns number of new comments between two dates.
      */
-    public function nb_new_comments(DateTimeInterface $start = null, DateTimeInterface $end = null): int
+    public function nb_new_comments(?DateTimeInterface $start = null, ?DateTimeInterface $end = null): int
     {
         return $this->commentRepository->getNewComments($this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums(), $start, $end, $count_only = true);
     }
@@ -85,7 +85,7 @@ class Notification
      *
      * @return Comment[]
      */
-    public function new_comments(DateTimeInterface $start = null, DateTimeInterface $end = null): array
+    public function new_comments(?DateTimeInterface $start = null, ?DateTimeInterface $end = null): array
     {
         return $this->commentRepository->getNewComments($this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums(), $start, $end);
     }
@@ -93,7 +93,7 @@ class Notification
     /**
      * Returns number of unvalidated comments between two dates.
      */
-    public function nb_unvalidated_comments(DateTimeInterface $start = null, DateTimeInterface $end = null): int
+    public function nb_unvalidated_comments(?DateTimeInterface $start = null, ?DateTimeInterface $end = null): int
     {
         return $this->commentRepository->getUnvalidatedComments($count_only = true, $start, $end);
     }
@@ -101,7 +101,7 @@ class Notification
     /**
      * Returns number of new photos between two dates.
      */
-    public function nb_new_elements(DateTimeInterface $start = null, DateTimeInterface $end = null): int
+    public function nb_new_elements(?DateTimeInterface $start = null, ?DateTimeInterface $end = null): int
     {
         return $this->imageMapper->getRepository()->getNewElements($this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums(), $start, $end, $count_only = true);
     }
@@ -111,7 +111,7 @@ class Notification
      *
      * @return Image[]
      */
-    public function new_elements(DateTimeInterface $start = null, DateTimeInterface $end = null): array
+    public function new_elements(?DateTimeInterface $start = null, ?DateTimeInterface $end = null): array
     {
         return $this->imageMapper->getRepository()->getNewElements($this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums(), $start, $end);
     }
@@ -119,7 +119,7 @@ class Notification
     /**
      * Returns number of updated albums between two dates.
      */
-    public function nb_updated_albums(DateTimeInterface $start = null, DateTimeInterface $end = null): int
+    public function nb_updated_albums(?DateTimeInterface $start = null, ?DateTimeInterface $end = null): int
     {
         return $this->imageMapper->getRepository()->getUpdatedAlbums($this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums(), $start, $end, $count_only = true);
     }
@@ -129,7 +129,7 @@ class Notification
      *
      * @return Album[]|int
      */
-    public function updated_albums(DateTimeInterface $start = null, DateTimeInterface $end = null): array|int
+    public function updated_albums(?DateTimeInterface $start = null, ?DateTimeInterface $end = null): array|int
     {
         return $this->imageMapper->getRepository()->getUpdatedAlbums($this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums(), $start, $end);
     }
@@ -137,7 +137,7 @@ class Notification
     /**
      * Returns number of new users between two dates.
      */
-    public function nb_new_users(DateTimeInterface $start = null, DateTimeInterface $end = null): int
+    public function nb_new_users(?DateTimeInterface $start = null, ?DateTimeInterface $end = null): int
     {
         return $this->userInfosRepository->countNewUsers($start, $end);
     }
@@ -147,7 +147,7 @@ class Notification
      *
      * @return UserInfos[]
      */
-    public function new_users(DateTimeInterface $start = null, DateTimeInterface $end = null)
+    public function new_users(?DateTimeInterface $start = null, ?DateTimeInterface $end = null)
     {
         return $this->userInfosRepository->getNewUsers($start, $end);
     }
@@ -160,7 +160,7 @@ class Notification
      * unvalidated comments, number of new users.
      * @todo number of unvalidated elements
      */
-    public function news_exists(DateTimeInterface $start = null, DateTimeInterface $end = null): bool
+    public function news_exists(?DateTimeInterface $start = null, ?DateTimeInterface $end = null): bool
     {
         return (($this->nb_new_comments($start, $end) > 0) || ($this->nb_new_elements($start, $end) > 0)
             || ($this->nb_updated_albums($start, $end) > 0) || (($this->userMapper->isAdmin())
@@ -177,7 +177,7 @@ class Notification
     {
         if ($count > 0) {
             $line = $this->translator->trans($lang_key, ['count' => $count]);
-            if ($add_url and !empty($url)) {
+            if ($add_url && ($url !== '' && $url !== '0')) {
                 $line = '<a href="' . $url . '">' . $line . '</a>';
             }
             $news[] = $line;
@@ -198,7 +198,7 @@ class Notification
      * @param bool $add_url add html link around news
      * @return string[]
      */
-    public function news(DateTimeInterface $start = null, DateTimeInterface $end = null, bool $exclude_img_cats = false, bool $add_url = false): array
+    public function news(?DateTimeInterface $start = null, ?DateTimeInterface $end = null, bool $exclude_img_cats = false, bool $add_url = false): array
     {
         $news = [];
 
@@ -261,8 +261,9 @@ class Notification
     public function get_recent_post_dates(int $max_dates, int $max_elements, int $max_cats): array
     {
         $dates = $this->imageMapper->getRepository()->getRecentPostedImages($max_dates, $this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums());
+        $counter = count($dates);
 
-        for ($i = 0; $i < count($dates); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if ($max_elements > 0) { // get some thumbnails ...
                 $ids = [];
                 foreach ($this->imageMapper->getRepository()->findRandomImages($max_elements, $this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums()) as $id) {
@@ -388,12 +389,7 @@ class Notification
     public function get_user_notifications(string $action, array $check_key_list = [], ?bool $enabled_filter_value = null): array
     {
         if (in_array($action, ['subscribe', 'send'])) {
-            if ($action == 'send') {
-                $orders = ['n.last_send', 'u.username'];
-            } else {
-                $orders = ['u.username'];
-            }
-
+            $orders = $action === 'send' ? ['n.last_send', 'u.username'] : ['u.username'];
             return $this->userMailNotificationRepository->findInfosForUsers(($action === 'send'), $enabled_filter_value, $check_key_list, $orders);
         } else {
             return [];
@@ -417,12 +413,10 @@ class Notification
             // Init mail configuration
             if (!empty($this->conf['nbm_send_mail_as'])) {
                 $this->env['send_as_name'] = $this->conf['nbm_send_mail_as'];
+            } elseif (!empty($this->conf['mail_sender_name'])) {
+                $this->env['send_as_name'] = $this->conf['mail_sender_name'];
             } else {
-                if (!empty($this->conf['mail_sender_name'])) {
-                    $this->env['send_as_name'] = $this->conf['mail_sender_name'];
-                } else {
-                    $this->env['send_as_name'] = $this->conf['gallery_title'];
-                }
+                $this->env['send_as_name'] = $this->conf['gallery_title'];
             }
 
             $this->env['send_as_mail_address'] = $this->userMapper->getWebmaster()->getMailAddress();
@@ -451,18 +445,18 @@ class Notification
 
     public function display_counter_info(): void
     {
+        /** @phpstan-ignore-next-line */
         if ($this->env['error_on_mail_count'] != 0) {
             $this->errors[] = $this->translator->trans('number_of_mails_not_sent', ['count' => $this->env['error_on_mail_count']]);
-
+            /** @phpstan-ignore-next-line */
             if ($this->env['sent_mail_count'] != 0) {
                 $this->infos[] = $this->translator->trans('number_of_mails_sent', ['count' => $this->env['sent_mail_count']]);
             }
+            /** @phpstan-ignore-next-line */
+        } elseif ($this->env['sent_mail_count'] == 0) {
+            $this->infos[] = $this->translator->trans('No mail to send.');
         } else {
-            if ($this->env['sent_mail_count'] == 0) {
-                $this->infos[] = $this->translator->trans('No mail to send.');
-            } else {
-                $this->infos[] = $this->translator->trans('number_of_mails_sent', ['count' => $this->env['sent_mail_count']]);
-            }
+            $this->infos[] = $this->translator->trans('number_of_mails_sent', ['count' => $this->env['sent_mail_count']]);
         }
     }
 
@@ -608,19 +602,16 @@ class Notification
      */
     public function do_timeout_treatment($post_keyname, $check_key_treated = []): void
     {
-        if ($this->env['is_sendmail_timeout']) {
-            if (isset($_POST[$post_keyname])) {
-                $post_count = is_countable($_POST[$post_keyname]) ? count($_POST[$post_keyname]) : 0;
-                $treated_count = is_countable($check_key_treated) ? count($check_key_treated) : 0;
-                if ($treated_count != 0) {
-                    $time_refresh = ceil((microtime(true) - $this->env['start_time']) * $post_count / $treated_count);
-                } else {
-                    $time_refresh = 0;
-                }
-                $_POST[$post_keyname] = array_diff($_POST[$post_keyname], $check_key_treated);
-
-                $this->errors[] = $this->translator->trans('execution_timeout_in_seconds', ['count' => $time_refresh]);
+        if ($this->env['is_sendmail_timeout'] && isset($_POST[$post_keyname])) {
+            $post_count = is_countable($_POST[$post_keyname]) ? count($_POST[$post_keyname]) : 0;
+            $treated_count = is_countable($check_key_treated) ? count($check_key_treated) : 0;
+            if ($treated_count != 0) {
+                $time_refresh = ceil((microtime(true) - $this->env['start_time']) * $post_count / $treated_count);
+            } else {
+                $time_refresh = 0;
             }
+            $_POST[$post_keyname] = array_diff($_POST[$post_keyname], $check_key_treated);
+            $this->errors[] = $this->translator->trans('execution_timeout_in_seconds', ['count' => $time_refresh]);
         }
     }
 
@@ -651,7 +642,7 @@ class Notification
             // On timeout simulate like tabsheet send
             if ($this->env['is_sendmail_timeout']) {
                 $check_key_list = array_diff($check_key_list, $check_key_treated);
-                if (count($check_key_list) > 0) {
+                if ($check_key_list !== []) {
                     $this->userMailNotificationRepository->deleteByCheckKeys($check_key_list);
                 }
             }
@@ -683,21 +674,18 @@ class Notification
 
         // Check if exist news to list user or send mails
         if ((!$is_list_all_without_test) || ($is_action_send)) {
-            if (count($data_users) > 0) {
+            if ($data_users !== []) {
                 if (!isset($customize_mail_content)) {
                     $customize_mail_content = $this->conf['nbm_complementary_mail_content'];
                 }
-
                 // Prepare message after change language
                 if ($is_action_send) {
                     $msg_break_timeout = $this->translator->trans('Time to send mail is limited. Others mails are skipped.');
                 } else {
                     $msg_break_timeout = $this->translator->trans('Prepared time for list of users to send mail is limited. Others users are not listed.');
                 }
-
                 // Begin nbm users environment
                 $this->begin_users_env_nbm($is_action_send);
-
                 foreach ($data_users as $nbm_user) {
                     if ((!$is_action_send) && $this->check_sendmail_timeout()) {
                         // Stop fill list on 'list_to_send', if the quota is override
@@ -712,18 +700,15 @@ class Notification
 
                     if ($is_action_send) {
                         $tpl_params = [];
-
                         // Fill return list of "treated" check_key for 'send'
                         $return_list[] = $nbm_user->getCheckKey();
-
                         $news = '';
                         if ($this->conf['nbm_send_detailed_content']) {
                             $news = $this->news($nbm_user->getLastSend(), $now, false, $this->conf['nbm_send_html_mail']);
-                            $exist_data = count($news) > 0;
+                            $exist_data = $news !== [];
                         } else {
                             $exist_data = $this->news_exists($nbm_user->getLastSend(), $now);
                         }
-
                         if ($exist_data) {
                             $subject = $this->translator->trans('New photos added');
 
@@ -784,21 +769,16 @@ class Notification
                                 $this->inc_mail_sent_failed($nbm_user);
                             }
                         }
-                    } else {
-                        if ($this->news_exists($nbm_user->getLastSend(), $now)) {
-                            // Fill return list of "selected" users for 'list_to_send'
-                            $return_list[] = $nbm_user;
-                        }
+                    } elseif ($this->news_exists($nbm_user->getLastSend(), $now)) {
+                        // Fill return list of "selected" users for 'list_to_send'
+                        $return_list[] = $nbm_user;
                     }
                 }
-
                 if ($is_action_send) {
                     $this->display_counter_info();
                 }
-            } else {
-                if ($is_action_send) {
-                    $this->errors[] = $this->translator->trans('No user to send notifications by mail.');
-                }
+            } elseif ($is_action_send) {
+                $this->errors[] = $this->translator->trans('No user to send notifications by mail.');
             }
         } else {
             // Quick List, don't check news

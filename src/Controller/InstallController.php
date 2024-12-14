@@ -252,7 +252,7 @@ class InstallController extends AbstractController
                 $db_params['db_prefix'] = $request->request->get('db_prefix');
             }
 
-            if (empty($errors)) {
+            if ($errors === []) {
                 try {
                     $this->phyxoInstaller->installDatabase($db_params);
                 } catch (Exception $e) {
@@ -263,10 +263,10 @@ class InstallController extends AbstractController
 
         $tpl_params = array_merge($tpl_params, $db_params);
 
-        if (empty($errors) && $request->isMethod('POST') && $request->request->get('install_database')) {
+        if ($errors === [] && $request->isMethod('POST') && $request->request->get('install_database')) {
             $tpl_params['STEP'] = 'user';
         } else {
-            if (!empty($errors)) {
+            if ($errors !== []) {
                 $tpl_params['errors'] = $errors;
             }
             $tpl_params['STEP'] = 'database';
@@ -306,16 +306,14 @@ class InstallController extends AbstractController
             }
             if (!$request->request->get('_mail_address')) {
                 $errors[] = $this->translator->trans('mail address must be like xxx@yyy.eee (example : jack@altern.org)', [], 'install');
+            } elseif (filter_var($request->request->get('_mail_address'), FILTER_VALIDATE_EMAIL) === false) {
+                $errors[] = $this->translator->trans('mail address must be like xxx@yyy.eee (example : jack@altern.org)', [], 'install');
             } else {
-                if (filter_var($request->request->get('_mail_address'), FILTER_VALIDATE_EMAIL) === false) {
-                    $errors[] = $this->translator->trans('mail address must be like xxx@yyy.eee (example : jack@altern.org)', [], 'install');
-                } else {
-                    $db_params['mail_address'] = $request->request->get('_mail_address');
-                    $tpl_params['_mail_address'] = $request->request->get('_mail_address');
-                }
+                $db_params['mail_address'] = $request->request->get('_mail_address');
+                $tpl_params['_mail_address'] = $request->request->get('_mail_address');
             }
 
-            if (count($errors) === 0) {
+            if ($errors === []) {
                 $envParams = (new Dotenv())->parse(file_get_contents($this->localEnvFile . '.tmp'));
                 $_params = parse_url((string) $envParams['DATABASE_URL']);
                 $connectionParams = [
@@ -402,11 +400,11 @@ class InstallController extends AbstractController
             }
         }
 
-        if (empty($errors) && $request->isMethod('POST') && $request->request->get('install_user')) {
+        if ($errors === [] && $request->isMethod('POST') && $request->request->get('install_user')) {
             $tpl_params['STEP'] = 'success';
         } else {
             $tpl_params['STEP'] = 'user';
-            if (!empty($errors)) {
+            if ($errors !== []) {
                 $tpl_params['errors'] = $errors;
             }
         }

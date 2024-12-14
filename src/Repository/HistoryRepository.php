@@ -11,6 +11,8 @@
 
 namespace App\Repository;
 
+use DateTime;
+use App\Entity\User;
 use App\Entity\History;
 use App\Form\Model\SearchRulesModel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -43,12 +45,12 @@ class HistoryRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('h');
 
-        if ($rules->getStart()) {
+        if ($rules->getStart() instanceof DateTime) {
             $qb->where('h.date >= :start');
             $qb->setParameter('start', $rules->getStart());
         }
 
-        if ($rules->getEnd()) {
+        if ($rules->getEnd() instanceof DateTime) {
             $qb->andWhere('h.date <= :end');
             $qb->setParameter('end', $rules->getEnd());
         }
@@ -65,12 +67,12 @@ class HistoryRepository extends ServiceEntityRepository
                     }
                 }
             }
-            if (count($orXExpressions) > 0) {
+            if ($orXExpressions !== []) {
                 $qb->andWhere($qb->expr()->orX(...$orXExpressions));
             }
         }
 
-        if ($rules->getUser()) {
+        if ($rules->getUser() instanceof User) {
             $qb->andWhere('h.user = :user');
             $qb->setParameter('user', $rules->getUser());
         }
@@ -80,7 +82,7 @@ class HistoryRepository extends ServiceEntityRepository
             $qb->setParameter('image_id', $rules->getImageId());
         }
 
-        if (count($rules->getImageIds()) > 0) {
+        if ($rules->getImageIds() !== []) {
             $qb->andWhere($qb->expr()->in('h.image', $rules->getImageIds()));
         }
 

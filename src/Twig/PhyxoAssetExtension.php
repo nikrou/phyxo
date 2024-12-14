@@ -30,7 +30,7 @@ class PhyxoAssetExtension extends AbstractExtension
 
     public function getAssetPath(string $path, string $manifestRelativeFile = ''): string
     {
-        if (empty($manifestRelativeFile)) {
+        if ($manifestRelativeFile === '' || $manifestRelativeFile === '0') {
             return $path;
         }
 

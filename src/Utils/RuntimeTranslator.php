@@ -41,7 +41,7 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
         return $this->translator->{$method}(...$args);
     }
 
-    public function getCatalogue($locale = null): MessageCatalogueInterface
+    public function getCatalogue(?string $locale = null): MessageCatalogueInterface
     {
         return $this->translator->getCatalogue($locale);
     }
@@ -67,7 +67,7 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
     /**
      * @param array<string, string> $parameters
      */
-    public function trans(string $id, array $parameters = [], string $domain = null, string $locale = null): string
+    public function trans(string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
     {
         if ($locale === null) {
             $locale = $this->getLocale();
@@ -85,7 +85,7 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
         return $this->formatter->format($runtimeCatalogue->get($id, $domain), $locale, $parameters);
     }
 
-    public function addRuntimeResource(string $format, string $resource, string $locale, string $domain = null): void
+    public function addRuntimeResource(string $format, string $resource, string $locale, ?string $domain = null): void
     {
         if ($format !== 'php') {
             return;

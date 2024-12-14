@@ -42,7 +42,7 @@ class DisplayBlock
 
     public function getTitle(): string
     {
-        if (isset($this->title)) {
+        if ($this->title !== null) {
             return $this->title;
         } else {
             return $this->registeredBlock->getName();

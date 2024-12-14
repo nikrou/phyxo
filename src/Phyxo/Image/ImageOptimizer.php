@@ -185,7 +185,7 @@ class ImageOptimizer
 
         $this->resize($resizeDimensions['width'], $resizeDimensions['height']);
 
-        if (!empty($rotation)) {
+        if ($rotation !== null && $rotation !== 0) {
             $this->rotate($rotation);
         }
 

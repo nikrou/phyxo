@@ -254,21 +254,19 @@ class AdminThemesController extends AbstractController
             $userInfosRepository->updateFieldForUsers('theme', $theme, $user_ids);
         } else {
             $error = $themes->performAction($action, $theme);
-            if ($action === 'activate') {
-                if (is_dir($originDir = $themesDir . '/' . $theme . '/build')) {
-                    try {
-                        $targetDir = $publicThemesDir . '/' . $theme;
-                        $fs->remove($targetDir);
-                        $directoryManager->relativeSymlinkWithFallback($originDir, $targetDir);
-                    } catch (Exception $e) {
-                        $error = 'Cannot copy web theme assets: ' . $e->getMessage();
-                    }
+            if ($action === 'activate' && is_dir($originDir = $themesDir . '/' . $theme . '/build')) {
+                try {
+                    $targetDir = $publicThemesDir . '/' . $theme;
+                    $fs->remove($targetDir);
+                    $directoryManager->relativeSymlinkWithFallback($originDir, $targetDir);
+                } catch (Exception $e) {
+                    $error = 'Cannot copy web theme assets: ' . $e->getMessage();
                 }
             }
-        }
 
-        if (!empty($error)) {
-            $this->addFlash('error', $error);
+            if ($error !== '' && $error !== '0') {
+                $this->addFlash('error', $error);
+            }
         }
 
         return $this->redirectToRoute('admin_themes_installed');

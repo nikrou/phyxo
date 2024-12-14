@@ -130,10 +130,8 @@ class InstallCommand extends Command
         if (!empty($_SERVER['DATABASE_URL'])) {
             $this->db_params['dsn'] = $_SERVER['DATABASE_URL'];
             $this->db_params['db_prefix'] = $input->getOption('db_prefix') ?: $this->prefix;
-        } else {
-            if (!$io->askQuestion(new ConfirmationQuestion("Install Phyxo using these settings?", true))) {
-                return Command::SUCCESS;
-            }
+        } elseif (!$io->askQuestion(new ConfirmationQuestion("Install Phyxo using these settings?", true))) {
+            return Command::SUCCESS;
         }
 
         try {

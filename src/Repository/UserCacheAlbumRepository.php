@@ -57,7 +57,7 @@ class UserCacheAlbumRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('ucc');
         $qb->delete();
 
-        if (count($album_ids) > 0) {
+        if ($album_ids !== []) {
             $qb->where($qb->expr()->in('ucc.album', $album_ids));
         }
 

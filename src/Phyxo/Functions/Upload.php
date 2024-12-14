@@ -63,17 +63,12 @@ class Upload
                 continue;
             }
             if (is_bool($upload_form_config[$field]['default'])) {
-                if (isset($value)) {
-                    $value = true;
-                } else {
-                    $value = false;
-                }
-
+                $value = isset($value);
                 $updates[] = [
                     'param' => $field,
                     'value' => true
                 ];
-            } elseif ($upload_form_config[$field]['can_be_null'] and empty($value)) {
+            } elseif ($upload_form_config[$field]['can_be_null'] && empty($value)) {
                 $updates[] = [
                     'param' => $field,
                     'value' => null,
@@ -83,7 +78,7 @@ class Upload
                 $max = $upload_form_config[$field]['max'];
                 $pattern = $upload_form_config[$field]['pattern'];
 
-                if (preg_match($pattern, (string) $value) and $value >= $min and $value <= $max) {
+                if (preg_match($pattern, (string) $value) && $value >= $min && $value <= $max) {
                     $updates[] = [
                         'param' => $field,
                         'value' => $value

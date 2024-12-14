@@ -54,7 +54,7 @@ class AdminTagsController extends AbstractController
             $orphan_tag_names[] = $tag->getName();
         }
 
-        if (count($orphan_tag_names) > 0) {
+        if ($orphan_tag_names !== []) {
             $tpl_params['warnings'][] = sprintf(
                 $translator->trans('You have %d orphan tags: %s.', [], 'admin') . ' <a href="%s">' . $translator->trans('Delete orphan tags', [], 'admin') . '</a>',
                 count($orphan_tag_names),

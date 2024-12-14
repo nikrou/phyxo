@@ -101,7 +101,7 @@ class AdminLanguagesController extends AbstractController
             array_keys($languages->getFsLanguages())
         );
 
-        if (count($missing_language_ids) > 0) {
+        if ($missing_language_ids !== []) {
             $userInfosRepository->updateLanguageForLanguages($userMapper->getDefaultLanguage(), $missing_language_ids);
         }
 
@@ -232,7 +232,7 @@ class AdminLanguagesController extends AbstractController
         $server_languages = $languages->getServerLanguages($conf['pem_languages_category'], $params->get('core_version'), $new = false);
         $tpl_params['update_languages'] = [];
 
-        if (count($server_languages) > 0) {
+        if ($server_languages !== []) {
             foreach ($languages->getFsLanguages() as $extension_id => $fs_extension) {
                 if (!isset($fs_extension['extension']) || !isset($server_languages[$fs_extension['extension']])) {
                     continue;

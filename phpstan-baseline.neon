@@ -1,20 +1,12 @@
 parameters:
   ignoreErrors:
-    # need refactoring
-    - message: '#Access to an undefined property object::\$template\.#'
-      path: src/Phyxo/MenuBar.php
-
-    # need refactoring
-    - message: '#Access to an undefined property object::\$min_size\.#'
-      path: src/Phyxo/Image/ImageStandardParams.php
-
-    # need refactoring
-    - message: '#Result of && is always false#'
-      path: src/DataMapper/AlbumMapper.php
-
     - message: '#Empty array passed to foreach.#'
       path: src/Controller/Admin/AdminRatingController.php
 
     # No more ws functions ?
     - message: '#.*#'
       path: src/Phyxo/Functions/Ws/*.php
+
+    # Not yet used
+    - message: '#Trait App\\Controller\\CommentControllerTrait is used zero times and is not analysed.#'
+      path: src/Controller/CommentControllerTrait.php

@@ -67,14 +67,10 @@ class SearchMapper
             $items[] = $image->getId();
         }
 
-        if (count($tag_items) > 0) {
+        if ($tag_items !== []) {
             switch ($rules['mode']) {
                 case 'AND':
-                    if (count($items) === 0) {
-                        $items = $tag_items;
-                    } else {
-                        $items = array_values(array_intersect($items, $tag_items));
-                    }
+                    $items = $items === [] ? $tag_items : array_values(array_intersect($items, $tag_items));
                     break;
                 case 'OR':
                     $items = array_unique([...$items, ...$tag_items]);

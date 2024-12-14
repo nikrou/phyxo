@@ -230,12 +230,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         if ($this->username !== $user->getUsername()) {
             return false;
         }
-
-        if ($this->getRoles() !== $user->getRoles()) {
-            return false;
-        }
-
-        return true;
+        return $this->getRoles() === $user->getRoles();
     }
 
     public static function getRoleFromStatus(string $status): string

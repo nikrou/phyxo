@@ -21,7 +21,7 @@ class Upgrade
 
         if ($contents = opendir($upgrades_path)) {
             while (($node = readdir($contents)) !== false) {
-                if (is_file($upgrades_path . '/' . $node) and preg_match('/^(.*?)-database\.php$/', $node, $match)) {
+                if (is_file($upgrades_path . '/' . $node) && preg_match('/^(.*?)-database\.php$/', $node, $match)) {
                     $available_upgrade_ids[] = $match[1];
                 }
             }

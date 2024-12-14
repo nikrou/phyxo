@@ -183,7 +183,7 @@ class AlbumController extends AbstractController
             $tpl_params['items'][] = $image->getId();
         }
 
-        if (count($tpl_params['items']) > 0) {
+        if ($tpl_params['items'] !== []) {
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             if (count($tpl_params['items']) > $nb_image_page) {
@@ -246,7 +246,7 @@ class AlbumController extends AbstractController
             $tpl_params['items'][] = $image['id'];
         }
 
-        if (count($tpl_params['items']) > 0) {
+        if ($tpl_params['items'] !== []) {
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             if (count($tpl_params['items']) > $nb_image_page) {
@@ -300,7 +300,7 @@ class AlbumController extends AbstractController
             $tpl_params['items'][] = $image['id'];
         }
 
-        if (count($tpl_params['items']) > 0) {
+        if ($tpl_params['items'] !== []) {
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             if (count($tpl_params['items']) > $nb_image_page) {

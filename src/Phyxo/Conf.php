@@ -35,7 +35,7 @@ class Conf implements ArrayAccess
     public function init(string $default_config_file, string $user_config_file = ''): void
     {
         $this->loadFromFile($default_config_file);
-        if (!empty($user_config_file)) {
+        if ($user_config_file !== '' && $user_config_file !== '0') {
             $this->loadFromFile($user_config_file);
         }
         $this->loadFromDB();
@@ -54,7 +54,7 @@ class Conf implements ArrayAccess
         ob_end_clean();
 
         /** @phpstan-ignore-next-line */
-        if (count($conf) > 0) {
+        if ($conf !== []) {
             foreach ($conf as $key => $value) {
                 $this->keys[self::FILE_PREFIX . $key] = ['value' => $value, 'type' => null];
             }
@@ -178,7 +178,7 @@ class Conf implements ArrayAccess
             $params = [$params];
         }
 
-        if (empty($params)) {
+        if ($params === []) {
             return;
         }
 

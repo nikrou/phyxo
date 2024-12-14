@@ -24,9 +24,6 @@ class UserToUserProfileTransformer implements DataTransformerInterface
     {
     }
 
-    /**
-     * @param User $user
-     */
     public function transform(mixed $user = null): UserProfileModel
     {
         if (is_null($user)) {

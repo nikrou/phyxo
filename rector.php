@@ -24,14 +24,17 @@ return RectorConfig::configure()
         __DIR__ . '/tests'
     ])
 
+    ->withSkipPath(__DIR__ . '/src/Phyxo/Functions/Ws/')
+
     ->withImportNames()
+
+    ->withAttributesSets(symfony: true, doctrine: true)
 
     ->withSets([
         DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
-        SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
         SymfonySetList::SYMFONY_CODE_QUALITY,
         SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
-        LevelSetList::UP_TO_PHP_82,
+        LevelSetList::UP_TO_PHP_84,
         DoctrineSetList::DOCTRINE_CODE_QUALITY
     ])
 
@@ -42,7 +45,7 @@ return RectorConfig::configure()
 
     ->withPreparedSets(
         deadCode: true,
-        // codeQuality: true,
+        codeQuality: true,
         // naming: true,
-        // privatization: true
+        privatization: true
     );

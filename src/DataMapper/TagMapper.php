@@ -163,7 +163,7 @@ class TagMapper
      */
     public function getCommonTags(User $user, array $items, int $max_tags, array $excluded_tag_ids = [])
     {
-        if (count($items) === 0) {
+        if ($items === []) {
             return [];
         }
 
@@ -213,7 +213,7 @@ class TagMapper
             }
         }
         usort($taglist, '\Phyxo\Functions\Utils::tag_alpha_compare');
-        if (count($altlist)) {
+        if ($altlist !== []) {
             usort($altlist, '\Phyxo\Functions\Utils::tag_alpha_compare');
             $taglist = [...$taglist, ...$altlist];
         }
@@ -285,7 +285,7 @@ class TagMapper
      */
     public function addTags(array $tag_ids, array $image_ids, User $user): void
     {
-        if (count($tag_ids) === 0 or count($image_ids) === 0) {
+        if ($tag_ids === [] || $image_ids === []) {
             return;
         }
 
@@ -339,7 +339,7 @@ class TagMapper
      */
     public function setTagsOf(array $tags_of, User $user): void
     {
-        if (count($tags_of) > 0) {
+        if ($tags_of !== []) {
             $tag_ids = [];
             foreach ($tags_of as $ids) {
                 $tag_ids = array_merge($tag_ids, $ids);
@@ -378,7 +378,7 @@ class TagMapper
             $orphan_tags[] = $tag->getId();
         }
 
-        if (count($orphan_tags) > 0) {
+        if ($orphan_tags !== []) {
             $this->deleteTags($orphan_tags);
         }
     }
@@ -388,7 +388,7 @@ class TagMapper
      */
     public function associateTags(array $tag_ids, int $image_id, User $user): void
     {
-        if (count($tag_ids) === 0) {
+        if ($tag_ids === []) {
             return;
         }
 
@@ -409,7 +409,7 @@ class TagMapper
      */
     public function rejectTags(array $elements): void
     {
-        if (empty($elements)) {
+        if ($elements === []) {
             return;
         }
         $this->imageTagRepository->deleteImageTags($elements);
@@ -420,7 +420,7 @@ class TagMapper
      */
     public function validateTags(array $elements): void
     {
-        if (count($elements) === 0) {
+        if ($elements === []) {
             return;
         }
 
@@ -437,7 +437,7 @@ class TagMapper
      */
     public function dissociateTags(array $tag_ids, int $image_id): void
     {
-        if (count($tag_ids) === 0) {
+        if ($tag_ids === []) {
             return;
         }
 
@@ -493,7 +493,7 @@ class TagMapper
         foreach ($this->imageRepository->findBy(['id' => $ids]) as $image) {
             $metadata = $this->metadata->getSyncMetadata($image->toArray());
 
-            if (count($metadata) === 0) {
+            if ($metadata === []) {
                 continue;
             }
 
@@ -547,7 +547,7 @@ class TagMapper
      */
     public function addLevelToTags(array $tags = [], int $tags_levels = 5) : array
     {
-        if (count($tags) === 0) {
+        if ($tags === []) {
             return $tags;
         }
 
