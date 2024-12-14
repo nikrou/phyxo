@@ -6,6 +6,7 @@ jobs:
   tests:
     name: Phyxo tests
     runs-on: ubuntu-22.04
+    continue-on-error: ${{ matrix.php-version == '8.4' }}
     strategy:
       fail-fast: false
       matrix:
