@@ -35,7 +35,7 @@
     },
     "devDependencies": {
         "autoprefixer": "~10.4.20",
-        "bootstrap": "4.6.0",
+        "bootstrap": "5.0.1",
         "css-loader": "~6.10.0",
         "mini-css-extract-plugin": "~2.9.2",
         "prettier": "~3.4.2",
