@@ -12,7 +12,7 @@
 namespace App\EventSubscriber;
 
 use App\DataMapper\UserMapper;
-use App\Entity\Plugin;
+use App\Enum\ExtensionStateType;
 use App\Repository\PluginRepository;
 use App\Services\AssetsManager;
 use App\Twig\ThemeLoader;
@@ -68,7 +68,7 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
             return;
         }
 
-        foreach ($this->plugins->getDbPlugins(Plugin::ACTIVE) as $plugin) {
+        foreach ($this->plugins->getDbPlugins(ExtensionStateType::ACTIVE) as $plugin) {
             $className = AbstractPlugin::getClassName($plugin->getId());
 
             if (class_exists($className) && method_exists($className, 'getSubscribedEvents')) {
@@ -83,7 +83,7 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
         $application = $command->getApplication();
 
         if ($command->getName() === 'list') {
-            foreach ($this->plugins->getDbPlugins(Plugin::INACTIVE) as $plugin) {
+            foreach ($this->plugins->getDbPlugins(ExtensionStateType::INACTIVE) as $plugin) {
                 if ($this->extensionCollection->getExtensionsByClass()) {
                     foreach ($this->extensionCollection->getExtensionsByClass()[$plugin->getId()] as $command_name) {
                         $application->get($command_name)->setHidden(true);
@@ -92,7 +92,7 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
             }
         } elseif (isset($this->extensionCollection->getExtensionsByName()[$command->getName()])) {
             $command_name = $this->extensionCollection->getExtensionsByName()[$command->getName()];
-            $pluginsForCommand = array_filter($this->plugins->getDbPlugins(Plugin::INACTIVE), fn ($p) => $p->getId() === $command_name);
+            $pluginsForCommand = array_filter($this->plugins->getDbPlugins(ExtensionStateType::INACTIVE), fn ($p) => $p->getId() === $command_name);
             if ($pluginsForCommand !== []) {
                 $event->disableCommand();
             }

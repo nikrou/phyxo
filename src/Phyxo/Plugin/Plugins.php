@@ -15,6 +15,7 @@ use Exception;
 use Phyxo\Functions\Utils;
 use App\DataMapper\UserMapper;
 use App\Entity\Plugin;
+use App\Enum\ExtensionStateType;
 use Phyxo\Extension\Extensions;
 use App\Repository\PluginRepository;
 use Symfony\Component\Filesystem\Filesystem;
@@ -117,21 +118,21 @@ class Plugins extends Extensions
             case 'activate':
                 if (!isset($crt_db_plugin)) {
                     $error = $this->performAction('install', $plugin_id);
-                    $this->getDbPlugins('', $plugin_id);
-                } elseif ($crt_db_plugin->getState() === 'active') {
+                    $this->getDbPlugins(null, $plugin_id);
+                } elseif ($crt_db_plugin->getState() === ExtensionStateType::ACTIVE) {
                     break;
                 }
 
                 if ($error === '') {
-                    $this->pluginRepository->updateState($plugin_id, Plugin::ACTIVE);
+                    $this->pluginRepository->updateState($plugin_id, ExtensionStateType::ACTIVE);
                 }
                 break;
 
             case 'deactivate':
-                if (!isset($crt_db_plugin) || $crt_db_plugin->getState() !== 'active') {
+                if (!isset($crt_db_plugin) || $crt_db_plugin->getState() !== ExtensionStateType::ACTIVE) {
                     break;
                 }
-                $this->pluginRepository->updateState($plugin_id, Plugin::INACTIVE);
+                $this->pluginRepository->updateState($plugin_id, ExtensionStateType::INACTIVE);
                 $plugin_maintain->deactivate();
                 break;
 
@@ -139,7 +140,7 @@ class Plugins extends Extensions
                 if (!isset($crt_db_plugin)) {
                     break;
                 }
-                if ($crt_db_plugin->getState() === 'active') {
+                if ($crt_db_plugin->getState() === ExtensionStateType::ACTIVE) {
                     $this->performAction('deactivate', $plugin_id);
                 }
                 $this->pluginRepository->deleteById($plugin_id);
@@ -219,10 +220,10 @@ class Plugins extends Extensions
     /**
      * Returns an array of plugins defined in the database.
      *
-     * @param string $state optional filter
+     * @param ExtensionStateType $state optional filter
      * @param string $id returns only data about given plugin
      */
-    public function getDbPlugins(string $state = '', string $id = ''): array
+    public function getDbPlugins(?ExtensionStateType $state = null, string $id = ''): array
     {
         if (!$this->db_plugins_retrieved) {
             $this->db_plugins = [];
@@ -506,7 +507,7 @@ class Plugins extends Extensions
 
         foreach ($this->fs_plugins as $plugin_id => $plugin) {
             if (isset($this->db_plugins[$plugin_id])) {
-                $this->db_plugins[$plugin_id]['state'] == 'active' ?
+                $this->db_plugins[$plugin_id]['state'] === ExtensionStateType::ACTIVE ?
                     $active_plugins[$plugin_id] = $plugin : $inactive_plugins[$plugin_id] = $plugin;
             } else {
                 $not_installed[$plugin_id] = $plugin;

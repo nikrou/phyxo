@@ -12,6 +12,7 @@
 namespace App\Repository;
 
 use App\Entity\Plugin;
+use App\Enum\ExtensionStateType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -28,11 +29,11 @@ class PluginRepository extends ServiceEntityRepository
     /**
      * @return Plugin[]
      */
-    public function findAllByState(string $state = '')
+    public function findAllByState(?ExtensionStateType $state = null)
     {
         $qb = $this->createQueryBuilder('p');
 
-        if ($state !== '') {
+        if ($state !== null) {
             $qb->where('p.state = :state');
             $qb->setParameter('state', $state);
         }
@@ -58,7 +59,7 @@ class PluginRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function updateState(string $plugin_id, string $state): void
+    public function updateState(string $plugin_id, ExtensionStateType $state): void
     {
         $qb = $this->createQueryBuilder('p');
         $qb->update();
@@ -75,9 +76,9 @@ class PluginRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('p');
         $qb->update();
         $qb->set('p.state', ':state_inactive');
-        $qb->setParameter('state_inactive', Plugin::INACTIVE);
+        $qb->setParameter('state_inactive', ExtensionStateType::INACTIVE);
         $qb->where('p.state = :state_active');
-        $qb->setParameter('state_active', Plugin::ACTIVE);
+        $qb->setParameter('state_active', ExtensionStateType::ACTIVE);
 
         $qb->getQuery()->getResult();
     }

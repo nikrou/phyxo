@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use App\Enum\ExtensionStateType;
 use Doctrine\DBAL\Types\Types;
 use App\Repository\PluginRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -19,15 +20,12 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PluginRepository::class)]
 class Plugin
 {
-    final public const ACTIVE = 'active';
-    final public const INACTIVE = 'inactive';
-
     #[ORM\Id]
     #[ORM\Column(type: Types::STRING, length: 40)]
     private string $id;
 
-    #[ORM\Column(type: Types::STRING, length: 25)]
-    private string $state = self::INACTIVE;
+    #[ORM\Column(type: Types::STRING, length: 25, enumType: ExtensionStateType::class)]
+    private ExtensionStateType $state = ExtensionStateType::INACTIVE;
 
     #[ORM\Column(type: Types::STRING, length: 64, nullable: true)]
     private ?string $version = null;
@@ -44,12 +42,12 @@ class Plugin
         return $this->id;
     }
 
-    public function getState(): ?string
+    public function getState(): ExtensionStateType
     {
         return $this->state;
     }
 
-    public function setState(string $state): self
+    public function setState(ExtensionStateType $state): self
     {
         $this->state = $state;
 

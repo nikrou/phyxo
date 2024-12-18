@@ -13,6 +13,7 @@ namespace App\Controller\Admin;
 
 use Exception;
 use App\DataMapper\UserMapper;
+use App\Enum\ExtensionStateType;
 use App\Repository\PluginRepository;
 use Phyxo\Conf;
 use Phyxo\Plugin\Plugins;
@@ -52,7 +53,9 @@ class AdminPluginsController extends AbstractController
         $plugins = new Plugins($pluginRepository, $userMapper);
         $plugins->setRootPath($params->get('plugins_dir'));
         $plugins->setExtensionsURL($params->get('pem_url'));
-        $tpl_params['plugins_by_state'] = ['active' => 0, 'inactive' => 0, 'missing' => 0, 'obsolete' => 0];
+        foreach (ExtensionStateType::cases() as $state) {
+            $tpl_params['plugins_by_state'][$state->value] = 0;
+        }
 
         $tpl_plugins = [];
         foreach ($plugins->getFsPlugins() as $plugin_id => $fs_plugin) {
@@ -67,9 +70,9 @@ class AdminPluginsController extends AbstractController
             ];
 
             if (isset($plugins->getDbPlugins()[$plugin_id])) {
-                $tpl_plugin['state'] = $plugins->getDbPlugins()[$plugin_id]->getState();
+                $tpl_plugin['state'] = $plugins->getDbPlugins()[$plugin_id]->getState()->value;
             } else {
-                $tpl_plugin['state'] = 'inactive';
+                $tpl_plugin['state'] = ExtensionStateType::INACTIVE;
             }
             $tpl_params['plugins_by_state'][$tpl_plugin['state']]++;
 
