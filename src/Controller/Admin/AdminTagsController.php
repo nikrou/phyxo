@@ -14,7 +14,7 @@ namespace App\Controller\Admin;
 use DateTime;
 use App\DataMapper\TagMapper;
 use App\Entity\Tag;
-use App\Entity\User;
+use App\Enum\UserStatusType;
 use App\Repository\ImageTagRepository;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
@@ -254,8 +254,8 @@ class AdminTagsController extends AbstractController
         $this->translator = $translator;
 
         $status_options[null] = '';
-        foreach (User::ALL_STATUS as $status) {
-            $status_options[$status] = $translator->trans('user_status_' . $status, [], 'admin');
+        foreach (UserStatusType::cases() as $status) {
+            $status_options[$status->value] = $translator->trans('user_status_' . $status->value, [], 'admin');
         }
 
         if ($request->isMethod('POST')) {

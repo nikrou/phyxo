@@ -16,6 +16,7 @@ use App\Repository\UserRepository;
 use App\Repository\GroupRepository;
 use App\Entity\User;
 use App\Entity\UserInfos;
+use App\Enum\UserStatusType;
 use App\Repository\UserInfosRepository;
 
 class UserManager
@@ -37,7 +38,7 @@ class UserManager
             $userInfos->setLanguage($this->defaultLanguage);
             $userInfos->setTheme($this->defaultTheme);
         } else {
-            $guestUserInfos = $this->userInfosRepository->findOneBy(['status' => User::STATUS_GUEST]);
+            $guestUserInfos = $this->userInfosRepository->findOneBy(['status' => UserStatusType::GUEST]);
             $userInfos->fromArray($guestUserInfos->toArray());
         }
 

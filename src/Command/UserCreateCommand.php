@@ -19,6 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use App\Utils\UserManager;
 use App\Entity\User;
+use App\Enum\UserStatusType;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -84,7 +85,12 @@ class UserCreateCommand extends Command
         }
 
         if (($this->params['status'] = $input->getOption('status')) === null) {
-            $this->params['status'] = $io->choice('Select user status', User::ALL_STATUS, User::STATUS_NORMAL);
+            $status_options = [];
+            foreach (UserStatusType::cases() as $status) {
+                $status_options[] = $status->value;
+            }
+
+            $this->params['status'] = $io->choice('Select user status', $status_options, UserStatusType::NORMAL->value);
             $input->setOption('status', $this->params['status']);
         } else {
             $io->text(sprintf('<info>User status type is:</info> %s', $this->params['status']));
@@ -96,7 +102,7 @@ class UserCreateCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $user = new User();
-        $user->addRole(User::getRoleFromStatus($this->params['status']));
+        $user->addRole(User::getRoleFromStatus(UserStatusType::from($this->params['status'])));
         $user->setUsername($this->params['username']);
         $user->setMailAddress($this->params['mail_address']);
         if ($this->params['password']) {

@@ -13,6 +13,7 @@ namespace App\Repository;
 
 use DateTime;
 use App\Entity\User;
+use App\Enum\UserStatusType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\AbstractQuery;
@@ -43,7 +44,7 @@ class UserRepository extends ServiceEntityRepository
         $this->getEntityManager()->flush();
     }
 
-    public function findOneByStatus(string $status): ?User
+    public function findOneByStatus(UserStatusType $status): ?User
     {
         $qb = $this->createQueryBuilder('u');
         $qb->leftJoin('u.userInfos', 'ui');

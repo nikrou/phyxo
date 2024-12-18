@@ -13,6 +13,7 @@ namespace App\Form\Model;
 
 use App\Entity\Language;
 use App\Entity\Theme;
+use App\Enum\UserStatusType;
 
 class UserInfosModel
 {
@@ -29,7 +30,7 @@ class UserInfosModel
     private $nb_image_page;
     private ?Language $language = null;
     private ?Theme $theme = null;
-    private string $status;
+    private UserStatusType $status;
     private int $level = 0;
     private ?bool $show_nb_comments = null;
     private ?bool $show_nb_hits = null;
@@ -95,14 +96,14 @@ class UserInfosModel
         return $this;
     }
 
-    public function setStatus(string $status): self
+    public function setStatus(UserStatusType $status): self
     {
         $this->status = $status;
 
         return $this;
     }
 
-    public function getStatus(): string
+    public function getStatus(): UserStatusType
     {
         return $this->status;
     }

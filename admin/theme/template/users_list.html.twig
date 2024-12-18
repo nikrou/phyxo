@@ -4,482 +4,489 @@
 {% set users_list_pageLength = 5 %}
 
 {% block breadcrumb_items %}
-    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'User list'|trans}}</a></li>
+  <li class="breadcrumb-item">
+    <a href="{{U_PAGE}}">{{'User list'|trans}}</a>
+  </li>
 {% endblock %}
 
 {% block javascripts %}
-    {{parent()}}
-    <script>
-     var ws_url = '{{ws}}';
-     var phyxo_msg = phyxo_msg || {};
-     phyxo_msg.n_users_selected = "{{'%d users selected'|trans}}";
-     phyxo_msg.no_user_selected = "{{'No user selected'|trans}}";
-     phyxo_msg.one_user_selected = "{{'One user selected'|trans}}";
+  {{parent()}}
+  <script>
+    var ws_url = '{{ ws }}';
+    var phyxo_msg = phyxo_msg || {};
+    phyxo_msg.n_users_selected = "{{ '%d users selected'|trans }}";
+    phyxo_msg.no_user_selected = "{{ 'No user selected'|trans }}";
+    phyxo_msg.one_user_selected = "{{ 'One user selected'|trans }}";
 
-     phyxo_msg.select_all = "{{'All'|trans}}";
-     phyxo_msg.select_none = "{{'None'|trans}}";
-     phyxo_msg.invert_selection = "{{'Invert'|trans}}";
+    phyxo_msg.select_all = "{{ 'All'|trans }}";
+    phyxo_msg.select_none = "{{ 'None'|trans }}";
+    phyxo_msg.invert_selection = "{{ 'Invert'|trans }}";
 
-     phyxo_msg.processing = "{{'Loading...'|trans}}";
-     phyxo_msg.search = "{{'Search'|trans}}";
-     phyxo_msg.lengthMenu = "{{'Display _MENU_ users par page'|trans}}";
-     phyxo_msg.info = "{{'Display from element _START_ to _END_ of _TOTAL_ elements'|trans}}";
-     phyxo_msg.infoEmpty = "{{'Display from element 0 to 0 of 0 elements'|trans}}";
-     phyxo_msg.infoFiltered = "{{'(filtered from _MAX_ total records)'|trans}}";
-     phyxo_msg.loadingRecords = "{{'Loading...'|trans}}";
-     phyxo_msg.zeroRecords = "{{'Nothing found'|trans}}";
-     phyxo_msg.emptyTable = "{{'No data available'|trans}}";
+    phyxo_msg.processing = "{{ 'Loading...'|trans }}";
+    phyxo_msg.search = "{{ 'Search'|trans }}";
+    phyxo_msg.lengthMenu = "{{ 'Display _MENU_ users par page'|trans }}";
+    phyxo_msg.info = "{{ 'Display from element _START_ to _END_ of _TOTAL_ elements'|trans }}";
+    phyxo_msg.infoEmpty = "{{ 'Display from element 0 to 0 of 0 elements'|trans }}";
+    phyxo_msg.infoFiltered = "{{ '(filtered from _MAX_ total records)'|trans }}";
+    phyxo_msg.loadingRecords = "{{ 'Loading...'|trans }}";
+    phyxo_msg.zeroRecords = "{{ 'Nothing found'|trans }}";
+    phyxo_msg.emptyTable = "{{ 'No data available'|trans }}";
 
-     phyxo_msg.user_password_updated = "{{'User password updated'|trans}}";
-     phyxo_msg.users_updated = "{{'Users updated'|trans}}";
-     phyxo_msg.new_user_pattern = "{{'User "%s" added'|trans}}";
-     phyxo_msg.username_changed_pattern = "{{'Username has been changed to %s'|trans}}";
-     phyxo_msg.users_deleted = "{{'Users deleted'|trans}}";
-     phyxo_msg.user_deleted = "{{'User "%s" deleted'|trans}}";
-     phyxo_msg.user_infos_updated = "{{'User infos updated'|trans}}";
-     phyxo_msg.registeredOn_pattern = "{{'Registered on %s.'|trans}}";
-     phyxo_msg.lastVisit_pattern = "{{'Last visit on %s, %s.'|trans}}";
-     phyxo_msg.missing_confirm = "{{'You need to confirm deletion'|trans}}";
-     phyxo_msg.missing_username = "{{'Please, enter a login'|trans}}";
+    phyxo_msg.user_password_updated = "{{ 'User password updated'|trans }}";
+    phyxo_msg.users_updated = "{{ 'Users updated'|trans }}";
+    phyxo_msg.new_user_pattern = "{{ 'User "%s" added'|trans }}";
+    phyxo_msg.username_changed_pattern = "{{ 'Username has been changed to %s'|trans }}";
+    phyxo_msg.users_deleted = "{{ 'Users deleted'|trans }}";
+    phyxo_msg.user_deleted = "{{ 'User "%s" deleted'|trans }}";
+    phyxo_msg.user_infos_updated = "{{ 'User infos updated'|trans }}";
+    phyxo_msg.registeredOn_pattern = "{{ 'Registered on %s.'|trans }}";
+    phyxo_msg.lastVisit_pattern = "{{ 'Last visit on %s, %s.'|trans }}";
+    phyxo_msg.missing_confirm = "{{ 'You need to confirm deletion'|trans }}";
+    phyxo_msg.missing_username = "{{ 'Please, enter a login'|trans }}";
 
-     var protectedUsers = [{{protected_users}}];
-     var guestUser = {{guest_user}};
+    var protectedUsers = [{{ protected_users }}];
+    var guestUser = {{ guest_user }};
 
-     phyxo_msg.days = "{{'%d days'|trans}}";
-     phyxo_msg.photos_per_page = "{{'%d photos per page'|trans}}";
-     phyxo_msg.user_updated = "{{'User %s updated'|trans}}";
-     phyxo_msg.are_you_sure = "{{'Are you sure?'|trans}}";
+    phyxo_msg.days = "{{ '%d days'|trans }}";
+    phyxo_msg.photos_per_page = "{{ '%d photos per page'|trans }}";
+    phyxo_msg.user_updated = "{{ 'User %s updated'|trans }}";
+    phyxo_msg.are_you_sure = "{{ 'Are you sure?'|trans }}";
 
-     phyxo_msg.open_user_details = "{{'Open user details'|trans}}";
-     phyxo_msg.close_user_details = "{{'Close user details'|trans}}";
-     phyxo_msg.edit = "{{'edit'|trans}}";
-     phyxo_msg.translate = "{{'close'|trans}}";
+    phyxo_msg.open_user_details = "{{ 'Open user details'|trans }}";
+    phyxo_msg.close_user_details = "{{ 'Close user details'|trans }}";
+    phyxo_msg.edit = "{{ 'edit'|trans }}";
+    phyxo_msg.translate = "{{ 'close'|trans }}";
 
-     phyxo_msg.loading = "{{'Loading...'|trans}}";
-     phyxo_msg.show_users = "{{'Show %s users'|trans}}";
-     phyxo_msg.no_matching_user = "{{'No matching user found'|trans}}";
-     phyxo_msg.showing_to_users = "{{'Showing %s to %s of %s users'|trans}}";
-     phyxo_msg.filtered_from_total_users = "{{'(filtered from %s total users)'|trans}}";
-     phyxo_msg.search = "{{'Search'|trans}}";
-     phyxo_msg.first = "{{'First'|trans}}";
-     phyxo_msg.previous = "{{'Previous'|trans}}";
-     phyxo_msg.next = "{{'Next'|trans}}";
-     phyxo_msg.last = "{{'Last'|trans}}";
-     var dummyUser = {{F_DUMMY_USER}};
-     var adminUserEdit = "{{F_EDIT_USER}}";
-     var statusLabels = {
-	 {% for status, label in label_of_status %}
-	 '{{status}}' : '{{label}}',
-	 {% endfor %}
-     };
+    phyxo_msg.loading = "{{ 'Loading...'|trans }}";
+    phyxo_msg.show_users = "{{ 'Show %s users'|trans }}";
+    phyxo_msg.no_matching_user = "{{ 'No matching user found'|trans }}";
+    phyxo_msg.showing_to_users = "{{ 'Showing %s to %s of %s users'|trans }}";
+    phyxo_msg.filtered_from_total_users = "{{ '(filtered from %s total users)'|trans }}";
+    phyxo_msg.search = "{{ 'Search'|trans }}";
+    phyxo_msg.first = "{{ 'First'|trans }}";
+    phyxo_msg.previous = "{{ 'Previous'|trans }}";
+    phyxo_msg.next = "{{ 'Next'|trans }}";
+    phyxo_msg.last = "{{ 'Last'|trans }}";
+    var dummyUser = {{ F_DUMMY_USER }};
+    var adminUserEdit = "{{ F_EDIT_USER }}";
+    var statusLabels = {
+      {% for status, label in label_of_status %}
+        '{{ status }}' : '{{ label }}',{% endfor %}
+    };
 
-     var levels = [];
-     {% for id, level in level_options %}
-     {% if id > 0 %}
-     levels[{{id}}] = "{{level}}";
-     {% endif %}
-     {% endfor %}
-     var groups = [];
-     {% for id, group in association_options %}
-     {% if id > 0 %}
-     groups[{{id}}] = "{{group}}";
-     {% endif %}
-     {% endfor %}
-
-     var users_list_config = {
-	 pageLength: {{users_list_pageLength}},
-	 columns: [
-	     { data: 'id' },
-	     { data: 'username' },
-	     { data: 'userInfos.status' },
-	     { data: 'mail_address' },
-	     { data: 'groups' },
-	     { data: 'userInfos.level' },
-	     { data: 'registration_date_string' }
-	 ],
-	 language: {
-	     processing:     phyxo_msg.loading,
-	     search:         phyxo_msg.search,
-	     lengthMenu:     phyxo_msg.lengthMenu,
-	     info:           phyxo_msg.info,
-	     infoEmpty:      phyxo_msg.infoEmpty,
-	     infoFiltered:   phyxo_msg.infoFiltered,
-	     infoPostFix:    '',
-	     loadingRecords: phyxo_msg.loading,
-	     zeroRecords:    phyxo_msg.zeroRecords,
-	     emptyTable:     phyxo_msg.emptyTable,
-	     paginate: {
-		 first:      phyxo_msg.first,
-		 previous:   phyxo_msg.previous,
-		 next:       phyxo_msg.next,
-		 last:       phyxo_msg.last,
-	     },
-	     aria: {
-		 sortAscending:  ": activer pour trier la colonne par ordre croissant",
-		 sortDescending: ": activer pour trier la colonne par ordre décroissant"
-	     },
-	     select: {
-		 rows: {
-		     _: phyxo_msg.n_users_selected,
-		     0: phyxo_msg.no_user_selected,
-		     1: phyxo_msg.one_user_selected,
-		 },
-		 select_all: phyxo_msg.select_all,
-		 select_none: phyxo_msg.select_none,
-		 invert_selection: phyxo_msg.invert_selection,
-	     }
-	 }
-     };
-    </script>
+    var levels = [];{% for id, level in level_options %}{% if id > 0 %}levels[{{ id }}] = "{{ level }}";{% endif %}{% endfor %}var groups = [];{% for id, group in association_options %}{% if id > 0 %}groups[{{ id }}] = "{{ group }}";{% endif %}{% endfor %}var users_list_config = {
+      pageLength: {{ users_list_pageLength }},
+      columns: [
+        {
+          data: 'id'
+        },
+        {
+          data: 'username'
+        },
+        {
+          data: 'userInfos.status'
+        },
+        {
+          data: 'mail_address'
+        }, {
+          data: 'groups'
+        }, {
+          data: 'userInfos.level'
+        }, {
+          data: 'registration_date_string'
+        }
+      ],
+      language: {
+        processing: phyxo_msg.loading,
+        search: phyxo_msg.search,
+        lengthMenu: phyxo_msg.lengthMenu,
+        info: phyxo_msg.info,
+        infoEmpty: phyxo_msg.infoEmpty,
+        infoFiltered: phyxo_msg.infoFiltered,
+        infoPostFix: '',
+        loadingRecords: phyxo_msg.loading,
+        zeroRecords: phyxo_msg.zeroRecords,
+        emptyTable: phyxo_msg.emptyTable,
+        paginate: {
+          first: phyxo_msg.first,
+          previous: phyxo_msg.previous,
+          next: phyxo_msg.next,
+          last: phyxo_msg.last
+        },
+        aria: {
+          sortAscending: ": activer pour trier la colonne par ordre croissant",
+          sortDescending: ": activer pour trier la colonne par ordre décroissant"
+        },
+        select: {
+          rows: {
+            _: phyxo_msg.n_users_selected,
+            0: phyxo_msg.no_user_selected,
+            1: phyxo_msg.one_user_selected
+          },
+          select_all: phyxo_msg.select_all,
+          select_none: phyxo_msg.select_none,
+          invert_selection: phyxo_msg.invert_selection
+        }
+      }
+    };
+  </script>
 {% endblock %}
 
 {% block content %}
-    <p>
-	<a href="{{ path('admin_user_add') }}" class="btn btn-submit"><i class="fa fa-plus-circle"></i> {{'Add a user'|trans}}</a>
-    </p>
-    
-    <form method="post" action="{{F_ADD_ACTION}}">
-      <div class="table-responsive">
-	<table id="users-list" class="table table-striped table-hovered" style="width:100%">
-	  <thead>
-	    <tr>
-	      <th></th>
-	      <th>{{'Username'|trans}}</th>
-	      <th>{{'Status'|trans}}</th>
-	      <th>{{'Email address'|trans}}</th>
-	      <th>{{'Groups'|trans}}</th>
-	      <th>{{'Privacy level'|trans}}</th>
-	      <th>{{'registration date'|trans}}</th>
-	    </tr>
-	  </thead>
-	  <tbody>
-	    {% for user in users %}
-	    <tr>
-	      <td><input type="checkbox"></td>
-	      <td>{{user.getUsername()}}</td>
-	      <td>{{user.getUserInfos().getStatus()}}</td>
-	      <td>{{user.getMailAddress()}}</td>
-	      <td>{{user.getGroups() | json_encode }}</td>
-	      <td>{{user.getUserInfos().getLevel()}}</td>
-	      <td>{{user.getUserInfos().getRegistrationDate() | date}}</td>
-	    </tr>
-	    {% endfor %}
-	    <tr
-	  </tbody>
-	</table>
-      </div>
+  <p>
+    <a href="{{ path('admin_user_add') }}" class="btn btn-submit">
+      <i class="fa fa-plus-circle"></i>
+      {{'Add a user'|trans}}</a>
+  </p>
 
-        <div class="fieldset" id="action">
-            <h3>{{'Action'|trans}}</h3>
+  <form method="post" action="{{F_ADD_ACTION}}">
+    <div class="table-responsive">
+      <table id="users-list" class="table table-striped table-hovered" style="width:100%">
+        <thead>
+          <tr>
+            <th></th>
+            <th>{{'Username'|trans}}</th>
+            <th>{{'Status'|trans}}</th>
+            <th>{{'Email address'|trans}}</th>
+            <th>{{'Groups'|trans}}</th>
+            <th>{{'Privacy level'|trans}}</th>
+            <th>{{'registration date'|trans}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+            <tr>
+              <td><input type="checkbox"></td>
+              <td>{{user.getUsername()}}</td>
+              <td>{{user.getUserInfos().getStatusValue}}</td>
+              <td>{{user.getMailAddress()}}</td>
+              <td>{{user.getGroups() | json_encode }}</td>
+              <td>{{user.getUserInfos().getLevel()}}</td>
+              <td>{{user.getUserInfos().getRegistrationDate() | date}}</td>
+            </tr>
+          {% endfor %}
+          <tr{{'Action'|trans}}</h3 </tbody> </table> </div> <div class="fieldset" id="action"> <h3>>
 
             <div id="forbidAction">
-		{{'No user selected, no action possible.'|trans}}
-	    </div>
-            <div id="permitAction">
-		<p>
-		    <select class="custom-select" name="selectAction">
-			<option value="-1">{{'Choose an action'|trans}}</option>
-			<option disabled="disabled">------------------</option>
-			<option value="delete">{{'Delete selected users'|trans}}</option>
-			<option value="status">{{'Status'|trans}}</option>
-			<option value="group_associate">{{'associate to group'|trans}}</option>
-			<option value="group_dissociate">{{'dissociate from group'|trans}}</option>
-			<option value="enabled_high">{{'High definition enabled'|trans}}</option>
-			<option value="level">{{'Privacy level'|trans}}</option>
-			<option value="nb_image_page">{{'Number of photos per page'|trans}}</option>
-			<option value="theme">{{'Theme'|trans}}</option>
-			<option value="language">{{'Language'|trans}}</option>
-			<option value="recent_period">{{'Recent period'|trans}}</option>
-			<option value="expand">{{'Expand all albums'|trans}}</option>
-			{% if ACTIVATE_COMMENTS %}
-			    <option value="show_nb_comments">{{'Show number of comments'|trans}}</option>
-			{% endif %}
-			<option value="show_nb_hits">{{'Show number of hits'|trans}}</option>
-		    </select>
-		</p>
-
-		<div id="action_delete">
-                    <p class="custom-control custom-checkbox">
-			<input class="custom-control-input" type="checkbox" id="confirm_deletion" name="confirm_deletion" value="1">
-			<label class="custom-control-label" for="confirm_deletion">{{'Are you sure?'|trans}}</label>
-		    </p>
-		</div>
-
-		<div id="action_status">
-		    <p>
-			<select class="custom-select" name="status">
-			    {% for option, label in pref_status_options %}
-				<option value="{{option}}" {% if option == pref_status_selected %}selected="selected"{% endif %}>{{label}}</option>
-			    {% endfor %}
-			</select>
-		    </p>
-		</div>
-
-		<div id="action_group_associate">
-		    <p>
-			<select class="custom-select" name="associate">
-			    {% for option, label in association_options %}
-				<option value="{{option}}">{{label}}</option>
-			    {% endfor %}
-			</select>
-		    </p>
-		</div>
-
-		<div id="action_group_dissociate">
-		    <p>
-			<select class="custom-select" name="dissociate">
-			    {% for option, label in association_options %}
-				<option value="{{option}}">{{label}}</option>
-			    {% endfor %}
-			</select>
-		    </p>
-		</div>
-
-		<div id="action_enabled_high">
-		    <p class="custom-control custom-radio">
-			<input class="custom-control-input" type="radio" id="enabled_high_true" name="enabled_high" value="true">
-			<label class="custom-control-label" for="enabled_high_true">{{'Yes'|trans}}</label>
-		    </p>
-		    <p class="custom-control custom-radio">
-			<input class="custom-control-input" type="radio" id="enabled_high_false" name="enabled_high" value="false" checked="checked">
-			<label class="custom-control-label" for="enabled_high_false">{{'No'|trans}}</label>
-		    </p>
-		</div>
-
-		<div id="action_level">
-		    <p>
-			<select class="custom-select" name="level" size="1">
-			    {% for option, label in level_options %}
-				<option value="{{option}}" {% if option == level_selected %}selected="selected"{% endif %}>{{label}}</option>
-			    {% endfor %}
-			</select>
-		    </p>
-		</div>
-
-		<div id="action_nb_image_page">
-		    <p>
-			<label class="nb_image_page_infos"></label>
-			<input type="text" class="form-control" name="nb_image_page" value="{{NB_IMAGE_PAGE}}">
-		    </p>
-		</div>
-
-		<div id="action_theme">
-		    <p>
-			<select class="custom-select" name="theme" size="1">
-			    {% for option, label in theme_options %}
-				<option value="{{option}}" {% if option == theme_selected %}selected="selected"{% endif %}>{{label}}</option>
-			    {% endfor %}
-			</select>
-		    </p>
-		</div>
-
-		<div id="action_language">
-		    <p>
-			<select class="custom-select" name="language" size="1">
-			    {% for option, label in language_options %}
-				<option value="{{option}}" {% if option == language_selected %}selected="selected"{% endif %}>{{label}}</option>
-			    {% endfor %}
-			</select>
-		    </p>
-		</div>
-
-		<div id="action_recent_period">
-		    <p>
-			<label class="recent_period_infos"></label>
-			<input type="text" class="form-control" name="recent_period" value="{{RECENT_PERIOD}}">
-		    </p>
-		</div>
-
-		<div id="action_expand">
-		    <p class="custom-control custom-radio">
-			<input class="custom-control-input" type="radio" id="expand_true" name="expand" value="true">
-			<label class="custom-control-label" for="expand_true">{{'Yes'|trans}}</label>
-		    </p>
-		    <p class="custom-control custom-radio">
-			<input class="custom-control-input" type="radio" id="expand_false" name="expand" value="false" checked="checked">
-			<label class="custom-control-label" for="expand_false">{{'No'|trans}}</label>
-		    </p>
-		</div>
-
-		<div id="action_show_nb_comments">
-		    <p class="custom-control custom-radio">
-			<input class="custom-control-input" type="radio" id="show_nb_comments_true" name="show_nb_comments" value="true">
-			<label class="custom-control-label" for="show_nb_comments_true">{{'Yes'|trans}}</label>
-		    </p>
-		    <p class="custom-control custom-radio">
-			<input class="custom-control-input" type="radio" id="show_nb_comments_false" name="show_nb_comments" value="false" checked="checked">
-			<label class="custom-control-label" for="show_nb_comments_false">{{'No'|trans}}</label>
-		    </p>
-		</div>
-
-		<div id="action_show_nb_hits">
-		    <p class="custom-control custom-radio">
-			<input class="custom-control-input" type="radio" id="show_nb_hits_true" name="show_nb_hits" value="true">
-			<label class="custom-control-label" for="show_nb_hits_true">{{'Yes'|trans}}</label>
-		    </p>
-		    <p class="custom-control custom-radio">
-			<input class="custom-control-input" type="radio" id="show_nb_hits_false" name="show_nb_hits" value="false" checked="checked">
-			<label class="custom-control-label" for="show_nb_hits_false">{{'No'|trans}}</label>
-		    </p>
-		</div>
-
-		<p id="applyActionBlock" class="actionButtons">
-		    <input id="applyAction" class="btn btn-submit" type="submit" value="{{'Apply action'|trans}}" name="submit">
-		    <span id="applyOnDetails"></span>
-		</p>
+              {{'No user selected, no action possible.'|trans}}
             </div>
-        </div>
-    </form>
+            <div id="permitAction">
+              <p>
+                <select class="custom-select" name="selectAction">
+                  <option value="-1">{{'Choose an action'|trans}}</option>
+                  <option disabled="disabled">------------------</option>
+                  <option value="delete">{{'Delete selected users'|trans}}</option>
+                  <option value="status">{{'Status'|trans}}</option>
+                  <option value="group_associate">{{'associate to group'|trans}}</option>
+                  <option value="group_dissociate">{{'dissociate from group'|trans}}</option>
+                  <option value="enabled_high">{{'High definition enabled'|trans}}</option>
+                  <option value="level">{{'Privacy level'|trans}}</option>
+                  <option value="nb_image_page">{{'Number of photos per page'|trans}}</option>
+                  <option value="theme">{{'Theme'|trans}}</option>
+                  <option value="language">{{'Language'|trans}}</option>
+                  <option value="recent_period">{{'Recent period'|trans}}</option>
+                  <option value="expand">{{'Expand all albums'|trans}}</option>
+                  {% if ACTIVATE_COMMENTS %}
+                    <option value="show_nb_comments">{{'Show number of comments'|trans}}</option>
+                  {% endif %}
+                  <option value="show_nb_hits">{{'Show number of hits'|trans}}</option>
+                </select>
+              </p>
 
-    <script type="text/template" class="userDetails">
-     <form id="user<%- user.id %>">
-       <input type="hidden" name="user_id" value="<%- user.id %>">
-       <div class="fieldset">
-	 <h3>{{'User'|trans}} <%- user.username %></h3>
-         <div id="userActions">
-	   <p>
-	     <% if (!user.isGuest) { %>
-	     <a class="btn btn-sm btn-success" href="#changePassword" data-toggle="collapse"><i class="fa fa-key"></i> {{'Change password'|trans}}</a>
-	     <% } %>
-	     <a class="btn btn-sm btn-secondary" href="<%- '{{F_USER_PERM}}'.replace({{F_DUMMY_USER}}, user.id) %>"><i class="fa fa-lock"></i> {{'Permissions'|trans}}</a>
-	     <% if (!user.isProtected) { %>
-	     <button type="button" id="user-delete" class="btn btn-sm btn-danger" data-username="<%- user.username %>" data-user_id="<%- user.id %>"><i class="fa fa-trash"></i>{{'Delete'|trans}}</button>
-	     <% } %>
-	     <% if (!user.isGuest) { %>
-	     <a class="btn btn-sm btn-info" href="#changeUsername" data-toggle="collapse"><i class="fa fa-pencil"></i> {{'Change username'|trans}}</a>
-	     <% } %>
-	   </p>
+              <div id="action_delete">
+                <p class="custom-control custom-checkbox">
+                  <input class="custom-control-input" type="checkbox" id="confirm_deletion" name="confirm_deletion" value="1">
+                  <label class="custom-control-label" for="confirm_deletion">{{'Are you sure?'|trans}}</label>
+                </p>
+              </div>
 
-	   <% if (!user.isGuest) { %>
-	   <div id="changePassword" class="collapse" data-parent="#userActions">
-	     <h4>{{'New password'|trans}}</h4>
-	     <p>
-	       <input class="form-control" type="text">
-	     </p>
-	     <p>
-               <button class="btn btn-submit" type="submit">{{'Submit'|trans}}</button>
-               <a href="#changePassword" class="btn btn-cancel" data-toggle="collapse">{{'Cancel'|trans}}</a>
-	     </p>
-	   </div>
+              <div id="action_status">
+                <p>
+                  <select class="custom-select" name="status">
+                    {% for option, label in pref_status_options %}
+                      <option value="{{option}}" {% if option == pref_status_selected %} selected="selected" {% endif %}>{{label}}</option>
+                    {% endfor %}
+                  </select>
+                </p>
+              </div>
 
-	   <div id="changeUsername" class="collapse" data-parent="#userActions">
-	     <h4>{{'New username'|trans}}</h4>
-	     <p>
-               <input type="text" class="form-control">
-	     </p>
-	     <p>
-               <button class="btn btn-submit" type="submit">{{'Submit'|trans}}</button>
-	       <a href="#changeUsername" class="btn btn-cancel" data-toggle="collapse">{{'Cancel'|trans}}</a>
-	     </p>
-	   </div>
-	   <% } %>
-	 </div>
+              <div id="action_group_associate">
+                <p>
+                  <select class="custom-select" name="associate">
+                    {% for option, label in association_options %}
+                      <option value="{{option}}">{{label}}</option>
+                    {% endfor %}
+                  </select>
+                </p>
+              </div>
 
-	 <div class="userStats"><%- user.registeredOn_string %><br><%- user.lastVisit_string %></div>
-       </div>
+              <div id="action_group_dissociate">
+                <p>
+                  <select class="custom-select" name="dissociate">
+                    {% for option, label in association_options %}
+                      <option value="{{option}}">{{label}}</option>
+                    {% endfor %}
+                  </select>
+                </p>
+              </div>
 
-       <div class="fieldset user-infos">
-           <h3>{{'Properties'|trans}}</h3>
-           <div class="userProperty">
-             <label>{{'Email address'|trans}}
-	       <% if (!user.isGuest) { %>
-               <input class="form-control" name="email" type="text" value="<%- user.mail_address %>">
-	       <% } else { %>
-	       {{'N/A'|trans}}
-	       <% } %>
-             </label>
-	   </div>
+              <div id="action_enabled_high">
+                <p class="custom-control custom-radio">
+                  <input class="custom-control-input" type="radio" id="enabled_high_true" name="enabled_high" value="true">
+                  <label class="custom-control-label" for="enabled_high_true">{{'Yes'|trans}}</label>
+                </p>
+                <p class="custom-control custom-radio">
+                  <input class="custom-control-input" type="radio" id="enabled_high_false" name="enabled_high" value="false" checked="checked">
+                  <label class="custom-control-label" for="enabled_high_false">{{'No'|trans}}</label>
+                </p>
+              </div>
 
-	   <div class="userProperty">
-             <label>{{'Status'|trans}}
-	       <% if (!user.isProtected) { %>
-	       <select class="custom-select" name="status">
-		 <% _.each( user.statusOptions, function( option ){ %>
-		 <option value="<%- option.value%>" <% if (option.isSelected) { %>selected="selected"<% } %>><%- option.label %></option>
-		 <% }); %>
-	       </select>
-	       <% } else { %>
-	       <%- user.statusLabel %>
-	       <% } %>
-             </label>
-	   </div>
+              <div id="action_level">
+                <p>
+                  <select class="custom-select" name="level" size="1">
+                    {% for option, label in level_options %}
+                      <option value="{{option}}" {% if option == level_selected %} selected="selected" {% endif %}>{{label}}</option>
+                    {% endfor %}
+                  </select>
+                </p>
+              </div>
 
-	   <div class="userProperty">
-             <label>{{'Privacy level'|trans}}
-	       <select class="custom-select" name="level">
-		 <% _.each( user.levelOptions, function( option ){ %>
-		 <option value="<%- option.value%>" <% if (option.isSelected) { %>selected="selected"<% } %>><%- option.label %></option>
-		 <% }); %>
-	       </select>
-             </label>
-	   </div>
+              <div id="action_nb_image_page">
+                <p>
+                  <label class="nb_image_page_infos"></label>
+                  <input type="text" class="form-control" name="nb_image_page" value="{{NB_IMAGE_PAGE}}">
+                </p>
+              </div>
 
-	   <div class="custom-control custom-checkbox">
-	       <input type="checkbox" class="custom-control-input" id="enabled_high" name="enabled_high"<% if (user.enabled_high === true) { %> checked="checked"<% } %>>
-               <label class="custom-control-label" for="enabled_high">{{'High definition enabled'|trans}}
-	   </div>
+              <div id="action_theme">
+                <p>
+                  <select class="custom-select" name="theme" size="1">
+                    {% for option, label in theme_options %}
+                      <option value="{{option}}" {% if option == theme_selected %} selected="selected" {% endif %}>{{label}}</option>
+                    {% endfor %}
+                  </select>
+                </p>
+              </div>
 
-	   <div class="userProperty">
-             <label>{{'Groups'|trans}}
-	       <select data-selectize="groups" placeholder="{{'Type in a search term'|trans}}" name="group_id[]" multiple></select>
-             </label>
-	   </div>
+              <div id="action_language">
+                <p>
+                  <select class="custom-select" name="language" size="1">
+                    {% for option, label in language_options %}
+                      <option value="{{option}}" {% if option == language_selected %} selected="selected" {% endif %}>{{label}}</option>
+                    {% endfor %}
+                  </select>
+                </p>
+              </div>
 
-	   <h3>{{'Preferences'|trans}}</h3>
+              <div id="action_recent_period">
+                <p>
+                  <label class="recent_period_infos"></label>
+                  <input type="text" class="form-control" name="recent_period" value="{{RECENT_PERIOD}}">
+                </p>
+              </div>
 
-	   <div class="userProperty slider">
-	     <p>
-               <label class="nb_image_page_infos" for="nb_image_page"></label>
-	       <input type="text" class="form-control" id="nb_image_page" name="nb_image_page" value="<%- user.nb_image_page %>">
-	     </p>
-	   </div>
+              <div id="action_expand">
+                <p class="custom-control custom-radio">
+                  <input class="custom-control-input" type="radio" id="expand_true" name="expand" value="true">
+                  <label class="custom-control-label" for="expand_true">{{'Yes'|trans}}</label>
+                </p>
+                <p class="custom-control custom-radio">
+                  <input class="custom-control-input" type="radio" id="expand_false" name="expand" value="false" checked="checked">
+                  <label class="custom-control-label" for="expand_false">{{'No'|trans}}</label>
+                </p>
+              </div>
 
-	   <div class="userProperty">
-             <label>{{'Theme'|trans}}
-	       <select class="custom-select" name="theme">
-		 <% _.each( user.themeOptions, function( option ){ %>
-		 <option value="<%- option.value%>" <% if (option.isSelected) { %>selected="selected"<% } %>><%- option.label %></option>
-		 <% }); %>
-	       </select>
-             </label>
-	   </div>
+              <div id="action_show_nb_comments">
+                <p class="custom-control custom-radio">
+                  <input class="custom-control-input" type="radio" id="show_nb_comments_true" name="show_nb_comments" value="true">
+                  <label class="custom-control-label" for="show_nb_comments_true">{{'Yes'|trans}}</label>
+                </p>
+                <p class="custom-control custom-radio">
+                  <input class="custom-control-input" type="radio" id="show_nb_comments_false" name="show_nb_comments" value="false" checked="checked">
+                  <label class="custom-control-label" for="show_nb_comments_false">{{'No'|trans}}</label>
+                </p>
+              </div>
 
-	   <div class="userProperty">
-             <label>{{'Language'|trans}}
-	       <select class="custom-select" name="language">
-		 <% _.each( user.languageOptions, function( option ){ %>
-		 <option value="<%- option.value%>" <% if (option.isSelected) { %>selected="selected"<% } %>><%- option.label %></option>
-		 <% }); %>
-	       </select>
-             </label>
-	   </div>
+              <div id="action_show_nb_hits">
+                <p class="custom-control custom-radio">
+                  <input class="custom-control-input" type="radio" id="show_nb_hits_true" name="show_nb_hits" value="true">
+                  <label class="custom-control-label" for="show_nb_hits_true">{{'Yes'|trans}}</label>
+                </p>
+                <p class="custom-control custom-radio">
+                  <input class="custom-control-input" type="radio" id="show_nb_hits_false" name="show_nb_hits" value="false" checked="checked">
+                  <label class="custom-control-label" for="show_nb_hits_false">{{'No'|trans}}</label>
+                </p>
+              </div>
 
-	   <div class="userProperty slider">
-	     <p>
-	       <label>{{'Recent period'|trans}}: <span class="recent_period_infos"></span></label>
-	       <input type="text" class="form-control" name="recent_period" value="<%- user.recent_period %>">
-	     </p>
-	   </div>
+              <p id="applyActionBlock" class="actionButtons">
+                <input id="applyAction" class="btn btn-submit" type="submit" value="{{'Apply action'|trans}}" name="submit">
+                <span id="applyOnDetails"></span>
+              </p>
+            </div>
+          </div>
+        </tbody>
+      </form>
 
-	   <div class="custom-control custom-checkbox">
-	       <input class="custom-control-input" type="checkbox" id="expand" name="expand"<% if (user.expand === true) { %> checked="checked"<% }%>>
-               <label class="custom-control-label" for="expand">{{'Expand all albums'|trans}}</label>
-	   </div>
+      <script type="text/template" class="userDetails">
+        <form id="user<%- user.id %>">
+          <input type="hidden" name="user_id" value="<%- user.id %>">
+          <div class="fieldset">
+            <h3>{{'User'|trans}}
+              <%- user.username %></h3>
+            <div id="userActions">
+              <p>
+                <% if (!user.isGuest) { %>
+                  <a class="btn btn-sm btn-success" href="#changePassword" data-toggle="collapse">
+                    <i class="fa fa-key"></i>
+                    {{'Change password'|trans}}</a>
+                <% } %>
+                <a class="btn btn-sm btn-secondary" href="<%- '{{F_USER_PERM}}'.replace({{F_DUMMY_USER}}, user.id) %>">
+                  <i class="fa fa-lock"></i>
+                  {{'Permissions'|trans}}</a>
+                <% if (!user.isProtected) { %>
+                  <button type="button" id="user-delete" class="btn btn-sm btn-danger" data-username="<%- user.username %>" data-user_id="<%- user.id %>">
+                    <i class="fa fa-trash"></i>
+                    {{'Delete'|trans}}</button>
+                <% } %>
+                <% if (!user.isGuest) { %>
+                  <a class="btn btn-sm btn-info" href="#changeUsername" data-toggle="collapse">
+                    <i class="fa fa-pencil"></i>
+                    {{'Change username'|trans}}</a>
+                <% } %>
+              </p>
 
-	   <div class="custom-control custom-checkbox">
-	       <input class="custom-control-input" type="checkbox" id="show_nb_comments" name="show_nb_comments"<% if (user.show_nb_comments === true) { %> checked="checked"<% }%>>
-               <label class="custom-control-label" for="show_nb_comments">{{'Show number of comments'|trans}}</label>
-	   </div>
+              <% if (!user.isGuest) { %>
+                <div id="changePassword" class="collapse" data-parent="#userActions">
+                  <h4>{{'New password'|trans}}</h4>
+                  <p>
+                    <input class="form-control" type="text">
+                  </p>
+                  <p>
+                    <button class="btn btn-submit" type="submit">{{'Submit'|trans}}</button>
+                    <a href="#changePassword" class="btn btn-cancel" data-toggle="collapse">{{'Cancel'|trans}}</a>
+                  </p>
+                </div>
 
-	   <div class="custom-control custom-checkbox">
-	       <input class="custom-control-input" type="checkbox" id="show_nb_hits" name="show_nb_hits"<% if (user.show_nb_hits === true) { %> checked="checked"<% }%>>
-               <label class="custom-control-label" for="show_nb_hits">{{'Show number of hits'|trans}}</label>
-	   </div>
+                <div id="changeUsername" class="collapse" data-parent="#userActions">
+                  <h4>{{'New username'|trans}}</h4>
+                  <p>
+                    <input type="text" class="form-control">
+                  </p>
+                  <p>
+                    <button class="btn btn-submit" type="submit">{{'Submit'|trans}}</button>
+                    <a href="#changeUsername" class="btn btn-cancel" data-toggle="collapse">{{'Cancel'|trans}}</a>
+                  </p>
+                </div>
+              <% } %>
+            </div>
 
-	   <p>
-	     <input class="btn btn-submit" type="submit" value="{{'Update user'|trans}}" data-user_id="<%- user.id %>">
-	   </p>
-       </div>
-     </form>
-    </script>
-{% endblock %}
+            <div class="userStats"><%- user.registeredOn_string %><br><%- user.lastVisit_string %></div>
+          </div>
+
+          <div class="fieldset user-infos">
+            <h3>{{'Properties'|trans}}</h3>
+            <div class="userProperty">
+              <label>{{'Email address'|trans}}
+                <% if (!user.isGuest) { %>
+                  <input class="form-control" name="email" type="text" value="<%- user.mail_address %>">
+                <% } else { %>
+                  {{'N/A'|trans}}
+                <% } %>
+              </label>
+            </div>
+
+            <div class="userProperty">
+              <label>{{'Status'|trans}}
+                <% if (!user.isProtected) { %>
+                  <select class="custom-select" name="status">
+                    <% _.each( user.statusOptions, function( option ){ %>
+                      <optionselected="selected"<% value="<%- option.value%>" <% if (option.isSelected) { %> } %>><%- option.label %></option>
+                    <% }); %>
+                  </select>
+                <% } else { %>
+                  <%- user.statusLabel %>
+                <% } %>
+              </label>
+            </div>
+
+            <div class="userProperty">
+              <label>{{'Privacy level'|trans}}
+                <select class="custom-select" name="level">
+                  <% _.each( user.levelOptions, function( option ){ %>
+                    <optionselected="selected"<% value="<%- option.value%>" <% if (option.isSelected) { %> } %>><%- option.label %></option>
+                  <% }); %>
+                </select>
+              </label>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="enabled_high" name="enabled_high" <% if (user.enabled_high === true) { %> checked="checked" <% } %>>
+              <label class="custom-control-label" for="enabled_high">{{'High definition enabled'|trans}}
+              </div>
+
+              <div class="userProperty">
+                <label>{{'Groups'|trans}}
+                  <select data-selectize="groups" placeholder="{{'Type in a search term'|trans}}" name="group_id[]" multiple></select>
+                </label>
+              </div>
+
+              <h3>{{'Preferences'|trans}}</h3>
+
+              <div class="userProperty slider">
+                <p>
+                  <label class="nb_image_page_infos" for="nb_image_page"></label>
+                  <input type="text" class="form-control" id="nb_image_page" name="nb_image_page" value="<%- user.nb_image_page %>">
+                </p>
+              </div>
+
+              <div class="userProperty">
+                <label>{{'Theme'|trans}}
+                  <select class="custom-select" name="theme">
+                    <% _.each( user.themeOptions, function( option ){ %>
+                      <optionselected="selected"<% value="<%- option.value%>" <% if (option.isSelected) { %> } %>><%- option.label %></option>
+                    <% }); %>
+                  </select>
+                </label>
+              </div>
+
+              <div class="userProperty">
+                <label>{{'Language'|trans}}
+                  <select class="custom-select" name="language">
+                    <% _.each( user.languageOptions, function( option ){ %>
+                      <optionselected="selected"<% value="<%- option.value%>" <% if (option.isSelected) { %> } %>><%- option.label %></option>
+                    <% }); %>
+                  </select>
+                </label>
+              </div>
+
+              <div class="userProperty slider">
+                <p>
+                  <label>{{'Recent period'|trans}}:
+                    <span class="recent_period_infos"></span>
+                  </label>
+                  <input type="text" class="form-control" name="recent_period" value="<%- user.recent_period %>">
+                </p>
+              </div>
+
+              <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" id="expand" name="expand" <% if (user.expand === true) { %> checked="checked" <% }%>>
+                <label class="custom-control-label" for="expand">{{'Expand all albums'|trans}}</label>
+              </div>
+
+              <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" id="show_nb_comments" name="show_nb_comments" <% if (user.show_nb_comments === true) { %> checked="checked" <% }%>>
+                <label class="custom-control-label" for="show_nb_comments">{{'Show number of comments'|trans}}</label>
+              </div>
+
+              <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" id="show_nb_hits" name="show_nb_hits" <% if (user.show_nb_hits === true) { %> checked="checked" <% }%>>
+                <label class="custom-control-label" for="show_nb_hits">{{'Show number of hits'|trans}}</label>
+              </div>
+
+              <p>
+                <input class="btn btn-submit" type="submit" value="{{'Update user'|trans}}" data-user_id="<%- user.id %>">
+              </p>
+            </div>
+          </form>
+        </script>
+      {% endblock %}

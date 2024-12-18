@@ -60,7 +60,7 @@ class UserListCommand extends Command
                 'id' => $user->getId(),
                 'username' => $user->getUsername(),
                 'mail_address' => $user->getMailAddress(),
-                'status' => $user->getUserInfos()->getStatus(),
+                'status' => $user->getUserInfos()->getStatusValue(),
                 'language' => $user->getUserInfos()->getLanguage(),
                 'theme' => $user->getUserInfos()->getTheme(),
             ];

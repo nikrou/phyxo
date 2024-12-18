@@ -14,6 +14,7 @@ namespace App\Controller\Admin;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\User;
+use App\Enum\UserStatusType;
 use App\Form\Model\UserProfileModel;
 use App\Form\UserCreationType;
 use App\Form\UserProfileType;
@@ -87,7 +88,7 @@ class AdminUsersController extends AbstractController
 
         // an admin can't delete other admin/webmaster
         if ($userMapper->isAdmin()) {
-            foreach ($userInfosRepository->findBy(['status' => [User::STATUS_WEBMASTER, User::STATUS_ADMIN]]) as $userInfos) {
+            foreach ($userInfosRepository->findBy(['status' => [UserStatusType::WEBMASTER, UserStatusType::ADMIN]]) as $userInfos) {
                 $protected_users[] = $userInfos->getUser()->getId();
             }
         }
@@ -121,8 +122,8 @@ class AdminUsersController extends AbstractController
         ]);
 
         // Status options
-        foreach (User::ALL_STATUS as $status) {
-            $label_of_status[$status] = $translator->trans('user_status_' . $status, [], 'admin');
+        foreach (UserStatusType::cases() as $status) {
+            $label_of_status[$status->value] = $translator->trans('user_status_' . $status->value, [], 'admin');
         }
 
         $pref_status_options = $label_of_status;

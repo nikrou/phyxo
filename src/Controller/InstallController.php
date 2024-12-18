@@ -17,6 +17,7 @@ use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Language\Languages;
 use App\Entity\User;
+use App\Enum\UserStatusType;
 use App\Install\PhyxoInstaller;
 use Doctrine\DBAL\DriverManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -355,7 +356,7 @@ class InstallController extends AbstractController
 
                 $statement = $conn->prepare($raw_query_user_infos);
                 $statement->bindValue('user_id', $user_id);
-                $statement->bindValue('status', User::STATUS_WEBMASTER);
+                $statement->bindValue('status', UserStatusType::WEBMASTER);
                 $statement->bindValue('nb_image_page', 15);
                 $statement->bindValue('language', $request->get('language'));
                 $statement->bindValue('expand', 0);
@@ -377,7 +378,7 @@ class InstallController extends AbstractController
 
                 $statement = $conn->prepare($raw_query_user_infos);
                 $statement->bindValue('user_id', $user_id);
-                $statement->bindValue('status', User::STATUS_GUEST);
+                $statement->bindValue('status', UserStatusType::GUEST);
                 $statement->bindValue('nb_image_page', 15);
                 $statement->bindValue('language', $request->get('language'));
                 $statement->bindValue('expand', 0);

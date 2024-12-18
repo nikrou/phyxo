@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use App\Enum\UserStatusType;
 use Doctrine\DBAL\Types\Types;
 use DateTimeInterface;
 use App\Repository\UserInfosRepository;
@@ -49,8 +50,8 @@ class UserInfos
     #[ORM\JoinColumn(name: 'user_id', nullable: false)]
     private ?User $user = null;
 
-    #[ORM\Column(type: Types::STRING, length: 50)]
-    private string $status;
+    #[ORM\Column(type: Types::STRING, length: 50, enumType: UserStatusType::class)]
+    private UserStatusType $status;
 
     #[ORM\Column(type: Types::INTEGER)]
     private int $nb_image_page = self::DEFAULT_NB_IMAGE_PAGE;
@@ -91,12 +92,17 @@ class UserInfos
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $activation_key_expire = null;
 
-    public function getStatus(): ?string
+    public function getStatus(): ?UserStatusType
     {
         return $this->status;
     }
 
-    public function setStatus(string $status): self
+    public function getStatusValue(): ?string
+    {
+        return $this->status->value;
+    }
+
+    public function setStatus(UserStatusType $status): self
     {
         $this->status = $status;
 

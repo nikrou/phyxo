@@ -14,6 +14,7 @@ namespace App\Security;
 use LogicException;
 use App\Entity\Image;
 use App\Entity\User;
+use App\Enum\UserStatusType;
 use Phyxo\Conf;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -63,7 +64,7 @@ class TagVoter extends Voter
         if (empty($this->conf['tags_permission_add'])) {
             return false;
         }
-        return $this->security->isGranted(User::getRoleFromStatus($this->conf['tags_permission_add']));
+        return $this->security->isGranted(User::getRoleFromStatus(UserStatusType::from($this->conf['tags_permission_add'])));
     }
 
     private function canDeleteTag(): bool
@@ -71,6 +72,6 @@ class TagVoter extends Voter
         if (empty($this->conf['tags_permission_delete'])) {
             return false;
         }
-        return $this->security->isGranted(User::getRoleFromStatus($this->conf['tags_permission_delete']));
+        return $this->security->isGranted(User::getRoleFromStatus(UserStatusType::from($this->conf['tags_permission_delete'])));
     }
 }

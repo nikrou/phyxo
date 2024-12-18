@@ -61,10 +61,6 @@ class UserToUserInfosTransformer implements DataTransformerInterface
             $userInfos->setLanguage($userInfosModel->getLanguage()->getId());
         }
 
-        if ($userInfosModel->getStatus()) {
-            $userInfos->setStatus($userInfosModel->getStatus());
-        }
-
         if ($userInfosModel->getLevel()) {
             $userInfos->setLevel($userInfosModel->getLevel());
         }
@@ -76,6 +72,8 @@ class UserToUserInfosTransformer implements DataTransformerInterface
         if ($userInfosModel->getNbImagePage()) {
             $userInfos->setNbImagePage($userInfosModel->getNbImagePage());
         }
+
+        $userInfos->setStatus($userInfosModel->getStatus());
 
         $userInfos->setExpand($userInfosModel->getExpand());
 

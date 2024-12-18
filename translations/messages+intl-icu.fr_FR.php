@@ -198,4 +198,8 @@ return [
     'Year' => "Année",
     'Month' => "Mois",
     'Day' => "Jour",
+    'user_status_admin' => 'Administrateur',
+    'user_status_guest' => 'Invité',
+    'user_status_normal' => 'Visiteur',
+    'user_status_webmaster' => 'Webmestre',
 ];

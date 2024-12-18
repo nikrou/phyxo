@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use App\Enum\UserStatusType;
 use Doctrine\DBAL\Types\Types;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -24,18 +25,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface
 {
-    final public const STATUS_WEBMASTER = 'webmaster';
-    final public const STATUS_ADMIN = 'admin';
-    final public const STATUS_NORMAL = 'normal';
-    final public const STATUS_GUEST = 'guest';
-    final public const ALL_STATUS = [self::STATUS_WEBMASTER, self::STATUS_ADMIN, self::STATUS_NORMAL, self::STATUS_GUEST];
-    final public const STATUS_TO_ROLE = [
-        self::STATUS_WEBMASTER => 'ROLE_WEBMASTER',
-        self::STATUS_ADMIN => 'ROLE_ADMIN',
-        self::STATUS_NORMAL => 'ROLE_NORMAL',
-        self::STATUS_GUEST => 'ROLE_USER'
-    ];
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER)]
@@ -233,26 +222,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return $this->getRoles() === $user->getRoles();
     }
 
-    public static function getRoleFromStatus(string $status): string
+    public static function getRoleFromStatus(UserStatusType $status): string
     {
-        return self::STATUS_TO_ROLE[$status] ?? 'ROLE_USER';
+        return 'ROLE_' . strtoupper($status->value);
     }
 
-    public function getStatusFromRoles(): string
+    public function getStatusFromRoles(): UserStatusType
     {
         if (in_array('ROLE_WEBMASTER', $this->roles)) {
-            return self::STATUS_WEBMASTER;
+            return UserStatusType::WEBMASTER;
         }
 
         if (in_array('ROLE_ADMIN', $this->roles)) {
-            return self::STATUS_ADMIN;
+            return UserStatusType::ADMIN;
         }
 
         if (in_array('ROLE_NORMAL', $this->roles)) {
-            return self::STATUS_NORMAL;
+            return UserStatusType::NORMAL;
         }
 
-        return self::STATUS_GUEST;
+        return UserStatusType::GUEST;
     }
 
     /**

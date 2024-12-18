@@ -12,6 +12,7 @@
 namespace App\DataMapper;
 
 use App\Entity\User;
+use App\Enum\UserStatusType;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
@@ -70,7 +71,7 @@ class UserMapper
     public function getWebmaster(): User
     {
         if (!$this->webmaster_retrieved) {
-            $this->webmaster = $this->userRepository->findOneByStatus(User::STATUS_WEBMASTER);
+            $this->webmaster = $this->userRepository->findOneByStatus(UserStatusType::WEBMASTER);
             $this->webmaster_retrieved = true;
         }
 
@@ -80,7 +81,7 @@ class UserMapper
     public function getDefaultUser(): ?User
     {
         if (!$this->default_user_retrieved) {
-            $this->default_user = $this->userInfosRepository->findOneBy(['status' => User::STATUS_GUEST])->getUser();
+            $this->default_user = $this->userInfosRepository->findOneBy(['status' => UserStatusType::GUEST])->getUser();
             $this->default_user_retrieved = true;
         }
 

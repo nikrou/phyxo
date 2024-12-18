@@ -13,7 +13,7 @@ namespace App\Form;
 
 use App\Entity\Language;
 use App\Entity\Theme;
-use App\Entity\User;
+use App\Enum\UserStatusType;
 use App\Form\Model\UserInfosModel;
 use App\Form\Transformer\UserToUserInfosTransformer;
 use App\Repository\LanguageRepository;
@@ -23,6 +23,7 @@ use Phyxo\Conf;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\ResetType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -84,19 +85,11 @@ class UserInfosType extends AbstractType
         );
 
         if ($options[self::IN_ADMIN_OPTION]) {
-            $statuses = [];
-            foreach (User::ALL_STATUS as $status) {
-                $statuses[$status] = $this->translator->trans(sprintf('user_status_%s', $status));
-            }
-            $fields->add('status', ChoiceType::class, ['label' => 'Status', 'choices' => array_flip($statuses), 'expanded' => false]);
+            $fields->add('status', EnumType::class, ['label' => 'Status', 'class' => UserStatusType::class, 'expanded' => false]);
 
             $levels = [];
             foreach ($this->conf['available_permission_levels'] as $level) {
                 $levels[$level] = $this->translator->trans(sprintf('Level %d', $level));
-            }
-
-            foreach (User::ALL_STATUS as $status) {
-                $statuses[$status] = $this->translator->trans(sprintf('user_status_%s', $status));
             }
 
             $fields->add('level', ChoiceType::class, ['label' => 'Privacy level', 'choices' => array_flip($levels), 'expanded' => false]);

@@ -27,6 +27,7 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use App\Entity\User;
+use App\Enum\UserStatusType;
 use App\Repository\CommentRepository;
 use App\Repository\GroupRepository;
 use App\Repository\UserRepository;
@@ -72,7 +73,7 @@ class DBContext implements Context
             $user = new User();
             $user->setUsername($userRow['username']);
             $user->setPassword($this->getContainer()->get('security.password_hasher')->hashPassword($user, $userRow['password']));
-            $user->addRole(User::getRoleFromStatus(empty($userRow['status']) ? User::STATUS_NORMAL : $userRow['status']));
+            $user->addRole(User::getRoleFromStatus(empty($userRow['status']) ? UserStatusType::NORMAL : UserStatusType::from($userRow['status'])));
             if (!empty($userRow['mail_address'])) {
                 $user->setMailAddress($userRow['mail_address']);
             }

@@ -16,6 +16,7 @@ use App\DataMapper\ImageMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\Album;
 use App\Entity\User;
+use App\Enum\UserStatusType;
 use App\Events\GroupEvent;
 use App\Repository\GroupRepository;
 use App\Repository\ImageAlbumRepository;
@@ -600,7 +601,7 @@ class AdminAlbumController extends AbstractController
                 $this->addFlash('error', $translator->trans('The name of an album must not be empty', [], 'admin'));
             } else {
                 $admin_ids = [];
-                foreach ($userInfosRepository->findBy(['status' => [User::STATUS_WEBMASTER, User::STATUS_ADMIN]]) as $userInfos) {
+                foreach ($userInfosRepository->findBy(['status' => [UserStatusType::WEBMASTER, UserStatusType::ADMIN]]) as $userInfos) {
                     $admin_ids[] = $userInfos->getUser()->getId();
                 }
 
