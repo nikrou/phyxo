@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\ImageMapper;
+use App\Enum\PictureSectionType;
 use App\Repository\UserCacheAlbumRepository;
 use App\Security\AppUserService;
 use Phyxo\Functions\Utils;
@@ -202,8 +203,8 @@ class AlbumController extends AbstractController
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
                     $album_id,
+                    PictureSectionType::ALBUM,
                     array_slice($tpl_params['items'], $start, $nb_image_page),
-                    'album',
                     $start
                 )
             );
@@ -265,8 +266,8 @@ class AlbumController extends AbstractController
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
                     $album_id,
+                    PictureSectionType::ALBUM,
                     array_slice($tpl_params['items'], $start, $nb_image_page),
-                    'album',
                     $start
                 )
             );
@@ -319,8 +320,8 @@ class AlbumController extends AbstractController
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
                     'flat',
+                    PictureSectionType::ALBUMS,
                     array_slice($tpl_params['items'], $start, $nb_image_page),
-                    'albums',
                     $start
                 )
             );

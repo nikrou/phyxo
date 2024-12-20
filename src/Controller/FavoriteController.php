@@ -17,6 +17,7 @@ use Phyxo\Functions\Utils;
 use App\Repository\FavoriteRepository;
 use App\DataMapper\ImageMapper;
 use App\Entity\Favorite;
+use App\Enum\PictureSectionType;
 use App\Repository\ImageRepository;
 use App\Security\AppUserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -59,8 +60,8 @@ class FavoriteController extends AbstractController
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
                     '',
+                    PictureSectionType::FAVORITES,
                     array_slice($tpl_params['items'], $start, $nb_image_page),
-                    'favorites',
                     $start
                 )
             );

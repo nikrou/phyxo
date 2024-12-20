@@ -11,6 +11,7 @@
 
 namespace App\DataMapper;
 
+use App\Enum\PictureSectionType;
 use Exception;
 use App\Repository\CaddieRepository;
 use Phyxo\Conf;
@@ -60,7 +61,7 @@ class ImageMapper
      * @param array{current_day?: DateTimeInterface, date_type?: string, year?: int, month?: int, day?: int } $extra
      * @param int[] $selection
      */
-    public function getPicturesFromSelection($element_id, array $selection = [], string $section = '', int $start_id = 0, array $extra = []): array
+    public function getPicturesFromSelection($element_id, PictureSectionType $section, array $selection = [], int $start_id = 0, array $extra = []): array
     {
         $tpl_params = [];
 
@@ -81,11 +82,6 @@ class ImageMapper
         usort($pictures, '\Phyxo\Functions\Utils::rank_compare');
         unset($rank_of);
 
-        // temporary fix
-        if ($section === 'albums') {
-            $section = 'album';
-        }
-
         if ($pictures !== [] && ($this->conf['activate_comments'] && $this->userMapper->getUser()->getUserInfos()->getShowNbComments())) {
             $nb_comments_of = [];
             foreach ($this->commentRepository->countGroupByImage($selection) as $comment) {
@@ -94,16 +90,16 @@ class ImageMapper
         }
 
         foreach ($pictures as $picture) {
-            if (in_array($section, ['album', 'list', 'tags', 'search'])) {
+            if (in_array($section, [PictureSectionType::ALBUM, PictureSectionType::LIST, PictureSectionType::TAGS, PictureSectionType::SEARCH])) {
                 $url = $this->router->generate(
                     'picture',
                     [
                         'image_id' => $picture['image']->getId(),
-                        'type' => $section,
+                        'history_section' => $section->value,
                         'element_id' => $element_id,
                     ]
                 );
-            } elseif ($section === 'calendar_categories') {
+            } elseif ($section === PictureSectionType::CALENDAR_ALBUMS) {
                 $url = $this->router->generate(
                     'picture_categories_from_calendar',
                     [
@@ -112,7 +108,7 @@ class ImageMapper
                         'extra' => 'extr',
                     ]
                 );
-            } elseif ($section === 'from_calendar') {
+            } elseif ($section === PictureSectionType::FROM_CALENDAR) {
                 $url = $this->router->generate(
                     'picture_from_calendar',
                     [
@@ -127,7 +123,7 @@ class ImageMapper
                     'picture_by_type',
                     [
                         'image_id' => $picture['image']->getId(),
-                        'type' => $section,
+                        'history_section' => $section->value,
                         'start_id' => $start_id !== 0 ? 'start-' . $start_id : ''
                     ]
                 );
@@ -156,9 +152,9 @@ class ImageMapper
                 $tpl_var['NB_HITS'] = $picture['image']->getHit();
             }
 
-            if ($section === 'best_rated') {
+            if ($section === PictureSectionType::BEST_RATED) {
                 $name = '(' . $picture['image']->getRatingScore() . ') ' . $name;
-            } elseif ($section === 'most_visited') {
+            } elseif ($section === PictureSectionType::MOST_VISITED) {
                 if (!$this->userMapper->getUser()->getUserInfos()->getShowNbHits()) {
                     $name = '(' . $picture['image']->getHit() . ') ' . $name;
                 }

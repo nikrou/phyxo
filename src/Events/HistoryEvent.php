@@ -13,6 +13,7 @@ namespace App\Events;
 
 use App\Entity\Album;
 use App\Entity\Image;
+use App\Enum\PictureSectionType;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class HistoryEvent extends Event
@@ -22,11 +23,11 @@ class HistoryEvent extends Event
     private string $ip;
     private string $tagIds = '';
 
-    public function __construct(private readonly string $section)
+    public function __construct(private readonly PictureSectionType $section)
     {
     }
 
-    public function getSection(): string
+    public function getSection(): PictureSectionType
     {
         return $this->section;
     }

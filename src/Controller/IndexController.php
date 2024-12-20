@@ -16,6 +16,7 @@ use DateInterval;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
 use App\DataMapper\ImageMapper;
+use App\Enum\PictureSectionType;
 use App\Security\AppUserService;
 use Phyxo\Functions\Utils;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -64,8 +65,8 @@ class IndexController extends AbstractController
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
                     '',
+                    PictureSectionType::MOST_VISITED,
                     array_slice($tpl_params['items'], $start, $nb_image_page),
-                    'most_visited',
                     $start
                 )
             );
@@ -119,8 +120,8 @@ class IndexController extends AbstractController
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
                     '',
+                    PictureSectionType::RECENT_PICS,
                     array_slice($tpl_params['items'], $start, $nb_image_page),
-                    'recent_pics',
                     $start
                 )
             );
@@ -173,8 +174,8 @@ class IndexController extends AbstractController
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
                     '',
+                    PictureSectionType::BEST_RATED,
                     array_slice($tpl_params['items'], $start, $nb_image_page),
-                    'best_rated',
                     $start
                 )
             );
@@ -226,8 +227,8 @@ class IndexController extends AbstractController
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
                     $list,
+                    PictureSectionType::LIST,
                     array_slice($tpl_params['items'], $start, $nb_image_page),
-                    'list',
                     $start
                 )
             );

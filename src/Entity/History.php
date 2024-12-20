@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use App\Enum\PictureSectionType;
 use Doctrine\DBAL\Types\Types;
 use DateTimeInterface;
 use App\Repository\HistoryRepository;
@@ -20,15 +21,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: HistoryRepository::class)]
 class History
 {
-    final public const SECTION_ALBUMS = 'categories';
-    final public const SECTION_TAGS = 'tags';
-    final public const SECTION_SEARCH = 'search';
-    final public const SECTION_LIST = 'list';
-    final public const SECTION_FAVORITES = 'favorites';
-    final public const SECTION_MOST_VISITED = 'most_visited';
-    final public const SECTION_BEST_RATED = 'best_rated';
-    final public const SECTION_RECENT_PICS = 'recent_pics';
-    final public const SECTION_RECENT_ALBUMS = 'recent_cats';
     final public const IMAGE_TYPE_PICTURE = 'picture';
     final public const IMAGE_TYPE_HIGH = 'high';
     final public const IMAGE_TYPE_OTHER = 'other';
@@ -51,8 +43,8 @@ class History
     #[ORM\Column(type: Types::STRING, length: 255)]
     private string $ip;
 
-    #[ORM\Column(type: Types::STRING, length: 255)]
-    private string $section;
+    #[ORM\Column(type: Types::STRING, length: 255, enumType: PictureSectionType::class)]
+    private PictureSectionType $section;
 
     #[ORM\ManyToOne(targetEntity: Album::class)]
     #[ORM\JoinColumn(name: 'category_id', nullable: true)]
@@ -124,12 +116,12 @@ class History
         return $this;
     }
 
-    public function getSection(): ?string
+    public function getSection(): ?PictureSectionType
     {
         return $this->section;
     }
 
-    public function setSection(string $section): self
+    public function setSection(PictureSectionType $section): self
     {
         $this->section = $section;
 

@@ -20,6 +20,7 @@ use App\Repository\SearchRepository;
 use App\DataMapper\SearchMapper;
 use App\DataMapper\ImageMapper;
 use App\Entity\Search;
+use App\Enum\PictureSectionType;
 use App\Repository\TagRepository;
 use App\Security\AppUserService;
 use Phyxo\Functions\Utils;
@@ -314,8 +315,8 @@ class SearchController extends AbstractController
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
                     $search_id,
+                    PictureSectionType::SEARCH,
                     array_slice($tpl_params['items'], $start, $nb_image_page),
-                    'search',
                     $start
                 )
             );

@@ -1,3 +1,9 @@
+controllers:
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller
+    type: attribute
+
 admin_routes:
   resource: routes/admin/*.yaml
   prefix: /admin

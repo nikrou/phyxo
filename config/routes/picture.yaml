@@ -15,27 +15,11 @@ picture_by_search:
   defaults:
     type: search
 
-picture:
-  path: /picture/{image_id}/{type}/{element_id}
-  controller: App\Controller\PictureController::picture
-  requirements:
-    element_id: .+
-    type: album|list|tags|search|favorites|most_visited|best_rated|recent_pics|recent_cats|file|from_calendar
-
 picture_rate:
   path: /rate
   controller: App\Controller\PictureController::rate
   requirements:
     rate: \d+
-
-picture_by_type:
-  path: /picture/{image_id}/{type}/{start_id}
-  controller: App\Controller\PictureController::picturesByTypes
-  defaults:
-    start_id: null
-  requirements:
-    type: favorites|most_visited|recent_pics|best_rated
-    start_id: start-\d+
 
 picture_from_calendar:
   path: /picture/{image_id}/calendar/{date_type}/{year}/{month}/{day}

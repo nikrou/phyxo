@@ -27,9 +27,9 @@ use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\RateMapper;
 use App\Entity\Comment;
-use App\Entity\History;
 use App\Entity\Image;
 use App\Entity\User;
+use App\Enum\PictureSectionType;
 use App\Events\HistoryEvent;
 use App\Form\DeleteCommentType;
 use App\Form\EditCommentType;
@@ -46,6 +46,8 @@ use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Requirement\EnumRequirement;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -57,10 +59,14 @@ class PictureController extends AbstractController
     /**
      * @param array{current_day?: DateTimeInterface, date_type?: string, year?: int, month?: int, day?: int} $extra
      */
+    #[Route(
+        '/picture/{image_id}/{section}/{element_id}',
+        name: 'picture',
+        requirements: ['section' => new EnumRequirement(PictureSectionType::class), 'element_id' => '.+']
+    )]
     public function picture(
         Request $request,
         int $image_id,
-        string $type,
         string $element_id,
         Conf $conf,
         AlbumMapper $albumMapper,
@@ -77,30 +83,27 @@ class PictureController extends AbstractController
         EventDispatcherInterface $eventDispatcher,
         AppUserService $appUserService,
         CommentRepository $commentRepository,
+        PictureSectionType $section = PictureSectionType::ALBUMS,
         array $extra = []
     ): Response {
         $this->translator = $translator;
         $tpl_params = [];
         $this->userMapper = $userMapper;
 
-        $history_section = '';
-
         $album = null;
         $order_by = $conf['order_by'];
-        if ($type === 'list') {
-            $history_section = History::SECTION_LIST;
+        if ($section === PictureSectionType::LIST) {
             $tpl_params['TITLE'] = $translator->trans('Random photos');
             $tpl_params['items'] = [];
             foreach ($imageMapper->getRepository()->searchDistinctId($appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $order_by) as $image) {
                 $tpl_params['items'][] = $image->getId();
             }
-        } elseif ($type === 'from_calendar') {
+        } elseif ($section === PictureSectionType::FROM_CALENDAR) {
             $tpl_params['items'] = [];
             foreach ($imageMapper->getRepository()->findImagesPerDate($extra['current_day'], $extra['date_type']) as $image) {
                 $tpl_params['items'][] = $image->getId();
             }
         } else {
-            $history_section = History::SECTION_ALBUMS;
             $album = $albumMapper->getRepository()->find((int) $element_id);
             if (!is_null($album) && in_array($album->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums())) {
                 throw new AccessDeniedHttpException("Access denied to that album");
@@ -115,7 +118,7 @@ class PictureController extends AbstractController
         if ($tpl_params['items'] !== []) {
             $tpl_params = array_merge(
                 $tpl_params,
-                $imageMapper->getPicturesFromSelection($element_id, $tpl_params['items'], $type, 0, $extra)
+                $imageMapper->getPicturesFromSelection($element_id, $section, $tpl_params['items'], 0, $extra)
             );
 
             $tpl_params['derivative_params_square'] = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
@@ -135,13 +138,13 @@ class PictureController extends AbstractController
         $tpl_params['album'] = $album;
         $tpl_params['current'] = $picture;
         $tpl_params['current']['derivatives'] = $image_std_params->getAll($image);
-        $tpl_params['type'] = $type;
+        $tpl_params['type'] = $section->value;
         $tpl_params['element_id'] = $element_id;
 
         if ((is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0) > 0) {
             $current_index = array_search($image_id, $tpl_params['items']);
             if ($current_index > 0) {
-                if ($type === 'from_calendar') {
+                if ($section === PictureSectionType::FROM_CALENDAR) {
                     $tpl_params['first'] = [
                         'U_IMG' => $this->generateUrl(
                             'picture_from_calendar',
@@ -163,15 +166,15 @@ class PictureController extends AbstractController
                     ];
                 } else {
                     $tpl_params['first'] = [
-                        'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][0], 'type' => $type, 'element_id' => $element_id]),
+                        'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][0], 'section' => $section->value, 'element_id' => $element_id]),
                     ];
                     $tpl_params['previous'] = [
-                        'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][$current_index - 1], 'type' => $type, 'element_id' => $element_id]),
+                        'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][$current_index - 1], 'section' => $section->value, 'element_id' => $element_id]),
                     ];
                 }
             }
             if ($current_index < ((is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0) - 1)) {
-                if ($type === 'from_calendar') {
+                if ($section === PictureSectionType::FROM_CALENDAR) {
                     $tpl_params['last'] = [
                         'U_IMG' => $this->generateUrl(
                             'picture_from_calendar',
@@ -192,10 +195,17 @@ class PictureController extends AbstractController
                     ];
                 } else {
                     $tpl_params['last'] = [
-                        'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][(is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0) - 1], 'type' => $type, 'element_id' => $element_id]),
+                        'U_IMG' => $this->generateUrl(
+                            'picture',
+                            [
+                                'image_id' => $tpl_params['items'][(is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0) - 1],
+                                'section' => $section->value,
+                                'element_id' => $element_id
+                            ]
+                        ),
                     ];
                     $tpl_params['next'] = [
-                        'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][$current_index + 1], 'type' => $type, 'element_id' => $element_id]),
+                        'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][$current_index + 1], 'section' => $section->value, 'element_id' => $element_id]),
                     ];
                 }
             }
@@ -204,7 +214,7 @@ class PictureController extends AbstractController
             $tpl_params['DISPLAY_NAV_THUMB'] = $conf['picture_navigation_thumb'];
         }
 
-        if ($type === 'list') {
+        if ($section === PictureSectionType::LIST) {
             $tpl_params['U_UP'] = $this->generateUrl('random_list', ['list' => $element_id]);
         } else {
             $tpl_params['U_UP'] = $this->generateUrl('album', ['album_id' => (int) $element_id]);
@@ -223,7 +233,7 @@ class PictureController extends AbstractController
             $unique_derivatives[$_type] = $derivative;
         }
 
-        $tpl_params['U_METADATA'] = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id, 'metadata' => '']);
+        $tpl_params['U_METADATA'] = $this->generateUrl('picture', ['image_id' => $image_id, 'section' => $section->value, 'element_id' => $element_id, 'metadata' => '']);
         $tpl_params['current']['unique_derivatives'] = $unique_derivatives;
 
         $fmt = new IntlDateFormatter($request->get('_locale'), IntlDateFormatter::FULL, IntlDateFormatter::NONE);
@@ -279,10 +289,26 @@ class PictureController extends AbstractController
         // admin links
         if ($userMapper->isAdmin()) {
             if (!is_null($album)) {
-                $tpl_params['U_SET_AS_REPRESENTATIVE'] = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id, 'action' => 'set_as_representative']);
+                $tpl_params['U_SET_AS_REPRESENTATIVE'] = $this->generateUrl(
+                    'picture',
+                    [
+                        'image_id' => $image_id,
+                        'section' => $section->value,
+                        'element_id' => $element_id,
+                        'action' => 'set_as_representative'
+                    ]
+                );
             }
 
-            $tpl_params['U_CADDIE'] = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id, 'action' => 'add_to_caddie']);
+            $tpl_params['U_CADDIE'] = $this->generateUrl(
+                'picture',
+                [
+                    'image_id' => $image_id,
+                    'section' => $section->value,
+                    'element_id' => $element_id,
+                    'action' => 'add_to_caddie'
+                ]
+            );
             $tpl_params['U_PHOTO_ADMIN'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'album_id' => (int) $element_id]);
 
             $tpl_params['available_permission_levels'] = Utils::getPrivacyLevelOptions($translator, $conf['available_permission_levels']);
@@ -341,7 +367,7 @@ class PictureController extends AbstractController
 
             if ($tpl_params['COMMENT_COUNT'] > 0) {
                 $commentsOrder = 'DESC';
-                $redirectRoute = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id]);
+                $redirectRoute = $this->generateUrl('picture', ['image_id' => $image_id, 'section' => $section->value, 'element_id' => $element_id]);
 
                 foreach ($commentMapper->getRepository()->getCommentsOnImage($image_id, $commentsOrder, $conf['nb_comment_page'], 0, $userMapper->isAdmin()) as $comment) {
                     $tpl_comment = [
@@ -351,7 +377,7 @@ class PictureController extends AbstractController
                             [
                                 'image_id' => $comment->getImage()->getId(),
                                 'element_id' => $comment->getImage()->getImageAlbums()->first()->getAlbum()->getId(),
-                                'type' => 'album'
+                                'section' => PictureSectionType::ALBUM->value
                             ]
                         )
 
@@ -380,7 +406,7 @@ class PictureController extends AbstractController
                                 '_fragment' => 'comment-' . $comment->getId(),
                                 'comment_id' => $comment->getId(),
                                 'image_id' => $image_id,
-                                'type' => $type,
+                                'section' => $section->value,
                                 'element_id' => $element_id
                             ]
                         );
@@ -456,14 +482,14 @@ class PictureController extends AbstractController
                         $this->addFlash('success', $translator->trans('An administrator must authorize your comment before it is visible.'));
                     }
 
-                    return $this->redirectToRoute('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id]);
+                    return $this->redirectToRoute('picture', ['image_id' => $image_id, 'section' => $section->value, 'element_id' => $element_id]);
                 }
 
                 $tpl_params['comment_form'] = $comment_form->createView();
             }
         }
 
-        if ($type === 'list') {
+        if ($section === PictureSectionType::LIST) {
             $tpl_params['TITLE'] = [[
                 'url' => $this->generateUrl('random_list', ['list' => $element_id]),
                 'label' => $translator->trans('Random photos'),
@@ -475,7 +501,7 @@ class PictureController extends AbstractController
             $tpl_params['TITLE'] = $tpl_params['related_categories'];
         }
 
-        $historyEvent = new HistoryEvent($history_section);
+        $historyEvent = new HistoryEvent($section);
         $historyEvent->setImage($image);
         if (!is_null($album)) {
             $historyEvent->setAlbum($album);
@@ -501,13 +527,23 @@ class PictureController extends AbstractController
         return $this->render('picture.html.twig', $tpl_params);
     }
 
-    public function picturesByTypes(int $image_id, string $type): Response
+    #[Route(
+        '/picture/{image_id}/{section}/{start_id<start-\d+>?}',
+        name: 'picture_by_type',
+        requirements: [
+            'section' => new EnumRequirement(
+                [PictureSectionType::FAVORITES, PictureSectionType::MOST_VISITED, PictureSectionType::RECENT_PICS, PictureSectionType::BEST_RATED],
+            ),
+            'start_id' => 'start-\d+?'
+        ],
+    )]
+    public function picturesByTypes(int $image_id, PictureSectionType $section = PictureSectionType::ALBUM): Response
     {
         return $this->forward(
             'App\Controller\PictureController::picture',
             [
                 'image_id' => $image_id,
-                'type' => 'album',
+                'section' => $section->value,
                 'element_id' => 'n/a'
             ]
         );
@@ -519,7 +555,7 @@ class PictureController extends AbstractController
             'App\Controller\PictureController::picture',
             [
                 'image_id' => $image_id,
-                'type' => 'search',
+                'section' => PictureSectionType::SEARCH->value,
                 'element_id' => $search_id
             ]
         );
@@ -533,7 +569,7 @@ class PictureController extends AbstractController
             'App\Controller\PictureController::picture',
             [
                 'image_id' => $image_id,
-                'type' => 'from_calendar',
+                'section' => PictureSectionType::FROM_CALENDAR->value,
                 'element_id' => 'extra',
                 'extra' => ['year' => $year, 'month' => $month, 'day' => $day, 'current_day' => $current_day, 'date_type' => $date_type]
             ]

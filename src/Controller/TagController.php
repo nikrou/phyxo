@@ -19,6 +19,7 @@ use App\DataMapper\TagMapper;
 use App\Repository\TagRepository;
 use App\DataMapper\ImageMapper;
 use App\Entity\Tag;
+use App\Enum\PictureSectionType;
 use App\Security\AppUserService;
 use Phyxo\Functions\Utils;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -178,8 +179,8 @@ class TagController extends AbstractController
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
                     $tag_ids,
+                    PictureSectionType::TAGS,
                     array_slice($tpl_params['items'], $start, $nb_image_page),
-                    'tags',
                     $start
                 )
             );
