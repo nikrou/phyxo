@@ -1,40 +1,40 @@
 {% if show_add_comment_form or COMMENT_COUNT > 0 %}
-    <div id="comments">
-	<ul class="nav nav-pills p-2" role="tablist">
-	    {% if COMMENT_COUNT > 0 %}
-		<li class="nav-item">
-		    <a class="nav-link {% if not comment_form.vars.submitted %}active{% endif %}" href="#viewcomments" data-toggle="pill" aria-controls="viewcomments">
-			{{'number_of_comments'|trans({'count': COMMENT_COUNT})}}
-		    </a>
-		</li>
-	    {% endif %}
-	    {% if show_add_comment_form %}
-		<li class="nav-item">
-		    <a class="nav-link{% if comment_form.vars.submitted or COMMENT_COUNT == 0 %} active{% endif %}" href="#addcomment" data-toggle="pill" aria-controls="addcomment">
-			{{'Add a comment'|trans}}
-		    </a>
-		</li>
-	    {% endif %}
-	</ul>
+  <div id="comments">
+    <ul class="nav nav-pills p-2" role="tablist">
+      {% if COMMENT_COUNT > 0 %}
+        <li class="nav-item">
+            <a class="nav-link {% if not comment_form is defined or not comment_form.vars.submitted %}active{% endif %}" href="#viewcomments" data-toggle="pill" aria-controls="viewcomments">
+		{{'number_of_comments'|trans({'count': COMMENT_COUNT})}}
+            </a>
+        </li>
+      {% endif %}
+      {% if show_add_comment_form %}
+          <li class="nav-item">
+              <a class="nav-link{% if comment_form.vars.submitted or COMMENT_COUNT == 0 %} active{% endif %}" href="#addcomment" data-toggle="pill" aria-controls="addcomment">
+		  {{'Add a comment'|trans}}
+              </a>
+          </li>
+      {% endif %}
+    </ul>
 
-	<div class="tab-content">
-	    {% if COMMENT_COUNT > 0 %}
-		<div id="viewcomments" class="tab-pane {% if not comment_form.vars.submitted %}active{% endif %}">
-		    {{ include('_comments_list.html.twig') }}
+    <div class="tab-content">
+	{% if show_add_comment_form %}
+            <div id="addcomment" class="tab-pane{% if comment_form.vars.submitted or COMMENT_COUNT == 0 %} active{% endif %}">
+		{% if comment_form is defined %}
+		    {{ form(comment_form) }}{% endif %}
+            </div>
+        {% endif %}
+    </div>
 
-		    {% if MORE_COMMENTS is defined %}
-			<p>{{ 'There\'s more {comments} on that image'|trans({'comments': '<a href="' ~ MORE_COMMENTS ~ '">'~ 'comments'|trans ~ '</a>' })|raw }}</p>
-		    {% endif %}
-		</div>
-	    {% endif %}
+    {% if COMMENT_COUNT > 0 %}
+        <div id="viewcomments" class="tab-pane {% if not comment_form is defined or not comment_form.vars.submitted %}active{% endif %}">
+          {{ include('_comments_list.html.twig') }}
 
-	    {% if show_add_comment_form %}
-		<div id="addcomment" class="tab-pane{% if comment_form.vars.submitted or COMMENT_COUNT == 0 %} active{% endif %}">
-		    {% if comment_form is defined %}
-			{{ form(comment_form) }}
-		    {% endif %}
-		</div>
-	    {% endif %}
-	</div>
+          {% if MORE_COMMENTS is defined %}
+            <p>{{ 'There\'s more {comments} on that image'|trans({'comments': '<a href="' ~ MORE_COMMENTS ~ '">'~ 'comments'|trans ~ '</a>' })|raw }}</p>
+		{% endif %}
+	    </div>
+	{% endif %}
     </div>
 {% endif %}
+ </p>

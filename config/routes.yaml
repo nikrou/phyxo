@@ -28,10 +28,6 @@ calendar_routes:
   resource: routes/calendar.yaml
   prefix: /
 
-picture_routes:
-  resource: routes/picture.yaml
-  prefix: /
-
 tag_routes:
   resource: routes/tag.yaml
   prefix: /

@@ -2,142 +2,142 @@
 {% extends "__layout.html.twig" %}
 
 {% block breadcrumb_items %}
-    <li class="breadcrumb-item">
-	<a href="{{U_PAGE}}">{{'Upload Photos'|trans}}</a>
-    </li>
-    <li class="breadcrumb-item">{{'Web Form'|trans}}</li>
+  <li class="breadcrumb-item">
+    <a href="{{U_PAGE}}">{{'Upload Photos'|trans}}</a>
+  </li>
+  <li class="breadcrumb-item">{{'Web Form'|trans}}</li>
 {% endblock %}
 
 {% block javascripts %}
-    <script>
-     var phyxo = phyxo || {};
-     phyxo.categoriesCache = {
-	 serverKey: '{{ CACHE_KEYS.categories }}',
-	 serverId: '{{ CACHE_KEYS._hash }}',
-	 rootUrl: '{{ app.request.basepath }}/'
-     };
-     phyxo.uploader_id = 'uploader';
+  <script>
+    var phyxo = phyxo || {};
+    phyxo.categoriesCache = {
+      serverKey: '{{ CACHE_KEYS.categories }}',
+      serverId: '{{ CACHE_KEYS._hash }}',
+      rootUrl: '{{ app.request.basepath }}/'
+    };
+    phyxo.uploader_id = 'uploader';
 
-     var ws_url = '{{ ws }}';
-     var phyxo_msg = phyxo_msg || {};
-     phyxo_msg.u_edit_pattern = '{{ U_EDIT_PATTERN }}';
-     phyxo_msg.u_album_pattern = '{{ U_ALBUM_PATTERN }}';
-     phyxo_msg.photosUploaded_label = "{{ '%d photos uploaded'|trans }}";
-     phyxo_msg.batch_label = "{{ 'Manage this set of %d photos'|trans }}";
-     phyxo_msg.albumSummary_label = "{{ 'Album "%s" now contains %d photos'|trans }}";
-     phyxo_msg.upload_file_types = "{{ upload_file_types }}";
-     phyxo_msg.file_exts = "{{ file_exts }}";
-     phyxo_msg.file_too_large = "{{ 'File too large: '|trans }}";
-     phyxo_msg.invalid_file_extension = "{{ 'Invalid file extension: '|trans }}";
-     phyxo_msg.sizes = {
-	 'n_a': "{{ 'N/A'|trans }}",
-	 'b': "{{ 'b'|trans }}",
-	 'kb': "{{ 'kb'|trans }}",
-	 'mb': "{{ 'mb'|trans }}",
-	 'gb': "{{ 'gb'|trans }}",
-	 'tb': "{{ 'gb'|trans }}"
-     };
-    </script>
-    {{parent()}}
+    var ws_url = '{{ ws }}';
+    var phyxo_msg = phyxo_msg || {};
+    phyxo_msg.u_edit_pattern = '{{ U_EDIT_PATTERN }}';
+    phyxo_msg.u_album_pattern = '{{ U_ALBUM_PATTERN }}';
+    phyxo_msg.photosUploaded_label = "{{ '%d photos uploaded'|trans }}";
+    phyxo_msg.batch_label = "{{ 'Manage this set of %d photos'|trans }}";
+    phyxo_msg.albumSummary_label = "{{ 'Album "%s" now contains %d photos'|trans }}";
+    phyxo_msg.upload_file_types = "{{ upload_file_types }}";
+    phyxo_msg.file_exts = "{{ file_exts }}";
+    phyxo_msg.file_too_large = "{{ 'File too large: '|trans }}";
+    phyxo_msg.invalid_file_extension = "{{ 'Invalid file extension: '|trans }}";
+    phyxo_msg.sizes = {
+      'n_a': "{{ 'N/A'|trans }}",
+      'b': "{{ 'b'|trans }}",
+      'kb': "{{ 'kb'|trans }}",
+      'mb': "{{ 'mb'|trans }}",
+      'gb': "{{ 'gb'|trans }}",
+      'tb': "{{ 'gb'|trans }}"
+    };
+  </script>
+  {{parent()}}
 {% endblock %}
 
 {% block content %}
-    {{ include('include/_add_album.inc.html.twig') }}
+{{ include('include/_add_album.inc.html.twig') }}
 
-    <div id="photosAddContent">
-	<div class="infos hide-before-upload show-after-upload"></div>
-	<div class="afterUploadActions btn-group hide-before-upload show-after-upload">
-	    <form action="{{F_ACTION_BATCH}}" method="post">
-		<input type="hidden" id="batch_photos" name="batch">
-		<input type="submit" class="btn btn-sm btn-submit" value="">
+<div id="photosAddContent">
+  <div class="infos hide-before-upload show-after-upload"></div>
+  <div class="afterUploadActions btn-group hide-before-upload show-after-upload">
+    <form action="{{F_ACTION_BATCH}}" method="post">
+      <input type="hidden" id="batch_photos" name="batch">
+      <input type="submit" class="btn btn-sm btn-submit" value="">
 
-	    </form>
-	    <a class="btn btn-sm btn-success" href="{{F_ACTION}}">{{'Add another set of photos'|trans}}</a>
-	</div>
+    </form>
+    <a class="btn btn-sm btn-success" href="{{F_ACTION}}">{{'Add another set of photos'|trans}}</a>
+  </div>
 
-	{% if setup_errors is defined %}
-	    <div class="errors">
-		<ul>
-		    {% for error in setup_errors %}
-			<li>{{error}}</li>
-		    {% endfor %}
-		</ul>
-	    </div>
-	{% else %}
-	    {% if setup_warnings is defined %}
-		<div class="warnings">
-		    <ul>
-			{% for warning in setup_warnings %}
-			    <li>{{warning}}</li>
-			{% endfor %}
-		    </ul>
-		    <div class="hideButton" style="text-align:center">
-			<a href="{{hide_warnings_link}}">{{'Hide'|trans}}</a>
-		    </div>
-		</div>
-	    {% endif %}
+  {% if setup_errors is defined %}
+    <div class="errors">
+      <ul>
+        {% for error in setup_errors %}
+          <li>{{error}}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% else %}
+    {% if setup_warnings is defined %}
+      <div class="warnings">
+        <ul>
+          {% for warning in setup_warnings %}
+            <li>{{warning}}</li>
+          {% endfor %}
+        </ul>
+        <div class="hideButton" style="text-align:center">
+          <a href="#">{{'Hide'|trans}}</a>
+        </div>
+      </div>
+    {% endif %}
 
 
-	    <form id="uploadForm" enctype="multipart/form-data" method="post" action="{{path('admin_photos_add')}}">
-		<div class="fieldset">
-		    <h3>{{'Drop into album'|trans}}</h3>
+    <form id="uploadForm" enctype="multipart/form-data" method="post" action="{{path('admin_photos_add')}}">
+      <div class="fieldset">
+        <h3>{{'Drop into album'|trans}}</h3>
 
-		    <div class="row">
-			<div class="col">
-			    <select data-selectize="categories" data-value="{{selected_category|json_encode}}" data-default="first" name="category"></select>
-			</div>
-			<div class="col">
-			    ...
-			    {{'or'|trans}}
-			</div>
-			<div class="col">
-			    <button type="button" class="btn btn-sm btn-submit" data-add-album="category" title="{{'Create a new album'|trans}}">{{'Create a new album'|trans}}</button>
-			</div>
-		    </div>
-		</div>
+        <div class="row">
+          <div class="col">
+            <select data-selectize="categories" data-value="{{selected_category|json_encode}}" data-default="first" name="category"></select>
+          </div>
+          <div class="col">
+            ...
+            {{'or'|trans}}
+          </div>
+          <div class="col">
+            <button type="button" class="btn btn-sm btn-submit" data-add-album="category" title="{{'Create a new album'|trans}}">{{'Create a new album'|trans}}</button>
+          </div>
+        </div>
+      </div>
 
-		<div class="hide-after-upload show-before-upload">
-		    <p class="showFieldset">
-			<a href="#permissions" class="btn btn-success" data-toggle="collapse">{{'Manage Permissions'|trans}}</a>
-		    </p>
-		    <div class="fieldset collapse" id="permissions">
-			<h3>{{'Who can see these photos?'|trans}}</h3>
+      <div class="hide-after-upload show-before-upload">
+        <p class="showFieldset">
+          <a href="#permissions" class="btn btn-success" data-toggle="collapse">{{'Manage Permissions'|trans}}</a>
+        </p>
+        <div class="fieldset collapse" id="permissions">
+          <h3>{{'Who can see these photos?'|trans}}</h3>
 
-			<select class="custom-select" name="level" size="1">
-			    {% for option, label in level_options %}
-				<option value="{{option}}" {% if option == level_options_selected %} selected="selected" {% endif %}>{{label}}</option>
-			    {% endfor %}
-			</select>
-		    </div>
-		</div>
+          <select class="custom-select" name="level" size="1">
+            {% for option, label in level_options %}
+              <option value="{{option}}" {% if option == level_options_selected %} selected="selected" {% endif %}>{{label}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
 
-		<div class="fieldset selectFiles hide-after-upload show-before-upload">
-		    <h3>{{'Select files'|trans}}</h3>
+      <div class="fieldset selectFiles hide-after-upload show-before-upload">
+        <h3>{{'Select files'|trans}}</h3>
 
-		    <button id="addFiles" class="btn btn-submit">
-			<i class="fa fa-plus-circle"></i>
-			{{'Add Photos'|trans}}</button>
+        <button id="addFiles" class="btn btn-submit">
+          <i class="fa fa-plus-circle"></i>
+          {{'Add Photos'|trans}}</button>
 
-		    {% if original_resize_maxheight is defined %}
-			<p class="form-text">{{'The picture dimensions will be reduced to %dx%d pixels.'|trans|format(original_resize_maxwidth, original_resize_maxheight)}}</p>
-		    {% endif %}
+        {% if original_resize_maxheight is defined %}
+          <p class="form-text">{{'The picture dimensions will be reduced to %dx%d pixels.'|trans|format(original_resize_maxwidth, original_resize_maxheight)}}</p>
+        {% endif %}
 
-		    <p class="form-text">
-			{{upload_max_filesize_shorthand}}B.
-			{{upload_file_types}}.
-			{% if max_upload_resolution is defined %}
-			    {{max_upload_resolution}}Mpx
-			{% endif %}
-			<a class="showInfo" title="{{'Learn more'|trans}}">
-			    <i class="fa fa-info-circle"></i>
-			</a>
-		    </p>
+        <p class="form-text">
+          {{upload_max_filesize_shorthand}}B.
+          {{upload_file_types}}.
+          {% if max_upload_resolution is defined %}
+            {{max_upload_resolution}}Mpx
+          {% endif %}
+          <a class="showInfo" title="{{'Learn more'|trans}}">
+            <i class="fa fa-info-circle"></i>
+          </a>
+        </p>
 
-		    <p>
-			{{'Maximum file size: {size}B.'|trans({'size': upload_max_filesize_shorthand})}}
-			{{'Allowed file types: {types}.'|trans({'types': upload_file_types})}}
-			{% if max_upload_resolution is defined %}
-			    {{'Approximate maximum resolution: %dM pixels (that\'s %dx%d pixels).'|trans|format(max_upload_resolution, max_upload_width, max_upload_height)}}
+        <p>
+          {{'Maximum file size: {size}B.'|trans({'size': upload_max_filesize_shorthand})}}
+          {{'Allowed file types: {types}.'|trans({'types': upload_file_types})}}
+          {% if max_upload_resolution is defined %}
+            {{'Approximate maximum resolution: %dM pixels (that\'s %dx%d pixels).'|trans|format(max_upload_resolution, max_upload_width, max_upload_height)}}
 			{% endif %}
 		    </p>
 

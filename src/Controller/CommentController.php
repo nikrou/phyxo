@@ -12,6 +12,7 @@
 namespace App\Controller;
 
 use App\DataMapper\AlbumMapper;
+use App\Enum\PictureSectionType;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
 use App\Repository\CommentRepository;
@@ -101,7 +102,7 @@ class CommentController extends AbstractController
                 [
                     'image_id' => $comment->getImage()->getId(),
                     'element_id' => $comment->getImage()->getImageAlbums()->first()->getAlbum()->getId(),
-                    'type' => 'album'
+                    'section' => PictureSectionType::ALBUM->value
                 ]
             );
 

@@ -95,7 +95,7 @@ class ImageMapper
                     'picture',
                     [
                         'image_id' => $picture['image']->getId(),
-                        'history_section' => $section->value,
+                        'section' => $section->value,
                         'element_id' => $element_id,
                     ]
                 );
@@ -123,7 +123,7 @@ class ImageMapper
                     'picture_by_type',
                     [
                         'image_id' => $picture['image']->getId(),
-                        'history_section' => $section->value,
+                        'section' => $section->value,
                         'start_id' => $start_id !== 0 ? 'start-' . $start_id : ''
                     ]
                 );

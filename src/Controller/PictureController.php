@@ -138,7 +138,7 @@ class PictureController extends AbstractController
         $tpl_params['album'] = $album;
         $tpl_params['current'] = $picture;
         $tpl_params['current']['derivatives'] = $image_std_params->getAll($image);
-        $tpl_params['type'] = $section->value;
+        $tpl_params['section'] = $section->value;
         $tpl_params['element_id'] = $element_id;
 
         if ((is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0) > 0) {
@@ -549,6 +549,7 @@ class PictureController extends AbstractController
         );
     }
 
+    #[Route('/picture/{image_id}/search/{search_id}', name: 'picture_by_search')]
     public function pictureBySearch(int $image_id, int $search_id): Response
     {
         return $this->forward(
@@ -561,6 +562,11 @@ class PictureController extends AbstractController
         );
     }
 
+    #[Route(
+        '/picture/{image_id}/calendar/{date_type}/{year}/{month}/{day}',
+        name: 'picture_from_calendar',
+        requirements: ['image_id' => '\d+', 'date_type' => 'created|posted', 'year' => '\d{4}', 'month' => '\d{2}', 'day' => '\d{2}']
+    )]
     public function pictureFromCalendar(int $image_id, int $year, int $month, int $day, string $date_type): Response
     {
         $current_day = new DateTime(sprintf('%d-%02d-%02d', $year, $month, $day));
@@ -617,6 +623,7 @@ class PictureController extends AbstractController
         return $tpl_params;
     }
 
+    #[Route('/rate', name: 'picture_rate', methods: ['POST'])]
     public function rate(Request $request, ImageMapper $imageMapper, Conf $conf, RateMapper $rateMapper, AppUserService $appUserService): Response
     {
         $result = [];
@@ -644,7 +651,7 @@ class PictureController extends AbstractController
         $response = new RedirectResponse(
             $this->generateUrl(
                 'picture',
-                ['image_id' => $request->request->get('image_id'), 'type' => $request->request->get('type'), 'element_id' => $request->request->get('element_id')]
+                ['image_id' => $request->request->get('image_id'), 'section' => $request->request->get('section'), 'element_id' => $request->request->get('element_id')]
             )
         );
         if (!is_null($result['score']) && $appUserService->isGuest()) {
