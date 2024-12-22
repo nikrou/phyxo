@@ -16,6 +16,7 @@ use App\DataMapper\ImageMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\Album;
 use App\Entity\User;
+use App\Enum\ImageSizeType;
 use App\Enum\UserStatusType;
 use App\Events\GroupEvent;
 use App\Repository\GroupRepository;
@@ -183,7 +184,7 @@ class AdminAlbumController extends AbstractController
             if ($album->getRepresentativePictureId()) {
                 $representative_picture = $imageMapper->getRepository()->find($album->getRepresentativePictureId());
                 if (!is_null($representative_picture)) {
-                    $derivative = new DerivativeImage($representative_picture, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
+                    $derivative = new DerivativeImage($representative_picture, $image_std_params->getByType(ImageSizeType::THUMB), $image_std_params);
                     $src = $this->generateUrl('admin_media', ['path' => $representative_picture->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $representative_picture->getExtension()]);
                     $url = $this->generateUrl('admin_photo', ['image_id' => $album->getRepresentativePictureId()]);
 
@@ -291,7 +292,7 @@ class AdminAlbumController extends AbstractController
 
         // template thumbnail initialization
         $current_rank = 1;
-        $derivativeParams = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
+        $derivativeParams = $image_std_params->getByType(ImageSizeType::SQUARE);
         foreach ($imageMapper->getRepository()->findImagesInAlbum($album_id, [['rank', 'asc']]) as $image) {
             $derivative = new DerivativeImage($image, $derivativeParams, $image_std_params);
 
@@ -521,7 +522,7 @@ class AdminAlbumController extends AbstractController
             if ($album->getRepresentativePictureId()) {
                 $element = $imageMapper->getRepository()->find($album->getRepresentativePictureId());
                 if (!is_null($element)) {
-                    $derivative = new DerivativeImage($element, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
+                    $derivative = new DerivativeImage($element, $image_std_params->getByType(ImageSizeType::THUMB), $image_std_params);
                     $img_src = $this->generateUrl('admin_media', [
                         'path' => $element->getPathBasename(),
                         'derivative' => $derivative->getUrlType(),

@@ -12,54 +12,56 @@
 namespace Phyxo\Image;
 
 use App\Entity\Image;
+use App\Enum\ImageSizeType;
 use Phyxo\Conf;
 
 class ImageStandardParams
 {
-    private string $conf_key = 'derivatives';
-    final public const IMG_ORIGINAL = 'original';
-    final public const IMG_SQUARE = 'square';
-    final public const IMG_THUMB = 'thumb';
-    final public const IMG_XXSMALL = '2small';
-    final public const IMG_XSMALL = 'xsmall';
-    final public const IMG_SMALL = 'small';
-    final public const IMG_MEDIUM = 'medium';
-    final public const IMG_LARGE = 'large';
-    final public const IMG_XLARGE = 'xlarge';
-    final public const IMG_XXLARGE = 'xxlarge';
-    final public const IMG_CUSTOM = 'custom';
+    private const CONF_KEY = 'derivatives';
+
+    /**
+     * @var array{'d'?: array<string, DerivativeParams>, 'q'?: int, 'w'?: WatermarkParams, 'c'?: array<string, int>} $derivatives
+     */
     private $derivatives;
+
+    /** @var array<string, DerivativeParams> $all_type_map */
     private $all_type_map = [];
+
+    /** @var array<string, DerivativeParams> $type_map */
     private $type_map = [];
-    private $watermark = [];
-    private $customs = [];
-    private $quality = 95;
+    private WatermarkParams $watermark;
+
+    /** @var array<string, int> $customs */
+    private array $customs = [];
+    private int $quality = 95;
+
+    /** @var array<string, string> $undefined_type_map */
     private $undefined_type_map = [];
-    private array $all_types = [
-        self::IMG_SQUARE, self::IMG_THUMB, self::IMG_XXSMALL, self::IMG_XSMALL, self::IMG_SMALL,
-        self::IMG_MEDIUM, self::IMG_LARGE, self::IMG_XLARGE, self::IMG_XXLARGE
-    ];
 
     public function __construct(private Conf $conf)
     {
-        $this->derivatives = $this->conf[$this->conf_key];
+        $this->derivatives = $this->conf[self::CONF_KEY];
 
         $this->loadFromConf();
     }
 
+    /**
+     * @return array<string, DerivativeParams>
+     */
     public function getDefaultSizes(): array
     {
         $derivatives = [
-            self::IMG_SQUARE => new DerivativeParams(SizingParams::square(120)),
-            self::IMG_THUMB => new DerivativeParams(SizingParams::classic(144, 144)),
-            self::IMG_XXSMALL => new DerivativeParams(SizingParams::classic(240, 240)),
-            self::IMG_XSMALL => new DerivativeParams(SizingParams::classic(432, 324)),
-            self::IMG_SMALL => new DerivativeParams(SizingParams::classic(576, 432)),
-            self::IMG_MEDIUM => new DerivativeParams(SizingParams::classic(792, 594)),
-            self::IMG_LARGE => new DerivativeParams(SizingParams::classic(1008, 756)),
-            self::IMG_XLARGE => new DerivativeParams(SizingParams::classic(1224, 918)),
-            self::IMG_XXLARGE => new DerivativeParams(SizingParams::classic(1656, 1242)),
+            ImageSizeType::SQUARE->value => new DerivativeParams(SizingParams::square(120)),
+            ImageSizeType::THUMB->value => new DerivativeParams(SizingParams::classic(144, 144)),
+            ImageSizeType::XXSMALL->value => new DerivativeParams(SizingParams::classic(240, 240)),
+            ImageSizeType::XSMALL->value => new DerivativeParams(SizingParams::classic(432, 324)),
+            ImageSizeType::SMALL->value => new DerivativeParams(SizingParams::classic(576, 432)),
+            ImageSizeType::MEDIUM->value => new DerivativeParams(SizingParams::classic(792, 594)),
+            ImageSizeType::LARGE->value => new DerivativeParams(SizingParams::classic(1008, 756)),
+            ImageSizeType::XLARGE->value => new DerivativeParams(SizingParams::classic(1224, 918)),
+            ImageSizeType::XXLARGE->value => new DerivativeParams(SizingParams::classic(1656, 1242)),
         ];
+
         $now = time();
         foreach ($derivatives as $params) {
             $params->last_mod_time = $now;
@@ -68,42 +70,43 @@ class ImageStandardParams
         return $derivatives;
     }
 
-    public function getAllTypes(): array
-    {
-        return $this->all_types;
-    }
-
+    /**
+     * @return array<string, DerivativeParams>
+     */
     public function getDefinedTypeMap(): array
     {
         return $this->type_map;
     }
 
-    public function getByType(string $type): DerivativeParams
+    public function getByType(ImageSizeType $type): DerivativeParams
     {
-        return $this->all_type_map[$type];
+        return $this->all_type_map[$type->value];
     }
 
-    public function getQuality()
+    public function getQuality(): int
     {
         return $this->quality;
     }
 
-    public function setQuality(int $quality)
+    public function setQuality(int $quality): void
     {
         $this->quality = $quality;
     }
 
-    public function setWatermark(WatermarkParams $watermark)
+    public function setWatermark(WatermarkParams $watermark): void
     {
         $this->watermark = $watermark;
     }
 
-    public function getWatermark()
+    public function getWatermark(): WatermarkParams
     {
         return $this->watermark;
     }
 
-    public function getCustoms()
+    /**
+     * @return array<string, int>
+     */
+    public function getCustoms(): array
     {
         return $this->customs;
     }
@@ -113,7 +116,7 @@ class ImageStandardParams
         return isset($this->customs[$key]);
     }
 
-    public function unsetCustom(string $custom)
+    public function unsetCustom(string $custom): void
     {
         if (isset($this->customs[$custom])) {
             unset($this->customs[$custom]);
@@ -121,6 +124,9 @@ class ImageStandardParams
         }
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getUndefinedTypeMap(): array
     {
         return $this->undefined_type_map;
@@ -146,7 +152,7 @@ class ImageStandardParams
      * Return associative an array of all DerivativeImage for a specific image.
      * Disabled derivative types can be still found in the return, mapped to an
      * enabled derivative (e.g. the values are not unique in the return array).
-     * This is useful for any plugin/theme to just use $deriv[IMG_XLARGE] even if
+     * This is useful for any plugin/theme to just use $deriv[XLARGE] even if
      * the XLARGE is disabled.
      *
      */
@@ -184,10 +190,11 @@ class ImageStandardParams
      * Returns an instance of DerivativeImage for a specific image and size.
      * Disabled derivatives fallback to an enabled derivative.
      *
-     * @param string $type standard derivative param type (e.g. IMG_*)
+     * @param string $type standard derivative param type (e.g. ImageSizeType::*)
+     *
      * @return DerivativeImage|null null if $type not found
      */
-    public function getOne($type, Image $image)
+    public function getOne($type, Image $image): ?DerivativeImage
     {
         $defined = $this->getDefinedTypeMap();
         if (isset($defined[$type])) {
@@ -230,18 +237,18 @@ class ImageStandardParams
     protected function buildMaps()
     {
         foreach ($this->type_map as $type => $params) {
-            $params->type = $type;
+            $params->type = ImageSizeType::from($type);
             $this->applyWatermark($params);
         }
 
         $this->all_type_map = $this->type_map;
-        $counter = count($this->all_types);
+        $counter = count(ImageSizeType::getAllTypes());
 
         for ($i = 0; $i < $counter; $i++) {
-            $tocheck = $this->all_types[$i];
+            $tocheck = ImageSizeType::getAllTypes()[$i]->value;
             if (!isset($this->type_map[$tocheck])) {
                 for ($j = $i - 1; $j >= 0; $j--) {
-                    $target = $this->all_types[$j];
+                    $target = ImageSizeType::getAllTypes()[$j]->value;
                     if (isset($this->type_map[$target])) {
                         $this->all_type_map[$tocheck] = $this->type_map[$target];
                         $this->undefined_type_map[$tocheck] = $target;
@@ -269,6 +276,6 @@ class ImageStandardParams
             'c' => $this->customs,
         ];
 
-        $this->conf->addOrUpdateParam($this->conf_key, $conf_derivatives, 'base64');
+        $this->conf->addOrUpdateParam(self::CONF_KEY, $conf_derivatives, 'base64');
     }
 }

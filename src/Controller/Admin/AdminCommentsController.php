@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Enum\ImageSizeType;
 use App\Repository\CommentRepository;
 use App\Repository\UserCacheRepository;
 use Phyxo\Conf;
@@ -62,7 +63,7 @@ class AdminCommentsController extends AbstractController
         }
 
         foreach ($commentRepository->getCommentsOnImages($validated = $section !== 'pending', $conf['comments_page_nb_comments'], $start) as $comment) {
-            $derivative = new DerivativeImage($comment->getImage(), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
+            $derivative = new DerivativeImage($comment->getImage(), $image_std_params->getByType(ImageSizeType::THUMB), $image_std_params);
             $author_name = is_null($comment->getUser()) ? $comment->getAuthor() : $comment->getUser()->getUsername();
 
             $tpl_params['comments'][] = [

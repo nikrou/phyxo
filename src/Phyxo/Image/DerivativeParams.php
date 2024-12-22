@@ -11,13 +11,14 @@
 
 namespace Phyxo\Image;
 
+use App\Enum\ImageSizeType;
+
 /**
  * All needed parameters to generate a derivative image.
  */
 class DerivativeParams
 {
-    /** @var string among IMG_* */
-    public $type = ImageStandardParams::IMG_CUSTOM;
+    public ImageSizeType $type = ImageSizeType::CUSTOM;
 
     /** @var int used for non-custom images to regenerate the cached files */
     public $last_mod_time = 0;

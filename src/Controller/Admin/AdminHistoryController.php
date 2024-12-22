@@ -19,6 +19,7 @@ use App\DataMapper\UserMapper;
 use App\Entity\History;
 use App\Entity\HistorySummary;
 use App\Entity\Search;
+use App\Enum\ImageSizeType;
 use App\Form\HistorySearchType;
 use App\Form\Model\SearchRulesModel;
 use App\Repository\HistoryRepository;
@@ -408,7 +409,7 @@ class AdminHistoryController extends AbstractController
             $thumb_url = '';
 
             if ($thumbnail_display === 'display_thumbnail_classic' || $thumbnail_display === 'display_thumbnail_hoverbox') {
-                $params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
+                $params = $image_std_params->getByType(ImageSizeType::THUMB);
                 $derivative = new DerivativeImage($image_infos[$line->getImage()->getId()], $params, $image_std_params);
                 $thumb_url = $this->generateUrl(
                     'admin_media',

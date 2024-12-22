@@ -1,100 +1,92 @@
 <nav class="navbar navbar-contextual navbar-expand-lg {{theme_config.navbar_contextual_style}} {{theme_config.navbar_contextual_bg}} sticky-top mb-2">
-	<div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
-		{{ include('_breadcrumb.html.twig', { elements: TITLE }) }}
+  <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
+    {{ include('_breadcrumb.html.twig', { elements: TITLE }) }}
 
-		<button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#secondary-navbar" aria-controls="secondary-navbar" aria-expanded="false" aria-label="Toggle navigation">
-			<span class="fa fa-bars"></span>
-		</button>
-		<div class="navbar-collapse collapse justify-content-end" id="secondary-navbar">
-			<ul class="navbar-nav">
-				{% if current.unique_derivatives and current.unique_derivatives|length >1 %}
-					<li class="nav-item dropdown">
-						<button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown" title="{{'Photo sizes'|trans}}">
-							<i class="fa fa-image" aria-hidden="true"></i>
-							<span class="d-lg-none ml-2">{{'Photo sizes'|trans}}</span>
-						</button>
-						<div class="dropdown-menu dropdown-menu-right" role="menu" data-testid="picture.derivatives" id="changeDerivative">
-							{% for derivative_type, derivative in current.unique_derivatives %}
-								<button type="button" id="derivative{{derivative.getType()}}" class="dropdown-item derivative-li{% if derivative.getType() == current.selected_derivative.getType() %} active{% endif %}" data-action="changeImgSrc" data-url="{{ media_path(derivative) }}" data-type-save="{{derivative_type}}" data-type-map="{{derivative.getType()}}">
-									{{derivative.getType()|trans}}
-									<span class="derivativeSizeDetails">
-										({{derivative.getLiteralSize()}})</span>
-								</button>
-							{% endfor %}
-						</div>
-					</li>
-				{% endif %}
+    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#secondary-navbar" aria-controls="secondary-navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="fa fa-bars"></span>
+    </button>
+    <div class="navbar-collapse collapse justify-content-end" id="secondary-navbar">
+      <ul class="navbar-nav">
+        {% if current.unique_derivatives and current.unique_derivatives|length >1 %}
+          <li class="nav-item dropdown">
+            <button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown" title="{{'Photo sizes'|trans}}">
+              <i class="fa fa-image" aria-hidden="true"></i>
+              <span class="d-lg-none ml-2">{{'Photo sizes'|trans}}</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right" role="menu" data-testid="picture.derivatives" id="changeDerivative">
+              {% for derivative_type, derivative in current.unique_derivatives %}
+                <button type="button" id="derivative{{derivative.getType().value}}" class="dropdown-item derivative-li{% if derivative.getType() == current.selected_derivative.getType() %} active{% endif %}" data-action="changeImgSrc" data-url="{{ media_path(derivative) }}" data-type-save="{{derivative_type}}" data-type-map="{{derivative.getType().value}}">
+                  {{derivative.getType().value|trans}}
+                  <span class="derivativeSizeDetails">
+                    ({{derivative.getLiteralSize()}})</span>
+                </button>
+              {% endfor %}
+            </div>
+          </li>
+        {% endif %}
 
-				{#% if U_METADATA is defined %}
-													<li class="nav-item">
-														<a class="nav-link" href="{{U_METADATA}}" title="{{'Show file metadata'|trans}}" rel="nofollow">
-															<i class="fa fa-camera-retro" aria-hidden="true"></i>
-															<span class="d-lg-none ml-2">{{'Show file metadata'|trans}}</span>
-														</a>
-													</li>
-												{% endif %#}
-				{% if current.U_DOWNLOAD is defined %}
-					{% if not current.formats is defined %}
-						<li class="nav-item">
-							<a id="downloadSwitchLink" class="nav-link" href="{{current.U_DOWNLOAD}}" title="{{'Download this file'|trans}}" rel="nofollow">
-								<i class="fa fa-download" aria-hidden="true"></i>
-								<span class="d-lg-none ml-2">{{'Download this file'|trans}}</span>
-							</a>
-						{% else %}
-							<li class="nav-item dropdown">
-								<button type="button" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" title="{{'Download this file'|trans}}">
-									<i class="fa fa-download" aria-hidden="true"></i>
-									<span class="d-lg-none ml-2">{{'Download this file'|trans}}</span>
-								</button>
-								<ul class="dropdown-menu dropdown-menu-right" role="menu">
-									{% for format in current.formats %}
-										<li class="dropdown-item">
-											<a href="{{format.download_url}}" rel="nofollow">{{format.label}}<span class="downloadformatDetails">
-													({format.filesize})</span>
-											</a>
-										</li>
-									{% endfor %}
-								</ul>
-							{% endif %}
-						</li>
-					{% endif %}
-					{% if favorite is defined %}
-						<li class="nav-item">
-							<a class="nav-link" href="{{favorite.U_FAVORITE}}" data-action="addOrRemoveFavorite" title="{% if favorite.IS_FAVORITE %}{{'Delete this photo from your favorites'|trans}}{% else %}{{'Add this photo to your favorites'|trans}}{% endif %}" rel="nofollow">
-								<i class="fa {% if not favorite.IS_FAVORITE is empty %}fa-heart-o{% else %}fa-heart{% endif %}"></i>
-							</a>
-						</li>
-					{% endif %}
-					{% if U_SET_AS_REPRESENTATIVE is defined %}
-						<li class="nav-item">
-							<a class="nav-link" id="cmdSetRepresentative" href="{{U_SET_AS_REPRESENTATIVE}}" title="{{'set as album representative'|trans}}" rel="nofollow">
-								<i class="fa fa-link" aria-hidden="true"></i>
-								<span class="d-lg-none ml-2">{{'set as album representative'|trans}}</span>
-							</a>
-						</li>
-					{% endif %}
-					{% if U_PHOTO_ADMIN is defined %}
-						<li class="nav-item">
-							<a class="nav-link" id="cmdEditPhoto" href="{{U_PHOTO_ADMIN}}" title="{{'Modify information'|trans}}" rel="nofollow">
-								<i class="fa fa-pencil" aria-hidden="true"></i>
-								<span class="d-lg-none ml-2">{{'Modify information'|trans}}</span>
-							</a>
-						</li>
-					{% endif %}
-					{% if U_CADDIE is defined %}
-						<li class="nav-item">
-							<a class="nav-link" href="{{U_CADDIE}}" data-action="addToCaddie" data-id="{{current.id}}" title="{{'Add to caddie'|trans}}" rel="nofollow">
-								<i class="fa fa-shopping-basket" aria-hidden="true"></i>
-								<span class="d-lg-none ml-2">{{'Add to caddie'|trans}}</span>
-							</a>
-						</li>
-					{% endif %}
-				</ul>
-			</div>
-		</div>
-	</nav>
-	<div class="alert alert-dismissible fade show" role="alert" style="display:none">
-		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-			<i class="fa fa-times"></i>
-		</button>
-	</div>
+        {% if current.U_DOWNLOAD is defined %}
+          {% if not current.formats is defined %}
+            <li class="nav-item">
+              <a id="downloadSwitchLink" class="nav-link" href="{{current.U_DOWNLOAD}}" title="{{'Download this file'|trans}}" rel="nofollow">
+                <i class="fa fa-download" aria-hidden="true"></i>
+                <span class="d-lg-none ml-2">{{'Download this file'|trans}}</span>
+              </a>
+            {% else %}
+              <li class="nav-item dropdown">
+                <button type="button" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" title="{{'Download this file'|trans}}">
+                  <i class="fa fa-download" aria-hidden="true"></i>
+                  <span class="d-lg-none ml-2">{{'Download this file'|trans}}</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                  {% for format in current.formats %}
+                    <li class="dropdown-item">
+                      <a href="{{format.download_url}}" rel="nofollow">{{format.label}}<span class="downloadformatDetails">
+                          ({format.filesize})</span>
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </li>
+          {% endif %}
+          {% if favorite is defined %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{favorite.U_FAVORITE}}" data-action="addOrRemoveFavorite" title="{% if favorite.IS_FAVORITE %}{{'Delete this photo from your favorites'|trans}}{% else %}{{'Add this photo to your favorites'|trans}}{% endif %}" rel="nofollow">
+                <i class="fa {% if not favorite.IS_FAVORITE is empty %}fa-heart-o{% else %}fa-heart{% endif %}"></i>
+              </a>
+            </li>
+          {% endif %}
+          {% if U_SET_AS_REPRESENTATIVE is defined %}
+            <li class="nav-item">
+              <a class="nav-link" id="cmdSetRepresentative" href="{{U_SET_AS_REPRESENTATIVE}}" title="{{'set as album representative'|trans}}" rel="nofollow">
+                <i class="fa fa-link" aria-hidden="true"></i>
+                <span class="d-lg-none ml-2">{{'set as album representative'|trans}}</span>
+              </a>
+            </li>
+          {% endif %}
+          {% if U_PHOTO_ADMIN is defined %}
+            <li class="nav-item">
+              <a class="nav-link" id="cmdEditPhoto" href="{{U_PHOTO_ADMIN}}" title="{{'Modify information'|trans}}" rel="nofollow">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+                <span class="d-lg-none ml-2">{{'Modify information'|trans}}</span>
+              </a>
+            </li>
+          {% endif %}
+          {% if U_CADDIE is defined %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{U_CADDIE}}" data-action="addToCaddie" data-id="{{current.id}}" title="{{'Add to caddie'|trans}}" rel="nofollow">
+                <i class="fa fa-shopping-basket" aria-hidden="true"></i>
+                <span class="d-lg-none ml-2">{{'Add to caddie'|trans}}</span>
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="alert alert-dismissible fade show" role="alert" style="display:none">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <i class="fa fa-times"></i>
+    </button>
+  </div>

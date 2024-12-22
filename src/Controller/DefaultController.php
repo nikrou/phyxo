@@ -13,6 +13,7 @@ namespace App\Controller;
 
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
+use App\Enum\ImageSizeType;
 use App\Security\AppUserService;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Phyxo\Image\DerivativeImage;
@@ -42,7 +43,7 @@ class DefaultController extends AbstractController
         }
 
         if (!$appUserService->getUser()->getUserInfos()->hasEnabledHigh()) {
-            $deriv = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_XXLARGE), $image_std_params);
+            $deriv = new DerivativeImage($image, $image_std_params->getByType(ImageSizeType::XXLARGE), $image_std_params);
             if (!$deriv->same_as_source()) {
                 throw new AccessDeniedException('Access denied');
             }

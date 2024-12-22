@@ -20,6 +20,7 @@ use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\Caddie;
 use App\Entity\User;
+use App\Enum\ImageSizeType;
 use App\ImageLibraryGuesser;
 use App\Repository\AlbumRepository;
 use App\Repository\CaddieRepository;
@@ -316,10 +317,10 @@ class AdminBatchManagerController extends AbstractController
         //derivatives
         $del_deriv_map = [];
         foreach ($image_std_params->getDefinedTypeMap() as $derivative_params) {
-            $del_deriv_map[$derivative_params->type] = $translator->trans($derivative_params->type, [], 'admin');
+            $del_deriv_map[$derivative_params->type->value] = $translator->trans($derivative_params->type->value, [], 'admin');
         }
         $gen_deriv_map = $del_deriv_map;
-        $del_deriv_map[ImageStandardParams::IMG_CUSTOM] = $translator->trans(ImageStandardParams::IMG_CUSTOM, [], 'admin');
+        $del_deriv_map[ImageSizeType::CUSTOM->value] = $translator->trans(ImageSizeType::CUSTOM->value, [], 'admin');
         $tpl_params['del_derivatives_types'] = $del_deriv_map;
         $tpl_params['generate_derivatives_types'] = $gen_deriv_map;
 
@@ -357,7 +358,7 @@ class AdminBatchManagerController extends AbstractController
                     $conf['order_by'] = ' ORDER BY ' . $album->getImageOrder();
                 }
             }
-            $thumb_params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
+            $thumb_params = $image_std_params->getByType(ImageSizeType::THUMB);
 
             // template thumbnail initialization
             foreach ($imageMapper->getRepository()->findByImageIdsAndAlbumId(
@@ -375,7 +376,7 @@ class AdminBatchManagerController extends AbstractController
                 }
 
                 $derivative_thumb = new DerivativeImage($image, $thumb_params, $image_std_params);
-                $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params);
+                $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageSizeType::LARGE), $image_std_params);
 
                 $tpl_params['thumbnails'][] = array_merge(
                     $image->toArray(),
@@ -1075,10 +1076,10 @@ class AdminBatchManagerController extends AbstractController
         //derivatives
         $del_deriv_map = [];
         foreach ($image_std_params->getDefinedTypeMap() as $derivative_params) {
-            $del_deriv_map[$derivative_params->type] = $translator->trans($derivative_params->type, [], 'admin');
+            $del_deriv_map[$derivative_params->type->value] = $translator->trans($derivative_params->type->value, [], 'admin');
         }
         $gen_deriv_map = $del_deriv_map;
-        $del_deriv_map[ImageStandardParams::IMG_CUSTOM] = $translator->trans(ImageStandardParams::IMG_CUSTOM, [], 'admin');
+        $del_deriv_map[ImageSizeType::CUSTOM->value] = $translator->trans(ImageSizeType::CUSTOM->value, [], 'admin');
         $tpl_params['del_derivatives_types'] = $del_deriv_map;
         $tpl_params['generate_derivatives_types'] = $gen_deriv_map;
 
@@ -1134,8 +1135,8 @@ class AdminBatchManagerController extends AbstractController
                     $legend .= ' (' . $image->getFile() . ')';
                 }
 
-                $derivative_thumb = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
-                $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params);
+                $derivative_thumb = new DerivativeImage($image, $image_std_params->getByType(ImageSizeType::THUMB), $image_std_params);
+                $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageSizeType::LARGE), $image_std_params);
 
                 $tpl_params['elements'][] = array_merge(
                     $image->toArray(),

@@ -11,6 +11,7 @@
 
 namespace App\DataMapper;
 
+use App\Enum\ImageSizeType;
 use App\Enum\PictureSectionType;
 use Exception;
 use App\Repository\CaddieRepository;
@@ -165,7 +166,7 @@ class ImageMapper
         }
 
         // @TODO: retrieve index_deriv in another_way
-        $tpl_params['derivative_params'] = $this->image_std_params->getByType($_SESSION['index_deriv'] ?? ImageStandardParams::IMG_THUMB);
+        $tpl_params['derivative_params'] = $this->image_std_params->getByType($_SESSION['index_deriv'] ?? ImageSizeType::THUMB);
 
         return $tpl_params;
     }

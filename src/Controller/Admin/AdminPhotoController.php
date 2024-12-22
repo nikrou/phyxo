@@ -16,6 +16,7 @@ use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
+use App\Enum\ImageSizeType;
 use App\ImageLibraryGuesser;
 use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageRepository;
@@ -138,8 +139,8 @@ class AdminPhotoController extends AbstractController
         // retrieving direct information about picture
         $storage_category_id = $image->getStorageCategoryId();
 
-        $derivative_thumb = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
-        $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params);
+        $derivative_thumb = new DerivativeImage($image, $image_std_params->getByType(ImageSizeType::THUMB), $image_std_params);
+        $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageSizeType::LARGE), $image_std_params);
 
         $tpl_params['tag_selection'] = $tag_selection;
         $tpl_params['U_SYNC'] = $this->generateUrl('admin_photo_sync_metadata', ['image_id' => $image_id, 'category_id' => $category_id]);
@@ -318,11 +319,11 @@ class AdminPhotoController extends AbstractController
             $imageMapper->getRepository()->addOrUpdateImage($image);
 
             foreach ($image_std_params->getDefinedTypeMap() as $std_params) {
-                if ($std_params->sizing->max_crop !== 0) {
+                if ($std_params->sizing->max_crop !== 0.0) {
                     $derivativeService->deleteForElement($image->toArray(), $std_params->type);
                 }
             }
-            $derivativeService->deleteForElement($image->toArray(), ImageStandardParams::IMG_CUSTOM);
+            $derivativeService->deleteForElement($image->toArray(), ImageSizeType::CUSTOM);
 
             return $this->redirectToRoute('admin_photo_coi', ['image_id' => $image_id, 'category_id' => $category_id]);
         }
@@ -330,7 +331,7 @@ class AdminPhotoController extends AbstractController
         $tpl_params['TITLE'] = Utils::render_element_name($image->toArray());
         $tpl_params['ALT'] = $image->getFile();
 
-        $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params);
+        $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageSizeType::LARGE), $image_std_params);
         $tpl_params['U_IMG'] = $this->generateUrl(
             'admin_media',
             ['path' => $image->getPathBasename(), 'derivative' => $derivative_large->getUrlType(), 'image_extension' => $image->getExtension()]
@@ -392,8 +393,8 @@ class AdminPhotoController extends AbstractController
             $derivativeService->deleteForElement(['path' => $image->getPath()]);
         }
 
-        $derivative_thumb = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params);
-        $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params);
+        $derivative_thumb = new DerivativeImage($image, $image_std_params->getByType(ImageSizeType::THUMB), $image_std_params);
+        $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageSizeType::LARGE), $image_std_params);
 
         $tpl_params['TN_SRC'] = $this->generateUrl('admin_media', ['path' => $image->getPathBasename(), 'derivative' => $derivative_thumb->getUrlType(), 'image_extension' => $image->getExtension()]);
         $tpl_params['FILE_SRC'] = $this->generateUrl('admin_media', ['path' => $image->getPathBasename(), 'derivative' => $derivative_large->getUrlType(), 'image_extension' => $image->getExtension()]);

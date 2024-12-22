@@ -32,31 +32,6 @@ ws:
   path: /ws
   controller: App\Controller\WsController::index
 
-media:
-  path: /media/{path}-{derivative}.{image_extension}
-  controller: App\Controller\MediaController::derivative
-  requirements:
-    path: '.*'
-    derivative: sq|th|2s|xs|sm|me|la|xl|xx
-    image_extension: jpg|jpeg|png|mp4
-
-media_custom:
-  path: /media/{path}-cu_{sizes}.{image_extension}
-  controller: App\Controller\MediaController::custom
-  requirements:
-    path: '.*'
-    image_extension: jpg|jpeg|png|mp4
-    sizes: '(e|s)[^\.]*'
-  defaults:
-    derivative: cu
-
-media_original:
-  path: /media/{path}.{image_extension}
-  controller: App\Controller\MediaController::original
-  requirements:
-    path: '[^_]*'
-    image_extension: jpg|jpeg|png
-
 plugin_asset:
   path: /asset/plugin/{id}/{path}
   controller: App\Controller\ExtensionAssetController::pluginAsset

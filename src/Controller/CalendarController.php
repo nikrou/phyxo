@@ -11,6 +11,7 @@
 
 namespace App\Controller;
 
+use App\Enum\ImageSizeType;
 use IntlDateFormatter;
 use DateTime;
 use App\Repository\ImageRepository;
@@ -192,7 +193,7 @@ class CalendarController extends AbstractController
         $tpl_params['number_of_images'] = count($thumbnails);
         $tpl_params['thumbnails'] = array_slice($thumbnails, $start, min(count($thumbnails), $nb_image_page));
 
-        $tpl_params['derivative_params'] = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
+        $tpl_params['derivative_params'] = $image_std_params->getByType(ImageSizeType::SQUARE);
         $tpl_params['START_ID'] = $start;
 
         return $this->render('calendar_by_day.html.twig', $tpl_params);

@@ -29,6 +29,7 @@ use App\DataMapper\RateMapper;
 use App\Entity\Comment;
 use App\Entity\Image;
 use App\Entity\User;
+use App\Enum\ImageSizeType;
 use App\Enum\PictureSectionType;
 use App\Events\HistoryEvent;
 use App\Form\DeleteCommentType;
@@ -121,10 +122,10 @@ class PictureController extends AbstractController
                 $imageMapper->getPicturesFromSelection($element_id, $section, $tpl_params['items'], 0, $extra)
             );
 
-            $tpl_params['derivative_params_square'] = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
-            $tpl_params['derivative_params_medium'] = $image_std_params->getByType(ImageStandardParams::IMG_MEDIUM);
-            $tpl_params['derivative_params_large'] = $image_std_params->getByType(ImageStandardParams::IMG_LARGE);
-            $tpl_params['derivative_params_xxlarge'] = $image_std_params->getByType(ImageStandardParams::IMG_XXLARGE);
+            $tpl_params['derivative_params_square'] = $image_std_params->getByType(ImageSizeType::SQUARE);
+            $tpl_params['derivative_params_medium'] = $image_std_params->getByType(ImageSizeType::MEDIUM);
+            $tpl_params['derivative_params_large'] = $image_std_params->getByType(ImageSizeType::LARGE);
+            $tpl_params['derivative_params_xxlarge'] = $image_std_params->getByType(ImageSizeType::XXLARGE);
         }
 
         $image = $imageMapper->getRepository()->find($image_id);
@@ -224,7 +225,7 @@ class PictureController extends AbstractController
 
         $unique_derivatives = [];
         foreach ($tpl_params['current']['derivatives'] as $_type => $derivative) {
-            if ($_type === ImageStandardParams::IMG_SQUARE || $_type === ImageStandardParams::IMG_THUMB) {
+            if ($_type === ImageSizeType::SQUARE->value || $_type === ImageSizeType::THUMB->value) {
                 continue;
             }
             if (!array_key_exists($_type, $image_std_params->getDefinedTypeMap())) {

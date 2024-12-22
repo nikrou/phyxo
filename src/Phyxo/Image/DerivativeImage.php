@@ -12,6 +12,7 @@
 namespace Phyxo\Image;
 
 use App\Entity\Image;
+use App\Enum\ImageSizeType;
 
 /**
  * Holds information (path, url, dimensions) about a derivative image.
@@ -20,8 +21,7 @@ use App\Entity\Image;
  */
 class DerivativeImage
 {
-    // @TODO $params is DerivativeParams but problem in Ws/Main
-    public function __construct(private readonly Image $image, private $params, private readonly ImageStandardParams $image_std_params)
+    public function __construct(private readonly Image $image, private DerivativeParams $params, private readonly ImageStandardParams $image_std_params)
     {
     }
 
@@ -35,22 +35,14 @@ class DerivativeImage
         return $this->image->getPathBasename();
     }
 
-    public function getType(): string
+    public function getType(): ImageSizeType
     {
-        if (is_null($this->params)) {
-            return ImageStandardParams::IMG_ORIGINAL;
-        }
-
         return $this->params->type;
     }
 
     public function getUrlType(): string
     {
-        if (is_null($this->params)) {
-            return ImageStandardParams::IMG_ORIGINAL;
-        }
-
-        return DerivativeParams::derivative_to_url($this->params->type);
+        return DerivativeParams::derivative_to_url($this->params->type->value);
     }
 
     public function getSize(): array
@@ -81,7 +73,7 @@ class DerivativeImage
     {
         $tokens = [];
 
-        if ($this->params->type === ImageStandardParams::IMG_CUSTOM) {
+        if ($this->params->type === ImageSizeType::CUSTOM) {
             $this->params->add_url_tokens($tokens);
         }
 
@@ -117,23 +109,23 @@ class DerivativeImage
                 // no watermark, no rotation required -> we will use the source image
                 return [
                     'path' => $this->getPathBasename(),
-                    'derivative' => substr((string) $this->params->type, 0, 2),
+                    'derivative' => substr((string) $this->params->type->value, 0, 2),
                     'sizes' => '',
                     'image_extension' => $this->getExtension()
                 ];
             }
 
-            $defined_types = array_keys($this->image_std_params->getDefinedTypeMap());
+            $defined_types = array_values($this->image_std_params->getDefinedTypeMap());
             $counter = count($defined_types);
             for ($i = 0; $i < $counter; $i++) {
-                if ($defined_types[$i] == $this->params->type) {
+                if ($defined_types[$i]->type === $this->params->type) {
                     for ($i--; $i >= 0; $i--) {
-                        $smaller = $this->image_std_params->getByType($defined_types[$i]);
+                        $smaller = $this->image_std_params->getByType($defined_types[$i]->type);
                         if ($smaller->sizing->max_crop === $this->params->sizing->max_crop && $smaller->is_identity($this->getSize())) {
                             $this->params = $smaller;
                             return [
                                 'path' => $this->getPathBasename(),
-                                'derivative' => substr($this->params->type, 0, 2),
+                                'derivative' => substr($this->params->type->value, 0, 2),
                                 'sizes' => '',
                                 'image_extension' => $this->getExtension()
                             ];
@@ -145,15 +137,15 @@ class DerivativeImage
         }
 
         $tokens = [];
-        $tokens[] = substr((string) $this->params->type, 0, 2);
+        $tokens[] = substr((string) $this->params->type->value, 0, 2);
 
-        if ($this->params->type === ImageStandardParams::IMG_CUSTOM) {
+        if ($this->params->type === ImageSizeType::CUSTOM) {
             $this->params->add_url_tokens($tokens);
         }
 
         return [
             'path' => $this->getPathBasename(),
-            'derivative' => substr((string) $this->params->type, 0, 2),
+            'derivative' => substr((string) $this->params->type->value, 0, 2),
             'sizes' => '',
             'image_extension' => $this->getExtension()
         ];

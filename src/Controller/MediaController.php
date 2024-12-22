@@ -26,12 +26,19 @@ use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Mime\MimeTypeGuesserInterface;
+use Symfony\Component\Routing\Attribute\Route;
 
 class MediaController extends AbstractController
 {
     protected ImageStandardParams $image_std_params;
     private bool $forAdmin = false;
 
+    #[Route(
+        '/media/{path}-{derivative}.{image_extension}',
+        name: 'media',
+        requirements: ['derivative' => 'sq|th|2s|xs|sm|me|la|xl|xx', 'path' => '.*', 'image_extension' => 'jpg|jpeg|png|mp4'
+        ]
+    )]
     public function derivative(
         Request $request,
         string $path,
@@ -84,6 +91,14 @@ class MediaController extends AbstractController
         return $this->makeDerivativeResponse($mediaCacheDir . '/' . $derivative_path, $mimeTypeGuesser);
     }
 
+    #[Route(
+        '/media/{path}-cu_{sizes}.{image_extension}',
+        name: 'media_custom',
+        defaults: ['derivative' => 'cu'],
+        requirements: [
+            'path' => '.*', 'image_extension' => 'jpg|jpeg|png|mp4', 'sizes' => '(e|s)[^\.]*'
+        ]
+    )]
     public function custom(
         Request $request,
         string $path,
@@ -154,6 +169,13 @@ class MediaController extends AbstractController
         return $this->makeDerivativeResponse($mediaCacheDir . '/' . $derivative_path, $mimeTypeGuesser);
     }
 
+    #[Route(
+        '/media/{path}.{image_extension}',
+        name: 'media_original',
+        requirements: [
+            'path' => '[^_]*', 'image_extension' => 'jpg|jpeg|png'
+        ]
+    )]
     public function original(
         Request $request,
         string $path,
@@ -206,6 +228,13 @@ class MediaController extends AbstractController
         return $this->makeDerivativeResponse($mediaCacheDir . '/' . $derivative_path, $mimeTypeGuesser);
     }
 
+    #[Route(
+        '/admin/media/{path}-{derivative}.{image_extension}',
+        name: 'admin_media',
+        requirements: [
+            'path' => '[^_]*', 'derivative' => 'sq|th|2s|xs|sm|me|la|xl|xx', 'image_extension' => 'jpg|jpeg|png'
+        ]
+    )]
     public function mediaForAdmin(string $path, string $derivative, string $image_extension): Response
     {
         $this->forAdmin = true;

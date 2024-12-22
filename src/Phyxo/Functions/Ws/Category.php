@@ -16,11 +16,11 @@ use App\Entity\ImageAlbum;
 use App\Entity\User;
 use App\Entity\UserCacheAlbum;
 use App\Entity\UserInfos;
+use App\Enum\ImageSizeType;
 use App\Repository\UserCacheAlbumRepository;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\Server;
 use Phyxo\Image\DerivativeImage;
-use Phyxo\Image\ImageStandardParams;
 
 class Category
 {
@@ -154,7 +154,7 @@ class Category
                     $image_infos = $infos_of_images[$album->getRepresentativePictureId()];
                     $derivative_image = new DerivativeImage(
                         $image_infos['src_image'],
-                        $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB),
+                        $service->getImageStandardParams()->getByType(ImageSizeType::THUMB),
                         $service->getImageStandardParams()
                     );
                     $thumbnail_url = $service->getRouter()->generate(

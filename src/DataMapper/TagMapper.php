@@ -16,6 +16,7 @@ use App\Entity\Image;
 use App\Entity\ImageTag;
 use App\Entity\Tag;
 use App\Entity\User;
+use App\Enum\ImageSizeType;
 use App\Metadata;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Conf;
@@ -81,7 +82,7 @@ class TagMapper
     public function getPendingTags(): array
     {
         $tags = [];
-        $params = $this->image_std_params->getByType(ImageStandardParams::IMG_THUMB);
+        $params = $this->image_std_params->getByType(ImageSizeType::THUMB);
         foreach ($this->imageTagRepository->getPendingTags() as $image_tag) {
             $image = $image_tag->getImage();
             $derivative = new DerivativeImage($image, $params, $this->image_std_params);

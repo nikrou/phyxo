@@ -16,6 +16,7 @@ use App\DataMapper\AlbumMapper;
 use App\DataMapper\RateMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
+use App\Enum\ImageSizeType;
 use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
 use App\Repository\ImageRepository;
@@ -265,9 +266,9 @@ class AdminMaintenanceController extends AbstractController
 
         $purge_urls[$translator->trans('All', [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => 'all']);
         foreach ($image_std_params->getDefinedTypeMap() as $std_params) {
-            $purge_urls[$translator->trans($std_params->type, [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => $std_params->type]);
+            $purge_urls[$translator->trans($std_params->type->value, [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => $std_params->type]);
         }
-        $purge_urls[$translator->trans(ImageStandardParams::IMG_CUSTOM, [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => ImageStandardParams::IMG_CUSTOM]);
+        $purge_urls[$translator->trans(ImageSizeType::CUSTOM->value, [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => ImageSizeType::CUSTOM->value]);
 
         $tpl_params['purge_derivatives'] = $purge_urls;
 
@@ -320,9 +321,9 @@ class AdminMaintenanceController extends AbstractController
         }
     }
 
-    public function derivatives(string $type, ImageStandardParams $image_std_params, DerivativeService $derivativeService): Response
+    public function derivatives(string $type, DerivativeService $derivativeService): Response
     {
-        $derivativeService->clearCache([$type], $image_std_params->getAllTypes());
+        $derivativeService->clearCache([ImageSizeType::from($type)], ImageSizeType::getAllTypes());
 
         return $this->redirectToRoute('admin_maintenance');
     }

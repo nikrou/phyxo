@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\ImageMapper;
+use App\Enum\ImageSizeType;
 use App\Enum\PictureSectionType;
 use App\Repository\UserCacheAlbumRepository;
 use App\Security\AppUserService;
@@ -157,7 +158,7 @@ class AlbumController extends AbstractController
             // @TODO : an album can contain more than $conf['nb_categories_page']
             $tpl_thumbnails_var_selection = array_slice($tpl_thumbnails_var, 0, $conf['nb_categories_page']);
 
-            $derivative_params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
+            $derivative_params = $image_std_params->getByType(ImageSizeType::THUMB);
 
             $tpl_params['maxRequests'] = $conf['max_requests'];
             $tpl_params['category_thumbnails'] = $tpl_thumbnails_var_selection;
@@ -414,7 +415,7 @@ class AlbumController extends AbstractController
                 $conf['nb_categories_page']
             );
 
-            $derivative_params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
+            $derivative_params = $image_std_params->getByType(ImageSizeType::THUMB);
 
             $tpl_params['maxRequests'] = $conf['max_requests'];
             $tpl_params['category_thumbnails'] = $tpl_thumbnails_var_selection;
@@ -518,7 +519,7 @@ class AlbumController extends AbstractController
                 $conf['nb_categories_page']
             );
 
-            $derivative_params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
+            $derivative_params = $image_std_params->getByType(ImageSizeType::THUMB);
 
             $tpl_params['maxRequests'] = $conf['max_requests'];
             $tpl_params['category_thumbnails'] = $tpl_thumbnails_var_selection;

@@ -18,13 +18,13 @@ use App\Entity\Image as EntityImage;
 use App\Entity\ImageAlbum;
 use App\Entity\ImageTag;
 use App\Entity\Rate;
+use App\Enum\ImageSizeType;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use App\Security\TagVoter;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageOptimizer;
-use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -702,7 +702,7 @@ class Image
             $category_name = $service->getAlbumMapper()->getRepository()->find($params['category'][0])->getName();
             $derivative_image = new DerivativeImage(
                 $image,
-                $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB),
+                $service->getImageStandardParams()->getByType(ImageSizeType::THUMB),
                 $service->getImageStandardParams()
             );
 

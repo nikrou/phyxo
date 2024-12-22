@@ -11,9 +11,9 @@
 
 namespace App\Services;
 
+use App\Enum\ImageSizeType;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeParams;
-use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -25,18 +25,21 @@ class DerivativeService
 
     /**
      * Delete all derivative files for one or several types
+     *
+     * @param ImageSizeType[] $types
+     * @param ImageSizeType[] $all_types
      */
     public function clearCache(array $types, array $all_types)
     {
         $counter = count($types);
         for ($i = 0; $i < $counter; $i++) {
             $type = $types[$i];
-            if ($type === ImageStandardParams::IMG_CUSTOM) {
-                $pattern = DerivativeParams::derivative_to_url($type) . '[a-zA-Z0-9]+';
+            if ($type === ImageSizeType::CUSTOM) {
+                $pattern = DerivativeParams::derivative_to_url($type->value) . '[a-zA-Z0-9]+';
             } elseif (in_array($type, $all_types)) {
-                $pattern = DerivativeParams::derivative_to_url($type);
+                $pattern = DerivativeParams::derivative_to_url($type->value);
             } else { //assume a custom type
-                $pattern = DerivativeParams::derivative_to_url(ImageStandardParams::IMG_CUSTOM) . '_' . $type;
+                $pattern = DerivativeParams::derivative_to_url(ImageSizeType::CUSTOM->value) . '_' . $type;
             }
             $types[$i] = $pattern;
         }

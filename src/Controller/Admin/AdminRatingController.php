@@ -13,6 +13,7 @@ namespace App\Controller\Admin;
 
 use App\DataMapper\ImageMapper;
 use App\DataMapper\UserMapper;
+use App\Enum\ImageSizeType;
 use App\Repository\RateRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
@@ -123,7 +124,7 @@ class AdminRatingController extends AbstractController
 
             $thumbnail_src = $this->generateUrl(
                 'admin_media',
-                ['path' => $pathBasename, 'derivative' => DerivativeParams::derivative_to_url(ImageStandardParams::IMG_THUMB), 'image_extension' => $extension]
+                ['path' => $pathBasename, 'derivative' => DerivativeParams::derivative_to_url(ImageSizeType::THUMB->value), 'image_extension' => $extension]
             );
             $image_url = $this->generateUrl('admin_photo', ['image_id' => $image['id']]);
 
@@ -245,7 +246,7 @@ class AdminRatingController extends AbstractController
         // get image tn urls
         $image_urls = [];
         if ($image_ids !== []) {
-            $d_params = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
+            $d_params = $image_std_params->getByType(ImageSizeType::SQUARE);
             foreach ($imageMapper->getRepository()->findBy(['id' => array_keys($image_ids)]) as $image) {
                 $derivative = new DerivativeImage($image, $d_params, $image_std_params);
                 $image_urls[$image->getId()] = [
@@ -339,7 +340,7 @@ class AdminRatingController extends AbstractController
         $tpl_params['available_rates'] = $conf['rate_items'];
         $tpl_params['ratings'] = $by_user_ratings;
         $tpl_params['image_urls'] = $image_urls;
-        $tpl_params['TN_WIDTH'] = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE)->sizing->ideal_size[0];
+        $tpl_params['TN_WIDTH'] = $image_std_params->getByType(ImageSizeType::SQUARE)->sizing->ideal_size[0];
 
         $tpl_params['WS_RATES_DELETE'] = $this->generateUrl('ws') . '?method=pwg.rates.delete';
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_rating');

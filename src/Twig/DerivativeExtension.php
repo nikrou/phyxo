@@ -11,6 +11,7 @@
 
 namespace App\Twig;
 
+use App\Enum\ImageSizeType;
 use Exception;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\DerivativeParams;
@@ -38,7 +39,7 @@ class DerivativeExtension extends AbstractExtension
     /**
      * The "defineDerivative" function allows to define derivative from tpl file.
      *
-     * @param array{type?: string, width: int, height: int, crop?: int|bool, min_width: int, min_height: int} $params
+     * @param array{type?: ImageSizeType, width: int, height: int, crop?: int|bool, min_width: int, min_height: int} $params
      */
     public function defineDerivative(array $params): DerivativeParams
     {
@@ -86,7 +87,7 @@ class DerivativeExtension extends AbstractExtension
 
     public function defineDerivativeSquare(): DerivativeParams
     {
-        return $this->image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
+        return $this->image_std_params->getByType(ImageSizeType::SQUARE);
     }
 
     public function derivativeFromImage(array $params = []): ?DerivativeImage
@@ -100,13 +101,13 @@ class DerivativeExtension extends AbstractExtension
 
     public function mediaPath(DerivativeImage $derivative, bool $relative = false): string
     {
-        if ($derivative->getType() === ImageStandardParams::IMG_CUSTOM) {
+        if ($derivative->getType() === ImageSizeType::CUSTOM) {
             return $this->urlGenerator->generate(
                 'media_custom',
                 ['path' => $derivative->getPathBasename(), 'sizes' => $derivative->getUrlSize(), 'image_extension' => $derivative->getExtension()],
                 $relative ? UrlGeneratorInterface::RELATIVE_PATH : UrlGeneratorInterface::ABSOLUTE_PATH
             );
-        } elseif ($derivative->getType() === ImageStandardParams::IMG_ORIGINAL) {
+        } elseif ($derivative->getType() === ImageSizeType::ORIGINAL) {
             return $this->urlGenerator->generate(
                 'media_original',
                 ['path' => $derivative->getPathBasename(), 'image_extension' => $derivative->getExtension()],

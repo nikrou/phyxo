@@ -12,6 +12,7 @@
 namespace App\Controller;
 
 use App\DataMapper\AlbumMapper;
+use App\Enum\ImageSizeType;
 use App\Enum\PictureSectionType;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
@@ -169,7 +170,7 @@ class CommentController extends AbstractController
             $conf['paginate_pages_around']
         );
 
-        $tpl_params['derivative_params'] = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
+        $tpl_params['derivative_params'] = $image_std_params->getByType(ImageSizeType::THUMB);
 
         return $this->render('comments.html.twig', $tpl_params);
     }

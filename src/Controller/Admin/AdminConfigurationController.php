@@ -17,6 +17,7 @@ use Phyxo\Functions\Upload;
 use Phyxo\Image\SizingParams;
 use Phyxo\Image\DerivativeParams;
 use App\DataMapper\UserMapper;
+use App\Enum\ImageSizeType;
 use App\Form\DisplayConfigurationType;
 use App\Form\UserInfosType;
 use App\Repository\UserInfosRepository;
@@ -151,7 +152,7 @@ class AdminConfigurationController extends AbstractController
                 break;
 
             case 'watermark':
-                $tpl_params = array_merge($tpl_params, $this->watermarkConfiguration($conf, $params->get('themes_dir'), $params->get('local_dir'), $image_std_params));
+                $tpl_params = array_merge($tpl_params, $this->watermarkConfiguration($params->get('themes_dir'), $params->get('local_dir'), $image_std_params));
                 break;
 
             default:
@@ -166,7 +167,7 @@ class AdminConfigurationController extends AbstractController
     public function sizeRestore(ImageStandardParams $image_std_params, Conf $conf, TranslatorInterface $translator, DerivativeService $derivativeService): Response
     {
         $image_std_params->setAndSave($image_std_params->getDefaultSizes());
-        $derivativeService->clearCache($image_std_params->getAllTypes(), $image_std_params->getAllTypes());
+        $derivativeService->clearCache(ImageSizeType::getAllTypes(), ImageSizeType::getAllTypes());
         $this->addFlash('success', $translator->trans('Your configuration settings have been saved', [], 'admin'));
         unset($conf['disabled_derivatives']);
 
@@ -261,17 +262,17 @@ class AdminConfigurationController extends AbstractController
         $enabled = $image_std_params->getDefinedTypeMap();
         $disabled = empty($conf['disabled_derivatives']) ? [] : $conf['disabled_derivatives'];
 
-        foreach ($image_std_params->getAllTypes() as $type) {
+        foreach (ImageSizeType::getAllTypes() as $imageType) {
             $tpl_var = [];
-            $tpl_var['must_square'] = ($type == ImageStandardParams::IMG_SQUARE);
-            $tpl_var['must_enable'] = $type == ImageStandardParams::IMG_SQUARE || $type == ImageStandardParams::IMG_THUMB || $type == $conf['derivative_default_size'];
+            $tpl_var['must_square'] = $imageType === ImageSizeType::SQUARE;
+            $tpl_var['must_enable'] = $imageType === ImageSizeType::SQUARE || $imageType === ImageSizeType::THUMB || $imageType === $conf['derivative_default_size'];
 
-            if (!empty($enabled[$type])) {
-                $params = $enabled[$type];
+            if (!empty($enabled[$imageType->value])) {
+                $params = $enabled[$imageType->value];
                 $tpl_var['enabled'] = true;
             } else {
                 $tpl_var['enabled'] = false;
-                $params = $disabled[$type];
+                $params = $disabled[$imageType->value];
             }
 
             if ($params) {
@@ -282,7 +283,7 @@ class AdminConfigurationController extends AbstractController
                     $tpl_var['minw'] = $tpl_var['minh'] = "";
                 }
             }
-            $tpl_params['derivatives'][$type] = $tpl_var;
+            $tpl_params['derivatives'][$imageType->value] = $tpl_var;
         }
         $tpl_params['resize_quality'] = $image_std_params->getQuality();
 
@@ -296,7 +297,7 @@ class AdminConfigurationController extends AbstractController
         return $tpl_params;
     }
 
-    protected function watermarkConfiguration(Conf $conf, string $themesDir, string $localDir, ImageStandardParams $image_std_params): array
+    protected function watermarkConfiguration(string $themesDir, string $localDir, ImageStandardParams $image_std_params): array
     {
         $tpl_params = [];
 
@@ -611,14 +612,14 @@ class AdminConfigurationController extends AbstractController
 
                         if ($changed) {
                             $params->last_mod_time = time();
-                            $changed_types[] = $type;
+                            $changed_types[] = ImageSizeType::from($type);
                         }
                     }
 
                     $image_std_params->save();
 
                     if ($changed_types !== []) {
-                        $derivativeService->clearCache($changed_types, $image_std_params->getAllTypes());
+                        $derivativeService->clearCache($changed_types, ImageSizeType::getAllTypes());
                     }
 
                     $this->addFlash('success', $this->translator->trans('Your configuration settings have been saved', [], 'admin'));
@@ -653,12 +654,12 @@ class AdminConfigurationController extends AbstractController
 
                 // step 1 - sanitize HTML input
                 foreach ($pderivatives as $type => &$pderivative) {
-                    if ($pderivative['must_square'] = ($type == ImageStandardParams::IMG_SQUARE)) {
+                    if ($pderivative['must_square'] = ($type === ImageSizeType::SQUARE->value)) {
                         $pderivative['h'] = $pderivative['w'];
                         $pderivative['minh'] = $pderivative['minw'] = $pderivative['w'];
                         $pderivative['crop'] = 100;
                     }
-                    $pderivative['must_enable'] = $type == ImageStandardParams::IMG_SQUARE || $type == ImageStandardParams::IMG_THUMB || $type == $conf['derivative_default_size'];
+                    $pderivative['must_enable'] = $type === ImageSizeType::SQUARE->value || $type === ImageSizeType::THUMB->value || $type === $conf['derivative_default_size'];
                     $pderivative['enabled'] = isset($pderivative['enabled']) || $pderivative['must_enable'];
 
                     if (isset($pderivative['crop'])) {
@@ -674,35 +675,35 @@ class AdminConfigurationController extends AbstractController
 
                 // step 2 - check validity
                 $prev_w = $prev_h = 0;
-                foreach ($image_std_params->getAllTypes() as $type) {
-                    $pderivative = $pderivatives[$type];
+                foreach (ImageSizeType::getAllTypes() as $imageType) {
+                    $pderivative = $pderivatives[$imageType->value];
                     if (!$pderivative['enabled']) {
                         continue;
                     }
 
-                    if ($type == ImageStandardParams::IMG_THUMB) {
+                    if ($imageType === ImageSizeType::THUMB) {
                         $w = intval($pderivative['w']);
                         if ($w <= 0) {
-                            $errors[$type]['w'] = '>0';
+                            $errors[$imageType->value]['w'] = '>0';
                         }
 
                         $h = intval($pderivative['h']);
                         if ($h <= 0) {
-                            $errors[$type]['h'] = '>0';
+                            $errors[$imageType->value]['h'] = '>0';
                         }
 
                         if (max($w, $h) <= $prev_w) {
-                            $errors[$type]['w'] = $errors[$type]['h'] = '>' . $prev_w;
+                            $errors[$imageType->value]['w'] = $errors[$imageType->value]['h'] = '>' . $prev_w;
                         }
                     } else {
                         $v = intval($pderivative['w']);
                         if ($v <= 0 || $v <= $prev_w) {
-                            $errors[$type]['w'] = '>' . $prev_w;
+                            $errors[$imageType->value]['w'] = '>' . $prev_w;
                         }
 
                         $v = intval($pderivative['h']);
                         if ($v <= 0 || $v <= $prev_h) {
-                            $errors[$type]['h'] = '>' . $prev_h;
+                            $errors[$imageType->value]['h'] = '>' . $prev_h;
                         }
                     }
 
@@ -721,8 +722,8 @@ class AdminConfigurationController extends AbstractController
                     $disabled = empty($conf['disabled_derivatives']) ? [] : $conf['disabled_derivatives'];
                     $changed_types = [];
 
-                    foreach ($image_std_params->getAllTypes() as $type) {
-                        $pderivative = $pderivatives[$type];
+                    foreach (ImageSizeType::getAllTypes() as $imageType) {
+                        $pderivative = $pderivatives[$imageType->value];
 
                         if ($pderivative['enabled']) {
                             $derivative_params = new SizingParams(
@@ -732,44 +733,43 @@ class AdminConfigurationController extends AbstractController
                             );
                             $new_params = new DerivativeParams($derivative_params);
                             $image_std_params->applyWatermark($new_params);
-                            if (isset($enabled[$type])) {
-                                $old_params = $enabled[$type];
+                            if (isset($enabled[$imageType->value])) {
+                                $old_params = $enabled[$imageType->value];
                                 $same = true;
                                 if (!DerivativeParams::size_equals($old_params->sizing->ideal_size, $new_params->sizing->ideal_size)
                                     || $old_params->sizing->max_crop != $new_params->sizing->max_crop) {
                                     $same = false;
                                 }
 
-                                if ($same
-                                        && $new_params->sizing->max_crop != 0
+                                if ($same && $new_params->sizing->max_crop != 0
                                         && !DerivativeParams::size_equals($old_params->sizing->min_size, $new_params->sizing->min_size)) {
                                     $same = false;
                                 }
 
                                 if (!$same) {
                                     $new_params->last_mod_time = time();
-                                    $changed_types[] = $type;
+                                    $changed_types[] = $imageType;
                                 } else {
                                     $new_params->last_mod_time = $old_params->last_mod_time;
                                 }
-                                $enabled[$type] = $new_params;
+                                $enabled[$imageType->value] = $new_params;
                             } else { // now enabled, before was disabled
-                                $enabled[$type] = $new_params;
-                                unset($disabled[$type]);
+                                $enabled[$imageType->value] = $new_params;
+                                unset($disabled[$imageType->value]);
                             }
-                        } elseif (isset($enabled[$type])) {
+                        } elseif (isset($enabled[$imageType->value])) {
                             // disabled
                             // now disabled, before was enabled
-                            $changed_types[] = $type;
-                            $disabled[$type] = $enabled[$type];
-                            unset($enabled[$type]);
+                            $changed_types[] = $imageType;
+                            $disabled[$imageType->value] = $enabled[$imageType->value];
+                            unset($enabled[$imageType->value]);
                         }
                     }
 
                     $enabled_by = []; // keys ordered by all types
-                    foreach ($image_std_params->getAllTypes() as $type) {
-                        if (isset($enabled[$type])) {
-                            $enabled_by[$type] = $enabled[$type];
+                    foreach (ImageSizeType::getAllTypes() as $imageType) {
+                        if (isset($enabled[$imageType->value])) {
+                            $enabled_by[$imageType->value] = $enabled[$imageType->value];
                         }
                     }
 
@@ -781,14 +781,14 @@ class AdminConfigurationController extends AbstractController
                     }
 
                     $image_std_params->setAndSave($enabled_by);
-                    if ((is_countable($disabled) ? count($disabled) : 0) === 0) {
+                    if (count($disabled) === 0) {
                         unset($conf['disabled_derivatives']);
                     } else {
                         $conf->addOrUpdateParam('disabled_derivatives', $disabled, 'base64');
                     }
 
                     if ($changed_types !== []) {
-                        $derivativeService->clearCache($changed_types, $image_std_params->getAllTypes());
+                        $derivativeService->clearCache($changed_types, ImageSizeType::getAllTypes());
                     }
                 }
             }

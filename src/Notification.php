@@ -26,6 +26,7 @@ use App\Entity\Image;
 use App\Entity\User;
 use App\Entity\UserInfos;
 use App\Entity\UserMailNotification;
+use App\Enum\ImageSizeType;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Conf;
@@ -318,7 +319,7 @@ class Notification
             . '</li><br>';
 
         $image_std_params = new ImageStandardParams($this->conf);
-        $params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
+        $params = $image_std_params->getByType(ImageSizeType::THUMB);
 
         foreach ($date_detail['elements'] as $element) {
             $derivative = new DerivativeImage($element, $params, $image_std_params);
