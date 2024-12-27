@@ -11,6 +11,9 @@
 
 namespace App\Tests\Behat;
 
+use Behat\Step\Given;
+use Behat\Step\Then;
+use Behat\Step\When;
 use Exception;
 use DateTime;
 use Behat\Gherkin\Node\PyStringNode;
@@ -27,9 +30,7 @@ class FeatureContext extends BaseContext
         return $this->driverContainer;
     }
 
-    /**
-     * @Given I am logged in as :username with password :password
-     */
+    #[Given('I am logged in as :username with password :password')]
     public function iAmLoggedInAsWithPassword(string $username, string $password, bool $remember = false): void
     {
         $this->visit('/identification');
@@ -41,35 +42,27 @@ class FeatureContext extends BaseContext
         $this->pressButton('Submit');
     }
 
-    /**
-     * @Given I am logged in as :username with password :password and auto login
-     */
+    #[Given('I am logged in as :username with password :password and auto login')]
     public function iAmLoggedInAsWithPasswordAndAutoLogin(string $username, string $password): void
     {
         $this->iAmLoggedInAsWithPassword($username, $password, true);
         $this->getMink()->assertSession()->cookieExists($this->getCookieName());
     }
 
-    /**
-     * @Then I should be allowed to go to a protected page
-     */
+    #[Then('I should be allowed to go to a protected page')]
     public function iShouldBeAllowedToGoToAProtectedPage(): void
     {
         $this->visit($this->getContainer()->get('router')->generate('profile'));
     }
 
-    /**
-     * @Then I should not be allowed to go to a protected page
-     */
+    #[Then('I should not be allowed to go to a protected page')]
     public function iShouldNotBeAllowedToGoToAProtectedPage(): void
     {
         $this->visit($this->getContainer()->get('router')->generate('profile'));
         $this->getMink()->assertSession()->statusCodeEquals(403);
     }
 
-    /**
-     * @Then I should not be allowed to go to album :album_name
-     */
+    #[Then('I should not be allowed to go to album :album_name')]
     public function iShouldNotBeAllowedToGoToAlbum(string $album_name): void
     {
         $this->visit($this->getContainer()->get('router')->generate('album', ['album_id' => $this->storage->get('album_' . $album_name)->getId()]));
@@ -82,9 +75,7 @@ class FeatureContext extends BaseContext
         return $this->getPage()->find('css', '[data-photo-id="' . $image_id . '"]') !== null;
     }
 
-    /**
-     * @Then I should see photo :photo_name
-     */
+    #[Then('I should see photo :photo_name')]
     public function iShouldSeePhoto(string $photo_name): void
     {
         $image_id = $this->storage->get('image_' . $photo_name)->getId();
@@ -93,9 +84,7 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @Then I should not see photo :photo_name
-     */
+    #[Then('I should not see photo :photo_name')]
     public function iShouldNotSeePhoto(string $photo_name): void
     {
         $image_id = $this->storage->get('image_' . $photo_name)->getId();
@@ -109,9 +98,7 @@ class FeatureContext extends BaseContext
         return $this->getPage()->find('css', '.edit-tags') !== null;
     }
 
-    /**
-     * @Then I should not be able to edit tags
-     */
+    #[Then('I should not be able to edit tags')]
     public function iShouldNotBeAbleToEditTags(): void
     {
         if ($this->beAbleToEditTags()) {
@@ -119,9 +106,7 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @Then I should be able to edit tags
-     */
+    #[Then('I should be able to edit tags')]
     public function iShouldBeAbleToEditTags(): void
     {
         if (!$this->beAbleToEditTags()) {
@@ -129,9 +114,7 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @Then I should see tag :tag
-     */
+    #[Then('I should see tag :tag')]
     public function iShouldSeeTag(string $tag_name): void
     {
         $tags = $this->getPage()->find('css', '#Tags');
@@ -145,9 +128,7 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @Then I should not see tag :tag
-     */
+    #[Then('I should not see tag :tag')]
     public function iShouldNotSeeTag(string $tag_name): void
     {
         $tags = $this->getPage()->find('css', '#Tags');
@@ -159,10 +140,8 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @When I should see link :link_label
-     * @Then I should see link :link_label in :parent
-     */
+    #[When('I should see link :link_label')]
+    #[Then('I should see link :link_label in :parent')]
     public function iShouldSeeLink(string $link_label, string $parent = ''): void
     {
         $parentNode = $parent === '' || $parent === '0' ? $this->getSession()->getPage() : $this->getSession()->getPage()->find('css', $parent);
@@ -173,9 +152,7 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @When I should not see link :link_label
-     */
+    #[When('I should not see link :link_label')]
     public function iShouldNotSeeLink(string $link_label): void
     {
         $link = $this->findLink($link_label);
@@ -185,9 +162,7 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @Then I should see :description for :album_name description
-     */
+    #[Then('I should see :description for :album_name description')]
     public function iShouldSeeDescriptionForAlbum(string $description, string $album_name): void
     {
         $album = $this->getPage()->find('css', sprintf('*[data-id="%d"]', $this->storage->get('album_' . $album_name)->getId()));
@@ -196,9 +171,7 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @Then I should see :nb_images for :album_name number of images
-     */
+    #[Then('I should see :nb_images for :album_name number of images')]
     public function iShouldSeeNumberOfImagesForAlbum(string $nb_images, string $album_name): void
     {
         $album = $this->getPage()->find('css', sprintf('*[data-id="%d"]', $this->storage->get('album_' . $album_name)->getId()));
@@ -216,8 +189,8 @@ class FeatureContext extends BaseContext
 
     /**
      * admin
-     * @Then I should see :nb_images for album :album_name
      */
+    #[Then('I should see :nb_images for album :album_name')]
     public function iShouldSeeTextNumberOfImagesForAlbum(string $nb_images, string $album_name): void
     {
         $div_album = $this->getPage()->find('css', sprintf('#album-%d', $this->storage->get('album_' . $album_name)->getId()));
@@ -228,17 +201,13 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @Then I select :image_name in thumbnails
-     */
+    #[Then('I select :image_name in thumbnails')]
     public function iSelectPhotoInThumbnails(string $image_name): void
     {
         $this->getPage()->find('css', sprintf('*[data-testid="image-%d"] input[type="checkbox"]', $this->storage->get('image_' . $image_name)->getId()))->check();
     }
 
-    /**
-     * @Given I follow image of type :type_map
-     */
+    #[Given('I follow image of type :type_map')]
     public function iFollowImageOfType(string $type_map): void
     {
         $picture_derivatives = $this->getPage()->find('css', '*[data-testid="picture.derivatives"]');
@@ -256,18 +225,14 @@ class FeatureContext extends BaseContext
         $this->visit($derivative->getAttribute('data-url'));
     }
 
-    /**
-     * @When I add a comment :
-     */
+    #[When('I add a comment :')]
     public function iAddAComment(PyStringNode $comment): void
     {
         $this->fillField('Comment', $comment);
         $this->pressButton('Submit');
     }
 
-    /**
-     * @Then the option :option from :from" is selected
-     */
+    #[Then('the option :option from :from" is selected')]
     public function theOptionFromSelectIsSelected(string $option, string $from): void
     {
         $selectField = $this->findField($from);
@@ -286,9 +251,7 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @Then the radio button :value from :name should be selected
-     */
+    #[Then('the radio button :value from :name should be selected')]
     public function theRadioButtonFromShouldBeSelected(string $value, string $name): void
     {
         $radioButton = $this->getSession()->getPage()->find('css', sprintf('input[type="radio"][name="%s"][value="%s"]', $name, $value));
@@ -302,9 +265,7 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @Then I should not see link to :href
-     */
+    #[Then('I should not see link to :href')]
     public function iShouldNotSeeLinkTo(string $href): void
     {
         $link = $this->findLink($href);
@@ -313,9 +274,7 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @Then the select :element should contain:
-     */
+    #[Then('the select :element should contain:')]
     public function theSelectShouldContain(string $element, PyStringNode $expectedString): void
     {
         $select = $this->findField($element);
@@ -340,9 +299,7 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @Then the group :group should have members :users
-     */
+    #[Then('the group :group should have members :users')]
     public function theGroupShouldHaveMembers(string $group, string $users): void
     {
         $rowGroup = $this->getPage()->find('css', sprintf('table tr:contains("%s")', $group));
@@ -360,9 +317,7 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @Given I follow group :group permissions
-     */
+    #[Given('I follow group :group permissions')]
     public function iFollowGroupPermissions(string $group): void
     {
         $rowGroup = $this->getPage()->find('css', sprintf('table tr:contains("%s")', $group));
@@ -372,9 +327,7 @@ class FeatureContext extends BaseContext
         $rowGroup->clickLink('Permissions');
     }
 
-    /**
-     * @Given I follow album :album_name Edit
-     */
+    #[Given('I follow album :album_name Edit')]
     public function iFollowAlbumEdit(string $album_name): void
     {
         $album = $this->storage->get('album_' . $album_name);
@@ -385,18 +338,14 @@ class FeatureContext extends BaseContext
         $divAlbum->clickLink('Edit');
     }
 
-    /**
-     * @Given I want to edit :image_name
-     */
+    #[Given('I want to edit :image_name')]
     public function iWantToEdit(string $image_name): void
     {
         $image = $this->storage->get('image_' . $image_name);
         $this->visit($this->getContainer()->get('router')->generate('admin_photo', ['image_id' => $image->getId()]));
     }
 
-    /**
-     * @Then linked albums :element should be album :album_name
-     */
+    #[Then('linked albums :element should be album :album_name')]
     public function linkedAlbumsShouldBeAlbum(string $element, string $album_name): void
     {
         $select = $this->findField($element);
@@ -419,9 +368,7 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @Then tags :element should be :list_tags
-     */
+    #[Then('tags :element should be :list_tags')]
     public function tagsShouldBeAlbum(string $element, string $list_tags): void
     {
         $select = $this->findField($element);
@@ -446,9 +393,8 @@ class FeatureContext extends BaseContext
 
     /**
      * Example: Then the "date_creation" field date should contain "now"
-     *
-     * @Then the :field_name field date should contain :date
      */
+    #[Then('the :field_name field date should contain :date')]
     public function theFieldDateShouldContain(string $field_name, string $date): void
     {
         $field = $this->findField($field_name);
@@ -467,9 +413,8 @@ class FeatureContext extends BaseContext
 
     /**
      * Example: When I follow "delete album" for album "album 1"
-     *
-     * @When I follow :link_label for album :album_name
      */
+    #[When('I follow :link_label for album :album_name')]
     public function iFollowLinkForAlbum(string $link_label, string $album_name): void
     {
         $album = $this->storage->get('album_' . $album_name);
@@ -480,10 +425,8 @@ class FeatureContext extends BaseContext
         $divAlbum->clickLink($link_label);
     }
 
-    /**
-     * @Then I should see :nb_thumbnails calendar thumbnail
-     * @Then I should see :nb_thumbnails calendar thumbnails
-     */
+    #[Then('I should see :nb_thumbnails calendar thumbnail')]
+    #[Then('I should see :nb_thumbnails calendar thumbnails')]
     public function iShouldSeeCalendarThumbnail(int $nb_thumbnails): void
     {
         $divThumbnails = $this->getPage()->findAll('css', '.thumbnail');
@@ -492,10 +435,8 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @Then the calendar thumbnail :datePart should contains :nb_images image
-     * @Then the calendar thumbnail :datePart should contains :nb_images images
-     */
+    #[Then('the calendar thumbnail :datePart should contains :nb_images image')]
+    #[Then('the calendar thumbnail :datePart should contains :nb_images images')]
     public function calendarThumbnailShouldContainsNImages(string $datePart, string $nb_images): void
     {
         $divThumbnail = $this->getPage()->find('css', sprintf('[data-testid="%s"] .number-of-images', $datePart));
@@ -508,10 +449,8 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @Then there's :nb_images image for day :day
-     * @Then there's :nb_images images for day :day
-     */
+    #[Then('there\'s :nb_images image for day :day')]
+    #[Then('there\'s :nb_images images for day :day')]
     public function theresImageForDay(int $nb_images, int $day): void
     {
         $td = $this->getPage()->find('css', sprintf('[data-testid="day-%d"] .number-of-images', $day));
@@ -524,9 +463,7 @@ class FeatureContext extends BaseContext
         }
     }
 
-    /**
-     * @When I click calendar thumbnail :day
-     */
+    #[When('I click calendar thumbnail :day')]
     public function iClickCalendarThumbnail(string $day): void
     {
         $a_in_td = $this->getPage()->find('css', sprintf('[data-testid="day-%d"] a', $day));
@@ -537,9 +474,7 @@ class FeatureContext extends BaseContext
         $a_in_td->click();
     }
 
-    /**
-     * @Then I restart my browser
-     */
+    #[Then('I restart my browser')]
     public function iRestartMyBrowser(): void
     {
         $session = $this->getSession();

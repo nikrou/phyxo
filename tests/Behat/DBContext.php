@@ -11,6 +11,10 @@
 
 namespace App\Tests\Behat;
 
+use Behat\Step\Given;
+use Behat\Step\When;
+use Behat\Hook\BeforeScenario;
+use Behat\Hook\AfterScenario;
 use DateTime;
 use Exception;
 use App\DataMapper\AlbumMapper;
@@ -63,10 +67,8 @@ class DBContext implements Context
         return $this->driverContainer;
     }
 
-    /**
-     * @Given a user:
-     * @Given some users:
-     */
+    #[Given('a user:')]
+    #[Given('some users:')]
     public function givenUsers(TableNode $table): void
     {
         foreach ($table->getHash() as $userRow) {
@@ -91,10 +93,8 @@ class DBContext implements Context
         }
     }
 
-    /**
-     * @Given a group:
-     * @Given some groups:
-     */
+    #[Given('a group:')]
+    #[Given('some groups:')]
     public function someGroups(TableNode $table): void
     {
         foreach ($table->getHash() as $groupRow) {
@@ -115,10 +115,8 @@ class DBContext implements Context
         }
     }
 
-    /**
-     * @Given an album:
-     * @Given some albums:
-     */
+    #[Given('an album:')]
+    #[Given('some albums:')]
     public function givenAlbums(TableNode $table): void
     {
         foreach ($table->getHash() as $albumRow) {
@@ -144,10 +142,9 @@ class DBContext implements Context
      * | features/media/img_3.jpg | photo 3 | album 2 | author3 | 2019-06-11 14:00:00 |               |
      * | features/media/img_4.jpg | photo 4 | album 3 | author1 | 2020-04-01 14:00:00 | [tag 3,tag 2] |
      * | features/media/img_5.jpg | photo 5 | album 2 | author2 | 2020-04-03 14:00:00 | tag 2         |
-     *
-     * @Given an image:
-     * @Given some images:
      */
+    #[Given('an image:')]
+    #[Given('some images:')]
     public function givenImages(TableNode $table): void
     {
         foreach ($table->getHash() as $image) {
@@ -170,9 +167,7 @@ class DBContext implements Context
         }
     }
 
-    /**
-     * @Given group :group_name can access album :album_name
-     */
+    #[Given('group :group_name can access album :album_name')]
     public function groupCanAccessAlbum(string $group_name, string $album_name): void
     {
         $group = $this->groupRepository->findOneByName($group_name);
@@ -184,9 +179,7 @@ class DBContext implements Context
         $this->albumMapper->getRepository()->addOrUpdateAlbum($album);
     }
 
-    /**
-     * @Given user ":username" can access album ":album_name"
-     */
+    #[Given('user ":username" can access album ":album_name"')]
     public function userCanAccessAlbum(string $username, string $album_name): void
     {
         $user = $this->userRepository->findOneByUsername($username);
@@ -198,9 +191,7 @@ class DBContext implements Context
         $this->albumMapper->getRepository()->addOrUpdateAlbum($album);
     }
 
-    /**
-     * @Given user :username cannot access album ":album_name"
-     */
+    #[Given('user :username cannot access album ":album_name"')]
     public function userCannotAccessAlbum(string $username, string $album_name): void
     {
         $user = $this->userRepository->findOneByUsername($username);
@@ -213,19 +204,15 @@ class DBContext implements Context
         $this->albumMapper->getRepository()->addOrUpdateAlbum($album);
     }
 
-    /**
-     * @When config for :param equals to :value
-     * @When config for :param of type :type equals to :value
-     */
+    #[When('config for :param equals to :value')]
+    #[When('config for :param of type :type equals to :value')]
     public function configForParamEqualsTo(string $param, string $value, string $type = 'string'): void
     {
         $conf = $this->conf;
         $conf->addOrUpdateParam($param, $conf->dbToConf($value, $type), $type);
     }
 
-    /**
-     * @Given I add tag :tag_name on photo :photo_name by user :user not validated
-     */
+    #[Given('I add tag :tag_name on photo :photo_name by user :user not validated')]
     public function addTagOnPhoto(string $tag_name, string $photo_name, string $username): void
     {
         if (($image = $this->storage->get('image_' . $photo_name)) === null) {
@@ -239,9 +226,7 @@ class DBContext implements Context
         $this->addTagsToImage([$tag_name], $image->getId(), $user->getId(), $validated = false);
     }
 
-    /**
-     * @Given I remove tag :tag_name on photo :photo_name by user :user not validated
-     */
+    #[Given('I remove tag :tag_name on photo :photo_name by user :user not validated')]
     public function removeTagOnPhotoNotValidated(string $tag_name, string $photo_name, string $username): void
     {
         if (($image = $this->storage->get('image_' . $photo_name)) === null) {
@@ -255,9 +240,7 @@ class DBContext implements Context
         $this->removeTagsFromImage([$tag_name], $image->getId(), $user->getId(), $validated = false);
     }
 
-    /**
-     * @Given a comment :comment on :photo_name by :username
-     */
+    #[Given('a comment :comment on :photo_name by :username')]
     public function givenCommentOnPhotoByUser(string $comment_content, string $photo_name, string $username): void
     {
         $comment = new Comment();
@@ -273,18 +256,14 @@ class DBContext implements Context
         $this->storage->set('comment_' . md5($comment_content), $comment_id);
     }
 
-    /**
-     * @BeforeScenario
-     */
+    #[BeforeScenario]
     public function prepareDB(BeforeScenarioScope $scope): void
     {
         $this->executeSqlFile($this->sqlInitFile, $this->prefix, 'phyxo_');
         $this->cleanUploadAndMediaDirectories();
     }
 
-    /**
-     * @AfterScenario
-     */
+    #[AfterScenario]
     public function cleanDB(AfterScenarioScope $scope): void
     {
         $this->executeSqlFile($this->sqlCleanupFile, $this->prefix, 'phyxo_');

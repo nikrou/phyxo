@@ -715,7 +715,7 @@ class AdminConfigurationController extends AbstractController
 
                 // step 3 - save data
                 if ($errors === []) {
-                    $quality_changed = $image_std_params->getQuality() != intval($request->request->get('resize_quality'));
+                    $quality_changed = $image_std_params->getQuality() !== intval($request->request->get('resize_quality'));
                     $image_std_params->setQuality(intval($request->request->get('resize_quality')));
 
                     $enabled = $image_std_params->getDefinedTypeMap();

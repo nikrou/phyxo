@@ -28,7 +28,7 @@ return RectorConfig::configure()
 
     ->withImportNames()
 
-    ->withAttributesSets(symfony: true, doctrine: true)
+    ->withAttributesSets(symfony: true, doctrine: true, behat: true, phpunit: true)
 
     ->withSets([
         DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,

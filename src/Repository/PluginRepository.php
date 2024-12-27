@@ -33,7 +33,7 @@ class PluginRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('p');
 
-        if ($state !== null) {
+        if ($state instanceof ExtensionStateType) {
             $qb->where('p.state = :state');
             $qb->setParameter('state', $state);
         }

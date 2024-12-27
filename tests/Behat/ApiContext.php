@@ -11,6 +11,9 @@
 
 namespace App\Tests\Behat;
 
+use Behat\Step\Given;
+use Behat\Step\When;
+use Behat\Step\Then;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
@@ -45,9 +48,7 @@ class ApiContext implements Context
         return $this->driverContainer;
     }
 
-    /**
-     * @Given I am authenticated for api as :username with password :password
-     */
+    #[Given('I am authenticated for api as :username with password :password')]
     public function iAmAuthenticatedForApiAs(string $username, string $password)
     {
         $table = new TableNode([['username', 'password'], [$username, $password]]);
@@ -62,9 +63,9 @@ class ApiContext implements Context
      * @param string    $method         relative url
      * @param TableNode $values         table of post values
      *
-     * @When /^I send a "(GET|POST)" request to "([^"]*)" with values:$/
-     * @When /^I send a "(GET|POST)" request to "([^"]*)"$/
+     *      * @When /^I send a "(GET|POST)" request to "([^"]*)"$/
      */
+    #[When('/^I send a "(GET|POST)" request to "([^"]*)" with values:$/')]
     public function iSendARequestWithValues(string $http_method, string $method, ?TableNode $values = null)
     {
         $requestOptions = [];
@@ -93,9 +94,8 @@ class ApiContext implements Context
      * Checks that response has specific status code.
      *
      * @param int $code status code
-     *
-     * @Then the response status code should be :code
      */
+    #[Then('the response status code should be :code')]
     public function theResponseCodeShouldBe(int $code)
     {
         if ($code !== $this->response->getStatusCode()) {
@@ -103,9 +103,7 @@ class ApiContext implements Context
         }
     }
 
-    /**
-     * @Then the response body contains JSON:
-     */
+    #[Then('the response body contains JSON:')]
     public function theResponseBodyContainsJson(PyStringNode $json)
     {
         if (trim($json) !== trim($this->getJsonAsString())) {
@@ -113,17 +111,13 @@ class ApiContext implements Context
         }
     }
 
-    /**
-     * @Given the response is JSON
-     */
+    #[Given('the response is JSON')]
     public function theResponseIsJson()
     {
         $this->getJson();
     }
 
-    /**
-     * @Given the response has property :property
-     */
+    #[Given('the response has property :property')]
     public function theResponseHasProperty(string $property)
     {
         $data = $this->getJson();
@@ -131,10 +125,8 @@ class ApiContext implements Context
         return $this->getProperty($data, $property);
     }
 
-    /**
-     * @Given the response has property :property equals to :value
-     * @Given the response has property :property equals to :value of type :type
-     */
+    #[Given('the response has property :property equals to :value')]
+    #[Given('the response has property :property equals to :value of type :type')]
     public function theResponseHasPropertyEqualsTo(string $property, string $value, string $type = '')
     {
         $data = $this->getJson();
@@ -194,9 +186,7 @@ class ApiContext implements Context
         return json_encode($this->getJson());
     }
 
-    /**
-     * @Then print JSON
-     */
+    #[Then('print JSON')]
     public function printJson()
     {
         print_r($this->getJson());
