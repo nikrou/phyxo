@@ -19,27 +19,27 @@ use App\Entity\Image;
 use App\Entity\User;
 use App\Repository\ImageRepository;
 use App\Security\UserProvider;
+use App\Tests\Factory\UserFactory;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Filesystem\Filesystem;
+use Zenstruck\Foundry\Test\Factories;
 
 class MediaControllerTest extends WebTestCase
 {
     use ProphecyTrait;
-
+    use Factories;
     private $fixtures_dir = __DIR__ . '/../fixtures/media';
-
     private $sample_image = 'sample.jpg';
-
     private $image_paths = '';
-
     private $derivative_path = '';
-
     private $imageRepository;
 
     protected function setUp(): void
     {
+        UserFactory::findOrCreate(['username' => 'guest']);
+
         $kernel = self::bootKernel();
         $uploadDir = $kernel->getContainer()->getParameter('upload_dir');
         $mediaCacheDir = $kernel->getContainer()->getParameter('media_cache_dir');

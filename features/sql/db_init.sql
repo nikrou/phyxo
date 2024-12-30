@@ -22,11 +22,9 @@ DELETE FROM phyxo_images;
 DELETE FROM phyxo_user_feed;
 DELETE FROM phyxo_sessions;
 DELETE FROM phyxo_user_mail_notification;
-DELETE FROM phyxo_user_infos where status != 'guest';
-DELETE FROM phyxo_users where username != 'guest';
--- special keys for config
-DELETE FROM phyxo_config WHERE param in ('tags_permission_add', 'tags_permission_delete', 'publish_tags_immediately', 'delete_tags_immediately', 'show_pending_added_tags',
-'show_pending_deleted_tags', 'tags_existing_tags_only', 'guest_access');
+DELETE FROM phyxo_user_infos;
+DELETE FROM phyxo_users;
+DELETE FROM phyxo_config;
 
 -- languages
 DELETE FROM phyxo_languages;

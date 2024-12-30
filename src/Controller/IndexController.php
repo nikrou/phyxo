@@ -216,7 +216,8 @@ class IndexController extends AbstractController
 
         $tpl_params['TITLE'] = $translator->trans('Random photos');
         $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->getList(explode(',', $list), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $image) {
+        $listIds = array_map(fn($s) => intval($s), explode(',', $list));
+        foreach ($imageMapper->getRepository()->getList($listIds, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $image) {
             $tpl_params['items'][] = $image->getId();
         }
 

@@ -1,0 +1,20 @@
+api_platform:
+  title: Phyxo API
+  version: 1.0.0
+  use_symfony_listeners: true
+  show_webby: false
+  enable_re_doc: false
+
+  formats:
+    json: ['application/json']
+    jsonld: ['application/ld+json']
+
+  docs_formats:
+    jsonld: ['application/ld+json']
+    jsonopenapi: ['application/vnd.openapi+json']
+    html: ['text/html']
+
+  defaults:
+    stateless: false
+    cache_headers:
+      vary: ['Content-Type', 'Authorization', 'Origin']

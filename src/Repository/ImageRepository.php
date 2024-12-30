@@ -298,7 +298,7 @@ class ImageRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param array<int, string> $ids
+     * @param array<int> $ids
      * @param int[] $forbidden_albums
      *
      * @return Image[]

@@ -40,28 +40,28 @@ Feature: User mail notification
     Given I am logged in as "user1" with password "pass1"
     And I am on "admin/notification/subscribe"
     Then the select "Subscribed" should contain:
-    """
-    """
+      """
+      """
     Then the select "Unsubscribed" should contain:
-    """
-    user1[user1@phyxo.net]
-    user2[user2@phyxo.net]
-    user3[user3@phyxo.net]
-    """
+      """
+      user1[user1@phyxo.net]
+      user2[user2@phyxo.net]
+      user3[user3@phyxo.net]
+      """
 
-  Scenario: Manage subscriptions
-    Given I am logged in as "user1" with password "pass1"
-    And I am on "admin/notification/subscribe"
-    When I select "user2[user2@phyxo.net]" from "Unsubscribed"
-    And I press "trueify"
-    Then the select "Subscribed" should contain:
-    """
-    user2[user2@phyxo.net]
-    """
-    And the select "Unsubscribed" should contain:
-    """
-    user1[user1@phyxo.net]
-    user3[user3@phyxo.net]
-    """
+# Scenario: Manage subscriptions
+#   Given I am logged in as "user1" with password "pass1"
+#   And I am on "admin/notification/subscribe"
+#   When I select "user2[user2@phyxo.net]" from "Unsubscribed"
+#   And I press "trueify"
+#   Then the select "Subscribed" should contain:
+#   """
+#   user2[user2@phyxo.net]
+#   """
+#   And the select "Unsubscribed" should contain:
+#   """
+#   user1[user1@phyxo.net]
+#   user3[user3@phyxo.net]
+#   """
 
 

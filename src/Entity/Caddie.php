@@ -11,11 +11,51 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation;
+use ApiPlatform\OpenApi\Model\RequestBody;
+use ApiPlatform\OpenApi\Model\Response;
+use App\Model\AddImagesToCaddieInput;
 use App\Repository\CaddieRepository;
+use App\State\AddImagesToCaddieProcessor;
+use ArrayObject;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'caddie')]
 #[ORM\Entity(repositoryClass: CaddieRepository::class)]
+#[ApiResource(operations: [
+    new Post(
+        uriTemplate: '/caddy/add',
+        name: "add_images_to_caddy",
+        description: 'Add images to caddy',
+        input: AddImagesToCaddieInput::class,
+        processor: AddImagesToCaddieProcessor::class,
+        openapi: new Operation(
+            responses: [
+                '200' => new Response(description: 'Ok'),
+            ],
+            summary: 'Add a book to the library.',
+            description: 'My awesome operation',
+            requestBody: new RequestBody(
+                content: new ArrayObject(
+                    [
+                        'application/ld+json' => [
+                            'schema' => [
+                                'properties' => [
+                                    'imageIds' => ['type' => 'array'],
+                                ],
+                            ],
+                            'example' => [
+                                'imageIds' => [12, 34, 5],
+                            ],
+                        ],
+                    ]
+                )
+            )
+        )
+    )
+])]
 class Caddie
 {
     #[ORM\Id]

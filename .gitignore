@@ -45,3 +45,4 @@
 /public/admin/
 /galleries
 /.php-cs-fixer.cache
+/public/bundles/apiplatform

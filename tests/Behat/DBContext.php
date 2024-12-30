@@ -45,6 +45,7 @@ class DBContext implements Context
 {
     public function __construct(
         private readonly string $sqlInitFile,
+        private readonly string $sqlConfigFile,
         private readonly string $sqlCleanupFile,
         private readonly Storage $storage,
         private readonly ContainerInterface $driverContainer,
@@ -260,6 +261,8 @@ class DBContext implements Context
     public function prepareDB(BeforeScenarioScope $scope): void
     {
         $this->executeSqlFile($this->sqlInitFile, $this->prefix, 'phyxo_');
+        $this->executeSqlFile($this->sqlConfigFile, $this->prefix, 'phyxo_');
+        $this->createGuest();
         $this->cleanUploadAndMediaDirectories();
     }
 
@@ -267,7 +270,17 @@ class DBContext implements Context
     public function cleanDB(AfterScenarioScope $scope): void
     {
         $this->executeSqlFile($this->sqlCleanupFile, $this->prefix, 'phyxo_');
+        $this->executeSqlFile($this->sqlConfigFile, $this->prefix, 'phyxo_');
+        $this->createGuest();
         $this->cleanUploadAndMediaDirectories();
+    }
+
+    protected function createGuest(): void
+    {
+        $user = new User();
+        $user->setUsername('guest');
+        $user->addRole(User::getRoleFromStatus(UserStatusType::GUEST));
+        $this->userManager->register($user);
     }
 
     protected function cleanUploadAndMediaDirectories(): void

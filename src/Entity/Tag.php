@@ -18,10 +18,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- *
- * @phpstan-type ImageTagInfos array{status?: ?int, validated?: ?bool, created_by?: ?User}
- */
 #[ORM\Table(name: 'tags')]
 #[ORM\Entity(repositoryClass: TagRepository::class)]
 class Tag
@@ -47,10 +43,6 @@ class Tag
     private Collection $imageTags;
     private int $counter = 0;
     private int $level = 0;
-
-    /**
-     * @var ImageTagInfos
-     */
     private array $related_image_tag_infos = [];
 
     public function __construct()
@@ -129,9 +121,6 @@ class Tag
         return $this;
     }
 
-    /**
-     * @return ImageTagInfos
-     */
     public function getRelatedImageTagInfos()
     {
         return $this->related_image_tag_infos;
@@ -185,7 +174,7 @@ class Tag
     }
 
     /**
-     * @return array{id: int, name: ?string, url_name: ?string, last_modified: ?DateTimeInterface, counter: ?int, level: ?int, related_image_tag_infos: ImageTagInfos}
+     * @return array{id: int, name: ?string, url_name: ?string, last_modified: ?DateTimeInterface, counter: ?int, level: ?int, related_image_tag_infos: mixed}
      */
     public function toArray(): array
     {

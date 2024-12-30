@@ -1,3 +1,14 @@
+$.flashMessage = function (source, data) {
+  $(source).find('.message').remove()
+  $(source).hide().append(data).fadeIn(500) //.fadeOut(3000);
+}
+
+$.fn.flashMessage = function (data) {
+  this.each(function () {
+    new $.flashMessage(this, `<div class="message">${data}</div>`)
+  })
+}
+
 $(function () {
   function setPrivacyLevel(id, level, label) {
     const url = phyxo_root_url + 'ws?method=pwg.images.setPrivacyLevel'
@@ -16,23 +27,6 @@ $(function () {
         $('#dropdownPermissions').html(label)
         $('.permission-li').removeClass('active')
         $('#permission-' + level).addClass('active')
-      })
-      .catch((err) => console.log(err))
-  }
-
-  function addToCaddie(aElement, image_id) {
-    const url = phyxo_root_url + `ws?method=pwg.caddie.add&image_id=${image_id}`
-
-    const fetch_params = {
-      method: 'GET',
-      mode: 'same-origin',
-      credentials: 'same-origin',
-    }
-
-    fetch(url, fetch_params)
-      .then((response) => response.json())
-      .then((json) => {
-        aElement.disabled = false
       })
       .catch((err) => console.log(err))
   }
@@ -77,9 +71,41 @@ $(function () {
     )
   })
 
-  $('[data-action="addToCaddie"]').click(function (e) {
+  $('[data-action="addToCaddie"]').click(async function (e) {
     e.preventDefault()
-    addToCaddie($(this), $(this).data('id'))
+
+    const image_id = $(this).data('id')
+    const url = `${phyxo_root_url}api/caddy/add`
+
+    const fetch_params = {
+      method: 'POST',
+      mode: 'same-origin',
+      credentials: 'same-origin',
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ imageIds: [image_id] }),
+    }
+
+    try {
+      const response = await fetch(url, fetch_params)
+
+      if (response.ok) {
+        const json = await response.json()
+        $('.alert').addClass('alert-info').flashMessage(json)
+      } else {
+        if (response.status === 404) {
+          throw new Error('404, Not found')
+        }
+
+        if (response.status === 500) {
+          const json = await response.json()
+          throw new Error('500, internal server error : ' + json.description)
+        }
+
+        throw new Error(response.status)
+      }
+    } catch (error) {
+      $('.alert').addClass('alert-error').flashMessage(error)
+    }
   })
 
   $('[data-action="addOrRemoveFavorite"]').on('click', function (e) {
@@ -99,7 +125,6 @@ $(function () {
         tag_a.href = response.href
         tag_a.title = response.title
         const icon = $(tag_a).find('i.fa')
-        console.log(icon)
         if (icon.hasClass('fa-heart')) {
           icon.removeClass('fa-heart').addClass('fa-heart-o')
         } else {

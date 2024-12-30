@@ -9,6 +9,7 @@ services:
 
     bind:
       $sqlInitFile: '%kernel.project_dir%/features/sql/db_init.sql'
+      $sqlConfigFile: '%kernel.project_dir%/install/config.sql'
       $sqlCleanupFile: '%kernel.project_dir%/features/sql/db_cleanup.sql'
       $phyxoVersion: '%core_version%'
       $apiBaseUrl: '%api_base_url%'

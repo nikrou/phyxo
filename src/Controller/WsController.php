@@ -122,14 +122,6 @@ class WsController extends AbstractController
         );
 
         $this->service->addMethod(
-            'pwg.caddie.add',
-            '\Phyxo\Functions\Ws\Caddie::add',
-            ['image_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID]],
-            'Adds elements to the caddie. Returns the number of elements added.',
-            ['admin_only' => true]
-        );
-
-        $this->service->addMethod(
             'pwg.categories.getImages',
             '\Phyxo\Functions\Ws\Category::getImages',
             array_merge([
