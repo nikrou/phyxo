@@ -18,7 +18,7 @@ use Imagine\Image\ImagineInterface;
 
 class ImageLibraryGuesser
 {
-    private $library;
+    private ImagineInterface $library;
 
     public function __construct(string $graphicsLibrary)
     {
@@ -33,7 +33,7 @@ class ImageLibraryGuesser
         }
     }
 
-    public function guessLibrary()
+    public function guessLibrary(): ImagineInterface
     {
         if (class_exists('Gmagick')) {
             return new GmagickImagine();

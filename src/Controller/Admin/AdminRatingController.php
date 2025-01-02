@@ -124,7 +124,7 @@ class AdminRatingController extends AbstractController
 
             $thumbnail_src = $this->generateUrl(
                 'admin_media',
-                ['path' => $pathBasename, 'derivative' => DerivativeParams::derivative_to_url(ImageSizeType::THUMB->value), 'image_extension' => $extension]
+                ['path' => $pathBasename, 'derivative' => DerivativeParams::derivativeToUrl(ImageSizeType::THUMB->value), 'image_extension' => $extension]
             );
             $image_url = $this->generateUrl('admin_photo', ['image_id' => $image['id']]);
 
@@ -340,7 +340,7 @@ class AdminRatingController extends AbstractController
         $tpl_params['available_rates'] = $conf['rate_items'];
         $tpl_params['ratings'] = $by_user_ratings;
         $tpl_params['image_urls'] = $image_urls;
-        $tpl_params['TN_WIDTH'] = $image_std_params->getByType(ImageSizeType::SQUARE)->sizing->ideal_size[0];
+        $tpl_params['TN_WIDTH'] = $image_std_params->getByType(ImageSizeType::SQUARE)->getSizing()->getIdealSize()[0];
 
         $tpl_params['WS_RATES_DELETE'] = $this->generateUrl('ws') . '?method=pwg.rates.delete';
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_rating');
@@ -351,6 +351,10 @@ class AdminRatingController extends AbstractController
         return $this->render('rating_users.html.twig', $tpl_params);
     }
 
+    /**
+     * @param array{avg:float} $a
+     * @param array{avg:float} $b
+     */
     protected function avg_compare(array $a, array $b): int
     {
         $d = $a['avg'] - $b['avg'];
@@ -358,6 +362,10 @@ class AdminRatingController extends AbstractController
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
 
+    /**
+     * @param array{count:int} $a
+     * @param array{count:int} $b
+     */
     protected function count_compare(array $a, array $b): int
     {
         $d = $a['count'] - $b['count'];
@@ -365,6 +373,10 @@ class AdminRatingController extends AbstractController
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
 
+    /**
+     * @param array{cv:int} $a
+     * @param array{cv:int} $b
+     */
     protected function cv_compare(array $a, array $b): int
     {
         $d = $b['cv'] - $a['cv']; //desc
@@ -372,6 +384,10 @@ class AdminRatingController extends AbstractController
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
 
+    /**
+     * @param array{cd:int} $a
+     * @param array{cd:int} $b
+     */
     protected function consensus_dev_compare(array $a, array $b): int
     {
         $d = $b['cd'] - $a['cd']; //desc
@@ -379,8 +395,12 @@ class AdminRatingController extends AbstractController
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
 
+    /**
+     * @param array{last_date:string} $a
+     * @param array{last_date:string} $b
+     */
     protected function last_rate_compare(array $a, array $b): int
     {
-        return -strcmp((string) $a['last_date'], (string) $b['last_date']);
+        return -strcmp($a['last_date'], $b['last_date']);
     }
 }

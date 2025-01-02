@@ -26,14 +26,14 @@ class CheckInstallSubscriber implements EventSubscriberInterface
         $this->localEnvFile = sprintf('%s/.env.local', $this->rootProjectDir);
     }
 
-    public function onKernelException(ExceptionEvent $event)
+    public function onKernelException(ExceptionEvent $event): void
     {
         if (!$event->isMainRequest()) {
-            return false;
+            return;
         }
 
         if (is_readable($this->localEnvFile)) {
-            return false;
+            return;
         }
 
         if ($event->getRequest()->get('_route') && ($event->getRequest()->get('_route') !== 'install')) {
@@ -41,7 +41,6 @@ class CheckInstallSubscriber implements EventSubscriberInterface
             $response = new RedirectResponse($install_url);
             $event->setResponse($response);
         }
-        return null;
     }
 
     public static function getSubscribedEvents(): array

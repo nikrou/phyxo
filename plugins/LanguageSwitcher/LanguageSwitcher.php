@@ -26,7 +26,7 @@ class LanguageSwitcher extends AbstractPlugin
         ];
     }
 
-    public function addBlock(BlockEvent $event)
+    public function addBlock(BlockEvent $event): void
     {
         $menu = $event->getMenu();
 
@@ -35,11 +35,13 @@ class LanguageSwitcher extends AbstractPlugin
 
     public function languageData(DisplayBlock $block): void
     {
-        $block->data['locales'] = [
-            ['code' => 'fr_FR', 'name' => Locales::getName('fr', 'fr')],
-            ['code' => 'en_GB', 'name' => Locales::getName('en', 'en')]
-        ];
-        $block->template = 'menubar_languages';
+        $block->setData(
+            ['locales' => [
+                ['code' => 'fr_FR', 'name' => Locales::getName('fr', 'fr')],
+                ['code' => 'en_GB', 'name' => Locales::getName('en', 'en')]
+            ]]
+        );
+        $block->setTemplate('menubar_languages');
 
         $this->getThemeLoader()->addPath(__DIR__ . '/templates');
     }

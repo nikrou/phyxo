@@ -12,7 +12,6 @@
 namespace App\DataMapper;
 
 use DateTime;
-use Phyxo\Functions\Utils;
 use DateInterval;
 use App\Entity\Comment;
 use App\Entity\User;
@@ -51,7 +50,10 @@ class CommentMapper
         return $this->appUserService->getUser();
     }
 
-    public function createComment(string $content, int $image_id, string $author, int $user_id, array $params = [])
+    /**
+     * @param array<string, mixed> $params
+     */
+    public function createComment(string $content, int $image_id, string $author, int $user_id, array $params = []): int
     {
         $image = $this->imageRepository->find($image_id);
         $user = $this->userMapper->getRepository()->find($user_id);
@@ -70,12 +72,15 @@ class CommentMapper
         $comment->setEmail($params['email'] ?? '');
         $comment->setImage($image);
 
-        $this->getRepository()->addOrUpdateComment($comment);
+        return $this->getRepository()->addOrUpdateComment($comment);
     }
 
     /**
      * Tries to insert a user comment and returns action to perform.
      * return string validate, moderate, reject
+     *
+     * @param array<string, mixed> $comm
+     * @param array<string> $infos
      */
     public function insertUserComment(array &$comm, array &$infos): string
     {
@@ -120,7 +125,7 @@ class CommentMapper
                 if (!preg_match('/^https?/i', $comm['website_url'])) {
                     $comm['website_url'] = 'http://' . $comm['website_url'];
                 }
-                if (!Utils::url_check_format($comm['website_url'])) {
+                if (!filter_var($comm['website_url'], FILTER_VALIDATE_URL)) {
                     $infos[] = $this->translator->trans('Your website URL is invalid');
                     $comment_action = 'reject';
                 }

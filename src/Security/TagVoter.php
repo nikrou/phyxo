@@ -23,6 +23,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Voter to allow manage tags on image
+ *
+ * @extends Voter<string, string>
  */
 class TagVoter extends Voter
 {

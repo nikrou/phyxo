@@ -39,7 +39,7 @@ class HistorySubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onVisit(HistoryEvent $event)
+    public function onVisit(HistoryEvent $event): void
     {
         if ($this->userMapper->isAdmin() && !$this->conf['history_admin']) {
             return;

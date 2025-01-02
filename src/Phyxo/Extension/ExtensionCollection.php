@@ -15,9 +15,15 @@ use Traversable;
 
 class ExtensionCollection
 {
-    private $extensions_by_class;
+    /** @var array<string, mixed> */
+    private array $extensions_by_class;
+
+    /** @var array<string, string> */
     private array $extensions_by_name = [];
 
+    /**
+     * @param array<mixed> $extensions
+     */
     public function __construct(iterable $extensions)
     {
         $extensions = $extensions instanceof Traversable ? iterator_to_array($extensions) : $extensions;
@@ -30,11 +36,17 @@ class ExtensionCollection
         }
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getExtensionsByClass()
     {
         return $this->extensions_by_class;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getExtensionsByName()
     {
         return $this->extensions_by_name;

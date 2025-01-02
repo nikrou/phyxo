@@ -13,7 +13,6 @@ namespace App\Controller\Admin;
 
 use Phyxo\Functions\Utils;
 use Exception;
-use Phyxo\Functions\Upload;
 use Phyxo\Image\SizingParams;
 use Phyxo\Image\DerivativeParams;
 use App\DataMapper\UserMapper;
@@ -174,6 +173,9 @@ class AdminConfigurationController extends AbstractController
         return $this->redirectToRoute('admin_configuration', ['section' => 'sizes']);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function mainConfiguration(Conf $conf): array
     {
         $tpl_params = [];
@@ -203,6 +205,9 @@ class AdminConfigurationController extends AbstractController
         return $tpl_params;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function commentsConfiguration(Conf $conf): array
     {
         $tpl_params = [];
@@ -244,6 +249,9 @@ class AdminConfigurationController extends AbstractController
         return $this->render('configuration_display.html.twig', $tpl_params);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function sizesConfiguration(Conf $conf, ImageStandardParams $image_std_params): array
     {
         $tpl_params = [];
@@ -276,9 +284,9 @@ class AdminConfigurationController extends AbstractController
             }
 
             if ($params) {
-                [$tpl_var['w'], $tpl_var['h']] = $params->sizing->ideal_size;
-                if (($tpl_var['crop'] = round(100 * $params->sizing->max_crop)) > 0) {
-                    [$tpl_var['minw'], $tpl_var['minh']] = $params->sizing->min_size;
+                [$tpl_var['w'], $tpl_var['h']] = $params->getSizing()->getIdealSize();
+                if (($tpl_var['crop'] = round(100 * $params->getSizing()->getMaxCrop())) > 0) {
+                    [$tpl_var['minw'], $tpl_var['minh']] = $params->getSizing()->getMinSize();
                 } else {
                     $tpl_var['minw'] = $tpl_var['minh'] = "";
                 }
@@ -297,6 +305,9 @@ class AdminConfigurationController extends AbstractController
         return $tpl_params;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function watermarkConfiguration(string $themesDir, string $localDir, ImageStandardParams $image_std_params): array
     {
         $tpl_params = [];
@@ -323,34 +334,34 @@ class AdminConfigurationController extends AbstractController
         $wm = $image_std_params->getWatermark();
 
         $position = 'custom';
-        if ($wm->xpos == 0 && $wm->ypos == 0) {
+        if ($wm->getXpos() == 0 && $wm->getYpos() == 0) {
             $position = 'topleft';
         }
-        if ($wm->xpos == 100 && $wm->ypos == 0) {
+        if ($wm->getXpos() == 100 && $wm->getYpos() == 0) {
             $position = 'topright';
         }
-        if ($wm->xpos == 50 && $wm->ypos == 50) {
+        if ($wm->getXpos() == 50 && $wm->getYpos() == 50) {
             $position = 'middle';
         }
-        if ($wm->xpos == 0 && $wm->ypos == 100) {
+        if ($wm->getXpos() == 0 && $wm->getYpos() == 100) {
             $position = 'bottomleft';
         }
-        if ($wm->xpos == 100 && $wm->ypos == 100) {
+        if ($wm->getXpos() == 100 && $wm->getYpos() == 100) {
             $position = 'bottomright';
         }
 
-        if ($wm->xrepeat != 0) {
+        if ($wm->getXrepeat() !== 0) {
             $position = 'custom';
         }
 
         $tpl_params['watermark'] = [
-            'file' => $wm->file,
-            'minw' => $wm->min_size[0],
-            'minh' => $wm->min_size[1],
-            'xpos' => $wm->xpos,
-            'ypos' => $wm->ypos,
-            'xrepeat' => $wm->xrepeat,
-            'opacity' => $wm->opacity,
+            'file' => $wm->getFile(),
+            'minw' => $wm->getMinSize()[0],
+            'minh' => $wm->getMinSize()[1],
+            'xpos' => $wm->getXpos(),
+            'ypos' => $wm->getYpos(),
+            'xrepeat' => $wm->getXrepeat(),
+            'opacity' => $wm->getOpacity(),
             'position' => $position,
         ];
 
@@ -501,7 +512,7 @@ class AdminConfigurationController extends AbstractController
                             $fs = new Filesystem();
                             $fs->mkdir($upload_dir);
 
-                            $watermarke['file'] = Utils::get_filename_wo_extension($watermarkImage->getClientOriginalName()) . '.png';
+                            $watermarke['file'] = Utils::getFilenameWithoutExtension($watermarkImage->getClientOriginalName()) . '.png';
                             $watermarkImage->move($upload_dir, $watermarke['file']);
                         } catch (Exception) {
                             $this->addFlash('error', $this->translator->trans('Add write access to the "{directory}" directory', ['directory' => $upload_dir], 'admin'));
@@ -576,19 +587,19 @@ class AdminConfigurationController extends AbstractController
 
                 if (!$error) {
                     $watermark_params = new WatermarkParams();
-                    $watermark_params->file = $watermark['file'];
-                    $watermark_params->xpos = $watermark['xpos'];
-                    $watermark_params->ypos = $watermark['ypos'];
-                    $watermark_params->xrepeat = $watermark['xrepeat'];
-                    $watermark_params->opacity = $watermark['opacity'];
-                    $watermark_params->min_size = [$watermark['minw'], $watermark['minh']];
+                    $watermark_params->setFile($watermark['file'])
+                        ->setXpos($watermark['xpos'])
+                        ->setYpos($watermark['ypos'])
+                        ->setXrepeat($watermark['xrepeat'])
+                        ->setOpacity($watermark['opacity']);
+                    $watermark_params->setMinSize([$watermark['minw'], $watermark['minh']]);
 
                     $old_watermark = $image_std_params->getWatermark();
-                    $watermark_changed = $watermark_params->file != $old_watermark->file
-                            || $watermark_params->xpos != $old_watermark->xpos
-                            || $watermark_params->ypos != $old_watermark->ypos
-                            || $watermark_params->xrepeat != $old_watermark->xrepeat
-                            || $watermark_params->opacity != $old_watermark->opacity;
+                    $watermark_changed = $watermark_params->getFile() !== $old_watermark->getFile()
+                            || $watermark_params->getXpos() !== $old_watermark->getXpos()
+                            || $watermark_params->getYpos() !== $old_watermark->getYpos()
+                            || $watermark_params->getXrepeat() !== $old_watermark->getXrepeat()
+                            || $watermark_params->getOpacity() !== $old_watermark->getOpacity();
 
                     // save the new watermark configuration
                     $image_std_params->setWatermark($watermark_params);
@@ -606,8 +617,10 @@ class AdminConfigurationController extends AbstractController
                         }
                         if (!$changed && $params->use_watermark) {
                             // if thresholds change and before/after the threshold is lower than the corresponding derivative side -> some derivatives might switch the watermark
-                            $changed |= $watermark_params->min_size[0] != $old_watermark->min_size[0] && ($watermark_params->min_size[0] < $params->max_width() || $old_watermark->min_size[0] < $params->max_width());
-                            $changed |= $watermark_params->min_size[1] != $old_watermark->min_size[1] && ($watermark_params->min_size[1] < $params->max_height() || $old_watermark->min_size[1] < $params->max_height());
+                            $changed |= $watermark_params->getMinSize()[0] != $old_watermark->getMinSize()[0]
+                                    && ($watermark_params->getMinSize()[0] < $params->maxWidth() || $old_watermark->getMinSize()[0] < $params->maxWidth());
+                            $changed |= $watermark_params->getMinSize()[1] != $old_watermark->getMinSize()[1]
+                                    && ($watermark_params->getMinSize()[1] < $params->maxHeight() || $old_watermark->getMinSize()[1] < $params->maxHeight());
                         }
 
                         if ($changed) {
@@ -641,7 +654,7 @@ class AdminConfigurationController extends AbstractController
                 }
 
                 $errors = [];
-                foreach (Upload::save_upload_form_config($updates, $errors, $errors) as $update) {
+                foreach (self::saveUploadFormConfig($updates, $errors, $errors) as $update) {
                     $conf[$update['param']] = $update['value'];
                 }
 
@@ -736,13 +749,13 @@ class AdminConfigurationController extends AbstractController
                             if (isset($enabled[$imageType->value])) {
                                 $old_params = $enabled[$imageType->value];
                                 $same = true;
-                                if (!DerivativeParams::size_equals($old_params->sizing->ideal_size, $new_params->sizing->ideal_size)
-                                    || $old_params->sizing->max_crop != $new_params->sizing->max_crop) {
+                                if (!DerivativeParams::sizeEquals($old_params->getSizing()->getIdealSize(), $new_params->getSizing()->getIdealSize())
+                                    || $old_params->getSizing()->getMaxCrop() != $new_params->getSizing()->getMaxCrop()) {
                                     $same = false;
                                 }
 
-                                if ($same && $new_params->sizing->max_crop != 0
-                                        && !DerivativeParams::size_equals($old_params->sizing->min_size, $new_params->sizing->min_size)) {
+                                if ($same && $new_params->getSizing()->getMaxCrop() != 0
+                                        && !DerivativeParams::sizeEquals($old_params->getSizing()->getMinSize(), $new_params->getSizing()->getMinSize())) {
                                     $same = false;
                                 }
 
@@ -799,5 +812,103 @@ class AdminConfigurationController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_configuration', ['section' => $section]);
+    }
+
+    /**
+     * @TODO: use symfony form
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public static function getUploadFormConfig(): array
+    {
+        return [
+            'original_resize' => [
+                'default' => false,
+                'can_be_null' => false,
+            ],
+
+            'original_resize_maxwidth' => [
+                'default' => 2000,
+                'min' => 500,
+                'max' => 20000,
+                'pattern' => '/^\d+$/',
+                'can_be_null' => false,
+                'error_message' => 'The original maximum width must be a number between %d and %d',
+            ],
+
+            'original_resize_maxheight' => [
+                'default' => 2000,
+                'min' => 300,
+                'max' => 20000,
+                'pattern' => '/^\d+$/',
+                'can_be_null' => false,
+                'error_message' => 'The original maximum height must be a number between %d and %d',
+            ],
+
+            'original_resize_quality' => [
+                'default' => 95,
+                'min' => 50,
+                'max' => 98,
+                'pattern' => '/^\d+$/',
+                'can_be_null' => false,
+                'error_message' => 'The original image quality must be a number between %d and %d',
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<mixed> $errors
+     * @param array<string, mixed> $form_errors
+     *
+     * @return array<array<string, mixed>>
+     */
+    public static function saveUploadFormConfig(array $data, array &$errors = [], array &$form_errors = []): array
+    {
+        $upload_form_config = self::getUploadFormConfig();
+        $updates = [];
+
+        foreach ($data as $field => $value) {
+            if (!isset($upload_form_config[$field])) {
+                continue;
+            }
+            if (is_bool($upload_form_config[$field]['default'])) {
+                $value = isset($value);
+                $updates[] = [
+                    'param' => $field,
+                    'value' => true
+                ];
+            } elseif ($upload_form_config[$field]['can_be_null'] && empty($value)) {
+                $updates[] = [
+                    'param' => $field,
+                    'value' => null,
+                ];
+            } else {
+                $min = $upload_form_config[$field]['min'];
+                $max = $upload_form_config[$field]['max'];
+                $pattern = $upload_form_config[$field]['pattern'];
+
+                if (preg_match($pattern, (string) $value) && $value >= $min && $value <= $max) {
+                    $updates[] = [
+                        'param' => $field,
+                        'value' => $value
+                    ];
+                } else {
+                    $errors[] = sprintf(
+                        $upload_form_config[$field]['error_message'],
+                        $min,
+                        $max
+                    );
+
+                    $form_errors[$field] = '[' . $min . ' .. ' . $max . ']';
+                }
+            }
+        }
+
+        if (count($errors) == 0) {
+            return $updates;
+        }
+
+        return [];
     }
 }

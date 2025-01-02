@@ -22,7 +22,7 @@ abstract class AbstractTheme
         return sprintf(self::CLASSNAME_FORMAT, $theme_id, ucfirst($theme_id));
     }
 
-    abstract public function getConfig(): array;
+    abstract public function getConfig(): mixed;
 
     abstract public function getAdminTemplate(): string;
 

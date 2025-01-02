@@ -42,9 +42,12 @@ class DerivativeImage
 
     public function getUrlType(): string
     {
-        return DerivativeParams::derivative_to_url($this->params->type->value);
+        return DerivativeParams::derivativeToUrl($this->params->type->value);
     }
 
+    /**
+     * @return array{0:int, 1:int}|array{}
+     */
     public function getSize(): array
     {
         if (!$this->image->getWidth() || !$this->image->getHeight()) {
@@ -66,7 +69,7 @@ class DerivativeImage
             return [$width, $height];
         }
 
-        return $this->params->compute_final_size([$width, $height]);
+        return $this->params->computeFinalSize([$width, $height]);
     }
 
     public function getUrlSize(): string
@@ -74,7 +77,7 @@ class DerivativeImage
         $tokens = [];
 
         if ($this->params->type === ImageSizeType::CUSTOM) {
-            $this->params->add_url_tokens($tokens);
+            $this->params->addUrlTokens($tokens);
         }
 
         return implode('', $tokens);
@@ -95,17 +98,22 @@ class DerivativeImage
 
     /**
      * Generates the url of a thumbnail.
+     *
+     * @return array{path: string, derivative: string, sizes: string, image_extension: string}
      */
     public function relativeThumbInfos(): array
     {
         return $this->buildInfos();
     }
 
+    /**
+     * @return array{path: string, derivative: string, sizes: string, image_extension: string}
+     */
     private function buildInfos(): array
     {
-        if ($this->getSize() !== [] && $this->params->is_identity($this->getSize())) {
+        if ($this->getSize() !== [] && $this->params->isIdentity($this->getSize())) {
             // the source image is smaller than what we should do - we do not upsample
-            if (!$this->params->will_watermark($this->getSize(), $this->image_std_params) && !$this->image->getRotation()) {
+            if (!$this->params->willWatermark($this->getSize(), $this->image_std_params) && !$this->image->getRotation()) {
                 // no watermark, no rotation required -> we will use the source image
                 return [
                     'path' => $this->getPathBasename(),
@@ -121,7 +129,7 @@ class DerivativeImage
                 if ($defined_types[$i]->type === $this->params->type) {
                     for ($i--; $i >= 0; $i--) {
                         $smaller = $this->image_std_params->getByType($defined_types[$i]->type);
-                        if ($smaller->sizing->max_crop === $this->params->sizing->max_crop && $smaller->is_identity($this->getSize())) {
+                        if ($smaller->getSizing()->getMaxCrop() === $this->params->getSizing()->getMaxCrop() && $smaller->isIdentity($this->getSize())) {
                             $this->params = $smaller;
                             return [
                                 'path' => $this->getPathBasename(),
@@ -140,7 +148,7 @@ class DerivativeImage
         $tokens[] = substr((string) $this->params->type->value, 0, 2);
 
         if ($this->params->type === ImageSizeType::CUSTOM) {
-            $this->params->add_url_tokens($tokens);
+            $this->params->addUrlTokens($tokens);
         }
 
         return [
@@ -151,12 +159,12 @@ class DerivativeImage
         ];
     }
 
-    public function same_as_source(): bool
+    public function sameAsSource(): bool
     {
         return $this->params == null;
     }
 
-    public function is_cached(): bool
+    public function isCached(): bool
     {
         return true;
     }

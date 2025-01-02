@@ -25,6 +25,10 @@ class Metadata
 
     /**
      * returns informations from IPTC metadata, mapping is done in this function.
+     *
+     * @param array<string, mixed> $map
+     *
+     * @return array<string, mixed>
      */
     public function getIptcData(string $filename, array $map, string $array_sep = ','): array
     {
@@ -68,6 +72,8 @@ class Metadata
     /**
      * Returns IPTC metadata to sync from a file, depending on IPTC mapping.
      * @toto : clean code (factorize foreach)
+     *
+     * @return array<string, mixed>
      */
     public function getSyncIptcData(string $file): array
     {
@@ -103,6 +109,10 @@ class Metadata
 
     /**
      * returns informations from EXIF metadata, mapping is done in this function.
+     *
+     * @param array<string, mixed> $map
+     *
+     * @return array<string, mixed>
      */
     public function getExifData(string $filename, array $map): array
     {
@@ -149,6 +159,8 @@ class Metadata
 
     /**
      * Returns EXIF metadata to sync from a file, depending on EXIF mapping.
+     *
+     * @return array<string, mixed>
      */
     public function getSyncExifData(string $file): array
     {
@@ -235,7 +247,7 @@ class Metadata
                     $input_encoding = 'windows-1252';
                 }
             }
-            $value = Utils::convert_charset($value, $input_encoding, 'utf-8');
+            $value = Utils::convertCharset($value, $input_encoding, 'utf-8');
         }
 
         return $value;
@@ -243,6 +255,8 @@ class Metadata
 
     /**
      * Get all potential file metadata fields, including IPTC and EXIF.
+     *
+     * @return array<int, mixed>
      */
     public function getSyncMetadataAttributes(): array
     {
@@ -268,8 +282,9 @@ class Metadata
     /**
      * Get all metadata of a file.
      *
-     * @param array $infos - (path[, representative_ext])
-     * @return array - includes data provided in $infos
+     * @param array<string, mixed> $infos - (path[, representative_ext])
+     *
+     * @return array<string, mixed> - includes data provided in $infos
      */
     public function getSyncMetadata(array $infos): array
     {
@@ -281,10 +296,6 @@ class Metadata
         }
 
         $infos['filesize'] = floor($fs / 1024);
-
-        if (isset($infos['representative_ext'])) {
-            $file = Utils::original_to_representative($file, $infos['representative_ext']);
-        }
 
         if ($image_size = @getimagesize($file)) {
             $infos['width'] = $image_size[0];

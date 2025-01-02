@@ -27,9 +27,9 @@ class TablePrefixSubscriber implements EventSubscriberInterface
         return [LoadClassMetadataEventArgs::class => 'loadClassMetadata'];
     }
 
-    public function loadClassMetadata(LoadClassMetadataEventArgs $event)
+    public function loadClassMetadata(LoadClassMetadataEventArgs $event): void
     {
-        /** @var ClassMetadata $classMetadata */
+        /** @var ClassMetadata $classMetadata @phpstan-ignore-next-line */
         $classMetadata = $event->getClassMetadata();
         if (!$classMetadata->isInheritanceTypeSingleTable() || $classMetadata->getName() === $classMetadata->rootEntityName) {
             $classMetadata->setPrimaryTable([

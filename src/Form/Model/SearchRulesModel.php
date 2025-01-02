@@ -18,8 +18,12 @@ class SearchRulesModel
 {
     private ?DateTime $start = null;
     private ?DateTime $end = null;
+
+    /** @var array<string> */
     private array $types = [];
     private ?int $image_id = null;
+
+    /** @var array<int> */
     private array $image_ids = [];
     private ?string $filename = null;
     private string $display_thumbnail;
@@ -49,6 +53,9 @@ class SearchRulesModel
         return $this->end;
     }
 
+    /**
+     * @param array<string> $types
+     */
     public function setTypes(array $types): self
     {
         $this->types = $types;
@@ -56,6 +63,9 @@ class SearchRulesModel
         return $this;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getTypes(): array
     {
         return $this->types;
@@ -80,6 +90,9 @@ class SearchRulesModel
         return $this;
     }
 
+    /**
+     * @param array<int> $image_ids
+     */
     public function setImageIds(array $image_ids): self
     {
         $this->image_ids = $image_ids;
@@ -87,6 +100,9 @@ class SearchRulesModel
         return $this;
     }
 
+    /**
+     * @return array<int>
+     */
     public function getImageIds(): array
     {
         return $this->image_ids;

@@ -85,6 +85,7 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
         if ($command->getName() === 'list') {
             foreach ($this->plugins->getDbPlugins(ExtensionStateType::INACTIVE) as $plugin) {
                 if ($this->extensionCollection->getExtensionsByClass()) {
+                    /** @phpstan-ignore-next-line */
                     foreach ($this->extensionCollection->getExtensionsByClass()[$plugin->getId()] as $command_name) {
                         $application->get($command_name)->setHidden(true);
                     }

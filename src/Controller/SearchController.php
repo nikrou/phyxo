@@ -282,7 +282,7 @@ class SearchController extends AbstractController
             }
 
             if ($cats !== []) {
-                usort($cats, '\Phyxo\Functions\Utils::name_compare');
+                usort($cats, Utils::nameCompare(...));
                 $hints = [];
                 foreach ($cats as $cat) {
                     $hints[] = $albumMapper->getAlbumDisplayName([$cat]);

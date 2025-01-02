@@ -1,31 +1,29 @@
 <ul class="navbar-nav{% if not theme_config.quicksearch_navbar %} ml-auto{% endif %}">
-    {% if blocks %}
-	{% set discover_menu_exists = false %}
-	{% for id, block in blocks %}
-	    {% if block.template %}
-		{% if id != "mbMenu" and id != "mbSpecials" %}
-		    {{ include(block.template ~ '.html.twig') }}
-		{% endif %}
-		{% if not discover_menu_exists and (id == "mbSpecials" or id == "mbMenu") %}
-		    <li class="nav-item dropdown">
-			<button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown">{{'Discover'|trans}}</button>
-			<div class="dropdown-menu dropdown-menu-right" role="menu">
-			    {% if blocks.mbMenu.template %}
-				{{ include(blocks.mbMenu.template ~ '.html.twig') }}
-			    {% endif %}
-			    {% if blocks.mbSpecials.template %}
-				{% if blocks.mbMenu.template %}
-				    <div class="dropdown-divider"></div>
-				{% endif %}
-				{{ include(blocks.mbSpecials.template ~ '.html.twig') }}
-			    {% endif %}
-			</div>
-		    </li>
-		    {% set discover_menu_exists = true %}
-		{% endif %}
-	    {% else %}
-		{{block.raw_content}}
-	    {% endif %}
-	{% endfor %}
-    {% endif %}
+  {% if blocks %}
+    {% set discover_menu_exists = false %}
+    {% for id, block in blocks %}
+      {% if block.template %}
+        {% if id != "mbMenu" and id != "mbSpecials" %}
+          {{ include(block.template ~ '.html.twig') }}
+        {% endif %}
+        {% if not discover_menu_exists and (id == "mbSpecials" or id == "mbMenu") %}
+          <li class="nav-item dropdown">
+            <button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown">{{'Discover'|trans}}</button>
+            <div class="dropdown-menu dropdown-menu-right" role="menu">
+              {% if blocks.mbMenu.template %}
+                {{ include(blocks.mbMenu.template ~ '.html.twig') }}
+              {% endif %}
+              {% if blocks.mbSpecials.template %}
+                {% if blocks.mbMenu.template %}
+                  <div class="dropdown-divider"></div>
+                {% endif %}
+                {{ include(blocks.mbSpecials.template ~ '.html.twig') }}
+              {% endif %}
+            </div>
+          </li>
+          {% set discover_menu_exists = true %}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
 </ul>

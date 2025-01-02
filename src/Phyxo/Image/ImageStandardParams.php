@@ -132,13 +132,13 @@ class ImageStandardParams
         return $this->undefined_type_map;
     }
 
-    public function makeCustom(int $w, int $h, int $crop = 0, $minw = null, $minh = null): DerivativeParams
+    public function makeCustom(int $w, int $h, int $crop = 0, ?int $minw = null, ?int $minh = null): DerivativeParams
     {
         $params = new DerivativeParams(new SizingParams([$w, $h], $crop, [$minw, $minh]));
         $this->applyWatermark($params);
 
         $key = [];
-        $params->add_url_tokens($key);
+        $params->addUrlTokens($key);
         $key = implode('_', $key);
         if (!isset($this->customs[$key]) || $this->customs[$key] < time() - 24 * 3600) {
             $this->customs[$key] = time();
@@ -154,6 +154,8 @@ class ImageStandardParams
      * enabled derivative (e.g. the values are not unique in the return array).
      * This is useful for any plugin/theme to just use $deriv[XLARGE] even if
      * the XLARGE is disabled.
+     *
+     * @return array<string, DerivativeImage>
      *
      */
     public function getAll(Image $image): array
@@ -178,7 +180,7 @@ class ImageStandardParams
         $derivative_params = null;
 
         foreach ($this->getDefinedTypeMap() as $type => $params) {
-            if (DerivativeParams::derivative_to_url($type) === $derivative) {
+            if (DerivativeParams::derivativeToUrl($type) === $derivative) {
                 $derivative_params = $params;
             }
         }
@@ -209,7 +211,7 @@ class ImageStandardParams
         return null;
     }
 
-    protected function loadFromConf()
+    protected function loadFromConf(): void
     {
         if (!empty($this->derivatives) && isset($this->derivatives['d'])) {
             $this->type_map = $this->derivatives['d'];
@@ -229,12 +231,14 @@ class ImageStandardParams
         $this->buildMaps();
     }
 
-    public function applyWatermark(DerivativeParams $params)
+    public function applyWatermark(DerivativeParams $params): void
     {
-        $params->use_watermark = !empty($this->watermark->file) && ($this->watermark->min_size[0] <= $params->sizing->ideal_size[0] || $this->watermark->min_size[1] <= $params->sizing->ideal_size[1]);
+        $params->use_watermark = $this->watermark->getFile() !== ''
+            && ($this->watermark->getMinSize()[0] <= $params->getSizing()->getIdealSize()[0]
+            || $this->watermark->getMinSize()[1] <= $params->getSizing()->getIdealSize()[1]);
     }
 
-    protected function buildMaps()
+    protected function buildMaps(): void
     {
         foreach ($this->type_map as $type => $params) {
             $params->type = ImageSizeType::from($type);
@@ -259,7 +263,10 @@ class ImageStandardParams
         }
     }
 
-    public function setAndSave(array $map)
+    /**
+     * @param array<string, DerivativeParams> $map
+     */
+    public function setAndSave(array $map): void
     {
         $this->type_map = $map;
         $this->save();
@@ -267,7 +274,7 @@ class ImageStandardParams
         $this->buildMaps();
     }
 
-    public function save()
+    public function save(): void
     {
         $conf_derivatives = [
             'd' => $this->type_map,

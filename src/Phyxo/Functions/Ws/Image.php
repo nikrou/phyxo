@@ -103,7 +103,7 @@ class Image
 
             $related_categories[] = $album_infos;
         }
-        usort($related_categories, '\Phyxo\Functions\Utils::global_rank_compare');
+        usort($related_categories, Utils::globalRankCompare(...));
 
         if ($related_categories === []) {
             return new Error(401, 'Access denied');

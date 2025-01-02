@@ -241,6 +241,9 @@ class AdminHistoryController extends AbstractController
         return $this->render('history_search.html.twig', $tpl_params);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getElementFromSearchRules(
         SearchRulesModel $rules,
         int $start,
@@ -384,6 +387,9 @@ class AdminHistoryController extends AbstractController
         ];
     }
 
+    /**
+     * @param array<string, mixed> $image_infos
+     */
     protected function getImageString(ImageStandardParams $image_std_params, History $line, array $image_infos = [], ?SearchRulesModel $rules = null): string
     {
         $image_string = '';

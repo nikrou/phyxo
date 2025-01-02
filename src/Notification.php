@@ -30,7 +30,6 @@ use App\Enum\ImageSizeType;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Conf;
-use Phyxo\Functions\Utils;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
@@ -627,7 +626,7 @@ class Notification
 
             foreach ($new_users as $new_user) {
                 $nbm_user = new UserMailNotification();
-                $nbm_user->setCheckKey(Utils::generate_key(16));
+                $nbm_user->setCheckKey($this->generateKey(16));
                 $check_key_list[] = $nbm_user->getCheckKey();
                 $nbm_user->setEnabled(false);
                 $nbm_user->setUser($new_user);
@@ -830,5 +829,22 @@ class Notification
     public function getErrors(): array
     {
         return $this->errors;
+    }
+
+    /**
+     * Generates a pseudo random string.
+     * Characters used are a-z A-Z and numerical values.
+     */
+    private function generateKey(int $size): string
+    {
+        return substr(
+            str_replace(
+                ['+', '/'],
+                '',
+                base64_encode(openssl_random_pseudo_bytes($size))
+            ),
+            0,
+            $size
+        );
     }
 }

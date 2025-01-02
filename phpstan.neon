@@ -2,7 +2,7 @@ includes:
   - phpstan-baseline.neon
 
 parameters:
-  level: 5
+  level: 6
 
   paths:
     - src
@@ -14,3 +14,4 @@ parameters:
     allowNullablePropertyForRequiredField: true
 
   reportUnmatchedIgnoredErrors: true
+  treatPhpDocTypesAsCertain: false

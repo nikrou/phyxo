@@ -479,7 +479,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return $this;
     }
 
-    public function fromArray(int $id, string $username, string $password, array $roles)
+    /**
+     * @param array<string, string> $roles
+     */
+    public function fromArray(int $id, string $username, string $password, array $roles): void
     {
         $this->id = $id;
         $this->username = $username;
@@ -503,6 +506,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return $this->userInfos->getTheme();
     }
 
+    /**
+     * @return array<string, string|int|null>
+     */
     public function __serialize(): array
     {
         return [
@@ -513,6 +519,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         ];
     }
 
+    /**
+     * @param array<string, string|int|null> $data
+     */
     public function __unserialize(array $data): void
     {
         $this->id = $data['id'];

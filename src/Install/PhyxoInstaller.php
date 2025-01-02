@@ -24,6 +24,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class PhyxoInstaller
 {
     private string $localEnvFile = '';
+
+    /** @var array<string, array{engine:string, function_available?:string, class_available?:string}> */
     private array $dblayers = [
         'mysql' => [
             'engine' => 'MySQL, MariaDB, Percona Server, ...',
@@ -52,7 +54,10 @@ class PhyxoInstaller
         $this->localEnvFile = sprintf('%s/.env.local', $this->rootProjectDir);
     }
 
-    public function availableEngines()
+    /**
+     * @return array<string, string>
+     */
+    public function availableEngines(): array
     {
         return array_map(
             fn ($dblayer) => $dblayer['engine'],
@@ -61,7 +66,10 @@ class PhyxoInstaller
         );
     }
 
-    public function installDatabase(array $db_params = [])
+    /**
+     * @param array<string, mixed> $db_params
+     */
+    public function installDatabase(array $db_params = []): void
     {
         $config = new Configuration();
         if (!empty($db_params['dsn'])) {
@@ -129,7 +137,7 @@ class PhyxoInstaller
 
         $statement->bindValue('param', 'phyxo_db_version');
         $statement->bindValue('type', 'string');
-        $statement->bindValue('value', Utils::get_branch_from_version($this->phyxoVersion));
+        $statement->bindValue('value', Utils::getBranchFromVersion($this->phyxoVersion));
         $statement->bindValue('comment', '');
         $statement->executeStatement();
 
@@ -209,6 +217,8 @@ class PhyxoInstaller
      * Returns queries from an SQL file.
      * Before returting a query, $replaced is... replaced by $replacing. This is
      * useful when the SQL file contains generic words. Drop table queries are not returned
+     *
+     * @return array<string>
      */
     protected function getQueriesFromFile(string $dblayer, string $filepath, string $replaced, string $replacing): array
     {

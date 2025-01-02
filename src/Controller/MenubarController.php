@@ -11,7 +11,6 @@
 
 namespace App\Controller;
 
-use Phyxo\Conf;
 use Phyxo\MenuBar;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -19,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MenubarController extends AbstractController
 {
-    public function navigation(RequestStack $requestStack, Conf $conf, MenuBar $menuBar): Response
+    public function navigation(RequestStack $requestStack, MenuBar $menuBar): Response
     {
         $tpl_params = [];
 

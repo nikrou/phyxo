@@ -27,6 +27,9 @@ use App\Repository\UserCacheRepository;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Csrf\Exception\TokenNotFoundException;
 
+/**
+ * @implements UserProviderInterface<User>
+ */
 class UserProvider implements UserProviderInterface
 {
     public function __construct(

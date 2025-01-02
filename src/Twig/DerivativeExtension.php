@@ -11,6 +11,7 @@
 
 namespace App\Twig;
 
+use App\Entity\Image;
 use App\Enum\ImageSizeType;
 use Exception;
 use Phyxo\Image\DerivativeImage;
@@ -90,13 +91,9 @@ class DerivativeExtension extends AbstractExtension
         return $this->image_std_params->getByType(ImageSizeType::SQUARE);
     }
 
-    public function derivativeFromImage(array $params = []): ?DerivativeImage
+    public function derivativeFromImage(Image $image, DerivativeParams $params): ?DerivativeImage
     {
-        if (empty($params['image']) || empty($params['params'])) {
-            return null;
-        }
-
-        return new DerivativeImage($params['image'], $params['params'], $this->image_std_params);
+        return new DerivativeImage($image, $params, $this->image_std_params);
     }
 
     public function mediaPath(DerivativeImage $derivative, bool $relative = false): string

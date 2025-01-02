@@ -40,7 +40,7 @@ class ResetPasswordLinkSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onActivationKeyNotifiy(ActivationKeyEvent $event)
+    public function onActivationKeyNotifiy(ActivationKeyEvent $event): void
     {
         $webmaster = $this->userMapper->getWebmaster();
         $webmaster_address = new Address($webmaster->getMailAddress(), $webmaster->getUserIdentifier());

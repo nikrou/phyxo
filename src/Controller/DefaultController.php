@@ -44,7 +44,7 @@ class DefaultController extends AbstractController
 
         if (!$appUserService->getUser()->getUserInfos()->hasEnabledHigh()) {
             $deriv = new DerivativeImage($image, $image_std_params->getByType(ImageSizeType::XXLARGE), $image_std_params);
-            if (!$deriv->same_as_source()) {
+            if (!$deriv->sameAsSource()) {
                 throw new AccessDeniedException('Access denied');
             }
         }

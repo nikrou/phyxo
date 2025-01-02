@@ -89,6 +89,9 @@ class AdminAlbumsOptionsController extends AbstractController
         return $this->render('albums_options.html.twig', $tpl_params);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getCatsBySection(string $section, AlbumRepository $albumRepository): array
     {
         $cats_true = [];

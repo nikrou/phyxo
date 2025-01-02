@@ -16,16 +16,21 @@ use Phyxo\Block\BlockManager;
 use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\UserMapper;
 use App\DataMapper\TagMapper;
-use App\Entity\Tag as EntityTag;
+use App\Entity\Tag;
 use App\Security\AppUserService;
+use Phyxo\Block\DisplayBlock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MenuBar
 {
-    private $menu;
-    private $route;
+    private BlockManager $menu;
+    private string $route = '';
+
+    /** @var array<int> */
     private $items = [];
+
+    /** @var Tag[] */
     private $tags = [];
 
     public function __construct(
@@ -41,22 +46,36 @@ class MenuBar
     ) {
     }
 
-    public function setRoute(string $route)
+    public function setRoute(string $route): void
     {
         $this->route = $route;
     }
 
-    public function setCurrentImages(array $items = [])
+    public function getRoute(): string
+    {
+        return $this->route;
+    }
+
+    /**
+     * @param array<int> $items
+     */
+    public function setCurrentImages(array $items = []): void
     {
         $this->items = $items;
     }
 
-    public function setCurrentTags(array $tags = [])
+    /**
+     * @param Tag[] $tags
+     */
+    public function setCurrentTags(array $tags = []): void
     {
         $this->tags = $tags;
     }
 
-    public function getBlocks()
+    /**
+     * @return DisplayBlock[]
+     */
+    public function getBlocks(): array
     {
         $this->menu = new BlockManager('menubar');
         $this->menu->loadDefaultBlocks();
@@ -78,10 +97,10 @@ class MenuBar
         return $this->menu->getDisplayBlocks();
     }
 
-    protected function linksBlock()
+    protected function linksBlock(): void
     {
         if (($block = $this->menu->getBlock('mbLinks')) && !empty($this->conf['links'])) {
-            $block->data = [];
+            $data = [];
             foreach ($this->conf['links'] as $url => $url_data) {
                 if (!is_array($url_data)) {
                     $url_data = ['label' => $url_data];
@@ -98,31 +117,33 @@ class MenuBar
                         'FEATURES' => ($url_data['nw_features'] ?? '')
                     ];
                 }
-                $block->data[] = $tpl_var;
-            }
 
-            if ($block->data !== []) {
-                $block->template = 'menubar_links';
+                $data[] = $tpl_var;
+            }
+            $block->setData($data);
+
+            if ($block->getData() !== []) {
+                $block->setTemplate('menubar_links');
             }
         }
     }
 
-    protected function categoriesBlock()
+    protected function categoriesBlock(): void
     {
         if (($block = $this->menu->getBlock('mbCategories')) != null) {
-            $block->data = [
+            $block->setData([
                 'NB_PICTURE' => $this->appUserService->getUser()->getUserInfos()->getNbTotalImages(),
                 'MENU_CATEGORIES' => $this->albumMapper->getRecursiveAlbumsMenu($this->appUserService->getUser()),
                 'U_CATEGORIES' => $this->router->generate('albums_flat'),
-            ];
-            $block->template = 'menubar_categories';
+            ]);
+            $block->setTemplate('menubar_categories');
         }
     }
 
-    protected function tagsBlock()
+    protected function tagsBlock(): void
     {
         if (($block = $this->menu->getBlock('mbTags')) != null) {
-            if ($this->route === 'images_by_tags') {
+            if ($this->getRoute() === 'images_by_tags') {
                 $tags = $this->tagMapper->getCommonTags(
                     $this->appUserService->getUser(),
                     $this->items,
@@ -131,13 +152,14 @@ class MenuBar
                 );
 
                 $tags = $this->tagMapper->addLevelToTags($tags);
+                $data = [];
                 foreach ($tags as $tag) {
-                    $block->data[] = array_merge(
+                    $data[] = array_merge(
                         $tag->toArray(),
                         [
                             'U_ADD' => $this->router->generate(
                                 'images_by_tags',
-                                ['tag_ids' => implode('/', array_map(fn (EntityTag $tag) => $tag->toUrl(), array_merge($this->tags, [$tag])))]
+                                ['tag_ids' => implode('/', array_map(fn (Tag $tag) => $tag->toUrl(), array_merge($this->tags, [$tag])))]
                             ),
                             'URL' => $this->router->generate(
                                 'images_by_tags',
@@ -146,76 +168,82 @@ class MenuBar
                         ]
                     );
                 }
-            } elseif ($this->route === 'tags') {
+                $block->setData($data);
+            } elseif ($this->getRoute() === 'tags') {
                 $tags = $this->tagMapper->getAvailableTags($this->appUserService->getUser());
+                $data = [];
                 foreach ($tags as $tag) {
-                    $block->data[] = array_merge(
+                    $data[] = array_merge(
                         $tag->toArray(),
                         ['URL' => $this->router->generate('images_by_tags', ['tag_ids' => $tag->toUrl()])]
                     );
                 }
+                $block->setData($data);
             } else {
                 $tags = $this->tagMapper->addLevelToTags(
                     $this->tagMapper->getCommonTags($this->appUserService->getUser(), $this->items, $this->conf['content_tag_cloud_items_number'])
                 );
+                $data = [];
                 foreach ($tags as $tag) {
-                    $block->data[] = array_merge(
+                    $data[] = array_merge(
                         $tag->toArray(),
                         ['URL' => $this->router->generate('images_by_tags', ['tag_ids' => $tag->toUrl()])]
                     );
                 }
+                $block->setData($data);
             }
 
-            if (!empty($block->data)) {
-                $block->template = 'menubar_tags';
+            if ($block->getData() !== []) {
+                $block->setTemplate('menubar_tags');
             }
         }
     }
 
-    protected function specialsBlock()
+    protected function specialsBlock(): void
     {
         if (($block = $this->menu->getBlock('mbSpecials')) != null) {
+            $data = [];
             if (!$this->appUserService->isGuest()) {
-                $block->data['favorites'] = [
+                $data['favorites'] = [
                     'URL' => $this->router->generate('favorites'),
                     'TITLE' => $this->translator->trans('display your favorites photos'),
                     'NAME' => $this->translator->trans('Your favorites')
                 ];
             }
 
-            $block->data['most_visited'] = [
+            $data['most_visited'] = [
                 'URL' => $this->router->generate('most_visited'),
                 'TITLE' => $this->translator->trans('display most visited photos'),
                 'NAME' => $this->translator->trans('Most visited')
             ];
 
             if ($this->conf['rate']) {
-                $block->data['best_rated'] = [
+                $data['best_rated'] = [
                     'URL' => $this->router->generate('best_rated'),
                     'TITLE' => $this->translator->trans('display best rated photos'),
                     'NAME' => $this->translator->trans('Best rated')
                 ];
             }
 
-            $block->data['recent_pics'] = [
+            $data['recent_pics'] = [
                 'URL' => $this->router->generate('recent_pics'),
                 'TITLE' => $this->translator->trans('display most recent photos'),
                 'NAME' => $this->translator->trans('Recent photos'),
             ];
 
-            $block->data['recent_cats'] = [
+            $data['recent_cats'] = [
                 'URL' => $this->router->generate('recent_cats'),
                 'TITLE' => $this->translator->trans('display recently updated albums'),
                 'NAME' => $this->translator->trans('Recent albums'),
             ];
 
-            $block->data['random'] = [
+            $data['random'] = [
                 'URL' => $this->router->generate('random'),
                 'TITLE' => $this->translator->trans('display a set of random photos'),
                 'NAME' => $this->translator->trans('Random photos'),
             ];
 
-            $block->data['calendar'] = [
+            $data['calendar'] = [
                 'URL' => $this->router->generate(
                     'calendar',
                     [
@@ -225,24 +253,27 @@ class MenuBar
                 'TITLE' => $this->translator->trans('display each day with photos, month per month'),
                 'NAME' => $this->translator->trans('Calendar'),
             ];
-            $block->template = 'menubar_specials';
+
+            $block->setData($data);
+            $block->setTemplate('menubar_specials');
         }
     }
 
     protected function menuBlock(): void
     {
         if (($block = $this->menu->getBlock('mbMenu')) != null) {
+            $data = [];
             // quick search block will be displayed only if data['qsearch'] is set to "yes"
-            $block->data['qsearch'] = true;
+            $data['qsearch'] = true;
 
-            $block->data['tags'] = [
+            $data['tags'] = [
                 'TITLE' => $this->translator->trans('display available tags'),
                 'NAME' => $this->translator->trans('Tags'),
                 'URL' => $this->router->generate('tags'),
                 'COUNTER' => $this->userMapper->getNumberAvailableTags(),
             ];
 
-            $block->data['search'] = [
+            $data['search'] = [
                 'TITLE' => $this->translator->trans('search'),
                 'NAME' => $this->translator->trans('Search'),
                 'URL' => $this->router->generate('search'),
@@ -250,7 +281,7 @@ class MenuBar
             ];
 
             if ($this->conf['activate_comments']) {
-                $block->data['comments'] = [
+                $data['comments'] = [
                     'TITLE' => $this->translator->trans('display last user comments'),
                     'NAME' => $this->translator->trans('Comments'),
                     'URL' => $this->router->generate('comments'),
@@ -258,38 +289,42 @@ class MenuBar
                 ];
             }
 
-            $block->data['about'] = [
+            $data['about'] = [
                 'TITLE' => $this->translator->trans('About Phyxo'),
                 'NAME' => $this->translator->trans('About'),
                 'URL' => $this->router->generate('about'),
             ];
 
-            $block->data['rss'] = [
+            $data['rss'] = [
                 'TITLE' => $this->translator->trans('RSS feed'),
                 'NAME' => $this->translator->trans('Notification'),
                 'URL' => $this->router->generate('notification'),
             ];
-            $block->template = 'menubar_menu';
+
+            $block->setData($data);
+            $block->setTemplate('menubar_menu');
         }
     }
 
     protected function identificationBlock(): void
     {
         if (($block = $this->menu->getBlock('mbIdentification')) != null) {
+            $data = [];
             if ($this->appUserService->isGuest()) {
-                $block->data['U_LOST_PASSWORD'] = $this->router->generate('forgot_password');
-                $block->data['AUTHORIZE_REMEMBERING'] = $this->conf['authorize_remembering'];
+                $data['U_LOST_PASSWORD'] = $this->router->generate('forgot_password');
+                $data['AUTHORIZE_REMEMBERING'] = $this->conf['authorize_remembering'];
 
                 if ($this->conf['allow_user_registration']) {
-                    $block->data['U_REGISTER'] = $this->router->generate('register');
+                    $data['U_REGISTER'] = $this->router->generate('register');
                 }
             } else {
-                $block->data['APP_USER'] = $this->appUserService->getUser();
-                $block->data['USERNAME'] = $this->appUserService->getUser()->getUserIdentifier();
-                $block->data['U_LOGOUT'] = $this->router->generate('logout');
+                $data['APP_USER'] = $this->appUserService->getUser();
+                $data['USERNAME'] = $this->appUserService->getUser()->getUserIdentifier();
+                $data['U_LOGOUT'] = $this->router->generate('logout');
             }
 
-            $block->template = 'menubar_identification';
+            $block->setData($data);
+            $block->setTemplate('menubar_identification');
         }
     }
 }

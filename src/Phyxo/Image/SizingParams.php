@@ -18,14 +18,13 @@ namespace Phyxo\Image;
 class SizingParams
 {
     /**
-     * $ideal_size - two element array of maximum output dimensions (width, height)
-     * $max_crop - from 0=no cropping to 1= max cropping (100% of width/height);
-     *    expressed as a factor of the input width/height
-     * $min_size - (used only if _$max_crop_ !=0) two element array of output dimensions (width, height)
+     * $ideal_size - two elements array of maximum output dimensions (width, height)
+     * $max_crop - from 0=no cropping to 1= max cropping (100% of width/height) expressed as a factor of the input width/height
+     * $min_size - (used only if _$max_crop_ !=0) two elements array of output dimensions (width, height)
      * @param int[] $ideal_size
      * @param int[] $min_size
      */
-    public function __construct(public array $ideal_size, public float $max_crop = 0, public array $min_size = [])
+    public function __construct(private array $ideal_size, private readonly float $max_crop = 0, private array $min_size = [])
     {
     }
 
@@ -47,29 +46,31 @@ class SizingParams
 
     /**
      * Adds tokens depending on sizing configuration.
+     *
+     * @param array<string> $tokens
      */
-    public function add_url_tokens(array &$tokens)
+    public function addUrlTokens(array &$tokens): void
     {
         if ($this->max_crop == 0) {
-            $tokens[] = 's' . DerivativeParams::size_to_url($this->ideal_size);
-        } elseif ($this->max_crop == 1 && DerivativeParams::size_equals($this->ideal_size, $this->min_size)) {
-            $tokens[] = 'e' . DerivativeParams::size_to_url($this->ideal_size);
+            $tokens[] = 's' . DerivativeParams::sizeToUrl($this->ideal_size);
+        } elseif ($this->max_crop == 1 && DerivativeParams::sizeEquals($this->ideal_size, $this->min_size)) {
+            $tokens[] = 'e' . DerivativeParams::sizeToUrl($this->ideal_size);
         } else {
-            $tokens[] = DerivativeParams::size_to_url($this->ideal_size);
-            $tokens[] = DerivativeParams::fraction_to_char($this->max_crop);
-            $tokens[] = DerivativeParams::size_to_url($this->min_size);
+            $tokens[] = DerivativeParams::sizeToUrl($this->ideal_size);
+            $tokens[] = DerivativeParams::fractionToChar($this->max_crop);
+            $tokens[] = DerivativeParams::sizeToUrl($this->min_size);
         }
     }
 
     /**
      * Calculates the cropping rectangle and the scaled size for an input image size.
      *
-     * int[] $in_size - two element array of input dimensions (width, height)
-     * string $coi - four character encoded string containing the center of interest (unused if max_crop=0)
-     * ImageRect &$crop_rect - ImageRect containing the cropping rectangle or null if cropping is not required
-     * int[] &$scale_size - two element array containing width and height of the scaled image
+     * @param array{0:int, 1:int} $in_size - two elements array of input dimensions (width, height)
+     * @param string $coi - four character encoded string containing the center of interest (unused if max_crop=0)
+     * @param ImageRect &$crop_rect - ImageRect containing the cropping rectangle or null if cropping is not required
+     * @param array{0:int|float, 1:int|float}|array{} &$scale_size - two elements array containing width and height of the scaled image
      */
-    public function compute(array $in_size, &$crop_rect, &$scale_size, string $coi = '')
+    public function compute(array $in_size, ?ImageRect &$crop_rect, array &$scale_size, string $coi = ''): void
     {
         $destCrop = new ImageRect($in_size);
 
@@ -108,12 +109,33 @@ class SizingParams
                 $scale_size[1] = $this->ideal_size[1];
             }
         } else {
-            $scale_size = null;
+            $scale_size = [];
         }
 
         $crop_rect = null;
         if ($destCrop->width() != $in_size[0] || $destCrop->height() != $in_size[1]) {
             $crop_rect = $destCrop;
         }
+    }
+
+    /**
+     * @return array{0:int, 1:int}
+     */
+    public function getIdealSize(): array
+    {
+        return $this->ideal_size;
+    }
+
+    public function getMaxCrop(): float
+    {
+        return $this->max_crop;
+    }
+
+    /**
+     * @return array{0:int, 1:int}
+     */
+    public function getMinSize(): array
+    {
+        return $this->min_size;
     }
 }

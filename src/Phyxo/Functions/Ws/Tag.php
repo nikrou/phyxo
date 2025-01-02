@@ -135,7 +135,7 @@ class Tag
             $images = $tmp;
             unset($tmp);
 
-            usort($images, '\Phyxo\Functions\Utils::rank_compare');
+            usort($images, Utils::rankCompare(...));
             unset($rank_of);
         }
 

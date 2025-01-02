@@ -12,7 +12,6 @@
 namespace App\Services;
 
 use App\Enum\ImageSizeType;
-use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeParams;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -29,17 +28,17 @@ class DerivativeService
      * @param ImageSizeType[] $types
      * @param ImageSizeType[] $all_types
      */
-    public function clearCache(array $types, array $all_types)
+    public function clearCache(array $types, array $all_types): void
     {
         $counter = count($types);
         for ($i = 0; $i < $counter; $i++) {
             $type = $types[$i];
             if ($type === ImageSizeType::CUSTOM) {
-                $pattern = DerivativeParams::derivative_to_url($type->value) . '[a-zA-Z0-9]+';
+                $pattern = DerivativeParams::derivativeToUrl($type->value) . '[a-zA-Z0-9]+';
             } elseif (in_array($type, $all_types)) {
-                $pattern = DerivativeParams::derivative_to_url($type->value);
+                $pattern = DerivativeParams::derivativeToUrl($type->value);
             } else { //assume a custom type
-                $pattern = DerivativeParams::derivative_to_url(ImageSizeType::CUSTOM->value) . '_' . $type;
+                $pattern = DerivativeParams::derivativeToUrl(ImageSizeType::CUSTOM->value) . '_' . $type;
             }
             $types[$i] = $pattern;
         }
@@ -64,24 +63,17 @@ class DerivativeService
 
     /**
      * Deletes derivatives of a particular element
-     *
-     * @param array $infos ('path'[, 'representative_ext'])
      */
-    public function deleteForElement(array $infos, $type = 'all')
+    public function deleteForElement(string $path, string $type = 'all'): void
     {
         $fs = new Filesystem();
-        $path = $infos['path'];
 
         $relative_path = $fs->makePathRelative(sprintf('%s/%s', $this->rootProjectDir, $path), $this->uploadDir);
         $relative_path = sprintf('%s/%s', basename($this->uploadDir), $relative_path);
         $relative_path = rtrim($relative_path, '/');
 
-        if (!empty($infos['representative_ext'])) {
-            $relative_path = Utils::original_to_representative($relative_path, $infos['representative_ext']);
-        }
-
         $dot = strrpos($relative_path, '.');
-        $pattern = $type == 'all' ? '-.*' : '-' . DerivativeParams::derivative_to_url($type) . '.*';
+        $pattern = $type === 'all' ? '-.*' : '-' . DerivativeParams::derivativeToUrl($type) . '.*';
         $pattern = '#' . substr_replace($relative_path, $pattern, $dot, 0) . '#';
 
         $finder = new Finder();

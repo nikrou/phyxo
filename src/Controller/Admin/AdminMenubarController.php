@@ -15,6 +15,7 @@ use App\Repository\CaddieRepository;
 use App\Repository\CommentRepository;
 use App\Security\AppUserService;
 use Phyxo\Block\BlockManager;
+use Phyxo\Block\RegisteredBlock;
 use Phyxo\Conf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -82,7 +83,13 @@ class AdminMenubarController extends AbstractController
         return $this->redirectToRoute('admin_menubar');
     }
 
-    private function makeConsecutive(array $blocks = [], array $orders = [], $step = 50): array
+    /**
+     * @param array<RegisteredBlock> $blocks
+     * @param array<int> $orders
+     *
+     * @return array<int>
+     */
+    private function makeConsecutive(array $blocks = [], array $orders = [], int $step = 50): array
     {
         uasort($orders, fn ($a, $b) => abs($a) - abs($b));
 

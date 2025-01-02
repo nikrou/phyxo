@@ -13,6 +13,9 @@ namespace Phyxo;
 
 class Upgrade
 {
+    /**
+     * @return array<int>
+     */
     public static function getAvailableUpgradeIds(string $root_dir): array
     {
         $upgrades_path = $root_dir . '/install/db';
@@ -22,7 +25,7 @@ class Upgrade
         if ($contents = opendir($upgrades_path)) {
             while (($node = readdir($contents)) !== false) {
                 if (is_file($upgrades_path . '/' . $node) && preg_match('/^(.*?)-database\.php$/', $node, $match)) {
-                    $available_upgrade_ids[] = $match[1];
+                    $available_upgrade_ids[] = (int) $match[1];
                 }
             }
         }

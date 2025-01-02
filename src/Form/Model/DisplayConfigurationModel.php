@@ -26,6 +26,8 @@ class DisplayConfigurationModel
     private bool $picture_navigation_icons;
     private bool $picture_navigation_thumb;
     private bool $picture_menu;
+
+    /** @var array<string, mixed> */
     private array $picture_informations;
 
     public function setMenubarFilterIcon(bool $menubar_filter_icon): self
@@ -184,6 +186,9 @@ class DisplayConfigurationModel
         return $this->picture_menu;
     }
 
+    /**
+     * @param array<string, mixed> $picture_informations
+     */
     public function setPictureInformations(array $picture_informations): self
     {
         $this->picture_informations = $picture_informations;
@@ -191,6 +196,9 @@ class DisplayConfigurationModel
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getPictureInformations(): array
     {
         return $this->picture_informations;

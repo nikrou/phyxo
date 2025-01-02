@@ -508,6 +508,9 @@ class Image
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [
@@ -538,6 +541,9 @@ class Image
         ];
     }
 
+    /**
+     * @param array<string, mixed> $values
+     */
     public function fromArray(array $values = []): void
     {
         if (isset($values['id'])) {

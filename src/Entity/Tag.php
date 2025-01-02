@@ -43,6 +43,8 @@ class Tag
     private Collection $imageTags;
     private int $counter = 0;
     private int $level = 0;
+
+    /** @var array<string, mixed> */
     private array $related_image_tag_infos = [];
 
     public function __construct()
@@ -121,7 +123,10 @@ class Tag
         return $this;
     }
 
-    public function getRelatedImageTagInfos()
+    /**
+     * @return array<string, mixed>
+     */
+    public function getRelatedImageTagInfos(): array
     {
         return $this->related_image_tag_infos;
     }

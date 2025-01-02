@@ -12,13 +12,14 @@
 namespace App\DQL;
 
 use Doctrine\ORM\Query\AST\Functions\FunctionNode;
+use Doctrine\ORM\Query\AST\Node;
 use Doctrine\ORM\Query\Parser;
 use Doctrine\ORM\Query\SqlWalker;
 use Doctrine\ORM\Query\TokenType;
 
 class Date extends FunctionNode
 {
-    public $date;
+    public Node $date;
 
     public function getSql(SqlWalker $sqlWalker): string
     {

@@ -43,14 +43,14 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
     public function onGroupNotify(GroupEvent $event): void
     {
         $webmaster = $this->userMapper->getWebmaster();
-        $subject = $this->translator->trans('[{title}] Visit album {album}', ['title' => $this->conf['gallery_title'], 'album' => $event->getCategory()['name']], 'admin');
+        $subject = $this->translator->trans('[{title}] Visit album {album}', ['title' => $this->conf['gallery_title'], 'album' => $event->getAlbum()['name']], 'admin');
 
         $params = [
             'GALLERY_TITLE' => $this->conf['gallery_title'],
             'CONTACT_MAIL' => $webmaster->getMailAddress(),
             'GALLERY_URL' => $this->router->generate('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            'CAT_NAME' => $event->getCategory()['name'],
-            'LINK' => $this->router->generate('album', ['category_id' => $event->getCategory()['id']], UrlGeneratorInterface::ABSOLUTE_URL),
+            'CAT_NAME' => $event->getAlbum()['name'],
+            'LINK' => $this->router->generate('album', ['category_id' => $event->getAlbum()['id']], UrlGeneratorInterface::ABSOLUTE_URL),
             'CPL_CONTENT' => $event->getMailContent() ?: '',
             'IMG_URL' => $event->getImageUrl(),
             'MAIL_TITLE' => $subject,

@@ -28,13 +28,9 @@ use Psr\Http\Message\ResponseInterface;
 class ApiContext implements Context
 {
     private readonly Client $client;
-
     private readonly Request $request;
-
     private ResponseInterface $response;
-
-    private $json_data;
-
+    private array $json_data;
     private $json_decoded = false;
 
     public function __construct(private readonly string $phyxoVersion, string $apiBaseUrl, private readonly ContainerInterface $driverContainer)
@@ -43,7 +39,7 @@ class ApiContext implements Context
         $this->request = new Request('GET', $apiBaseUrl);
     }
 
-    protected function getContainer():  ContainerInterface
+    protected function getContainer(): ContainerInterface
     {
         return $this->driverContainer;
     }

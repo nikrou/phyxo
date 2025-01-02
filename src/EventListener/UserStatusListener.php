@@ -20,7 +20,7 @@ use Doctrine\ORM\Events;
 #[AsDoctrineListener(event: Events::postLoad)]
 class UserStatusListener
 {
-    public function postLoad(PostLoadEventArgs $args)
+    public function postLoad(PostLoadEventArgs $args): void
     {
         $entity = $args->getObject();
 

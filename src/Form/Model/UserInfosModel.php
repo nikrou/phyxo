@@ -18,16 +18,8 @@ use App\Enum\UserStatusType;
 class UserInfosModel
 {
     private ?string $username = null;
-
-    /**
-     * @var mixed|null
-     */
-    private $recent_period;
-
-    /**
-     * @var mixed|null
-     */
-    private $nb_image_page;
+    private int $recent_period;
+    private int $nb_image_page;
     private ?Language $language = null;
     private ?Theme $theme = null;
     private UserStatusType $status;
@@ -48,24 +40,24 @@ class UserInfosModel
         return $this->username;
     }
 
-    public function getRecentPeriod()
+    public function getRecentPeriod(): int
     {
         return $this->recent_period;
     }
 
-    public function setRecentPeriod($recent_period): self
+    public function setRecentPeriod(int $recent_period): self
     {
         $this->recent_period = $recent_period;
 
         return $this;
     }
 
-    public function getNbImagePage()
+    public function getNbImagePage(): int
     {
         return $this->nb_image_page;
     }
 
-    public function setNbImagePage($nb_image_page): self
+    public function setNbImagePage(int $nb_image_page): self
     {
         $this->nb_image_page = $nb_image_page;
 

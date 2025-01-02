@@ -61,6 +61,8 @@ class ImageMapper
      * @param int|string $element_id
      * @param array{current_day?: DateTimeInterface, date_type?: string, year?: int, month?: int, day?: int } $extra
      * @param int[] $selection
+     *
+     * @return array<string, mixed>
      */
     public function getPicturesFromSelection($element_id, PictureSectionType $section, array $selection = [], int $start_id = 0, array $extra = []): array
     {
@@ -80,7 +82,7 @@ class ImageMapper
             $pictures[] = $image_infos;
         }
 
-        usort($pictures, '\Phyxo\Functions\Utils::rank_compare');
+        usort($pictures, Utils::rankCompare(...));
         unset($rank_of);
 
         if ($pictures !== [] && ($this->conf['activate_comments'] && $this->userMapper->getUser()->getUserInfos()->getShowNbComments())) {
@@ -134,8 +136,8 @@ class ImageMapper
                 $picture['NB_COMMENTS'] = $picture['nb_comments'] = $nb_comments_of[$picture['image']->getId()];
             }
 
-            $name = Utils::render_element_name($picture);
-            $desc = Utils::render_element_description($picture, 'main_page_element_description');
+            $name = Utils::renderElementName($picture);
+            $desc = Utils::renderElementDescription($picture, 'main_page_element_description');
 
             $tpl_var = array_merge($picture, [
                 'TN_ALT' => htmlspecialchars(strip_tags($name)),
@@ -248,10 +250,6 @@ class ImageMapper
             $files = [];
             $files[] = $image->getPath();
 
-            if ($image->getRepresentativeExt()) {
-                $files[] = Utils::original_to_representative($files[0], $image->getRepresentativeExt());
-            }
-
             $fs = new Filesystem();
             $ok = true;
             if (!isset($this->conf['never_delete_originals'])) {
@@ -265,7 +263,7 @@ class ImageMapper
             }
 
             if ($ok) {
-                $this->derivativeService->deleteForElement($image->toArray());
+                $this->derivativeService->deleteForElement($image->getPath());
                 $new_ids[] = $image->getId();
             } else {
                 break;
@@ -278,8 +276,7 @@ class ImageMapper
     /**
      * Add info to the title of the thumbnail based on photo properties.
      *
-     * @param array $info hit, rating_score, nb_comments
-     * @param string $comment
+     * @param array<string, mixed> $info
      */
     public function getThumbnailTitle(array $info, string $title, ?string $comment = ''): string
     {

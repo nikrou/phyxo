@@ -16,21 +16,90 @@ namespace Phyxo\Image;
  */
 class WatermarkParams
 {
-    /** @var string */
-    public $file = '';
+    private string $file = '';
 
-    /** @var int[] */
-    public $min_size = [500, 500];
+    /** @var array{0:int, 1:int} */
+    private $min_size = [500, 500];
+    private int $xpos = 50;
+    private int $ypos = 50;
+    private int $xrepeat = 0;
+    private int $opacity = 100;
 
-    /** @var int */
-    public $xpos = 50;
+    public function getFile(): string
+    {
+        return $this->file;
+    }
 
-    /** @var int */
-    public $ypos = 50;
+    public function setFile(string $file): self
+    {
+        $this->file = $file;
 
-    /** @var int */
-    public $xrepeat = 0;
+        return $this;
+    }
 
-    /** @var int */
-    public $opacity = 100;
+    /**
+     * @return array{0:int, 1:int}
+     */
+    public function getMinSize(): array
+    {
+        return $this->min_size;
+    }
+
+    /**
+     * @param array{0:int, 1:int} $min_size
+     */
+    public function setMinSize(array $min_size): self
+    {
+        $this->min_size = $min_size;
+
+        return $this;
+    }
+
+    public function getXpos(): int
+    {
+        return $this->xpos;
+    }
+
+    public function setXpos(int $xpos): self
+    {
+        $this->xpos = $xpos;
+
+        return $this;
+    }
+
+    public function getYpos(): int
+    {
+        return $this->ypos;
+    }
+
+    public function setYpos(int $ypos): self
+    {
+        $this->ypos = $ypos;
+
+        return $this;
+    }
+
+    public function getXrepeat(): int
+    {
+        return $this->xrepeat;
+    }
+
+    public function setXrepeat(int $xrepeat): self
+    {
+        $this->xrepeat = $xrepeat;
+
+        return $this;
+    }
+
+    public function getOpacity(): int
+    {
+        return $this->opacity;
+    }
+
+    public function setOpacity(int $opacity): self
+    {
+        $this->opacity = $opacity;
+
+        return $this;
+    }
 }

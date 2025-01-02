@@ -446,6 +446,7 @@ class ImageRepository extends ServiceEntityRepository
 
     /**
      * @param int[] $forbidden_albums
+     * @param array<array<int, string>> $order_by
      *
      * @return Image[]
      */
@@ -1044,7 +1045,7 @@ class ImageRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param array<string, array<string, array<string, array|string>>> $rules
+     * @param array<string, array<string, array<string, array<string>|string>>> $rules
      * @param int[] $forbidden_albums
      *
      * @return Image[]

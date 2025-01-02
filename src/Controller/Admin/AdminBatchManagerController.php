@@ -370,9 +370,9 @@ class AdminBatchManagerController extends AbstractController
             ) as $image) {
                 $nb_thumbs_page++;
 
-                $ttitle = Utils::render_element_name($image->toArray());
-                if ($ttitle != Utils::get_name_from_file($image->getFile())) { // @TODO: simplify. code difficult to read
-                    $ttitle .= ' (' . $image->getFile() . ')';
+                $title = Utils::renderElementName($image->toArray());
+                if ($title !== Utils::getNameFromFile($image->getFile())) { // @TODO: simplify. code difficult to read
+                    $title .= ' (' . $image->getFile() . ')';
                 }
 
                 $derivative_thumb = new DerivativeImage($image, $thumb_params, $image_std_params);
@@ -385,7 +385,7 @@ class AdminBatchManagerController extends AbstractController
                             'admin_media',
                             ['path' => $image->getPathBasename(), 'derivative' => $derivative_thumb->getUrlType(), 'image_extension' => $image->getExtension()]
                         ),
-                        'TITLE' => $ttitle,
+                        'TITLE' => $title,
                         'FILE_SRC' => $this->generateUrl(
                             'admin_media',
                             ['path' => $image->getPathBasename(), 'derivative' => $derivative_large->getUrlType(), 'image_extension' => $image->getExtension()]
@@ -581,7 +581,7 @@ class AdminBatchManagerController extends AbstractController
         } elseif ($action === 'delete_derivatives' && $request->request->has('del_derivatives_type')) {
             foreach ($imageMapper->getRepository()->findBy($collection) as $image) {
                 foreach ($request->request->all('del_derivatives_type') as $type) {
-                    $this->derivativeService->deleteForElement($image->toArray(), $type);
+                    $this->derivativeService->deleteForElement($image->getPath(), $type);
                 }
             }
         } elseif ($action === 'generate_derivatives') {
@@ -833,6 +833,9 @@ class AdminBatchManagerController extends AbstractController
         return $filter_sets;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function setDimensions(ImageMapper $imageMapper, SessionInterface $session): array
     {
         $tpl_params = [];
@@ -1130,8 +1133,8 @@ class AdminBatchManagerController extends AbstractController
                 }
                 $tag_selection = $tagMapper->prepareTagsListForUI($tags);
 
-                $legend = Utils::render_element_name($image->toArray());
-                if ($legend != Utils::get_name_from_file($image->getFile())) {
+                $legend = Utils::renderElementName($image->toArray());
+                if ($legend !== Utils::getNameFromFile($image->getFile())) {
                     $legend .= ' (' . $image->getFile() . ')';
                 }
 

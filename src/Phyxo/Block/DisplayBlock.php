@@ -16,10 +16,12 @@ namespace Phyxo\Block;
  */
 class DisplayBlock
 {
-    protected $position;
-    protected $title;
-    public $data = [];
-    public string $template;
+    private int $position;
+    private string $title;
+
+    /** @var array<string, mixed> */
+    public array $data = [];
+    private string $template = '';
 
     public function __construct(protected RegisteredBlock $registeredBlock)
     {
@@ -42,7 +44,7 @@ class DisplayBlock
 
     public function getTitle(): string
     {
-        if ($this->title !== null) {
+        if ($this->title !== '') {
             return $this->title;
         } else {
             return $this->registeredBlock->getName();
@@ -52,5 +54,31 @@ class DisplayBlock
     public function setTitle(string $title): void
     {
         $this->title = $title;
+    }
+
+    public function getTemplate(): string
+    {
+        return $this->template;
+    }
+
+    public function setTemplate(string $template): void
+    {
+        $this->template = $template;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getData(): array
+    {
+        return $this->data;
+    }
+
+    /**
+     * @param array<string, mixed>|array<array<mixed>>|array<string, array<string, mixed>> $data
+     */
+    public function setData(array $data): void
+    {
+        $this->data = $data;
     }
 }

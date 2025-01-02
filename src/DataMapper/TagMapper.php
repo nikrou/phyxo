@@ -25,6 +25,7 @@ use App\Repository\ImageTagRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\ImageRepository;
 use Phyxo\Functions\Language;
+use Phyxo\Functions\Utils;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -79,6 +80,9 @@ class TagMapper
         return $tags;
     }
 
+    /**
+     * @return array<array<string, mixed>>
+     */
     public function getPendingTags(): array
     {
         $tags = [];
@@ -101,7 +105,7 @@ class TagMapper
             );
         }
 
-        usort($tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
+        usort($tags, Utils::tagAlphaCompare(...));
 
         return $tags;
     }
@@ -213,9 +217,9 @@ class TagMapper
                 }
             }
         }
-        usort($taglist, '\Phyxo\Functions\Utils::tag_alpha_compare');
+        usort($taglist, Utils::tagAlphaCompare(...));
         if ($altlist !== []) {
-            usort($altlist, '\Phyxo\Functions\Utils::tag_alpha_compare');
+            usort($altlist, Utils::tagAlphaCompare(...));
             $taglist = [...$taglist, ...$altlist];
         }
 

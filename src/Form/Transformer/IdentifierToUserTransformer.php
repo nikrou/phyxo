@@ -12,9 +12,13 @@
 namespace App\Form\Transformer;
 
 use App\Entity\User;
+use App\Form\Model\ForgotPasswordModel;
 use App\Repository\UserRepository;
 use Symfony\Component\Form\DataTransformerInterface;
 
+/**
+ * @implements DataTransformerInterface<string, ForgotPasswordModel>
+ */
 class IdentifierToUserTransformer implements DataTransformerInterface
 {
     public function __construct(private readonly UserRepository $userRepository)
@@ -26,7 +30,10 @@ class IdentifierToUserTransformer implements DataTransformerInterface
         return $identifier;
     }
 
-    public function reverseTransform($forgotPasswordModel): ?User
+    /**
+     *  @param ForgotPasswordModel $forgotPasswordModel
+     */
+    public function reverseTransform(mixed $forgotPasswordModel): ?User
     {
         return $this->userRepository->findUserByUsernameOrEmail($forgotPasswordModel->getIdentifier());
     }

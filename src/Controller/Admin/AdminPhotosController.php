@@ -55,14 +55,14 @@ class AdminPhotosController extends AbstractController
         $this->translator = $translator;
 
         $upload_max_filesize = min(
-            Utils::get_ini_size('upload_max_filesize'),
-            Utils::get_ini_size('post_max_size')
+            $this->getIniSize('upload_max_filesize'),
+            $this->getIniSize('post_max_size')
         );
 
-        if ($upload_max_filesize == Utils::get_ini_size('upload_max_filesize')) {
-            $upload_max_filesize_shorthand = Utils::get_ini_size('upload_max_filesize', false);
+        if ($upload_max_filesize == $this->getIniSize('upload_max_filesize')) {
+            $upload_max_filesize_shorthand = $this->getIniSize('upload_max_filesize', false);
         } else {
-            $upload_max_filesize_shorthand = Utils::get_ini_size('post_max_filesize', false);
+            $upload_max_filesize_shorthand = $this->getIniSize('post_max_filesize', false);
         }
 
         $tpl_params['upload_max_filesize'] = $upload_max_filesize;
@@ -70,7 +70,7 @@ class AdminPhotosController extends AbstractController
 
         // what is the maximum number of pixels permitted by the memory_limit?
         $fudge_factor = 1.7;
-        $available_memory = Utils::get_ini_size('memory_limit') - memory_get_usage();
+        $available_memory = (int) $this->getIniSize('memory_limit') - memory_get_usage();
         $max_upload_width = round(sqrt($available_memory / (2 * $fudge_factor)));
         $max_upload_height = round(2 * $max_upload_width / 3);
 
@@ -132,11 +132,11 @@ class AdminPhotosController extends AbstractController
             $tpl_params['setup_warnings'][] = $translator->trans('Exif extension not available, admin should disable exif use', [], 'admin');
         }
 
-        if (Utils::get_ini_size('upload_max_filesize') > Utils::get_ini_size('post_max_size')) {
+        if ($this->getIniSize('upload_max_filesize') > $this->getIniSize('post_max_size')) {
             $tpl_params['setup_warnings'][] = $translator->trans(
                 'In your php.ini file, the upload_max_filesize ({upload_max_filesize}B) is bigger than post_max_size ({post_max_size}B), you should change this setting',
-                ['upload_max_filesize' => Utils::get_ini_size('upload_max_filesize', false),
-                    'post_max_size' => Utils::get_ini_size('post_max_size', false)
+                ['upload_max_filesize' => $this->getIniSize('upload_max_filesize', false),
+                    'post_max_size' => $this->getIniSize('post_max_size', false)
                 ],
                 'admin'
             );
@@ -168,5 +168,37 @@ class AdminPhotosController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_batch_manager_global', ['filter' => 'caddie']);
+    }
+
+    private function getIniSize(string $ini_key, bool $in_bytes = true): string
+    {
+        $size = ini_get($ini_key);
+
+        if ($in_bytes) {
+            $size = $this->convertShorthandNotationToBytes($size);
+        }
+
+        return $size;
+    }
+
+    private function convertShorthandNotationToBytes(string $value): string
+    {
+        $suffix = substr($value, -1);
+        $multiply_by = null;
+
+        if ($suffix === 'K') {
+            $multiply_by = 1024;
+        } elseif ($suffix === 'M') {
+            $multiply_by = 1024 * 1024;
+        } elseif ($suffix === 'G') {
+            $multiply_by = 1024 * 1024 * 1024;
+        }
+
+        if (!is_null($multiply_by)) {
+            $value = (int) substr($value, 0, -1);
+            $value *= $multiply_by;
+        }
+
+        return $value;
     }
 }

@@ -40,7 +40,7 @@ class CommentNotificationSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onCommentAction(CommentEvent $event)
+    public function onCommentAction(CommentEvent $event): void
     {
         $params = [];
         $from = [];

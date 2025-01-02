@@ -117,14 +117,18 @@ class Languages extends Extensions
         return $error;
     }
 
-    // for Update/Updates
-    public function getFsExtensions()
+    /**
+     * @return array<string, mixed>
+     */
+    public function getFsExtensions(): array
     {
         return $this->getFsLanguages();
     }
 
     /**
      *  Get languages defined in the language directory
+     *
+     * @return array<string, mixed>
      */
     public function getFsLanguages(): array
     {
@@ -169,7 +173,7 @@ class Languages extends Extensions
 
                 $this->fs_languages[$language_code] = $language;
             }
-            uasort($this->fs_languages, '\Phyxo\Functions\Utils::name_compare');
+            uasort($this->fs_languages, Utils::nameCompare(...));
 
             $this->fs_languages_retrieved = true;
         }
@@ -207,7 +211,7 @@ class Languages extends Extensions
 
             try {
                 $pem_versions = $this->getJsonFromServer($url, $get_data);
-                if (!empty($pem_versions) && !preg_match('/^\d+\.\d+\.\d+$/', $version)) {
+                if ($pem_versions !== [] && !preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                     $version = $pem_versions[0]['name'];
                 }
                 $branch = Utils::get_branch_from_version($version);

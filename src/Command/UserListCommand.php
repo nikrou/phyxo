@@ -24,6 +24,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 )]
 class UserListCommand extends Command
 {
+    /** @var array<string, string> */
     private array $Fields = [
         'id' => 'Id',
         'username' => 'Username',

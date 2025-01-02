@@ -16,14 +16,22 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class BlockManager
 {
+    /** @var array<string, mixed> */
     private array $menuBlockConfig = [];
-    protected array $registered_blocks = [];
-    protected array $display_blocks = [];
+
+    /** @var RegisteredBlock[] */
+    private array $registered_blocks = [];
+
+    /** @var array<int, DisplayBlock> */
+    private array $display_blocks = [];
 
     public function __construct(private readonly string $id)
     {
     }
 
+    /**
+     * @param array<string, mixed> $menuBlockConfig
+     */
     public function loadMenuConfig(array $menuBlockConfig = []): void
     {
         $this->menuBlockConfig = $menuBlockConfig;
@@ -89,12 +97,12 @@ class BlockManager
         $this->sortBlocks();
     }
 
-    public function isHidden($block_id): bool
+    public function isHidden(int $block_id): bool
     {
         return !isset($this->display_blocks[$block_id]);
     }
 
-    public function hideBlock(string $block_id): void
+    public function hideBlock(int $block_id): void
     {
         unset($this->display_blocks[$block_id]);
     }
@@ -124,11 +132,14 @@ class BlockManager
         return $a->getPosition() - $b->getPosition();
     }
 
+    /**
+     * @return DisplayBlock[]
+     */
     public function getDisplayBlocks(): array
     {
         foreach ($this->display_blocks as $id => $block) {
-            if (empty($block->raw_content) && empty($block->template)) {
-                $this->hideBlock($id);
+            if (empty($block->getTemplate())) {
+                $this->hideBlock((int) $id);
             }
         }
         $this->sortBlocks();

@@ -29,6 +29,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 )]
 class InstallCommand extends Command
 {
+    /** @var array<string, string> */
     private array $db_params = ['db_layer' => '', 'db_host' => '', 'db_name' => '', 'db_user' => '', 'db_password' => '', 'db_prefix' => ''];
     private string $localEnvFile = '';
 
@@ -166,7 +167,7 @@ class InstallCommand extends Command
         return Command::SUCCESS;
     }
 
-    protected function writeInfo($io, string $message)
+    protected function writeInfo(SymfonyStyle $io, string $message): void
     {
         $io->newLine();
         $io->writeln('<bg=blue;fg=white> ' . str_pad('', strlen($message), ' ') . ' </>');

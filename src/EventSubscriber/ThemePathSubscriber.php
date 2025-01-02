@@ -33,7 +33,7 @@ class ThemePathSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function addThemePath(RequestEvent $event)
+    public function addThemePath(RequestEvent $event): void
     {
         if ($event->isMainRequest() === false) {
             return;

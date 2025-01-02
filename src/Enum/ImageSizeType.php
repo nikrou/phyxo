@@ -43,6 +43,9 @@ enum ImageSizeType: string
         return array_map(fn ($case) => $case->value, self::getAllTypes());
     }
 
+    /**
+     * @return array<string, string>
+     */
     public static function getAllPrefixes()
     {
         return array_map(fn ($case) => substr($case->value, 0, 2), self::getAllTypes());

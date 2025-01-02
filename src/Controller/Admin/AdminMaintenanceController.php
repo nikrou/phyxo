@@ -266,7 +266,7 @@ class AdminMaintenanceController extends AbstractController
 
         $purge_urls[$translator->trans('All', [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => 'all']);
         foreach ($image_std_params->getDefinedTypeMap() as $std_params) {
-            $purge_urls[$translator->trans($std_params->type->value, [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => $std_params->type]);
+            $purge_urls[$translator->trans($std_params->type->value, [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => $std_params->type->value]);
         }
         $purge_urls[$translator->trans(ImageSizeType::CUSTOM->value, [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => ImageSizeType::CUSTOM->value]);
 

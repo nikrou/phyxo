@@ -11,13 +11,15 @@
 
 namespace App\Form\Transformer;
 
-use LogicException;
 use App\Entity\User;
 use App\Form\Model\UserProfileModel;
 use App\Repository\UserRepository;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 
+/**
+ * @implements DataTransformerInterface<User, UserProfileModel>
+ */
 class UserToUserProfileTransformer implements DataTransformerInterface
 {
     public function __construct(private readonly UserRepository $userRepository)
@@ -28,10 +30,6 @@ class UserToUserProfileTransformer implements DataTransformerInterface
     {
         if (is_null($user)) {
             return new UserProfileModel();
-        }
-
-        if (!$user instanceof User) {
-            throw new LogicException('The UserProfileType can only be used with User objects');
         }
 
         $userProfileModel = new UserProfileModel();

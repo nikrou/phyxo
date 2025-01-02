@@ -35,6 +35,8 @@ class RateMapper
 
     /**
      * Rate a picture by the current user.
+     *
+     * @return array<string, mixed>
      */
     public function ratePicture(int $image_id, int $note, string $anonymous_id, string $save_anonymous_id = ''): array
     {
@@ -78,7 +80,8 @@ class RateMapper
      *  m = global average rate (all rates)
      *
      * @param ?int $element_id if null applies to all
-     * @return array (score, average, count) values are null if $element_id is false
+     *
+     * @return array{score: float, average:float, count:float} values are null if $element_id is false
      */
     public function updateRatingScore(?int $element_id = null): array
     {

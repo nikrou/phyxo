@@ -21,7 +21,7 @@ class Error
     public function __construct($code, $codeText)
     {
         if ($code >= 400 && $code < 600) {
-            HTTP::set_status_header($code, $codeText);
+            $this->setStatusHeader($code, $codeText);
         }
 
         $this->code = $code;
@@ -36,5 +36,55 @@ class Error
     public function message()
     {
         return $this->codeText;
+    }
+
+    /**
+     * Sets the http status header (200,401,...)
+     */
+    private function setStatusHeader(int $code, string $text = ''): void
+    {
+        if ($text === '' || $text === '0') {
+            switch ($code) {
+                case 200:
+                    $text = 'OK';
+                    break;
+                case 301:
+                    $text = 'Moved permanently';
+                    break;
+                case 302:
+                    $text = 'Moved temporarily';
+                    break;
+                case 304:
+                    $text = 'Not modified';
+                    break;
+                case 400:
+                    $text = 'Bad request';
+                    break;
+                case 401:
+                    $text = 'Authorization required';
+                    break;
+                case 403:
+                    $text = 'Forbidden';
+                    break;
+                case 404:
+                    $text = 'Not found';
+                    break;
+                case 500:
+                    $text = 'Server error';
+                    break;
+                case 501:
+                    $text = 'Not implemented';
+                    break;
+                case 503:
+                    $text = 'Service unavailable';
+                    break;
+            }
+        }
+        $protocol = $_SERVER["SERVER_PROTOCOL"];
+        if (('HTTP/1.1' != $protocol) && ('HTTP/1.0' != $protocol)) {
+            $protocol = 'HTTP/1.0';
+        }
+
+        header("$protocol $code $text", true, $code);
     }
 }

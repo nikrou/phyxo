@@ -19,6 +19,9 @@ use App\Repository\ThemeRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\Form\DataTransformerInterface;
 
+/**
+ * @implements DataTransformerInterface<UserInfos, UserInfosModel>
+ */
 class UserToUserInfosTransformer implements DataTransformerInterface
 {
     public function __construct(private readonly LanguageRepository $languageRepository, private readonly ThemeRepository $themeRepository, private readonly UserRepository $userRepository)

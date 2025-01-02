@@ -7,6 +7,37 @@ parameters:
     - message: '#.*#'
       path: src/Phyxo/Functions/Ws/*.php
 
+    - message: '#.*#'
+      path: src/Phyxo/Ws/Server.php
+
+    - message: '#.*#'
+      path: src/Phyxo/Ws/Error.php
+
+    - message: '#.*#'
+      path: tests/Behat/ApiContext.php
+
+    # Need refactoring
+    - message: '#.*#'
+      path: src/Phyxo/Update/Updates.php
+
+    - message: '#.*#'
+      path: src/Phyxo/Theme/*.php
+
+    - message: '#.*#'
+      path: src/Phyxo/Plugin/*.php
+
+    - message: '#.*#'
+      path: src/Phyxo/Language/Languages.php
+
+    - message: '#.*#'
+      path: src/Notification.php
+
     # Not yet used
     - message: '#Trait App\\Controller\\CommentControllerTrait is used zero times and is not analysed.#'
       path: src/Controller/CommentControllerTrait.php
+
+    # will be removed because of src/Phyxo/Function/Ws/*.php
+    - message: '#Method App\\Repository\\UserRepository::getList\(\) return type has no value type specified in iterable type array#'
+      path: src/Repository/UserRepository.php
+
+

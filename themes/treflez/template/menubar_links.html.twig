@@ -1,8 +1,8 @@
 <li class="nav-item dropdown" id="linksDropdown">
-    <button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown">{{'Links'|trans}}</button>
-    <div class="dropdown-menu dropdown-menu-right" role="menu">
-	{% for link in block.data %}
-            <a href="{{link.URL}}" class="dropdown-item{% if link.new_window %} external{% endif %}">{{link.LABEL}}</a>
-	{% endfor %}
-    </div>
+  <button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown">{{'Links'|trans}}</button>
+  <div class="dropdown-menu dropdown-menu-right" role="menu">
+    {% for link in block.getdata %}
+      <a href="{{link.URL}}" class="dropdown-item{% if link.new_window %} external{% endif %}">{{link.LABEL}}</a>
+    {% endfor %}
+  </div>
 </li>

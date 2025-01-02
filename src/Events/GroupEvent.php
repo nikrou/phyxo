@@ -15,30 +15,36 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class GroupEvent extends Event
 {
+    /**
+     * @param array<string, string|int|null> $album
+     */
     public function __construct(
         private readonly int $group,
-        private readonly array $category,
+        private readonly array $album,
         private readonly string $image_url,
         private readonly string $mail_content
     ) {
     }
 
-    public function getGroup()
+    public function getGroup(): int
     {
         return $this->group;
     }
 
-    public function getCategory()
+    /**
+     * @return array<string, string>
+     */
+    public function getAlbum(): array
     {
-        return $this->category;
+        return $this->album;
     }
 
-    public function getImageUrl()
+    public function getImageUrl(): string
     {
         return $this->image_url;
     }
 
-    public function getMailContent()
+    public function getMailContent(): string
     {
         return $this->mail_content;
     }

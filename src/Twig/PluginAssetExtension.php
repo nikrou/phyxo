@@ -35,7 +35,7 @@ class PluginAssetExtension extends AbstractExtension
     {
         $links = [];
         foreach ($this->assetsManager->getStylesheets() as $stylesheet) {
-            $links[] = sprintf('<link rel="stylesheet" href="%s">', $this->urlGenerator->generate('plugin_asset', ['id' => $stylesheet['id'], 'path' => $stylesheet['path']]));
+            $links[] = sprintf('<link rel="stylesheet" href="%s">', $this->urlGenerator->generate('plugin_asset', ['id' => $stylesheet->getId(), 'path' => $stylesheet->getPath()]));
         }
 
         return implode('', $links);
@@ -45,7 +45,7 @@ class PluginAssetExtension extends AbstractExtension
     {
         $scripts = [];
         foreach ($this->assetsManager->getScripts() as $script) {
-            $scripts[] = sprintf('<script src="%s"></script>', $this->urlGenerator->generate('plugin_asset', ['id' => $script['id'], 'path' => $script['path']]));
+            $scripts[] = sprintf('<script src="%s"></script>', $this->urlGenerator->generate('plugin_asset', ['id' => $script->getId(), 'path' => $script->getPath()]));
         }
 
         return implode('', $scripts);

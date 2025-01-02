@@ -21,10 +21,13 @@ use App\Repository\ConfigRepository;
  *  - in database : can be update throught admin area.
  *
  *  Add prefix file_ or db_ to configuration keys to know if database update is needed
+ *
+ *  @implements ArrayAccess<string, mixed>
  */
 class Conf implements ArrayAccess
 {
-    private $keys = [];
+    /** @var array<string, mixed> */
+    private array $keys = [];
     final public const FILE_PREFIX = 'file_';
     final public const DB_PREFIX = 'db_';
 
@@ -41,7 +44,7 @@ class Conf implements ArrayAccess
         $this->loadFromDB();
     }
 
-    public function loadFromFile($conf_file): void
+    public function loadFromFile(string $conf_file): void
     {
         if (!is_readable($conf_file)) {
             return;
@@ -78,7 +81,7 @@ class Conf implements ArrayAccess
     /**
      * Add or update a config parameter
      */
-    public function addOrUpdateParam(string $param, $value, string $type = 'string'): void
+    public function addOrUpdateParam(string $param, mixed $value, string $type = 'string'): void
     {
         $config = $this->configRepository->findOneBy(['param' => $param]);
         if (is_null($config)) {
@@ -93,7 +96,7 @@ class Conf implements ArrayAccess
         $this->keys[self::DB_PREFIX . $param]['value'] = $value;
     }
 
-    public function dbToConf(?string $value, string $type = 'string')
+    public function dbToConf(?string $value, string $type = 'string'): mixed
     {
         if (is_null($value)) {
             return null;
@@ -110,7 +113,7 @@ class Conf implements ArrayAccess
         }
     }
 
-    protected function confToDb($value, string $type = 'string'): ?string
+    protected function confToDb(mixed $value, string $type = 'string'): ?string
     {
         if (is_null($value)) {
             return null;
@@ -125,13 +128,12 @@ class Conf implements ArrayAccess
         }
     }
 
-    // ArrayAccess methods
-    public function offsetExists($param): bool
+    public function offsetExists(mixed $param): bool
     {
         return isset($this->keys[self::FILE_PREFIX . $param]) || isset($this->keys[self::DB_PREFIX . $param]);
     }
 
-    public function offsetGet($param): mixed
+    public function offsetGet(mixed $param): mixed
     {
         $value = null;
 
@@ -146,7 +148,7 @@ class Conf implements ArrayAccess
         return $value;
     }
 
-    public function offsetSet($param, $value): void
+    public function offsetSet(mixed $param, mixed $value): void
     {
         if (isset($this->keys[self::FILE_PREFIX . $param])) {
             $this->keys[self::FILE_PREFIX . $param]['value'] = $value;
@@ -157,7 +159,7 @@ class Conf implements ArrayAccess
         }
     }
 
-    public function offsetUnset($param): void
+    public function offsetUnset(mixed $param): void
     {
         if (isset($this->keys[self::DB_PREFIX . $param])) {
             unset($this->keys[self::DB_PREFIX . $param]);

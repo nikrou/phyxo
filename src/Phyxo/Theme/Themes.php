@@ -204,16 +204,20 @@ class Themes extends Extensions
         return $this->db_themes;
     }
 
-    // for Update/Updates
-    public function getFsExtensions()
+    /**
+     * @return array<string, mixed>
+     */
+    public function getFsExtensions(): array
     {
         return $this->getFsThemes();
     }
 
     /**
      *  Get themes defined in the theme directory
+     *
+     * @return array<string, mixed>
      */
-    public function getFsThemes()
+    public function getFsThemes(): array
     {
         if (!$this->fs_themes_retrieved) {
             foreach (glob($this->themes_root_path . '/*') as $theme_dir) {
@@ -280,7 +284,7 @@ class Themes extends Extensions
 
         switch ($order) {
             case 'name':
-                uasort($this->fs_themes, '\Phyxo\Functions\Utils::name_compare');
+                uasort($this->fs_themes, Utils::nameCompare(...));
                 break;
             case 'status':
                 $this->sortThemesByState();
@@ -311,7 +315,7 @@ class Themes extends Extensions
 
             try {
                 $pem_versions = $this->getJsonFromServer($url, $get_data);
-                if (!empty($pem_versions) && !preg_match('/^\d+\.\d+\.\d+$/', $version)) {
+                if ($pem_versions !== [] && !preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                     $version = $pem_versions[0]['name'];
                 }
                 $branch = Utils::get_branch_from_version($version);
@@ -454,7 +458,7 @@ class Themes extends Extensions
     {
         $r = strcasecmp((string) $a['author'], (string) $b['author']);
         if ($r == 0) {
-            return Utils::name_compare($a, $b);
+            return Utils::nameCompare($a, $b);
         } else {
             return $r;
         }
@@ -471,7 +475,7 @@ class Themes extends Extensions
 
     public function sortThemesByState()
     {
-        uasort($this->fs_themes, '\Phyxo\Functions\Utils::name_compare');
+        uasort($this->fs_themes, Utils::nameCompare(...));
 
         $active_themes = [];
         $inactive_themes = [];

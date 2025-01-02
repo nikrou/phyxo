@@ -11,6 +11,7 @@
 
 namespace App\Controller;
 
+use Phyxo\Image\ImageRect;
 use DateTime;
 use App\Entity\Image;
 use App\ImageLibraryGuesser;
@@ -132,15 +133,15 @@ class MediaController extends AbstractController
 
         $image_std_params->applyWatermark($derivative_params);
 
-        if ($derivative_params->sizing->ideal_size[0] < 20 || $derivative_params->sizing->ideal_size[1] < 20) {
+        if ($derivative_params->getSizing()->getIdealSize()[0] < 20 || $derivative_params->getSizing()->getIdealSize()[1] < 20) {
             return new Response('Invalid size', Response::HTTP_BAD_REQUEST);
         }
-        if ($derivative_params->sizing->max_crop < 0 || $derivative_params->sizing->max_crop > 1) {
+        if ($derivative_params->getSizing()->getMaxCrop() < 0 || $derivative_params->getSizing()->getMaxCrop() > 1) {
             return new Response('Invalid crop', Response::HTTP_BAD_REQUEST);
         }
 
         $key = [];
-        $derivative_params->add_url_tokens($key);
+        $derivative_params->addUrlTokens($key);
         $key = implode('_', $key);
 
         if (!$image_std_params->hasCustom($key)) {
@@ -278,19 +279,20 @@ class MediaController extends AbstractController
     protected function cropAndScale(Image $image, ImageStandardParams $image_std_params, DerivativeParams $derivative_params, ImageOptimizer $imageOptimizer): void
     {
         $coi = (string) $image->getCoi();
-        $crop_rect = $scaled_size = null;
+        $crop_rect = null;
+        $scaled_size = [];
         $o_size = $d_size = [$imageOptimizer->getWidth(), $imageOptimizer->getHeight()];
-        $derivative_params->sizing->compute($o_size, $crop_rect, $scaled_size, $coi);
-        if ($crop_rect) {
-            $imageOptimizer->crop($crop_rect->width(), $crop_rect->height(), $crop_rect->l, $crop_rect->t);
+        $derivative_params->getSizing()->compute($o_size, $crop_rect, $scaled_size, $coi);
+        if ($crop_rect instanceof ImageRect) {
+            $imageOptimizer->crop($crop_rect->width(), $crop_rect->height(), $crop_rect->getLeft(), $crop_rect->getTop());
         }
 
-        if ($scaled_size) {
+        if ($scaled_size !== []) {
             $imageOptimizer->resize($scaled_size[0], $scaled_size[1]);
             $d_size = $scaled_size;
         }
 
-        if ($derivative_params->will_watermark($d_size, $image_std_params)) {
+        if ($derivative_params->willWatermark($d_size, $image_std_params)) {
             $imageOptimizer->addWatermak($image_std_params->getWatermark());
         }
     }

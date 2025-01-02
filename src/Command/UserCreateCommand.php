@@ -29,6 +29,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 )]
 class UserCreateCommand extends Command
 {
+    /** @var array<string, string> */
     private array $params = ['username' => '', 'password' => '', 'mail_address' => ''];
     private string $localEnvFile = '';
 

@@ -166,13 +166,18 @@ class Plugins extends Extensions
         return $error;
     }
 
-    public function getFsExtensions()
+    /**
+     * @return array<string, mixed>
+     */
+    public function getFsExtensions(): array
     {
         return $this->getFsPlugins();
     }
 
     /**
      * Get plugins defined in the plugin directory
+     *
+     * @return array<string, mixed>
      */
     public function getFsPlugins(): array
     {
@@ -250,7 +255,7 @@ class Plugins extends Extensions
         }
         switch ($order) {
             case 'name':
-                uasort($this->fs_plugins, '\Phyxo\Functions\Utils::name_compare');
+                uasort($this->fs_plugins, Utils::nameCompare(...));
                 break;
             case 'status':
                 $this->sortPluginsByState();
@@ -271,7 +276,7 @@ class Plugins extends Extensions
         $url = $this->pem_url . '/api/get_version_list.php?category_id=' . $pem_category;
         try {
             $pem_versions = $this->getJsonFromServer($url);
-            if (!empty($pem_versions) && !preg_match('/^\d+\.\d+\.\d+$/', $version)) {
+            if ($pem_versions !== [] && !preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                 $version = $pem_versions[0]['name'];
             }
             $branch = Utils::get_branch_from_version($version);
@@ -478,7 +483,7 @@ class Plugins extends Extensions
     {
         $r = strcasecmp((string) $a['author'], (string) $b['author']);
         if ($r == 0) {
-            return Utils::name_compare($a, $b);
+            return Utils::nameCompare($a, $b);
         } else {
             return $r;
         }
@@ -499,7 +504,7 @@ class Plugins extends Extensions
             $this->getFsPlugins();
         }
 
-        uasort($this->fs_plugins, '\Phyxo\Functions\Utils::name_compare');
+        uasort($this->fs_plugins, Utils::nameCompare(...));
 
         $active_plugins = [];
         $inactive_plugins = [];

@@ -24,14 +24,15 @@ use Symfony\Component\HttpClient\HttpClient;
 
 class Updates
 {
-    private $versions = [];
-    private $version = [];
+    /** @var array<int> */
+    private array $versions = [];
+    private array $version = [];
     private array $types = ['plugins' => 'plugins', 'themes' => 'themes', 'languages' => 'language'];
-    private $update_url;
-    private $pem_url;
-    private $missing = [];
-    private $core_need_update = false;
-    private $extensions_need_update = [];
+    private string $update_url;
+    private string $pem_url;
+    private array $missing = [];
+    private bool $core_need_update = false;
+    private array $extensions_need_update = [];
 
     public function __construct(
         private readonly UserMapper $userMapper,
@@ -42,12 +43,12 @@ class Updates
     ) {
     }
 
-    public function setUpdateUrl($url)
+    public function setUpdateUrl(string $url): void
     {
         $this->update_url = $url;
     }
 
-    public function setExtensionsURL(string $url)
+    public function setExtensionsURL(string $url): void
     {
         $this->pem_url = $url;
     }
@@ -70,28 +71,27 @@ class Updates
             if ($response->getStatusCode() == 200 && $response->getContent()) {
                 $this->versions = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
                 return $this->versions;
-            } else {
-                return false;
             }
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
+        return null;
     }
 
-    public function upgradeTo($version, $release = 'stable')
+    public function upgradeTo(string $version, string $release = 'stable'): void
     {
-        if (count($this->versions) === 0) {
+        if ($this->versions === []) {
             $this->getAllVersions();
         }
 
         foreach ($this->versions as $v) {
-            if ($v['version'] == $version && $v['release'] == $release) {
+            if ($v['version'] === $version && $v['release'] === $release) {
                 $this->version = $v;
             }
         }
     }
 
-    public function removeObsoleteFiles(string $obsolete_file, string $root)
+    public function removeObsoleteFiles(string $obsolete_file, string $root): void
     {
         if (!is_readable($obsolete_file)) {
             return;
@@ -109,10 +109,10 @@ class Updates
         }
     }
 
-    public function download($zip_file)
+    public function download(string $zip_file): void
     {
         $fs = new Filesystem();
-        $fs->mkdir(dirname((string) $zip_file));
+        $fs->mkdir(dirname($zip_file));
 
         try {
             $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
@@ -125,12 +125,12 @@ class Updates
         }
     }
 
-    public function getFileURL()
+    public function getFileURL(): string
     {
         return $this->version['href'];
     }
 
-    public function upgrade($zip_file)
+    public function upgrade(string $zip_file): void
     {
         $zip = new PclZip($zip_file);
         $not_writable = [];

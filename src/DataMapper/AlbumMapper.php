@@ -23,6 +23,7 @@ use App\Repository\ImageRepository;
 use App\Repository\UserCacheAlbumRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
+use Phyxo\Functions\Utils;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -54,6 +55,8 @@ class AlbumMapper
     /**
      * Returns template vars for main albums menu.
      * @param array{id?: int, id_uppercat?: int} $selected_album
+     *
+     * @return array<string, mixed>
      */
     public function getRecursiveAlbumsMenu(User $user, array $selected_album = []): array
     {
@@ -71,10 +74,14 @@ class AlbumMapper
         return $albums;
     }
 
-    protected function insertAlbumInTree(&$categories, $category, $uppercats): void
+    /**
+     * @param array<string, mixed> $categories
+     * @param array<string, mixed> $category
+     */
+    protected function insertAlbumInTree(array &$categories, array $category, string $uppercats): void
     {
         if ($category['id'] != $uppercats) {
-            $cats = explode(',', (string) $uppercats);
+            $cats = explode(',', $uppercats);
             $cat = $cats[0];
             $new_uppercats = array_slice($cats, 1);
             if (count($new_uppercats) === 1) {
@@ -88,6 +95,8 @@ class AlbumMapper
     /**
      * Returns template vars for main albums menu.
      * @param array{id?: int, id_uppercat?: int} $selected_album
+     *
+     * @return array<string, mixed>
      */
     protected function getAlbumsMenu(User $user, array $selected_album = []): array
     {
@@ -124,7 +133,7 @@ class AlbumMapper
             // }
             $albums[$album->getId()] = $album_infos;
         }
-        uasort($albums, '\Phyxo\Functions\Utils::global_rank_compare');
+        uasort($albums, Utils::globalRankCompare(...));
 
         return $albums;
     }
@@ -132,6 +141,10 @@ class AlbumMapper
     /**
      * Get computed array of albums, that means cache data of all albums
      * available for the current user (count_categories, count_images, etc.).
+     *
+     * @param array<mixed> $forbidden_categories
+     *
+     * @return array<int, array<string, int|string|null>>
      */
     public function getComputedAlbums(int $level, array $forbidden_categories = []): array
     {
@@ -179,8 +192,13 @@ class AlbumMapper
 
     /**
      * Removes an album from computed array of albums and updates counters.
+     *
+     * @param array<array<string, int|string|null>> $albums
+     * @param array<string, mixed> $album
+     *
+     * @return array<string, mixed>
      */
-    public function removeComputedAlbum(array $albums, $album): array
+    public function removeComputedAlbum(array $albums, array $album): array
     {
         if (isset($albums[$album['id_uppercat']])) {
             $parent = $albums[$album['id_uppercat']];
@@ -204,6 +222,8 @@ class AlbumMapper
 
     /**
      * Generates breadcrumb from albums list.
+     *
+     * @param array<mixed> $album_informations
      */
     public function getAlbumDisplayName(array $album_informations, ?string $url = null): string
     {
@@ -231,6 +251,11 @@ class AlbumMapper
         return $output;
     }
 
+    /**
+     * @param array<string, mixed> $params
+     *
+     * @return array<array<string, string|null>>
+     */
     public function getAlbumsDisplayName(string $uppercats, string $route_name, array $params = []): array
     {
         $names = [];
@@ -245,6 +270,9 @@ class AlbumMapper
         return $names;
     }
 
+    /**
+     * @return array<array<string, string|null>>
+     */
     public function getBreadcrumb(Album $album): array
     {
         $breadcumb = [];
@@ -319,6 +347,12 @@ class AlbumMapper
         return $output;
     }
 
+    /**
+     * @param array<mixed> $albums
+     * @param array<string, mixed> $selecteds
+     *
+     * @return array<string, mixed>
+     */
     public function displaySelectAlbums(array $albums, array $selecteds, string $blockname, bool $fullname = true): array
     {
         $tpl_cats = [];
@@ -342,6 +376,11 @@ class AlbumMapper
     /**
      * Same as displaySelectAlbums but albums are ordered by rank
      * @see displaySelectAlbums()
+     *
+     * @param array<mixed> $albums
+     * @param array<string, mixed> $selecteds
+     *
+     * @return array<mixed>
      */
     public function displaySelectAlbumsWrapper(array $albums, array $selecteds, string $blockname, bool $fullname = true): array
     {
@@ -552,6 +591,8 @@ class AlbumMapper
     /**
      * Returns all uppercats Album ids of the given Album ids.
      * @param int[] $ids
+     *
+     * @return array<int>
      */
     public function getUppercatIds(array $ids): array
     {
@@ -561,7 +602,7 @@ class AlbumMapper
 
         $uppercats = [];
         foreach ($ids as $id) {
-            $uppercats = array_merge($uppercats, explode(',', (string) $this->getCacheAlbums()[$id]->getUppercats()));
+            $uppercats = array_merge($uppercats, array_map(fn ($s) => intval($s), explode(',', (string) $this->getCacheAlbums()[$id]->getUppercats())));
         }
 
         return array_unique($uppercats);
@@ -738,7 +779,6 @@ class AlbumMapper
         $current_parent = null;
 
         foreach ($this->getCacheAlbums() as $id => $album) {
-            /** @phpstan-ignore-next-line */
             if (!is_null($current_parent) && $album->getParent()->getId() !== $current_parent->getId()) {
                 $current_rank = 0;
                 $current_parent = $album->getParent();
@@ -771,8 +811,10 @@ class AlbumMapper
 
     /**
      * @param int[] $ids
+     *
+     * @return array<int, DateTime|null>
      */
-    public function getAlbumsRefDate(array $ids, string $field = 'date_available', string $minmax = 'max')
+    public function getAlbumsRefDate(array $ids, string $field = 'date_available', string $minmax = 'max'): array
     {
         // we need to work on the whole tree under each category, even if we don't want to sort sub categories
         $album_ids = $this->albumRepository->getSubcatIds($ids);
@@ -994,6 +1036,8 @@ class AlbumMapper
      * save the rank depending on given albums order
      *
      * The list of ordered albums id is supposed to be in the same parent album
+     *
+     * @param array<array<string, mixed>> $albums
      */
     public function saveAlbumsOrder(array $albums): void
     {
@@ -1023,6 +1067,8 @@ class AlbumMapper
 
     /**
      * @param Album[] $albums
+     *
+     * @return array<mixed>
      */
     public function getAlbumThumbnails(User $user, array $albums): array
     {
@@ -1069,8 +1115,11 @@ class AlbumMapper
 
     /**
      * @param Album[] $albums
+     * @param int[] $image_ids
+     *
+     * @return array<string, mixed>
      */
-    public function getInfosOfImages(User $user, array $albums, array $image_ids, ImageMapper $imageMapper)
+    public function getInfosOfImages(User $user, array $albums, array $image_ids, ImageMapper $imageMapper): array
     {
         $infos_of_images = [];
         $bad_level_ids = [];

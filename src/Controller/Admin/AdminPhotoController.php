@@ -149,7 +149,7 @@ class AdminPhotoController extends AbstractController
         $tpl_params['TN_SRC'] = $this->generateUrl('admin_media', ['path' => $image->getPathBasename(), 'derivative' => $derivative_thumb->getUrlType(), 'image_extension' => $image->getExtension()]);
         $tpl_params['FILE_SRC'] = $this->generateUrl('admin_media', ['path' => $image->getPathBasename(), 'derivative' => $derivative_large->getUrlType(), 'image_extension' => $image->getExtension()]);
         $tpl_params['NAME'] = $image->getName();
-        $tpl_params['TITLE'] = Utils::render_element_name($image->toArray());
+        $tpl_params['TITLE'] = Utils::renderElementName($image->toArray());
         $tpl_params['DIMENSIONS'] = $image->getWidth() . ' * ' . $image->getHeight();
         $tpl_params['FILESIZE'] = $image->getFilesize() . ' KB';
         $tpl_params['REGISTRATION_DATE'] = $image->getDateAvailable()->format('c');
@@ -310,25 +310,25 @@ class AdminPhotoController extends AbstractController
                 $image->setCoi('');
             } else {
                 $image->setCoi(
-                    DerivativeParams::fraction_to_char($request->request->get('l'))
-                            . DerivativeParams::fraction_to_char($request->request->get('t'))
-                            . DerivativeParams::fraction_to_char($request->request->get('r'))
-                            . DerivativeParams::fraction_to_char($request->request->get('b'))
+                    DerivativeParams::fractionToChar($request->request->get('l'))
+                            . DerivativeParams::fractionToChar($request->request->get('t'))
+                            . DerivativeParams::fractionToChar($request->request->get('r'))
+                            . DerivativeParams::fractionToChar($request->request->get('b'))
                 );
             }
             $imageMapper->getRepository()->addOrUpdateImage($image);
 
             foreach ($image_std_params->getDefinedTypeMap() as $std_params) {
-                if ($std_params->sizing->max_crop !== 0.0) {
-                    $derivativeService->deleteForElement($image->toArray(), $std_params->type);
+                if ($std_params->getSizing()->getMaxCrop() !== 0.0) {
+                    $derivativeService->deleteForElement($image->getPath(), $std_params->type->value);
                 }
             }
-            $derivativeService->deleteForElement($image->toArray(), ImageSizeType::CUSTOM);
+            $derivativeService->deleteForElement($image->getPath(), ImageSizeType::CUSTOM->value);
 
             return $this->redirectToRoute('admin_photo_coi', ['image_id' => $image_id, 'category_id' => $category_id]);
         }
 
-        $tpl_params['TITLE'] = Utils::render_element_name($image->toArray());
+        $tpl_params['TITLE'] = Utils::renderElementName($image->toArray());
         $tpl_params['ALT'] = $image->getFile();
 
         $derivative_large = new DerivativeImage($image, $image_std_params->getByType(ImageSizeType::LARGE), $image_std_params);
@@ -339,15 +339,15 @@ class AdminPhotoController extends AbstractController
 
         if ($image->getCoi()) {
             $tpl_params['coi'] = [
-                'l' => DerivativeParams::char_to_fraction($image->getCoi()[0]),
-                't' => DerivativeParams::char_to_fraction($image->getCoi()[1]),
-                'r' => DerivativeParams::char_to_fraction($image->getCoi()[2]),
-                'b' => DerivativeParams::char_to_fraction($image->getCoi()[3]),
+                'l' => DerivativeParams::charToFraction($image->getCoi()[0]),
+                't' => DerivativeParams::charToFraction($image->getCoi()[1]),
+                'r' => DerivativeParams::charToFraction($image->getCoi()[2]),
+                'b' => DerivativeParams::charToFraction($image->getCoi()[3]),
             ];
         }
 
         foreach ($image_std_params->getDefinedTypeMap() as $std_params) {
-            if ($std_params->sizing->max_crop != 0) {
+            if ($std_params->getSizing()->getMaxCrop() !== 0) {
                 $derivative = new DerivativeImage($image, $std_params, $image_std_params);
                 $tpl_params['cropped_derivatives'][] = $derivative;
             }
@@ -372,7 +372,7 @@ class AdminPhotoController extends AbstractController
         DerivativeService $derivativeService,
         string $rootProjectDir,
         ?int $album_id = null,
-    ) {
+    ): Response {
         $tpl_params = [];
         $this->translator = $translator;
 
@@ -390,7 +390,7 @@ class AdminPhotoController extends AbstractController
             $imageOptimizer->write($image_src);
             $imageRepository->addOrUpdateImage($image);
 
-            $derivativeService->deleteForElement(['path' => $image->getPath()]);
+            $derivativeService->deleteForElement($image->getPath());
         }
 
         $derivative_thumb = new DerivativeImage($image, $image_std_params->getByType(ImageSizeType::THUMB), $image_std_params);

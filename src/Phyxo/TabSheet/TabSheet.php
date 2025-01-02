@@ -11,29 +11,25 @@
 
 namespace Phyxo\TabSheet;
 
+use App\Model\ItemModel;
 use IteratorAggregate;
 use ArrayIterator;
 use Traversable;
 
 /**
- * @phpstan-type Item array{caption: string, url: string, selected: bool, icon: string}
+ * @implements IteratorAggregate<ItemModel>
  */
 class TabSheet implements IteratorAggregate
 {
     /**
-     * @var array<string, Item>
+     * @var array<string, ItemModel>
      */
     private array $elements = [];
 
     public function add(string $name, string $caption, string $url, string $icon = ''): void
     {
         if (!isset($this->elements[$name])) {
-            $this->elements[$name] = [
-                'caption' => $caption,
-                'url' => $url,
-                'selected' => false,
-                'icon' => $icon,
-            ];
+            $this->elements[$name] = new ItemModel(caption: $caption, url: $url, selected: false, icon: $icon);
         }
     }
 
@@ -47,12 +43,12 @@ class TabSheet implements IteratorAggregate
     public function select(string $name): void
     {
         if (!empty($this->elements[$name])) {
-            $this->elements[$name]['selected'] = true;
+            $this->elements[$name]->setSelected(true);
         }
     }
 
     /**
-     * @return ArrayIterator<string, Item>
+     * @return ArrayIterator<string, ItemModel>
      */
     public function getIterator(): Traversable
     {

@@ -26,7 +26,7 @@ class UserPreferencesSubscriber implements EventSubscriberInterface
     {
     }
 
-    public function onInteractiveLogin(InteractiveLoginEvent $event, string $eventName, EventDispatcherInterface $dispatcher)
+    public function onInteractiveLogin(InteractiveLoginEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
         $request = $event->getRequest();
 

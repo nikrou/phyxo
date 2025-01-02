@@ -16,39 +16,20 @@ use App\Entity\Album;
 class CommentFilterModel
 {
     private int $page = 0;
-
-    /**
-     * @var mixed|string|null
-     */
-    private $keyword;
+    private ?string $keyword = null;
     private ?string $author = null;
+    private ?Album $album = null;
 
-    /**
-     * @var mixed|Album|null
-     */
-    private $album;
+    /** @var Album[] */
     private array $albums = [];
+    private ?string $since = null;
+    private ?string $sort_by = null;
+    private ?string $sort_order = null;
+    private ?int $items_number = null;
 
     /**
-     * @var mixed|string|null
+     * @param array<string, mixed> $defaults
      */
-    private $since;
-
-    /**
-     * @var mixed|string|null
-     */
-    private $sort_by;
-
-    /**
-     * @var mixed|string|null
-     */
-    private $sort_order;
-
-    /**
-     * @var mixed|int|null
-     */
-    private $items_number;
-
     public function fromArray(array $defaults = []): self
     {
         if (isset($defaults['keyword'])) {
@@ -78,6 +59,9 @@ class CommentFilterModel
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         $params = [];
@@ -109,6 +93,9 @@ class CommentFilterModel
         return $params;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toQueryParams(): array
     {
         $params = [];
@@ -188,6 +175,9 @@ class CommentFilterModel
         return $this->album;
     }
 
+    /**
+     * @param Album[] $albums
+     */
     public function setAlbums(array $albums = []): self
     {
         $this->albums = $albums;
@@ -195,6 +185,9 @@ class CommentFilterModel
         return $this;
     }
 
+    /**
+     * @return Album[]
+     */
     public function getAlbums(): array
     {
         return $this->albums;

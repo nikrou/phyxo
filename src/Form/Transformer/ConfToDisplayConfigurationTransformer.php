@@ -15,6 +15,9 @@ use Phyxo\Conf;
 use App\Form\Model\DisplayConfigurationModel;
 use Symfony\Component\Form\DataTransformerInterface;
 
+/**
+ * @implements DataTransformerInterface<mixed, DisplayConfigurationModel>
+ */
 class ConfToDisplayConfigurationTransformer implements DataTransformerInterface
 {
     /**
@@ -46,8 +49,23 @@ class ConfToDisplayConfigurationTransformer implements DataTransformerInterface
     /**
      *  @param DisplayConfigurationModel $displayConfigurationModel
      */
-    public function reverseTransform($displayConfigurationModel): array
+    public function reverseTransform(mixed $displayConfigurationModel): mixed
     {
-        return ['menubar_filter_icon' => ['value' => $displayConfigurationModel->getMenubarFilterIcon(), 'type' => 'boolean'], 'index_new_icon' => ['value' => $displayConfigurationModel->getIndexNewIcon(), 'type' => 'boolean'], 'index_flat_icon' => ['value' => $displayConfigurationModel->getIndexFlatIcon(), 'type' => 'boolean'], 'index_sort_order_input' => ['value' => $displayConfigurationModel->getIndexSortOrderInput(), 'type' => 'boolean'], 'index_posted_date_icon' => ['value' => $displayConfigurationModel->getIndexPostedDateIcon(), 'type' => 'boolean'], 'index_created_date_icon' => ['value' => $displayConfigurationModel->getIndexCreatedDateIcon(), 'type' => 'boolean'], 'nb_categories_page' => ['value' => $displayConfigurationModel->getNbCategoriesPage(), 'type' => 'integer'], 'picture_metadata_icon' => ['value' => $displayConfigurationModel->getPictureMetadataIcon(), 'type' => 'boolean'], 'picture_download_icon' => ['value' => $displayConfigurationModel->getPictureDownloadIcon(), 'type' => 'boolean'], 'picture_favorite_icon' => ['value' => $displayConfigurationModel->getPictureFavoriteIcon(), 'type' => 'boolean'], 'picture_navigation_icons' => ['value' => $displayConfigurationModel->getPictureNavigationIcons(), 'type' => 'boolean'], 'picture_navigation_thumb' => ['value' => $displayConfigurationModel->getPictureNavigationThumb(), 'type' => 'boolean'], 'picture_menu' => ['value' => $displayConfigurationModel->getPictureMenu(), 'type' => 'boolean'], 'picture_informations' => ['value' => $displayConfigurationModel->getPictureInformations(), 'type' => 'json']];
+        return [
+            'menubar_filter_icon' => ['value' => $displayConfigurationModel->getMenubarFilterIcon(), 'type' => 'boolean'],
+            'index_new_icon' => ['value' => $displayConfigurationModel->getIndexNewIcon(), 'type' => 'boolean'],
+            'index_flat_icon' => ['value' => $displayConfigurationModel->getIndexFlatIcon(), 'type' => 'boolean'],
+            'index_sort_order_input' => ['value' => $displayConfigurationModel->getIndexSortOrderInput(), 'type' => 'boolean'],
+            'index_posted_date_icon' => ['value' => $displayConfigurationModel->getIndexPostedDateIcon(), 'type' => 'boolean'],
+            'index_created_date_icon' => ['value' => $displayConfigurationModel->getIndexCreatedDateIcon(), 'type' => 'boolean'],
+            'nb_categories_page' => ['value' => $displayConfigurationModel->getNbCategoriesPage(), 'type' => 'integer'],
+            'picture_metadata_icon' => ['value' => $displayConfigurationModel->getPictureMetadataIcon(), 'type' => 'boolean'],
+            'picture_download_icon' => ['value' => $displayConfigurationModel->getPictureDownloadIcon(), 'type' => 'boolean'],
+            'picture_favorite_icon' => ['value' => $displayConfigurationModel->getPictureFavoriteIcon(), 'type' => 'boolean'],
+            'picture_navigation_icons' => ['value' => $displayConfigurationModel->getPictureNavigationIcons(), 'type' => 'boolean'],
+            'picture_navigation_thumb' => ['value' => $displayConfigurationModel->getPictureNavigationThumb(), 'type' => 'boolean'],
+            'picture_menu' => ['value' => $displayConfigurationModel->getPictureMenu(), 'type' => 'boolean'],
+            'picture_informations' => ['value' => $displayConfigurationModel->getPictureInformations(), 'type' => 'json']
+        ];
     }
 }

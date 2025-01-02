@@ -21,7 +21,12 @@ class Extensions
     protected string $directory_pattern = '';
     protected string $pem_url;
 
-    public function getJsonFromServer($url, $params = [])
+    /**
+     * @param array<string, string> $params
+     *
+     * @return array<string, mixed>
+     */
+    public function getJsonFromServer(string $url, $params = []): array
     {
         try {
             $client = HttpClient::create(['headers' => ['User-Agent' => 'Phyxo']]);
@@ -36,21 +41,28 @@ class Extensions
         }
     }
 
-    public function setExtensionsURL(string $url)
+    public function setExtensionsURL(string $url): void
     {
         $this->pem_url = $url;
     }
 
-    public function getExtensionsURL()
+    public function getExtensionsURL(): string
     {
         return $this->pem_url;
     }
 
-    public function getFsExtensions()
+    /**
+     * @return array<string, mixed>
+     */
+    public function getFsExtensions(): array
     {
+        return [];
     }
 
-    public function download($filename, $params = [])
+    /**
+     * @param array<string, string> $params
+     */
+    public function download(string $filename, $params = []): void
     {
         $url = $this->pem_url . '/download.php';
 
@@ -67,7 +79,7 @@ class Extensions
         }
     }
 
-    protected function extractZipFiles($zip_file, $main_file, $extract_path = ''): string
+    protected function extractZipFiles(string $zip_file, string $main_file, string $extract_path = ''): string
     {
         $zip = new PclZip($zip_file);
         if ($list = $zip->listContent()) {

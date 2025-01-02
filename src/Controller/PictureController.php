@@ -583,6 +583,9 @@ class PictureController extends AbstractController
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function addRateInfos(RateRepository $rateRepository, Conf $conf, Image $image, Request $request, ?User $user): array
     {
         $tpl_params = [];
@@ -663,6 +666,9 @@ class PictureController extends AbstractController
         return $response;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function addMetadataInfos(Metadata $metadata, Conf $conf, string $path): array
     {
         $tpl_params = [];

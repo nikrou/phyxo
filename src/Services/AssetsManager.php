@@ -11,20 +11,24 @@
 
 namespace App\Services;
 
+use App\Model\AssetModel;
+
 class AssetsManager
 {
+    /** @var AssetModel[] */
     private array $stylesheets = [];
+
+    /** @var AssetModel[] */
     private array $scripts = [];
 
     public function addStylesheet(string $extension_type, string $extension_id, string $path): void
     {
-        $this->stylesheets[] = [
-            'id' => $extension_id,
-            'type' => $extension_type,
-            'path' => $path
-        ];
+        $this->stylesheets[] = new AssetModel(id: $extension_id, type: $extension_type, path: $path);
     }
 
+    /**
+     * @return AssetModel[]
+     */
     public function getStylesheets(): array
     {
         return $this->stylesheets;
@@ -32,13 +36,12 @@ class AssetsManager
 
     public function addScript(string $extension_type, string $extension_id, string $path): void
     {
-        $this->scripts[] = [
-            'id' => $extension_id,
-            'type' => $extension_type,
-            'path' => $path
-        ];
+        $this->scripts[] = new AssetModel(id: $extension_id, type: $extension_type, path: $path);
     }
 
+    /**
+     * @return AssetModel[]
+     */
     public function getScripts(): array
     {
         return $this->scripts;

@@ -11,14 +11,12 @@
 
 namespace Phyxo\Functions;
 
-use Phyxo\Block\BlockManager;
 use App\Entity\Album;
 use App\Entity\Group;
 use App\Entity\Image;
 use App\Entity\Tag;
 use App\Entity\UserInfos;
 use DateTime;
-use Phyxo\Block\RegisteredBlock;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
@@ -26,11 +24,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Utils
 {
-    public static function phyxoInstalled(string $config_file)
+    public static function phyxoInstalled(string $config_file): bool
     {
         return is_readable($config_file);
     }
 
+    /**
+     * @param array{id: string, url_name: string} $tag
+     */
     public static function tagToUrl(array $tag, string $tag_url_style = 'id-tag'): string
     {
         $url_tag = $tag['id'];
@@ -44,11 +45,8 @@ class Utils
 
     /**
      * returns the part of the string after the last "."
-     *
-     * @param string $filename
-     * @return string
      */
-    public static function get_extension($filename)
+    public static function getExtension(string $filename): string
     {
         return substr(strrchr($filename, '.'), 1, strlen($filename));
     }
@@ -56,11 +54,8 @@ class Utils
     /**
      * returns the part of the string before the last ".".
      * get_filename_wo_extension( 'test.tar.gz' ) = 'test.tar'
-     *
-     * @param string $filename
-     * @return string
      */
-    public static function get_filename_wo_extension($filename)
+    public static function getFilenameWithoutExtension(string $filename): string
     {
         $pos = strrpos($filename, '.');
         return ($pos === false) ? $filename : substr($filename, 0, $pos);
@@ -69,46 +64,24 @@ class Utils
     /**
      * returns the element name from its filename.
      * removes file extension and replace underscores by spaces
-     *
-     * @param string $filename
-     * @return string name
      */
-    public static function get_name_from_file($filename)
+    public static function getNameFromFile(string $filename): string
     {
-        return str_replace('_', ' ', self::get_filename_wo_extension($filename));
-    }
-
-    /**
-     * Transforms an original path to its pwg representative
-     *
-     * @param string $path
-     * @param string $representative_ext
-     * @return string
-     */
-    public static function original_to_representative($path, $representative_ext)
-    {
-        $pos = strrpos($path, '/');
-        $path = substr_replace($path, 'pwg_representative/', $pos + 1, 0);
-        $pos = strrpos($path, '.');
-        return substr_replace($path, $representative_ext, $pos + 1);
+        return str_replace('_', ' ', self::getFilenameWithoutExtension($filename));
     }
 
     /**
      * converts a string from a character set to another character set
-     *
-     * @param string $str
-     * @param string $source_charset
-     * @param string $dest_charset
      */
-    public static function convert_charset($str, $source_charset, $dest_charset)
+    public static function convertCharset(string $str, string $source_charset, string $dest_charset): string
     {
-        if ($source_charset == $dest_charset) {
+        if ($source_charset === $dest_charset) {
             return $str;
         }
-        if ($source_charset == 'iso-8859-1' && $dest_charset == 'utf-8') {
+        if ($source_charset === 'iso-8859-1' && $dest_charset === 'utf-8') {
             return mb_convert_encoding($str, 'UTF-8', 'ISO-8859-1');
         }
-        if ($source_charset == 'utf-8' && $dest_charset == 'iso-8859-1') {
+        if ($source_charset === 'utf-8' && $dest_charset === 'iso-8859-1') {
             return mb_convert_encoding($str, 'ISO-8859-1');
         }
         if (function_exists('iconv')) {
@@ -121,7 +94,11 @@ class Utils
         return $str; // TODO
     }
 
-    // first/prev/next/last/current
+    /**
+     * @param array<string, string|int> $query_params
+     *
+     * @return array{CURRENT_PAGE:int|float, URL_FIRST:string, URL_PREV:string, pages:array<string>}
+     */
     public static function createNavigationBar(RouterInterface $router, string $route, array $query_params, int $nb_elements, int $start, int $nb_element_page, int $pages_around = 2): array
     {
         $navbar = [];
@@ -162,7 +139,13 @@ class Utils
     }
 
     /**
+     * @TODO: use Enum
+     *
      * get localized privacy level values
+     *
+     * @param array<string, string> $available_permission_levels
+     *
+     * @return array<string, string>
      */
     public static function getPrivacyLevelOptions(TranslatorInterface $translator, array $available_permission_levels = [], string $domain = 'messages'): array
     {
@@ -185,154 +168,99 @@ class Utils
 
     /**
      * return the branch from the version. For example version 2.2.4 is for branch 2.2
-     *
-     * @param string $version
-     * @return string
      */
-    public static function get_branch_from_version($version)
+    public static function getBranchFromVersion(string $version): string
     {
         return implode('.', array_slice(explode('.', $version), 0, 2));
     }
 
     /**
-     * check url format
-     *
-     * @param string $url
-     * @return bool
-     */
-    public static function url_check_format($url)
-    {
-        return filter_var($url, FILTER_VALIDATE_URL) !== false;
-    }
-
-    /**
      * Callback used for sorting by global_rank
+     *
+     * @param array{global_rank: string} $a
+     * @param array{global_rank: string} $b
      */
-    public static function global_rank_compare($a, $b)
+    public static function globalRankCompare(array $a, array $b): int
     {
-        return strnatcasecmp((string) $a['global_rank'], (string) $b['global_rank']);
+        return strnatcasecmp($a['global_rank'], $b['global_rank']);
     }
 
     /**
      * Callback used for sorting by rank
+     *
+     * @param array{rank: int} $a
+     * @param array{rank: int} $b
      */
-    public static function rank_compare($a, $b)
+    public static function rankCompare(array $a, array $b): int
     {
         return $a['rank'] - $b['rank'];
     }
 
     /**
      * Callback used for sorting by name.
+     *
+     * @param array{name: string} $a
+     * @param array{name: string} $b
      */
-    public static function name_compare($a, $b)
+    public static function nameCompare(array $a, array $b): int
     {
-        return strcmp(strtolower((string) $a['name']), strtolower((string) $b['name']));
+        return strcmp(strtolower($a['name']), strtolower($b['name']));
     }
 
     /**
      * Callback used for sorting by name (slug) with cache.
+     *
+     * @param array{name: string} $a
+     * @param array{name: string} $b
      */
-    public static function tag_alpha_compare($a, $b)
+    public static function tagAlphaCompare(array $a, array $b): int
     {
         return strcmp(Language::transliterate($a['name']), Language::transliterate($b['name']));
     }
 
-    public static function counter_compare($a, $b)
+    /**
+     * @param array{counter: int, id:int} $a
+     * @param array{counter: int, id:int} $b
+     */
+    public static function counterCompare(array $a, array $b): int
     {
-        if ($a['counter'] == $b['counter']) {
-            return self::id_compare($a, $b);
+        if ($a['counter'] === $b['counter']) {
+            return self::idCompare($a, $b);
         }
 
         return ($a['counter'] < $b['counter']) ? +1 : -1;
     }
 
-    public static function id_compare($a, $b)
+    /**
+     * @param array{id: int} $a
+     * @param array{id: int} $b
+     */
+    public static function idCompare(array $a, array $b): int
     {
         return ($a['id'] < $b['id']) ? -1 : 1;
-    }
-
-    /**
-     * Apply basic markdown formations to a text.
-     * newlines becomes br tags
-     * _word_ becomes underline
-     * /word/ becomes italic
-     * *word* becomes bolded
-     * urls becomes a tags
-     *
-     * @param string $content
-     * @return string
-     */
-    public static function render_comment_content($content)
-    {
-        $content = htmlspecialchars($content);
-        $pattern = '/(https?:\/\/\S*)/';
-        $replacement = '<a href="$1" rel="nofollow">$1</a>';
-        $content = preg_replace($pattern, $replacement, $content);
-
-        $content = nl2br((string) $content);
-
-        // replace _word_ by an underlined word
-        $pattern = '/\b_(\S*)_\b/';
-        $replacement = '<span style="text-decoration:underline;">$1</span>';
-        $content = preg_replace($pattern, $replacement, $content);
-
-        // replace *word* by a bolded word
-        $pattern = '/\b\*(\S*)\*\b/';
-        $replacement = '<span style="font-weight:bold;">$1</span>';
-        $content = preg_replace($pattern, $replacement, (string) $content);
-
-        // replace /word/ by an italic word
-        $pattern = "/\/(\S*)\/(\s)/";
-        $replacement = '<span style="font-style:italic;">$1$2</span>';
-
-        // @TODO : add a trigger
-
-        return preg_replace($pattern, $replacement, (string) $content);
-    }
-
-    /**
-     * Add known menubar blocks.
-     *
-     * @param BlockManager[] $menu_ref_arr
-     */
-    public static function register_default_menubar_blocks($menu_ref_arr)
-    {
-        $menu = &$menu_ref_arr[0];
-        if ($menu->getId() != 'menubar') {
-            return;
-        }
-        $menu->registerBlock(new RegisteredBlock('mbLinks', 'Links', 'core'));
-        $menu->registerBlock(new RegisteredBlock('mbCategories', 'Albums', 'core'));
-        $menu->registerBlock(new RegisteredBlock('mbTags', 'Related tags', 'core'));
-        $menu->registerBlock(new RegisteredBlock('mbSpecials', 'Specials', 'core'));
-        $menu->registerBlock(new RegisteredBlock('mbMenu', 'Menu', 'core'));
-        $menu->registerBlock(new RegisteredBlock('mbIdentification', 'Identification', 'core'));
     }
 
     /**
      * Returns display name for an element.
      * Returns 'name' if exists of name from 'file'.
      *
-     * @param array $info at least file or name
-     * @return string
+     * @param array{name: string, file: string} $info
      */
-    public static function render_element_name($info)
+    public static function renderElementName(array $info): string
     {
         if (!empty($info['name'])) {
             return $info['name'];
         }
 
-        return \Phyxo\Functions\Utils::get_name_from_file($info['file']);
+        return self::getNameFromFile($info['file']);
     }
 
     /**
      * Returns display description for an element.
      *
-     * @param array $info at least comment
-     * @param string $param used to identify the trigger
-     * @return string
+     * @param array{comment:string} $info
      */
-    public static function render_element_description($info, $param = '')
+    public static function renderElementDescription(array $info, string $param = ''): string
     {
         if (!empty($info['comment'])) {
             return $info['comment'];
@@ -342,31 +270,16 @@ class Utils
     }
 
     /**
-     * Generates a pseudo random string.
-     * Characters used are a-z A-Z and numerical values.
-     *
-     * @param int $size
-     * @return string
-     */
-    public static function generate_key($size)
-    {
-        return substr(
-            str_replace(
-                ['+', '/'],
-                '',
-                base64_encode(openssl_random_pseudo_bytes($size))
-            ),
-            0,
-            $size
-        );
-    }
-
-    /**
      * Returns the argument_ids array with new sequenced keys based on related
      * names. Sequence is not case sensitive.
      * Warning: By definition, this function breaks original keys.
+     *
+     * @param array<int, int> $element_ids
+     * @param array<string> $name
+     *
+     * @return array<string, int>
      */
-    public static function order_by_name(array $element_ids, array $name): array
+    public static function orderByName(array $element_ids, array $name): array
     {
         $ordered_element_ids = [];
         foreach ($element_ids as $k_id => $element_id) {
@@ -374,6 +287,7 @@ class Utils
             $ordered_element_ids[$key] = $element_id;
         }
         ksort($ordered_element_ids);
+
         return $ordered_element_ids;
     }
 
@@ -383,6 +297,10 @@ class Utils
      * Additionally returns the hash of root path.
      * Used to invalidate LocalStorage cache on admin pages.
      * list of keys to retrieve (categories,groups,images,tags,users)
+     *
+     * @param array<string> $requested
+     *
+     * @return array<string, string>
      */
     public static function getAdminClientCacheKeys(ManagerRegistry $managerRegistry, array $requested = [], string $base_url = ''): array
     {
@@ -411,16 +329,19 @@ class Utils
         return $keys;
     }
 
-    public static function need_resize($image_filepath, $max_width, $max_height)
+    public static function needResize(string $image_filepath, int $max_width, int $max_height): bool
     {
         // TODO : the resize check should take the orientation into account. If a
         // rotation must be applied to the resized photo, then we should test
         // invert width and height.
-        $file_infos = self::image_infos($image_filepath);
+        $file_infos = self::imageInfos($image_filepath);
         return $file_infos['width'] > $max_width || $file_infos['height'] > $max_height;
     }
 
-    public static function image_infos($path): array
+    /**
+     * @return array{width:int, height:int, filesize:float}
+     */
+    public static function imageInfos(string $path): array
     {
         [$width, $height] = getimagesize($path);
         $filesize = floor(filesize($path) / 1024);
@@ -430,37 +351,5 @@ class Utils
             'height' => $height,
             'filesize' => $filesize,
         ];
-    }
-
-    public static function get_ini_size($ini_key, $in_bytes = true)
-    {
-        $size = ini_get($ini_key);
-
-        if ($in_bytes) {
-            $size = self::convert_shorthand_notation_to_bytes($size);
-        }
-
-        return $size;
-    }
-
-    public static function convert_shorthand_notation_to_bytes($value)
-    {
-        $suffix = substr((string) $value, -1);
-        $multiply_by = null;
-
-        if ($suffix === 'K') {
-            $multiply_by = 1024;
-        } elseif ($suffix === 'M') {
-            $multiply_by = 1024 * 1024;
-        } elseif ($suffix === 'G') {
-            $multiply_by = 1024 * 1024 * 1024;
-        }
-
-        if (!is_null($multiply_by)) {
-            $value = (int) substr((string) $value, 0, -1);
-            $value *= $multiply_by;
-        }
-
-        return $value;
     }
 }
