@@ -13,6 +13,7 @@ namespace App\Repository;
 
 use Doctrine\ORM\Query\Expr\Join;
 use App\Entity\Album;
+use App\Enum\UserPrivacyLevelType;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -362,7 +363,7 @@ class AlbumRepository extends ServiceEntityRepository
      *
      * @return array<int, array{album_id: int, id_uppercat: ?int, date_last: string, nb_images: int}>
      */
-    public function getComputedAlbums(int $level, array $forbidden_albums = [])
+    public function getComputedAlbums(UserPrivacyLevelType $level, array $forbidden_albums = [])
     {
         $qb = $this->createQueryBuilder('a');
         $qb->select('a.id AS album_id, IDENTITY(a.parent) AS id_uppercat, MAX(i.date_available) as date_last, COUNT(i.id) AS nb_images');

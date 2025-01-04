@@ -375,13 +375,11 @@ class AlbumController extends AbstractController
         if (count($albums) > 0) {
             $tpl_thumbnails_var = [];
             foreach ($albums as $album) {
-                $name = $albumMapper->getAlbumsDisplayNameCache($album->getUppercats());
-                $representative_infos = null;
-                if (isset($infos_of_images[$album->getRepresentativePictureId()])) {
-                    $representative_infos = $infos_of_images[$album->getRepresentativePictureId()];
-                }
-
                 $userCacheAlbum = $album->getUserCacheAlbum();
+                $name = $albumMapper->getAlbumsDisplayNameCache($album->getUppercats());
+
+                $representative_infos = $infos_of_images[$album->getRepresentativePictureId()];
+
                 $tpl_var = array_merge(
                     $album->toArray(),
                     [

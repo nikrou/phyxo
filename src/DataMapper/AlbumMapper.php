@@ -17,6 +17,7 @@ use DateTime;
 use App\Entity\Album;
 use App\Entity\ImageAlbum;
 use App\Entity\User;
+use App\Enum\UserPrivacyLevelType;
 use App\Repository\AlbumRepository;
 use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageRepository;
@@ -146,7 +147,7 @@ class AlbumMapper
      *
      * @return array<int, array<string, int|string|null>>
      */
-    public function getComputedAlbums(int $level, array $forbidden_categories = []): array
+    public function getComputedAlbums(UserPrivacyLevelType $level, array $forbidden_categories = []): array
     {
         $albums = [];
         $last_photo_date = null;
@@ -1125,7 +1126,7 @@ class AlbumMapper
         $bad_level_ids = [];
 
         foreach ($imageMapper->getRepository()->findBy(['id' => $image_ids]) as $image) {
-            if ($image->getLevel() <= $user->getUserInfos()->getLevel()) {
+            if ($image->getLevel()->value <= $user->getUserInfos()->getLevel()->value) {
                 $infos_of_images[$image->getId()] = [$image->toArray(), 'image' => $image];
             } else {
                 $bad_level_ids[] = $image->getId();

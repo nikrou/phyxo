@@ -11,7 +11,6 @@
       {% if theme_config.category_wells == 'never' %}
         {% set album_derivative = derivative_from_image(image: cat.representative.image, params: album_derivative_params) %}
 
-
         {# this needs a fixed size else it messes up the grid on tablets #}
         <div class="col-outer mt-3 {% if category_view == 'list' %}col-12{%  else %}{{macro.col_class(260, 180, theme_config)|trim}}{% endif %}" data-grid-classes="{{macro.col_class(260, 180, theme_config)|trim}}">
           <div class="card card-thumbnail" data-id="{{cat.id}}">

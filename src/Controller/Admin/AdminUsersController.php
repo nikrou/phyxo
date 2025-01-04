@@ -14,6 +14,7 @@ namespace App\Controller\Admin;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\User;
+use App\Enum\UserPrivacyLevelType;
 use App\Enum\UserStatusType;
 use App\Form\Model\UserProfileModel;
 use App\Form\UserCreationType;
@@ -142,11 +143,11 @@ class AdminUsersController extends AbstractController
 
         // user level options
         $level_options = [];
-        foreach ($conf['available_permission_levels'] as $level) {
-            $level_options[$level] = $translator->trans(sprintf('Level %d', $level), [], 'admin');
+        foreach (UserPrivacyLevelType::cases() as $level) {
+            $level_options[$level->value] = $translator->trans(sprintf('Level %d', $level->value), [], 'admin');
         }
         $tpl_params['level_options'] = $level_options;
-        $tpl_params['level_selected'] = $guestUser->getUserInfos()->getLevel();
+        $tpl_params['level_selected'] = $guestUser->getUserInfos()->getLevel()->value;
 
         $tpl_params['ws'] = $this->generateUrl('ws');
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');

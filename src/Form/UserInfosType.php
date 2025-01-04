@@ -13,13 +13,13 @@ namespace App\Form;
 
 use App\Entity\Language;
 use App\Entity\Theme;
+use App\Enum\UserPrivacyLevelType;
 use App\Enum\UserStatusType;
 use App\Form\Model\UserInfosModel;
 use App\Form\Transformer\UserToUserInfosTransformer;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserRepository;
-use Phyxo\Conf;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -29,7 +29,6 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UserInfosType extends AbstractType
 {
@@ -42,8 +41,6 @@ class UserInfosType extends AbstractType
         private readonly LanguageRepository $languageRepository,
         private readonly ThemeRepository $themeRepository,
         private readonly UserRepository $userRepository,
-        private readonly TranslatorInterface $translator,
-        private Conf $conf,
     ) {
     }
 
@@ -86,13 +83,7 @@ class UserInfosType extends AbstractType
 
         if ($options[self::IN_ADMIN_OPTION]) {
             $fields->add('status', EnumType::class, ['label' => 'Status', 'class' => UserStatusType::class, 'expanded' => false]);
-
-            $levels = [];
-            foreach ($this->conf['available_permission_levels'] as $level) {
-                $levels[$level] = $this->translator->trans(sprintf('Level %d', $level));
-            }
-
-            $fields->add('level', ChoiceType::class, ['label' => 'Privacy level', 'choices' => array_flip($levels), 'expanded' => false]);
+            $fields->add('level', EnumType::class, ['label' => 'Privacy level', 'class' => UserPrivacyLevelType::class, 'expanded' => false]);
         }
 
         $fields->add(

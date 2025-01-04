@@ -12,6 +12,7 @@
 namespace App\Tests\DataMapper;
 
 use App\DataMapper\AlbumMapper;
+use App\Enum\UserPrivacyLevelType;
 use App\Repository\AlbumRepository;
 use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageRepository;
@@ -75,11 +76,10 @@ class AlbumMapperTest extends TestCase
             ],
         ];
 
-
         $albumRepository = $this->prophesize(AlbumRepository::class);
         $albumRepository->getComputedAlbums(Argument::any(), Argument::type('array'))->willReturn($albums);
 
-        $level = 0;
+        $level = UserPrivacyLevelType::DEFAULT;
         $forbidden_albums = [];
         $albumMapper = new AlbumMapper(
             $this->prophesize(Conf::class)->reveal(),
@@ -164,7 +164,6 @@ class AlbumMapperTest extends TestCase
                 'max_date_last' => '2012-11-15 10:03:20',
             ],
         ];
-
 
         $computedAlbums = $albumMapper->getComputedAlbums($level, $forbidden_albums);
 

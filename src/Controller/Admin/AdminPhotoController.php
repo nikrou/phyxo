@@ -17,6 +17,7 @@ use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
 use App\Enum\ImageSizeType;
+use App\Enum\UserPrivacyLevelType;
 use App\ImageLibraryGuesser;
 use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageRepository;
@@ -85,7 +86,7 @@ class AdminPhotoController extends AbstractController
         if ($request->isMethod('POST')) {
             $image->setName($request->request->get('name'));
             $image->setAuthor($request->request->get('author'));
-            $image->setLevel($request->request->get('level'));
+            $image->setLevel(UserPrivacyLevelType::from($request->request->get('level')));
 
             if ($conf['allow_html_descriptions']) {
                 $image->setComment($request->request->get('description'));

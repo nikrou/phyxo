@@ -21,6 +21,7 @@ use App\DataMapper\UserMapper;
 use App\Entity\Caddie;
 use App\Entity\User;
 use App\Enum\ImageSizeType;
+use App\Enum\UserPrivacyLevelType;
 use App\ImageLibraryGuesser;
 use App\Repository\AlbumRepository;
 use App\Repository\CaddieRepository;
@@ -79,7 +80,7 @@ class AdminBatchManagerController extends AbstractController
     }
 
     /**
-     * @return array<string, int|float|bool|string|null|array<int>|array<string>>
+     * @return array<string, int|float|bool|string|null|UserPrivacyLevelType|array<int>|array<string>>
      */
     protected function getFilter(SessionInterface $session): array
     {
@@ -983,7 +984,7 @@ class AdminBatchManagerController extends AbstractController
             foreach ($imageMapper->getRepository()->findBy(['id' => $collection]) as $image) {
                 $image->setName($request->request->get('name-' . $image->getId()));
                 $image->setAuthor($request->request->get('author-' . $image->getId()));
-                $image->setLevel($request->request->get('level-' . $image->getId()));
+                $image->setLevel(UserPrivacyLevelType::from($request->request->get('level-' . $image->getId())));
 
                 if ($conf['allow_html_descriptions']) {
                     $image->setComment($request->request->get('description-' . $image->getId()) ?? '');

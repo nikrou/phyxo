@@ -13,6 +13,7 @@ namespace App\Form\Model;
 
 use App\Entity\Language;
 use App\Entity\Theme;
+use App\Enum\UserPrivacyLevelType;
 use App\Enum\UserStatusType;
 
 class UserInfosModel
@@ -23,7 +24,7 @@ class UserInfosModel
     private ?Language $language = null;
     private ?Theme $theme = null;
     private UserStatusType $status;
-    private int $level = 0;
+    private UserPrivacyLevelType $level = UserPrivacyLevelType::DEFAULT;
     private ?bool $show_nb_comments = null;
     private ?bool $show_nb_hits = null;
     private ?bool $expand = null;
@@ -100,14 +101,14 @@ class UserInfosModel
         return $this->status;
     }
 
-    public function setLevel(int $Level): self
+    public function setLevel(UserPrivacyLevelType $Level): self
     {
         $this->level = $Level;
 
         return $this;
     }
 
-    public function getLevel(): int
+    public function getLevel(): UserPrivacyLevelType
     {
         return $this->level;
     }

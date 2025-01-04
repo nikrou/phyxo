@@ -135,7 +135,7 @@
           <dd>
             <div class="dropdown">
               <button class="btn btn-primary dropdown-toggle ellipsis" type="button" id="dropdownPermissions" data-toggle="dropdown" aria-expanded="true">
-                {{available_permission_levels[current.level]}}
+                {{available_permission_levels[current.level.value]}}
               </button>
               <div class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownPermissions">
                 {% for level, label in available_permission_levels %}

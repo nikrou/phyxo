@@ -16,6 +16,7 @@ use DateTime;
 use DateInterval;
 use App\Entity\Album;
 use App\Entity\Image;
+use App\Enum\UserPrivacyLevelType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -66,7 +67,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->getQuery()->getResult();
     }
 
-    public function updateLevel(int $image_id, int $level = 0): void
+    public function updateLevel(int $image_id, UserPrivacyLevelType $level = UserPrivacyLevelType::DEFAULT): void
     {
         $qb = $this->createQueryBuilder('i');
         $qb->update();
@@ -114,7 +115,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return Image[]
      */
-    public function getForbiddenImages(array $forbidden_albums = [], int $level = 0)
+    public function getForbiddenImages(array $forbidden_albums = [], UserPrivacyLevelType $level = UserPrivacyLevelType::DEFAULT)
     {
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
@@ -962,7 +963,7 @@ class ImageRepository extends ServiceEntityRepository
     /**
      * @return Image[]
      */
-    public function filterByLevel(int $level, string $operator = '=')
+    public function filterByLevel(UserPrivacyLevelType $level, string $operator = '=')
     {
         $qb = $this->createQueryBuilder('i');
         $qb->where('i.level ' . $operator . ' :level');

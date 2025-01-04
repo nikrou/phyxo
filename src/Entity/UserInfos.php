@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use App\Enum\UserPrivacyLevelType;
 use App\Enum\UserStatusType;
 use Doctrine\DBAL\Types\Types;
 use DateTimeInterface;
@@ -20,14 +21,13 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  *
  * @phpstan-type UserInfosArray array{nb_image_page: int, language: ?string, expand: bool, show_nb_comments: bool, show_nb_hits: bool,
- *  recent_period: int, theme: ?string, enabled_high: bool, level: int}
+ *  recent_period: int, theme: ?string, enabled_high: bool, level: UserPrivacyLevelType}
  */
 #[ORM\Table(name: 'user_infos')]
 #[ORM\Entity(repositoryClass: UserInfosRepository::class)]
 class UserInfos
 {
     final public const DEFAULT_NB_IMAGE_PAGE = 15;
-    final public const DEFAULT_LEVEL = 0;
     final public const DEFAULT_RECENT_PERIOD = 7;
     final public const DEFAULT_SHOW_NB_COMMENTS = false;
     final public const DEFAULT_SHOW_NB_HITS = false;
@@ -65,8 +65,8 @@ class UserInfos
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $registration_date = null;
 
-    #[ORM\Column(type: Types::INTEGER, nullable: true)]
-    private ?int $level = self::DEFAULT_LEVEL;
+    #[ORM\Column(type: Types::INTEGER, nullable: true, enumType: UserPrivacyLevelType::class)]
+    private ?UserPrivacyLevelType $level = UserPrivacyLevelType::DEFAULT;
 
     #[ORM\Column(type: Types::INTEGER)]
     private int $recent_period = self::DEFAULT_RECENT_PERIOD;
@@ -169,12 +169,12 @@ class UserInfos
         return $this;
     }
 
-    public function getLevel(): int
+    public function getLevel(): UserPrivacyLevelType
     {
-        return $this->level ?? self::DEFAULT_LEVEL;
+        return $this->level;
     }
 
-    public function setLevel(int $level = self::DEFAULT_LEVEL): self
+    public function setLevel(UserPrivacyLevelType $level = UserPrivacyLevelType::DEFAULT): self
     {
         $this->level = $level;
 

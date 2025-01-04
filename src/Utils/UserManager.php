@@ -16,6 +16,7 @@ use App\Repository\UserRepository;
 use App\Repository\GroupRepository;
 use App\Entity\User;
 use App\Entity\UserInfos;
+use App\Enum\UserPrivacyLevelType;
 use App\Enum\UserStatusType;
 use App\Repository\UserInfosRepository;
 
@@ -45,7 +46,7 @@ class UserManager
         $userInfos->setRegistrationDate(new DateTime());
         $userInfos->setLastModified(new DateTime());
         if (in_array('ROLE_WEBMASTER', $user->getRoles())) {
-            $userInfos->setLevel(10); // @FIX: find a way to only inject that param instead of conf ; max($this->conf['available_permission_levels']);
+            $userInfos->setLevel(UserPrivacyLevelType::ADMINS);
         }
         $userInfos->setStatus($user->getStatusFromRoles());
         $user->setUserInfos($userInfos);

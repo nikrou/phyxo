@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use App\Enum\UserPrivacyLevelType;
 use Doctrine\DBAL\Types\Types;
 use App\Repository\ImageRepository;
 use DateTimeInterface;
@@ -75,8 +76,8 @@ class Image
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $storage_category_id = null;
 
-    #[ORM\Column(type: Types::INTEGER, nullable: true)]
-    private ?int $level = 0;
+    #[ORM\Column(type: Types::INTEGER, nullable: true, enumType: UserPrivacyLevelType::class)]
+    private ?UserPrivacyLevelType $level = UserPrivacyLevelType::DEFAULT;
 
     #[ORM\Column(type: Types::STRING, length: 32, nullable: true)]
     private ?string $md5sum = null;
@@ -325,12 +326,12 @@ class Image
         return $this;
     }
 
-    public function getLevel(): ?int
+    public function getLevel(): UserPrivacyLevelType
     {
         return $this->level;
     }
 
-    public function setLevel(int $level): self
+    public function setLevel(UserPrivacyLevelType $level): self
     {
         $this->level = $level;
 
