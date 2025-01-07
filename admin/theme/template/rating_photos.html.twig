@@ -101,9 +101,5 @@
 	</tbody>
     </table>
 
-    {% if navbar is defined and not(navbar is empty) %}
-	{{ include('_navigation_bar.html.twig') }}
-    {% endif %}
-
     {{ include('include/_modal_delete_confirm.html.twig') }}
 {% endblock %}

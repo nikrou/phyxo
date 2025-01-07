@@ -18,11 +18,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\ImageMapper;
-use App\Enum\ImageSizeType;
 use App\Enum\PictureSectionType;
 use App\Repository\UserCacheAlbumRepository;
 use App\Security\AppUserService;
-use Phyxo\Functions\Utils;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,10 +30,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AlbumController extends AbstractController
 {
+    use ThumbnailsControllerTrait;
+
     public function album(
         Request $request,
         Conf $conf,
-        ImageStandardParams $image_std_params,
         UserCacheAlbumRepository $userCacheAlbumRepository,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
@@ -48,8 +47,8 @@ class AlbumController extends AbstractController
     ): Response {
         $tpl_params = [];
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        if ($request->cookies->has('album_view')) {
+            $tpl_params['album_view'] = $request->cookies->get('album_view');
         }
 
         $album = $albumMapper->getRepository()->find($album_id);
@@ -154,21 +153,12 @@ class AlbumController extends AbstractController
 
             // pagination
             $total_albums = count($tpl_thumbnails_var);
-
-            // @TODO : an album can contain more than $conf['nb_categories_page']
             $tpl_thumbnails_var_selection = array_slice($tpl_thumbnails_var, 0, $conf['nb_categories_page']);
-
-            $derivative_params = $image_std_params->getByType(ImageSizeType::THUMB);
-
-            $tpl_params['maxRequests'] = $conf['max_requests'];
             $tpl_params['category_thumbnails'] = $tpl_thumbnails_var_selection;
-            $tpl_params['derivative_album_params'] = $derivative_params;
-            $tpl_params['derivative_params'] = $derivative_params;
-            $tpl_params['image_std_params'] = $image_std_params;
 
             // navigation bar
             if ($total_albums > $conf['nb_categories_page']) {
-                $tpl_params['cats_navbar'] = Utils::createNavigationBar(
+                $tpl_params['cats_navbar'] = $this->defineNavigation(
                     $router,
                     'albums',
                     [],
@@ -189,7 +179,7 @@ class AlbumController extends AbstractController
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             if (count($tpl_params['items']) > $nb_image_page) {
-                $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                $tpl_params['thumb_navbar'] = $this->defineNavigation(
                     $router,
                     'album',
                     ['album_id' => $album_id],
@@ -233,8 +223,8 @@ class AlbumController extends AbstractController
         $subcat_ids = [];
         $tpl_params = [];
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        if ($request->cookies->has('album_view')) {
+            $tpl_params['album_view'] = $request->cookies->get('album_view');
         }
 
         $album = $albumMapper->getRepository()->find($album_id);
@@ -252,7 +242,7 @@ class AlbumController extends AbstractController
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             if (count($tpl_params['items']) > $nb_image_page) {
-                $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                $tpl_params['thumb_navbar'] = $this->$this->defineNavigation(
                     $router,
                     'album_flat',
                     ['album_id' => $album_id],
@@ -291,8 +281,8 @@ class AlbumController extends AbstractController
     ): Response {
         $tpl_params = [];
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        if ($request->cookies->has('album_view')) {
+            $tpl_params['album_view'] = $request->cookies->get('album_view');
         }
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
@@ -306,7 +296,7 @@ class AlbumController extends AbstractController
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             if (count($tpl_params['items']) > $nb_image_page) {
-                $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                $tpl_params['thumb_navbar'] = $this->defineNavigation(
                     $router,
                     'albums_flat',
                     [],
@@ -337,7 +327,6 @@ class AlbumController extends AbstractController
         Request $request,
         Conf $conf,
         UserCacheAlbumRepository $userCacheAlbumRepository,
-        ImageStandardParams $image_std_params,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
         AlbumMapper $albumMapper,
@@ -347,8 +336,8 @@ class AlbumController extends AbstractController
     ): Response {
         $tpl_params = [];
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        if ($request->cookies->has('album_view')) {
+            $tpl_params['album_view'] = $request->cookies->get('album_view');
         }
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
@@ -413,17 +402,11 @@ class AlbumController extends AbstractController
                 $conf['nb_categories_page']
             );
 
-            $derivative_params = $image_std_params->getByType(ImageSizeType::THUMB);
-
-            $tpl_params['maxRequests'] = $conf['max_requests'];
             $tpl_params['category_thumbnails'] = $tpl_thumbnails_var_selection;
-            $tpl_params['derivative_album_params'] = $derivative_params;
-            $tpl_params['derivative_params'] = $derivative_params;
-            $tpl_params['image_std_params'] = $image_std_params;
 
             // navigation bar
             if ($total_albums > $conf['nb_categories_page']) {
-                $tpl_params['cats_navbar'] = Utils::createNavigationBar(
+                $tpl_params['cats_navbar'] = $this->defineNavigation(
                     $router,
                     'albums',
                     [],
@@ -452,8 +435,8 @@ class AlbumController extends AbstractController
     ): Response {
         $tpl_params = [];
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        if ($request->cookies->has('album_view')) {
+            $tpl_params['album_view'] = $request->cookies->get('album_view');
         }
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Recent albums');
@@ -517,17 +500,11 @@ class AlbumController extends AbstractController
                 $conf['nb_categories_page']
             );
 
-            $derivative_params = $image_std_params->getByType(ImageSizeType::THUMB);
-
-            $tpl_params['maxRequests'] = $conf['max_requests'];
             $tpl_params['category_thumbnails'] = $tpl_thumbnails_var_selection;
-            $tpl_params['derivative_album_params'] = $derivative_params;
-            $tpl_params['derivative_params'] = $derivative_params;
-            $tpl_params['image_std_params'] = $image_std_params;
 
             // navigation bar
             if ($total_albums > $conf['nb_categories_page']) {
-                $tpl_params['cats_navbar'] = Utils::createNavigationBar(
+                $tpl_params['cats_navbar'] = $this->defineNavigation(
                     $router,
                     'recent_cats',
                     [],

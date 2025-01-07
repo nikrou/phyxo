@@ -13,7 +13,6 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
-use Phyxo\Functions\Utils;
 use App\Repository\FavoriteRepository;
 use App\DataMapper\ImageMapper;
 use App\Entity\Favorite;
@@ -23,11 +22,15 @@ use App\Security\AppUserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FavoriteController extends AbstractController
 {
+    use ThumbnailsControllerTrait;
+
+    #[Route('/favorites/{start}', name: 'favorites', defaults: ['start' => 0], requirements: ['start' => '\d+'])]
     public function index(
         Request $request,
         Conf $conf,
@@ -40,8 +43,8 @@ class FavoriteController extends AbstractController
     ): Response {
         $tpl_params = [];
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        if ($request->cookies->has('album_view')) {
+            $tpl_params['album_view'] = $request->cookies->get('album_view');
         }
 
         $tpl_params['TITLE'] = $translator->trans('Your favorites');
@@ -66,14 +69,14 @@ class FavoriteController extends AbstractController
                 )
             );
 
-            if ((is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0) > $appUserService->getUser()->getUserInfos()->getNbImagePage()) {
-                $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+            if (count($tpl_params['items']) > $nb_image_page) {
+                $tpl_params['thumb_navbar'] = $this->defineNavigation(
                     $router,
                     'favorites',
                     [],
-                    is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0,
+                    count($tpl_params['items']),
                     $start,
-                    $appUserService->getUser()->getUserInfos()->getNbImagePage(),
+                    $nb_image_page,
                     $conf['paginate_pages_around']
                 );
             }
@@ -84,6 +87,7 @@ class FavoriteController extends AbstractController
         return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
+    #[Route('/add-to-favorites/{image_id}', name: 'add_to_favorites')]
     public function add(
         int $image_id,
         ImageRepository $imageRepository,
@@ -111,6 +115,7 @@ class FavoriteController extends AbstractController
         return $this->redirectToRoute('favorites');
     }
 
+    #[Route('/remove-from-favorites/{image_id}', name: 'remove_from_favorites')]
     public function remove(int $image_id, FavoriteRepository $favoriteRepository, AppUserService $appUserService, Request $request, TranslatorInterface $translator): Response
     {
         $favoriteRepository->deleteUserFavorite($appUserService->getUser()->getId(), $image_id);
@@ -128,6 +133,7 @@ class FavoriteController extends AbstractController
         return $this->redirectToRoute('favorites');
     }
 
+    #[Route('/remove-all-favorites', name: 'remove_all_favorites')]
     public function removeAll(FavoriteRepository $favoriteRepository, AppUserService $appUserService): Response
     {
         $favoriteRepository->deleteAllUserFavorites($appUserService->getUser()->getId());

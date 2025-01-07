@@ -15,14 +15,12 @@ use App\Enum\ImageSizeType;
 use App\Repository\CommentRepository;
 use App\Repository\UserCacheRepository;
 use Phyxo\Conf;
-use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminCommentsController extends AbstractController
@@ -44,7 +42,6 @@ class AdminCommentsController extends AbstractController
         Conf $conf,
         TranslatorInterface $translator,
         CommentRepository $commentRepository,
-        RouterInterface $router,
         string $section = 'all',
         int $start = 0
     ): Response {
@@ -81,15 +78,6 @@ class AdminCommentsController extends AbstractController
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_comments', ['section' => $section, 'start' => $start]);
         $tpl_params['PAGE_TITLE'] = $translator->trans('Comments', [], 'admin');
         $tpl_params['tabsheet'] = $this->setTabsheet($section);
-
-        $tpl_params['navbar'] = Utils::createNavigationBar(
-            $router,
-            'admin_comments',
-            ['section' => $section],
-            ('pending' === $section ? $nb_pending : $nb_total - $nb_pending),
-            $start,
-            $conf['comments_page_nb_comments']
-        );
 
         if ($section === 'all') {
             $tpl_params['NB_ELEMENTS'] = $nb_total;

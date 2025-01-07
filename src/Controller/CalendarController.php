@@ -17,7 +17,6 @@ use DateTime;
 use App\Repository\ImageRepository;
 use App\Security\AppUserService;
 use Phyxo\Conf;
-use Phyxo\Functions\Utils;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,6 +25,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 class CalendarController extends AbstractController
 {
+    use ThumbnailsControllerTrait;
+
     public function index(ImageRepository $imageRepository, string $date_type, AppUserService $appUserService): Response
     {
         $tpl_params = [];
@@ -179,7 +180,7 @@ class CalendarController extends AbstractController
         $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
         if (count($thumbnails) > $nb_image_page) {
-            $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+            $tpl_params['thumb_navbar'] = $this->defineNavigation(
                 $router,
                 'calendar_by_day',
                 ['date_type' => $date_type, 'year' => $year, 'month' => $this->formatDatePart($month), 'day' => $this->formatDatePart($day)],

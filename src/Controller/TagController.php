@@ -21,7 +21,6 @@ use App\DataMapper\ImageMapper;
 use App\Entity\Tag;
 use App\Enum\PictureSectionType;
 use App\Security\AppUserService;
-use Phyxo\Functions\Utils;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
@@ -29,6 +28,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TagController extends AbstractController
 {
+    use ThumbnailsControllerTrait;
+
     public function list(Request $request, AppUserService $appUserService, TagMapper $tagMapper, Conf $conf, MenuBar $menuBar, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
@@ -141,8 +142,8 @@ class TagController extends AbstractController
     ): Response {
         $tpl_params = [];
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        if ($request->cookies->has('album_view')) {
+            $tpl_params['album_view'] = $request->cookies->get('album_view');
         }
 
         $requested_tag_ids = array_map(
@@ -165,7 +166,7 @@ class TagController extends AbstractController
         if ($tpl_params['items'] !== []) {
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
-            $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+            $tpl_params['thumb_navbar'] = $this->defineNavigation(
                 $router,
                 'images_by_tags',
                 ['tag_ids' => $tag_ids],
@@ -191,8 +192,8 @@ class TagController extends AbstractController
         $menuBar->setRoute('images_by_tags');
         $menuBar->setCurrentTags($tpl_params['tags']);
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        if ($request->cookies->has('album_view')) {
+            $tpl_params['album_view'] = $request->cookies->get('album_view');
         }
 
         $tpl_params['START_ID'] = $start;

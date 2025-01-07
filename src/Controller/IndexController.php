@@ -18,7 +18,6 @@ use Phyxo\Conf;
 use App\DataMapper\ImageMapper;
 use App\Enum\PictureSectionType;
 use App\Security\AppUserService;
-use Phyxo\Functions\Utils;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
@@ -26,6 +25,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class IndexController extends AbstractController
 {
+    use ThumbnailsControllerTrait;
+
     public function mostVisited(
         Request $request,
         Conf $conf,
@@ -37,8 +38,8 @@ class IndexController extends AbstractController
     ): Response {
         $tpl_params = [];
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        if ($request->cookies->has('album_view')) {
+            $tpl_params['album_view'] = $request->cookies->get('album_view');
         }
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Most visited');
@@ -51,7 +52,7 @@ class IndexController extends AbstractController
         if ($tpl_params['items'] !== []) {
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
-            $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+            $tpl_params['thumb_navbar'] = $this->defineNavigation(
                 $router,
                 'most_visited',
                 [],
@@ -88,8 +89,8 @@ class IndexController extends AbstractController
     ): Response {
         $tpl_params = [];
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        if ($request->cookies->has('album_view')) {
+            $tpl_params['album_view'] = $request->cookies->get('album_view');
         }
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Recent photos');
@@ -106,7 +107,7 @@ class IndexController extends AbstractController
         if (($tpl_params['items'] === null ? 0 : count($tpl_params['items'])) > 0) {
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
-            $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+            $tpl_params['thumb_navbar'] = $this->defineNavigation(
                 $router,
                 'recent_pics',
                 [],
@@ -143,8 +144,8 @@ class IndexController extends AbstractController
     ): Response {
         $tpl_params = [];
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        if ($request->cookies->has('album_view')) {
+            $tpl_params['album_view'] = $request->cookies->get('album_view');
         }
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Best rated');
@@ -159,7 +160,7 @@ class IndexController extends AbstractController
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
 
             if (count($tpl_params['items']) > $nb_image_page) {
-                $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                $tpl_params['thumb_navbar'] = $this->defineNavigation(
                     $router,
                     'best_rated',
                     [],
@@ -210,13 +211,13 @@ class IndexController extends AbstractController
     ): Response {
         $tpl_params = [];
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        if ($request->cookies->has('album_view')) {
+            $tpl_params['album_view'] = $request->cookies->get('album_view');
         }
 
         $tpl_params['TITLE'] = $translator->trans('Random photos');
         $tpl_params['items'] = [];
-        $listIds = array_map(fn($s) => intval($s), explode(',', $list));
+        $listIds = array_map(fn ($s) => intval($s), explode(',', $list));
         foreach ($imageMapper->getRepository()->getList($listIds, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $image) {
             $tpl_params['items'][] = $image->getId();
         }

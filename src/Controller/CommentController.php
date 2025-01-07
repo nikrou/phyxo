@@ -23,7 +23,6 @@ use App\Form\EditCommentType;
 use App\Form\Model\CommentFilterModel;
 use App\Form\ValidateCommentType;
 use App\Security\AppUserService;
-use Phyxo\Functions\Utils;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,6 +31,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentController extends AbstractController
 {
+    use ThumbnailsControllerTrait;
+
     public function index(
         Request $request,
         RouterInterface $router,
@@ -160,7 +161,7 @@ class CommentController extends AbstractController
             $tpl_params['comments'][] = $tpl_comment;
         }
 
-        $tpl_params['navbar'] = Utils::createNavigationBar(
+        $tpl_params['navbar'] = $this->defineNavigation(
             $router,
             'comments',
             $filterParams->toQueryParams(),

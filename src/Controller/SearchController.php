@@ -31,6 +31,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SearchController extends AbstractController
 {
+    use ThumbnailsControllerTrait;
+
     public function qsearch(Request $request, SearchRepository $searchRepository): Response
     {
         if (!$request->get('q')) {
@@ -302,7 +304,7 @@ class SearchController extends AbstractController
 
         if ($tpl_params['items'] !== []) {
             $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
-            $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+            $tpl_params['thumb_navbar'] = $this->defineNavigation(
                 $router,
                 'search_results',
                 ['search_id' => $search_id],
@@ -331,8 +333,8 @@ class SearchController extends AbstractController
             $tpl_params['no_search_results'] = $search_results['qsearch_details']['q'];
         }
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        if ($request->cookies->has('album_view')) {
+            $tpl_params['album_view'] = $request->cookies->get('album_view');
         }
 
         $tpl_params['START_ID'] = $start;

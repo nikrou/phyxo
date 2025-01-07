@@ -340,8 +340,6 @@ class AdminBatchManagerController extends AbstractController
         $nb_thumbs_page = 0;
 
         if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
-            $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_global', ['filter' => $filter], is_countable($current_set) ? count($current_set) : 0, $start, $nb_images);
-
             $is_category = false;
             if (isset($this->getFilter($request->getSession())['category']) && !isset($this->getFilter($request->getSession())['category_recursive'])) {
                 $is_category = true;
@@ -1097,9 +1095,7 @@ class AdminBatchManagerController extends AbstractController
         } else {
             $nb_images = 5;
         }
-        if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
-            $tpl_params['navbar'] = Utils::createNavigationBar($router, 'admin_batch_manager_unit', ['filter' => $filter], is_countable($current_set) ? count($current_set) : 0, $start, $nb_images);
-
+        if (count($current_set) > 0) {
             $is_category = false;
             if (isset($this->getFilter($request->getSession())['category']) && !isset($this->getFilter($request->getSession())['category_recursive'])) {
                 $is_category = true;

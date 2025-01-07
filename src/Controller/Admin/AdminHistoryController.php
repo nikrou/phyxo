@@ -27,7 +27,6 @@ use App\Repository\HistorySummaryRepository;
 use App\Repository\SearchRepository;
 use App\Repository\TagRepository;
 use Phyxo\Conf;
-use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\TabSheet\TabSheet;
@@ -36,7 +35,6 @@ use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminHistoryController extends AbstractController
@@ -176,7 +174,6 @@ class AdminHistoryController extends AbstractController
         ImageMapper $imageMapper,
         TagRepository $tagRepository,
         HistoryRepository $historyRepository,
-        RouterInterface $router,
         ?int $search_id = null
     ): Response {
         $tpl_params = [];
@@ -202,17 +199,6 @@ class AdminHistoryController extends AbstractController
             $tpl_params['search_summary'] = $results['search_summary'];
             $tpl_params['search_results'] = $results['search_results'];
             $tpl_params['nb_lines'] = $results['nb_lines'];
-
-            if ($results['nb_lines'] > $conf['nb_logs_page']) {
-                $tpl_params['navbar'] = Utils::createNavigationBar(
-                    $router,
-                    'admin_history_search',
-                    ['search_id' => $search_id],
-                    $results['nb_lines'],
-                    $start,
-                    $conf['nb_logs_page']
-                );
-            }
         }
 
         $historySearchForm = $this->createForm(HistorySearchType::class, $rules, ['translation_domain' => 'admin']);
