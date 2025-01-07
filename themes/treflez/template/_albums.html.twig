@@ -12,11 +12,11 @@
         {% set album_derivative = derivative_from_image(image: cat.representative.image, params: album_derivative_params) %}
 
         {# this needs a fixed size else it messes up the grid on tablets #}
-        <div class="col-outer mt-3 {% if category_view == 'list' %}col-12{%  else %}{{macro.col_class(260, 180, theme_config)|trim}}{% endif %}" data-grid-classes="{{macro.col_class(260, 180, theme_config)|trim}}">
+        <div class="col-outer mt-3 {% if album_view == 'list' %}col-12{%  else %}{{macro.col_class(260, 180, theme_config)|trim}}{% endif %}" data-grid-classes="{{macro.col_class(260, 180, theme_config)|trim}}">
           <div class="card card-thumbnail" data-id="{{cat.id}}">
             <div class="h-100">
-              <a href="{{cat.URL}}" class="ripple{% if category_view != 'list' %} d-block{% endif %}">
-                <img class="{% if category_view == 'list' %}card-img-left{% else %}card-img-top{% endif %}" src="{{ media_path(album_derivative) }}" alt="{{cat.TN_ALT}}" title="{{cat.name}} - {{'display this album'|trans}}">
+              <a href="{{cat.URL}}" class="ripple{% if album_view != 'list' %} d-block{% endif %}">
+                <img class="{% if album_view == 'list' %}card-img-left{% else %}card-img-top{% endif %}" src="{{ media_path(album_derivative) }}" alt="{{cat.TN_ALT}}" title="{{cat.name}} - {{'display this album'|trans}}">
               </a>
               <div class="card-body">
                 <h5 class="card-title ellipsis {% if not cat.icon_ts is empty %} recent{% endif %}">

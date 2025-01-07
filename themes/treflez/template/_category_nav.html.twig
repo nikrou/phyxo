@@ -101,13 +101,13 @@
 		{% endif %}
 
 		{% if (category_thumbnails is defined) or (thumbnails is defined) %}
-                    <li id="btn-grid" class="nav-item{% if category_view != 'list' %} active{% endif %}">
+                    <li id="btn-grid" class="nav-item{% if album_view != 'list' %} active{% endif %}">
                         <button type="button" class="btn btn-link nav-link" title="{{'Grid view'|trans}}">
                             <i class="fa fa-th"></i>
 			    <span class="d-lg-none ml-2">{{'Grid view'|trans}}</span>
                         </button>
                     </li>
-                    <li id="btn-list" class="nav-item{% if category_view == 'list' %} active{% endif %}">
+                    <li id="btn-list" class="nav-item{% if album_view == 'list' %} active{% endif %}">
                         <button type="button" class="btn btn-link nav-link" title="{{'List view'|trans}}">
                             <i class="fa fa-th-list"></i>
 			    <span class="d-lg-none ml-2">{{'List view'|trans}}</span>
