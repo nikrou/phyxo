@@ -16,7 +16,7 @@ use Traversable;
 class ExtensionCollection
 {
     /** @var array<string, mixed> */
-    private array $extensions_by_class;
+    private array $extensions_by_class = [];
 
     /** @var array<string, string> */
     private array $extensions_by_name = [];
@@ -39,7 +39,7 @@ class ExtensionCollection
     /**
      * @return array<string, string>
      */
-    public function getExtensionsByClass()
+    public function getExtensionsByClass(): array
     {
         return $this->extensions_by_class;
     }
@@ -47,7 +47,7 @@ class ExtensionCollection
     /**
      * @return array<string, string>
      */
-    public function getExtensionsByName()
+    public function getExtensionsByName(): array
     {
         return $this->extensions_by_name;
     }

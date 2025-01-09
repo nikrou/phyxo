@@ -15,6 +15,7 @@
 
         <server name="KERNEL_CLASS" value="App\Kernel"/>
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="/foobar/"/>
+        <env name="COLUMNS" value="120" />
     </php>
 
     <testsuites>

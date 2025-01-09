@@ -29,8 +29,6 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 )]
 class UserCreateCommand extends Command
 {
-    /** @var array<string, string> */
-    private array $params = ['username' => '', 'password' => '', 'mail_address' => ''];
     private string $localEnvFile = '';
 
     public function __construct(private readonly UserManager $userManager, private readonly UserPasswordHasherInterface $passwordHasher, private readonly string $rootProjectDir)
@@ -50,51 +48,59 @@ class UserCreateCommand extends Command
             ->addOption('username', null, InputOption::VALUE_REQUIRED, 'Username')
             ->addOption('password', null, InputOption::VALUE_OPTIONAL, 'Password')
             ->addOption('mail_address', null, InputOption::VALUE_OPTIONAL, 'Mail address')
-            ->addOption('status', null, InputOption::VALUE_REQUIRED, 'User status');
+            ->addOption('status', null, InputOption::VALUE_OPTIONAL, 'User status');
     }
 
     public function interact(InputInterface $input, OutputInterface $output): void
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Create user');
-
-        if (($this->params['username'] = $input->getOption('username')) === null) {
-            $this->params['username'] = $io->ask('Username', null, function ($user) {
-                if (empty($user)) {
-                    throw new Exception('Username cannot be empty.');
-                }
-
-                return $user;
-            });
-            $input->setOption('username', $this->params['username']);
-        } else {
-            $io->text(sprintf('<info>Username is:</info> %s', $this->params['username']));
+        if ($input->getOption('verbose')) {
+            $io->title('Create user');
         }
 
-        if (($this->params['password'] = $input->getOption('password')) === null) {
-            $this->params['password'] = $io->askHidden('Password for username');
-            $input->setOption('password', $this->params['password']);
-        } else {
-            $io->text(sprintf('<info>Password is:</info> %s', $io->isVerbose() ? $this->params['password'] : '****'));
+        if (!$input->getOption('username')) {
+            try {
+                $username = $io->ask(
+                    'Username',
+                    null,
+                    function ($user) {
+                        if (empty($user)) {
+                            throw new Exception('Username cannot be empty.');
+                        }
+
+                        return $user;
+                    }
+                );
+
+                $input->setOption('username', $username);
+            } catch (Exception $e) {
+                throw $e;
+            }
+        } elseif ($input->getOption('verbose')) {
+            $io->text(sprintf('<info>Username is:</info> %s', $input->getOption('username')));
         }
 
-        if (($this->params['mail_address'] = $input->getOption('mail_address')) === null) {
-            $this->params['mail_address'] = $io->ask('Mail address');
-            $input->setOption('mail_address', $this->params['mail_address']);
-        } else {
-            $io->text(sprintf('<info>Mail address is:</info> %s', $this->params['mail_address']));
+        if (!$input->getOption('password')) {
+            $input->setOption('password', $io->askHidden('Password for username'));
+        } elseif ($input->getOption('verbose')) {
+            $io->text(sprintf('<info>Password is:</info> %s', $io->isVerbose() ? $input->getOption('password') : '****'));
         }
 
-        if (($this->params['status'] = $input->getOption('status')) === null) {
+        if (!$input->getOption('mail_address')) {
+            $input->setOption('mail_address', $io->ask('Mail address'));
+        } elseif ($input->getOption('verbose')) {
+            $io->text(sprintf('<info>Mail address is:</info> %s', $input->getOption('mail_address')));
+        }
+
+        if (!$input->getOption('status')) {
             $status_options = [];
             foreach (UserStatusType::cases() as $status) {
                 $status_options[] = $status->value;
             }
 
-            $this->params['status'] = $io->choice('Select user status', $status_options, UserStatusType::NORMAL->value);
-            $input->setOption('status', $this->params['status']);
-        } else {
-            $io->text(sprintf('<info>User status type is:</info> %s', $this->params['status']));
+            $input->setOption('status', $io->choice('Select user status', $status_options, UserStatusType::NORMAL->value));
+        } elseif ($input->getOption('verbose')) {
+            $io->text(sprintf('<info>User status type is:</info> %s', $input->getOption('status')));
         }
     }
 
@@ -102,16 +108,28 @@ class UserCreateCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
+        if (!$input->getOption('username') || !$input->getOption('password') || !$input->getOption('mail_address') || !$input->getOption('status')) {
+            $io->error("Missing option");
+
+            return Command::INVALID;
+        }
+
         $user = new User();
-        $user->addRole(User::getRoleFromStatus(UserStatusType::from($this->params['status'])));
-        $user->setUsername($this->params['username']);
-        $user->setMailAddress($this->params['mail_address']);
-        if ($this->params['password']) {
-            $user->setPassword($this->passwordHasher->hashPassword($user, $this->params['password']));
+        $user->addRole(User::getRoleFromStatus(UserStatusType::from($input->getOption('status'))));
+        $user->setUsername($input->getOption('username'));
+        $user->setMailAddress($input->getOption('mail_address'));
+        if (!is_null($input->getOption('password'))) {
+            $user->setPassword($this->passwordHasher->hashPassword($user, $input->getOption('password')));
         }
 
         try {
-            $this->userManager->register($user);
+            $user = $this->userManager->register($user);
+            $output->writeln(sprintf(
+                'Successfully created user "%s" with mail address "%s" and status "%s"',
+                $user->getUsername(),
+                $user->getMailAddress(),
+                $user->getUserInfos()->getStatus()->value
+            ));
         } catch (Exception $e) {
             $io->error($e->getMessage());
         }

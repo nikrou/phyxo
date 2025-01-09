@@ -50,6 +50,11 @@ final class UserInfosFactory extends PersistentProxyObjectFactory
         ];
     }
 
+    public function guest(): self
+    {
+        return $this->with(['status' => UserStatusType::GUEST]);
+    }
+
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
      */

@@ -71,6 +71,7 @@
 		"symfony/phpunit-bridge": "^7.0",
 		"symfony/stopwatch": "^7.0",
 		"symfony/web-profiler-bundle": "^7.0",
+		"zenstruck/console-test": "^1.7",
 		"zenstruck/foundry": "^2.3"
 	},
 	"config": {

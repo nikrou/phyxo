@@ -279,7 +279,7 @@ class Plugins extends Extensions
             if ($pem_versions !== [] && !preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                 $version = $pem_versions[0]['name'];
             }
-            $branch = Utils::get_branch_from_version($version);
+            $branch = Utils::getBranchFromVersion($version);
             foreach ($pem_versions as $pem_version) {
                 if (str_starts_with((string) $pem_version['name'], $branch)) {
                     $versions_to_check[] = $pem_version['id'];
