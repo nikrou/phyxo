@@ -59,40 +59,35 @@ class UserCreateCommand extends Command
         }
 
         if (!$input->getOption('username')) {
-            try {
-                $username = $io->ask(
-                    'Username',
-                    null,
-                    function ($user) {
-                        if (empty($user)) {
-                            throw new Exception('Username cannot be empty.');
-                        }
-
-                        return $user;
+            $username = $io->ask(
+                'Username',
+                null,
+                function ($user) {
+                    if (empty($user)) {
+                        throw new Exception('Username cannot be empty.');
                     }
-                );
 
-                $input->setOption('username', $username);
-            } catch (Exception $e) {
-                throw $e;
-            }
+                    return $user;
+                }
+            );
+            $input->setOption('username', $username);
         } elseif ($input->getOption('verbose')) {
             $io->text(sprintf('<info>Username is:</info> %s', $input->getOption('username')));
         }
 
-        if (!$input->getOption('password')) {
+        if (is_null($input->getOption('password'))) {
             $input->setOption('password', $io->askHidden('Password for username'));
         } elseif ($input->getOption('verbose')) {
             $io->text(sprintf('<info>Password is:</info> %s', $io->isVerbose() ? $input->getOption('password') : '****'));
         }
 
-        if (!$input->getOption('mail_address')) {
+        if (is_null($input->getOption('mail_address'))) {
             $input->setOption('mail_address', $io->ask('Mail address'));
         } elseif ($input->getOption('verbose')) {
             $io->text(sprintf('<info>Mail address is:</info> %s', $input->getOption('mail_address')));
         }
 
-        if (!$input->getOption('status')) {
+        if (is_null($input->getOption('status'))) {
             $status_options = [];
             foreach (UserStatusType::cases() as $status) {
                 $status_options[] = $status->value;
@@ -108,7 +103,7 @@ class UserCreateCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        if (!$input->getOption('username') || !$input->getOption('password') || !$input->getOption('mail_address') || !$input->getOption('status')) {
+        if (is_null($input->getOption('username')) || is_null($input->getOption('password')) || is_null($input->getOption('mail_address')) || is_null($input->getOption('status'))) {
             $io->error("Missing option");
 
             return Command::INVALID;

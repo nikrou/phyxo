@@ -58,7 +58,7 @@ INSERT INTO phyxo_config (param,value,type) VALUES ('mail_theme','clear','string
 INSERT INTO phyxo_config (param,value,type) VALUES ('tags_permission_add','','string');
 INSERT INTO phyxo_config (param,value,type) VALUES ('tags_permission_delete','','string');
 INSERT INTO phyxo_config (param,value,type) VALUES ('tags_existing_tags_only','false','boolean');
-INSERT INTO phyxo_config (param,value,type) VALUES ('publish_tags_immediately','false','boolean');
-INSERT INTO phyxo_config (param,value,type) VALUES ('delete_tags_immediately','false','boolean');
-INSERT INTO phyxo_config (param,value,type) VALUES ('show_pending_added_tags','false','boolean');
-INSERT INTO phyxo_config (param,value,type) VALUES ('show_pending_deleted_tags','false','boolean');
+INSERT INTO phyxo_config (param,value,type) VALUES ('tags_publish_immediately','false','boolean');
+INSERT INTO phyxo_config (param,value,type) VALUES ('tags_delete_immediately','false','boolean');
+INSERT INTO phyxo_config (param,value,type) VALUES ('tags_show_pending_added','false','boolean');
+INSERT INTO phyxo_config (param,value,type) VALUES ('tags_show_pending_deleted','false','boolean');

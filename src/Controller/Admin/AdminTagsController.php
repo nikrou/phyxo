@@ -14,7 +14,7 @@ namespace App\Controller\Admin;
 use DateTime;
 use App\DataMapper\TagMapper;
 use App\Entity\Tag;
-use App\Enum\UserStatusType;
+use App\Form\TagPermissionsType;
 use App\Repository\ImageTagRepository;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
@@ -247,59 +247,27 @@ class AdminTagsController extends AbstractController
         return $this->redirectToRoute('admin_tags');
     }
 
-    public function permissions(Request $request, Conf $conf, TagMapper $tagMapper, TranslatorInterface $translator, CsrfTokenManagerInterface $tokenManager): Response
+    public function permissions(Request $request, Conf $conf, TranslatorInterface $translator): Response
     {
-        $status_options = [];
-        $tpl_params = [];
         $this->translator = $translator;
+        $tpl_params = [];
 
-        $status_options[null] = '';
-        foreach (UserStatusType::cases() as $status) {
-            $status_options[$status->value] = $translator->trans('user_status_' . $status->value, [], 'admin');
-        }
+        $form = $this->createForm(TagPermissionsType::class, $conf);
+        $form->handleRequest($request);
 
-        if ($request->isMethod('POST')) {
-            if ($request->request->get('permission_add') && isset($status_options[$request->request->get('permission_add')])) {
-                $conf['tags_permission_add'] = $request->request->get('permission_add');
-            } else {
-                $conf['tags_permission_add'] = '';
+        if ($form->isSubmitted() && $form->isValid()) {
+            foreach ($form->getData() as $confKey => $confParam) {
+                $conf->addOrUpdateParam($confKey, $confParam['value'], $confParam['type']);
             }
 
-            if ($request->request->get('permission_delete') && isset($status_options[$request->request->get('permission_delete')])) {
-                $conf['tags_permission_delete'] = $request->request->get('permission_delete');
-            } else {
-                $conf['tags_permission_delete'] = '';
-            }
-
-            $conf['tags_existing_tags_only'] = $request->request->get('existing_tags_only') ? 1 : 0;
-            $conf['publish_tags_immediately'] = $request->request->get('publish_tags_immediately') ? 0 : 1;
-            $conf['delete_tags_immediately'] = $request->request->get('delete_tags_immediately') ? 0 : 1;
-            $conf['show_pending_added_tags'] = $request->request->get('show_pending_added_tags') ? 1 : 0;
-            $conf['show_pending_deleted_tags'] = $request->request->get('show_pending_deleted_tags') ? 1 : 0;
-
-            $tagMapper->invalidateUserCacheNbTags();
-            $this->addFlash('success', $translator->trans('Settings have been updated', [], 'admin'));
+            $this->addFlash('success', $translator->trans('Your configuration settings have been updated', [], 'admin'));
 
             $this->redirectToRoute('admin_tags_permissions');
         }
 
-        $Permissions = [];
-        $Permissions['add'] = $conf['tags_permission_add'];
-        $Permissions['delete'] = $conf['tags_permission_delete'];
-        $Permissions['existing_tags_only'] = $conf['tags_existing_tags_only'];
-        $Permissions['publish_tags_immediately'] = $conf['publish_tags_immediately'];
-        $Permissions['delete_tags_immediately'] = $conf['delete_tags_immediately'];
-        $Permissions['show_pending_added_tags'] = $conf['show_pending_added_tags'];
-        $Permissions['show_pending_deleted_tags'] = $conf['show_pending_deleted_tags'];
-
-        $tpl_params['PERMISSIONS'] = $Permissions;
-        $tpl_params['STATUS_OPTIONS'] = $status_options;
-
-        $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');
-        $tpl_params['F_ACTION'] = $this->generateUrl('admin_tags_permissions');
-        $tpl_params['U_PAGE'] = $this->generateUrl('admin_tags');
-        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_tags');
+        $tpl_params['form'] = $form->createView();
         $tpl_params['PAGE_TITLE'] = $translator->trans('Tags', [], 'admin');
+        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_tags');
         $tpl_params['tabsheet'] = $this->setTabsheet('permissions');
 
         return $this->render('tags_permissions.html.twig', $tpl_params);
