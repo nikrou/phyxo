@@ -11,9 +11,11 @@
 
 namespace Phyxo;
 
+use App\Enum\ConfEnum;
 use ArrayAccess;
 use App\Entity\Config;
 use App\Repository\ConfigRepository;
+use Exception;
 
 /**
  *  Manage configuration of Phyxo in two ways :
@@ -21,6 +23,8 @@ use App\Repository\ConfigRepository;
  *  - in database : can be update throught admin area.
  *
  *  Add prefix file_ or db_ to configuration keys to know if database update is needed
+ *
+ *  Do not allow direct save vi ArrayAccess::offsetSet because type cannot be retrieved
  *
  *  @implements ArrayAccess<string, mixed>
  */
@@ -38,7 +42,7 @@ class Conf implements ArrayAccess
     public function init(string $default_config_file, string $user_config_file = ''): void
     {
         $this->loadFromFile($default_config_file);
-        if ($user_config_file !== '' && $user_config_file !== '0') {
+        if ($user_config_file !== '') {
             $this->loadFromFile($user_config_file);
         }
         $this->loadFromDB();
@@ -59,7 +63,7 @@ class Conf implements ArrayAccess
         /** @phpstan-ignore-next-line */
         if ($conf !== []) {
             foreach ($conf as $key => $value) {
-                $this->keys[self::FILE_PREFIX . $key] = ['value' => $value, 'type' => null];
+                $this->keys[self::FILE_PREFIX . $key] = ['value' => $value, 'type' => ConfEnum::STRING];
             }
             unset($conf);
         }
@@ -72,7 +76,7 @@ class Conf implements ArrayAccess
     {
         foreach ($this->configRepository->findAll() as $config) {
             $this->keys[self::DB_PREFIX . $config->getParam()] = [
-                'value' => $this->dbToConf($config->getValue(), $config->getType() ?? 'string'),
+                'value' => $this->dbToConf($config->getValue(), $config->getType()),
                 'type' => $config->getType()
             ];
         }
@@ -81,7 +85,7 @@ class Conf implements ArrayAccess
     /**
      * Add or update a config parameter
      */
-    public function addOrUpdateParam(string $param, mixed $value, string $type = 'string'): void
+    public function addOrUpdateParam(string $param, mixed $value, ConfEnum $type = ConfEnum::STRING): void
     {
         $config = $this->configRepository->findOneBy(['param' => $param]);
         if (is_null($config)) {
@@ -96,32 +100,32 @@ class Conf implements ArrayAccess
         $this->keys[self::DB_PREFIX . $param]['value'] = $value;
     }
 
-    public function dbToConf(?string $value, string $type = 'string'): mixed
+    public function dbToConf(?string $value, ConfEnum $type = ConfEnum::STRING): mixed
     {
         if (is_null($value)) {
             return null;
-        } elseif ($type === 'boolean') {
+        } elseif ($type === ConfEnum::BOOLEAN) {
             return ($value === 'true');
-        } elseif ($type === 'integer') {
+        } elseif ($type === ConfEnum::INTEGER) {
             return (int) $value;
-        } elseif ($type === 'json') {
+        } elseif ($type === ConfEnum::JSON) {
             return json_decode($value, true, 512, JSON_THROW_ON_ERROR);
-        } elseif ($type === 'base64') {
+        } elseif ($type === ConfEnum::BASE64) {
             return unserialize(base64_decode($value));
         } else {
             return $value;
         }
     }
 
-    protected function confToDb(mixed $value, string $type = 'string'): ?string
+    protected function confToDb(mixed $value, ConfEnum $type = ConfEnum::STRING): ?string
     {
         if (is_null($value)) {
             return null;
-        } elseif ($type === 'boolean') {
+        } elseif ($type === ConfEnum::BOOLEAN) {
             return ($value === true) ? 'true' : 'false';
-        } elseif ($type === 'base64') {
+        } elseif ($type === ConfEnum::BASE64) {
             return base64_encode(serialize($value));
-        } elseif ($type === 'json' || is_array($value) || is_object($value)) {
+        } elseif ($type === ConfEnum::JSON || is_array($value) || is_object($value)) {
             return json_encode($value, JSON_THROW_ON_ERROR);
         } else {
             return $value;
@@ -150,13 +154,7 @@ class Conf implements ArrayAccess
 
     public function offsetSet(mixed $param, mixed $value): void
     {
-        if (isset($this->keys[self::FILE_PREFIX . $param])) {
-            $this->keys[self::FILE_PREFIX . $param]['value'] = $value;
-        } else {
-            // if new key add it to database
-            $this->keys[self::DB_PREFIX . $param]['value'] = $value;
-            $this->addOrUpdateParam($param, $value);
-        }
+        throw new Exception('Use Conf::addOrUpdateParam method');
     }
 
     public function offsetUnset(mixed $param): void

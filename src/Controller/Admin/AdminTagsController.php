@@ -15,6 +15,8 @@ use DateTime;
 use App\DataMapper\TagMapper;
 use App\Entity\Tag;
 use App\Form\TagPermissionsType;
+use App\Enum\ConfType;
+use App\Enum\UserStatusType;
 use App\Repository\ImageTagRepository;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;

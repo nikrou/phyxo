@@ -11,6 +11,7 @@
 
 namespace App\Form\Transformer;
 
+use App\Enum\ConfEnum;
 use App\Enum\TagPermissionEnum;
 use App\Enum\UserStatusType;
 use Phyxo\Conf;
@@ -45,13 +46,13 @@ class ConfToTagPermissionsTransformer implements DataTransformerInterface
     public function reverseTransform(mixed $model): mixed
     {
         return [
-            TagPermissionEnum::ADD->value => ['value' => $model->getTagsPermissionAdd() ? $model->getTagsPermissionAdd()->value : '', 'type' => 'string'],
-            TagPermissionEnum::DELETE->value => ['value' => $model->getTagsPermissionDelete() ? $model->getTagsPermissionDelete()->value : '', 'type' => 'string'],
-            TagPermissionEnum::EXISTING_TAGS_ONLY->value => ['value' => $model->getTagsExistingOnly(), 'type' => 'boolean'],
-            TagPermissionEnum::PUBLISH_IMMEDIATELY->value => ['value' => $model->getTagsPublishImmediately(), 'type' => 'boolean'],
-            TagPermissionEnum::DELETE_IMMEDIATELY->value => ['value' => $model->getTagsDeleteImmediately(), 'type' => 'boolean'],
-            TagPermissionEnum::SHOW_PENDING_ADDED->value => ['value' => $model->getTagsShowPendingAdded(), 'type' => 'boolean'],
-            TagPermissionEnum::SHOW_PENDING_DELETED->value => ['value' => $model->getTagsShowPendingDeleted(), 'type' => 'boolean'],
+            TagPermissionEnum::ADD->value => ['value' => $model->getTagsPermissionAdd() ? $model->getTagsPermissionAdd()->value : '', 'type' => ConfEnum::STRING],
+            TagPermissionEnum::DELETE->value => ['value' => $model->getTagsPermissionDelete() ? $model->getTagsPermissionDelete()->value : '', 'type' => ConfEnum::STRING],
+            TagPermissionEnum::EXISTING_TAGS_ONLY->value => ['value' => $model->getTagsExistingOnly(), 'type' => ConfEnum::BOOLEAN],
+            TagPermissionEnum::PUBLISH_IMMEDIATELY->value => ['value' => $model->getTagsPublishImmediately(), 'type' => ConfEnum::BOOLEAN],
+            TagPermissionEnum::DELETE_IMMEDIATELY->value => ['value' => $model->getTagsDeleteImmediately(), 'type' => ConfEnum::BOOLEAN],
+            TagPermissionEnum::SHOW_PENDING_ADDED->value => ['value' => $model->getTagsShowPendingAdded(), 'type' => ConfEnum::BOOLEAN],
+            TagPermissionEnum::SHOW_PENDING_DELETED->value => ['value' => $model->getTagsShowPendingDeleted(), 'type' => ConfEnum::BOOLEAN],
         ];
     }
 }

@@ -88,19 +88,11 @@ services:
       - method: init
         arguments: ['%default_config_file%', '%user_config_file%']
 
-  phyxo.conf:
-    public: true
-    alias: 'Phyxo\Conf'
-
-  Phyxo\MenuBar: ~
-
   Phyxo\Image\ImageStandardParams: ~
 
   Phyxo\Upgrade: ~
 
-  phyxo.upgrade:
-    public: true
-    alias: 'Phyxo\Upgrade'
+  Phyxo\MenuBar: ~
 
   Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler:
     arguments:

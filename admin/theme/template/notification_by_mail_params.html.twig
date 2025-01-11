@@ -2,54 +2,16 @@
 {% extends "__layout.html.twig" %}
 
 {% block breadcrumb_items %}
-    <li class="breadcrumb-item"><a href="{{U_PAGE}}">{{'Notification'|trans}}</a></li>
+    <li class="breadcrumb-item"><a href="{{ path('admin_notification') }}">{{'Notification'|trans}}</a></li>
     <li class="breadcrumb-item">{{'Parameters'|trans}}</li>
 {% endblock %}
 
 {% block content %}
-    <form method="post" name="notification_by_mail" id="notification_by_mail" action="{{F_ACTION}}">
-	{% if REPOST_SUBMIT_NAME is defined %}
-	    <div class="fieldset">
-		<input type="btn btn-submit" value="{{'Continue processing treatment'|trans}}" name="{{REPOST_SUBMIT_NAME}}">
-	    </div>
-	{% endif %}
-
-	<div class="fieldset">
-	    <h3>{{'Parameters'|trans}}</h3>
-	    <h4>{{'Send mail on HTML format'|trans}}</h4>
-	    <p>
-		<label><input type="radio" name="nbm_send_html_mail" value="true"  {% if SEND_HTML_MAIL %}checked="checked"{% endif %}>{{'Yes'|trans}}</label>
-		<label><input type="radio" name="nbm_send_html_mail" value="false" {% if not SEND_HTML_MAIL %}checked="checked"{% endif %}>{{'No'|trans}}</label>
-	    </p>
-
-	    <p>
-		<label for="send_mail_as">{{'Send mail as'|trans}}</label>
-		<i><small>{{'With blank value, gallery title will be used'|trans}}</small></i>
-		<input class="form-control" type="text" maxlength="35" size="35" name="nbm_send_mail_as" id="send_mail_as" value="{{SEND_MAIL_AS}}">
-	    </p>
-
-	    <h4>{{'Add detailed content'|trans}}</h4>
-	    <p>
-		<label><input type="radio" name="nbm_send_detailed_content" value="true"  {% if SEND_DETAILED_CONTENT %}checked="checked"{% endif %}>{{'Yes'|trans}}</label>
-		<label><input type="radio" name="nbm_send_detailed_content" value="false" {% if not SEND_DETAILED_CONTENT %}checked="checked"{% endif %}>{{'No'|trans}}</label>
-	    </p>
-
-	    <p>
-		<label for="complementary_mail_content">{{'Complementary mail content'|trans}}</label>
-		<textarea class="form-control" cols="50" rows="5" name="nbm_complementary_mail_content" id="complementary_mail_content">{{COMPLEMENTARY_MAIL_CONTENT}}</textarea>
-	    </p>
-
-	    <h4>{{'Include display of recent photos grouped by dates'|trans}}</h4>
-	    <p>
-		<i><small>({{'Available only with HTML format'|trans}})</small></i>
-		<label><input type="radio" name="nbm_send_recent_post_dates" value="true" {% if SEND_RECENT_POST_DATES %}checked="checked"{% endif %}>{{'Yes'|trans}}</label>
-		<label><input type="radio" name="nbm_send_recent_post_dates" value="false" {% if not SEND_RECENT_POST_DATES %}checked="checked"{% endif %}>{{'No'|trans}}</label>
-	    </p>
-	</div>
-
-	<p>
-	    <input class="btn btn-submit" type="submit" value="{{'Submit'|trans}}" name="param_submit">
-	    <input class="btn btn-reset" type="reset" value="{{'Reset'|trans}}" name="param_reset">
-	</p>
-    </form>
+	{{form_start(form)}}
+		{{form_rest(form)}}
+		<p>
+			<input class="btn btn-submit" type="submit" value="{{'Submit'|trans}}" name="param_submit">
+			<input class="btn btn-reset" type="reset" value="{{'Reset'|trans}}" name="param_reset">
+		</p>
+	{{form_end(form)}}
 {% endblock %}

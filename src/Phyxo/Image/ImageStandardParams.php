@@ -11,6 +11,7 @@
 
 namespace Phyxo\Image;
 
+use App\Enum\ConfEnum;
 use App\Entity\Image;
 use App\Enum\ImageSizeType;
 use Phyxo\Conf;
@@ -283,6 +284,6 @@ class ImageStandardParams
             'c' => $this->customs,
         ];
 
-        $this->conf->addOrUpdateParam(self::CONF_KEY, $conf_derivatives, 'base64');
+        $this->conf->addOrUpdateParam(self::CONF_KEY, $conf_derivatives, ConfEnum::BASE64);
     }
 }

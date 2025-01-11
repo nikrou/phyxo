@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Enum\ConfEnum;
 use Phyxo\Functions\Utils;
 use Exception;
 use Phyxo\Image\SizingParams;
@@ -188,8 +189,8 @@ class AdminConfigurationController extends AbstractController
         }
 
         $tpl_params['main'] = [
-            'CONF_GALLERY_TITLE' => htmlspecialchars((string) $conf['gallery_title']),
-            'CONF_PAGE_BANNER' => htmlspecialchars((string) $conf['page_banner']),
+            'CONF_GALLERY_TITLE' => $conf['gallery_title'],
+            'CONF_PAGE_BANNER' => $conf['page_banner'],
             'week_starts_on_options' => ['sunday' => $this->translator->trans('sunday', [], 'admin'), 'monday' => $this->translator->trans('monday', [], 'admin')],
             'week_starts_on_options_selected' => $conf['week_starts_on'],
             'mail_theme' => $conf['mail_theme'],
@@ -407,21 +408,21 @@ class AdminConfigurationController extends AbstractController
             if ($section === 'main') {
                 if ($request->request->get('gallery_title') && $conf['gallery_title'] !== $request->request->get('gallery_title')) {
                     $conf_updated = true;
-                    if (!$conf['allow_html_descriptions']) {
-                        $conf['gallery_title'] = strip_tags($request->request->get('gallery_title'));
-                    } else {
-                        $conf['gallery_title'] = $request->request->get('gallery_title');
-                    }
+                    $conf->addOrUpdateParam(
+                        'gallery_title',
+                        $conf['allow_html_descriptions'] ? $request->request->get('gallery_title') : strip_tags($request->request->get('gallery_title')),
+                        ConfEnum::STRING
+                    );
                 }
 
                 if ($request->request->get('page_banner') && $conf['page_banner'] !== $request->request->get('page_banner')) {
                     $conf_updated = true;
-                    $conf['page_banner'] = $request->request->get('page_banner');
+                    $conf->addOrUpdateParam('page_banner', $request->request->get('page_banner'), ConfEnum::STRING);
                 }
 
                 if ($request->request->get('week_starts_on') && $conf['week_starts_on'] !== $request->request->get('week_starts_on')) {
                     $conf_updated = true;
-                    $conf['week_starts_on'] = $request->request->get('week_starts_on');
+                    $conf->addOrUpdateParam('week_starts_on', $request->request->get('week_starts_on'), ConfEnum::STRING);
                 }
 
                 if (empty($conf['order_by_custom']) && empty($conf['order_by_inside_category_custom'])) {
@@ -442,12 +443,12 @@ class AdminConfigurationController extends AbstractController
                         // there is no rank outside categories
                         $order_by = array_filter($order_by, fn ($order) => json_encode($order) !== json_encode(['rank', 'ASC']));
                         if (json_encode($conf['order_by']) !== json_encode($order_by)) {
-                            $conf->addOrUpdateParam('order_by', $order_by, 'json');
+                            $conf->addOrUpdateParam('order_by', $order_by, ConfEnum::JSON);
                             $conf_updated = true;
                         }
 
                         if (json_encode($conf['order_by_inside_category']) !== json_encode($order_by_inside_category)) {
-                            $conf->addOrUpdateParam('order_by_inside_category', $order_by_inside_category, 'json');
+                            $conf->addOrUpdateParam('order_by_inside_category', $order_by_inside_category, ConfEnum::JSON);
                             $conf_updated = true;
                         }
                     } else {
@@ -460,13 +461,13 @@ class AdminConfigurationController extends AbstractController
 
                     if ($conf[$name_checkbox] !== $new_value) {
                         $conf_updated = true;
-                        $conf[$name_checkbox] = $new_value;
+                        $conf->addOrUpdateParam($name_checkbox, $new_value, ConfEnum::BOOLEAN);
                     }
                 }
 
                 if (($mail_theme = $request->request->get('mail_theme')) && isset($this->mail_themes[$mail_theme]) && $conf['mail_theme'] !== $mail_theme) {
                     $conf_updated = true;
-                    $conf['mail_theme'] = $mail_theme;
+                    $conf->addOrUpdateParam('mail_theme', $mail_theme, ConfEnum::STRING);
                 }
             } elseif ($section === 'comments') {
                 if ($request->request->get('nb_comment_page')) {
@@ -475,8 +476,8 @@ class AdminConfigurationController extends AbstractController
                         $this->addFlash('error', $this->translator->trans('The number of comments a page must be between 5 and 50 included.', [], 'admin'));
                         $error = true;
                     } elseif ($conf['nb_comment_page'] !== $nb_comments) {
-                        $conf['nb_comment_page'] = $nb_comments;
                         $conf_updated = true;
+                        $conf->addOrUpdateParam('nb_comment_page', $nb_comments, ConfEnum::INTEGER);
                     }
                 }
 
@@ -484,7 +485,7 @@ class AdminConfigurationController extends AbstractController
                     $comments_order = $request->request->get('comments_order');
                     if (isset($comments_order[$comments_order]) && $conf['$comments_order'] !== $comments_order) {
                         $conf_updated = true;
-                        $conf['comments_order'] = $request->request->get('comments_order');
+                        $conf->addOrUpdateParam('comments_order', $request->request->get('comments_order'), ConfEnum::STRING);
                     }
                 }
 
@@ -493,7 +494,7 @@ class AdminConfigurationController extends AbstractController
 
                     if ($conf[$name_checkbox] !== $new_value) {
                         $conf_updated = true;
-                        $conf[$name_checkbox] = $new_value;
+                        $conf->addOrUpdateParam($name_checkbox, $new_value, ConfEnum::BOOLEAN);
                     }
                 }
             } elseif ($section === 'watermark') {
@@ -655,7 +656,7 @@ class AdminConfigurationController extends AbstractController
 
                 $errors = [];
                 foreach (self::saveUploadFormConfig($updates, $errors, $errors) as $update) {
-                    $conf[$update['param']] = $update['value'];
+                    $conf->addOrUpdateParam($update['param'], $update['value'], ConfEnum::STRING);
                 }
 
                 if ($request->request->get('resize_quality') < 50 || $request->request->get('resize_quality') > 98) {
@@ -794,11 +795,7 @@ class AdminConfigurationController extends AbstractController
                     }
 
                     $image_std_params->setAndSave($enabled_by);
-                    if (count($disabled) === 0) {
-                        unset($conf['disabled_derivatives']);
-                    } else {
-                        $conf->addOrUpdateParam('disabled_derivatives', $disabled, 'base64');
-                    }
+                    $conf->addOrUpdateParam('disabled_derivatives', $disabled, ConfEnum::BASE64);
 
                     if ($changed_types !== []) {
                         $derivativeService->clearCache($changed_types, ImageSizeType::getAllTypes());

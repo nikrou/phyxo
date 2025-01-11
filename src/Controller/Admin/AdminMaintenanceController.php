@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Enum\ConfEnum;
 use Exception;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\RateMapper;
@@ -283,8 +284,8 @@ class AdminMaintenanceController extends AbstractController
 
     private function fixConfiguration(Conf $conf): void
     {
-        $conf->addOrUpdateParam('order_by', $conf['order_by'], 'json');
-        $conf->addOrUpdateParam('order_by_inside_category', $conf['order_by_inside_category'], 'json');
+        $conf->addOrUpdateParam('order_by', $conf['order_by'], ConfEnum::JSON);
+        $conf->addOrUpdateParam('order_by_inside_category', $conf['order_by_inside_category'], ConfEnum::JSON);
     }
 
     private function virtualizeAlbums(): void

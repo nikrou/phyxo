@@ -11,6 +11,7 @@
 
 namespace App\Tests\Phyxo;
 
+use App\Enum\ConfEnum;
 use App\Repository\ConfigRepository;
 use PHPUnit\Framework\TestCase;
 use Phyxo\Conf;
@@ -19,7 +20,6 @@ use Prophecy\PhpUnit\ProphecyTrait;
 class ConfTest extends TestCase
 {
     use ProphecyTrait;
-
     final public const TESTS_CONFIG_PATH = __DIR__ . '/../fixtures/config';
 
     public function testLoadFile(): void
@@ -41,7 +41,7 @@ class ConfTest extends TestCase
         $conf = new Conf($conn->reveal());
         $conf->loadFromFile(self::TESTS_CONFIG_PATH . '/config_default.inc.php');
 
-        $conf['simple_value'] = 'another value';
+        $conf->addOrUpdateParam('simple_value', 'another value', ConfEnum::STRING);
 
         $this->assertEquals('another value', $conf['simple_value']);
         $this->assertTrue($conf['boolean_true']);
@@ -86,7 +86,7 @@ class ConfTest extends TestCase
         $conf = new Conf($conn->reveal());
         $conf->loadFromFile(self::TESTS_CONFIG_PATH . '/config_default.inc.php');
 
-        $conf['new_key'] = 'new value';
+        $conf->addOrUpdateParam('new_key', 'new value', ConfEnum::STRING);
 
         $this->assertEquals('new value', $conf['new_key']);
         $this->assertEquals('value', $conf['simple_value']);

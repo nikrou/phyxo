@@ -11,6 +11,7 @@
 
 namespace App\Tests\Behat;
 
+use App\Enum\ConfEnum;
 use Behat\Step\Given;
 use Behat\Step\When;
 use Behat\Hook\BeforeScenario;
@@ -210,7 +211,7 @@ class DBContext implements Context
     public function configForParamEqualsTo(string $param, string $value, string $type = 'string'): void
     {
         $conf = $this->conf;
-        $conf->addOrUpdateParam($param, $conf->dbToConf($value, $type), $type);
+        $conf->addOrUpdateParam($param, $conf->dbToConf($value, ConfEnum::from($type)), ConfEnum::from($type));
     }
 
     #[Given('I add tag :tag_name on photo :photo_name by user :user not validated')]

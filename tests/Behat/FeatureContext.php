@@ -25,7 +25,7 @@ class FeatureContext extends BaseContext
     {
     }
 
-    protected function getContainer():  ContainerInterface
+    protected function getContainer(): ContainerInterface
     {
         return $this->driverContainer;
     }
@@ -380,7 +380,7 @@ class FeatureContext extends BaseContext
         $tags_value = $select->getAttribute('data-value');
         if (!is_null($tags_value)) {
             $tags = array_map(
-                fn($tag) => $tag['name'],
+                fn ($tag) => $tag['name'],
                 json_decode((string) $tags_value, true)
             );
         }

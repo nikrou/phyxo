@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Enum\ConfEnum;
 use App\Repository\CaddieRepository;
 use App\Repository\CommentRepository;
 use App\Security\AppUserService;
@@ -75,7 +76,7 @@ class AdminMenubarController extends AbstractController
                 }
             }
             $mb_conf = $this->makeConsecutive($reg_blocks, $mb_conf);
-            $conf->addOrUpdateParam('blk_' . $menu->getId(), $mb_conf, 'json');
+            $conf->addOrUpdateParam('blk_' . $menu->getId(), $mb_conf, ConfEnum::JSON);
 
             $this->addFlash('success', $translator->trans('Order of menubar items has been updated successfully.', [], 'admin'));
         }

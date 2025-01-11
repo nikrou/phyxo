@@ -11,6 +11,8 @@
 
 namespace App\Controller\Admin;
 
+use App\Enum\ConfEnum;
+use App\Form\NotificationType;
 use App\Notification;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
@@ -23,15 +25,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminNotificationController extends AbstractController
 {
     private TranslatorInterface $translator;
-
-    /** @var array<string, string> $conf_types */
-    private array $conf_types = [
-        'nbm_send_html_mail' => 'boolean',
-        'nbm_send_mail_as' => 'string',
-        'nbm_send_detailed_content' => 'boolean',
-        'nbm_complementary_mail_content' => 'string',
-        'nbm_send_recent_post_dates' => 'boolean',
-    ];
 
     public function __construct(private readonly AuthorizationCheckerInterface $authorizationChecker)
     {
@@ -55,31 +48,22 @@ class AdminNotificationController extends AbstractController
         $tpl_params = [];
         $this->translator = $translator;
 
-        if ($request->isMethod('POST')) {
-            // @TODO: find a way to make only one query
-            foreach ($this->conf_types as $conf_key => $conf_type) {
-                if ($conf_type === 'boolean') {
-                    $conf->addOrUpdateParam($conf_key, $request->request->get($conf_key) === 'true', 'boolean');
-                } else { // string
-                    $conf->addOrUpdateParam($conf_key, $request->request->get($conf_key), 'string');
-                }
+        $form = $this->createForm(NotificationType::class, $conf);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            foreach ($form->getData() as $confKey => $confParam) {
+                $conf->addOrUpdateParam($confKey, $confParam['value'], $confParam['type']);
             }
 
-            $this->addFlash('success', $translator->trans('Your configuration settings have been saved', [], 'admin'));
+            $this->addFlash('success', $translator->trans('Your configuration settings have been updated', [], 'admin'));
 
-            return $this->redirectToRoute('admin_notification');
+            $this->redirectToRoute('admin_notification');
         } else {
             $notification->insert_new_data_user_mail_notification();
         }
 
-        $tpl_params['SEND_HTML_MAIL'] = $conf['nbm_send_html_mail'];
-        $tpl_params['SEND_MAIL_AS'] = $conf['nbm_send_mail_as'];
-        $tpl_params['SEND_DETAILED_CONTENT'] = $conf['nbm_send_detailed_content'];
-        $tpl_params['COMPLEMENTARY_MAIL_CONTENT'] = $conf['nbm_complementary_mail_content'];
-        $tpl_params['SEND_RECENT_POST_DATES'] = $conf['nbm_send_recent_post_dates'];
-        $tpl_params['F_ACTION'] = $this->generateUrl('admin_notification');
-
-        $tpl_params['U_PAGE'] = $this->generateUrl('admin_notification');
+        $tpl_params['form'] = $form->createView();
         $tpl_params['PAGE_TITLE'] = $translator->trans('Notification', [], 'admin');
         $tpl_params['tabsheet'] = $this->setTabsheet('params');
 

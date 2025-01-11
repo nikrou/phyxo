@@ -11,6 +11,7 @@
 
 namespace App\Entity;
 
+use App\Enum\ConfEnum;
 use Doctrine\DBAL\Types\Types;
 use App\Repository\ConfigRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -26,8 +27,8 @@ class Config
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $value = null;
 
-    #[ORM\Column(type: Types::STRING, length: 15, nullable: true, options: ['default' => 'string'])]
-    private ?string $type = null;
+    #[ORM\Column(type: Types::STRING, length: 15, nullable: true, enumType: ConfEnum::class)]
+    private ?ConfEnum $type = ConfEnum::STRING;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $comment = null;
@@ -56,12 +57,12 @@ class Config
         return $this;
     }
 
-    public function getType(): ?string
+    public function getType(): ConfEnum
     {
         return $this->type;
     }
 
-    public function setType(string $type = 'string'): self
+    public function setType(ConfEnum $type = ConfEnum::STRING): self
     {
         $this->type = $type;
 

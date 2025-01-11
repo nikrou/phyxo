@@ -11,6 +11,7 @@
 
 namespace App\Tests\Phyxo\Image;
 
+use App\Enum\ConfEnum;
 use App\Enum\ImageSizeType;
 use App\Repository\ConfigRepository;
 use PHPUnit\Framework\TestCase;
@@ -52,7 +53,7 @@ class ImageStandardParamsTest extends TestCase
             $map[$type] = $this->allTypes[$type];
         }
 
-        $conf['derivatives'] = ['d' => $map];
+        $conf->addOrUpdateParam('derivatives', ['d' => $map], ConfEnum::JSON);
         $imageStandardParams = new ImageStandardParams($conf);
 
         $this->assertEquals($map, $imageStandardParams->getDefinedTypeMap());

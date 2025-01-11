@@ -11,25 +11,20 @@ Feature: User mail notification
       | user3    | pass3    | normal    | user3@phyxo.net |
       | user4    | pass4    | normal    |                 |
 
-  Scenario Outline: Manage configuration
+  Scenario: Manage configuration
     Given I am logged in as "user1" with password "pass1"
     And I am on "admin/notification"
     When I fill in "Send mail as" with "My name"
     When I fill in "Complementary mail content" with "Some content after news"
-    When I select "<radio_html>" from "nbm_send_html_mail"
-    When I select "<radio_detail>" from "nbm_send_detailed_content"
-    When I select "<radio_recent>" from "nbm_send_recent_post_dates"
+    When I check "Send mail on HTML format"
+    When I check "Add detailed content"
+    When I check "Include display of recent photos grouped by dates"
     And I press "Submit"
     Then the "Send mail as" field should contain "My name"
     Then the "Complementary mail content" field should contain "Some content after news"
-    Then the radio button "<radio_html>" from "nbm_send_html_mail" should be selected
-    Then the radio button "<radio_detail>" from "nbm_send_detailed_content" should be selected
-    Then the radio button "<radio_recent>" from "nbm_send_recent_post_dates" should be selected
-
-    Examples:
-      | radio_html | radio_detail | radio_recent |
-      | true       | true         | true         |
-      | false      | false        | false        |
+    Then the checkbox "Send mail on HTML format" should be checked
+    Then the checkbox "Add detailed content" should be checked
+    Then the checkbox "Include display of recent photos grouped by dates" should be checked
 
   Scenario: Admin cannot send user notification
     Given I am logged in as "user2" with password "pass2"

@@ -49,26 +49,26 @@
 	    <p>
 		<label class="font-checkbox">
 		    <i class="fa fa-check-square"></i>
-		    <input type="checkbox" name="rate" {% if main.rate is defined %}checked="checked"{% endif %}>
+		    <input type="checkbox" name="rate" {% if main.rate %}checked="checked"{% endif %}>
 		    {{'Allow rating'|trans}}
 		</label>
 
 		<label id="rate_anonymous" class="font-checkbox no-bold">
 		    <i class="fa fa-check-square"></i>
-		    <input type="checkbox" name="rate_anonymous" {% if main.rate_anonymous is defined %}checked="checked"{% endif %}>
+		    <input type="checkbox" name="rate_anonymous" {% if main.rate_anonymous %}checked="checked"{% endif %}>
 		    {{'Rating by guests'|trans}}
 		</label>
 	    </p>
 	    <p>
 		<label class="font-checkbox">
 		    <i class="fa fa-check-square"></i>
-		    <input type="checkbox" name="allow_user_registration" {% if main.allow_user_registration is defined %}checked="checked"{% endif %}>
+		    <input type="checkbox" name="allow_user_registration" {% if main.allow_user_registration %}checked="checked"{% endif %}>
 		    {{'Allow user registration'|trans}}
 		</label>
 
 		<label id="email_admin_on_new_user" class="font-checkbox no-bold">
 		    <i class="fa fa-check-square"></i>
-		    <input type="checkbox" name="email_admin_on_new_user" {% if main.email_admin_on_new_user is defined %}checked="checked"{% endif %}>
+		    <input type="checkbox" name="email_admin_on_new_user" {% if main.email_admin_on_new_user %}checked="checked"{% endif %}>
 		    {{'Email admins when a new user registers'|trans}}
 		</label>
 	    </p>
@@ -76,13 +76,13 @@
 	    <p>
 		<label class="font-checkbox">
 		    <i class="fa fa-check-square"></i>
-		    <input type="checkbox" name="allow_user_customization" {% if main.allow_user_customization is defined %}checked="checked"{% endif %}>
+		    <input type="checkbox" name="allow_user_customization" {% if main.allow_user_customization %}checked="checked"{% endif %}>
 		    {{'Allow user customization'|trans}}
 		</label>
 
 		<label class="font-checkbox">
 		    <i class="fa fa-check-square"></i>
-		    <input type="checkbox" name="obligatory_user_mail_address" {% if main.obligatory_user_mail_address is defined %}checked="checked"{% endif %}>
+		    <input type="checkbox" name="obligatory_user_mail_address" {% if main.obligatory_user_mail_address %}checked="checked"{% endif %}>
 		    {{'Mail address is mandatory for registration'|trans}}
 		</label>
 	    </p>
@@ -94,7 +94,7 @@
 		<label>{{'Week starts on'|trans}}
 		    <select class="custom-select" name="week_starts_on">
 			{% for id,option in main.week_starts_on_options %}
-			    <option value="{{id}}"{% if id==main.week_starts_on_options_selected %} selected="selected"{% endif %}>{{option}}</option>
+			    <option value="{{id}}"{% if id == main.week_starts_on_options_selected %} selected="selected"{% endif %}>{{option}}</option>
 			{% endfor %}
 		    </select>
 		</label>
@@ -105,19 +105,19 @@
 
 		<label class="font-checkbox no-bold">
 		    <i class="fa fa-check-square"></i>
-		    <input type="checkbox" name="history_guest" {% if main.history_guest is defined %}checked="checked"{% endif %}>
+		    <input type="checkbox" name="history_guest" {% if main.history_guest %}checked="checked"{% endif %}>
 		    {{'simple visitors'|trans}}
 		</label>
 
 		<label class="font-checkbox no-bold">
 		    <i class="fa fa-check-square"></i>
-		    <input type="checkbox" name="log" {% if main.log is defined %}checked="checked"{% endif %}>
+		    <input type="checkbox" name="log" {% if main.log %}checked="checked"{% endif %}>
 		    {{'registered users'|trans}}
 		</label>
 
 		<label class="font-checkbox no-bold">
 		    <i class="fa fa-check-square"></i>
-		    <input type="checkbox" name="history_admin" {% if main.history_admin is defined %}checked="checked"{% endif %}>
+		    <input type="checkbox" name="history_admin" {% if main.history_admin %}checked="checked"{% endif %}>
 		    {{'administrators'|trans}}
 		</label>
 	    </p>
@@ -129,7 +129,7 @@
 			<label>
 			    <div class="themeName">
 				<i class="fa fa-check-square"></i>
-				<input type="radio" name="mail_theme" value="{{theme}}" {% if main.mail_theme==theme %}checked{% endif %}>
+				<input type="radio" name="mail_theme" value="{{theme}}" {% if main.mail_theme == theme %}checked{% endif %}>
 				{{theme_name}}
 			    </div>
 			</label>
