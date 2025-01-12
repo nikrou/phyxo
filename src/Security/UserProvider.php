@@ -125,6 +125,7 @@ class UserProvider implements UserProviderInterface
             foreach ($this->imageRepository->getForbiddenImages($forbidden_albums, $user->getUserInfos()->getLevel()) as $image) {
                 $forbidden_image_ids[] = $image->getId();
             }
+
             $userCache->setImageAccessType(UserCache::ACCESS_NOT_IN);
             $userCache->setImageAccessList($forbidden_image_ids);
             $userCache->setNbTotalImages($this->imageAlbumRepository->countTotalImages(UserCache::ACCESS_NOT_IN, $forbidden_albums, $forbidden_image_ids));
@@ -140,6 +141,7 @@ class UserProvider implements UserProviderInterface
                         $this->albumMapper->removeComputedAlbum($user_cache_albums, $album_infos);
                     }
                 }
+
                 if ($forbidden_ids !== []) {
                     $forbidden_albums = array_merge($forbidden_albums, $forbidden_ids);
                 }
@@ -155,9 +157,11 @@ class UserProvider implements UserProviderInterface
                 if ($user_cache_albums[$album->getId()]['date_last']) {
                     $userCacheAlbum->setDateLast(new DateTime($user_cache_albums[$album->getId()]['date_last']));
                 }
+
                 if ($user_cache_albums[$album->getId()]['max_date_last']) {
                     $userCacheAlbum->setMaxDateLast(new DateTime($user_cache_albums[$album->getId()]['max_date_last']));
                 }
+
                 $userCacheAlbum->setNbImages($user_cache_albums[$album->getId()]['nb_images']);
                 $userCacheAlbum->setCountImages($user_cache_albums[$album->getId()]['count_images']);
                 $userCacheAlbum->setNbAlbums($user_cache_albums[$album->getId()]['nb_categories']);
@@ -213,6 +217,7 @@ class UserProvider implements UserProviderInterface
             foreach ($this->albumMapper->getRepository()->findBy(['visible' => false]) as $album) {
                 $locked_albums[] = $album->getId();
             }
+
             $forbidden_albums = [...$forbidden_albums, ...$locked_albums];
             $forbidden_albums = array_unique($forbidden_albums);
         }

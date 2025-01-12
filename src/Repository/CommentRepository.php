@@ -166,6 +166,7 @@ class CommentRepository extends ServiceEntityRepository
         if ($count_only) {
             $qb->select('COUNT(1)');
         }
+
         $qb->leftJoin('c.image', 'i');
         $qb->leftJoin('i.imageAlbums', 'ia');
         $qb->leftJoin('c.user', 'u');
@@ -255,6 +256,7 @@ class CommentRepository extends ServiceEntityRepository
             $qb->andWhere('c.validated = :validated');
             $qb->setParameter('validated', true);
         }
+
         $qb->orderBy('c.date', $order);
         $qb->setFirstResult($offset);
         $qb->setMaxResults($limit);

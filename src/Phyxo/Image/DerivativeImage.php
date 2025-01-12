@@ -139,6 +139,7 @@ class DerivativeImage
                             ];
                         }
                     }
+
                     break;
                 }
             }

@@ -72,9 +72,10 @@ class Updates
                 $this->versions = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
                 return $this->versions;
             }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
+
         return null;
     }
 
@@ -120,8 +121,8 @@ class Updates
             if ($response->getStatusCode() == 200 && $response->getContent()) {
                 file_put_contents($zip_file, $response->getContent());
             }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -138,13 +139,15 @@ class Updates
 
         foreach ($zip->listContent() as $file) {
             $filename = str_replace('phyxo/', '', (string) $file['filename']);
-            $dest = $dest_dir = $root . '/' . $filename;
+            $dest = $root . '/' . $filename;
+            $dest_dir = $root . '/' . $filename;
 
             if ((file_exists($dest) && !is_writable($dest)) || (!file_exists($dest) && !is_writable($dest_dir))) {
                 $not_writable[] = $filename;
                 continue;
             }
         }
+
         if ($not_writable !== []) {
             $message = 'Some files or directories are not writable';
             $message .= '<pre>' . implode("\n", $not_writable) . '</pre>';
@@ -163,7 +166,7 @@ class Updates
         );
     }
 
-    public function getServerExtensions()
+    public function getServerExtensions(): false|array
     {
         $get_data = [
             'format' => 'json',
@@ -186,14 +189,15 @@ class Updates
             if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                 $version = $pem_versions[0]['name'];
             }
-            $branch = Utils::get_branch_from_version($version);
+
+            $branch = Utils::getBranchFromVersion($version);
             foreach ($pem_versions as $pem_version) {
                 if (str_starts_with((string) $pem_version['name'], $branch)) {
                     $versions_to_check[] = $pem_version['id'];
                 }
             }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
 
         if ($versions_to_check === []) {
@@ -234,6 +238,7 @@ class Updates
             } else {
                 throw new Exception("Reponse from server is not readable");
             }
+
             if (!is_array($pem_exts)) {
                 return [];
             }
@@ -255,12 +260,12 @@ class Updates
 
             $this->checkMissingExtensions($ext_to_check);
             return [];
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
-    public function checkCoreUpgrade()
+    public function checkCoreUpgrade(): void
     {
         if (preg_match('/(\d+\.\d+)\.(\d+)$/', $this->core_version, $matches)) {
             try {
@@ -272,6 +277,7 @@ class Updates
             } catch (Exception $e) {
                 throw new Exception($e->getMessage(), $e->getCode(), $e);
             }
+
             if (!empty($all_versions)) {
                 $new_version = trim((string) $all_versions[0]['version']);
                 $this->core_need_update = version_compare($this->core_version, $new_version, '<');
@@ -280,7 +286,7 @@ class Updates
     }
 
     // Check all extensions upgrades
-    public function checkExtensions(array $updates_ignored = [])
+    public function checkExtensions(array $updates_ignored = []): false|array
     {
         if (!$this->getServerExtensions()) {
             return false;
@@ -302,6 +308,7 @@ class Updates
                     }
                 }
             }
+
             $updates_ignored[$type] = $ignore_list;
         }
 
@@ -322,6 +329,7 @@ class Updates
                 }
             }
         }
+
         return null;
     }
 

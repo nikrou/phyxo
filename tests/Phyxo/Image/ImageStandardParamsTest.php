@@ -41,7 +41,7 @@ class ImageStandardParamsTest extends TestCase
         ];
     }
 
-    public function testBuildMaps()
+    public function testBuildMaps(): void
     {
         $configRepository = $this->prophesize(ConfigRepository::class);
         $conf = new Conf($configRepository->reveal());
@@ -59,7 +59,7 @@ class ImageStandardParamsTest extends TestCase
         $this->assertEquals($map, $imageStandardParams->getDefinedTypeMap());
     }
 
-    public function testSomeDerivatives()
+    public function testSomeDerivatives(): void
     {
         $configRepository = $this->prophesize(ConfigRepository::class);
         $conf = new Conf($configRepository->reveal());

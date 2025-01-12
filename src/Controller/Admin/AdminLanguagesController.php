@@ -194,8 +194,8 @@ class AdminLanguagesController extends AbstractController
             $this->addFlash('success', $translator->trans('Language has been successfully installed', [], 'admin'));
 
             return $this->redirectToRoute('admin_languages_installed');
-        } catch (Exception $e) {
-            $this->addFlash('error', $translator->trans($e->getMessage(), [], 'admin'));
+        } catch (Exception $exception) {
+            $this->addFlash('error', $translator->trans($exception->getMessage(), [], 'admin'));
 
             return $this->redirectToRoute('admin_languages_new');
         }

@@ -128,6 +128,7 @@ class TagMapper
             } else {
                 $tag->setCounter($row['counter']);
             }
+
             $tags[$tag->getId()] = $tag;
         }
 
@@ -149,7 +150,7 @@ class TagMapper
             $this->conf['show_pending_deleted_tags'] ?? false
         );
         foreach ($related_tags as $tag) {
-            $image_tag = $tag->getImageTags()->filter(fn (ImageTag $it) => $it->getTag()->getId() === $tag->getId())->first();
+            $image_tag = $tag->getImageTags()->filter(fn (ImageTag $it): bool => $it->getTag()->getId() === $tag->getId())->first();
 
             $tag->setRelatedImageTagInfos($image_tag);
             $tags[] = $tag;
@@ -166,7 +167,7 @@ class TagMapper
      *
      * @return Tag[]
      */
-    public function getCommonTags(User $user, array $items, int $max_tags, array $excluded_tag_ids = [])
+    public function getCommonTags(User $user, array $items, int $max_tags, array $excluded_tag_ids = []): array
     {
         if ($items === []) {
             return [];
@@ -177,7 +178,7 @@ class TagMapper
             $tag = $row[0];
             $tag->setCounter($row['counter']);
 
-            $image_tag = $tag->getImageTags()->filter(fn (ImageTag $it) => $it->getTag()->getId() === $tag->getId())->first();
+            $image_tag = $tag->getImageTags()->filter(fn (ImageTag $it): bool => $it->getTag()->getId() === $tag->getId())->first();
 
             $tag->setRelatedImageTagInfos($image_tag);
             $tags[] = $tag;
@@ -217,6 +218,7 @@ class TagMapper
                 }
             }
         }
+
         usort($taglist, Utils::tagAlphaCompare(...));
         if ($altlist !== []) {
             usort($altlist, Utils::tagAlphaCompare(...));
@@ -307,6 +309,7 @@ class TagMapper
                 $image_tag->setCreatedBy($user);
                 $image->addImageTag($image_tag);
             }
+
             $this->imageRepository->addOrUpdateImage($image);
         }
 
@@ -349,6 +352,7 @@ class TagMapper
             foreach ($tags_of as $ids) {
                 $tag_ids = array_merge($tag_ids, $ids);
             }
+
             $tag_ids = array_unique($tag_ids);
 
             $tags = [];
@@ -366,6 +370,7 @@ class TagMapper
                     $image_tag->setCreatedBy($user);
                     $image->addImageTag($image_tag);
                 }
+
                 $this->imageRepository->addOrUpdateImage($image);
             }
 
@@ -405,6 +410,7 @@ class TagMapper
             $image_tag->setTag($tag);
             $image->addImageTag($image_tag);
         }
+
         $this->imageRepository->addOrUpdateImage($image);
         $this->invalidateUserCacheNbTags();
     }
@@ -417,6 +423,7 @@ class TagMapper
         if ($elements === []) {
             return;
         }
+
         $this->imageTagRepository->deleteImageTags($elements);
     }
 
@@ -433,6 +440,7 @@ class TagMapper
         foreach ($elements[$image_id] as $tag_id) {
             $this->imageTagRepository->validatedImageTag($image_id, $tag_id);
         }
+
         $this->imageTagRepository->deleteMarkDeletedAndValidated();
         $this->invalidateUserCacheNbTags();
     }
@@ -520,7 +528,7 @@ class TagMapper
             $image->fromArray(
                 array_filter(
                     $metadata,
-                    fn ($m) => in_array($m, $update_fields),
+                    fn ($m): bool => in_array($m, $update_fields),
                     ARRAY_FILTER_USE_KEY
                 )
             );

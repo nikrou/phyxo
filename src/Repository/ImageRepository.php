@@ -223,7 +223,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return int[]
      */
-    public function findRandomImages(int $max, array $forbidden_albums = [])
+    public function findRandomImages(int $max, array $forbidden_albums = []): array
     {
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
@@ -245,6 +245,7 @@ class ImageRepository extends ServiceEntityRepository
         foreach ($qb->getQuery()->getResult() as $image) {
             $ids[] = $image->getId();
         }
+
         shuffle($ids);
 
         return $ids;
@@ -272,6 +273,7 @@ class ImageRepository extends ServiceEntityRepository
         if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_albums));
         }
+
         $nb_images = $qb->getQuery()->getSingleScalarResult();
 
         if ($nb_images > 0) {
@@ -289,6 +291,7 @@ class ImageRepository extends ServiceEntityRepository
             if ($forbidden_albums !== []) {
                 $qb->andWhere($qb->expr()->notIn('a.id', $forbidden_albums));
             }
+
             $qb->setFirstResult(random_int(0, $nb_images - 1));
             $qb->setMaxResults(1);
 
@@ -328,6 +331,7 @@ class ImageRepository extends ServiceEntityRepository
         if ($count_only) {
             $qb->select('COUNT(1)');
         }
+
         $qb->leftJoin('i.imageAlbums', 'ia');
 
         if (!is_null($start)) {
@@ -366,7 +370,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return array<string, array{upp: ?string, img_count: int|string}>
      */
-    public function getRecentImages(int $limit, ?DateTimeInterface $date_available = null, array $forbidden_albums = [])
+    public function getRecentImages(int $limit, ?DateTimeInterface $date_available = null, array $forbidden_albums = []): array
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('DISTINCT(a.uppercats) AS upp, COUNT(i.id) AS img_count');
@@ -396,7 +400,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return array<int, array{date_available: DateTimeInterface, nb_elements: (int<0, max> | numeric-string)}>
      */
-    public function getRecentPostedImages(int $limit, array $forbidden_albums = [])
+    public function getRecentPostedImages(int $limit, array $forbidden_albums = []): array
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('i.date_available, COUNT(DISTINCT(i.id)) AS nb_elements');
@@ -720,7 +724,7 @@ class ImageRepository extends ServiceEntityRepository
     /**
      * @return array{int, DateTimeInterface, DateTimeInterface}|array{}
      */
-    public function getImagesInfosInAlbum(int $album_id)
+    public function getImagesInfosInAlbum(int $album_id): array
     {
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
@@ -949,7 +953,7 @@ class ImageRepository extends ServiceEntityRepository
      *
      * @return string[]
      */
-    public function findDuplicates(array $fields)
+    public function findDuplicates(array $fields): array
     {
         // $query = 'SELECT ' . $this->conn->db_group_concat('id') . ' AS ids FROM ' . self::IMAGES_TABLE;
         // $query .= ' GROUP BY ' . implode(', ', $fields);
@@ -996,6 +1000,7 @@ class ImageRepository extends ServiceEntityRepository
         if ($forbidden_albums !== []) {
             $qb->where($qb->expr()->notIn('ia.album', $forbidden_albums));
         }
+
         $qb->andWhere($qb->expr()->isNotNull('i.author'));
         $qb->groupBy('i.author');
         $qb->addGroupBy('i.id');
@@ -1074,6 +1079,7 @@ class ImageRepository extends ServiceEntityRepository
                 }
             }
         }
+
         if ($clauses !== []) {
             $qb->$whereMethod(...$clauses);
         }
@@ -1096,8 +1102,10 @@ class ImageRepository extends ServiceEntityRepository
                     $orClauses[] = $qb->expr()->like('i.' . $field, ':word' . $i);
                     $qb->setParameter('word' . $i, '%' . $word . '%');
                 }
+
                 $clauses[] = $qb->expr()->orX(...$orClauses);
             }
+
             $qb->$whereMethod(...$clauses);
         }
 

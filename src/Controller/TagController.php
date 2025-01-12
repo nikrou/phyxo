@@ -147,7 +147,7 @@ class TagController extends AbstractController
         }
 
         $requested_tag_ids = array_map(
-            fn ($tag) => substr($tag, 0, strpos($tag, '-')),
+            fn ($tag): string => substr((string) $tag, 0, strpos((string) $tag, '-')),
             explode('/', $tag_ids)
         );
 
@@ -226,7 +226,7 @@ class TagController extends AbstractController
                 unset($other_tags[$i]);
                 $remove_url = $this->generateUrl(
                     'images_by_tags',
-                    ['tag_ids' => implode('/', array_map(fn (Tag $tag) => $tag->toUrl(), $other_tags))]
+                    ['tag_ids' => implode('/', array_map(fn (Tag $tag): string => $tag->toUrl(), $other_tags))]
                 );
 
                 $title .= '<a href="' . $remove_url . '" title="';

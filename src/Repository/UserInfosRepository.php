@@ -58,6 +58,7 @@ class UserInfosRepository extends ServiceEntityRepository
             $qb->set('u.' . $field, ':' . $field);
             $qb->setParameter($field, $value);
         }
+
         if ($user_ids !== []) {
             $qb->where($qb->expr()->in('u.user', $user_ids));
         }

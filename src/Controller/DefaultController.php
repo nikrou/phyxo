@@ -25,7 +25,7 @@ class DefaultController extends AbstractController
 {
     public function home(): Response
     {
-        return $this->forward('App\Controller\AlbumController::albums');
+        return $this->forward(AlbumController::class . '::albums');
     }
 
     public function download(
@@ -48,6 +48,7 @@ class DefaultController extends AbstractController
                 throw new AccessDeniedException('Access denied');
             }
         }
+
         $file = sprintf('%s/%s', $rootProjectDir, $image->getPath());
 
         return $this->file($file);

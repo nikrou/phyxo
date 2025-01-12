@@ -45,6 +45,7 @@ class Conf implements ArrayAccess
         if ($user_config_file !== '') {
             $this->loadFromFile($user_config_file);
         }
+
         $this->loadFromDB();
     }
 
@@ -65,6 +66,7 @@ class Conf implements ArrayAccess
             foreach ($conf as $key => $value) {
                 $this->keys[self::FILE_PREFIX . $key] = ['value' => $value, 'type' => ConfEnum::STRING];
             }
+
             unset($conf);
         }
     }
@@ -92,6 +94,7 @@ class Conf implements ArrayAccess
             $config = new Config();
             $config->setParam($param);
         }
+
         $config->setValue($this->confToDb($value, $type));
         $config->setType($type);
 

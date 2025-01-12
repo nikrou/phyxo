@@ -36,8 +36,8 @@ class Extensions
             } else {
                 throw new Exception("Response is not readable");
             }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -74,8 +74,8 @@ class Extensions
             } else {
                 throw new Exception("Response is not readable");
             }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -102,7 +102,7 @@ class Extensions
 
                 // @TODO: use native zip library ; use arobase before
                 if ($results = @$zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $root, PCLZIP_OPT_REPLACE_NEWER)) {
-                    $errors = array_filter($results, fn ($f) => ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory');
+                    $errors = array_filter($results, fn ($f): bool => ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory');
                     if ($errors !== []) {
                         throw new Exception("Error while extracting some files from archive");
                     }

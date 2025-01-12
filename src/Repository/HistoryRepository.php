@@ -67,6 +67,7 @@ class HistoryRepository extends ServiceEntityRepository
                     }
                 }
             }
+
             if ($orXExpressions !== []) {
                 $qb->andWhere($qb->expr()->orX(...$orXExpressions));
             }

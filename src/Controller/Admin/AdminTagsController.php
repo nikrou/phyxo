@@ -15,8 +15,6 @@ use DateTime;
 use App\DataMapper\TagMapper;
 use App\Entity\Tag;
 use App\Form\TagPermissionsType;
-use App\Enum\ConfType;
-use App\Enum\UserStatusType;
 use App\Repository\ImageTagRepository;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
@@ -163,6 +161,7 @@ class AdminTagsController extends AbstractController
                             foreach ($existing_tag_images as $tag_image) {
                                 $destination_tag->addImageTag($tag_image);
                             }
+
                             $tagMapper->getRepository()->addOrUpdateTag($destination_tag);
                         }
 
@@ -189,6 +188,7 @@ class AdminTagsController extends AbstractController
                                 $destination_tag->addImageTag($tag_image);
                             }
                         }
+
                         $tags_deleted[] = $tag->getName();
                         $tagMapper->getRepository()->delete($tag);
                     }

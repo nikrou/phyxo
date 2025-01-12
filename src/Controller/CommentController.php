@@ -64,6 +64,7 @@ class CommentController extends AbstractController
         if (isset($queryParams['album'])) {
             $queryParams['album'] = $albumMapper->getRepository()->find($queryParams['album']);
         }
+
         $filterParams->fromArray($queryParams);
         $filterParams->setPage($start);
 

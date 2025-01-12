@@ -74,6 +74,7 @@ class AdminRatingController extends AbstractController
             } elseif ($request->get('users') === 'guest') {
                 $operator_user_filter = '=';
             }
+
             $navbar_params['users'] = $request->get('users');
         }
 
@@ -103,6 +104,7 @@ class AdminRatingController extends AbstractController
         for ($i = 0; $i < $counter; $i++) {
             $tpl_params['order_by_options'][] = $available_order_by[$i][0];
         }
+
         $tpl_params['order_by_options_selected'] = [$order_by_index];
 
         $user_options = [
@@ -147,6 +149,7 @@ class AdminRatingController extends AbstractController
                 } else {
                     $user_rate = '? ' . $rate->getUser()->getId();
                 }
+
                 if ($rate->getAnonymousId()) {
                     $user_rate .= '(' . $rate->getAnonymousId() . ')';
                 }
@@ -161,6 +164,7 @@ class AdminRatingController extends AbstractController
                     'date' => $rate->getDate()
                 ];
             }
+
             $tpl_params['images'][] = array_merge($tpl_image, $image);
         }
 
@@ -217,6 +221,7 @@ class AdminRatingController extends AbstractController
             if (!isset($users_by_id[$rate->getUser()->getId()])) {
                 $users_by_id[$rate->getUser()->getId()] = ['name' => '???' . $rate->getUser()->getId(), 'anon' => false];
             }
+
             $usr = $users_by_id[$rate->getUser()->getId()];
             $user_key = $usr['anon'] ? $usr['name'] . '(' . $rate->getAnonymousId() . ')' : $usr['name'];
             $rating = &$by_user_ratings[$user_key];

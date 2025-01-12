@@ -56,6 +56,7 @@ class AdminGroupsController extends AbstractController
             } else {
                 $this->addFlash('error', $translator->trans('The name of a group must not be empty.', [], 'admin'));
             }
+
             $this->redirectToRoute('admin_groups');
         }
 
@@ -69,6 +70,7 @@ class AdminGroupsController extends AbstractController
                 'U_PERM' => $this->generateUrl('admin_group_perm', ['group_id' => $group->getId()]),
             ];
         }
+
         $tpl_params['groups'] = $groups;
 
         $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');
@@ -114,6 +116,7 @@ class AdminGroupsController extends AbstractController
                     $album->addGroupAccess($group);
                     $albumMapper->getRepository()->addOrUpdateAlbum($album);
                 }
+
                 $userMapper->invalidateUserCache();
             }
         }
@@ -137,12 +140,14 @@ class AdminGroupsController extends AbstractController
             $albums[] = $album;
             $authorized_ids[] = $album->getId();
         }
+
         $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_option_true'));
 
         $albums = [];
         foreach ($albumMapper->getRepository()->findUnauthorized($authorized_ids) as $album) {
             $albums[] = $album;
         }
+
         $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_option_false'));
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_groups');
@@ -237,9 +242,11 @@ class AdminGroupsController extends AbstractController
                 foreach ($group_to_duplicate->getUsers() as $user) {
                     $new_group->addUser($user);
                 }
+
                 foreach ($group_to_duplicate->getGroupAccess() as $album) {
                     $new_group->addGroupAccess($album);
                 }
+
                 $group_id = $groupRepository->addOrUpdateGroup($new_group);
 
                 $this->addFlash('success', $translator->trans('group "{group}" added', ['group' => $request->request->get('duplicate_' . $group)], 'admin'));

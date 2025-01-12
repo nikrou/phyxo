@@ -68,180 +68,139 @@ class AdminMaintenanceController extends AbstractController
 
         switch ($action) {
             case 'configuration':
-                {
-                    $this->fixConfiguration($conf);
-                    $this->addFlash('success', $translator->trans('Database configuration has been fixed.', [], 'admin'));
-                    return $this->redirectToRoute('admin_maintenance');
-                }
+                $this->fixConfiguration($conf);
+                $this->addFlash('success', $translator->trans('Database configuration has been fixed.', [], 'admin'));
+                return $this->redirectToRoute('admin_maintenance');
             case 'lock_gallery':
-                {
-                    $conf['gallery_locked'] = true;
-                    return $this->redirectToRoute('admin_maintenance');
-                }
+                $conf['gallery_locked'] = true;
+                return $this->redirectToRoute('admin_maintenance');
             case 'unlock_gallery':
-                {
-                    $conf['gallery_locked'] = false;
-                    return $this->redirectToRoute('admin_maintenance');
-                }
+                $conf['gallery_locked'] = false;
+                return $this->redirectToRoute('admin_maintenance');
             case 'albums':
-                {
-                    $albumMapper->updateUppercats();
-                    $albumMapper->updateAlbums();
-                    $albumMapper->updateGlobalRank();
-                    $userMapper->invalidateUserCache(true);
-
-                    return $this->redirectToRoute('admin_maintenance');
-                }
+                $albumMapper->updateUppercats();
+                $albumMapper->updateAlbums();
+                $albumMapper->updateGlobalRank();
+                $userMapper->invalidateUserCache(true);
+                return $this->redirectToRoute('admin_maintenance');
             case 'albums_virtualize':
-                {
-                    $this->virtualizeAlbums();
-                    $albumMapper->getRepository()->removePhysicalAlbums();
-                    $this->addFlash('success', $translator->trans('All albums were virtualized.', [], 'admin'));
-
-                    return $this->redirectToRoute('admin_maintenance');
-                }
+                $this->virtualizeAlbums();
+                $albumMapper->getRepository()->removePhysicalAlbums();
+                $this->addFlash('success', $translator->trans('All albums were virtualized.', [], 'admin'));
+                return $this->redirectToRoute('admin_maintenance');
             case 'images':
-                {
-                    $rateMapper->updateRatingScore();
-                    $userMapper->invalidateUserCache();
-                    return $this->redirectToRoute('admin_maintenance');
-                }
+                $rateMapper->updateRatingScore();
+                $userMapper->invalidateUserCache();
+                return $this->redirectToRoute('admin_maintenance');
             case 'delete_orphan_tags':
-                {
-                    $tagMapper->deleteOrphanTags();
-                    $this->addFlash('success', $translator->trans('Orphan tags deleted', [], 'admin'));
-
-                    return $this->redirectToRoute('admin_maintenance');
-                }
+                $tagMapper->deleteOrphanTags();
+                $this->addFlash('success', $translator->trans('Orphan tags deleted', [], 'admin'));
+                return $this->redirectToRoute('admin_maintenance');
             case 'app_cache':
-                {
-                    $application = new Application($kernel);
-                    $application->setAutoExit(true);
-
-                    $input = new ArrayInput(['command' => 'cache:clear']);
-                    $output = new NullOutput();
-
-                    $this->addFlash('success', $translator->trans('Application cache has been clear.', [], 'admin'));
-
-                    $result = $application->run($input, $output);
-
-                    if ($request->isXmlHttpRequest()) {
-                        return new JsonResponse(
-                            [
-                                'status' => 'ok',
-                                'title' => 'application cache clear'
-                            ]
-                        );
-                    }
-
-                    return $this->redirectToRoute('admin_maintenance');
+                $application = new Application($kernel);
+                $application->setAutoExit(true);
+                $input = new ArrayInput(['command' => 'cache:clear']);
+                $output = new NullOutput();
+                $this->addFlash('success', $translator->trans('Application cache has been clear.', [], 'admin'));
+                $result = $application->run($input, $output);
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(
+                        [
+                            'status' => 'ok',
+                            'title' => 'application cache clear'
+                        ]
+                    );
                 }
+
+                return $this->redirectToRoute('admin_maintenance');
             case 'user_cache':
-                {
-                    $userMapper->invalidateUserCache();
-
-                    return $this->redirectToRoute('admin_maintenance');
-                }
+                $userMapper->invalidateUserCache();
+                return $this->redirectToRoute('admin_maintenance');
             case 'history_detail':
-                {
-                    $historyRepository->deleteAll();
-                    return $this->redirectToRoute('admin_maintenance');
-                }
+                $historyRepository->deleteAll();
+                return $this->redirectToRoute('admin_maintenance');
             case 'history_summary':
-                {
-                    $historySummaryRepository->deleteAll();
-                    return $this->redirectToRoute('admin_maintenance');
-                }
+                $historySummaryRepository->deleteAll();
+                return $this->redirectToRoute('admin_maintenance');
             case 'feeds':
-                {
-                    $userFeedRepository->deleteUserFeedNotChecked();
-                    return $this->redirectToRoute('admin_maintenance');
-                }
+                $userFeedRepository->deleteUserFeedNotChecked();
+                return $this->redirectToRoute('admin_maintenance');
             case 'database':
-                {
-                    $applied_upgrades = [];
-                    foreach ($upgradeRepository->findAll() as $upgrade) {
-                        $applied_upgrades[] = $upgrade->getId();
-                    }
-
-                    if (!in_array(142, $applied_upgrades)) {
-                        $current_release = '1.0.0';
-                    } elseif (!in_array(144, $applied_upgrades)) {
-                        $current_release = '1.1.0';
-                    } elseif (!in_array(145, $applied_upgrades)) {
-                        $current_release = '1.2.0';
-                        // } elseif (in_array('validated', $columns_of[$em->getConnection()->getPrefix() . 'tags'])) {
-                        //     $current_release = '1.3.0';
-                    } elseif (!in_array(146, $applied_upgrades)) {
-                        $current_release = '1.5.0';
-                    } elseif (!in_array(147, $applied_upgrades)) {
-                        $current_release = '1.6.0';
-                    } elseif (!in_array(148, $applied_upgrades)) {
-                        $current_release = '1.8.0';
-                    } elseif (!in_array(149, $applied_upgrades)) {
-                        $current_release = '1.9.0';
-                    } else {
-                        $current_release = '2.0.0';
-                    }
-
-                    $upgrade_file = $params->get('kernel.project_dir') . '/install/upgrade_' . $current_release . '.php';
-                    if (is_readable($upgrade_file)) {
-                        // ob_start();
-                        include $upgrade_file;
-                        // ob_end_clean();
-                    }
-
-                    return $this->redirectToRoute('admin_maintenance');
+                $applied_upgrades = [];
+                foreach ($upgradeRepository->findAll() as $upgrade) {
+                    $applied_upgrades[] = $upgrade->getId();
                 }
+
+                if (!in_array(142, $applied_upgrades)) {
+                    $current_release = '1.0.0';
+                } elseif (!in_array(144, $applied_upgrades)) {
+                    $current_release = '1.1.0';
+                } elseif (!in_array(145, $applied_upgrades)) {
+                    $current_release = '1.2.0';
+                    // } elseif (in_array('validated', $columns_of[$em->getConnection()->getPrefix() . 'tags'])) {
+                    //     $current_release = '1.3.0';
+                } elseif (!in_array(146, $applied_upgrades)) {
+                    $current_release = '1.5.0';
+                } elseif (!in_array(147, $applied_upgrades)) {
+                    $current_release = '1.6.0';
+                } elseif (!in_array(148, $applied_upgrades)) {
+                    $current_release = '1.8.0';
+                } elseif (!in_array(149, $applied_upgrades)) {
+                    $current_release = '1.9.0';
+                } else {
+                    $current_release = '2.0.0';
+                }
+
+                $upgrade_file = $params->get('kernel.project_dir') . '/install/upgrade_' . $current_release . '.php';
+                if (is_readable($upgrade_file)) {
+                    // ob_start();
+                    include $upgrade_file;
+                    // ob_end_clean();
+                }
+
+                return $this->redirectToRoute('admin_maintenance');
             case 'search':
-                {
-                    $searchRepository->purge();
-
-                    return $this->redirectToRoute('admin_maintenance');
-                }
+                $searchRepository->purge();
+                return $this->redirectToRoute('admin_maintenance');
             case 'obsolete':
-                {
-                    $obsolete_file = $obsolete_file = $params->get('install_dir') . '/obsolete.list';
-                    if (!is_readable($obsolete_file)) {
-                        return $this->redirectToRoute('admin_maintenance');
-                    }
-
-                    $fs = new Filesystem();
-                    $old_files = file($obsolete_file, FILE_IGNORE_NEW_LINES);
-                    $count_files = 0;
-                    $not_writable_files = 0;
-
-                    try {
-                        foreach ($old_files as $old_file) {
-                            $path = $params->get('root_project_dir') . '/' . $old_file;
-                            if (is_readable($path)) {
-                                if (is_writable($path)) {
-                                    $fs->remove($path);
-                                    $count_files++;
-                                } else {
-                                    $not_writable_files++;
-                                }
-                            } elseif (is_dir($path)) {
-                                $fs->remove($path);
-                            }
-                        }
-                        if ($count_files > 0) {
-                            $this->addFlash('success', $translator->trans('All old files ({count}) have been removed.', ['count' => $count_files], 'admin'));
-                        }
-
-                        if ($not_writable_files > 0) {
-                            $this->addFlash('error', $translator->trans('Some files ({count}) could have not be removed.', ['count' => $not_writable_files], 'admin'));
-                        }
-                    } catch (Exception) {
-                        $this->addFlash('error', $translator->trans('Some files ({count}) could have not be removed.', [], 'admin'));
-                    }
-
+                $obsolete_file = $params->get('install_dir') . '/obsolete.list';
+                if (!is_readable($obsolete_file)) {
                     return $this->redirectToRoute('admin_maintenance');
                 }
-            default:
-                {
-                    break;
+
+                $fs = new Filesystem();
+                $old_files = file($obsolete_file, FILE_IGNORE_NEW_LINES);
+                $count_files = 0;
+                $not_writable_files = 0;
+                try {
+                    foreach ($old_files as $old_file) {
+                        $path = $params->get('root_project_dir') . '/' . $old_file;
+                        if (is_readable($path)) {
+                            if (is_writable($path)) {
+                                $fs->remove($path);
+                                $count_files++;
+                            } else {
+                                $not_writable_files++;
+                            }
+                        } elseif (is_dir($path)) {
+                            $fs->remove($path);
+                        }
+                    }
+
+                    if ($count_files > 0) {
+                        $this->addFlash('success', $translator->trans('All old files ({count}) have been removed.', ['count' => $count_files], 'admin'));
+                    }
+
+                    if ($not_writable_files > 0) {
+                        $this->addFlash('error', $translator->trans('Some files ({count}) could have not be removed.', ['count' => $not_writable_files], 'admin'));
+                    }
+                } catch (Exception) {
+                    $this->addFlash('error', $translator->trans('Some files ({count}) could have not be removed.', [], 'admin'));
                 }
+
+                return $this->redirectToRoute('admin_maintenance');
+            default:
+                break;
         }
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_maintenance');
@@ -269,6 +228,7 @@ class AdminMaintenanceController extends AbstractController
         foreach ($image_std_params->getDefinedTypeMap() as $std_params) {
             $purge_urls[$translator->trans($std_params->type->value, [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => $std_params->type->value]);
         }
+
         $purge_urls[$translator->trans(ImageSizeType::CUSTOM->value, [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => ImageSizeType::CUSTOM->value]);
 
         $tpl_params['purge_derivatives'] = $purge_urls;

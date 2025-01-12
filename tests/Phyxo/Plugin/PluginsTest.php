@@ -27,13 +27,13 @@ class PluginsTest extends TestCase
     final public const PLUGINS_DIR = __DIR__ . '/../../tmp/plugins';
     final public const PLUGINS_ZIP_PATH = __DIR__ . '/../../fixtures/zip';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $fs = new Filesystem();
         $fs->mkdir(self::PLUGINS_DIR);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $fs = new Filesystem();
         $fs->remove(self::PLUGINS_DIR);
@@ -49,13 +49,13 @@ class PluginsTest extends TestCase
         return $workspace;
     }
 
-    public function testFsPlugins()
+    public function testFsPlugins(): void
     {
         $workspace = $this->mirrorToWorkspace();
 
         $userMapper = $this->prophesize(UserMapper::class);
         $userMapper->getUser()->willReturn(new class {
-            public function getLanguage()
+            public function getLanguage(): string
             {
                 return 'en_GB';
             }
@@ -69,13 +69,13 @@ class PluginsTest extends TestCase
     }
 
     #[DataProvider('sortPluginsDataProvider')]
-    public function testSortPlugins(string $sort_type, array $order)
+    public function testSortPlugins(string $sort_type, array $order): void
     {
         $workspace = $this->mirrorToWorkspace();
 
         $userMapper = $this->prophesize(UserMapper::class);
         $userMapper->getUser()->willReturn(new class {
-            public function getLanguage()
+            public function getLanguage(): string
             {
                 return 'en_GB';
             }
@@ -91,14 +91,14 @@ class PluginsTest extends TestCase
         $this->assertEquals($order, array_keys($plugins->getFsPlugins()));
     }
 
-    public function testExtractPluginWithEmptyOrInvalidArchive()
+    public function testExtractPluginWithEmptyOrInvalidArchive(): void
     {
         $workspace = $this->mirrorToWorkspace();
 
         $userMapper = $this->prophesize(UserMapper::class);
 
         $userMapper->getUser()->willReturn(new class {
-            public function getLanguage()
+            public function getLanguage(): string
             {
                 return 'en_GB';
             }
@@ -112,13 +112,13 @@ class PluginsTest extends TestCase
         $plugins->extractPluginFiles('install', 10);
     }
 
-    public function _testExtractPlugin()
+    public function _testExtractPlugin(): void
     {
         $workspace = $this->mirrorToWorkspace();
 
         $userMapper = $this->prophesize(UserMapper::class);
         $userMapper->getUser()->willReturn(new class {
-            public function getLanguage()
+            public function getLanguage(): string
             {
                 return 'en_GB';
             }
@@ -128,7 +128,7 @@ class PluginsTest extends TestCase
         $plugins = new Plugins($pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setExtensionsURL('http://localhost');
         $plugins->setRootPath($workspace);
-        $plugins->download(Argument::any(), Argument::any())->will(function ($i, $j) {
+        $plugins->download(Argument::any(), Argument::any())->will(function ($i, $j): void {
             // copy archive in right place
             copy(self::PLUGINS_ZIP_PATH . '/myPlugin1-0.1.0.zip', 'my');
         });
@@ -154,13 +154,13 @@ class PluginsTest extends TestCase
     }
 
     // @TODO : need to update that test using Prophecy
-    public function _testExtractPluginWithUpdate()
+    public function _testExtractPluginWithUpdate(): void
     {
         $workspace = $this->mirrorToWorkspace();
 
         $userMapper = $this->prophesize(UserMapper::class);
         $userMapper->getUser()->willReturn(new class {
-            public function getLanguage()
+            public function getLanguage(): string
             {
                 return 'en_GB';
             }
@@ -170,7 +170,7 @@ class PluginsTest extends TestCase
         $plugins = new Plugins($pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
 
-        $this->calling($plugins)->download = function ($get_data, $archive) {
+        $this->calling($plugins)->download = function ($get_data, $archive): void {
             // copy archive in right place
             copy(PHPWG_ZIP_PATH . '/myPlugin1-0.1.0.zip', $archive);
         };
@@ -196,7 +196,7 @@ class PluginsTest extends TestCase
             ->array($plugins->getFsPlugins())
             ->isEqualTo(array_merge($new_plugin, $this->getLocalPlugins()));
 
-        $this->calling($plugins)->download = function ($get_data, $archive) {
+        $this->calling($plugins)->download = function ($get_data, $archive): void {
             // copy archive in right place
             copy(PHPWG_ZIP_PATH . '/myPlugin1-0.2.0.zip', $archive);
         };
@@ -213,7 +213,7 @@ class PluginsTest extends TestCase
             ->isEqualTo(array_merge($new_plugin, $this->getLocalPlugins()));
     }
 
-    public static function sortPluginsDataProvider()
+    public static function sortPluginsDataProvider(): array
     {
         return [
             ['author', ['Plugin2', 'Plugin3', 'Plugin4', 'plugin_lowercase', 'Plugin1']],
@@ -223,7 +223,7 @@ class PluginsTest extends TestCase
         ];
     }
 
-    private function getLocalPlugins()
+    private function getLocalPlugins(): array
     {
         return [
             'Plugin1' => [

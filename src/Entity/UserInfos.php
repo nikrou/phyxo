@@ -322,7 +322,7 @@ class UserInfos
     /**
      * @param UserInfosArray $data
      */
-    public function fromArray($data): void
+    public function fromArray(array $data): void
     {
         $this->setNbImagePage($data['nb_image_page']);
         $this->setLanguage((string) $data['language']);

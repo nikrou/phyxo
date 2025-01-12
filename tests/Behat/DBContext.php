@@ -81,14 +81,17 @@ class DBContext implements Context
             if (!empty($userRow['mail_address'])) {
                 $user->setMailAddress($userRow['mail_address']);
             }
+
             $this->userManager->register($user);
 
             if (!empty($userRow['activation_key'])) {
                 $user->getUserInfos()->setActivationKey($userRow['activation_key']);
             }
+
             if (!empty($userRow['activation_key_expire'])) {
                 $user->getUserInfos()->setActivationKeyExpire(new DateTime($userRow['activation_key_expire']));
             }
+
             $this->userRepository->updateUser($user);
 
             $this->storage->set('user_' . $userRow['username'], $user);
@@ -108,6 +111,7 @@ class DBContext implements Context
                     if ($user === null) {
                         throw new Exception(sprintf('User "%s" not found in database', $user_name));
                     }
+
                     $group->addUser($user);
                 }
             }
@@ -126,6 +130,7 @@ class DBContext implements Context
             if (isset($albumRow['parent']) && $albumRow['parent'] != '') {
                 $parent = $this->storage->get('album_' . $albumRow['parent']);
             }
+
             $album = $this->albumMapper->createAlbum($albumRow['name'], 0, $parent, [], $albumRow);
             $this->storage->set('album_' . $albumRow['name'], $album);
         }
@@ -150,7 +155,7 @@ class DBContext implements Context
     public function givenImages(TableNode $table): void
     {
         foreach ($table->getHash() as $image) {
-            $image_params = array_filter($image, fn ($k) => !in_array($k, ['album', 'tags']), ARRAY_FILTER_USE_KEY);
+            $image_params = array_filter($image, fn ($k): bool => !in_array($k, ['album', 'tags']), ARRAY_FILTER_USE_KEY);
 
             $this->addImage($image_params);
             if (!empty($image['album'])) {
@@ -176,6 +181,7 @@ class DBContext implements Context
         if (is_null($group)) {
             throw new Exception(sprintf('Group with name "%s" do not exists', $group_name));
         }
+
         $album = $this->albumMapper->getRepository()->findOneByName($album_name);
         $album->addGroupAccess($group);
         $this->albumMapper->getRepository()->addOrUpdateAlbum($album);
@@ -188,6 +194,7 @@ class DBContext implements Context
         if (is_null($user)) {
             throw new Exception(sprintf('User with username "%s" do not exists', $username));
         }
+
         $album = $this->albumMapper->getRepository()->findOneByName($album_name);
         $album->addUserAccess($user);
         $this->albumMapper->getRepository()->addOrUpdateAlbum($album);
@@ -281,6 +288,7 @@ class DBContext implements Context
         $user = new User();
         $user->setUsername('guest');
         $user->addRole(User::getRoleFromStatus(UserStatusType::GUEST));
+
         $this->userManager->register($user);
     }
 
@@ -304,11 +312,13 @@ class DBContext implements Context
         } else {
             $image->setFile($image_infos['file']);
         }
+
         $image_dimensions = getimagesize($image->getFile());
         $image->setWidth($image_dimensions[0]);
         $image->setHeight($image_dimensions[1]);
 
         $image->setMd5sum(md5_file($image->getFile()));
+
         $now = new DateTime('now');
         $upload_dir = sprintf('%s/%s', $this->getContainer()->getParameter('upload_dir'), $now->format('Y/m/d'));
 
@@ -317,6 +327,7 @@ class DBContext implements Context
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0777, true);
         }
+
         copy($image->getFile(), $image_path);
 
         if (!empty($image_infos['author'])) {
@@ -375,6 +386,7 @@ class DBContext implements Context
                 $this->addTag($tag);
                 $tag_id = $this->storage->get('tag_' . $tag);
             }
+
             $tag_ids[] = $tag_id;
         }
 
@@ -396,6 +408,7 @@ class DBContext implements Context
                 $this->addTag($tag);
                 $tag_id = $this->storage->get('tag_' . $tag);
             }
+
             $tag_ids[] = $tag_id;
         }
 
@@ -424,6 +437,7 @@ class DBContext implements Context
             if (preg_match('/(^--|^$)/', $sql_line)) {
                 continue;
             }
+
             $query .= ' ' . $sql_line;
             // if we reached the end of query, we execute it and reinitialize the variable "query"
             if (preg_match('/;$/', $sql_line)) {

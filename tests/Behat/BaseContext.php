@@ -76,6 +76,7 @@ abstract class BaseContext extends RawMinkContext implements Context
         if (!$parent instanceof NodeElement) {
             $parent = $this->getSession()->getPage();
         }
+
         $element = $parent->find('css', sprintf('*[data-testid="%s"]', $data_id));
 
         if ($element === null) {

@@ -134,6 +134,7 @@ class SecurityController extends AbstractController
                 if (!is_null($user->getPlainPassword())) {
                     $user->setPassword($passwordHasher->hashPassword($user, $user->getPlainPassword()));
                 }
+
                 $userRepository->updateUser($user);
                 $request->getSession()->set('_theme', $user->getTheme());
 

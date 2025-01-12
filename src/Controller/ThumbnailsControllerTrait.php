@@ -38,6 +38,7 @@ trait ThumbnailsControllerTrait
                 $navbar['URL_FIRST'] = $router->generate($route, $query_params);
                 $navbar['URL_PREV'] = $router->generate($route, array_merge($query_params, [$start_param => $previous]));
             }
+
             if ($cur_page < $maximum) {
                 $navbar['URL_NEXT'] = $router->generate($route, array_merge($query_params, [$start_param => $next < $last ? $next : $last]));
                 $navbar['URL_LAST'] = $router->generate($route, array_merge($query_params, [$start_param => $last]));
@@ -48,6 +49,7 @@ trait ThumbnailsControllerTrait
             for ($i = max(floor($cur_page) - $pages_around, 2), $stop = min(ceil($cur_page) + $pages_around + 1, $maximum); $i < $stop; $i++) {
                 $navbar['pages'][$i] = $router->generate($route, array_merge($query_params, [$start_param => (($i - 1) * $nb_element_page)]));
             }
+
             $navbar['pages'][$maximum] = $router->generate($route, array_merge($query_params, [$start_param => $last]));
         }
 

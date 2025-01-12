@@ -74,6 +74,7 @@ class AdminPluginsController extends AbstractController
             } else {
                 $tpl_plugin['state'] = ExtensionStateType::INACTIVE;
             }
+
             $tpl_params['plugins_by_state'][$tpl_plugin['state']]++;
 
             $tpl_plugins[] = $tpl_plugin;
@@ -132,8 +133,8 @@ class AdminPluginsController extends AbstractController
             $this->addFlash('success', $translator->trans('Plugin has been successfully installed', [], 'admin'));
 
             return $this->redirectToRoute('admin_plugins_installed');
-        } catch (Exception $e) {
-            $this->addFlash('error', $translator->trans($e->getMessage(), [], 'admin'));
+        } catch (Exception $exception) {
+            $this->addFlash('error', $translator->trans($exception->getMessage(), [], 'admin'));
 
             return $this->redirectToRoute('admin_plugins_new');
         }

@@ -28,7 +28,11 @@ return RectorConfig::configure()
 
     ->withImportNames()
 
-    ->withAttributesSets(symfony: true, doctrine: true, behat: true, phpunit: true)
+    ->withAttributesSets()
+
+    ->withPhpSets()
+
+    ->withComposerBased(twig: true, doctrine: true, phpunit: true)
 
     ->withSets([
         DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
@@ -47,5 +51,6 @@ return RectorConfig::configure()
         deadCode: true,
         codeQuality: true,
         // naming: true,
-        privatization: true
+        privatization: true,
+        typeDeclarations: true
     );

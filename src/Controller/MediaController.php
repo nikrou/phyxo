@@ -136,6 +136,7 @@ class MediaController extends AbstractController
         if ($derivative_params->getSizing()->getIdealSize()[0] < 20 || $derivative_params->getSizing()->getIdealSize()[1] < 20) {
             return new Response('Invalid size', Response::HTTP_BAD_REQUEST);
         }
+
         if ($derivative_params->getSizing()->getMaxCrop() < 0 || $derivative_params->getSizing()->getMaxCrop() > 1) {
             return new Response('Invalid crop', Response::HTTP_BAD_REQUEST);
         }
@@ -241,7 +242,7 @@ class MediaController extends AbstractController
         $this->forAdmin = true;
 
         return $this->forward(
-            'App\Controller\MediaController::derivative',
+            \App\Controller\MediaController::class . '::derivative',
             ['path' => $path, 'derivative' => $derivative, 'image_extension' => $image_extension]
         );
     }
@@ -271,6 +272,7 @@ class MediaController extends AbstractController
     {
         $fs = new Filesystem();
         $fs->mkdir(dirname($destination_path));
+
         $imageOptimizer->setCompressionQuality($quality);
         $imageOptimizer->write($destination_path);
         chmod($destination_path, 0644);
@@ -281,7 +283,8 @@ class MediaController extends AbstractController
         $coi = (string) $image->getCoi();
         $crop_rect = null;
         $scaled_size = [];
-        $o_size = $d_size = [$imageOptimizer->getWidth(), $imageOptimizer->getHeight()];
+        $o_size = [$imageOptimizer->getWidth(), $imageOptimizer->getHeight()];
+        $d_size = [$imageOptimizer->getWidth(), $imageOptimizer->getHeight()];
         $derivative_params->getSizing()->compute($o_size, $crop_rect, $scaled_size, $coi);
         if ($crop_rect instanceof ImageRect) {
             $imageOptimizer->crop($crop_rect->width(), $crop_rect->height(), $crop_rect->getLeft(), $crop_rect->getTop());
@@ -331,6 +334,7 @@ class MediaController extends AbstractController
         $response->setLastModified((new DateTime())->setTimestamp(filemtime($image_path)));
         $response->setMaxAge(3600); //@TODO : read from conf
         $response->setPublic();
+
         $response->headers->set('Content-Type', $mimeTypeGuesser->guessMimeType($image_path));
 
         return $response;

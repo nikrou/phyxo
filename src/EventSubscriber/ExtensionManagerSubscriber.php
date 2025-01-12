@@ -93,7 +93,7 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
             }
         } elseif (isset($this->extensionCollection->getExtensionsByName()[$command->getName()])) {
             $command_name = $this->extensionCollection->getExtensionsByName()[$command->getName()];
-            $pluginsForCommand = array_filter($this->plugins->getDbPlugins(ExtensionStateType::INACTIVE), fn ($p) => $p->getId() === $command_name);
+            $pluginsForCommand = array_filter($this->plugins->getDbPlugins(ExtensionStateType::INACTIVE), fn ($p): bool => $p->getId() === $command_name);
             if ($pluginsForCommand !== []) {
                 $event->disableCommand();
             }

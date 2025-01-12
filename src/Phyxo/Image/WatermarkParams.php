@@ -19,7 +19,7 @@ class WatermarkParams
     private string $file = '';
 
     /** @var array{0:int, 1:int} */
-    private $min_size = [500, 500];
+    private array $min_size = [500, 500];
     private int $xpos = 50;
     private int $ypos = 50;
     private int $xrepeat = 0;

@@ -114,6 +114,7 @@ class AdminUpdateController extends AbstractController
                                     if (version_compare($params->get('core_version'), $version['version'], '<')) {
                                         $step = 1;
                                     }
+
                                     break;
                                 }
                             }
@@ -190,6 +191,7 @@ class AdminUpdateController extends AbstractController
                     foreach ($themeRepository->findExcept([$this->defaultTheme]) as $theme) {
                         $themes_deactivated[$theme->getId()] = $theme->getName();
                     }
+
                     $themeRepository->deleteByIds(array_keys($themes_deactivated));
 
                     // if the default theme has just been deactivated, let's set another core theme as default

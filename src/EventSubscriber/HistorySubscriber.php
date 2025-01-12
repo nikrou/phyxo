@@ -58,9 +58,11 @@ class HistorySubscriber implements EventSubscriberInterface
         if ($event->getAlbum() instanceof Album) {
             $history->setAlbum($event->getAlbum());
         }
+
         if ($event->getImage() instanceof Image) {
             $history->setImage($event->getImage());
         }
+
         $history->setIp(md5($event->getIp()));
         $history->setTagIds($event->getTagIds());
 

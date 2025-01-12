@@ -20,10 +20,9 @@ use Prophecy\PhpUnit\ProphecyTrait;
 class LanguagesTest extends TestCase
 {
     use ProphecyTrait;
-
     final public const LANGUAGES_PATH = __DIR__ . '/../../fixtures/translations/';
 
-    public function testFsLanguages()
+    public function testFsLanguages(): void
     {
         $userMapper = $this->prophesize(UserMapper::class);
         $userMapper->getDefaultLanguage()->willReturn('en_GB');
@@ -36,7 +35,7 @@ class LanguagesTest extends TestCase
         $this->assertEquals($this->getLocalLanguages(), $languages->getFsLanguages());
     }
 
-    private function getLocalLanguages()
+    private function getLocalLanguages(): array
     {
         return [
             'aa_AA' => [

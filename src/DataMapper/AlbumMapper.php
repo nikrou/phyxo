@@ -107,6 +107,7 @@ class AlbumMapper
             if (!$userCacheAlbum) {
                 continue;
             }
+
             $title = $this->getDisplayImagesCount(
                 $userCacheAlbum->getNbImages() ?? 0,
                 $userCacheAlbum->getCountImages() ?? 0,
@@ -134,6 +135,7 @@ class AlbumMapper
             // }
             $albums[$album->getId()] = $album_infos;
         }
+
         uasort($albums, Utils::globalRankCompare(...));
 
         return $albums;
@@ -183,8 +185,10 @@ class AlbumMapper
                 if (!isset($parent['id_uppercat']) || !isset($albums[$parent['id_uppercat']])) {
                     break;
                 }
+
                 $parent = &$albums[$parent['id_uppercat']];
             } while (true);
+
             unset($parent);
         }
 
@@ -212,6 +216,7 @@ class AlbumMapper
                 if (!isset($albums[$parent['id_uppercat']])) {
                     break;
                 }
+
                 $parent = $albums[$parent['id_uppercat']];
             } while (true);
         }
@@ -320,6 +325,7 @@ class AlbumMapper
             if ($link_class !== '' && $link_class !== '0') {
                 $output .= ' class="' . $link_class . '"';
             }
+
             $output .= '>';
         }
 
@@ -365,6 +371,7 @@ class AlbumMapper
                 $option .= '- ';
                 $option .= strip_tags((string) $album->getName());
             }
+
             $tpl_cats[$album->getId()] = $option;
         }
 
@@ -427,6 +434,7 @@ class AlbumMapper
             if ($new_parent !== null) {
                 $parent_album = $this->getCacheAlbums()[$new_parent];
             }
+
             $this->getCacheAlbums()[$id]->setParent($parent_album);
         }
 
@@ -474,7 +482,7 @@ class AlbumMapper
     public function setAlbumsStatus(array $album_ids, string $status): void
     {
         if (!in_array($status, [Album::STATUS_PUBLIC, Album::STATUS_PRIVATE])) {
-            throw new Exception("AlbumMapper::setAlbumsStatus invalid param $status");
+            throw new Exception('AlbumMapper::setAlbumsStatus invalid param ' . $status);
         }
 
         // make public an album => all its parent albums become public
@@ -525,6 +533,7 @@ class AlbumMapper
             foreach ($this->albumRepository->findBy(['id' => $album_ids]) as $album) {
                 $all_albums[] = $album;
             }
+
             usort($all_albums, self::globalRankCompare(...));
 
             foreach ($all_albums as $album) {
@@ -579,6 +588,7 @@ class AlbumMapper
                             $subalbum->addGroupAccess($group);
                         }
                     }
+
                     if (count($ref_album->getUserAccess()) > 0) {
                         foreach ($ref_album->getUserAccess() as $user) {
                             $subalbum->addUserAccess($user);
@@ -603,7 +613,7 @@ class AlbumMapper
 
         $uppercats = [];
         foreach ($ids as $id) {
-            $uppercats = array_merge($uppercats, array_map(fn ($s) => intval($s), explode(',', (string) $this->getCacheAlbums()[$id]->getUppercats())));
+            $uppercats = array_merge($uppercats, array_map(fn ($s): int => intval($s), explode(',', (string) $this->getCacheAlbums()[$id]->getUppercats())));
         }
 
         return array_unique($uppercats);
@@ -679,6 +689,7 @@ class AlbumMapper
             if (!$parent->isVisible()) {
                 $album->setVisible(false);
             }
+
             // at creation, must a category be public or private ?
             // Warning : if the parent category is private, the category is automatically create private.
             if ($parent->getStatus() === Album::STATUS_PRIVATE) {
@@ -698,6 +709,7 @@ class AlbumMapper
             $album->setUppercats((string) $album_id);
             $album->setGlobalRank((string) $album_id);
         }
+
         $this->albumRepository->addOrUpdateAlbum($album);
 
         if ($album->getStatus() === Album::STATUS_PRIVATE) {
@@ -720,6 +732,7 @@ class AlbumMapper
                 }
             }
         }
+
         $this->updateGlobalRank();
 
         return $album;
@@ -736,7 +749,7 @@ class AlbumMapper
     /**
      * @return array<int, Album>
      */
-    protected function getCacheAlbums()
+    protected function getCacheAlbums(): array
     {
         if (!$this->albums_retrieved) {
             $this->albums_retrieved = true;
@@ -784,6 +797,7 @@ class AlbumMapper
                 $current_rank = 0;
                 $current_parent = $album->getParent();
             }
+
             $current_rank++;
             $albums[$id] = [
                 'rank' => $album->getRank(),
@@ -793,7 +807,7 @@ class AlbumMapper
             ];
         }
 
-        $map_callback = fn ($m) => $albums[$m[1]]['rank'];
+        $map_callback = fn ($m): ?int => $albums[$m[1]]['rank'];
 
         foreach ($albums as $id => $album) {
             /** @phpstan-ignore-next-line */
@@ -1000,6 +1014,7 @@ class AlbumMapper
 
                 $album->addImageAlbum($imageAlbum);
             }
+
             $this->albumRepository->addOrUpdateAlbum($album);
         }
 
@@ -1053,6 +1068,7 @@ class AlbumMapper
                 if (!isset($current_rank_for_id_uppercat[$id_uppercat])) {
                     $current_rank_for_id_uppercat[$id_uppercat] = 0;
                 }
+
                 $current_rank = ++$current_rank_for_id_uppercat[$id_uppercat];
             } else {
                 $id = $album;
@@ -1106,6 +1122,7 @@ class AlbumMapper
                 $album_thumbnails[$album->getId()] = $album;
                 $image_ids[] = $image_id;
             }
+
             unset($image_id);
         }
 

@@ -76,15 +76,19 @@ class Utils
         if ($source_charset === $dest_charset) {
             return $str;
         }
+
         if ($source_charset === 'iso-8859-1' && $dest_charset === 'utf-8') {
             return mb_convert_encoding($str, 'UTF-8', 'ISO-8859-1');
         }
+
         if ($source_charset === 'utf-8' && $dest_charset === 'iso-8859-1') {
             return mb_convert_encoding($str, 'ISO-8859-1');
         }
+
         if (function_exists('iconv')) {
             return iconv($source_charset, $dest_charset, $str);
         }
+
         if (function_exists('mb_convert_encoding')) {
             return mb_convert_encoding($str, $dest_charset, $source_charset);
         }
@@ -112,8 +116,10 @@ class Utils
                 if (strlen($label) !== 0) {
                     $label .= ', ';
                 }
+
                 $label .= $translator->trans('Level ' . $level, [], $domain);
             }
+
             $options[$level] = $label;
         }
 
@@ -240,6 +246,7 @@ class Utils
             $key = strtolower((string) $name[$element_id]) . '-' . $name[$element_id] . '-' . $k_id;
             $ordered_element_ids[$key] = $element_id;
         }
+
         ksort($ordered_element_ids);
 
         return $ordered_element_ids;

@@ -219,6 +219,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         if ($this->username !== $user->getUsername()) {
             return false;
         }
+
         return $this->getRoles() === $user->getRoles();
     }
 

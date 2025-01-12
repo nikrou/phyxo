@@ -43,7 +43,7 @@ class UserMailNotificationRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('n');
         $qb->leftJoin('n.user', 'u');
         if ($send) {
-            $qb->where('u.mail_address != \'\'');
+            $qb->where("u.mail_address != ''");
             $qb->andWhere($qb->expr()->isNotNull('u.mail_address'));
             $qb->andWhere('n.enabled = true');
         }
@@ -75,7 +75,7 @@ class UserMailNotificationRepository extends ServiceEntityRepository
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->from(User::class, 'u');
         $qb->select('u');
-        $qb->where('u.mail_address != \'\'');
+        $qb->where("u.mail_address != ''");
         $qb->andWhere($qb->expr()->isNotNull('u.mail_address'));
         $qb->andWhere($qb->expr()->notIn('u.id', $subQuery->getDQL()));
 

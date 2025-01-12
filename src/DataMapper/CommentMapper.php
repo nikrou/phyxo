@@ -66,6 +66,7 @@ class CommentMapper
         } else {
             $comment->setDate(new DateTime());
         }
+
         $comment->setAnonymousId(isset($params['anonymous_id']) ? md5((string) $params['anonymous_id']) : md5('::1'));
         $comment->setValidated($params['validated'] ?? true);
         $comment->setWebsiteUrl($params['website_url'] ?? '');
@@ -98,8 +99,10 @@ class CommentMapper
                     $infos[] = $this->translator->trans('Username is mandatory');
                     $comment_action = 'reject';
                 }
+
                 $comm['author'] = 'guest';
             }
+
             $comm['author_id'] = $this->userMapper->getDefaultUser()->getId();
 
             // if a guest try to use the name of an already existing user, he must be rejected
@@ -125,6 +128,7 @@ class CommentMapper
                 if (!preg_match('/^https?/i', $comm['website_url'])) {
                     $comm['website_url'] = 'http://' . $comm['website_url'];
                 }
+
                 if (!filter_var($comm['website_url'], FILTER_VALIDATE_URL)) {
                     $infos[] = $this->translator->trans('Your website URL is invalid');
                     $comment_action = 'reject';

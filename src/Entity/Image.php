@@ -430,7 +430,7 @@ class Image
 
     public function addImageAlbum(ImageAlbum $newImageAlbum): self
     {
-        if ($this->imageAlbums->filter(fn ($imageAlbum) => $imageAlbum->getAlbum()->getId() === $newImageAlbum->getAlbum()->getId())->isEmpty()) {
+        if ($this->imageAlbums->filter(fn ($imageAlbum): bool => $imageAlbum->getAlbum()->getId() === $newImageAlbum->getAlbum()->getId())->isEmpty()) {
             $this->imageAlbums[] = $newImageAlbum;
             $newImageAlbum->setImage($this);
         }
@@ -654,7 +654,7 @@ class Image
 
     public function addImageTag(ImageTag $newImageTag): self
     {
-        if ($this->imageTags->filter(fn ($imageTag) => $imageTag->getTag()->getId() === $newImageTag->getTag()->getId())->isEmpty()) {
+        if ($this->imageTags->filter(fn ($imageTag): bool => $imageTag->getTag()->getId() === $newImageTag->getTag()->getId())->isEmpty()) {
             $this->imageTags[] = $newImageTag;
             $newImageTag->setImage($this);
         }

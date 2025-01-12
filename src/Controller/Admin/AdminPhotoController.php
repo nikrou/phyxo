@@ -93,6 +93,7 @@ class AdminPhotoController extends AbstractController
             } else {
                 $image->setComment(htmlentities($request->request->get('description'), ENT_QUOTES, 'utf-8'));
             }
+
             if ($request->request->get('date_creation')) {
                 $image->setDateCreation(new DateTime($request->request->get('date_creation')));
             }
@@ -104,6 +105,7 @@ class AdminPhotoController extends AbstractController
             if ($request->request->has('tags')) {
                 $tag_ids = $tagMapper->getTagsIds($request->request->all('tags'));
             }
+
             $tagMapper->setTags($tag_ids, $image_id, $appUserService->getUser());
 
             // association to albums
@@ -135,6 +137,7 @@ class AdminPhotoController extends AbstractController
         foreach ($tagMapper->getRepository()->getTagsByImage($image_id, $validated = true) as $tag) {
             $tags[] = $tag;
         }
+
         $tag_selection = $tagMapper->prepareTagsListForUI($tags);
 
         // retrieving direct information about picture
@@ -317,6 +320,7 @@ class AdminPhotoController extends AbstractController
                             . DerivativeParams::fractionToChar($request->request->get('b'))
                 );
             }
+
             $imageMapper->getRepository()->addOrUpdateImage($image);
 
             foreach ($image_std_params->getDefinedTypeMap() as $std_params) {
@@ -324,6 +328,7 @@ class AdminPhotoController extends AbstractController
                     $derivativeService->deleteForElement($image->getPath(), $std_params->type->value);
                 }
             }
+
             $derivativeService->deleteForElement($image->getPath(), ImageSizeType::CUSTOM->value);
 
             return $this->redirectToRoute('admin_photo_coi', ['image_id' => $image_id, 'category_id' => $category_id]);

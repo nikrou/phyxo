@@ -29,6 +29,7 @@ class Upgrade
                 }
             }
         }
+
         natcasesort($available_upgrade_ids);
 
         return $available_upgrade_ids;

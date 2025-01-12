@@ -65,7 +65,7 @@ class BlockManager
     /**
      * @return RegisteredBlock[]
      */
-    public function getRegisteredBlocks()
+    public function getRegisteredBlocks(): array
     {
         return $this->registered_blocks;
     }
@@ -92,8 +92,10 @@ class BlockManager
                 $this->display_blocks[$id]->setPosition($pos);
                 $block->applyData($this->display_blocks[$id]);
             }
+
             $idx++;
         }
+
         $this->sortBlocks();
     }
 
@@ -142,6 +144,7 @@ class BlockManager
                 $this->hideBlock((int) $id);
             }
         }
+
         $this->sortBlocks();
 
         return $this->display_blocks;

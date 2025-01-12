@@ -39,6 +39,7 @@ class FeatureContext extends BaseContext
         if ($remember) {
             $this->checkField('Auto login');
         }
+
         $this->pressButton('Submit');
     }
 
@@ -219,7 +220,7 @@ class FeatureContext extends BaseContext
         $derivative = $picture_derivatives->find('css', sprintf('#derivative%s', $type_map));
 
         if (is_null($derivative)) {
-            throw new Exception("Cannot find image of size {$type_map}");
+            throw new Exception('Cannot find image of size ' . $type_map);
         }
 
         $this->visit($derivative->getAttribute('data-url'));
@@ -306,10 +307,12 @@ class FeatureContext extends BaseContext
         if (is_null($rowGroup)) {
             throw new Exception(sprintf('Cannot find a group "%s" on the page', $group));
         }
+
         $members = $rowGroup->find('css', 'td[class="members"]');
         if (is_null($members)) {
             throw new Exception(sprintf('Cannot find members cell for group "%s" on the page', $group));
         }
+
         $foundMembers = explode(' ', (string) $members->getText());
         $expectedMembers = explode(',', $users);
         if (array_diff($foundMembers, $expectedMembers) !== array_diff($expectedMembers, $foundMembers)) {
@@ -324,6 +327,7 @@ class FeatureContext extends BaseContext
         if (is_null($rowGroup)) {
             throw new Exception(sprintf('Cannot find a group "%s" on the page', $group));
         }
+
         $rowGroup->clickLink('Permissions');
     }
 
@@ -335,6 +339,7 @@ class FeatureContext extends BaseContext
         if (is_null($divAlbum)) {
             throw new Exception(sprintf('Cannot find an album "%s" on the page', $album_name));
         }
+
         $divAlbum->clickLink('Edit');
     }
 
@@ -380,7 +385,7 @@ class FeatureContext extends BaseContext
         $tags_value = $select->getAttribute('data-value');
         if (!is_null($tags_value)) {
             $tags = array_map(
-                fn ($tag) => $tag['name'],
+                fn ($tag): mixed => $tag['name'],
                 json_decode((string) $tags_value, true)
             );
         }
@@ -422,6 +427,7 @@ class FeatureContext extends BaseContext
         if (is_null($divAlbum)) {
             throw new Exception(sprintf('Cannot find an album "%s" on the page', $album_name));
         }
+
         $divAlbum->clickLink($link_label);
     }
 
@@ -449,8 +455,8 @@ class FeatureContext extends BaseContext
         }
     }
 
-    #[Then('there\'s :nb_images image for day :day')]
-    #[Then('there\'s :nb_images images for day :day')]
+    #[Then("there's :nb_images image for day :day")]
+    #[Then("there's :nb_images images for day :day")]
     public function theresImageForDay(int $nb_images, int $day): void
     {
         $td = $this->getPage()->find('css', sprintf('[data-testid="day-%d"] .number-of-images', $day));

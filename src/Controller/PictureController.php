@@ -143,7 +143,7 @@ class PictureController extends AbstractController
         $tpl_params['element_id'] = $element_id;
 
         if ((is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0) > 0) {
-            $current_index = array_search($image_id, $tpl_params['items']);
+            $current_index = array_search($image_id, $tpl_params['items'], true);
             if ($current_index > 0) {
                 if ($section === PictureSectionType::FROM_CALENDAR) {
                     $tpl_params['first'] = [
@@ -174,6 +174,7 @@ class PictureController extends AbstractController
                     ];
                 }
             }
+
             if ($current_index < ((is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0) - 1)) {
                 if ($section === PictureSectionType::FROM_CALENDAR) {
                     $tpl_params['last'] = [
@@ -220,6 +221,7 @@ class PictureController extends AbstractController
         } else {
             $tpl_params['U_UP'] = $this->generateUrl('album', ['album_id' => (int) $element_id]);
         }
+
         $deriv_type = $request->cookies->has('picture_deriv') ? $request->cookies->get('picture_deriv') : $conf['derivative_default_size'];
         $tpl_params['current']['selected_derivative'] = $tpl_params['current']['derivatives'][$deriv_type];
 
@@ -228,9 +230,11 @@ class PictureController extends AbstractController
             if ($_type === ImageSizeType::SQUARE->value || $_type === ImageSizeType::THUMB->value) {
                 continue;
             }
+
             if (!array_key_exists($_type, $image_std_params->getDefinedTypeMap())) {
                 continue;
             }
+
             $unique_derivatives[$_type] = $derivative;
         }
 
@@ -285,6 +289,7 @@ class PictureController extends AbstractController
         if (isset($picture['width'], $picture['height'])) {
             $tpl_params['INFO_DIMENSIONS'] = $picture['width'] . '*' . $picture['height'];
         }
+
         $tpl_params['display_info'] = $conf['picture_informations'];
 
         // admin links
@@ -347,6 +352,7 @@ class PictureController extends AbstractController
         } else {
             $tpl_params['TAGS_PERMISSION_ALLOW_CREATION'] = 1;
         }
+
         $tpl_params['USER_TAGS_WS_GETLIST'] = $this->generateUrl('ws', ['method' => 'pwg.tags.getFilteredList']);
         $tpl_params['USER_TAGS_UPDATE_SCRIPT'] = $this->generateUrl('ws', ['method' => 'pwg.images.setRelatedTags']);
 
@@ -475,6 +481,7 @@ class PictureController extends AbstractController
                     if ($validated) {
                         $comment->setValidationDate(new DateTime());
                     }
+
                     $commentRepository->addOrUpdateComment($comment);
 
                     if ($validated) {
@@ -513,12 +520,13 @@ class PictureController extends AbstractController
                 implode(
                     ',',
                     array_map(
-                        fn ($tag) => $tag->getId(),
+                        fn ($tag): int => $tag->getId(),
                         $tags
                     )
                 )
             );
         }
+
         $historyEvent->setIp($request->getClientIp());
         $eventDispatcher->dispatch($historyEvent);
 
@@ -541,7 +549,7 @@ class PictureController extends AbstractController
     public function picturesByTypes(int $image_id, PictureSectionType $section = PictureSectionType::ALBUM): Response
     {
         return $this->forward(
-            'App\Controller\PictureController::picture',
+            \App\Controller\PictureController::class . '::picture',
             [
                 'image_id' => $image_id,
                 'section' => $section->value,
@@ -554,7 +562,7 @@ class PictureController extends AbstractController
     public function pictureBySearch(int $image_id, int $search_id): Response
     {
         return $this->forward(
-            'App\Controller\PictureController::picture',
+            \App\Controller\PictureController::class . '::picture',
             [
                 'image_id' => $image_id,
                 'section' => PictureSectionType::SEARCH->value,
@@ -573,7 +581,7 @@ class PictureController extends AbstractController
         $current_day = new DateTime(sprintf('%d-%02d-%02d', $year, $month, $day));
 
         return $this->forward(
-            'App\Controller\PictureController::picture',
+            \App\Controller\PictureController::class . '::picture',
             [
                 'image_id' => $image_id,
                 'section' => PictureSectionType::FROM_CALENDAR->value,
@@ -596,6 +604,7 @@ class PictureController extends AbstractController
             $rate_summary['count'] = $calculated_rate['count'];
             $rate_summary['average'] = round($calculated_rate['average'], 2);
         }
+
         $tpl_params['rate_summary'] = $rate_summary;
 
         $user_rate = null;

@@ -48,6 +48,7 @@ class UserManager
         if (in_array('ROLE_WEBMASTER', $user->getRoles())) {
             $userInfos->setLevel(UserPrivacyLevelType::ADMINS);
         }
+
         $userInfos->setStatus($user->getStatusFromRoles());
         $user->setUserInfos($userInfos);
 

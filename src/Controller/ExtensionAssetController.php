@@ -41,13 +41,14 @@ class ExtensionAssetController extends AbstractController
         }
 
         $response = new StreamedResponse();
-        $response->setCallback(function () use ($path) {
+        $response->setCallback(function () use ($path): void {
             readfile($path);
         });
         $response->setEtag(md5_file($path));
         $response->setLastModified((new DateTime())->setTimestamp(filemtime($path)));
         $response->setMaxAge(3600); //@TODO : read from conf
         $response->setPublic();
+
         $response->headers->set('Content-Type', $this->mimeTypes->guessMimeType($path));
         $response->send();
 

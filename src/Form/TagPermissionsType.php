@@ -28,7 +28,7 @@ class TagPermissionsType extends AbstractType
 
         $builder->add('who_add', FormGroupType::class, [
             'title' => 'Who can add tags?',
-            'fields' => function (FormBuilderInterface $builder) {
+            'fields' => function (FormBuilderInterface $builder): void {
                 $builder->add(
                     'tags_permission_add',
                     EnumType::class,
@@ -45,7 +45,7 @@ class TagPermissionsType extends AbstractType
 
         $builder->add('who_delete', FormGroupType::class, [
             'title' => 'Who can delete related tags?',
-            'fields' => function (FormBuilderInterface $builder) {
+            'fields' => function (FormBuilderInterface $builder): void {
                 $builder->add(
                     'tags_permission_delete',
                     EnumType::class,
@@ -70,7 +70,7 @@ class TagPermissionsType extends AbstractType
         $builder->add('display_pending', FormGroupType::class, [
             'title' => 'Display for pending tags',
             'help' => 'By default, if you allow some users to add tags, theses tags are not shown to them (nor others users). And pending deleted tags are shown.',
-            'fields' => function (FormBuilderInterface $builder) {
+            'fields' => function (FormBuilderInterface $builder): void {
                 $builder->add(
                     'tags_show_pending_added',
                     CheckboxType::class,

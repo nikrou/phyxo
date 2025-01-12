@@ -28,10 +28,10 @@ class MenuBar
     private string $route = '';
 
     /** @var array<int> */
-    private $items = [];
+    private array $items = [];
 
     /** @var Tag[] */
-    private $tags = [];
+    private array $tags = [];
 
     public function __construct(
         private Conf $conf,
@@ -85,6 +85,7 @@ class MenuBar
         } else {
             $this->menu->loadMenuConfig($this->conf['blk_menubar']);
         }
+
         $this->menu->prepareDisplay();
 
         $this->linksBlock();
@@ -120,6 +121,7 @@ class MenuBar
 
                 $data[] = $tpl_var;
             }
+
             $block->setData($data);
 
             if ($block->getData() !== []) {
@@ -148,7 +150,7 @@ class MenuBar
                     $this->appUserService->getUser(),
                     $this->items,
                     $this->conf['menubar_tag_cloud_items_number'],
-                    array_map(fn ($tag) => $tag->getId(), $this->tags)
+                    array_map(fn ($tag): int => $tag->getId(), $this->tags)
                 );
 
                 $tags = $this->tagMapper->addLevelToTags($tags);
@@ -159,7 +161,7 @@ class MenuBar
                         [
                             'U_ADD' => $this->router->generate(
                                 'images_by_tags',
-                                ['tag_ids' => implode('/', array_map(fn (Tag $tag) => $tag->toUrl(), array_merge($this->tags, [$tag])))]
+                                ['tag_ids' => implode('/', array_map(fn (Tag $tag): string => $tag->toUrl(), array_merge($this->tags, [$tag])))]
                             ),
                             'URL' => $this->router->generate(
                                 'images_by_tags',
@@ -168,6 +170,7 @@ class MenuBar
                         ]
                     );
                 }
+
                 $block->setData($data);
             } elseif ($this->getRoute() === 'tags') {
                 $tags = $this->tagMapper->getAvailableTags($this->appUserService->getUser());
@@ -178,6 +181,7 @@ class MenuBar
                         ['URL' => $this->router->generate('images_by_tags', ['tag_ids' => $tag->toUrl()])]
                     );
                 }
+
                 $block->setData($data);
             } else {
                 $tags = $this->tagMapper->addLevelToTags(
@@ -190,6 +194,7 @@ class MenuBar
                         ['URL' => $this->router->generate('images_by_tags', ['tag_ids' => $tag->toUrl()])]
                     );
                 }
+
                 $block->setData($data);
             }
 

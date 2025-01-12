@@ -62,6 +62,7 @@ class AdminThemesController extends AbstractController
         foreach ($db_themes as $db_theme) {
             $db_theme_ids[] = $db_theme->getId();
         }
+
         $default_theme = $userMapper->getDefaultTheme();
 
         $tpl_themes = [];
@@ -92,6 +93,7 @@ class AdminThemesController extends AbstractController
                     $tpl_theme['DEACTIVABLE'] = false;
                     $tpl_theme['DEACTIVATE_TOOLTIP'] = $translator->trans('Impossible to deactivate this theme, you need at least one theme.', [], 'admin');
                 }
+
                 if ($tpl_theme['IS_DEFAULT']) {
                     $tpl_theme['DEACTIVABLE'] = false;
                     $tpl_theme['DEACTIVATE_TOOLTIP'] = $translator->trans('Impossible to deactivate the default theme.', [], 'admin');
@@ -120,7 +122,7 @@ class AdminThemesController extends AbstractController
 
                 $tpl_theme['DELETABLE'] = true;
 
-                if ((is_countable($children) ? count($children) : 0) > 0) {
+                if (count($children) > 0) {
                     $tpl_theme['DELETABLE'] = false;
                     $tpl_theme['DELETE_TOOLTIP'] = $translator->trans('Impossible to delete this theme. Other themes depends on it: {themes}', ['themes' => implode(', ', $children)], 'admin');
                 } else {
@@ -131,13 +133,15 @@ class AdminThemesController extends AbstractController
             $tpl_themes[] = $tpl_theme;
         }
 
-        usort($tpl_themes, function ($a, $b) {
+        usort($tpl_themes, function ($a, $b): int|bool {
             if (!empty($a['IS_DEFAULT'])) {
                 return -1;
             }
+
             if (!empty($b['IS_DEFAULT'])) {
                 return 1;
             }
+
             $s = ['active' => 0, 'inactive' => 1];
             if ($a['state'] === $b['state']) {
                 return strcasecmp((string) $a['NAME'], (string) $b['NAME']);
@@ -251,6 +255,7 @@ class AdminThemesController extends AbstractController
             foreach ($userInfosRepository->findBy(['theme' => $userMapper->getDefaultTheme()]) as $user) {
                 $user_ids[] = $user->getUser()->getId();
             }
+
             $userInfosRepository->updateFieldForUsers('theme', $theme, $user_ids);
         } else {
             $error = $themes->performAction($action, $theme);
@@ -289,8 +294,8 @@ class AdminThemesController extends AbstractController
             $this->addFlash('success', $translator->trans('Theme has been successfully installed', [], 'admin'));
 
             return $this->redirectToRoute('admin_themes_installed');
-        } catch (Exception $e) {
-            $this->addFlash('error', $translator->trans($e->getMessage(), [], 'admin'));
+        } catch (Exception $exception) {
+            $this->addFlash('error', $translator->trans($exception->getMessage(), [], 'admin'));
 
             return $this->redirectToRoute('admin_themes_new');
         }
@@ -340,6 +345,7 @@ class AdminThemesController extends AbstractController
         $response->setLastModified((new DateTime())->setTimestamp(filemtime($path)));
         $response->setMaxAge(3600);
         $response->setPublic();
+
         $response->headers->set('Content-Type', $mimeTypeGuesser->guessMimeType($path));
 
         return $response;

@@ -292,8 +292,10 @@ class AdminConfigurationController extends AbstractController
                     $tpl_var['minw'] = $tpl_var['minh'] = "";
                 }
             }
+
             $tpl_params['derivatives'][$imageType->value] = $tpl_var;
         }
+
         $tpl_params['resize_quality'] = $image_std_params->getQuality();
 
         $tpl_vars = [];
@@ -301,6 +303,7 @@ class AdminConfigurationController extends AbstractController
         foreach ($image_std_params->getCustoms() as $custom => $time) {
             $tpl_vars[$custom] = ($now - $time >= 24 * 3600) ? $this->translator->trans('today', [], 'admin') : $time;
         }
+
         $tpl_params['custom_derivatives'] = $tpl_vars;
 
         return $tpl_params;
@@ -330,6 +333,7 @@ class AdminConfigurationController extends AbstractController
             $display = basename($file);
             $watermark_filemap[$file] = $display;
         }
+
         $tpl_params['watermark_files'] = $watermark_filemap;
 
         $wm = $image_std_params->getWatermark();
@@ -338,15 +342,19 @@ class AdminConfigurationController extends AbstractController
         if ($wm->getXpos() == 0 && $wm->getYpos() == 0) {
             $position = 'topleft';
         }
+
         if ($wm->getXpos() == 100 && $wm->getYpos() == 0) {
             $position = 'topright';
         }
+
         if ($wm->getXpos() == 50 && $wm->getYpos() == 50) {
             $position = 'middle';
         }
+
         if ($wm->getXpos() == 0 && $wm->getYpos() == 100) {
             $position = 'bottomleft';
         }
+
         if ($wm->getXpos() == 100 && $wm->getYpos() == 100) {
             $position = 'bottomright';
         }
@@ -433,7 +441,8 @@ class AdminConfigurationController extends AbstractController
                         }
 
                         // limit to the number of available parameters
-                        $order_by = $order_by_inside_category = array_slice($order_by, 0, (int) ceil(count($this->sort_fields) / 2));
+                        $order_by = array_slice($order_by, 0, (int) ceil(count($this->sort_fields) / 2));
+                        $order_by_inside_category = $order_by;
 
                         // must define a default order_by if user want to order by rank only
                         if ($order_by === []) {
@@ -441,7 +450,7 @@ class AdminConfigurationController extends AbstractController
                         }
 
                         // there is no rank outside categories
-                        $order_by = array_filter($order_by, fn ($order) => json_encode($order) !== json_encode(['rank', 'ASC']));
+                        $order_by = array_filter($order_by, fn ($order): bool => json_encode($order) !== json_encode(['rank', 'ASC']));
                         if (json_encode($conf['order_by']) !== json_encode($order_by)) {
                             $conf->addOrUpdateParam('order_by', $order_by, ConfEnum::JSON);
                             $conf_updated = true;
@@ -551,6 +560,7 @@ class AdminConfigurationController extends AbstractController
                         } else {
                             $watermark['xpos'] = $xpos;
                         }
+
                         if ($ypos < 0 || $ypos > 100) {
                             $this->addFlash('error', 'ypos [0..100]');
                             $error = true;
@@ -616,6 +626,7 @@ class AdminConfigurationController extends AbstractController
                         if (!$changed && $params->use_watermark) {
                             $changed = $watermark_changed;
                         }
+
                         if (!$changed && $params->use_watermark) {
                             // if thresholds change and before/after the threshold is lower than the corresponding derivative side -> some derivatives might switch the watermark
                             $changed |= $watermark_params->getMinSize()[0] != $old_watermark->getMinSize()[0]
@@ -673,6 +684,7 @@ class AdminConfigurationController extends AbstractController
                         $pderivative['minh'] = $pderivative['minw'] = $pderivative['w'];
                         $pderivative['crop'] = 100;
                     }
+
                     $pderivative['must_enable'] = $type === ImageSizeType::SQUARE->value || $type === ImageSizeType::THUMB->value || $type === $conf['derivative_default_size'];
                     $pderivative['enabled'] = isset($pderivative['enabled']) || $pderivative['must_enable'];
 
@@ -688,7 +700,8 @@ class AdminConfigurationController extends AbstractController
                 }
 
                 // step 2 - check validity
-                $prev_w = $prev_h = 0;
+                $prev_w = 0;
+                $prev_h = 0;
                 foreach (ImageSizeType::getAllTypes() as $imageType) {
                     $pderivative = $pderivatives[$imageType->value];
                     if (!$pderivative['enabled']) {
@@ -766,6 +779,7 @@ class AdminConfigurationController extends AbstractController
                                 } else {
                                     $new_params->last_mod_time = $old_params->last_mod_time;
                                 }
+
                                 $enabled[$imageType->value] = $new_params;
                             } else { // now enabled, before was disabled
                                 $enabled[$imageType->value] = $new_params;
@@ -869,6 +883,7 @@ class AdminConfigurationController extends AbstractController
             if (!isset($upload_form_config[$field])) {
                 continue;
             }
+
             if (is_bool($upload_form_config[$field]['default'])) {
                 $value = isset($value);
                 $updates[] = [

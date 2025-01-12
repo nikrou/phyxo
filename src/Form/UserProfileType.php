@@ -104,7 +104,7 @@ class UserProfileType extends AbstractType
 
         $builder->add('user_fields', FormGroupType::class, [
             'title' => 'User authentication',
-            'fields' => function (FormBuilderInterface $builder) use ($fields) {
+            'fields' => function (FormBuilderInterface $builder) use ($fields): void {
                 foreach ($fields->all() as $child) {
                     $builder->add($child);
                 }

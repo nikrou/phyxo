@@ -39,6 +39,7 @@ class FeedController extends AbstractController
             $feed->setUser($appUserService->getUser());
             $userFeedRepository->addOrUpdateUserFeed($feed);
         }
+
         $tpl_params['U_FEED'] = $this->generateUrl('feed', ['feed_id' => $feed->getUuid()]);
         $tpl_params['U_FEED_IMAGE_ONLY'] = $this->generateUrl('feed_image_only', ['feed_id' => $feed->getUuid()]);
 
@@ -91,6 +92,7 @@ class FeedController extends AbstractController
                 foreach ($news as $line) {
                     $item->description .= '<li>' . $line . '</li>';
                 }
+
                 $item->description .= '</ul>';
                 $item->descriptionHtmlSyndicated = true;
 

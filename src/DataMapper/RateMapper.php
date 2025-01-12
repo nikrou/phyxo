@@ -56,6 +56,7 @@ class RateMapper
             if (!is_null($rate)) {
                 $this->getRepository()->delete($rate);
             }
+
             $this->getRepository()->updateAnonymousIdField($anonymous_id, $this->userMapper->getUser()->getId(), $save_anonymous_id);
         }
 

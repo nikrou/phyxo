@@ -36,5 +36,4 @@ Author: Nicolas
 Author URI: http://www.phyxo.net/
  */
 
-
 // nothing more

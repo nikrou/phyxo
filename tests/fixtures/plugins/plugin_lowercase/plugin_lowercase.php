@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
- namespace Plugins\plugin_lowercase;
+namespace Plugins\plugin_lowercase;
 
 use Phyxo\Extension\AbstractPlugin;
 

@@ -23,17 +23,16 @@ use Symfony\Component\Filesystem\Filesystem;
 class ThemesTest extends TestCase
 {
     use ProphecyTrait;
-
     final public const THEMES_PATH = __DIR__ . '/../../fixtures/themes';
     final public const THEMES_DIR = __DIR__ . '/../../tmp/themes';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $fs = new Filesystem();
         $fs->mkdir(self::THEMES_DIR);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $fs = new Filesystem();
         $fs->remove(self::THEMES_DIR);
@@ -49,7 +48,7 @@ class ThemesTest extends TestCase
         return $workspace;
     }
 
-    public function testFsThemes()
+    public function testFsThemes(): void
     {
         $workspace = $this->mirrorToWorkspace();
         $user = $this->prophesize(User::class);
@@ -66,7 +65,7 @@ class ThemesTest extends TestCase
     }
 
     #[DataProvider('sortThemesDataProvider')]
-    public function testSortThemes(string $sort_type, array $order)
+    public function testSortThemes(string $sort_type, array $order): void
     {
         $workspace = $this->mirrorToWorkspace();
 
@@ -87,7 +86,7 @@ class ThemesTest extends TestCase
         $this->assertEquals($order, array_keys($themes->getFsThemes()));
     }
 
-    public static function sortThemesDataProvider()
+    public static function sortThemesDataProvider(): array
     {
         return [
             ['author', ['theme2', 'theme3', 'theme4', 'my theme dir with space', 'theme1']],
@@ -97,7 +96,7 @@ class ThemesTest extends TestCase
         ];
     }
 
-    private function getLocalThemes()
+    private function getLocalThemes(): array
     {
         return [
             'my theme dir with space' => [

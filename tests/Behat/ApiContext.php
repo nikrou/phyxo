@@ -31,7 +31,7 @@ class ApiContext implements Context
     private readonly Request $request;
     private ResponseInterface $response;
     private array $json_data;
-    private $json_decoded = false;
+    private bool $json_decoded = false;
 
     public function __construct(private readonly string $phyxoVersion, string $apiBaseUrl, private readonly ContainerInterface $driverContainer)
     {
@@ -45,7 +45,7 @@ class ApiContext implements Context
     }
 
     #[Given('I am authenticated for api as :username with password :password')]
-    public function iAmAuthenticatedForApiAs(string $username, string $password)
+    public function iAmAuthenticatedForApiAs(string $username, string $password): void
     {
         $table = new TableNode([['username', 'password'], [$username, $password]]);
 
@@ -62,7 +62,7 @@ class ApiContext implements Context
      *      * @When /^I send a "(GET|POST)" request to "([^"]*)"$/
      */
     #[When('/^I send a "(GET|POST)" request to "([^"]*)" with values:$/')]
-    public function iSendARequestWithValues(string $http_method, string $method, ?TableNode $values = null)
+    public function iSendARequestWithValues(string $http_method, string $method, ?TableNode $values = null): void
     {
         $requestOptions = [];
         if ($http_method === 'GET') {
@@ -74,14 +74,15 @@ class ApiContext implements Context
                     $requestOptions['form_params'] = $columHash;
                 }
             }
+
             $requestOptions['form_params']['method'] = $method;
         }
 
         try {
             $this->json_decoded = false;
             $this->response = $this->client->send($this->request->withMethod($http_method), $requestOptions);
-        } catch (Exception $e) {
-            $this->json_data = ['message' => $e->getMessage()];
+        } catch (Exception $exception) {
+            $this->json_data = ['message' => $exception->getMessage()];
             $this->json_decoded = true;
         }
     }
@@ -92,7 +93,7 @@ class ApiContext implements Context
      * @param int $code status code
      */
     #[Then('the response status code should be :code')]
-    public function theResponseCodeShouldBe(int $code)
+    public function theResponseCodeShouldBe(int $code): void
     {
         if ($code !== $this->response->getStatusCode()) {
             throw new Exception(sprintf('Response code was %d but should be %d', $this->response->getStatusCode(), $code));
@@ -100,7 +101,7 @@ class ApiContext implements Context
     }
 
     #[Then('the response body contains JSON:')]
-    public function theResponseBodyContainsJson(PyStringNode $json)
+    public function theResponseBodyContainsJson(PyStringNode $json): void
     {
         if (trim($json) !== trim($this->getJsonAsString())) {
             throw new Exception(sprintf('Response was "%s" but should be "%s"', $this->getJsonAsString(), $json));
@@ -108,7 +109,7 @@ class ApiContext implements Context
     }
 
     #[Given('the response is JSON')]
-    public function theResponseIsJson()
+    public function theResponseIsJson(): void
     {
         $this->getJson();
     }
@@ -123,7 +124,7 @@ class ApiContext implements Context
 
     #[Given('the response has property :property equals to :value')]
     #[Given('the response has property :property equals to :value of type :type')]
-    public function theResponseHasPropertyEqualsTo(string $property, string $value, string $type = '')
+    public function theResponseHasPropertyEqualsTo(string $property, string $value, string $type = ''): void
     {
         $data = $this->getJson();
 
@@ -138,10 +139,10 @@ class ApiContext implements Context
         }
     }
 
-    private function getProperty($data, $property)
+    private function getProperty($data, string $property)
     {
-        if (strrpos((string) $property, '/') !== false) {
-            $parts = explode('/', (string) $property);
+        if (strrpos($property, '/') !== false) {
+            $parts = explode('/', $property);
             $n = 0;
             while ($n < count($parts)) {
                 if (is_null($data[$parts[$n]]) && $n + 1 === count($parts)) {
@@ -150,10 +151,13 @@ class ApiContext implements Context
                     if (!isset($data[$parts[$n]])) {
                         throw new Exception("Complex property '" . $property . "' is not set!\n");
                     }
+
                     $data = $data[$parts[$n]];
                 }
+
                 $n++;
             }
+
             return $data;
         } elseif (isset($data[$property])) {
             return $data[$property];
@@ -170,6 +174,7 @@ class ApiContext implements Context
             if (!$this->json_data) {
                 throw new Exception("Response was not JSON\n" . $this->response->getBody());
             }
+
             $this->json_decoded = true;
             return $this->json_data;
         } else {
@@ -183,7 +188,7 @@ class ApiContext implements Context
     }
 
     #[Then('print JSON')]
-    public function printJson()
+    public function printJson(): void
     {
         print_r($this->getJson());
     }

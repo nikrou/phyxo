@@ -99,7 +99,7 @@ class ImageAlbumRepository extends ServiceEntityRepository
     /**
      * @return array<int, int|string>
      */
-    public function countImagesByAlbum()
+    public function countImagesByAlbum(): array
     {
         $qb = $this->createQueryBuilder('ia');
         $qb->select('IDENTITY(ia.album) AS album, COUNT(1) AS counter');
@@ -140,7 +140,7 @@ class ImageAlbumRepository extends ServiceEntityRepository
      *
      * @return array<int, int>
      */
-    public function findMaxRankForEachAlbums(array $ids)
+    public function findMaxRankForEachAlbums(array $ids): array
     {
         $qb = $this->createQueryBuilder('ia');
         $qb->select('IDENTITY(ia.album) as album, MAX(ia.rank) as max');

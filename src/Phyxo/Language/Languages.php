@@ -21,19 +21,19 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class Languages extends Extensions
 {
-    private $languages_root_path;
-    private $fs_languages = [];
-    private $fs_languages_retrieved = false;
+    private ?string $languages_root_path = null;
+    private array $fs_languages = [];
+    private bool $fs_languages_retrieved = false;
     private $db_languages = [];
-    private $db_languages_retrieved = false;
-    private $server_languages = [];
-    private $server_languages_retrieved = false;
+    private bool $db_languages_retrieved = false;
+    private array $server_languages = [];
+    private bool $server_languages_retrieved = false;
 
     public function __construct(private readonly ?LanguageRepository $languageRepository = null, private readonly string $defaultLanguage = '')
     {
     }
 
-    public function setRootPath(string $languages_root_path)
+    public function setRootPath(string $languages_root_path): void
     {
         $this->languages_root_path = $languages_root_path;
     }
@@ -41,7 +41,7 @@ class Languages extends Extensions
     /**
      * Perform requested actions
      */
-    public function performAction(string $action, string $language_id, ?string $revision_id = null)
+    public function performAction(string $action, string $language_id, ?string $revision_id = null): string
     {
         if (!$this->db_languages_retrieved) {
             $this->getDbLanguages();
@@ -79,6 +79,7 @@ class Languages extends Extensions
                 } catch (Exception $e) {
                     $error = $e->getMessage();
                 }
+
                 break;
 
             case 'deactivate':
@@ -100,6 +101,7 @@ class Languages extends Extensions
                     $error = 'CANNOT DELETE - LANGUAGE IS ACTIVATED';
                     break;
                 }
+
                 if (!isset($this->fs_languages[$language_id])) {
                     $error = 'CANNOT DELETE - LANGUAGE DOES NOT EXIST';
                     break;
@@ -137,6 +139,7 @@ class Languages extends Extensions
                 if (!preg_match('`.*messages\+intl\-icu\.([a-zA-Z0-9-_]+)\.php`', $messages_file, $matches)) {
                     continue;
                 }
+
                 $language_code = $matches[1];
 
                 $language = [
@@ -151,18 +154,23 @@ class Languages extends Extensions
                 if (preg_match("|Language Name:\\s*(.+)|", $language_data, $val)) {
                     $language['name'] = trim($val[1]);
                 }
+
                 if (preg_match("|Version:\\s*([\\w.-]+)|", $language_data, $val)) {
                     $language['version'] = trim($val[1]);
                 }
+
                 if (preg_match("|Language URI:\\s*(https?:\\/\\/.+)|", $language_data, $val)) {
                     $language['uri'] = trim($val[1]);
                 }
+
                 if (preg_match("|Author:\\s*(.+)|", $language_data, $val)) {
                     $language['author'] = trim($val[1]);
                 }
+
                 if (preg_match("|Author URI:\\s*(https?:\\/\\/.+)|", $language_data, $val)) {
                     $language['author uri'] = trim($val[1]);
                 }
+
                 /** @phpstan-ignore-next-line */
                 if (isset($language['uri']) && ($language['uri'] !== '' && $language['uri'] !== '0') && strpos($language['uri'], 'extension_view.php?eid=')) {
                     [, $extension] = explode('extension_view.php?eid=', $language['uri']);
@@ -173,6 +181,7 @@ class Languages extends Extensions
 
                 $this->fs_languages[$language_code] = $language;
             }
+
             uasort($this->fs_languages, Utils::nameCompare(...));
 
             $this->fs_languages_retrieved = true;
@@ -188,6 +197,7 @@ class Languages extends Extensions
             foreach ($this->languageRepository->findAll() as $language) {
                 $this->db_languages[$language->getId()] = $language;
             }
+
             $this->db_languages_retrieved = true;
         }
 
@@ -214,7 +224,8 @@ class Languages extends Extensions
                 if ($pem_versions !== [] && !preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                     $version = $pem_versions[0]['name'];
                 }
-                $branch = Utils::get_branch_from_version($version);
+
+                $branch = Utils::getBranchFromVersion($version);
                 foreach ($pem_versions as $pem_version) {
                     if (str_starts_with((string) $pem_version['name'], $branch)) {
                         $versions_to_check[] = $pem_version['id'];
@@ -263,6 +274,7 @@ class Languages extends Extensions
                         $this->server_languages[$language['extension_id']] = $language;
                     }
                 }
+
                 uasort($this->server_languages, $this->extensionNameCompare(...));
             } catch (Exception $e) {
                 throw new Exception($e->getMessage(), $e->getCode(), $e);
@@ -270,13 +282,14 @@ class Languages extends Extensions
 
             $this->server_languages_retrieved = true;
         }
+
         return $this->server_languages;
     }
 
     /**
      * Extract language files from archive
      */
-    public function extractLanguageFiles(string $action, int $revision)
+    public function extractLanguageFiles(string $action, int $revision): void
     {
         $archive = tempnam($this->languages_root_path, 'zip');
         $get_data = [
@@ -287,8 +300,8 @@ class Languages extends Extensions
         $this->directory_pattern = '/^$/';
         try {
             $this->download($archive, $get_data);
-        } catch (Exception $e) {
-            throw new Exception("Cannot download language archive", $e->getCode(), $e);
+        } catch (Exception $exception) {
+            throw new Exception("Cannot download language archive", $exception->getCode(), $exception);
         }
 
         try {
@@ -299,8 +312,8 @@ class Languages extends Extensions
             } elseif ($action === 'upgrade') {
                 $this->performAction('update', $language_id);
             }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         } finally {
             unlink($archive);
         }
@@ -324,7 +337,7 @@ class Languages extends Extensions
             if (!empty($main_filepath)) {
                 // @TODO: use native zip library ; use arobase before
                 if ($results = @$zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $extract_path, PCLZIP_OPT_REPLACE_NEWER)) {
-                    $errors = array_filter($results, fn ($f) => ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory');
+                    $errors = array_filter($results, fn ($f): bool => ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory');
                     if ($errors !== []) {
                         throw new Exception("Error while extracting some files from archive");
                     }
@@ -342,7 +355,7 @@ class Languages extends Extensions
     /**
      * Sort functions
      */
-    public function extensionNameCompare($a, $b)
+    public function extensionNameCompare(array $a, array $b): int
     {
         return strcmp(strtolower((string) $a['extension_name']), strtolower((string) $b['extension_name']));
     }

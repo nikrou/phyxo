@@ -40,6 +40,7 @@ class TagVoter extends Voter
         if (!in_array($attribute, [self::ADD, self::DELETE])) {
             return false;
         }
+
         return $subject instanceof Image;
     }
 
@@ -54,6 +55,7 @@ class TagVoter extends Voter
         if ($this->security->isGranted('ROLE_WEBMASTER')) {
             return true;
         }
+
         return match ($attribute) {
             self::ADD => $this->canAddTag(),
             self::DELETE => $this->canDeleteTag(),
@@ -66,6 +68,7 @@ class TagVoter extends Voter
         if (empty($this->conf['tags_permission_add'])) {
             return false;
         }
+
         return $this->security->isGranted(User::getRoleFromStatus(UserStatusType::from($this->conf['tags_permission_add'])));
     }
 
@@ -74,6 +77,7 @@ class TagVoter extends Voter
         if (empty($this->conf['tags_permission_delete'])) {
             return false;
         }
+
         return $this->security->isGranted(User::getRoleFromStatus(UserStatusType::from($this->conf['tags_permission_delete'])));
     }
 }

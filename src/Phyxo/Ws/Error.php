@@ -16,9 +16,9 @@ use Phyxo\Functions\HTTP;
 class Error
 {
     private $code;
-    private $codeText;
+    private readonly string $codeText;
 
-    public function __construct($code, $codeText)
+    public function __construct($code, string $codeText)
     {
         if ($code >= 400 && $code < 600) {
             $this->setStatusHeader($code, $codeText);
@@ -80,11 +80,12 @@ class Error
                     break;
             }
         }
+
         $protocol = $_SERVER["SERVER_PROTOCOL"];
         if (('HTTP/1.1' != $protocol) && ('HTTP/1.0' != $protocol)) {
             $protocol = 'HTTP/1.0';
         }
 
-        header("$protocol $code $text", true, $code);
+        header(sprintf('%s %d %s', $protocol, $code, $text), true, $code);
     }
 }

@@ -60,8 +60,8 @@ class PhyxoInstaller
     public function availableEngines(): array
     {
         return array_map(
-            fn ($dblayer) => $dblayer['engine'],
-            array_filter($this->dblayers, fn ($dblayer) => (isset($dblayer['function_available']) && function_exists($dblayer['function_available']))
+            fn ($dblayer): string => $dblayer['engine'],
+            array_filter($this->dblayers, fn ($dblayer): bool => (isset($dblayer['function_available']) && function_exists($dblayer['function_available']))
             || (isset($dblayer['class_available']) && class_exists($dblayer['class_available'])))
         );
     }
@@ -127,6 +127,7 @@ class PhyxoInstaller
 
         $raw_query = 'INSERT INTO phyxo_config (param, type, value, comment) VALUES(:param, :type, :value, :comment)';
         $raw_query = str_replace($this->prefix, $db_params['db_prefix'], $raw_query);
+
         $statement = $conn->prepare($raw_query);
 
         $statement->bindValue('param', 'secret_key');
@@ -155,6 +156,7 @@ class PhyxoInstaller
 
         $raw_query = 'INSERT INTO phyxo_languages (id, version, name) VALUES(:id, :version, :name)';
         $raw_query = str_replace($this->prefix, $db_params['db_prefix'], $raw_query);
+
         $statement = $conn->prepare($raw_query);
 
         $languages = new Languages();
@@ -169,6 +171,7 @@ class PhyxoInstaller
         // activate default theme
         $raw_query = 'INSERT INTO phyxo_themes (id, version, name) VALUES(:id, :version, :name)';
         $raw_query = str_replace($this->prefix, $db_params['db_prefix'], $raw_query);
+
         $statement = $conn->prepare($raw_query);
         $statement->bindValue('id', $this->defaultTheme);
         $statement->bindValue('version', $this->phyxoVersion);
@@ -179,6 +182,7 @@ class PhyxoInstaller
         // To make Phyxo avoid upgrading, we must tell it upgrades have already been made.
         $raw_query = 'INSERT INTO phyxo_upgrade (id, applied, description) VALUES(:id, :applied, :description)';
         $raw_query = str_replace($this->prefix, $db_params['db_prefix'], $raw_query);
+
         $statement = $conn->prepare($raw_query);
         $now = new DateTime();
 
@@ -204,7 +208,8 @@ class PhyxoInstaller
         } else {
             $file_content .= 'DATABASE_URL="sqlite:///%kernel.project_dir%/db/' . $db_params['db_name'] . "\"\n";
         }
-        $file_content .= 'DATABASE_PREFIX=\'' . $db_params['db_prefix'] . "'\n\n";
+
+        $file_content .= "DATABASE_PREFIX='" . $db_params['db_prefix'] . "'\n\n";
 
         $temporayFile = $this->localEnvFile . '.tmp';
         file_put_contents($temporayFile, $file_content, FILE_APPEND);
@@ -231,6 +236,7 @@ class PhyxoInstaller
             if (preg_match('/(^--|^$)/', $sql_line)) {
                 continue;
             }
+
             $query .= ' ' . $sql_line;
             // if we reached the end of query, we execute it and reinitialize the variable "query"
             if (preg_match('/;$/', $sql_line)) {
@@ -241,8 +247,10 @@ class PhyxoInstaller
                     if ($dblayer === 'mysql' && preg_match('/^(CREATE TABLE .*)[\s]*;[\s]*/im', $query, $matches)) {
                         $query = $matches[1] . ' DEFAULT CHARACTER SET utf8' . ';';
                     }
+
                     $queries[] = $query;
                 }
+
                 $query = '';
             }
         }

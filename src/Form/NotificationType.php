@@ -30,7 +30,7 @@ class NotificationType extends AbstractType
             FormGroupType::class,
             [
                 'title' => 'Parameters',
-                'fields' => function (FormBuilderInterface $builder) {
+                'fields' => function (FormBuilderInterface $builder): void {
                     $builder->add('nbm_send_html_mail', CheckboxType::class, ['label' => 'Send mail on HTML format']);
                     $builder->add(
                         'nbm_send_mail_as',

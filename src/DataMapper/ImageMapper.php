@@ -226,6 +226,7 @@ class ImageMapper
         foreach ($this->albumMapper->getRepository()->findRepresentants($ids) as $album) {
             $album_ids[] = $album->getId();
         }
+
         if ($album_ids !== []) {
             $this->albumMapper->updateAlbums($album_ids);
         }

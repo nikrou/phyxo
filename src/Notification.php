@@ -180,6 +180,7 @@ class Notification
             if ($add_url && ($url !== '' && $url !== '0')) {
                 $line = '<a href="' . $url . '">' . $line . '</a>';
             }
+
             $news[] = $line;
         }
 
@@ -269,10 +270,12 @@ class Notification
                 foreach ($this->imageMapper->getRepository()->findRandomImages($max_elements, $this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums()) as $id) {
                     $ids[] = $id;
                 }
+
                 $elements = [];
                 foreach ($this->imageMapper->getRepository()->findBy(['id' => $ids]) as $image) {
                     $elements[] = $image;
                 }
+
                 $dates[$i]['elements'] = $elements;
             }
 
@@ -331,6 +334,7 @@ class Notification
             );
             $description .= '"><img src="' . $tn_src . '"></a>';
         }
+
         $description .= '...<br>';
 
         $description .=
@@ -346,6 +350,7 @@ class Notification
                 . ' (' . $this->translator->trans('number_of_new_photos', ['count' => $cat['img_count']]) . ')'
                 . '</li>';
         }
+
         $description .= '</ul>'; // @TODO: fix html output. Cannot have two </ul>
 
         return $description . '</ul>';
@@ -356,7 +361,7 @@ class Notification
      *
      * @param array $date_detail returned value of get_recent_post_dates()
      */
-    public function get_title_recent_post_date($date_detail): string
+    public function get_title_recent_post_date(array $date_detail): string
     {
         $english_months = [1 => "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -452,6 +457,7 @@ class Notification
             if ($this->env['sent_mail_count'] != 0) {
                 $this->infos[] = $this->translator->trans('number_of_mails_sent', ['count' => $this->env['sent_mail_count']]);
             }
+
             /** @phpstan-ignore-next-line */
         } elseif ($this->env['sent_mail_count'] == 0) {
             $this->infos[] = $this->translator->trans('No mail to send.');
@@ -610,6 +616,7 @@ class Notification
             } else {
                 $time_refresh = 0;
             }
+
             $_POST[$post_keyname] = array_diff($_POST[$post_keyname], $check_key_treated);
             $this->errors[] = $this->translator->trans('execution_timeout_in_seconds', ['count' => $time_refresh]);
         }
@@ -654,7 +661,10 @@ class Notification
      * Return list of "selected" users for 'list_to_send'
      * Return list of "treated" check_key for 'send'
      */
-    public function do_action_send_mail_notification($action = 'list_to_send', $check_key_list = [], $customize_mail_content = '')
+    /**
+     * @return mixed[]
+     */
+    public function do_action_send_mail_notification($action = 'list_to_send', array $check_key_list = [], $customize_mail_content = ''): array
     {
         $return_list = [];
 
@@ -678,12 +688,14 @@ class Notification
                 if (!isset($customize_mail_content)) {
                     $customize_mail_content = $this->conf['nbm_complementary_mail_content'];
                 }
+
                 // Prepare message after change language
                 if ($is_action_send) {
                     $msg_break_timeout = $this->translator->trans('Time to send mail is limited. Others mails are skipped.');
                 } else {
                     $msg_break_timeout = $this->translator->trans('Prepared time for list of users to send mail is limited. Others users are not listed.');
                 }
+
                 // Begin nbm users environment
                 $this->begin_users_env_nbm($is_action_send);
                 foreach ($data_users as $nbm_user) {
@@ -692,6 +704,7 @@ class Notification
                         $this->infos[] = $msg_break_timeout;
                         break;
                     }
+
                     if (($is_action_send) && $this->check_sendmail_timeout()) {
                         // Stop fill list on 'send', if the quota is override
                         $this->errors[] = $msg_break_timeout;
@@ -709,6 +722,7 @@ class Notification
                         } else {
                             $exist_data = $this->news_exists($nbm_user->getLastSend(), $now);
                         }
+
                         if ($exist_data) {
                             $subject = $this->translator->trans('New photos added');
 
@@ -774,6 +788,7 @@ class Notification
                         $return_list[] = $nbm_user;
                     }
                 }
+
                 if ($is_action_send) {
                     $this->display_counter_info();
                 }

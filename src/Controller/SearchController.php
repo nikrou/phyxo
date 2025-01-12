@@ -95,12 +95,14 @@ class SearchController extends AbstractController
                 'counter' => $counter,
             ];
         }
+
         $tpl_params['AUTHORS'] = $authors;
 
         $month_list = [1 => "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         foreach ($month_list as &$month) {
             $month = $translator->trans($month);
         }
+
         $month_list[0] = '------------';
         ksort($month_list);
         $tpl_params['month_list'] = $month_list;
@@ -109,6 +111,7 @@ class SearchController extends AbstractController
         foreach ($albumMapper->getRepository()->findAllowedAlbums($appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $album) {
             $albums[] = $album;
         }
+
         $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_options', true));
 
         $tpl_params['F_SEARCH_ACTION'] = $this->generateUrl('search');
@@ -120,8 +123,8 @@ class SearchController extends AbstractController
                 $fields = array_intersect($request->request->all('fields'), ['name', 'comment', 'file']);
 
                 $drop_char_match = [
-                    '-', '^', '$', ';', '#', '&', '(', ')', '<', '>', '`', '\'', '"', '|', ',', '@', '_',
-                    '?', '%', '~', '.', '[', ']', '{', '}', ':', '\\', '/', '=', '\'', '!', '*'
+                    '-', '^', '$', ';', '#', '&', '(', ')', '<', '>', '`', "'", '"', '|', ',', '@', '_',
+                    '?', '%', '~', '.', '[', ']', '{', '}', ':', '\\', '/', '=', "'", '!', '*'
                 ];
                 $drop_char_replace = [
                     ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', ' ', ' ', ' ', ' ', '', ' ',
@@ -277,6 +280,7 @@ class SearchController extends AbstractController
                 /** @phpstan-ignore-next-line */
                 $cats = array_merge($cats, $search_results['qsearch_details']['matching_cats_no_image']);
             }
+
             /** @phpstan-ignore-next-line */
             if ($search_results['qsearch_details']['matching_cats']) {
                 /** @phpstan-ignore-next-line */
@@ -289,6 +293,7 @@ class SearchController extends AbstractController
                 foreach ($cats as $cat) {
                     $hints[] = $albumMapper->getAlbumDisplayName([$cat]);
                 }
+
                 $tpl_params['category_search_results'] = $hints;
             }
 
@@ -327,6 +332,7 @@ class SearchController extends AbstractController
                 /** @phpstan-ignore-next-line */
                 $tpl_params['no_search_results'] = $search_results['qsearch_details']['unmatched_terms'];
             }
+
             /** @phpstan-ignore-next-line */
         } elseif (!empty($search_results['qsearch_details']) && !empty($search_results['qsearch_details']['q'])) {
             /** @phpstan-ignore-next-line */
@@ -390,6 +396,7 @@ class SearchController extends AbstractController
             foreach ($albumMapper->getRepository()->findBy(['id' => $album_ids]) as $album) {
                 $albums[] = $album;
             }
+
             usort($albums, AlbumMapper::globalRankCompare(...));
 
             foreach ($albums as $album) {

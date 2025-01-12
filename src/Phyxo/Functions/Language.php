@@ -43,7 +43,9 @@ class Language
         for ($i = 0; $i < strlen($Str); $i++) {
             if (ord($Str[$i]) < 0x80) {
                 continue;
-            } // 0bbbbbbb
+            }
+
+            // 0bbbbbbb
             $ret = 1;
             if ((ord($Str[$i]) & 0xE0) == 0xC0) {
                 $n = 1;
@@ -62,13 +64,16 @@ class Language
             } // 1111110b
             else {
                 return -1;
-            } // Does not match any model
+            }
+
+            // Does not match any model
             for ($j = 0; $j < $n; $j++) { // n bytes matching 10bbbbbb follow ?
                 if ((++$i === strlen($Str)) || ((ord($Str[$i]) & 0xC0) != 0x80)) {
                     return -1;
                 }
             }
         }
+
         return $ret;
     }
 
@@ -233,15 +238,14 @@ class Language
 
     /**
      * simplify a string to insert it into an URL
-     *
-     * @param string $str
-     * @return string
      */
-    public static function str2url($str)
+    public static function str2url(string $str): string
     {
-        $str = $safe = self::transliterate($str);
+        $str = self::transliterate($str);
+        $safe = $str;
         $str = preg_replace('/[^\x80-\xffa-z0-9_\s\'\:\/\[\],-]/', '', $str);
         $str = preg_replace('/[\s\'\:\/\[\],-]+/', ' ', trim((string) $str));
+
         $res = str_replace(' ', '_', (string) $str);
 
         if (empty($res)) {

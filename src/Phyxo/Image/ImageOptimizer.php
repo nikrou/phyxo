@@ -275,7 +275,7 @@ class ImageOptimizer
     /**
      * @return array{source: string, destination: string, width: int, height: int, size: string, time: string|null, library: string}
      */
-    private function getResizeResult(string $destinationFilePath, int $width, int $height, ?float $time = null)
+    private function getResizeResult(string $destinationFilePath, int $width, int $height, ?float $time = null): array
     {
         return [
             'source' => $this->sourceFilePath,

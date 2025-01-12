@@ -40,6 +40,7 @@ class DerivativeService
             } else { //assume a custom type
                 $pattern = DerivativeParams::derivativeToUrl(ImageSizeType::CUSTOM->value) . '_' . $type;
             }
+
             $types[$i] = $pattern;
         }
 
@@ -49,6 +50,7 @@ class DerivativeService
         } else {
             $pattern .= $types[0];
         }
+
         $pattern .= '\.[a-zA-Z0-9]{3,4}$#';
 
         $fs = new Filesystem();

@@ -11,6 +11,7 @@
 
 namespace App\Form;
 
+use Doctrine\ORM\QueryBuilder;
 use DateTimeImmutable;
 use DateInterval;
 use App\Entity\Album;
@@ -66,7 +67,7 @@ class CommentFilterType extends AbstractType
                 EntityType::class,
                 [
                     'class' => Album::class,
-                    'query_builder' => fn (AlbumRepository $albumRepository) => $albumRepository->getQueryBuilderForFindAllowedAlbums($this->appUserService->getUser()->getUserInfos()->getForbiddenAlbums()),
+                    'query_builder' => fn (AlbumRepository $albumRepository): QueryBuilder => $albumRepository->getQueryBuilderForFindAllowedAlbums($this->appUserService->getUser()->getUserInfos()->getForbiddenAlbums()),
                     'choice_label' => 'name',
                     'choice_value' => 'id',
                     'required' => false,

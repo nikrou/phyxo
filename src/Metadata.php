@@ -91,7 +91,8 @@ class Metadata
                     $month = 1;
                     $day = 1;
                 }
-                $iptc[$iptc_key] = DateTime::createFromFormat('Y-m-d', "{$year}-{$month}-{$day}");
+
+                $iptc[$iptc_key] = DateTime::createFromFormat('Y-m-d', sprintf('%d-%d-%d', $year, $month, $day));
             }
         }
 
@@ -206,6 +207,7 @@ class Metadata
             $i = explode('/', $i);
             $i = $i[1] == 0 ? 0 : (int) $i[0] / (int) $i[1];
         }
+
         unset($i);
 
         $v = (int) $raw[0] + (int) $raw[1] / 60 + (int) $raw[2] / 3600;
@@ -227,6 +229,7 @@ class Metadata
         while (isset($value[0]) && $value[0] === chr(0)) {
             $value = substr($value, 1);
         }
+
         // remove binary nulls
         $value = str_replace(chr(0x00), ' ', $value);
 
@@ -247,6 +250,7 @@ class Metadata
                     $input_encoding = 'windows-1252';
                 }
             }
+
             $value = Utils::convertCharset($value, $input_encoding, 'utf-8');
         }
 

@@ -11,7 +11,6 @@
 
 namespace App\Controller\Admin;
 
-use App\Enum\ConfEnum;
 use App\Form\NotificationType;
 use App\Notification;
 use Phyxo\Conf;
@@ -38,6 +37,7 @@ class AdminNotificationController extends AbstractController
         if ($this->authorizationChecker->isGranted('ROLE_WEBMASTER')) {
             $tabsheet->add('send', $this->translator->trans('Send', [], 'admin'), $this->generateUrl('admin_notification_send'));
         }
+
         $tabsheet->select($section);
 
         return $tabsheet;
@@ -88,6 +88,7 @@ class AdminNotificationController extends AbstractController
         } else {
             $notification->insert_new_data_user_mail_notification();
         }
+
         $data_users = $notification->get_user_notifications('subscribe');
 
         $opt_true = [];
@@ -137,7 +138,7 @@ class AdminNotificationController extends AbstractController
         if ($request->isMethod('POST')) {
             $check_key_treated = $notification->do_action_send_mail_notification(
                 'send',
-                $request->request->get('send_selection'),
+                $request->request->all('send_selection'),
                 $request->request->get('send_customize_mail_content')
             );
             $notification->do_timeout_treatment('send_selection', $check_key_treated);

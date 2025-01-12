@@ -21,7 +21,12 @@ $header = <<<'EOF'
     file that was distributed with this source code.
     EOF;
 
-$finder = PhpCsFixer\Finder::create()->in(__DIR__ . '/src');
+$finder = PhpCsFixer\Finder::create()->in(
+    [
+        __DIR__ . '/src',
+        __DIR__ . '/tests'
+    ]
+);
 
 $config = new PhpCsFixer\Config();
 

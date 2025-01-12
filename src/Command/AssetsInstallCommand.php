@@ -147,6 +147,7 @@ class AssetsInstallCommand extends Command
             if ($copyUsed) {
                 $io->note('Some assets were installed via copy. If you make changes to these assets you have to run this command again.');
             }
+
             $io->success($rows !== [] ? 'All assets were successfully installed.' : 'No assets were provided by any themes.');
         }
 

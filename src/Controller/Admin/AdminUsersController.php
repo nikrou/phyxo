@@ -146,6 +146,7 @@ class AdminUsersController extends AbstractController
         foreach (UserPrivacyLevelType::cases() as $level) {
             $level_options[$level->value] = $translator->trans(sprintf('Level %d', $level->value), [], 'admin');
         }
+
         $tpl_params['level_options'] = $level_options;
         $tpl_params['level_selected'] = $guestUser->getUserInfos()->getLevel()->value;
 
@@ -205,6 +206,7 @@ class AdminUsersController extends AbstractController
         foreach ($albumMapper->getRepository()->findUnauthorized([...$authorized_ids, ...$group_authorized]) as $album) {
             $albums[] = $album;
         }
+
         $tpl_params = array_merge($tpl_params, $albumMapper->displaySelectAlbumsWrapper($albums, [], 'category_option_false'));
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_user_perm', ['user_id' => $user_id]);
@@ -232,6 +234,7 @@ class AdminUsersController extends AbstractController
             if ($userProfileModel->getCurrentPassword()) {
                 $user->setPassword($passwordHasher->hashPassword($user, $userProfileModel->getCurrentPassword()));
             }
+
             $user->setMailAddress($userProfileModel->getMailAddress());
             $user->addRole('ROLE_NORMAL');
 
@@ -285,6 +288,7 @@ class AdminUsersController extends AbstractController
                 if (!is_null($user->getPlainPassword())) {
                     $user->setPassword($passwordHasher->hashPassword($user, $user->getPlainPassword()));
                 }
+
                 $userRepository->updateUser($user);
                 $request->getSession()->set('_theme', $user->getTheme());
 

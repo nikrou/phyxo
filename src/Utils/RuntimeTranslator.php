@@ -97,11 +97,11 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
     private function getRuntimeCatalogue(string $locale): MessageCatalogueInterface
     {
         $catalogue = new MessageCatalogue($locale);
-        $runtimeResources = array_filter($this->runtimeResources, fn ($item) => $item[2] === $locale);
+        $runtimeResources = array_filter($this->runtimeResources, fn ($item): bool => $item[2] === $locale);
 
         foreach ($runtimeResources as [$format, $resource, $locale, $domain]) {
             $cacheKey = str_replace('/', '_', implode('', [$resource, $locale, $domain]));
-            $runtimeCatalogue = $this->cache->get($cacheKey, fn (ItemInterface $item) => $this->loader->load($resource, $locale, $domain));
+            $runtimeCatalogue = $this->cache->get($cacheKey, fn (ItemInterface $item): MessageCatalogue => $this->loader->load($resource, $locale, $domain));
             $catalogue->addCatalogue($runtimeCatalogue);
         }
 

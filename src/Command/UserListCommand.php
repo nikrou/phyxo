@@ -46,12 +46,12 @@ class UserListCommand extends Command
         return is_readable($this->localEnvFile);
     }
 
-    public function configure(): void
+    protected function configure(): void
     {
         $this->setHelp(file_get_contents(__DIR__ . '/../Resources/help/UserListCommand.txt'));
     }
 
-    public function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 

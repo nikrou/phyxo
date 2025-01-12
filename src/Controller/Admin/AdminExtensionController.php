@@ -57,6 +57,7 @@ class AdminExtensionController extends AbstractController
         if (!class_exists($className)) {
             throw $this->createNotFoundException(sprintf('%s extending AbstractTheme cannot be found for theme %s', $className, $theme));
         }
+
         $themeLoader->addPath($themesDir . '/' . $theme);
         $themeConfig = new $className($this->conf);
 
@@ -64,6 +65,7 @@ class AdminExtensionController extends AbstractController
             $themeConfig->handleFormRequest($request);
             $this->addFlash('success', $translator->trans('Configuration has been updated'));
         }
+
         $tpl_params['theme_config'] = $themeConfig->getConfig();
 
         return $this->render($themeConfig->getAdminTemplate(), $tpl_params);
@@ -90,11 +92,12 @@ class AdminExtensionController extends AbstractController
 
         $filename = $pluginsDir . '/' . $plugin . '/admin.php';
         if (is_readable($filename)) {
-            $load = (function ($pluginConfiguration, $conf, $user) {
+            $load = (function ($pluginConfiguration, $conf, $user): array {
                 // For old Piwigo plugins
                 if (!defined('PHPWG_ROOT_PATH')) {
                     define('PHPWG_ROOT_PATH', $this->params->get('root_project_dir'));
                 }
+
                 if (!defined('PHPWG_PLUGINS_PATH')) {
                     define('PHPWG_PLUGINS_PATH', $this->params->get('plugins_dir') . '/');
                 }

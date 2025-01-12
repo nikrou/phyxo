@@ -11,6 +11,7 @@
 
 namespace App\Tests\Controller;
 
+use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\HttpFoundation\Request;
 use DateTime;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,11 +31,11 @@ class MediaControllerTest extends WebTestCase
 {
     use ProphecyTrait;
     use Factories;
-    private $fixtures_dir = __DIR__ . '/../fixtures/media';
-    private $sample_image = 'sample.jpg';
-    private $image_paths = '';
-    private $derivative_path = '';
-    private $imageRepository;
+    private string $fixtures_dir = __DIR__ . '/../fixtures/media';
+    private string $sample_image = 'sample.jpg';
+    private array $image_paths = [];
+    private string $derivative_path = '';
+    private ObjectProphecy $imageRepository;
 
     protected function setUp(): void
     {
@@ -71,7 +72,7 @@ class MediaControllerTest extends WebTestCase
         $fs->copy(sprintf('%s/%s', $this->fixtures_dir, $this->sample_image), $image_upload_path);
     }
 
-    public function testUnkwnonImageGive404Error()
+    public function testUnkwnonImageGive404Error(): void
     {
         self::ensureKernelShutdown();
 
@@ -81,23 +82,25 @@ class MediaControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
     }
 
-    public function testGenerateImage()
+    public function testGenerateImage(): void
     {
         self::ensureKernelShutdown();
         $client = static::createClient();
         $container = static::getContainer();
         $container->set(ImageRepository::class, $this->imageRepository->reveal());
+
         $client->request(Request::METHOD_GET, sprintf('/media/%s', $this->image_paths['sq']));
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }
 
-    public function testReusedGenerateImage()
+    public function testReusedGenerateImage(): void
     {
         self::ensureKernelShutdown();
         $client = static::createClient();
         $container = static::getContainer();
         $container->set(ImageRepository::class, $this->imageRepository->reveal());
+
         $client->request(Request::METHOD_GET, sprintf('/media/%s', $this->image_paths['sq']));
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
@@ -130,18 +133,19 @@ class MediaControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_NOT_MODIFIED, $client->getResponse()->getStatusCode());
     }
 
-    public function testGenerateUnknownCustomSizeNotAllowed()
+    public function testGenerateUnknownCustomSizeNotAllowed(): void
     {
         self::ensureKernelShutdown();
         $client = static::createClient();
         $container = static::getContainer();
         $container->set(ImageRepository::class, $this->imageRepository->reveal());
+
         $client->request(Request::METHOD_GET, sprintf('/media/%s', $this->image_paths['unknown']));
 
         $this->assertEquals(Response::HTTP_FORBIDDEN, $client->getResponse()->getStatusCode());
     }
 
-    public function testGenerateCustomImage()
+    public function testGenerateCustomImage(): void
     {
         $width = 1200;
         $height = 900;
@@ -160,30 +164,32 @@ class MediaControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }
 
-    public function testRotateImageBasedOnExifOrientation()
+    public function testRotateImageBasedOnExifOrientation(): void
     {
         self::ensureKernelShutdown();
         $client = static::createClient();
         $container = static::getContainer();
         $container->set(ImageRepository::class, $this->imageRepository->reveal());
+
         $client->request(Request::METHOD_GET, sprintf('/media/%s', $this->image_paths['sq']));
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }
 
-    public function testAdminMedia()
+    public function testAdminMedia(): void
     {
         self::ensureKernelShutdown();
         $client = static::createClient();
         $container = static::getContainer();
         $container->set(ImageRepository::class, $this->imageRepository->reveal());
+
         $client->request(Request::METHOD_GET, sprintf('/admin/media/%s', $this->image_paths['sq']));
         $client->followRedirect();
 
         $this->assertEquals(Response::HTTP_FORBIDDEN, $client->getResponse()->getStatusCode());
     }
 
-    public function testAdminMediaFromAdmin()
+    public function testAdminMediaFromAdmin(): void
     {
         /** @var User $admin */
         $admin = new User();
@@ -202,6 +208,7 @@ class MediaControllerTest extends WebTestCase
 
         $container = static::getContainer();
         $container->set(ImageRepository::class, $this->imageRepository->reveal());
+
         $client->request(Request::METHOD_GET, sprintf('/admin/media/%s', $this->image_paths['sq']));
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());

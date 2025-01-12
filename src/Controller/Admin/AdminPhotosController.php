@@ -141,6 +141,7 @@ class AdminPhotosController extends AbstractController
                 'admin'
             );
         }
+
         $tpl_params['CACHE_KEYS'] = Utils::getAdminClientCacheKeys($managerRegistry, ['categories'], $this->generateUrl('homepage'));
         $tpl_params['ws'] = $this->generateUrl('ws');
 

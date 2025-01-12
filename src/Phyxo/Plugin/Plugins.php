@@ -24,20 +24,20 @@ use Symfony\Component\Yaml\Yaml;
 class Plugins extends Extensions
 {
     final public const CONFIG_FILE = 'config.yaml';
-    private $fs_plugins = [];
+    private array $fs_plugins = [];
     private $db_plugins = [];
-    private $server_plugins = [];
-    private $fs_plugins_retrieved = false;
-    private $db_plugins_retrieved = false;
-    private $server_plugins_retrieved = false;
+    private array $server_plugins = [];
+    private bool $fs_plugins_retrieved = false;
+    private bool $db_plugins_retrieved = false;
+    private bool $server_plugins_retrieved = false;
     private array $default_plugins = [];
-    private $plugins_root_path;
+    private ?string $plugins_root_path = null;
 
     public function __construct(private readonly PluginRepository $pluginRepository, private readonly UserMapper $userMapper)
     {
     }
 
-    public function setRootPath(string $plugins_root_path)
+    public function setRootPath(string $plugins_root_path): void
     {
         $this->plugins_root_path = $plugins_root_path;
     }
@@ -45,9 +45,8 @@ class Plugins extends Extensions
     /**
      * Returns the maintain class of a plugin
      * or build a new class with the procedural methods
-     * @param string $plugin_id
      */
-    private function buildMaintainClass($plugin_id)
+    private function buildMaintainClass(string $plugin_id)
     {
         $file_to_include = $this->plugins_root_path . '/' . $plugin_id . '/maintain';
         $classname = $plugin_id . '_maintain';
@@ -113,6 +112,7 @@ class Plugins extends Extensions
                 } catch (Exception $e) {
                     $error = $e->getMessage();
                 }
+
                 break;
 
             case 'activate':
@@ -126,12 +126,14 @@ class Plugins extends Extensions
                 if ($error === '') {
                     $this->pluginRepository->updateState($plugin_id, ExtensionStateType::ACTIVE);
                 }
+
                 break;
 
             case 'deactivate':
                 if (!isset($crt_db_plugin) || $crt_db_plugin->getState() !== ExtensionStateType::ACTIVE) {
                     break;
                 }
+
                 $this->pluginRepository->updateState($plugin_id, ExtensionStateType::INACTIVE);
                 $plugin_maintain->deactivate();
                 break;
@@ -140,9 +142,11 @@ class Plugins extends Extensions
                 if (!isset($crt_db_plugin)) {
                     break;
                 }
+
                 if ($crt_db_plugin->getState() === ExtensionStateType::ACTIVE) {
                     $this->performAction('deactivate', $plugin_id);
                 }
+
                 $this->pluginRepository->deleteById($plugin_id);
                 $plugin_maintain->uninstall();
                 break;
@@ -189,6 +193,7 @@ class Plugins extends Extensions
 
                 $this->getFsPlugin(basename($plugin_dir));
             }
+
             $this->fs_plugins_retrieved = true;
         }
 
@@ -235,6 +240,7 @@ class Plugins extends Extensions
             foreach ($this->pluginRepository->findAllByState($state) as $plugin) {
                 $this->db_plugins[$plugin->getId()] = $plugin;
             }
+
             $this->db_plugins_retrieved = true;
         }
 
@@ -248,11 +254,12 @@ class Plugins extends Extensions
     /**
      * Sort fs_plugins
      */
-    public function sortFsPlugins($order = 'name')
+    public function sortFsPlugins($order = 'name'): void
     {
         if (!$this->fs_plugins_retrieved) {
             $this->getFsPlugins();
         }
+
         switch ($order) {
             case 'name':
                 uasort($this->fs_plugins, Utils::nameCompare(...));
@@ -279,6 +286,7 @@ class Plugins extends Extensions
             if ($pem_versions !== [] && !preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                 $version = $pem_versions[0]['name'];
             }
+
             $branch = Utils::getBranchFromVersion($version);
             foreach ($pem_versions as $pem_version) {
                 if (str_starts_with((string) $pem_version['name'], $branch)) {
@@ -335,6 +343,7 @@ class Plugins extends Extensions
                 if (!is_array($pem_plugins)) {
                     return [];
                 }
+
                 foreach ($pem_plugins as $plugin) {
                     $this->server_plugins[$plugin['extension_id']] = $plugin;
                 }
@@ -348,7 +357,10 @@ class Plugins extends Extensions
         return $this->server_plugins;
     }
 
-    public function getIncompatiblePlugins(string $pem_category, string $core_version)
+    /**
+     * @return mixed[]
+     */
+    public function getIncompatiblePlugins(string $pem_category, string $core_version): array
     {
         $versions_to_check = $this->getVersionsToCheck($pem_category, $core_version);
         if (empty($versions_to_check)) {
@@ -383,6 +395,7 @@ class Plugins extends Extensions
                 if (!isset($server_plugins[$plugin['extension_id']])) {
                     $server_plugins[$plugin['extension_id']] = [];
                 }
+
                 $server_plugins[$plugin['extension_id']][] = $plugin['revision_name'];
             }
 
@@ -396,15 +409,15 @@ class Plugins extends Extensions
             }
 
             return $incompatible_plugins;
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
     /**
      * Sort $server_plugins
      */
-    public function sortServerPlugins($order = 'date')
+    public function sortServerPlugins($order = 'date'): void
     {
         switch ($order) {
             case 'date':
@@ -428,7 +441,7 @@ class Plugins extends Extensions
     /**
      * Extract plugin files from archive
      */
-    public function extractPluginFiles(string $action, int $revision)
+    public function extractPluginFiles(string $action, int $revision): void
     {
         $archive = tempnam($this->plugins_root_path, 'zip');
         $get_data = [
@@ -438,15 +451,15 @@ class Plugins extends Extensions
 
         try {
             $this->download($archive, $get_data);
-        } catch (Exception $e) {
-            throw new Exception("Cannot download plugin file", $e->getCode(), $e);
+        } catch (Exception $exception) {
+            throw new Exception("Cannot download plugin file", $exception->getCode(), $exception);
         }
 
         $extract_path = $this->plugins_root_path;
         try {
             $this->extractZipFiles($archive, self::CONFIG_FILE, $extract_path);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         } finally {
             unlink($archive);
         }
@@ -455,7 +468,7 @@ class Plugins extends Extensions
     /**
      * Sort functions
      */
-    protected function extensionRevisionCompare($a, $b)
+    protected function extensionRevisionCompare(array $a, array $b): int
     {
         if ($a['revision_date'] < $b['revision_date']) {
             return 1;
@@ -464,12 +477,12 @@ class Plugins extends Extensions
         }
     }
 
-    protected function extensionNameCompare($a, $b)
+    protected function extensionNameCompare(array $a, array $b): int
     {
         return strcmp(strtolower((string) $a['extension_name']), strtolower((string) $b['extension_name']));
     }
 
-    protected function extensionAuthorCompare($a, $b)
+    protected function extensionAuthorCompare(array $a, array $b)
     {
         $r = strcasecmp((string) $a['author_name'], (string) $b['author_name']);
         if ($r == 0) {
@@ -479,7 +492,7 @@ class Plugins extends Extensions
         }
     }
 
-    protected function pluginAuthorCompare($a, $b)
+    protected function pluginAuthorCompare(array $a, array $b): int
     {
         $r = strcasecmp((string) $a['author'], (string) $b['author']);
         if ($r == 0) {
@@ -489,7 +502,7 @@ class Plugins extends Extensions
         }
     }
 
-    protected function extensionDownloadsCompare($a, $b)
+    protected function extensionDownloadsCompare(array $a, array $b): int
     {
         if ($a['extension_nb_downloads'] < $b['extension_nb_downloads']) {
             return 1;
@@ -498,7 +511,7 @@ class Plugins extends Extensions
         }
     }
 
-    public function sortPluginsByState()
+    public function sortPluginsByState(): void
     {
         if (!$this->fs_plugins_retrieved) {
             $this->getFsPlugins();
@@ -518,6 +531,7 @@ class Plugins extends Extensions
                 $not_installed[$plugin_id] = $plugin;
             }
         }
+
         $this->fs_plugins = $active_plugins + $inactive_plugins + $not_installed;
     }
 }

@@ -72,6 +72,7 @@ class AdminAlbumsController extends AbstractController
             foreach ($albumRepository->findBy([], ['rank' => 'asc']) as $album) {
                 $all_albums[$album->getId()] = $album->getUppercats();
             }
+
             $subcats_of = [];
 
             foreach (array_keys($albums) as $album_id) {
@@ -140,6 +141,7 @@ class AdminAlbumsController extends AbstractController
                 foreach (array_keys($categoriesOrder) as $catId) {
                     $albums[] = ['id' => $catId, 'id_uppercat' => null];
                 }
+
                 $albumMapper->saveAlbumsOrder($albums);
 
                 $this->addFlash('success', $translator->trans('Album manual order was saved', [], 'admin'));
@@ -200,6 +202,7 @@ class AdminAlbumsController extends AbstractController
         foreach ($albumRepository->findAll() as $album) {
             $albums[] = $album;
         }
+
         $tpl_params = array_merge(
             $tpl_params,
             $albumMapper->displaySelectAlbumsWrapper($albums, [], 'album_to_move_options'),

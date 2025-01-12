@@ -33,9 +33,11 @@ class AdminAlbumsOptionsController extends AbstractController
         if ($conf['activate_comments']) {
             $tabsheet->add('comments', $this->translator->trans('Comments', [], 'admin'), $this->generateUrl('admin_albums_options', ['section' => 'comments']), 'fa-comments');
         }
+
         if ($conf['allow_random_representative']) {
             $tabsheet->add('representative', $this->translator->trans('Representative', [], 'admin'), $this->generateUrl('admin_albums_options', ['section' => 'representative']));
         }
+
         $tabsheet->select($section);
 
         return $tabsheet;
@@ -100,7 +102,8 @@ class AdminAlbumsOptionsController extends AbstractController
         $l_true = '';
         $l_false = '';
         if ($section === 'comments') {
-            $cats_true = $cats_false = [];
+            $cats_true = [];
+            $cats_false = [];
             foreach ($albumRepository->findAll() as $album) {
                 if ($album->isCommentable()) {
                     $cats_true[] = $album;

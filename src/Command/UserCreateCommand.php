@@ -42,7 +42,7 @@ class UserCreateCommand extends Command
         return is_readable($this->localEnvFile);
     }
 
-    public function configure(): void
+    protected function configure(): void
     {
         $this->setHelp(file_get_contents(__DIR__ . '/../Resources/help/UserCreateCommand.txt'))
             ->addOption('username', null, InputOption::VALUE_REQUIRED, 'Username')
@@ -51,7 +51,7 @@ class UserCreateCommand extends Command
             ->addOption('status', null, InputOption::VALUE_OPTIONAL, 'User status');
     }
 
-    public function interact(InputInterface $input, OutputInterface $output): void
+    protected function interact(InputInterface $input, OutputInterface $output): void
     {
         $io = new SymfonyStyle($input, $output);
         if ($input->getOption('verbose')) {
@@ -99,7 +99,7 @@ class UserCreateCommand extends Command
         }
     }
 
-    public function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
@@ -125,8 +125,8 @@ class UserCreateCommand extends Command
                 $user->getMailAddress(),
                 $user->getUserInfos()->getStatus()->value
             ));
-        } catch (Exception $e) {
-            $io->error($e->getMessage());
+        } catch (Exception $exception) {
+            $io->error($exception->getMessage());
         }
 
         return Command::SUCCESS;

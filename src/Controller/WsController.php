@@ -11,6 +11,18 @@
 
 namespace App\Controller;
 
+use Phyxo\Functions\Ws\Main;
+use Phyxo\Functions\Ws\Category;
+use Phyxo\Functions\Ws\Image;
+use Phyxo\Functions\Ws\Rate;
+use Phyxo\Functions\Ws\Session;
+use Phyxo\Functions\Ws\Tag;
+use Phyxo\Functions\Ws\Plugin;
+use Phyxo\Functions\Ws\Theme;
+use Phyxo\Functions\Ws\Extension;
+use Phyxo\Functions\Ws\Group;
+use Phyxo\Functions\Ws\User;
+use Phyxo\Functions\Ws\Permission;
 use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Response;
 use App\DataMapper\TagMapper;
@@ -108,14 +120,14 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.getVersion',
-            '\Phyxo\Functions\Ws\Main::getVersion',
+            Main::class . '::getVersion',
             [],
             'Returns the Phyxo version.'
         );
 
         $this->service->addMethod(
             'pwg.getInfos',
-            '\Phyxo\Functions\Ws\Main::getInfos',
+            Main::class . '::getInfos',
             [],
             'Returns general informations.',
             ['admin_only' => true]
@@ -123,7 +135,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.categories.getImages',
-            '\Phyxo\Functions\Ws\Category::getImages',
+            Category::class . '::getImages',
             array_merge([
                 'cat_id' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
                 'recursive' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
@@ -136,7 +148,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.categories.getList',
-            '\Phyxo\Functions\Ws\Category::getList',
+            Category::class . '::getList',
             [
                 'cat_id' => [
                     'default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE,
@@ -152,7 +164,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.getMissingDerivatives',
-            '\Phyxo\Functions\Ws\Main::getMissingDerivatives',
+            Main::class . '::getMissingDerivatives',
             array_merge([
                 'types' => [
                     'default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY,
@@ -168,7 +180,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.addComment',
-            '\Phyxo\Functions\Ws\Image::addComment',
+            Image::class . '::addComment',
             [
                 'image_id' => ['type' => Server::WS_TYPE_ID],
                 'author' => ['default' => $this->service->getUserMapper()->getUser()->getUsername()],
@@ -181,7 +193,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.getInfo',
-            '\Phyxo\Functions\Ws\Image::getInfo',
+            Image::class . '::getInfo',
             [
                 'image_id' => ['type' => Server::WS_TYPE_ID],
                 'comments_page' => ['default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
@@ -192,7 +204,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.rate',
-            '\Phyxo\Functions\Ws\Image::rate',
+            Image::class . '::rate',
             [
                 'image_id' => ['type' => Server::WS_TYPE_ID],
                 'rate' => ['type' => Server::WS_TYPE_FLOAT],
@@ -203,7 +215,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.search',
-            '\Phyxo\Functions\Ws\Image::search',
+            Image::class . '::search',
             array_merge([
                 'query' => [],
                 'per_page' => ['default' => 100, 'maxValue' => $this->service->getConf()['ws_max_images_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
@@ -215,7 +227,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.setPrivacyLevel',
-            '\Phyxo\Functions\Ws\Image::setPrivacyLevel',
+            Image::class . '::setPrivacyLevel',
             [
                 'image_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
                 'level' => ['maxValue' => max($this->service->getConf()['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
@@ -226,7 +238,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.setRank',
-            '\Phyxo\Functions\Ws\Image::setRank',
+            Image::class . '::setRank',
             [
                 'image_id' => ['type' => Server::WS_TYPE_ID],
                 'category_id' => ['type' => Server::WS_TYPE_ID],
@@ -238,7 +250,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.rates.delete',
-            '\Phyxo\Functions\Ws\Rate::delete',
+            Rate::class . '::delete',
             [
                 'user_id' => ['type' => Server::WS_TYPE_ID],
                 'anonymous_id' => ['default' => null],
@@ -250,14 +262,14 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.session.getStatus',
-            '\Phyxo\Functions\Ws\Session::getStatus',
+            Session::class . '::getStatus',
             [],
             'Gets information about the current session. Also provides a token useable with admin methods.'
         );
 
         $this->service->addMethod(
             'pwg.session.login',
-            '\Phyxo\Functions\Ws\Session::login',
+            Session::class . '::login',
             ['username', 'password'],
             'Tries to login the user.',
             ['post_only' => true]
@@ -265,21 +277,21 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.session.logout',
-            '\Phyxo\Functions\Ws\Session::logout',
+            Session::class . '::logout',
             [],
             'Ends the current session.'
         );
 
         $this->service->addMethod(
             'pwg.tags.getFilteredList',
-            '\Phyxo\Functions\Ws\Tag::getFilteredList',
+            Tag::class . '::getFilteredList',
             ['q' => ['default' => '']],
             'Retrieves a filtered list of all available tags.'
         );
 
         $this->service->addMethod(
             'pwg.tags.getList',
-            '\Phyxo\Functions\Ws\Tag::getList',
+            Tag::class . '::getList',
             [
                 'sort_by_counter' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
             ],
@@ -288,7 +300,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.tags.getImages',
-            '\Phyxo\Functions\Ws\Tag::getImages',
+            Tag::class . '::getImages',
             array_merge([
                 'tag_id' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
                 'tag_url_name' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY],
@@ -303,7 +315,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.addChunk',
-            '\Phyxo\Functions\Ws\Image::addChunk',
+            Image::class . '::addChunk',
             [
                 'data' => [],
                 'original_sum' => [],
@@ -316,7 +328,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.addFile',
-            '\Phyxo\Functions\Ws\Image::addFile',
+            Image::class . '::addFile',
             [
                 'image_id' => ['type' => Server::WS_TYPE_ID],
                 'type' => ['default' => 'file', 'info ' => 'Must be "file", for backward compatiblity "high" and "thumb" are allowed.'],
@@ -328,7 +340,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.add',
-            '\Phyxo\Functions\Ws\Image::add',
+            Image::class . '::add',
             [
                 'thumbnail_sum' => ['default' => null],
                 'high_sum' => ['default' => null],
@@ -350,7 +362,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.addSimple',
-            '\Phyxo\Functions\Ws\Image::addSimple',
+            Image::class . '::addSimple',
             [
                 'category' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
                 'name' => ['default' => null],
@@ -366,7 +378,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.upload',
-            '\Phyxo\Functions\Ws\Image::upload',
+            Image::class . '::upload',
             [
                 'name' => ['default' => null],
                 'category' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
@@ -378,7 +390,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.delete',
-            '\Phyxo\Functions\Ws\Image::delete',
+            Image::class . '::delete',
             [
                 'image_id' => ['flags' => Server::WS_PARAM_ACCEPT_ARRAY],
             ],
@@ -388,7 +400,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.categories.getAdminList',
-            '\Phyxo\Functions\Ws\Category::getAdminList',
+            Category::class . '::getAdminList',
             [],
             'Get albums list as displayed on admin page.',
             ['admin_only' => true]
@@ -396,7 +408,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.categories.add',
-            '\Phyxo\Functions\Ws\Category::add',
+            Category::class . '::add',
             [
                 'name' => [],
                 'parent' => ['default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
@@ -411,7 +423,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.categories.delete',
-            '\Phyxo\Functions\Ws\Category::delete',
+            Category::class . '::delete',
             [
                 'category_id' => ['flags' => Server::WS_PARAM_ACCEPT_ARRAY],
                 'photo_deletion_mode' => ['default' => 'delete_orphans'],
@@ -423,7 +435,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.categories.move',
-            '\Phyxo\Functions\Ws\Category::move',
+            Category::class . '::move',
             [
                 'category_id' => ['flags' => Server::WS_PARAM_ACCEPT_ARRAY],
                 'parent' => ['type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
@@ -435,18 +447,18 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.categories.setRepresentative',
-            '\Phyxo\Functions\Ws\Category::setRepresentative',
+            Category::class . '::setRepresentative',
             [
                 'category_id' => ['type' => Server::WS_TYPE_ID],
                 'image_id' => ['type' => Server::WS_TYPE_ID],
             ],
-            'Sets the representative photo for an album. The photo doesn\'t have to belong to the album.',
+            "Sets the representative photo for an album. The photo doesn't have to belong to the album.",
             ['admin_only' => true, 'post_only' => true]
         );
 
         $this->service->addMethod(
             'pwg.tags.getAdminList',
-            '\Phyxo\Functions\Ws\Tag::getAdminList',
+            Tag::class . '::getAdminList',
             [],
             '<b>Admin only.</b>',
             ['admin_only' => true]
@@ -454,7 +466,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod( // @TODO: create multiple tags
             'pwg.tags.add',
-            '\Phyxo\Functions\Ws\Tag::add',
+            Tag::class . '::add',
             ['name'],
             'Adds a new tag.',
             ['admin_only' => true]
@@ -462,7 +474,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.exist',
-            '\Phyxo\Functions\Ws\Image::exist',
+            Image::class . '::exist',
             [
                 'md5sum_list' => ['default' => null],
                 'filename_list' => ['default' => null],
@@ -474,7 +486,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.checkFiles',
-            '\Phyxo\Functions\Ws\Image::checkFiles',
+            Image::class . '::checkFiles',
             [
                 'image_id' => ['type' => Server::WS_TYPE_ID],
                 'file_sum' => ['default' => null],
@@ -488,7 +500,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.checkUpload',
-            '\Phyxo\Functions\Ws\Image::checkUpload',
+            Image::class . '::checkUpload',
             [],
             'Checks if Phyxo is ready for upload.',
             ['admin_only' => true]
@@ -496,7 +508,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.setRelatedTags',
-            '\Phyxo\Functions\Ws\Image::setRelatedTags',
+            Image::class . '::setRelatedTags',
             [
                 'image_id' => ['type' => Server::WS_TYPE_ID],
                 'tags' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY],
@@ -507,7 +519,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.images.setInfo',
-            '\Phyxo\Functions\Ws\Image::setInfo',
+            Image::class . '::setInfo',
             [
                 'image_id' => ['type' => Server::WS_TYPE_ID],
                 'file' => ['default' => null],
@@ -536,7 +548,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.categories.setInfo',
-            '\Phyxo\Functions\Ws\Category::setInfo',
+            Category::class . '::setInfo',
             [
                 'category_id' => ['type' => Server::WS_TYPE_ID],
                 'name' => ['default' => null],
@@ -548,7 +560,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.plugins.getList',
-            '\Phyxo\Functions\Ws\Plugin::getList',
+            Plugin::class . '::getList',
             [],
             'Gets the list of plugins with id, name, version, state and description.',
             ['admin_only' => true]
@@ -556,7 +568,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.plugins.performAction',
-            '\Phyxo\Functions\Ws\Plugin::performAction',
+            Plugin::class . '::performAction',
             [
                 'action' => ['info' => 'install, activate, deactivate, uninstall, delete'],
                 'plugin' => [],
@@ -567,7 +579,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.themes.performAction',
-            '\Phyxo\Functions\Ws\Theme::performAction',
+            Theme::class . '::performAction',
             [
                 'action' => ['info' => 'activate, deactivate, delete, set_default'],
                 'theme' => [],
@@ -578,7 +590,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.extensions.update',
-            '\Phyxo\Functions\Ws\Extension::update',
+            Extension::class . '::update',
             [
                 'type' => ['info' => 'plugins, languages, themes'],
                 'id' => [],
@@ -590,7 +602,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.extensions.ignoreUpdate',
-            '\Phyxo\Functions\Ws\Extension::ignoreupdate',
+            Extension::class . '::ignoreupdate',
             [
                 'type' => ['default' => null, 'info' => 'plugins, languages, themes'],
                 'id' => ['default' => null],
@@ -602,7 +614,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.extensions.checkUpdates',
-            '\Phyxo\Functions\Ws\Extension::checkupdates',
+            Extension::class . '::checkupdates',
             [],
             'Checks if phyxo or extensions are up to date.',
             ['admin_only' => true]
@@ -610,7 +622,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.groups.getList',
-            '\Phyxo\Functions\Ws\Group::getList',
+            Group::class . '::getList',
             [
                 'group_id' => ['flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
                 'name' => ['flags' => Server::WS_PARAM_OPTIONAL, 'info' => 'Use "%" as wildcard.'],
@@ -624,7 +636,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.groups.add',
-            '\Phyxo\Functions\Ws\Group::add',
+            Group::class . '::add',
             [
                 'name' => [],
                 'is_default' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
@@ -635,7 +647,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.groups.delete',
-            '\Phyxo\Functions\Ws\Group::delete',
+            Group::class . '::delete',
             [
                 'group_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
             ],
@@ -645,7 +657,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.groups.setInfo',
-            '\Phyxo\Functions\Ws\Group::setInfo',
+            Group::class . '::setInfo',
             [
                 'group_id' => ['type' => Server::WS_TYPE_ID],
                 'name' => ['flags' => Server::WS_PARAM_OPTIONAL],
@@ -657,7 +669,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.groups.addUser',
-            '\Phyxo\Functions\Ws\Group::addUser',
+            Group::class . '::addUser',
             [
                 'group_id' => ['type' => Server::WS_TYPE_ID],
                 'user_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
@@ -668,7 +680,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.groups.deleteUser',
-            '\Phyxo\Functions\Ws\Group::deleteUser',
+            Group::class . '::deleteUser',
             [
                 'group_id' => ['type' => Server::WS_TYPE_ID],
                 'user_id' => [
@@ -682,7 +694,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.users.getList',
-            '\Phyxo\Functions\Ws\User::getList',
+            User::class . '::getList',
             [
                 'user_id' => [
                     'flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY,
@@ -703,7 +715,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.users.add',
-            '\Phyxo\Functions\Ws\User::add',
+            User::class . '::add',
             [
                 'username' => [],
                 'password' => ['default' => null],
@@ -717,7 +729,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.users.delete',
-            '\Phyxo\Functions\Ws\User::delete',
+            User::class . '::delete',
             [
                 'user_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
             ],
@@ -727,7 +739,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.users.setInfo',
-            '\Phyxo\Functions\Ws\User::setInfo',
+            User::class . '::setInfo',
             [
                 'user_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
                 'username' => ['flags' => Server::WS_PARAM_OPTIONAL],
@@ -752,7 +764,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.permissions.getList',
-            '\Phyxo\Functions\Ws\Permission::getList',
+            Permission::class . '::getList',
             [
                 'cat_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID],
                 'group_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID],
@@ -765,7 +777,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.permissions.add',
-            '\Phyxo\Functions\Ws\Permission::add',
+            Permission::class . '::add',
             [
                 'cat_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
                 'group_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID],
@@ -778,7 +790,7 @@ class WsController extends AbstractController
 
         $this->service->addMethod(
             'pwg.permissions.remove',
-            '\Phyxo\Functions\Ws\Permission::remove',
+            Permission::class . '::remove',
             [
                 'cat_id' => [
                     'flags' => Server::WS_PARAM_FORCE_ARRAY,

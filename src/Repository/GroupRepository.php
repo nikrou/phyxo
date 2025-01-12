@@ -79,11 +79,14 @@ class GroupRepository extends ServiceEntityRepository
             foreach ($group->getGroupAccess() as $access) {
                 $group->removeGroupAccess($access);
             }
+
             foreach ($group->getUsers() as $user) {
                 $group->removeUser($user);
             }
+
             $this->getEntityManager()->remove($group);
         }
+
         $this->getEntityManager()->flush();
     }
 
@@ -123,6 +126,7 @@ class GroupRepository extends ServiceEntityRepository
             if (!preg_match('`^g\.`', $order)) {
                 $order = 'g.' . $order;
             }
+
             $qb->orderBy($order);
         }
 

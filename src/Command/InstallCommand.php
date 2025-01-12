@@ -44,7 +44,7 @@ class InstallCommand extends Command
         return !is_readable($this->localEnvFile);
     }
 
-    public function configure(): void
+    protected function configure(): void
     {
         $this->setHelp(file_get_contents(__DIR__ . '/../Resources/help/InstallCommand.txt'))
 
@@ -56,7 +56,7 @@ class InstallCommand extends Command
             ->addOption('db_prefix', null, InputOption::VALUE_REQUIRED, 'Database prefix for tables', $this->prefix);
     }
 
-    public function interact(InputInterface $input, OutputInterface $output): void
+    protected function interact(InputInterface $input, OutputInterface $output): void
     {
         if (!$this->isEnabled()) {
             return;
@@ -66,6 +66,7 @@ class InstallCommand extends Command
         $io->title('Phyxo installation');
 
         $io->section('Database settings');
+
         $dbengines = $this->phyxoInstaller->availableEngines();
         if (($this->db_params['db_layer'] = $input->getOption('db_layer')) === null) {
             $this->db_params['db_layer'] = $io->choice('Select database type', $dbengines, array_values($dbengines)[0]);
@@ -118,7 +119,7 @@ class InstallCommand extends Command
         }
     }
 
-    public function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
@@ -152,8 +153,8 @@ class InstallCommand extends Command
             $output = new NullOutput();
 
             $command->run(new ArrayInput($arguments), $output);
-        } catch (Exception $e) {
-            $io->error($e->getMessage());
+        } catch (Exception $exception) {
+            $io->error($exception->getMessage());
             return Command::FAILURE;
         }
 

@@ -20,11 +20,8 @@ use Symfony\Component\Filesystem\Filesystem;
 class ImageOptimizerTest extends TestCase
 {
     private string $fixtures_dir = __DIR__ . '/../../fixtures/media';
-
     private string $media_cache_dir = __DIR__ . '/../../media';
-
     private string $img1 = 'img1.jpg';
-
     private ImagineInterface $library;
 
     protected function setUp(): void
@@ -37,7 +34,7 @@ class ImageOptimizerTest extends TestCase
         $this->library = $imageLibraryGuesser->getLibrary();
     }
 
-    public function testWidthAndHeight()
+    public function testWidthAndHeight(): void
     {
         $image_path = sprintf('%s/%s', $this->fixtures_dir, $this->img1);
 
@@ -46,7 +43,7 @@ class ImageOptimizerTest extends TestCase
         $this->assertEquals(2248, $imageOptimizer->getHeight());
     }
 
-    public function testRotate()
+    public function testRotate(): void
     {
         $image_path = sprintf('%s/%s', $this->fixtures_dir, $this->img1);
 
@@ -56,6 +53,7 @@ class ImageOptimizerTest extends TestCase
         if ($imageOptimizer->getRotationAngle() !== 0) {
             $imageOptimizer->rotate($imageOptimizer->getRotationAngle());
         }
+
         $result_path = sprintf('%s/%s', $this->media_cache_dir, $this->img1);
         $imageOptimizer->write($result_path);
 
@@ -64,7 +62,7 @@ class ImageOptimizerTest extends TestCase
         $this->assertEquals(4000, $imageOptimizer->getHeight());
     }
 
-    public function testMainResizeWithAutorotate()
+    public function testMainResizeWithAutorotate(): void
     {
         $image_path = sprintf('%s/%s', $this->fixtures_dir, $this->img1);
         $result_path = sprintf('%s/%s', $this->media_cache_dir, $this->img1);

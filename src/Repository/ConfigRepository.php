@@ -58,6 +58,7 @@ class ConfigRepository extends ServiceEntityRepository
         foreach ($entities as $entity) {
             $this->getEntityManager()->remove($entity);
         }
+
         if (count($entities) > 0) {
             $this->getEntityManager()->flush();
         }

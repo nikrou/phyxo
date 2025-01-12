@@ -182,6 +182,7 @@ class AdminBatchManagerController extends AbstractController
                         $this->appendFilter($request->getSession(), ['dimension' => [$type => $request->request->get('filter_dimension_' . $type)]]);
                     }
                 }
+
                 foreach (['min_ratio', 'max_ratio'] as $type) {
                     if (filter_var($request->request->get('filter_dimension_' . $type), FILTER_VALIDATE_FLOAT) !== false) {
                         $this->appendFilter($request->getSession(), ['dimension' => [$type => $request->request->get('filter_dimension_' . $type)]]);
@@ -254,6 +255,7 @@ class AdminBatchManagerController extends AbstractController
         if (empty($current_set)) {
             $current_set = [];
         }
+
         foreach ($filter_sets as $set) {
             $current_set = array_intersect($current_set, $set);
         }
@@ -269,6 +271,7 @@ class AdminBatchManagerController extends AbstractController
                 $level_options[$level] = $translator->trans('Everybody', [], 'admin');
             }
         }
+
         $tpl_params['filter_level_options'] = $level_options;
         $tpl_params['filter_level_options_selected'] = $this->getFilter($request->getSession())['level'] ?? 0;
 
@@ -279,8 +282,10 @@ class AdminBatchManagerController extends AbstractController
             foreach ($tagRepository->findBy(['id' => $this->getFilter($request->getSession())['tags']]) as $tag) {
                 $tags[] = $tag;
             }
+
             $filter_tags = $tagMapper->prepareTagsListForUI($tags);
         }
+
         $tpl_params['filter_tags'] = $filter_tags;
 
         // in the filter box, which category to select by default
@@ -294,6 +299,7 @@ class AdminBatchManagerController extends AbstractController
                 $selected_category[] = $last_image_album->getAlbum()->getId();
             }
         }
+
         $tpl_params['filter_category_selected'] = $selected_category;
 
         // Dissociate from an album : albums listed for dissociation can only
@@ -320,6 +326,7 @@ class AdminBatchManagerController extends AbstractController
         foreach ($image_std_params->getDefinedTypeMap() as $derivative_params) {
             $del_deriv_map[$derivative_params->type->value] = $translator->trans($derivative_params->type->value, [], 'admin');
         }
+
         $gen_deriv_map = $del_deriv_map;
         $del_deriv_map[ImageSizeType::CUSTOM->value] = $translator->trans(ImageSizeType::CUSTOM->value, [], 'admin');
         $tpl_params['del_derivatives_types'] = $del_deriv_map;
@@ -331,12 +338,14 @@ class AdminBatchManagerController extends AbstractController
             } else {
                 $nb_images = (int) $request->get('display');
             }
+
             $request->getSession()->set('unit_display', $nb_images);
         } elseif ($request->getSession()->has('unit_display')) {
             $nb_images = $request->getSession()->get('unit_display');
         } else {
             $nb_images = 20;
         }
+
         $nb_thumbs_page = 0;
 
         if ((is_countable($current_set) ? count($current_set) : 0) > 0) {
@@ -357,6 +366,7 @@ class AdminBatchManagerController extends AbstractController
                     $conf['order_by'] = ' ORDER BY ' . $album->getImageOrder();
                 }
             }
+
             $thumb_params = $image_std_params->getByType(ImageSizeType::THUMB);
 
             // template thumbnail initialization
@@ -587,6 +597,7 @@ class AdminBatchManagerController extends AbstractController
             if ($request->request->get('regenerateSuccess') != '0') {
                 $this->addFlash('success', $this->translator->trans('{count} photos have been regenerated', ['count' => $request->request->get('regenerateSuccess')], 'admin'));
             }
+
             if ($request->request->get('regenerateError') != '0') {
                 $this->addFlash('success', $this->translator->trans('{count} photos can not be regenerated', ['count' => $request->request->get('regenerateError')], 'admin'));
             }
@@ -594,7 +605,7 @@ class AdminBatchManagerController extends AbstractController
             $rotation_code = $request->request->get('rotation');
 
             foreach ($imageMapper->getRepository()->findBy(['id' => $collection]) as $image) {
-                $image_src = $image_src = sprintf('%s/%s', $rootProjectDir, $image->getPath());
+                $image_src = sprintf('%s/%s', $rootProjectDir, $image->getPath());
                 $imageOptimizer = new ImageOptimizer($image_src, $imageLibraryGuesser->getLibrary());
                 $image->setRotation($rotation_code);
                 $imageOptimizer->rotate(ImageOptimizer::getRotationAngleFromCode($rotation_code));
@@ -640,7 +651,7 @@ class AdminBatchManagerController extends AbstractController
             switch ($bulk_manager_filter['prefilter']) {
                 case 'caddie':
 
-                    $filter_sets[] = $this->user->getCaddies()->map(fn (Caddie $caddie) => $caddie->getImage()->getId())->toArray();
+                    $filter_sets[] = $this->user->getCaddies()->map(fn (Caddie $caddie): ?int => $caddie->getImage()->getId())->toArray();
 
                     break;
 
@@ -649,6 +660,7 @@ class AdminBatchManagerController extends AbstractController
                     foreach ($favoriteRepository->findUserFavorites($this->user->getId(), $this->user->getUserInfos()->getForbiddenAlbums()) as $favorite) {
                         $user_favorites[] = $favorite->getImage()->getId();
                     }
+
                     $filter_sets[] = $user_favorites;
                     break;
 
@@ -658,8 +670,10 @@ class AdminBatchManagerController extends AbstractController
                         foreach ($imageMapper->getRepository()->findImagesFromLastImport($max_date_available) as $image) {
                             $image_ids[] = $image->getId();
                         }
+
                         $filter_sets[] = $image_ids;
                     }
+
                     break;
 
                 case 'no_album':
@@ -667,6 +681,7 @@ class AdminBatchManagerController extends AbstractController
                     foreach ($imageMapper->getRepository()->findImageWithNoAlbum() as $image) {
                         $image_ids[] = $image->getId();
                     }
+
                     $filter_sets[] = $image_ids;
                     break;
 
@@ -675,6 +690,7 @@ class AdminBatchManagerController extends AbstractController
                     foreach ($tagRepository->findImageWithNoTag() as $tag) {
                         $images_with_no_tags[] = $tag['image_id'];
                     }
+
                     $filter_sets[] = $images_with_no_tags;
                     break;
 
@@ -708,8 +724,10 @@ class AdminBatchManagerController extends AbstractController
                         foreach ($imageMapper->getRepository()->findAll() as $image) {
                             $image_ids[] = $image->getId();
                         }
+
                         $filter_sets[] = $image_ids;
                     }
+
                     break;
 
                 default:
@@ -748,6 +766,7 @@ class AdminBatchManagerController extends AbstractController
             foreach ($imageMapper->getRepository()->filterByLevel($bulk_manager_filter['level'], $operator) as $image) {
                 $image_ids[] = $image->getId();
             }
+
             $filter_sets[] = $image_ids;
         }
 
@@ -760,6 +779,7 @@ class AdminBatchManagerController extends AbstractController
             ) as $image) {
                 $image_ids[] = $image->getId();
             }
+
             $filter_sets[] = $image_ids;
         }
 
@@ -797,6 +817,7 @@ class AdminBatchManagerController extends AbstractController
                     $image_ids[] = $image->getId();
                 }
             }
+
             $filter_sets[] = $image_ids;
         }
 
@@ -997,6 +1018,7 @@ class AdminBatchManagerController extends AbstractController
                 if ($request->request->get('tags-' . $image->getId())) {
                     $tag_ids = $tagMapper->getTagsIds($request->request->get('tags-' . $image->getId()));
                 }
+
                 $tagMapper->setTags($tag_ids, $image->getId(), $this->user);
                 $imageMapper->getRepository()->addOrUpdateImage($image);
             }
@@ -1014,6 +1036,7 @@ class AdminBatchManagerController extends AbstractController
         if (empty($current_set)) {
             $current_set = [];
         }
+
         foreach ($filter_sets as $set) {
             $current_set = array_intersect($current_set, $set);
         }
@@ -1029,6 +1052,7 @@ class AdminBatchManagerController extends AbstractController
                 $level_options[$level] = $translator->trans('Everybody', [], 'admin');
             }
         }
+
         $tpl_params['filter_level_options'] = $level_options;
         $tpl_params['filter_level_options_selected'] = $this->getFilter($request->getSession())['level'] ?? 0;
 
@@ -1039,8 +1063,10 @@ class AdminBatchManagerController extends AbstractController
             foreach ($tagMapper->getRepository()->findBy(['id' => $this->getFilter($request->getSession())['tags']]) as $tag) {
                 $tags[] = $tag;
             }
+
             $filter_tags = $tagMapper->prepareTagsListForUI($tags);
         }
+
         $tpl_params['filter_tags'] = $filter_tags;
 
         // in the filter box, which category to select by default
@@ -1054,6 +1080,7 @@ class AdminBatchManagerController extends AbstractController
                 $selected_category[] = $last_image_album->getAlbum()->getId();
             }
         }
+
         $tpl_params['filter_category_selected'] = $selected_category;
 
         // Dissociate from an album : albums listed for dissociation can only
@@ -1080,6 +1107,7 @@ class AdminBatchManagerController extends AbstractController
         foreach ($image_std_params->getDefinedTypeMap() as $derivative_params) {
             $del_deriv_map[$derivative_params->type->value] = $translator->trans($derivative_params->type->value, [], 'admin');
         }
+
         $gen_deriv_map = $del_deriv_map;
         $del_deriv_map[ImageSizeType::CUSTOM->value] = $translator->trans(ImageSizeType::CUSTOM->value, [], 'admin');
         $tpl_params['del_derivatives_types'] = $del_deriv_map;
@@ -1095,6 +1123,7 @@ class AdminBatchManagerController extends AbstractController
         } else {
             $nb_images = 5;
         }
+
         if (count($current_set) > 0) {
             $is_category = false;
             if (isset($this->getFilter($request->getSession())['category']) && !isset($this->getFilter($request->getSession())['category_recursive'])) {
@@ -1128,6 +1157,7 @@ class AdminBatchManagerController extends AbstractController
                 foreach ($tagMapper->getRepository()->getTagsByImage($image->getId()) as $tag) {
                     $tags[] = $tag;
                 }
+
                 $tag_selection = $tagMapper->prepareTagsListForUI($tags);
 
                 $legend = Utils::renderElementName($image->toArray());

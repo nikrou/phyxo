@@ -100,6 +100,7 @@ class FavoriteController extends AbstractController
         $favorite = new Favorite();
         $favorite->setImage($image);
         $favorite->setUser($appUserService->getUser());
+
         $favoriteRepository->addOrUpdateFavorite($favorite);
 
         if ($request->isXmlHttpRequest()) {

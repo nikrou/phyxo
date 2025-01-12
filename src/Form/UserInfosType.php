@@ -128,7 +128,7 @@ class UserInfosType extends AbstractType
         if ($options[self::FORM_GROUP_OPTION]) {
             $builder->add('user_preferences', FormGroupType::class, [
                 'title' => $options[self::TITLE_OPTION],
-                'fields' => function (FormBuilderInterface $builder) use ($fields) {
+                'fields' => function (FormBuilderInterface $builder) use ($fields): void {
                     foreach ($fields->all() as $child) {
                         $builder->add($child);
                     }

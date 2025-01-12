@@ -95,6 +95,7 @@ class AppUserService
         if (($action === 'edit' && $this->conf['user_can_edit_comment']) && ($comment_author_id === $this->getUser()->getId())) {
             return true;
         }
+
         return $action === 'delete' && $this->conf['user_can_delete_comment'] && $comment_author_id == $this->getUser()->getId();
     }
 }

@@ -29,7 +29,7 @@ class ImageStandardParams
     private $all_type_map = [];
 
     /** @var array<string, DerivativeParams> $type_map */
-    private $type_map = [];
+    private array $type_map = [];
     private WatermarkParams $watermark;
 
     /** @var array<string, int> $customs */
@@ -220,6 +220,7 @@ class ImageStandardParams
             if (isset($this->derivatives['c'])) {
                 $this->customs = $this->derivatives['c'];
             }
+
             if (isset($this->derivatives['q'])) {
                 $this->quality = $this->derivatives['q'];
             }

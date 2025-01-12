@@ -79,6 +79,7 @@ class AlbumController extends AbstractController
         if ($request->getSession()->has('image_order_index')) {
             $order_index = $request->getSession()->get('image_order_index');
         }
+
         if ($request->get('order')) {
             $order_index = (int) $request->get('order');
             $request->getSession()->set('image_order_index', $order_index);
@@ -95,6 +96,7 @@ class AlbumController extends AbstractController
                 ];
             }
         }
+
         $tpl_params['image_orders'][$order_index]['SELECTED'] = true;
         if ($preferred_image_orders[$order_index][1] !== '[]') {
             $order_by = array_merge(json_decode($preferred_image_orders[$order_index][1], true, 512, JSON_THROW_ON_ERROR), $order_by);
@@ -447,6 +449,7 @@ class AlbumController extends AbstractController
 
         $recent_date = new DateTime();
         $recent_date->sub(new DateInterval(sprintf('P%dD', $appUserService->getUser()->getUserInfos()->getRecentPeriod())));
+
         $infos_of_images = [];
 
         [$albums, $image_ids, $user_representative_updates_for] = $albumMapper->getAlbumThumbnails($appUserService->getUser(), $albumMapper->getRepository()->findRecentAlbums($recent_date));

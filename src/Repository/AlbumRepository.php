@@ -141,7 +141,7 @@ class AlbumRepository extends ServiceEntityRepository
      *
      * @return int[]
      */
-    public function getSubcatIds(array $ids)
+    public function getSubcatIds(array $ids): array
     {
         $subalbums = [];
         foreach ($this->getSubAlbums($ids, $only_id = true) as $album) {
@@ -213,7 +213,7 @@ class AlbumRepository extends ServiceEntityRepository
      *
      * @return int[]
      */
-    public function findAllowedSubAlbums(string $uppercats, array $forbidden_albums = [])
+    public function findAllowedSubAlbums(string $uppercats, array $forbidden_albums = []): array
     {
         $qb = $this->createQueryBuilder('a');
         $qb->where($qb->expr()->like('a.uppercats', ':uppercats'));
@@ -576,7 +576,7 @@ class AlbumRepository extends ServiceEntityRepository
      *
      * @return array<int, int|string>
      */
-    public function findWrongRepresentant(array $album_ids = [])
+    public function findWrongRepresentant(array $album_ids = []): array
     {
         $qb = $this->createQueryBuilder('a');
         $qb->select('DISTINCT(a.id)');
@@ -586,6 +586,7 @@ class AlbumRepository extends ServiceEntityRepository
         if ($album_ids !== []) {
             $qb->andWhere($qb->expr()->in('a.id', $album_ids));
         }
+
         $qb->andWhere($qb->expr()->isNotNull('i.id'));
 
         $results = [];
@@ -601,7 +602,7 @@ class AlbumRepository extends ServiceEntityRepository
      *
      * @return array<int>
      */
-    public function findNeedeedRandomRepresentant(array $album_ids = [])
+    public function findNeedeedRandomRepresentant(array $album_ids = []): array
     {
         $qb = $this->createQueryBuilder('a');
         $qb->select('DISTINCT(a.id)');
@@ -610,6 +611,7 @@ class AlbumRepository extends ServiceEntityRepository
         if ($album_ids !== []) {
             $qb->andWhere($qb->expr()->in('a.id', $album_ids));
         }
+
         $qb->andWhere($qb->expr()->isNotNull('ia.image'));
 
         $results = [];

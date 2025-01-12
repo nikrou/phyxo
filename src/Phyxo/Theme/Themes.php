@@ -26,19 +26,19 @@ use Symfony\Component\Yaml\Yaml;
 class Themes extends Extensions
 {
     final public const CONFIG_FILE = 'config.yaml';
-    private $themes_root_path;
-    private $fs_themes = [];
+    private ?string $themes_root_path = null;
+    private array $fs_themes = [];
     private $db_themes = [];
-    private $server_themes = [];
-    private $fs_themes_retrieved = false;
-    private $db_themes_retrieved = false;
-    private $server_themes_retrieved = false;
+    private array $server_themes = [];
+    private bool $fs_themes_retrieved = false;
+    private bool $db_themes_retrieved = false;
+    private bool $server_themes_retrieved = false;
 
     public function __construct(private readonly ThemeRepository $themeRepository, private readonly UserMapper $userMapper)
     {
     }
 
-    public function setRootPath(string $themes_root_path)
+    public function setRootPath(string $themes_root_path): void
     {
         $this->themes_root_path = $themes_root_path;
     }
@@ -66,7 +66,7 @@ class Themes extends Extensions
     /**
      * Perform requested actions
      */
-    public function performAction($action, $theme_id): string
+    public function performAction($action, string $theme_id): string
     {
         if (!$this->db_themes_retrieved) {
             $this->getDbThemes();
@@ -139,6 +139,7 @@ class Themes extends Extensions
                     $error = 'CANNOT DELETE - THEME IS INSTALLED';
                     break;
                 }
+
                 if (!isset($this->fs_themes[$theme_id])) {
                     // nothing to do here
                     break;
@@ -180,7 +181,10 @@ class Themes extends Extensions
         return $this->missingParentTheme($parent);
     }
 
-    public function getChildrenThemes($theme_id)
+    /**
+     * @return mixed[]
+     */
+    public function getChildrenThemes($theme_id): array
     {
         $children = [];
 
@@ -199,8 +203,10 @@ class Themes extends Extensions
             foreach ($this->themeRepository->findAll() as $theme) {
                 $this->db_themes[$theme->getId()] = $theme;
             }
+
             $this->db_themes_retrieved = true;
         }
+
         return $this->db_themes;
     }
 
@@ -245,7 +251,7 @@ class Themes extends Extensions
     /**
      * @return ThemeParameters
      */
-    public static function loadThemeParameters(string $config_file, string $theme_id, string $themes_root_path)
+    public static function loadThemeParameters(string $config_file, string $theme_id, string $themes_root_path): array
     {
         $theme = [
             'id' => $theme_id,
@@ -267,7 +273,7 @@ class Themes extends Extensions
 
         $screenshot_path = $theme_id . '/screenshot.png';
         if (is_readable($themes_root_path . '/' . $screenshot_path)) {
-            $theme['screenshot'] = "themes/$screenshot_path";
+            $theme['screenshot'] = 'themes/' . $screenshot_path;
         }
 
         return array_merge($theme, $theme_data);
@@ -276,7 +282,7 @@ class Themes extends Extensions
     /**
      * Sort fs_themes
      */
-    public function sortFsThemes($order = 'name')
+    public function sortFsThemes($order = 'name'): void
     {
         if (!$this->fs_themes_retrieved) {
             $this->getFsThemes();
@@ -318,7 +324,8 @@ class Themes extends Extensions
                 if ($pem_versions !== [] && !preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                     $version = $pem_versions[0]['name'];
                 }
-                $branch = Utils::get_branch_from_version($version);
+
+                $branch = Utils::getBranchFromVersion($version);
                 foreach ($pem_versions as $pem_version) {
                     if (str_starts_with((string) $pem_version['name'], $branch)) {
                         $versions_to_check[] = $pem_version['id'];
@@ -359,6 +366,7 @@ class Themes extends Extensions
                     $get_data['extension_include'] = implode(',', $themes_to_check);
                 }
             }
+
             try {
                 $pem_themes = $this->getJsonFromServer($url, $get_data);
                 if (!is_array($pem_themes)) {
@@ -371,15 +379,17 @@ class Themes extends Extensions
             } catch (Exception $e) {
                 throw new Exception($e->getMessage(), $e->getCode(), $e);
             }
+
             $this->server_themes_retrieved = true;
         }
+
         return $this->server_themes;
     }
 
     /**
      * Sort $server_themes
      */
-    public function sortServerThemes($order = 'date')
+    public function sortServerThemes($order = 'date'): void
     {
         switch ($order) {
             case 'date':
@@ -403,7 +413,7 @@ class Themes extends Extensions
     /**
      * Extract theme files from archive
      */
-    public function extractThemeFiles(string $action, int $revision)
+    public function extractThemeFiles(string $action, int $revision): void
     {
         $archive = tempnam($this->themes_root_path, 'zip');
         $get_data = [
@@ -413,15 +423,15 @@ class Themes extends Extensions
 
         try {
             $this->download($archive, $get_data);
-        } catch (Exception $e) {
-            throw new Exception("Cannot download theme archive", $e->getCode(), $e);
+        } catch (Exception $exception) {
+            throw new Exception("Cannot download theme archive", $exception->getCode(), $exception);
         }
 
         $extract_path = $this->themes_root_path;
         try {
             $this->extractZipFiles($archive, self::CONFIG_FILE, $extract_path);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         } finally {
             unlink($archive);
         }
@@ -430,7 +440,7 @@ class Themes extends Extensions
     /**
      * Sort functions
      */
-    public function extensionRevisionCompare($a, $b)
+    public function extensionRevisionCompare(array $a, array $b): int
     {
         if ($a['revision_date'] < $b['revision_date']) {
             return 1;
@@ -439,12 +449,12 @@ class Themes extends Extensions
         }
     }
 
-    public function extensionNameCompare($a, $b)
+    public function extensionNameCompare(array $a, array $b): int
     {
         return strcmp(strtolower((string) $a['extension_name']), strtolower((string) $b['extension_name']));
     }
 
-    public function extensionAuthorCompare($a, $b)
+    public function extensionAuthorCompare(array $a, array $b)
     {
         $r = strcasecmp((string) $a['author_name'], (string) $b['author_name']);
         if ($r == 0) {
@@ -454,7 +464,7 @@ class Themes extends Extensions
         }
     }
 
-    public function themeAuthorCompare($a, $b)
+    public function themeAuthorCompare(array $a, array $b): int
     {
         $r = strcasecmp((string) $a['author'], (string) $b['author']);
         if ($r == 0) {
@@ -464,7 +474,7 @@ class Themes extends Extensions
         }
     }
 
-    public function extensionDownloadsCompare($a, $b)
+    public function extensionDownloadsCompare(array $a, array $b): int
     {
         if ($a['extension_nb_downloads'] < $b['extension_nb_downloads']) {
             return 1;
@@ -473,7 +483,7 @@ class Themes extends Extensions
         }
     }
 
-    public function sortThemesByState()
+    public function sortThemesByState(): void
     {
         uasort($this->fs_themes, Utils::nameCompare(...));
 
@@ -489,6 +499,7 @@ class Themes extends Extensions
                 $not_installed[$theme_id] = $theme;
             }
         }
+
         $this->fs_themes = $active_themes + $inactive_themes + $not_installed;
     }
 }

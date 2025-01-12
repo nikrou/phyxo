@@ -415,28 +415,22 @@ class AdminHistoryController extends AbstractController
 
             switch ($thumbnail_display) {
                 case 'no_display_thumbnail':
-                    {
-                        $image_string = '<a href="' . $picture_url . '">' . $image_title . '</a>';
-                        break;
-                    }
+                    $image_string = '<a href="' . $picture_url . '">' . $image_title . '</a>';
+                    break;
                 case 'display_thumbnail_classic':
-                    {
-                        $image_string =
-                            '<a class="thumbnail" href="' . $picture_url . '">'
-                            . '<span><img src="' . $thumb_url
-                            . '" alt="' . $image_title . '" title="' . $image_title . '">'
-                            . '</span></a>';
-                        break;
-                    }
+                    $image_string =
+                        '<a class="thumbnail" href="' . $picture_url . '">'
+                        . '<span><img src="' . $thumb_url
+                        . '" alt="' . $image_title . '" title="' . $image_title . '">'
+                        . '</span></a>';
+                    break;
                 case 'display_thumbnail_hoverbox':
-                    {
-                        $image_string =
-                            '<a class="over" href="' . $picture_url . '">'
-                            . '<span><img src="' . $thumb_url
-                            . '" alt="' . $image_title . '" title="' . $image_title . '">'
-                            . '</span>' . $image_title . '</a>';
-                        break;
-                    }
+                    $image_string =
+                        '<a class="over" href="' . $picture_url . '">'
+                        . '<span><img src="' . $thumb_url
+                        . '" alt="' . $image_title . '" title="' . $image_title . '">'
+                        . '</span>' . $image_title . '</a>';
+                    break;
             }
         }
 
@@ -477,6 +471,7 @@ class AdminHistoryController extends AbstractController
                 if (!isset($need_update[$time_key])) {
                     $need_update[$time_key] = 0;
                 }
+
                 $need_update[$time_key] += $row['nb_pages'];
             }
 
@@ -536,12 +531,15 @@ class AdminHistoryController extends AbstractController
             if (!empty($time_tokens[1])) {
                 $historySummary->setMonth($time_tokens[1]);
             }
+
             if (!empty($time_tokens[2])) {
                 $historySummary->setDay($time_tokens[2]);
             }
+
             if (!empty($time_tokens[3])) {
                 $historySummary->setHour($time_tokens[3]);
             }
+
             $historySummary->setNbPages($nb_pages);
             $historySummaryRepository->addOrUpdateHistorySummary($historySummary);
         }

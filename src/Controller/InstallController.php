@@ -82,6 +82,7 @@ class InstallController extends AbstractController
         } else {
             $language = $this->defaultLanguage;
         }
+
         $request->getSession()->set('_locale', $language);
 
         if (!isset($this->languages_options[$language])) {
@@ -94,6 +95,7 @@ class InstallController extends AbstractController
         if ($step !== $tpl_params['STEP']) {
             return $this->redirectToRoute('install', ['step' => $tpl_params['STEP'], 'language' => $language]);
         }
+
         $tpl_params['lang_info'] = ['code' => preg_replace('`_.*`', '', (string) $language), 'direction' => 'ltr']; // @TODO: retrieve from common place
         $tpl_params['LANGUAGE'] = $language;
         $tpl_params['domain'] = 'install';
@@ -104,7 +106,7 @@ class InstallController extends AbstractController
     /**
      * @return array<string, array<string, string>|string>
      */
-    protected function languageStep(Request $request)
+    protected function languageStep(Request $request): array
     {
         $tpl_params = [
             'LANGUAGES' => $this->languages_options,
@@ -123,7 +125,7 @@ class InstallController extends AbstractController
     /**
      * @return array<string, array<string, array<string, bool|string>>|string>
      */
-    protected function checkStep(Request $request)
+    protected function checkStep(Request $request): array
     {
         $tpl_params = [
             'INSTALL_ACTION' => $this->generateUrl('install', ['step' => 'check']),
@@ -177,10 +179,12 @@ class InstallController extends AbstractController
             } else {
                 $check_directories = false;
             }
+
             if (is_writable($directory['path'])) {
                 $directory['writable'] = true;
             }
         }
+
         foreach ($write_directories as &$directory) {
             if (is_readable($directory['path'])) {
                 $directory['readable'] = true;
@@ -210,7 +214,7 @@ class InstallController extends AbstractController
     /**
      * @return array<string, array<string, string>|string>
      */
-    protected function databaseStep(Request $request)
+    protected function databaseStep(Request $request): array
     {
         $errors = [];
         $tpl_params = [
@@ -231,24 +235,29 @@ class InstallController extends AbstractController
             if ($request->request->get('db_layer')) {
                 $db_params['db_layer'] = $request->request->get('db_layer');
             }
+
             if ($request->request->get('db_host')) {
                 $db_params['db_host'] = $request->request->get('db_host');
             }
+
             if ($request->request->get('db_user')) {
                 $db_params['db_user'] = $request->request->get('db_user');
             } elseif ($db_params['db_layer'] !== 'sqlite') {
                 $errors[] = $this->translator->trans('Database user is mandatory', [], 'install');
             }
+
             if ($request->request->get('db_password')) {
                 $db_params['db_password'] = $request->request->get('db_password');
             } elseif ($db_params['db_layer'] !== 'sqlite') {
                 $errors[] = $this->translator->trans('Database password is mandatory', [], 'install');
             }
+
             if ($request->request->get('db_name')) {
                 $db_params['db_name'] = $request->request->get('db_name');
             } elseif ($db_params['db_layer'] !== 'sqlite') {
                 $errors[] = $this->translator->trans('Database name is mandatory', [], 'install');
             }
+
             if ($request->request->get('db_prefix')) {
                 $db_params['db_prefix'] = $request->request->get('db_prefix');
             }
@@ -270,6 +279,7 @@ class InstallController extends AbstractController
             if ($errors !== []) {
                 $tpl_params['errors'] = $errors;
             }
+
             $tpl_params['STEP'] = 'database';
         }
 
@@ -279,7 +289,7 @@ class InstallController extends AbstractController
     /**
      * @return array<string, array<int, string>|float|int|string|bool>
      */
-    protected function userStep(Request $request)
+    protected function userStep(Request $request): array
     {
         $errors = [];
         $db_params = ['username' => '', 'password' => '', 'mail_address' => ''];
@@ -296,6 +306,7 @@ class InstallController extends AbstractController
                 $db_params['username'] = $request->request->get('_username');
                 $tpl_params['_username'] = $request->request->get('_username');
             }
+
             if (!$request->request->get('_password')) {
                 $errors[] = $this->translator->trans('Password is missing. Please enter the password.', [], 'install');
             } elseif (!$request->request->get('_password_confirm')) {
@@ -305,6 +316,7 @@ class InstallController extends AbstractController
             } else {
                 $db_params['password'] = $request->request->get('_password');
             }
+
             if (!$request->request->get('_mail_address')) {
                 $errors[] = $this->translator->trans('mail address must be like xxx@yyy.eee (example : jack@altern.org)', [], 'install');
             } elseif (filter_var($request->request->get('_mail_address'), FILTER_VALIDATE_EMAIL) === false) {
@@ -416,7 +428,7 @@ class InstallController extends AbstractController
     /**
      * @return array<string, array<string, string>|string>
      */
-    public function successStep(Request $request)
+    public function successStep(Request $request): array
     {
         $tpl_params = [];
         rename($this->localEnvFile . '.tmp', $this->localEnvFile);

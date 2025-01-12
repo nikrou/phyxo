@@ -29,18 +29,12 @@ class ImageRect
         [$this->r, $this->b] = $l;
     }
 
-    /**
-     * @return int
-     */
-    public function width()
+    public function width(): int
     {
         return $this->r - $this->l;
     }
 
-    /**
-     * @return int
-     */
-    public function height()
+    public function height(): int
     {
         return $this->b - $this->t;
     }
@@ -72,6 +66,7 @@ class ImageRect
                 }
             }
         }
+
         $this->l += $tlcrop;
         $this->r -= $pixels - $tlcrop;
     }
@@ -87,6 +82,7 @@ class ImageRect
         if ($this->height() <= $pixels) {
             return;
         }
+
         $tlcrop = floor($pixels / 2);
 
         if ($coi !== '') {
@@ -102,6 +98,7 @@ class ImageRect
                 }
             }
         }
+
         $this->t += $tlcrop;
         $this->b -= $pixels - $tlcrop;
     }

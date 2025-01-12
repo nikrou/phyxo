@@ -35,26 +35,26 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class Server
 {
-    private $tagMapper;
-    private $commentMapper;
-    private $appUserService;
-    private $userMapper;
-    private $albumMapper;
-    private $rateMapper;
-    private $searchMapper;
-    private $imageMapper;
-    private $phyxoVersion;
-    private $conf;
-    private $router;
-    private $image_std_params;
-    private $userManager;
-    private $passwordHasher;
-    private $pem_url;
-    private $security;
-    private $params;
-    private $request;
-    private $managerRegistry;
-    private $imageLibrary;
+    private ?TagMapper $tagMapper = null;
+    private ?CommentMapper $commentMapper = null;
+    private AppUserService $appUserService;
+    private ?UserMapper $userMapper = null;
+    private ?AlbumMapper $albumMapper = null;
+    private ?RateMapper $rateMapper = null;
+    private SearchMapper $searchMapper;
+    private ?ImageMapper $imageMapper = null;
+    private ?string $phyxoVersion = null;
+    private ?Conf $conf = null;
+    private ?RouterInterface $router = null;
+    private ?ImageStandardParams $image_std_params = null;
+    private ?UserManager $userManager = null;
+    private ?UserPasswordHasherInterface $passwordHasher = null;
+    private ?string $pem_url = null;
+    private ?Security $security = null;
+    private ?ParameterBagInterface $params = null;
+    private Request $request;
+    private ManagerRegistry $managerRegistry;
+    private ImagineInterface $imageLibrary;
     private UserProvider $userProvider;
     private array $_methods = [];
     final public const WS_PARAM_ACCEPT_ARRAY = 0x010000;
@@ -75,7 +75,7 @@ class Server
     {
     }
 
-    public function setParams(ParameterBagInterface $params)
+    public function setParams(ParameterBagInterface $params): void
     {
         $this->params = $params;
     }
@@ -85,7 +85,7 @@ class Server
         return $this->params;
     }
 
-    public function setExtensionsURL(string $url)
+    public function setExtensionsURL(string $url): void
     {
         $this->pem_url = $url;
     }
@@ -95,12 +95,12 @@ class Server
         return $this->pem_url;
     }
 
-    public function getUploadDir()
+    public function getUploadDir(): string
     {
         return $this->upload_dir;
     }
 
-    public function addTagMapper(TagMapper $tagMapper)
+    public function addTagMapper(TagMapper $tagMapper): void
     {
         $this->tagMapper = $tagMapper;
     }
@@ -110,7 +110,7 @@ class Server
         return $this->tagMapper;
     }
 
-    public function addCommentMapper(CommentMapper $commentMapper)
+    public function addCommentMapper(CommentMapper $commentMapper): void
     {
         $this->commentMapper = $commentMapper;
     }
@@ -120,7 +120,7 @@ class Server
         return $this->commentMapper;
     }
 
-    public function addAppUserService(AppUserService $appUserService)
+    public function addAppUserService(AppUserService $appUserService): void
     {
         $this->appUserService = $appUserService;
     }
@@ -130,7 +130,7 @@ class Server
         return $this->appUserService;
     }
 
-    public function addUserMapper(UserMapper $userMapper)
+    public function addUserMapper(UserMapper $userMapper): void
     {
         $this->userMapper = $userMapper;
     }
@@ -140,7 +140,7 @@ class Server
         return $this->userMapper;
     }
 
-    public function addImageMapper(ImageMapper $imageMapper)
+    public function addImageMapper(ImageMapper $imageMapper): void
     {
         $this->imageMapper = $imageMapper;
     }
@@ -150,7 +150,7 @@ class Server
         return $this->imageMapper;
     }
 
-    public function addAlbumMapper(AlbumMapper $albumMapper)
+    public function addAlbumMapper(AlbumMapper $albumMapper): void
     {
         $this->albumMapper = $albumMapper;
     }
@@ -160,7 +160,7 @@ class Server
         return $this->albumMapper;
     }
 
-    public function addRateMapper(RateMapper $rateMapper)
+    public function addRateMapper(RateMapper $rateMapper): void
     {
         $this->rateMapper = $rateMapper;
     }
@@ -170,7 +170,7 @@ class Server
         return $this->rateMapper;
     }
 
-    public function addSearchMapper(SearchMapper $searchMapper)
+    public function addSearchMapper(SearchMapper $searchMapper): void
     {
         $this->searchMapper = $searchMapper;
     }
@@ -180,7 +180,7 @@ class Server
         return $this->searchMapper;
     }
 
-    public function setCoreVersion(string $phyxoVersion)
+    public function setCoreVersion(string $phyxoVersion): void
     {
         $this->phyxoVersion = $phyxoVersion;
     }
@@ -190,7 +190,7 @@ class Server
         return $this->phyxoVersion;
     }
 
-    public function setConf(Conf $conf)
+    public function setConf(Conf $conf): void
     {
         $this->conf = $conf;
     }
@@ -200,7 +200,7 @@ class Server
         return $this->conf;
     }
 
-    public function setImageStandardParams(ImageStandardParams $image_std_params)
+    public function setImageStandardParams(ImageStandardParams $image_std_params): void
     {
         $this->image_std_params = $image_std_params;
     }
@@ -210,7 +210,7 @@ class Server
         return $this->image_std_params;
     }
 
-    public function setRouter(RouterInterface $router)
+    public function setRouter(RouterInterface $router): void
     {
         $this->router = $router;
     }
@@ -220,7 +220,7 @@ class Server
         return $this->router;
     }
 
-    public function setUserManager(UserManager $userManager)
+    public function setUserManager(UserManager $userManager): void
     {
         $this->userManager = $userManager;
     }
@@ -230,7 +230,7 @@ class Server
         return $this->userManager;
     }
 
-    public function setPasswordHasher(UserPasswordHasherInterface $passwordHasher)
+    public function setPasswordHasher(UserPasswordHasherInterface $passwordHasher): void
     {
         $this->passwordHasher = $passwordHasher;
     }
@@ -240,7 +240,7 @@ class Server
         return $this->passwordHasher;
     }
 
-    public function setSecurity(Security $security)
+    public function setSecurity(Security $security): void
     {
         $this->security = $security;
     }
@@ -250,7 +250,7 @@ class Server
         return $this->security;
     }
 
-    public function setRequest(Request $request)
+    public function setRequest(Request $request): void
     {
         $this->request = $request;
     }
@@ -260,7 +260,7 @@ class Server
         return $this->request;
     }
 
-    public function setManagerRegistry(ManagerRegistry $managerRegistry)
+    public function setManagerRegistry(ManagerRegistry $managerRegistry): void
     {
         $this->managerRegistry = $managerRegistry;
     }
@@ -270,7 +270,7 @@ class Server
         return $this->managerRegistry;
     }
 
-    public function setImageLibrary(ImagineInterface $imageLibrary)
+    public function setImageLibrary(ImagineInterface $imageLibrary): void
     {
         $this->imageLibrary = $imageLibrary;
     }
@@ -293,7 +293,7 @@ class Server
     /**
      * Runs the web service call (handler and response encoder should have been created)
      */
-    public function run(Request $request)
+    public function run(Request $request): Error|array
     {
         // add reflection methods
         $this->addMethod(
@@ -342,8 +342,8 @@ class Server
 
         try {
             return ['stat' => 'ok', 'result' => $this->invoke($method, $params)];
-        } catch (Exception $e) {
-            return ['stat' => 'fail', 'err' => 9999, 'message' => $e->getMessage()];
+        } catch (Exception $exception) {
+            return ['stat' => 'fail', 'err' => 9999, 'message' => $exception->getMessage()];
         }
     }
 
@@ -365,7 +365,7 @@ class Server
      *    @option bool admin_only (optional)
      *    @option bool post_only (optional)
      */
-    public function addMethod(string $methodName, $callback, array $params = [], string $description = '', array $options = [])
+    public function addMethod(string $methodName, $callback, array $params = [], string $description = '', array $options = []): void
     {
         if (range(0, count($params) - 1) === array_keys($params)) {
             $params = array_flip($params);
@@ -378,12 +378,15 @@ class Server
                 if (!isset($data['flags'])) {
                     $data['flags'] = 0;
                 }
+
                 if (array_key_exists('default', $data)) {
                     $data['flags'] |= self::WS_PARAM_OPTIONAL;
                 }
+
                 if (!isset($data['type'])) {
                     $data['type'] = 0;
                 }
+
                 $params[$param] = $data;
             }
         }
@@ -396,7 +399,7 @@ class Server
         ];
     }
 
-    public function hasMethod($methodName)
+    public function hasMethod($methodName): bool
     {
         return isset($this->_methods[$methodName]);
     }
@@ -419,7 +422,7 @@ class Server
         return $options ?? [];
     }
 
-    public static function isPost()
+    public static function isPost(): bool
     {
         $contentType = isset($_SERVER['CONTENT_TYPE']) ? trim((string) $_SERVER['CONTENT_TYPE']) : '';
         if ($contentType === "application/json") {
@@ -432,7 +435,7 @@ class Server
         }
     }
 
-    public static function makeArrayParam(&$param)
+    public static function makeArrayParam(&$param): void
     {
         if ($param == null) {
             $param = [];
@@ -441,7 +444,7 @@ class Server
         }
     }
 
-    public static function checkType(&$param, $type, $name)
+    public static function checkType(&$param, $type, string $name): ?Error
     {
         $opts = [];
         $msg = '';
@@ -460,6 +463,7 @@ class Server
                         return new Error(self::WS_ERR_INVALID_PARAM, $name . ' must only contain booleans');
                     }
                 }
+
                 unset($value);
             } elseif (self::hasFlag($type, self::WS_TYPE_INT)) {
                 foreach ($param as &$value) {
@@ -467,6 +471,7 @@ class Server
                         return new Error(self::WS_ERR_INVALID_PARAM, $name . ' must only contain' . $msg . ' integers');
                     }
                 }
+
                 unset($value);
             } elseif (self::hasFlag($type, self::WS_TYPE_FLOAT)) {
                 foreach ($param as &$value) {
@@ -474,6 +479,7 @@ class Server
                         return new Error(self::WS_ERR_INVALID_PARAM, $name . ' must only contain' . $msg . ' floats');
                     }
                 }
+
                 unset($value);
             }
         } elseif ($param !== '') {
@@ -495,7 +501,7 @@ class Server
         return null;
     }
 
-    public static function hasFlag($val, $flag)
+    public static function hasFlag($val, $flag): bool
     {
         return ($val & $flag) == $flag;
     }
@@ -571,11 +577,11 @@ class Server
     /**
      * WS reflection method implementation: lists all available methods
      */
-    public static function getMethodList($params, &$service)
+    public static function getMethodList($params, &$service): array
     {
         $methods = array_filter(
             $service->_methods,
-            fn ($m) => !isset($m['options']['hidden']) || !$m['options']['hidden']
+            fn ($m): bool => !isset($m['options']['hidden']) || !$m['options']['hidden']
         );
         return ['methods' => array_keys($methods)];
     }
@@ -583,7 +589,7 @@ class Server
     /**
      * WS reflection method implementation: gets information about a given method
      */
-    public static function getMethodDetails($params, &$service)
+    public static function getMethodDetails(array $params, &$service): Error|array
     {
         $methodName = $params['methodName'];
 
@@ -609,9 +615,11 @@ class Server
             if (isset($options['default'])) {
                 $param_data['defaultValue'] = $options['default'];
             }
+
             if (isset($options['maxValue'])) {
                 $param_data['maxValue'] = $options['maxValue'];
             }
+
             if (isset($options['info'])) {
                 $param_data['info'] = $options['info'];
             }
@@ -623,15 +631,18 @@ class Server
             } elseif (self::hasFlag($options['type'], self::WS_TYPE_FLOAT)) {
                 $param_data['type'] = 'float';
             }
+
             if (self::hasFlag($options['type'], self::WS_TYPE_POSITIVE)) {
                 $param_data['type'] .= ' positive';
             }
+
             if (self::hasFlag($options['type'], self::WS_TYPE_NOTNULL)) {
                 $param_data['type'] .= ' notnull';
             }
 
             $res['params'][] = $param_data;
         }
+
         return $res;
     }
 }

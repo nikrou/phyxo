@@ -104,6 +104,7 @@ trait CommentControllerTrait
                         return $this->redirectToRoute($redirectResponse);
                     }
                 }
+
                 $tpl_comment['FORM'] = $form->createView();
                 $tpl_comment['U_CANCEL'] = $redirectResponse;
             }

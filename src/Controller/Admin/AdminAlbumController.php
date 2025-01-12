@@ -241,6 +241,7 @@ class AdminAlbumController extends AbstractController
                 foreach ($album->getImageAlbums() as $image_album) {
                     $image_album->setRank($rank_of_image[$image_album->getImage()->getId()]);
                 }
+
                 $albumMapper->getRepository()->addOrUpdateAlbum($album);
 
                 $this->addFlash('success', $translator->trans('Images manual order was saved', [], 'admin'));
@@ -260,12 +261,14 @@ class AdminAlbumController extends AbstractController
                         if ($image_order !== '') {
                             $image_order .= ',';
                         }
+
                         $image_order .= $request->request->get('image_order')[$i];
                     }
                 }
             } elseif ($image_order_choice === 'rank') {
                 $image_order = 'rank ASC';
             }
+
             $albumMapper->getRepository()->updateAlbums(['image_order' => $image_order], [$album_id]);
 
             if ($request->request->get('image_order_subcats')) {
@@ -302,6 +305,7 @@ class AdminAlbumController extends AbstractController
                 $file_wo_ext = Utils::getFilenameWithoutExtension($image->getFile());
                 $thumbnail_name = str_replace('_', ' ', $file_wo_ext);
             }
+
             $current_rank++;
             $tpl_params['thumbnails'][] = [
                 'ID' => $image->getId(),
@@ -413,6 +417,7 @@ class AdminAlbumController extends AbstractController
                         }
                     }
                 }
+
                 $albumMapper->getRepository()->addOrUpdateAlbum($album);
 
                 $userCacheRepository->deleteAll();
@@ -453,6 +458,7 @@ class AdminAlbumController extends AbstractController
                 if (!isset($granted_groups[$group->getId()])) {
                     $granted_groups[$group->getId()] = [];
                 }
+
                 foreach ($group->getUsers() as $user) {
                     $granted_groups[$group->getId()][] = $user->getId();
                 }
@@ -568,7 +574,7 @@ class AdminAlbumController extends AbstractController
             }
 
             if ($group_ids !== []) {
-                $tpl_params['group_mail_options'] = array_filter($all_groups, fn ($key) => in_array($key, $group_ids), ARRAY_FILTER_USE_KEY);
+                $tpl_params['group_mail_options'] = array_filter($all_groups, fn ($key): bool => in_array($key, $group_ids), ARRAY_FILTER_USE_KEY);
             }
         }
 
@@ -610,10 +616,12 @@ class AdminAlbumController extends AbstractController
                 if ($request->request->get('apply_on_sub')) {
                     $params['apply_on_sub'] = true;
                 }
+
                 $parent = null;
                 if (!is_null($parent_id)) {
                     $parent = $albumMapper->getRepository()->find($parent_id);
                 }
+
                 $albumMapper->createAlbum($album_name, $appUserService->getUser()->getId(), $parent, $admin_ids, $params);
                 $userMapper->invalidateUserCache();
 
@@ -633,6 +641,7 @@ class AdminAlbumController extends AbstractController
         foreach ($imageMapper->getRepository()->findBy(['storage_category_id' => $album_id]) as $image) {
             $element_ids[] = $image->getId();
         }
+
         $imageMapper->deleteElements($element_ids);
 
         $this->addFlash('success', $translator->trans('Album deleted', [], 'admin'));

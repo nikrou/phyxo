@@ -38,6 +38,7 @@ class AdminMenubarController extends AbstractController
         $menu->loadRegisteredBlocks($eventDispatcher);
         $menu->loadMenuConfig($mb_conf);
         $menu->prepareDisplay();
+
         $reg_blocks = $menu->getRegisteredBlocks();
 
         $mb_conf = $this->makeConsecutive($reg_blocks, $mb_conf);
@@ -75,6 +76,7 @@ class AdminMenubarController extends AbstractController
                     $mb_conf[$id] = $mb_conf[$id] > 0 ? (int) $pos : -(int) $pos;
                 }
             }
+
             $mb_conf = $this->makeConsecutive($reg_blocks, $mb_conf);
             $conf->addOrUpdateParam('blk_' . $menu->getId(), $mb_conf, ConfEnum::JSON);
 
@@ -92,13 +94,14 @@ class AdminMenubarController extends AbstractController
      */
     private function makeConsecutive(array $blocks = [], array $orders = [], int $step = 50): array
     {
-        uasort($orders, fn ($a, $b) => abs($a) - abs($b));
+        uasort($orders, fn ($a, $b): int => abs($a) - abs($b));
 
         $idx = 1;
         foreach (array_keys($blocks) as $id) {
             if (!isset($orders[$id])) {
                 $orders[$id] = $idx * 50;
             }
+
             $idx++;
         }
 
@@ -154,6 +157,7 @@ class AdminMenubarController extends AbstractController
             $tpl_params['NB_PHOTOS_IN_CADDIE'] = $nb_photos_in_caddie;
             $tpl_params['U_CADDIE'] = $this->generateUrl('admin_batch_manager_global', ['filter' => 'caddie']);
         }
+
         $tpl_params['GALLERY_TITLE'] = $conf['gallery_title'];
 
         return $this->render('_menubar.html.twig', $tpl_params);
