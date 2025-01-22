@@ -34,6 +34,7 @@ services:
       $graphicsLibrary: '%graphics_library%'
       $prefix: '%env(DATABASE_PREFIX)%'
       $defaultDateType: '%default_date_type%'
+      $publicTemplates: '%phyxo.templates%'
 
   _instanceof:
     # services whose classes are instances of AbstractPlugin will be tagged automatically

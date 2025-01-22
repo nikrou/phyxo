@@ -35,17 +35,23 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SecurityController extends AbstractController
 {
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/identification', name: 'login')]
     public function login(
         AuthenticationUtils $authenticationUtils,
         CsrfTokenManagerInterface $csrfTokenManager,
         Request $request,
         Conf $conf,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        array $publicTemplates
     ): Response {
         $tpl_params = [];
 
@@ -71,15 +77,20 @@ class SecurityController extends AbstractController
             $tpl_params['errors'] = $translator->trans('You are not authorized to access the requested page');
         }
 
-        return $this->render('identification.html.twig', $tpl_params, new Response('', $status_code));
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['login']), $tpl_params, new Response('', $status_code));
     }
 
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/register', name: 'register')]
     public function register(
         Request $request,
         UserManager $user_manager,
         UserPasswordHasherInterface $passwordHasher,
         UserAuthenticatorInterface $userAuthenticator,
-        LoginFormAuthenticator $loginFormAuthenticator
+        LoginFormAuthenticator $loginFormAuthenticator,
+        array $publicTemplates
     ): Response {
         $tpl_params = [];
         $form = $this->createForm(UserRegistrationType::class);
@@ -105,15 +116,20 @@ class SecurityController extends AbstractController
 
         $tpl_params['form'] = $form->createView();
 
-        return $this->render('register.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['register']), $tpl_params);
     }
 
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/profile', name: 'profile')]
     public function profile(
         Request $request,
         UserRepository $userRepository,
         UserPasswordHasherInterface $passwordHasher,
         AppUserService $appUserService,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        array $publicTemplates
     ): Response {
         $tpl_params = [];
         /** @var Form $form */
@@ -146,11 +162,21 @@ class SecurityController extends AbstractController
 
         $tpl_params['form'] = $form->createView();
 
-        return $this->render('profile.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['profile']), $tpl_params);
     }
 
-    public function forgotPassword(Request $request, UserManager $user_manager, UserRepository $userRepository, EventDispatcherInterface $dispatcher, TranslatorInterface $translator): Response
-    {
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/password', name: 'forgot_password')]
+    public function forgotPassword(
+        Request $request,
+        UserManager $user_manager,
+        UserRepository $userRepository,
+        EventDispatcherInterface $dispatcher,
+        TranslatorInterface $translator,
+        array $publicTemplates
+    ): Response {
         $tpl_params = [];
         $form = $this->createForm(ForgotPasswordType::class);
         $form->handleRequest($request);
@@ -176,16 +202,21 @@ class SecurityController extends AbstractController
 
         $tpl_params['form'] = $form->createView();
 
-        return $this->render('forgot_password.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['forgot_password']), $tpl_params);
     }
 
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/password/{activation_key}', name: 'reset_password')]
     public function resetPassword(
         Request $request,
         string $activation_key,
         UserPasswordHasherInterface $passwordHasher,
         UserProvider $userProvider,
         TranslatorInterface $translator,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        array $publicTemplates
     ): Response {
         try {
             $tpl_params = [];
@@ -208,9 +239,10 @@ class SecurityController extends AbstractController
             $this->addFlash('error', 'Activation key does not exist');
         }
 
-        return $this->render('reset_password.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['reset_password']), $tpl_params);
     }
 
+    #[Route('/logout', name: 'logout')]
     public function logout(): void
     {
     }

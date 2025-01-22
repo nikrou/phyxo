@@ -15,10 +15,15 @@ use Phyxo\MenuBar;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 
 class MenubarController extends AbstractController
 {
-    public function navigation(RequestStack $requestStack, MenuBar $menuBar): Response
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/menubar_navigation', name: 'public_menubar_navigation')]
+    public function __invoke(RequestStack $requestStack, MenuBar $menuBar, array $publicTemplates): Response
     {
         $tpl_params = [];
 
@@ -26,6 +31,6 @@ class MenubarController extends AbstractController
         $tpl_params['current_route'] = $requestStack->getMainRequest()->get('_route');
         $tpl_params['current_route_params'] = $requestStack->getMainRequest()->get('_route_params');
 
-        return $this->render('_menubar.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['menubar']), $tpl_params);
     }
 }

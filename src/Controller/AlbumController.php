@@ -16,7 +16,6 @@ use DateInterval;
 use App\DataMapper\AlbumMapper;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Conf;
-use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\ImageMapper;
 use App\Enum\PictureSectionType;
 use App\Repository\UserCacheAlbumRepository;
@@ -25,6 +24,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -32,6 +32,15 @@ class AlbumController extends AbstractController
 {
     use ThumbnailsControllerTrait;
 
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route(
+        '/album/{album_id}/{start}',
+        name: 'album',
+        defaults: ['start' => 0],
+        requirements: ['start' => '\d+']
+    )]
     public function album(
         Request $request,
         Conf $conf,
@@ -42,8 +51,9 @@ class AlbumController extends AbstractController
         Security $security,
         AppUserService $appUserService,
         RouterInterface $router,
+        array $publicTemplates,
         int $start = 0,
-        int $album_id = 0
+        int $album_id = 0,
     ): Response {
         $tpl_params = [];
 
@@ -117,8 +127,8 @@ class AlbumController extends AbstractController
         }
 
         if (count($user_representative_updates_for) > 0) {
-            foreach ($user_representative_updates_for as $cat_id => $image_id) {
-                $userCacheAlbumRepository->updateUserRepresentativePicture($appUserService->getUser()->getId(), $cat_id, $image_id);
+            foreach ($user_representative_updates_for as $album_id => $image_id) {
+                $userCacheAlbumRepository->updateUserRepresentativePicture($appUserService->getUser()->getId(), $album_id, $image_id);
             }
         }
 
@@ -131,42 +141,42 @@ class AlbumController extends AbstractController
 
                 $representative_infos = $infos_of_images[$currentAlbum->getRepresentativePictureId()];
 
-                $tpl_var = [
-                    'id' => $currentAlbum->getId(),
-                    'representative' => $representative_infos,
-                    'TN_ALT' => $currentAlbum->getName(),
-                    'TN_TITLE' => $imageMapper->getThumbnailTitle(['rating_score' => '', 'nb_comments' => ''], $currentAlbum->getName(), $currentAlbum->getComment()),
-                    'URL' => $this->generateUrl('album', ['album_id' => $currentAlbum->getId(), 'start' => $start]),
-                    'CAPTION_NB_IMAGES' => $albumMapper->getDisplayImagesCount(
-                        $userCacheAlbum->getNbImages(),
-                        $userCacheAlbum->getCountImages(),
-                        $userCacheAlbum->getCountAlbums(),
-                        true,
-                        '<br>'
-                    ),
-                    'DESCRIPTION' => $currentAlbum->getComment() ?? '',
-                    'NAME' => $name,
-                    'name' => $currentAlbum->getName(),
-                    'icon_ts' => '',
-                ];
+                $tpl_var = array_merge(
+                    $currentAlbum->toArray(),
+                    [
+                        'id' => $currentAlbum->getId(),
+                        'representative' => $representative_infos,
+                        'TN_ALT' => $currentAlbum->getName(),
+                        'TN_TITLE' => $imageMapper->getThumbnailTitle(['rating_score' => '', 'nb_comments' => ''], $currentAlbum->getName(), $currentAlbum->getComment()),
+                        'URL' => $this->generateUrl('album', ['album_id' => $currentAlbum->getId(), 'start' => $start]),
+                        'CAPTION_NB_IMAGES' => $albumMapper->getDisplayImagesCount(
+                            $userCacheAlbum->getNbImages(),
+                            $userCacheAlbum->getCountImages(),
+                            $userCacheAlbum->getCountAlbums(),
+                            true,
+                            '<br>'
+                        ),
+                        'name' => $currentAlbum->getName(),
+                        'icon_ts' => '',
+                    ]
+                );
 
                 $tpl_thumbnails_var[] = $tpl_var;
             }
 
-            // pagination
             $total_albums = count($tpl_thumbnails_var);
-            $tpl_thumbnails_var_selection = array_slice($tpl_thumbnails_var, 0, $conf['nb_categories_page']);
-            $tpl_params['category_thumbnails'] = $tpl_thumbnails_var_selection;
+            $tpl_thumbnails_var_selection = array_slice($tpl_thumbnails_var, 0, $conf['nb_albums_page']);
+            $tpl_params['album_thumbnails'] = $tpl_thumbnails_var_selection;
 
             // navigation bar
-            if ($total_albums > $conf['nb_categories_page']) {
-                $tpl_params['cats_navbar'] = $this->defineNavigation(
+            if ($total_albums > $conf['nb_albums_page']) {
+                $tpl_params['albums_navbar'] = $this->defineNavigation(
                     $router,
                     'albums',
                     [],
                     $total_albums,
                     $start,
-                    $conf['nb_categories_page'],
+                    $conf['nb_albums_page'],
                     $conf['paginate_pages_around']
                 );
             }
@@ -208,123 +218,13 @@ class AlbumController extends AbstractController
         $tpl_params['U_MODE_CREATED'] = $this->generateUrl('calendar', ['date_type' => 'created', 'album_id' => $album_id]);
         $tpl_params['START_ID'] = $start;
 
-        return $this->render('thumbnails.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['album']), $tpl_params);
     }
 
-    public function albumFlat(
-        Request $request,
-        Conf $conf,
-        AlbumMapper $albumMapper,
-        ImageMapper $imageMapper,
-        int $album_id,
-        TranslatorInterface $translator,
-        RouterInterface $router,
-        AppUserService $appUserService,
-        int $start = 0
-    ): Response {
-        $subcat_ids = [];
-        $tpl_params = [];
-
-        if ($request->cookies->has('album_view')) {
-            $tpl_params['album_view'] = $request->cookies->get('album_view');
-        }
-
-        $album = $albumMapper->getRepository()->find($album_id);
-        $subcat_ids[] = $album->getId();
-        foreach ($albumMapper->getRepository()->findAllowedSubAlbums($album->getUppercats(), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $sub_album_id) {
-            $subcat_ids[] = $sub_album_id;
-        }
-
-        $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->searchDistinctIdInAlbum($album->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $conf['order_by']) as $image) {
-            $tpl_params['items'][] = $image['id'];
-        }
-
-        if ($tpl_params['items'] !== []) {
-            $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
-
-            if (count($tpl_params['items']) > $nb_image_page) {
-                $tpl_params['thumb_navbar'] = $this->$this->defineNavigation(
-                    $router,
-                    'album_flat',
-                    ['album_id' => $album_id],
-                    count($tpl_params['items']),
-                    $start,
-                    $nb_image_page,
-                    $conf['paginate_pages_around']
-                );
-            }
-
-            $tpl_params = array_merge(
-                $tpl_params,
-                $imageMapper->getPicturesFromSelection(
-                    $album_id,
-                    PictureSectionType::ALBUM,
-                    array_slice($tpl_params['items'], $start, $nb_image_page),
-                    $start
-                )
-            );
-        }
-
-        $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
-        $tpl_params['START_ID'] = $start;
-
-        return $this->render('thumbnails.html.twig', $tpl_params);
-    }
-
-    public function albumsFlat(
-        Request $request,
-        Conf $conf,
-        ImageMapper $imageMapper,
-        TranslatorInterface $translator,
-        RouterInterface $router,
-        AppUserService $appUserService,
-        int $start = 0
-    ): Response {
-        $tpl_params = [];
-
-        if ($request->cookies->has('album_view')) {
-            $tpl_params['album_view'] = $request->cookies->get('album_view');
-        }
-
-        $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
-
-        $tpl_params['items'] = [];
-        foreach ($imageMapper->getRepository()->searchDistinctId($appUserService->getUser()->getUserInfos()->getForbiddenAlbums(), $conf['order_by']) as $image) {
-            $tpl_params['items'][] = $image['id'];
-        }
-
-        if ($tpl_params['items'] !== []) {
-            $nb_image_page = $appUserService->getUser()->getUserInfos()->getNbImagePage();
-
-            if (count($tpl_params['items']) > $nb_image_page) {
-                $tpl_params['thumb_navbar'] = $this->defineNavigation(
-                    $router,
-                    'albums_flat',
-                    [],
-                    count($tpl_params['items']),
-                    $start,
-                    $nb_image_page,
-                    $conf['paginate_pages_around']
-                );
-            }
-
-            $tpl_params = array_merge(
-                $tpl_params,
-                $imageMapper->getPicturesFromSelection(
-                    'flat',
-                    PictureSectionType::ALBUMS,
-                    array_slice($tpl_params['items'], $start, $nb_image_page),
-                    $start
-                )
-            );
-        }
-
-        $tpl_params['START_ID'] = $start;
-
-        return $this->render('thumbnails.html.twig', $tpl_params);
-    }
-
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/albums/{start}', name: 'albums', defaults: ['start' => 0], requirements: ['start' => '\d+'])]
     public function albums(
         Request $request,
         Conf $conf,
@@ -334,6 +234,7 @@ class AlbumController extends AbstractController
         AlbumMapper $albumMapper,
         RouterInterface $router,
         AppUserService $appUserService,
+        array $publicTemplates,
         int $start = 0
     ): Response {
         $tpl_params = [];
@@ -358,8 +259,8 @@ class AlbumController extends AbstractController
         }
 
         if (count($user_representative_updates_for) > 0) {
-            foreach ($user_representative_updates_for as $cat_id => $image_id) {
-                $userCacheAlbumRepository->updateUserRepresentativePicture($appUserService->getUser()->getId(), $cat_id, $image_id);
+            foreach ($user_representative_updates_for as $album_id => $image_id) {
+                $userCacheAlbumRepository->updateUserRepresentativePicture($appUserService->getUser()->getId(), $album_id, $image_id);
             }
         }
 
@@ -385,8 +286,7 @@ class AlbumController extends AbstractController
                             true,
                             '<br>'
                         ),
-                        'DESCRIPTION' => $album->getComment() ?? '',
-                        'NAME' => $name,
+                        'comment' => $album->getComment(),
                         'name' => $album->getName(),
                         'icon_ts' => '',
                     ]
@@ -401,38 +301,42 @@ class AlbumController extends AbstractController
             $tpl_thumbnails_var_selection = array_slice(
                 $tpl_thumbnails_var,
                 $start,
-                $conf['nb_categories_page']
+                $conf['nb_albums_page']
             );
 
-            $tpl_params['category_thumbnails'] = $tpl_thumbnails_var_selection;
+            $tpl_params['album_thumbnails'] = $tpl_thumbnails_var_selection;
 
             // navigation bar
-            if ($total_albums > $conf['nb_categories_page']) {
-                $tpl_params['cats_navbar'] = $this->defineNavigation(
+            if ($total_albums > $conf['nb_albums_page']) {
+                $tpl_params['albums_navbar'] = $this->defineNavigation(
                     $router,
                     'albums',
                     [],
                     $total_albums,
                     $start,
-                    $conf['nb_categories_page'],
+                    $conf['nb_albums_page'],
                     $conf['paginate_pages_around']
                 );
             }
         }
 
-        return $this->render('mainpage_categories.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['albums']), $tpl_params);
     }
 
-    public function recentCats(
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/recent_albums/{start}', name: 'recent_albums', defaults: ['start' => 0], requirements: ['start' => '\d+'])]
+    public function recentAlbums(
         Request $request,
         Conf $conf,
         UserCacheAlbumRepository $userCacheAlbumRepository,
-        ImageStandardParams $image_std_params,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
         AlbumMapper $albumMapper,
         RouterInterface $router,
         AppUserService $appUserService,
+        array $publicTemplates,
         int $start = 0
     ): Response {
         $tpl_params = [];
@@ -459,8 +363,8 @@ class AlbumController extends AbstractController
         }
 
         if (count($user_representative_updates_for) > 0) {
-            foreach ($user_representative_updates_for as $cat_id => $image_id) {
-                $userCacheAlbumRepository->updateUserRepresentativePicture($appUserService->getUser()->getId(), $cat_id, $image_id);
+            foreach ($user_representative_updates_for as $album_id => $image_id) {
+                $userCacheAlbumRepository->updateUserRepresentativePicture($appUserService->getUser()->getId(), $album_id, $image_id);
             }
         }
 
@@ -485,8 +389,7 @@ class AlbumController extends AbstractController
                         true,
                         '<br>'
                     ),
-                    'DESCRIPTION' => $album->getComment() ?? '',
-                    'NAME' => $name,
+                    'comment' => $album->getComment(),
                     'name' => $album->getName(),
                     'icon_ts' => '',
                 ];
@@ -500,25 +403,25 @@ class AlbumController extends AbstractController
             $tpl_thumbnails_var_selection = array_slice(
                 $tpl_thumbnails_var,
                 $start,
-                $conf['nb_categories_page']
+                $conf['nb_albums_page']
             );
 
-            $tpl_params['category_thumbnails'] = $tpl_thumbnails_var_selection;
+            $tpl_params['album_thumbnails'] = $tpl_thumbnails_var_selection;
 
             // navigation bar
-            if ($total_albums > $conf['nb_categories_page']) {
-                $tpl_params['cats_navbar'] = $this->defineNavigation(
+            if ($total_albums > $conf['nb_albums_page']) {
+                $tpl_params['albums_navbar'] = $this->defineNavigation(
                     $router,
-                    'recent_cats',
+                    'recent_albums',
                     [],
                     $total_albums,
                     $start,
-                    $conf['nb_categories_page'],
+                    $conf['nb_albums_page'],
                     $conf['paginate_pages_around']
                 );
             }
         }
 
-        return $this->render('mainpage_categories.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['albums']), $tpl_params);
     }
 }

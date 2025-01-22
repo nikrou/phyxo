@@ -136,7 +136,6 @@ class MenuBar
             $block->setData([
                 'NB_PICTURE' => $this->appUserService->getUser()->getUserInfos()->getNbTotalImages(),
                 'MENU_CATEGORIES' => $this->albumMapper->getRecursiveAlbumsMenu($this->appUserService->getUser()),
-                'U_CATEGORIES' => $this->router->generate('albums_flat'),
             ]);
             $block->setTemplate('menubar_categories');
         }
@@ -236,8 +235,8 @@ class MenuBar
                 'NAME' => $this->translator->trans('Recent photos'),
             ];
 
-            $data['recent_cats'] = [
-                'URL' => $this->router->generate('recent_cats'),
+            $data['recent_albums'] = [
+                'URL' => $this->router->generate('recent_albums'),
                 'TITLE' => $this->translator->trans('display recently updated albums'),
                 'NAME' => $this->translator->trans('Recent albums'),
             ];

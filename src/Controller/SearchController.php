@@ -26,6 +26,7 @@ use App\Security\AppUserService;
 use Phyxo\Functions\Utils;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -33,7 +34,11 @@ class SearchController extends AbstractController
 {
     use ThumbnailsControllerTrait;
 
-    public function qsearch(Request $request, SearchRepository $searchRepository): Response
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/qsearch', name: 'qsearch')]
+    public function qsearch(Request $request, SearchRepository $searchRepository, array $publicTemplates): Response
     {
         if (!$request->get('q')) {
             throw $this->createNotFoundException();
@@ -55,9 +60,13 @@ class SearchController extends AbstractController
             $search_id = $search->getId();
         }
 
-        return $this->redirectToRoute('search_results', ['search_id' => $search_id]);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['search_results']));
     }
 
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/search', name: 'search')]
     public function search(
         Request $request,
         TagMapper $tagMapper,
@@ -65,7 +74,8 @@ class SearchController extends AbstractController
         SearchRepository $searchRepository,
         TranslatorInterface $translator,
         ImageMapper $imageMapper,
-        AppUserService $appUserService
+        AppUserService $appUserService,
+        array $publicTemplates
     ): Response {
         $tpl_params = [];
 
@@ -239,9 +249,13 @@ class SearchController extends AbstractController
 
         $tpl_params['F_SEARCH_ACTION'] = $this->generateUrl('search');
 
-        return $this->render('search.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['search']), $tpl_params);
     }
 
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/search/{search_id}/{start}', name: 'search_results', defaults: ['start' => 0], requirements: ['search_id' => '\d+', 'start' => '\d+'])]
     public function searchResults(
         Request $request,
         SearchMapper $searchMapper,
@@ -253,6 +267,7 @@ class SearchController extends AbstractController
         TranslatorInterface $translator,
         RouterInterface $router,
         AppUserService $appUserService,
+        array $publicTemplates,
         int $start = 0
     ): Response {
         $tpl_params = [];
@@ -261,16 +276,14 @@ class SearchController extends AbstractController
         $tpl_params['TITLE'] = $translator->trans('Search results');
         $tpl_params['U_SEARCH_RULES'] = $this->generateUrl('search_rules', ['search_id' => $search_id]);
 
-        $rules = [];
-        $tpl_params['items'] = [];
-        $search_results = [];
-
         $search = $searchRepository->findOneBy(['id' => $search_id]);
-        if (!is_null($search) && !empty($search->getRules())) {
-            $rules = unserialize(base64_decode($search->getRules()));
-
-            $tpl_params['items'] = $searchMapper->getSearchResults($rules, $appUserService->getUser());
+        if (is_null($search) || empty($search->getRules())) {
+            throw $this->createNotFoundException();
         }
+        $rules = unserialize(base64_decode($search->getRules()));
+
+        $tpl_params['items'] = $searchMapper->getSearchResults($rules, $appUserService->getUser());
+        $search_results = [];
 
         /** @phpstan-ignore-next-line */
         if (!empty($search_results['qsearch_details'])) {
@@ -327,6 +340,7 @@ class SearchController extends AbstractController
                     $start
                 )
             );
+
             /** @phpstan-ignore-next-line */
             if (!empty($search_results['qsearch_details']) && !empty($search_results['qsearch_details']['unmatched_terms'])) {
                 /** @phpstan-ignore-next-line */
@@ -345,11 +359,21 @@ class SearchController extends AbstractController
 
         $tpl_params['START_ID'] = $start;
 
-        return $this->render('thumbnails.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['album']), $tpl_params);
     }
 
-    public function searchRules(AlbumMapper $albumMapper, TagRepository $tagRepository, SearchRepository $searchRepository, int $search_id, TranslatorInterface $translator): Response
-    {
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/search_rules/{search_id}', name: 'search_rules', requirements: ['search_id' => '\d+'])]
+    public function searchRules(
+        AlbumMapper $albumMapper,
+        TagRepository $tagRepository,
+        SearchRepository $searchRepository,
+        array $publicTemplates,
+        TranslatorInterface $translator,
+        int $search_id,
+    ): Response {
         $tpl_params = [];
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search rules');
@@ -452,6 +476,6 @@ class SearchController extends AbstractController
             }
         }
 
-        return $this->render('search_rules.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['search_rules']), $tpl_params);
     }
 }

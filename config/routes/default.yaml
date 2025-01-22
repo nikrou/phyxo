@@ -52,6 +52,3 @@ download_picture:
   requirements:
     image_id: '[^/]*'
 
-public_menubar_navigation:
-  path: /menubar_navigation
-  controller: App\Controller\MenubarController::navigation

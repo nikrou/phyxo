@@ -12,7 +12,6 @@
   {% set rheight=height %}
 {% endif %}
 
-
 {% set derivative_params = define_derivative({width: width, height: height, crop: true}) %}
 {% set idx = 0+START_ID %}
 <div class="row">
@@ -36,7 +35,7 @@
           {% if SHOW_THUMBNAIL_CAPTION is defined %}
             <div class="card-body{% if not theme_config.thumbnail_caption and album_view != 'list' %} d-none{% endif %}{% if not theme_config.thumbnail_caption %} list-view-only{% endif %}">
               <h6 class="card-title">
-                <a href="{{thumbnail.URL}}" class="ellipsis{% if thumbnail.icon_ts %} recent{% endif %}">{{thumbnail.NAME}}</a>
+                <a href="{{thumbnail.URL}}" class="ellipsis{% if thumbnail.icon_ts %} recent{% endif %}">{{thumbnail.name}}</a>
                 {% if thumbnail.icon_ts %}
                   <i class="fa fa-exclamation"></i>
                 {% endif %}

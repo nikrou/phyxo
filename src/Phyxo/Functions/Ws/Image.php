@@ -19,6 +19,7 @@ use App\Entity\ImageAlbum;
 use App\Entity\ImageTag;
 use App\Entity\Rate;
 use App\Enum\ImageSizeType;
+use App\Enum\UserPrivacyLevelType;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use App\Security\TagVoter;
@@ -1287,7 +1288,7 @@ class Image
         } else {
             $image = new EntityImage();
             $image->setFile($original_filename === '' || $original_filename === '0' ? basename((string) $file_path) : $original_filename);
-            $image->setName(Utils::get_name_from_file($image->getFile()));
+            $image->setName(Utils::getNameFromFile($image->getFile()));
             $image->setDateAvailable($now);
             $image->setPath(preg_replace('#^' . preg_quote(dirname((string) $upload_dir)) . '#', '.', realpath($file_path)));
             $image->setFilesize($filesize);
@@ -1298,12 +1299,8 @@ class Image
             $image->setRotation($rotation);
 
             if (isset($level)) {
-                $image->setLevel($level);
+                $image->setLevel(UserPrivacyLevelType::from($level));
             }
-
-            // if (isset($representative_ext)) {
-            //     $image->setRepresentativeExt($representative_ext);
-            // }
 
             $image_id = $service->getImageMapper()->getRepository()->addOrUpdateImage($image);
         }

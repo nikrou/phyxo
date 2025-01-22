@@ -107,7 +107,7 @@ class ImageMapper
                     'picture_categories_from_calendar',
                     [
                         'image_id' => $picture['image']->getId(),
-                        'start_id' => $start_id !== 0 ? 'start-' . $start_id : '',
+                        'start_id' => $start_id,
                         'extra' => 'extr',
                     ]
                 );
@@ -118,7 +118,7 @@ class ImageMapper
                         'image_id' => $picture['image']->getId(),
                         'date_type' => $extra['date_type'],
                         'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day']),
-                        'start_id' => $start_id !== 0 ? 'start-' . $start_id : '',
+                        'start_id' => $start_id
                     ]
                 );
             } else {
@@ -127,13 +127,13 @@ class ImageMapper
                     [
                         'image_id' => $picture['image']->getId(),
                         'section' => $section->value,
-                        'start_id' => $start_id !== 0 ? 'start-' . $start_id : ''
+                        'start_id' => $start_id
                     ]
                 );
             }
 
             if (isset($nb_comments_of, $nb_comments_of[$picture['image']->getId()])) {
-                $picture['NB_COMMENTS'] = $picture['nb_comments'] = $nb_comments_of[$picture['image']->getId()];
+                $picture['nb_comments'] = $nb_comments_of[$picture['image']->getId()];
             }
 
             $name = Utils::renderElementName($picture);
@@ -163,7 +163,6 @@ class ImageMapper
                 }
             }
 
-            $tpl_var['NAME'] = $name;
             $tpl_params['thumbnails'][] = $tpl_var;
         }
 

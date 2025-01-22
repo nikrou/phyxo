@@ -537,13 +537,14 @@ class PictureController extends AbstractController
     }
 
     #[Route(
-        '/picture/{image_id}/{section}/{start_id<start-\d+>?}',
+        '/picture/{image_id}/{section}/{start}',
         name: 'picture_by_type',
+        defaults: ['start' => 0],
         requirements: [
             'section' => new EnumRequirement(
                 [PictureSectionType::FAVORITES, PictureSectionType::MOST_VISITED, PictureSectionType::RECENT_PICS, PictureSectionType::BEST_RATED],
             ),
-            'start_id' => 'start-\d+?'
+            'start' => '\d+'
         ],
     )]
     public function picturesByTypes(int $image_id, PictureSectionType $section = PictureSectionType::ALBUM): Response

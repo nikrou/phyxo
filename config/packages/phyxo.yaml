@@ -1,0 +1,14 @@
+phyxo:
+  templates:
+    # user
+    profile: profile
+    login: identification
+    register: register
+    reset_password: reset_password
+    forgot_password: forgot_password
+    menubar: _menubar
+    albums: mainpage_categories
+    album: thumbnails
+    search: search
+    search_results: search_results
+    search_rules: search_rules

@@ -30,6 +30,9 @@ class FavoriteController extends AbstractController
 {
     use ThumbnailsControllerTrait;
 
+    /**
+     * @param array<string, string> $publicTemplates
+     */
     #[Route('/favorites/{start}', name: 'favorites', defaults: ['start' => 0], requirements: ['start' => '\d+'])]
     public function index(
         Request $request,
@@ -39,6 +42,7 @@ class FavoriteController extends AbstractController
         TranslatorInterface $translator,
         RouterInterface $router,
         AppUserService $appUserService,
+        array $publicTemplates,
         int $start = 0
     ): Response {
         $tpl_params = [];
@@ -84,7 +88,7 @@ class FavoriteController extends AbstractController
 
         $tpl_params['START_ID'] = $start;
 
-        return $this->render('thumbnails.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['album']), $tpl_params);
     }
 
     #[Route('/add-to-favorites/{image_id}', name: 'add_to_favorites')]

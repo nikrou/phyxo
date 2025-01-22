@@ -20,6 +20,7 @@ use App\Enum\PictureSectionType;
 use App\Security\AppUserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -27,6 +28,10 @@ class IndexController extends AbstractController
 {
     use ThumbnailsControllerTrait;
 
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/most_visited/{start}', name: 'most_visited', defaults: ['start' => 0], requirements: ['start' => '\d+'])]
     public function mostVisited(
         Request $request,
         Conf $conf,
@@ -34,6 +39,7 @@ class IndexController extends AbstractController
         TranslatorInterface $translator,
         RouterInterface $router,
         AppUserService $appUserService,
+        array $publicTemplates,
         int $start = 0
     ): Response {
         $tpl_params = [];
@@ -75,9 +81,13 @@ class IndexController extends AbstractController
 
         $tpl_params['START_ID'] = $start;
 
-        return $this->render('thumbnails.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['albums']), $tpl_params);
     }
 
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/recent_pics/{start}', name: 'recent_pics', defaults: ['start' => 0], requirements: ['start' => '\d+'])]
     public function recentPics(
         Request $request,
         Conf $conf,
@@ -85,6 +95,7 @@ class IndexController extends AbstractController
         TranslatorInterface $translator,
         RouterInterface $router,
         AppUserService $appUserService,
+        array $publicTemplates,
         int $start = 0
     ): Response {
         $tpl_params = [];
@@ -130,9 +141,13 @@ class IndexController extends AbstractController
 
         $tpl_params['START_ID'] = $start;
 
-        return $this->render('thumbnails.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['albums']), $tpl_params);
     }
 
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/best_rated/{start}', name: 'best_rated', defaults: ['start' => 0], requirements: ['start' => '\d+'])]
     public function bestRated(
         Request $request,
         Conf $conf,
@@ -140,6 +155,7 @@ class IndexController extends AbstractController
         TranslatorInterface $translator,
         RouterInterface $router,
         AppUserService $appUserService,
+        array $publicTemplates,
         int $start = 0
     ): Response {
         $tpl_params = [];
@@ -184,9 +200,10 @@ class IndexController extends AbstractController
 
         $tpl_params['START_ID'] = $start;
 
-        return $this->render('thumbnails.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['albums']), $tpl_params);
     }
 
+    #[Route('/random', name: 'random')]
     public function random(ImageMapper $imageMapper, Conf $conf, AppUserService $appUserService): Response
     {
         $list = $imageMapper->getRepository()->findRandomImages(
@@ -201,12 +218,17 @@ class IndexController extends AbstractController
         }
     }
 
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/list/{list}', name: 'random_list')]
     public function randomList(
         Request $request,
         string $list,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
         AppUserService $appUserService,
+        array $publicTemplates,
         int $start = 0
     ): Response {
         $tpl_params = [];
@@ -238,6 +260,6 @@ class IndexController extends AbstractController
 
         $tpl_params['START_ID'] = $start;
 
-        return $this->render('thumbnails.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['albums']), $tpl_params);
     }
 }

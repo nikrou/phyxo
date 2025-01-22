@@ -11,6 +11,7 @@
 
 namespace App\Form\Transformer;
 
+use App\Enum\ConfEnum;
 use Phyxo\Conf;
 use App\Form\Model\DisplayConfigurationModel;
 use Symfony\Component\Form\DataTransformerInterface;
@@ -32,7 +33,7 @@ class ConfToDisplayConfigurationTransformer implements DataTransformerInterface
         $model->setIndexSortOrderInput($conf['index_sort_order_input']);
         $model->setIndexPostedDateIcon($conf['index_posted_date_icon']);
         $model->setIndexCreatedDateIcon($conf['index_created_date_icon']);
-        $model->setNbCategoriesPage($conf['nb_categories_page']);
+        $model->setNbAlbumsPage($conf['nb_albums_page']);
 
         $model->setPictureMetadataIcon($conf['picture_metadata_icon']);
         $model->setPictureDownloadIcon($conf['picture_download_icon']);
@@ -52,20 +53,20 @@ class ConfToDisplayConfigurationTransformer implements DataTransformerInterface
     public function reverseTransform(mixed $displayConfigurationModel): mixed
     {
         return [
-            'menubar_filter_icon' => ['value' => $displayConfigurationModel->getMenubarFilterIcon(), 'type' => 'boolean'],
-            'index_new_icon' => ['value' => $displayConfigurationModel->getIndexNewIcon(), 'type' => 'boolean'],
-            'index_flat_icon' => ['value' => $displayConfigurationModel->getIndexFlatIcon(), 'type' => 'boolean'],
-            'index_sort_order_input' => ['value' => $displayConfigurationModel->getIndexSortOrderInput(), 'type' => 'boolean'],
-            'index_posted_date_icon' => ['value' => $displayConfigurationModel->getIndexPostedDateIcon(), 'type' => 'boolean'],
-            'index_created_date_icon' => ['value' => $displayConfigurationModel->getIndexCreatedDateIcon(), 'type' => 'boolean'],
-            'nb_categories_page' => ['value' => $displayConfigurationModel->getNbCategoriesPage(), 'type' => 'integer'],
-            'picture_metadata_icon' => ['value' => $displayConfigurationModel->getPictureMetadataIcon(), 'type' => 'boolean'],
-            'picture_download_icon' => ['value' => $displayConfigurationModel->getPictureDownloadIcon(), 'type' => 'boolean'],
-            'picture_favorite_icon' => ['value' => $displayConfigurationModel->getPictureFavoriteIcon(), 'type' => 'boolean'],
-            'picture_navigation_icons' => ['value' => $displayConfigurationModel->getPictureNavigationIcons(), 'type' => 'boolean'],
-            'picture_navigation_thumb' => ['value' => $displayConfigurationModel->getPictureNavigationThumb(), 'type' => 'boolean'],
-            'picture_menu' => ['value' => $displayConfigurationModel->getPictureMenu(), 'type' => 'boolean'],
-            'picture_informations' => ['value' => $displayConfigurationModel->getPictureInformations(), 'type' => 'json']
+            'menubar_filter_icon' => ['value' => $displayConfigurationModel->getMenubarFilterIcon(), 'type' => ConfEnum::BOOLEAN],
+            'index_new_icon' => ['value' => $displayConfigurationModel->getIndexNewIcon(), 'type' => ConfEnum::BOOLEAN],
+            'index_flat_icon' => ['value' => $displayConfigurationModel->getIndexFlatIcon(), 'type' => ConfEnum::BOOLEAN],
+            'index_sort_order_input' => ['value' => $displayConfigurationModel->getIndexSortOrderInput(), 'type' => ConfEnum::BOOLEAN],
+            'index_posted_date_icon' => ['value' => $displayConfigurationModel->getIndexPostedDateIcon(), 'type' => ConfEnum::BOOLEAN],
+            'index_created_date_icon' => ['value' => $displayConfigurationModel->getIndexCreatedDateIcon(), 'type' => ConfEnum::BOOLEAN],
+            'nb_albums_page' => ['value' => $displayConfigurationModel->getNbAlbumsPage(), 'type' => ConfEnum::INTEGER],
+            'picture_metadata_icon' => ['value' => $displayConfigurationModel->getPictureMetadataIcon(), 'type' => ConfEnum::BOOLEAN],
+            'picture_download_icon' => ['value' => $displayConfigurationModel->getPictureDownloadIcon(), 'type' => ConfEnum::BOOLEAN],
+            'picture_favorite_icon' => ['value' => $displayConfigurationModel->getPictureFavoriteIcon(), 'type' => ConfEnum::BOOLEAN],
+            'picture_navigation_icons' => ['value' => $displayConfigurationModel->getPictureNavigationIcons(), 'type' => ConfEnum::BOOLEAN],
+            'picture_navigation_thumb' => ['value' => $displayConfigurationModel->getPictureNavigationThumb(), 'type' => ConfEnum::BOOLEAN],
+            'picture_menu' => ['value' => $displayConfigurationModel->getPictureMenu(), 'type' => ConfEnum::BOOLEAN],
+            'picture_informations' => ['value' => $displayConfigurationModel->getPictureInformations(), 'type' => ConfEnum::JSON]
         ];
     }
 }

@@ -2,9 +2,9 @@
 
 {% block content %}
   {{ include('_category_nav.html.twig') }}
-
+    
     <div id="content" class="{% if album_view == 'list' %}content-list{% else %}content-grid{% endif %}">
-	{% if category_thumbnails is defined %} {# display sub-albums #}
+	{% if album_thumbnails is defined %} {# display sub-albums #}
 	    {{ include('_albums.html.twig') }}
 	{% endif %}
 

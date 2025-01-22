@@ -21,7 +21,7 @@ INSERT INTO phyxo_config (param,value,type,comment) VALUES ('history_admin','fal
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('history_guest','true','boolean','keep a history of guest visits on your website');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('allow_user_registration','true','boolean','allow visitors to register?');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('allow_user_customization','true','boolean','allow users to customize their gallery?');
-INSERT INTO phyxo_config (param,value,type,comment) VALUES ('nb_categories_page','12','integer','Param for categories pagination');
+INSERT INTO phyxo_config (param,value,type,comment) VALUES ('nb_albums_page','12','integer','Param for albums pagination');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('nbm_send_html_mail','true','boolean','Send mail on HTML format for notification by mail');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('nbm_send_mail_as','','string','Send mail as param value for notification by mail');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('nbm_send_detailed_content','true','boolean','Send detailed content for notification by mail');
@@ -44,7 +44,7 @@ INSERT INTO phyxo_config (param,value,type,comment) VALUES ('picture_download_ic
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('picture_navigation_icons','true','boolean','Display navigation icons on picture page');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('picture_navigation_thumb','true','boolean','Display navigation thumbnails on picture page');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('picture_menu','false','boolean','Show menubar on picture page');
-INSERT INTO phyxo_config (param,value,type,comment) VALUES ('picture_informations','{"author":true,"created_on":true,"posted_on":true,"dimensions":false,"file":false,"filesize":false,"tags":true,"categories":true,"visits":true,"rating_score":true,"privacy_level":true}','json','Information displayed on picture page');
+INSERT INTO phyxo_config (param,value,type,comment) VALUES ('picture_informations','{"author":true,"created_on":true,"posted_on":true,"dimensions":false,"file":false,"filesize":false,"tags":true,"albums":true,"visits":true,"rating_score":true,"privacy_level":true}','json','Information displayed on picture page');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('week_starts_on','monday','string','Monday may not be the first day of the week');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('updates_ignored','{"plugins":[],"themes":[],"languages":[]}','json','Extensions ignored for update');
 INSERT INTO phyxo_config (param,value,type,comment) VALUES ('order_by','[["date_available", "DESC"], ["file", "ASC"], ["id", "ASC"]]','json','default photo order');

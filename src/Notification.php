@@ -218,7 +218,7 @@ class Notification
                 $news,
                 $this->nb_updated_albums($start, $end),
                 'number_of_albums_updated',
-                $this->router->generate('recent_cats', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                $this->router->generate('recent_albums', [], UrlGeneratorInterface::ABSOLUTE_URL),
                 $add_url
             );
         }

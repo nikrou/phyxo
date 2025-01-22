@@ -12,26 +12,10 @@ default_routes:
   resource: routes/default.yaml
   prefix: /
 
-user_routes:
-  resource: routes/user.yaml
-  prefix: /
-
-search_routes:
-  resource: routes/search.yaml
-  prefix: /
-
-album_routes:
-  resource: routes/album.yaml
-  prefix: /
-
 calendar_routes:
   resource: routes/calendar.yaml
   prefix: /
 
 tag_routes:
   resource: routes/tag.yaml
-  prefix: /
-
-index_routes:
-  resource: routes/index.yaml
   prefix: /

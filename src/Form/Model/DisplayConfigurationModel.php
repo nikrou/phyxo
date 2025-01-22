@@ -19,7 +19,7 @@ class DisplayConfigurationModel
     private bool $index_flat_icon;
     private bool $index_posted_date_icon;
     private bool $index_created_date_icon;
-    private int $nb_categories_page;
+    private int $nb_albums_page;
     private bool $picture_metadata_icon;
     private bool $picture_download_icon;
     private bool $picture_favorite_icon;
@@ -102,16 +102,16 @@ class DisplayConfigurationModel
         return $this->index_created_date_icon;
     }
 
-    public function setNbCategoriesPage(int $nb_categories_page): self
+    public function setNbAlbumsPage(int $nb_albums_page): self
     {
-        $this->nb_categories_page = $nb_categories_page;
+        $this->nb_albums_page = $nb_albums_page;
 
         return $this;
     }
 
-    public function getNbCategoriesPage(): int
+    public function getNbAlbumsPage(): int
     {
-        return $this->nb_categories_page;
+        return $this->nb_albums_page;
     }
 
     public function setPictureMetadataIcon(bool $picture_metadata_icon): self
@@ -288,16 +288,16 @@ class DisplayConfigurationModel
         return $this->picture_informations['tags'];
     }
 
-    public function setCategories(bool $categories): self
+    public function setAlbums(bool $albums): self
     {
-        $this->picture_informations['categories'] = $categories;
+        $this->picture_informations['albums'] = $albums;
 
         return $this;
     }
 
-    public function getCategories(): bool
+    public function getAlbums(): bool
     {
-        return $this->picture_informations['categories'];
+        return $this->picture_informations['albums'];
     }
 
     public function setVisits(bool $visits): self

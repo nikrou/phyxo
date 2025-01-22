@@ -22,7 +22,7 @@ enum PictureSectionType: string
     case MOST_VISITED = 'most_visited';
     case BEST_RATED = 'best_rated';
     case RECENT_PICS = 'recent_pics';
-    case RECENT_ALBUMS = 'recent_cats';
+    case RECENT_ALBUMS = 'recent_albums';
     case FILE = 'file';
     case FROM_CALENDAR = 'from_calendar';
 

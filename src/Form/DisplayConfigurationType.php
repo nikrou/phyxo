@@ -60,7 +60,7 @@ class DisplayConfigurationType extends AbstractType
                     ['label' => 'Activate icon "Display a calendar by creation date"']
                 );
                 $builder->add(
-                    'nb_categories_page',
+                    'nb_albums_page',
                     IntegerType::class,
                     [
                         'label' => 'Number of albums per page',
@@ -104,7 +104,7 @@ class DisplayConfigurationType extends AbstractType
                 $builder->add('file', CheckboxType::class);
                 $builder->add('filesize', CheckboxType::class);
                 $builder->add('tags', CheckboxType::class);
-                $builder->add('categories', CheckboxType::class);
+                $builder->add('albums', CheckboxType::class);
                 $builder->add('visits', CheckboxType::class);
                 $builder->add('rating_score', CheckboxType::class);
                 $builder->add('privacy_level', CheckboxType::class, ['label' => 'Who can see this photo?', 'help' => 'available for administrators only']);
