@@ -16,11 +16,16 @@ use Phyxo\Conf;
 use Phyxo\Functions\Language;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AboutController extends AbstractController
 {
-    public function index(AppUserService $appUserService, Conf $conf, string $themesDir, string $rootProjectDir, TranslatorInterface $translator): Response
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/about', name: 'about')]
+    public function index(AppUserService $appUserService, Conf $conf, string $themesDir, string $rootProjectDir, TranslatorInterface $translator, array $publicTemplates): Response
     {
         $tpl_params = [];
 
@@ -29,6 +34,6 @@ class AboutController extends AbstractController
         $tpl_params['ABOUT_MESSAGE'] = Language::loadLanguageFile('about.html', $rootProjectDir . '/languages/' . $appUserService->getUser()->getLocale());
         $tpl_params['THEME_ABOUT'] = Language::loadLanguageFile('about.html', $themesDir . '/' . $appUserService->getUser()->getTheme() . '/languages/' . $appUserService->getUser()->getLocale());
 
-        return $this->render('about.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['about']), $tpl_params);
     }
 }

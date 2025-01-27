@@ -51,6 +51,9 @@ class PhyxoBundle extends AbstractBundle
             ->stringNode('calendar_by_year')->defaultValue('calendar_by_year')->end()
             ->stringNode('calendar_by_month')->defaultValue('calendar_by_month')->end()
             ->stringNode('calendar_by_day')->defaultValue('calendar_by_day')->end()
+            // other templates
+            ->stringNode('about')->defaultValue('about')->end()
+            ->stringNode('notification')->defaultValue('notification')->end()
             ->end()
         ;
     }

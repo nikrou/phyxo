@@ -1,64 +1,33 @@
+_security_logout:
+    resource: security.route_loader.logout
+    type: service
+
+when@dev:
+    web_profiler_wdt:
+        resource: '@WebProfilerBundle/Resources/config/routing/wdt.xml'
+        prefix: /_wdt
+
+    web_profiler_profiler:
+        resource: '@WebProfilerBundle/Resources/config/routing/profiler.xml'
+        prefix: /_profiler
+
+    _errors:
+        resource: '@FrameworkBundle/Resources/config/routing/errors.xml'
+        prefix: /_error
+
 controllers:
     resource:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
 
+api_platform:
+    resource: .
+    type: api_platform
+    prefix: /api
+
 admin_routes:
   resource: routes/admin/*.yaml
   prefix: /admin
 
-homepage:
-  path: /
-  controller: App\Controller\DefaultController::home
-
-about:
-  path: /about
-  controller: App\Controller\AboutController::index
-
-feed:
-  path: /feed/{feed_id}
-  controller: App\Controller\FeedController::feed
-
-feed_image_only:
-  path: /feed/{feed_id}/image-only
-  controller: App\Controller\FeedController::feed
-  defaults:
-    image_only: true
-
-notification:
-  path: /notification
-  controller: App\Controller\FeedController::notification
-
-notification_subscribe:
-  path: /notification/subscribe
-  controller: App\Controller\FeedController::notificationSubscribe
-
-notification_unsubscribe:
-  path: /notification/unsubscribe
-  controller: App\Controller\FeedController::notificationUnsubscribe
-
-ws:
-  path: /ws
-  controller: App\Controller\WsController::index
-
-plugin_asset:
-  path: /asset/plugin/{id}/{path}
-  controller: App\Controller\ExtensionAssetController::pluginAsset
-  requirements:
-    id: '[^/]*'
-    path: '.+'
-
-theme_asset:
-  path: /asset/theme/{id}/{path}
-  controller: App\Controller\ExtensionAssetController::themeAsset
-  requirements:
-    id: '[^/]*'
-    path: '.+'
-
-download_picture:
-  path: /download/{image_id}
-  controller: App\Controller\DefaultController::download
-  requirements:
-    image_id: '[^/]*'
 

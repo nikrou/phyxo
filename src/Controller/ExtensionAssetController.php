@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Mime\MimeTypeGuesserInterface;
+use Symfony\Component\Routing\Attribute\Route;
 
 class ExtensionAssetController extends AbstractController
 {
@@ -24,11 +25,13 @@ class ExtensionAssetController extends AbstractController
     {
     }
 
+    #[Route('/asset/plugin/{id}/{path}', name: 'plugin_asset', requirements: ['id' => '[^/]*', 'path' => '.+'])]
     public function pluginAsset(string $id, string $path, string $pluginsDir): Response
     {
         return $this->sendFile(sprintf('%s/%s/%s', $pluginsDir, $id, $path));
     }
 
+    #[Route('/asset/theme/{id}/{path}', name: 'theme_asset', requirements: ['id' => '[^/]*', 'path' => '.+'])]
     public function themeAsset(string $id, string $path, string $themesDir): Response
     {
         return $this->sendFile(sprintf('%s/%s/%s', $themesDir, $id, $path));

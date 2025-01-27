@@ -21,3 +21,6 @@ phyxo:
     calendar_by_year: calendar_by_year
     calendar_by_month: calendar_by_month
     calendar_by_day: calendar_by_day
+    # others
+    about: about
+    notification: notification

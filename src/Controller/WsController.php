@@ -46,11 +46,13 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Attribute\Route;
 
 class WsController extends AbstractController
 {
     private Server $service;
 
+    #[Route('/ws', name: 'ws')]
     public function index(
         AppUserService $appUserService,
         UserMapper $userMapper,

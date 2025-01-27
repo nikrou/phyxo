@@ -23,11 +23,16 @@ use App\Notification;
 use App\Security\AppUserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FeedController extends AbstractController
 {
-    public function notification(TranslatorInterface $translator, UserFeedRepository $userFeedRepository, AppUserService $appUserService): Response
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/notification', name: 'notification')]
+    public function notification(TranslatorInterface $translator, UserFeedRepository $userFeedRepository, AppUserService $appUserService, array $publicTemplates): Response
     {
         $tpl_params = [];
 
@@ -43,19 +48,11 @@ class FeedController extends AbstractController
         $tpl_params['U_FEED'] = $this->generateUrl('feed', ['feed_id' => $feed->getUuid()]);
         $tpl_params['U_FEED_IMAGE_ONLY'] = $this->generateUrl('feed_image_only', ['feed_id' => $feed->getUuid()]);
 
-        return $this->render('notification.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['notification']), $tpl_params);
     }
 
-    public function notificationSubscribe(): Response
-    {
-        return new Response('Not yet');
-    }
-
-    public function notificationUnsubscribe(): Response
-    {
-        return new Response('Not yet');
-    }
-
+    #[Route('/feed/{feed_id}', name: 'feed', defaults: ['image_only' => false])]
+    #[Route('/feed/{feed_id}/image-only', name: 'feed_image_only', defaults: ['image_only' => true])]
     public function feed(
         string $feed_id,
         Conf $conf,
@@ -120,7 +117,7 @@ class FeedController extends AbstractController
             $date = $date_detail['date_available'];
             $item->title = $notification->get_title_recent_post_date($date_detail);
             $item->link = $this->generateUrl(
-                'calendar_categories_monthly_year_month_day',
+                'calendar_by_day',
                 [
                     'date_type' => 'posted',
                     'view_type' => 'calendar',

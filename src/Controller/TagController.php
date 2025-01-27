@@ -40,7 +40,7 @@ class TagController extends AbstractController
         defaults: ['display_mode' => 'letters'],
         requirements: ['display_mode' => 'cloud|letters']
     )]
-    public function list(Request $request, AppUserService $appUserService, TagMapper $tagMapper, Conf $conf, MenuBar $menuBar, TranslatorInterface $translator): Response
+    public function list(Request $request, AppUserService $appUserService, TagMapper $tagMapper, Conf $conf, MenuBar $menuBar, TranslatorInterface $translator, array $publicTemplates): Response
     {
         $tpl_params = [];
 
