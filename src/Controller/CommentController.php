@@ -26,6 +26,7 @@ use App\Security\AppUserService;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -33,6 +34,21 @@ class CommentController extends AbstractController
 {
     use ThumbnailsControllerTrait;
 
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route(
+        '/comments/{start}',
+        name: 'comments',
+        defaults: ['start' => 0],
+        requirements: ['start' => '\d+']
+    )]
+    #[Route(
+        '/comments/{start}/edit/{comment_id}',
+        name: 'comment_edit',
+        defaults: ['start' => 0],
+        requirements: ['start' => '\d+']
+    )]
     public function index(
         Request $request,
         RouterInterface $router,
@@ -42,7 +58,8 @@ class CommentController extends AbstractController
         CommentRepository $commentRepository,
         AppUserService $appUserService,
         AlbumMapper $albumMapper,
-        int $comment_id,
+        array $publicTemplates,
+        ?int $comment_id = null,
         int $start = 0
     ): Response {
         $tpl_params = [];
@@ -174,9 +191,10 @@ class CommentController extends AbstractController
 
         $tpl_params['derivative_params'] = $image_std_params->getByType(ImageSizeType::THUMB);
 
-        return $this->render('comments.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['comments']), $tpl_params);
     }
 
+    #[Route('/comments/update/{comment_id}', name: 'comment_update', requirements: ['comment_id' => '\d+'])]
     public function updateComment(Request $request, int $comment_id, TranslatorInterface $translator, CommentRepository $commentRepository): Response
     {
         $editForm = $this->createForm(EditCommentType::class, $commentRepository->find($comment_id));
@@ -192,6 +210,7 @@ class CommentController extends AbstractController
         return $this->redirect($editForm['redirect']->getData());
     }
 
+    #[Route('/comments/validate/{comment_id}', name: 'comment_validate', requirements: ['comment_id' => '\d+'])]
     public function validateComment(Request $request, int $comment_id, TranslatorInterface $translator, CommentRepository $commentRepository): Response
     {
         $validateForm = $this->createForm(ValidateCommentType::class, null, ['id' => $comment_id]);
@@ -206,6 +225,7 @@ class CommentController extends AbstractController
         return $this->redirect($validateForm['redirect']->getData());
     }
 
+    #[Route('/comments/delete/{comment_id}', name: 'comment_delete', requirements: ['comment_id' => '\d+'])]
     public function deleteComment(Request $request, int $comment_id, TranslatorInterface $translator, CommentRepository $commentRepository): Response
     {
         $deleteForm = $this->createForm(DeleteCommentType::class, null, ['id' => $comment_id]);

@@ -38,10 +38,19 @@ class PhyxoBundle extends AbstractBundle
             // album & picture
             ->stringNode('albums')->defaultValue('albums')->end()
             ->stringNode('album')->defaultValue('album')->end()
+            ->stringNode('picture')->defaultValue('picture')->end()
+            ->stringNode('tags')->defaultValue('tags')->end()
             // search
             ->stringNode('search')->defaultValue('search')->end()
             ->stringNode('search_results')->defaultValue('search_results')->end()
             ->stringNode('search_rules')->defaultValue('search_rules')->end()
+            // comments
+            ->stringNode('comments')->defaultValue('comments')->end()
+            // calendar
+            ->stringNode('calendar')->defaultValue('calendar')->end()
+            ->stringNode('calendar_by_year')->defaultValue('calendar_by_year')->end()
+            ->stringNode('calendar_by_month')->defaultValue('calendar_by_month')->end()
+            ->stringNode('calendar_by_day')->defaultValue('calendar_by_day')->end()
             ->end()
         ;
     }

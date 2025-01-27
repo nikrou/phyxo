@@ -23,6 +23,7 @@ use App\Enum\PictureSectionType;
 use App\Security\AppUserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -30,6 +31,15 @@ class TagController extends AbstractController
 {
     use ThumbnailsControllerTrait;
 
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route(
+        '/tags/{display_mode}',
+        name: 'tags',
+        defaults: ['display_mode' => 'letters'],
+        requirements: ['display_mode' => 'cloud|letters']
+    )]
     public function list(Request $request, AppUserService $appUserService, TagMapper $tagMapper, Conf $conf, MenuBar $menuBar, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
@@ -128,6 +138,15 @@ class TagController extends AbstractController
         return $this->render('tags.html.twig', $tpl_params);
     }
 
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route(
+        '/tags/{tag_ids}/{start}',
+        name: 'images_by_tags',
+        defaults: ['start' => 0],
+        requirements: ['start' => '\d+', 'tag_ids' => '.+']
+    )]
     public function imagesByTags(
         Request $request,
         ImageMapper $imageMapper,
@@ -138,6 +157,7 @@ class TagController extends AbstractController
         MenuBar $menuBar,
         RouterInterface $router,
         AppUserService $appUserService,
+        array $publicTemplates,
         int $start = 0
     ): Response {
         $tpl_params = [];
@@ -198,7 +218,7 @@ class TagController extends AbstractController
 
         $tpl_params['START_ID'] = $start;
 
-        return $this->render('thumbnails.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['album']), $tpl_params);
     }
 
     /**

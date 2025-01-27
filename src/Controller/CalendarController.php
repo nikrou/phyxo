@@ -21,13 +21,18 @@ use Phyxo\Image\ImageStandardParams;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 
 class CalendarController extends AbstractController
 {
     use ThumbnailsControllerTrait;
 
-    public function index(ImageRepository $imageRepository, string $date_type, AppUserService $appUserService): Response
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route('/calendar/{date_type}', name: 'calendar', defaults: ['date_type' => '%default_date_type%'], requirements: ['date_type' => 'created|posted'])]
+    public function index(ImageRepository $imageRepository, string $date_type, AppUserService $appUserService, array $publicTemplates): Response
     {
         $tpl_params = [];
         $tpl_params['date_type'] = $date_type;
@@ -62,10 +67,19 @@ class CalendarController extends AbstractController
             $tpl_params['years'][$image->getDateByType($date_type)->format('Y')]['image'] = $image;
         }
 
-        return $this->render('calendar.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['calendar']), $tpl_params);
     }
 
-    public function byYear(Request $request, ImageRepository $imageRepository, string $date_type, AppUserService $appUserService, int $year): Response
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route(
+        '/calendar/{date_type}/{year}/{start}',
+        name: 'calendar_by_year',
+        defaults: ['date_type' => '%default_date_type%', 'start' => 0],
+        requirements: ['date_type' => 'created|posted', 'start' => '\d+', 'year' => '\d{4}']
+    )]
+    public function byYear(Request $request, ImageRepository $imageRepository, string $date_type, AppUserService $appUserService, array $publicTemplates, int $year): Response
     {
         $tpl_params = [];
         $tpl_params['number_of_images'] = 0;
@@ -98,10 +112,19 @@ class CalendarController extends AbstractController
             $tpl_params['months'][$image->getDateByType($date_type)->format('n')]['image'] = $image;
         }
 
-        return $this->render('calendar_by_year.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['calendar_by_year']), $tpl_params);
     }
 
-    public function byMonth(Request $request, ImageRepository $imageRepository, AppUserService $appUserService, string $date_type, int $year, int $month): Response
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route(
+        '/calendar/{date_type}/{year}-{month}/{start}',
+        name: 'calendar_by_month',
+        defaults: ['date_type' => '%default_date_type%', 'start' => 0],
+        requirements: ['date_type' => 'created|posted', 'start' => '\d+', 'year' => '\d{4}', 'month' => '\d{2}']
+    )]
+    public function byMonth(Request $request, ImageRepository $imageRepository, AppUserService $appUserService, array $publicTemplates, string $date_type, int $year, int $month): Response
     {
         $tpl_params = [];
         $tpl_params['date_type'] = $date_type;
@@ -136,9 +159,18 @@ class CalendarController extends AbstractController
             $tpl_params['days'][$image->getDateByType($date_type)->format('j')]['image'] = $image;
         }
 
-        return $this->render('calendar_by_month.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['calendar_by_month']), $tpl_params);
     }
 
+    /**
+     * @param array<string, string> $publicTemplates
+     */
+    #[Route(
+        '/calendar/{date_type}/{year}-{month}-{day}/{start}',
+        name: 'calendar_by_day',
+        defaults: ['date_type' => '%default_date_type%', 'start' => 0],
+        requirements: ['date_type' => 'created|posted', 'start' => '\d+', 'year' => '\d{4}', 'month' => '\d{2}', 'day' => '\d{2}']
+    )]
     public function byDay(
         Request $request,
         ImageRepository $imageRepository,
@@ -146,6 +178,7 @@ class CalendarController extends AbstractController
         ImageStandardParams $image_std_params,
         AppUserService $appUserService,
         RouterInterface $router,
+        array $publicTemplates,
         string $date_type,
         int $year,
         int $month,
@@ -198,7 +231,7 @@ class CalendarController extends AbstractController
         $tpl_params['derivative_params'] = $image_std_params->getByType(ImageSizeType::SQUARE);
         $tpl_params['START_ID'] = $start;
 
-        return $this->render('calendar_by_day.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['calendar_by_day']), $tpl_params);
     }
 
     protected function formatDatePart(int $date_part): string

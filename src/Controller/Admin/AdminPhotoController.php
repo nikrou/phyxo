@@ -17,6 +17,7 @@ use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
 use App\Enum\ImageSizeType;
+use App\Enum\PictureSectionType;
 use App\Enum\UserPrivacyLevelType;
 use App\ImageLibraryGuesser;
 use App\Repository\ImageAlbumRepository;
@@ -225,13 +226,13 @@ class AdminPhotoController extends AbstractController
 
         $url_img = '';
         if ($category_id && in_array($category_id, $authorizeds)) {
-            $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'album', 'element_id' => $category_id]);
+            $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'section' => PictureSectionType::ALBUM->value, 'element_id' => $category_id]);
         } elseif ($authorizeds !== []) {
             $album_id = $authorizeds[0];
-            $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => 'album', 'element_id' => $cache_albums[$album_id]->getId()]);
+            $url_img = $this->generateUrl('picture', ['image_id' => $image_id, 'section' => PictureSectionType::ALBUM->value, 'element_id' => $cache_albums[$album_id]->getId()]);
         }
 
-        if ($url_img !== '' && $url_img !== '0') {
+        if ($url_img !== '') {
             $tpl_params['U_JUMPTO'] = $url_img;
         }
 

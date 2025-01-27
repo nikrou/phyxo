@@ -59,6 +59,7 @@ class PictureController extends AbstractController
 
     /**
      * @param array{current_day?: DateTimeInterface, date_type?: string, year?: int, month?: int, day?: int} $extra
+     * @param array<string, string> $publicTemplates
      */
     #[Route(
         '/picture/{image_id}/{section}/{element_id}',
@@ -84,7 +85,8 @@ class PictureController extends AbstractController
         EventDispatcherInterface $eventDispatcher,
         AppUserService $appUserService,
         CommentRepository $commentRepository,
-        PictureSectionType $section = PictureSectionType::ALBUMS,
+        array $publicTemplates,
+        PictureSectionType $section = PictureSectionType::ALBUM,
         array $extra = []
     ): Response {
         $this->translator = $translator;
@@ -533,7 +535,7 @@ class PictureController extends AbstractController
         $tpl_params['TITLE'][] = ['label' => $picture['name']];
         $tpl_params['SECTION_TITLE'] = '<a href="' . $this->generateUrl('homepage') . '">' . $translator->trans('Home') . '</a>';
 
-        return $this->render('picture.html.twig', $tpl_params);
+        return $this->render(sprintf('%s.html.twig', $publicTemplates['picture']), $tpl_params);
     }
 
     #[Route(

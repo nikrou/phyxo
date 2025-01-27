@@ -7,8 +7,17 @@ phyxo:
     reset_password: reset_password
     forgot_password: forgot_password
     menubar: _menubar
+    # albums & pictures
     albums: mainpage_categories
     album: thumbnails
+    picture: picture
+    tags: tags
+    # search
     search: search
     search_results: search_results
     search_rules: search_rules
+    # calendar
+    calendar: calendar
+    calendar_by_year: calendar_by_year
+    calendar_by_month: calendar_by_month
+    calendar_by_day: calendar_by_day
