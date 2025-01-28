@@ -21,9 +21,11 @@ use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[Route('/admin')]
 class AdminPluginsController extends AbstractController
 {
     private TranslatorInterface $translator;
@@ -39,6 +41,7 @@ class AdminPluginsController extends AbstractController
         return $tabsheet;
     }
 
+    #[Route('/plugins', name: 'admin_plugins_installed')]
     public function installed(
         UserMapper $userMapper,
         PluginRepository $pluginRepository,
@@ -116,6 +119,7 @@ class AdminPluginsController extends AbstractController
         return $this->render('plugins_installed.html.twig', $tpl_params);
     }
 
+    #[Route('/plugins/install/{revision}', name: 'admin_plugins_install', requirements: ['revision' => '\d+'])]
     public function install(int $revision, PluginRepository $pluginRepository, ParameterBagInterface $params, UserMapper $userMapper, TranslatorInterface $translator): Response
     {
         if (!$userMapper->isWebmaster()) {
@@ -140,6 +144,7 @@ class AdminPluginsController extends AbstractController
         }
     }
 
+    #[Route('/plugins/new', name: 'admin_plugins_new')]
     public function new(
         UserMapper $userMapper,
         PluginRepository $pluginRepository,
@@ -186,6 +191,7 @@ class AdminPluginsController extends AbstractController
         return $this->render('plugins_new.html.twig', $tpl_params);
     }
 
+    #[Route('/plugins/update', name: 'admin_plugins_update')]
     public function update(
         UserMapper $userMapper,
         PluginRepository $pluginRepository,

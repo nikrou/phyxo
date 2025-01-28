@@ -1,128 +1,128 @@
 {
-	"name": "nikrou/phyxo",
-    "description": "Simply share your photos",
-	"homepage": "http://www.phyxo.net",
-	"license": "GPL-2.0-only",
-	"authors": [
-		{
-			"name": "Nicolas Roudaire",
-			"email": "nikrou77@gmail.com"
-		}
-	],
-	"minimum-stability": "stable",
-	"require": {
-		"php": ">=8.2.0",
-		"api-platform/doctrine-orm": "^4.0",
-		"api-platform/symfony": "^4.0",
-		"doctrine/dbal": "^3",
-		"doctrine/doctrine-bundle": "^2.7",
-		"doctrine/doctrine-migrations-bundle": "^3.3",
-		"doctrine/migrations": "^3.7",
-		"doctrine/orm": "2.*",
-		"imagine/imagine": "^1.3.2",
-		"nelmio/cors-bundle": "^2.5",
-		"openpsa/universalfeedcreator": "^1.8.4.1",
-		"pclzip/pclzip": "^2.8.2",
-		"phpdocumentor/reflection-docblock": "^5.6",
-		"phpstan/phpdoc-parser": "^2.0",
-		"ramsey/uuid-doctrine": "^2.0",
-		"symfony/asset": "^7.0",
-		"symfony/console": "^7.0",
-		"symfony/dotenv": "^7.0",
-		"symfony/expression-language": "^7.0",
-		"symfony/flex": "^2.2",
-		"symfony/form": "^7.0",
-		"symfony/framework-bundle": "^7.0",
-		"symfony/http-client": "^7.0",
-		"symfony/intl": "^7.0",
-		"symfony/mailer": "^7.0",
-		"symfony/monolog-bundle": "^3.8",
-		"symfony/property-access": "^7.0",
-		"symfony/property-info": "^7.0",
-		"symfony/runtime": "^7.0",
-		"symfony/security-bundle": "^7.0",
-		"symfony/serializer": "^7.0",
-		"symfony/translation": "^7.0",
-		"symfony/twig-bundle": "^7.0",
-		"symfony/type-info": "7.1.8",
-		"symfony/validator": "^7.0",
-		"symfony/yaml": "^7.0",
-		"twig/cssinliner-extra": "^3.4",
-		"twig/extra-bundle": "^3.4",
-		"twig/intl-extra": "^3.4.2",
-		"twig/twig": "^3.4.3"
-	},
-	"require-dev": {
-		"behat/behat": "^3.11",
-		"behat/mink-browserkit-driver": "^2.1",
-		"friends-of-behat/mink-extension": "^2.7.2",
-		"friends-of-behat/symfony-extension": "^2.3.1",
-		"friendsofphp/php-cs-fixer": "^3.12",
-		"guzzlehttp/guzzle": "^7.8",
-		"phpspec/prophecy-phpunit": "2.*",
-		"phpstan/extension-installer": "^1.2",
-		"phpstan/phpstan": "^2.0",
-		"phpstan/phpstan-doctrine": "^2.0",
-		"rector/rector": "2.*",
-		"symfony/browser-kit": "^7.0",
-		"symfony/css-selector": "^7.0",
-		"symfony/debug-bundle": "^7.0",
-		"symfony/maker-bundle": "^1.47",
-		"symfony/phpunit-bridge": "^7.0",
-		"symfony/stopwatch": "^7.0",
-		"symfony/web-profiler-bundle": "^7.0",
-		"zenstruck/console-test": "^1.7",
-		"zenstruck/foundry": "^2.3"
-	},
-	"config": {
-		"preferred-install": {
-			"*": "dist"
-		},
-		"sort-packages": true,
-		"bin-dir": "bin",
-		"allow-plugins": {
-			"phpstan/extension-installer": true,
-			"symfony/flex": true,
-			"symfony/runtime": true
-		}
-	},
-	"autoload": {
-		"psr-4": {
-			"Phyxo\\": "src/Phyxo/",
-			"App\\": "src/",
-			"Plugins\\": "plugins/",
-			"Themes\\": "themes/"
-		}
-	},
-	"autoload-dev": {
-		"psr-4": {
-			"App\\Tests\\": "tests/"
-		}
-	},
-	"scripts": {
-		"behat": "@php behat --stop-on-failure --suite=web",
-		"phpunit": "@php phpunit --testdox",
-		"phpstan": "@php phpstan analyse",
+  "name": "nikrou/phyxo",
+  "description": "Simply share your photos",
+  "homepage": "http://www.phyxo.net",
+  "license": "GPL-2.0-only",
+  "authors": [
+    {
+      "name": "Nicolas Roudaire",
+      "email": "nikrou77@gmail.com"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=8.2.0",
+    "api-platform/doctrine-orm": "^4.0",
+    "api-platform/symfony": "^4.0",
+    "doctrine/dbal": "^3",
+    "doctrine/doctrine-bundle": "^2.7",
+    "doctrine/doctrine-migrations-bundle": "^3.3",
+    "doctrine/migrations": "^3.7",
+    "doctrine/orm": "2.*",
+    "imagine/imagine": "^1.3.2",
+    "nelmio/cors-bundle": "^2.5",
+    "openpsa/universalfeedcreator": "^1.8.4.1",
+    "pclzip/pclzip": "^2.8.2",
+    "phpdocumentor/reflection-docblock": "^5.6",
+    "phpstan/phpdoc-parser": "^2.0",
+    "ramsey/uuid-doctrine": "^2.0",
+    "symfony/asset": "^7.0",
+    "symfony/console": "^7.0",
+    "symfony/dotenv": "^7.0",
+    "symfony/expression-language": "^7.0",
+    "symfony/flex": "^2.2",
+    "symfony/form": "^7.0",
+    "symfony/framework-bundle": "^7.0",
+    "symfony/http-client": "^7.0",
+    "symfony/intl": "^7.0",
+    "symfony/mailer": "^7.0",
+    "symfony/monolog-bundle": "^3.8",
+    "symfony/property-access": "^7.0",
+    "symfony/property-info": "^7.0",
+    "symfony/runtime": "^7.0",
+    "symfony/security-bundle": "^7.0",
+    "symfony/serializer": "^7.0",
+    "symfony/translation": "^7.0",
+    "symfony/twig-bundle": "^7.0",
+    "symfony/type-info": "7.1.8",
+    "symfony/validator": "^7.0",
+    "symfony/yaml": "^7.0",
+    "twig/cssinliner-extra": "^3.4",
+    "twig/extra-bundle": "^3.4",
+    "twig/intl-extra": "^3.4.2",
+    "twig/twig": "^3.4.3"
+  },
+  "require-dev": {
+    "behat/behat": "^3.11",
+    "behat/mink-browserkit-driver": "^2.1",
+    "friends-of-behat/mink-extension": "^2.7.2",
+    "friends-of-behat/symfony-extension": "^2.3.1",
+    "friendsofphp/php-cs-fixer": "^3.12",
+    "guzzlehttp/guzzle": "^7.8",
+    "phpspec/prophecy-phpunit": "2.*",
+    "phpstan/extension-installer": "^1.2",
+    "phpstan/phpstan": "^2.0",
+    "phpstan/phpstan-doctrine": "^2.0",
+    "rector/rector": "2.*",
+    "symfony/browser-kit": "^7.0",
+    "symfony/css-selector": "^7.0",
+    "symfony/debug-bundle": "^7.0",
+    "symfony/maker-bundle": "^1.47",
+    "symfony/phpunit-bridge": "^7.0",
+    "symfony/stopwatch": "^7.0",
+    "symfony/web-profiler-bundle": "^7.0",
+    "zenstruck/console-test": "^1.7",
+    "zenstruck/foundry": "^2.3"
+  },
+  "config": {
+    "preferred-install": {
+      "*": "dist"
+    },
+    "sort-packages": true,
+    "bin-dir": "bin",
+    "allow-plugins": {
+      "phpstan/extension-installer": true,
+      "symfony/flex": true,
+      "symfony/runtime": true
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "Phyxo\\": "src/Phyxo/",
+      "App\\": "src/",
+      "Plugins\\": "plugins/",
+      "Themes\\": "themes/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "App\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "behat": "@php behat --stop-on-failure --suite=web",
+    "phpunit": "@php phpunit --testdox",
+    "phpstan": "@php phpstan analyse",
     "rector": "@php rector process",
-		"auto-scripts": {
-			"cache:clear": "symfony-cmd",
-			"assets:install %PUBLIC_DIR%": "symfony-cmd"
-		},
-		"post-install-cmd": [
-			"@auto-scripts"
-		],
-		"post-update-cmd": [
-			"@auto-scripts"
-		]
-	},
-	"conflict": {
-		"symfony/symfony": "*"
-	},
-	"extra": {
-		"symfony": {
-			"allow-contrib": false,
-			"require": "^7.0",
-			"docker": false
-		}
-	}
+    "auto-scripts": {
+      "cache:clear": "symfony-cmd",
+      "phyxo:assets:install %PUBLIC_DIR%": "symfony-cmd"
+    },
+    "post-install-cmd": [
+      "@auto-scripts"
+    ],
+    "post-update-cmd": [
+      "@auto-scripts"
+    ]
+  },
+  "conflict": {
+    "symfony/symfony": "*"
+  },
+  "extra": {
+    "symfony": {
+      "allow-contrib": false,
+      "require": "^7.0",
+      "docker": false
+    }
+  }
 }

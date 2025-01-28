@@ -27,9 +27,11 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[Route('/admin')]
 class AdminUpdateController extends AbstractController
 {
     private TranslatorInterface $translator;
@@ -45,6 +47,7 @@ class AdminUpdateController extends AbstractController
         return $tabsheet;
     }
 
+    #[Route('/update/{step}/{version}', name: 'admin_update', defaults: ['step' => 0, 'version' => null], requirements: ['step' => '\d+'])]
     public function core(
         Request $request,
         UserMapper $userMapper,
@@ -273,6 +276,7 @@ class AdminUpdateController extends AbstractController
         return $this->render('updates_core.html.twig', $tpl_params);
     }
 
+    #[Route('/update/extensions', name: 'admin_update_extensions')]
     public function extensions(TranslatorInterface $translator): Response
     {
         $tpl_params = [];

@@ -31,9 +31,11 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[Route('/admin')]
 class AdminConfigurationController extends AbstractController
 {
     /** @var array<string> $main_checkboxes */
@@ -123,6 +125,7 @@ class AdminConfigurationController extends AbstractController
         return $tabsheet;
     }
 
+    #[Route('/configuration/{section}', name: 'admin_configuration', defaults: ['section' => 'main'], requirements: ['section' => 'main|sizes|watermark|comments'])]
     public function index(
         string $section,
         Conf $conf,
@@ -164,6 +167,7 @@ class AdminConfigurationController extends AbstractController
         return $this->render('configuration_' . $section . '.html.twig', $tpl_params);
     }
 
+    #[Route('/configuration/sizes/restore', 'admin_configuration_size_restore')]
     public function sizeRestore(ImageStandardParams $image_std_params, Conf $conf, TranslatorInterface $translator, DerivativeService $derivativeService): Response
     {
         $image_std_params->setAndSave($image_std_params->getDefaultSizes());
@@ -226,6 +230,7 @@ class AdminConfigurationController extends AbstractController
         return $tpl_params;
     }
 
+    #[Route('/configuration/display', 'admin_configuration_display')]
     public function displayConfiguration(Request $request, Conf $conf, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
@@ -377,6 +382,7 @@ class AdminConfigurationController extends AbstractController
         return $tpl_params;
     }
 
+    #[Route('/configuration/default', 'admin_configuration_default')]
     public function defaultConfiguration(Request $request, UserMapper $userMapper, UserInfosRepository $userInfosRepository, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
@@ -400,6 +406,7 @@ class AdminConfigurationController extends AbstractController
         return $this->render('configuration_default.html.twig', $tpl_params);
     }
 
+    #[Route('/configuration/{section}/update', 'admin_configuration_update', methods: 'POST', defaults: ['section' => 'main'], requirements: ['section' => 'main|sizes|watermark|comments'])]
     public function update(
         Request $request,
         string $section,

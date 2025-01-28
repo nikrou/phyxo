@@ -21,9 +21,11 @@ use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[Route('/admin')]
 class AdminLanguagesController extends AbstractController
 {
     private TranslatorInterface $translator;
@@ -39,6 +41,7 @@ class AdminLanguagesController extends AbstractController
         return $tabsheet;
     }
 
+    #[Route('/languages', name: 'admin_languages_installed')]
     public function installed(
         UserMapper $userMapper,
         ParameterBagInterface $params,
@@ -114,6 +117,7 @@ class AdminLanguagesController extends AbstractController
         return $this->render('languages_installed.html.twig', $tpl_params);
     }
 
+    #[Route('/languages/{action}/{language}', name: 'admin_languages_action', requirements: ['action' => 'activate|deactivate|delete|set_default', 'language' => '[a-z]{2}_[A-Z]{2}'])]
     public function action(
         string $language,
         string $action,
@@ -138,6 +142,7 @@ class AdminLanguagesController extends AbstractController
         return $this->redirectToRoute('admin_languages_installed');
     }
 
+    #[Route('/languages/new', name: 'admin_languages_new')]
     public function new(UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator, LanguageRepository $languageRepository): Response
     {
         $tpl_params = [];
@@ -172,6 +177,7 @@ class AdminLanguagesController extends AbstractController
         return $this->render('languages_new.html.twig', $tpl_params);
     }
 
+    #[Route('/languages/install/{revision}', name: 'admin_languages_install', requirements: ['revision' => '\d+'])]
     public function install(
         int $revision,
         ParameterBagInterface $params,
@@ -201,6 +207,7 @@ class AdminLanguagesController extends AbstractController
         }
     }
 
+    #[Route('/languages/update', name: 'admin_languages_update')]
     public function update(
         UserMapper $userMapper,
         Conf $conf,

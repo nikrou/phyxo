@@ -24,8 +24,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[Route('/admin')]
 class InstallController extends AbstractController
 {
     /** @var array<string, array{label: string}> */
@@ -60,6 +62,7 @@ class InstallController extends AbstractController
         $this->localEnvFile = sprintf('%s/.env.local', $this->rootProjectDir);
     }
 
+    #[Route('/install/{step}', name: 'install', defaults: ['step' => 'language'], requirements: ['step' => 'language|check|database|user|success'])]
     public function index(Request $request, string $step = 'language'): Response
     {
         $tpl_params = [];

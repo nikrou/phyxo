@@ -55,7 +55,7 @@ class AssetsInstallCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $targetArg = rtrim($input->getArgument('target') ?? '', '/');
-        if ($targetArg === '' || $targetArg === '0') {
+        if ($targetArg === '') {
             $targetArg = $this->rootProjectDir . '/public';
         }
 

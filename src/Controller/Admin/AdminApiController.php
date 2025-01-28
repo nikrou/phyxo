@@ -13,10 +13,13 @@ namespace App\Controller\Admin;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
+#[Route('/admin')]
 class AdminApiController extends AbstractController
 {
+    #[Route('/api', name: 'api')]
     public function index(CsrfTokenManagerInterface $csrfTokenManager): Response
     {
         $tpl_params = [];

@@ -34,9 +34,11 @@ use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[Route('/admin')]
 class AdminUsersController extends AbstractController
 {
     private TranslatorInterface $translator;
@@ -51,6 +53,7 @@ class AdminUsersController extends AbstractController
         return $tabsheet;
     }
 
+    #[Route('/users', name: 'admin_users')]
     public function list(
         Conf $conf,
         AppUserService $appUserService,
@@ -161,6 +164,7 @@ class AdminUsersController extends AbstractController
         return $this->render('users_list.html.twig', $tpl_params);
     }
 
+    #[Route('/users/{user_id}/perm', name: 'admin_user_perm', requirements: ['user_id' => '\d+'])]
     public function perm(Request $request, int $user_id, AlbumMapper $albumMapper, TranslatorInterface $translator, UserRepository $userRepository): Response
     {
         $tpl_params = [];
@@ -217,6 +221,7 @@ class AdminUsersController extends AbstractController
         return $this->render('user_perm.html.twig', $tpl_params);
     }
 
+    #[Route('/users/add', name: 'admin_user_add')]
     public function add(Request $request, UserPasswordHasherInterface $passwordHasher, UserManager $userManager, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
@@ -255,6 +260,7 @@ class AdminUsersController extends AbstractController
         return $this->render('user_form.html.twig', $tpl_params);
     }
 
+    #[Route('/users/{user_id}/edit', name: 'admin_user_edit', requirements: ['user_id' => '\d+'])]
     public function edit(
         int $user_id,
         Request $request,
