@@ -105,14 +105,18 @@
     "phpstan": "@php phpstan analyse",
     "rector": "@php rector process",
     "auto-scripts": {
-      "cache:clear": "symfony-cmd",
-      "phyxo:assets:install %PUBLIC_DIR%": "symfony-cmd"
+      "cache:clear": "symfony-cmd"
     },
     "post-install-cmd": [
-      "@auto-scripts"
+      "@auto-scripts",
+      "@prepare-environment"
     ],
     "post-update-cmd": [
-      "@auto-scripts"
+      "@auto-scripts",
+      "@prepare-environment"
+    ],
+    "prepare-environment": [
+      "./bin/console phyxo:assets:install"
     ]
   },
   "conflict": {
