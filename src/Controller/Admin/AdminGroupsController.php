@@ -20,9 +20,11 @@ use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[Route('/admin')]
 class AdminGroupsController extends AbstractController
 {
     private TranslatorInterface $translator;
@@ -31,12 +33,13 @@ class AdminGroupsController extends AbstractController
     {
         $tabsheet = new TabSheet();
         $tabsheet->add('list', $this->translator->trans('Groups', [], 'admin'), $this->generateUrl('admin_groups'), 'fa-group');
-        $tabsheet->add('perm', $this->translator->trans('Permissions', [], 'admin'), $group_id !== 0 ? $this->generateUrl('admin_group_perm', ['group_id' => $group_id]) : '', 'fa-lock');
+        $tabsheet->add('perm', $this->translator->trans('Permissions', [], 'admin'), $group_id !== 0 ? $this->generateUrl('admin_groups_permissions', ['group_id' => $group_id]) : '', 'fa-lock');
         $tabsheet->select($section);
 
         return $tabsheet;
     }
 
+    #[Route('/groups', name: 'admin_groups')]
     public function list(Request $request, TranslatorInterface $translator, GroupRepository $groupRepository, CsrfTokenManagerInterface $tokenManager): Response
     {
         $tpl_params = [];
@@ -67,7 +70,7 @@ class AdminGroupsController extends AbstractController
                 'ID' => $group->getId(),
                 'NAME' => $group->getName(),
                 'IS_DEFAULT' => $group->isDefault(),
-                'U_PERM' => $this->generateUrl('admin_group_perm', ['group_id' => $group->getId()]),
+                'U_PERM' => $this->generateUrl('admin_groups_permissions', ['group_id' => $group->getId()]),
             ];
         }
 
@@ -88,7 +91,8 @@ class AdminGroupsController extends AbstractController
         return $this->render('groups_list.html.twig', $tpl_params);
     }
 
-    public function perm(
+    #[Route('/groups/{group_id}/permissions', name: 'admin_groups_permissions', requirements: ['group_id' => '\d+'])]
+    public function permissions(
         Request $request,
         int $group_id,
         AlbumMapper $albumMapper,
@@ -131,7 +135,7 @@ class AdminGroupsController extends AbstractController
         $tpl_params['TITLE'] = $translator->trans('Manage permissions for group "{group}"', ['group' => $groupname], 'admin');
         $tpl_params['L_CAT_OPTIONS_TRUE'] = $translator->trans('Authorized', [], 'admin');
         $tpl_params['L_CAT_OPTIONS_FALSE'] = $translator->trans('Forbidden', [], 'admin');
-        $tpl_params['F_ACTION'] = $this->generateUrl('admin_group_perm', ['group_id' => $group_id]);
+        $tpl_params['F_ACTION'] = $this->generateUrl('admin_groups_permissions', ['group_id' => $group_id]);
 
         // only private categories are listed
         $albums = [];
@@ -159,7 +163,8 @@ class AdminGroupsController extends AbstractController
         return $this->render('groups_perm.html.twig', $tpl_params);
     }
 
-    public function action(Request $request, string $action, GroupRepository $groupRepository, TranslatorInterface $translator): Response
+    #[Route('/groups/{action}', name: 'admin_groups_action', defaults: ['action' => null], requirements: ['action' => 'rename|duplicate|merge|delete|toggle_default'])]
+    public function action(Request $request, GroupRepository $groupRepository, TranslatorInterface $translator, ?string $action = null): Response
     {
         $group_selection = $request->request->all('group_selection');
         if ($group_selection === []) {

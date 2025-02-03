@@ -152,7 +152,7 @@ class ImageOptimizer
         bool $stripMetadata = false,
         bool $crop = false,
         bool $followOrientation = true
-    ) {
+    ): array {
         $starttime = microtime(true);
 
         $sourceWidth = $this->image->getSize()->getWidth();

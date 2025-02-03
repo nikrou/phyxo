@@ -167,7 +167,7 @@ class TagController extends AbstractController
         }
 
         $requested_tag_ids = array_map(
-            fn ($tag): string => substr((string) $tag, 0, strpos((string) $tag, '-')),
+            fn ($tag): string => substr($tag, 0, strpos($tag, '-')),
             explode('/', $tag_ids)
         );
 

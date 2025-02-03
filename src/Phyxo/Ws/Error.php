@@ -33,7 +33,7 @@ class Error
         return $this->code;
     }
 
-    public function message()
+    public function message(): string
     {
         return $this->codeText;
     }

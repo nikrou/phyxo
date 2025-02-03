@@ -15,7 +15,6 @@ use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\UserMapper;
 use App\Entity\Album;
-use App\Entity\User;
 use App\Enum\ImageSizeType;
 use App\Enum\UserStatusType;
 use App\Events\GroupEvent;
@@ -35,10 +34,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[Route('/admin')]
 class AdminAlbumController extends AbstractController
 {
     private TranslatorInterface $translator;
@@ -55,6 +56,7 @@ class AdminAlbumController extends AbstractController
         return $tabsheet;
     }
 
+    #[Route('/album/{album_id}/edit/{parent_id}', name: 'admin_album', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
     public function properties(
         Request $request,
         int $album_id,
@@ -216,6 +218,7 @@ class AdminAlbumController extends AbstractController
         return $this->render('album_properties.html.twig', $tpl_params);
     }
 
+    #[Route('/album/{album_id}/sort_order/{parent_id}', name: 'admin_album_sort_order', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
     public function sort_order(
         Request $request,
         int $album_id,
@@ -351,6 +354,7 @@ class AdminAlbumController extends AbstractController
         return $this->render('album_sort_order.html.twig', $tpl_params);
     }
 
+    #[Route('/album/{album_id}/permissions/{parent_id}', name: 'admin_album_permissions', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
     public function permissions(
         Request $request,
         int $album_id,
@@ -506,6 +510,7 @@ class AdminAlbumController extends AbstractController
         return $this->render('album_permissions.html.twig', $tpl_params);
     }
 
+    #[Route('/album/{album_id}/notification/{parent_id}', name: 'admin_album_notification', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
     public function notification(
         Request $request,
         int $album_id,
@@ -591,6 +596,7 @@ class AdminAlbumController extends AbstractController
         return $this->render('album_notification.html.twig', $tpl_params);
     }
 
+    #[Route('/album/create/{parent_id}', name: 'admin_album_create', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+'])]
     public function create(
         Request $request,
         AppUserService $appUserService,
@@ -632,6 +638,7 @@ class AdminAlbumController extends AbstractController
         return $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
     }
 
+    #[Route('/album/{album_id}/delete/{parent_id}', name: 'admin_album_delete', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
     public function delete(int $album_id, AlbumMapper $albumMapper, ImageMapper $imageMapper, UserMapper $userMapper, TranslatorInterface $translator, ?int $parent_id = null): Response
     {
         $albumMapper->deleteAlbums([$album_id]);

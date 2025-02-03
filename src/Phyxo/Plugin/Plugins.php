@@ -303,7 +303,7 @@ class Plugins extends Extensions
     /**
      * Retrieve PEM server datas to $server_plugins
      */
-    public function getServerPlugins(string $pem_category, string $core_version, $new = false)
+    public function getServerPlugins(string $pem_category, string $core_version, $new = false): array
     {
         if (!$this->server_plugins_retrieved) {
             $versions_to_check = $this->getVersionsToCheck($pem_category, $core_version);
@@ -482,7 +482,7 @@ class Plugins extends Extensions
         return strcmp(strtolower((string) $a['extension_name']), strtolower((string) $b['extension_name']));
     }
 
-    protected function extensionAuthorCompare(array $a, array $b)
+    protected function extensionAuthorCompare(array $a, array $b): int
     {
         $r = strcasecmp((string) $a['author_name'], (string) $b['author_name']);
         if ($r == 0) {

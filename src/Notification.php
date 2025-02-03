@@ -265,17 +265,12 @@ class Notification
         $counter = count($dates);
 
         for ($i = 0; $i < $counter; $i++) {
-            if ($max_elements > 0) { // get some thumbnails ...
-                $ids = [];
-                foreach ($this->imageMapper->getRepository()->findRandomImages($max_elements, $this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums()) as $id) {
-                    $ids[] = $id;
-                }
-
+            if ($max_elements > 0) {
+                $ids = $this->imageMapper->getRepository()->findRandomImages($max_elements, $this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums());
                 $elements = [];
                 foreach ($this->imageMapper->getRepository()->findBy(['id' => $ids]) as $image) {
                     $elements[] = $image;
                 }
-
                 $dates[$i]['elements'] = $elements;
             }
 

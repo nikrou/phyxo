@@ -18,16 +18,24 @@ use Exception;
 use DateTime;
 use Behat\Gherkin\Node\PyStringNode;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Routing\RouterInterface;
 
 class FeatureContext extends BaseContext
 {
-    public function __construct(private readonly ContainerInterface $driverContainer, private readonly Storage $storage)
+    public function __construct(private readonly ContainerInterface $driverContainer, private readonly Storage $storage, private readonly RouterInterface $router)
     {
     }
 
     protected function getContainer(): ContainerInterface
     {
         return $this->driverContainer;
+    }
+
+    #[Given('I am on route :routeName')]
+    #[Given('I go to route :routeName')]
+    public function iAmOnRoute(string $routeName): void
+    {
+        $this->getSession()->visit($this->router->generate($routeName));
     }
 
     #[Given('I am logged in as :username with password :password')]

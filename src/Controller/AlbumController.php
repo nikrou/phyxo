@@ -194,7 +194,7 @@ class AlbumController extends AbstractController
                 $tpl_params['thumb_navbar'] = $this->defineNavigation(
                     $router,
                     'album',
-                    ['album_id' => $album_id],
+                    ['album_id' => $request->get('album_id')],
                     count($tpl_params['items']),
                     $start,
                     $nb_image_page,

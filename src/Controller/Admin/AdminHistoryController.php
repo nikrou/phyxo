@@ -35,8 +35,10 @@ use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[Route('/admin')]
 class AdminHistoryController extends AbstractController
 {
     public function __construct(private readonly ImageStandardParams $image_std_params, private readonly TranslatorInterface $translator)
@@ -58,6 +60,10 @@ class AdminHistoryController extends AbstractController
         return $request->get('_locale', $request->getSession()->get('_locale'));
     }
 
+    #[Route('/history', name: 'admin_history', defaults: ['year' => null, 'month' => null, 'day' => null])]
+    #[Route('/history/{year}', name: 'admin_history_year', defaults: ['year' => null, 'month' => null, 'day' => null], requirements: ['year' => '\d{4}'])]
+    #[Route('/history/{year}/{month}', name: 'admin_history_month', defaults: ['year' => null, 'month' => null, 'day' => null], requirements: ['year' => '\d{4}', 'month' => '\d{2}'])]
+    #[Route('/history/{year}/{month}/{day}', name: 'admin_history_day', defaults: ['year' => null, 'month' => null, 'day' => null], requirements: ['year' => '\d{4}', 'month' => '\d{2}', 'day' => '\d{2}'])]
     public function stats(
         Request $request,
         Conf $conf,
@@ -81,13 +87,13 @@ class AdminHistoryController extends AbstractController
 
         if (!is_null($month)) {
             $month_title = $this->dateFormat($this->getLocale($request), mktime(12, 0, 0, $month, 1, $year), 'LLLL');
-            $title_parts[] = '<a href="' . $this->generateUrl('admin_history_year_month', ['year' => $year, 'month' => sprintf('%02d', $month)]) . '">' . $month_title . '</a>';
+            $title_parts[] = '<a href="' . $this->generateUrl('admin_history_month', ['year' => $year, 'month' => sprintf('%02d', $month)]) . '">' . $month_title . '</a>';
             $period_label = $this->translator->trans('Day', [], 'admin');
         }
 
         if (!is_null($day)) {
             $day_title = $this->dateFormat($this->getLocale($request), mktime(12, 0, 0, $month, $day, $year), 'd (cccc)');
-            $title_parts[] = '<a href="' . $this->generateUrl('admin_history_year_month_day', ['year' => $year, 'month' => sprintf('%02d', $month), 'day' => sprintf('%02d', $day)]) . '">' . $day_title . '</a>';
+            $title_parts[] = '<a href="' . $this->generateUrl('admin_history_day', ['year' => $year, 'month' => sprintf('%02d', $month), 'day' => sprintf('%02d', $day)]) . '">' . $day_title . '</a>';
             $period_label = $this->translator->trans('Hour', [], 'admin');
         }
 
@@ -136,10 +142,10 @@ class AdminHistoryController extends AbstractController
                 if (!is_null($day)) {
                     $value = sprintf('%02u', $i);
                 } elseif (!is_null($month)) {
-                    $url = $this->generateUrl('admin_history_year_month_day', ['year' => $year, 'month' => sprintf('%02d', $month), 'day' => sprintf('%02d', $i)]);
+                    $url = $this->generateUrl('admin_history_day', ['year' => $year, 'month' => sprintf('%02d', $month), 'day' => sprintf('%02d', $i)]);
                     $value = $this->dateFormat($this->getLocale($request), mktime(12, 0, 0, $month, $i, $year), 'd (cccc)');
                 } elseif (!is_null($year)) {
-                    $url = $this->generateUrl('admin_history_year_month', ['year' => $year, 'month' => sprintf('%02d', $i)]);
+                    $url = $this->generateUrl('admin_history_month', ['year' => $year, 'month' => sprintf('%02d', $i)]);
                     $value = $this->dateFormat($this->getLocale($request), mktime(12, 0, 0, $i, 1, $year), 'LLLL');
                 } else { // at least the year is defined
                     $url = $this->generateUrl('admin_history_year', ['year' => $i]);
@@ -164,16 +170,17 @@ class AdminHistoryController extends AbstractController
         return $this->render('history_stats.html.twig', $tpl_params);
     }
 
+    #[Route('/history/search/{search_id}/{start}', name: 'admin_history_search', defaults: ['search_id' => null, 'start' => 0], requirements: ['search_id' => '\d+', 'start' => '\d+'])]
     public function search(
         Request $request,
         SearchRepository $searchRepository,
-        int $start,
         AlbumMapper $albumMapper,
         Conf $conf,
         UserMapper $userMapper,
         ImageMapper $imageMapper,
         TagRepository $tagRepository,
         HistoryRepository $historyRepository,
+        int $start = 0,
         ?int $search_id = null
     ): Response {
         $tpl_params = [];
@@ -320,11 +327,7 @@ class AdminHistoryController extends AbstractController
                 $tags_string = preg_replace_callback(
                     '/(\d+)/',
                     fn ($m) => isset($name_of_tag[$m[1]]) ? $name_of_tag[$m[1]]['url'] : $m[1],
-                    str_replace(
-                        ',',
-                        ', ',
-                        $line->getTagIds()
-                    )
+                    str_replace(',', ', ', $line->getTagIds())
                 );
             }
 
@@ -337,9 +340,8 @@ class AdminHistoryController extends AbstractController
                 'IP' => $line->getIp(),
                 'IMAGE' => $image_string,
                 'TYPE' => $line->getImageType(),
-                'SECTION' => $line->getSection(),
-                'CATEGORY' => $line->getAlbum() ? ($name_of_category[$line->getAlbum()->getId()] ?? 'deleted ' . $line->getAlbum()->getId())
-                    : '',
+                'SECTION' => $line->getSection()->value,
+                'CATEGORY' => $line->getAlbum() ? ($name_of_category[$line->getAlbum()->getId()] ?? 'deleted ' . $line->getAlbum()->getId()) : '',
                 'TAGS' => $tags_string,
             ];
         }

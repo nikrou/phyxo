@@ -24,8 +24,10 @@ use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[Route('/admin')]
 class AdminRatingController extends AbstractController
 {
     private TranslatorInterface $translator;
@@ -40,6 +42,7 @@ class AdminRatingController extends AbstractController
         return $tabsheet;
     }
 
+    #[Route('/rating/{start}', name: 'admin_rating', defaults: ['start' => 0], requirements: ['start' => '\d+'])]
     public function photos(
         Request $request,
         TranslatorInterface $translator,
@@ -177,6 +180,7 @@ class AdminRatingController extends AbstractController
         return $this->render('rating_photos.html.twig', $tpl_params);
     }
 
+    #[Route('/rating/users/{start}', name: 'admin_rating_users', defaults: ['start' => 0], requirements: ['start' => '\d+'])]
     public function users(
         Request $request,
         Conf $conf,
@@ -185,7 +189,8 @@ class AdminRatingController extends AbstractController
         TranslatorInterface $translator,
         UserRepository $userRepository,
         ImageMapper $imageMapper,
-        RateRepository $rateRepository
+        RateRepository $rateRepository,
+        int $start = 0
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -334,7 +339,7 @@ class AdminRatingController extends AbstractController
 
         $tpl_params['order_by_options_selected'] = [$order_by_index];
 
-        $tpl_params['F_ACTION'] = $this->generateUrl('admin_rating_users');
+        $tpl_params['F_ACTION'] = $this->generateUrl('admin_rating_users', ['start' => $start]);
         $tpl_params['F_MIN_RATES'] = $filter_min_rates;
         $tpl_params['CONSENSUS_TOP_NUMBER'] = $consensus_top_number;
         $tpl_params['available_rates'] = $conf['rate_items'];

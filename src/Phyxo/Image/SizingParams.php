@@ -81,14 +81,14 @@ class SizingParams
                 if ($ratio_w > $ratio_h) {
                     $h = $destCrop->height() / $ratio_w;
                     if ($h < $this->min_size[1]) {
-                        $idealCropPx = (int) $destCrop->width() - floor($destCrop->height() * $this->ideal_size[0] / $this->min_size[1]);
+                        $idealCropPx = $destCrop->width() - floor($destCrop->height() * $this->ideal_size[0] / $this->min_size[1]);
                         $maxCropPx = (int) round($this->max_crop * $destCrop->width());
                         $destCrop->crop_h(min($idealCropPx, $maxCropPx), $coi);
                     }
                 } else {
                     $w = $destCrop->width() / $ratio_h;
                     if ($w < $this->min_size[0]) {
-                        $idealCropPx = (int) $destCrop->height() - floor($destCrop->width() * $this->ideal_size[1] / $this->min_size[0]);
+                        $idealCropPx = $destCrop->height() - floor($destCrop->width() * $this->ideal_size[1] / $this->min_size[0]);
                         $maxCropPx = (int) round($this->max_crop * $destCrop->height());
                         $destCrop->crop_v(min($idealCropPx, $maxCropPx), $coi);
                     }

@@ -80,7 +80,7 @@ class Server
         $this->params = $params;
     }
 
-    public function getParams()
+    public function getParams(): ?ParameterBagInterface
     {
         return $this->params;
     }
@@ -90,7 +90,7 @@ class Server
         $this->pem_url = $url;
     }
 
-    public function getExtensionsURL()
+    public function getExtensionsURL(): ?string
     {
         return $this->pem_url;
     }
@@ -105,7 +105,7 @@ class Server
         $this->tagMapper = $tagMapper;
     }
 
-    public function getTagMapper()
+    public function getTagMapper(): ?TagMapper
     {
         return $this->tagMapper;
     }
@@ -115,7 +115,7 @@ class Server
         $this->commentMapper = $commentMapper;
     }
 
-    public function getCommentMapper()
+    public function getCommentMapper(): ?CommentMapper
     {
         return $this->commentMapper;
     }
@@ -135,7 +135,7 @@ class Server
         $this->userMapper = $userMapper;
     }
 
-    public function getUserMapper()
+    public function getUserMapper(): ?UserMapper
     {
         return $this->userMapper;
     }
@@ -145,7 +145,7 @@ class Server
         $this->imageMapper = $imageMapper;
     }
 
-    public function getImageMapper()
+    public function getImageMapper(): ?ImageMapper
     {
         return $this->imageMapper;
     }
@@ -155,7 +155,7 @@ class Server
         $this->albumMapper = $albumMapper;
     }
 
-    public function getAlbumMapper()
+    public function getAlbumMapper(): ?AlbumMapper
     {
         return $this->albumMapper;
     }
@@ -165,7 +165,7 @@ class Server
         $this->rateMapper = $rateMapper;
     }
 
-    public function getRateMapper()
+    public function getRateMapper(): ?RateMapper
     {
         return $this->rateMapper;
     }
@@ -185,7 +185,7 @@ class Server
         $this->phyxoVersion = $phyxoVersion;
     }
 
-    public function getCoreVersion()
+    public function getCoreVersion(): ?string
     {
         return $this->phyxoVersion;
     }
@@ -195,7 +195,7 @@ class Server
         $this->conf = $conf;
     }
 
-    public function getConf()
+    public function getConf(): ?Conf
     {
         return $this->conf;
     }
@@ -205,7 +205,7 @@ class Server
         $this->image_std_params = $image_std_params;
     }
 
-    public function getImageStandardParams()
+    public function getImageStandardParams(): ?ImageStandardParams
     {
         return $this->image_std_params;
     }
@@ -215,7 +215,7 @@ class Server
         $this->router = $router;
     }
 
-    public function getRouter()
+    public function getRouter(): ?RouterInterface
     {
         return $this->router;
     }
@@ -225,7 +225,7 @@ class Server
         $this->userManager = $userManager;
     }
 
-    public function getUserManager()
+    public function getUserManager(): ?UserManager
     {
         return $this->userManager;
     }
@@ -235,7 +235,7 @@ class Server
         $this->passwordHasher = $passwordHasher;
     }
 
-    public function getPasswordHasher()
+    public function getPasswordHasher(): ?UserPasswordHasherInterface
     {
         return $this->passwordHasher;
     }
@@ -245,7 +245,7 @@ class Server
         $this->security = $security;
     }
 
-    public function getSecurity()
+    public function getSecurity(): ?Security
     {
         return $this->security;
     }
@@ -555,7 +555,7 @@ class Server
                     self::makeArrayParam($the_param);
                 }
 
-                if ($options['type'] > 0 && $ret = self::checkType($the_param, $options['type'], $name) !== null) {
+                if ($options['type'] > 0 && $ret = self::checkType($the_param, $options['type'], $name) instanceof Error) {
                     return $ret;
                 }
 

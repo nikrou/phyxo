@@ -108,15 +108,10 @@
       "cache:clear": "symfony-cmd"
     },
     "post-install-cmd": [
-      "@auto-scripts",
-      "@prepare-environment"
+      "@auto-scripts"
     ],
     "post-update-cmd": [
-      "@auto-scripts",
-      "@prepare-environment"
-    ],
-    "prepare-environment": [
-      "./bin/console phyxo:assets:install"
+      "@auto-scripts"
     ]
   },
   "conflict": {

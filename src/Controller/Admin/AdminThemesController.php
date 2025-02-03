@@ -125,7 +125,7 @@ class AdminThemesController extends AbstractController
 
                 $tpl_theme['DELETABLE'] = true;
 
-                if (count($children) > 0) {
+                if ($children !== []) {
                     $tpl_theme['DELETABLE'] = false;
                     $tpl_theme['DELETE_TOOLTIP'] = $translator->trans('Impossible to delete this theme. Other themes depends on it: {themes}', ['themes' => implode(', ', $children)], 'admin');
                 } else {
@@ -194,7 +194,7 @@ class AdminThemesController extends AbstractController
         $server_themes = $themes->getServerThemes($conf['pem_themes_category'], $params->get('core_version'), $new = false);
         $tpl_params['update_themes'] = [];
 
-        if ((is_countable($server_themes) ? count($server_themes) : 0) > 0) {
+        if (count($server_themes) > 0) {
             foreach ($themes->getFsThemes() as $extension_id => $fs_extension) {
                 if (!isset($fs_extension['extension']) || !isset($server_themes[$fs_extension['extension']])) {
                     continue;

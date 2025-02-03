@@ -10,14 +10,14 @@ Feature: Tags
 
   Scenario: Manage Who can add tags
     Given I am logged in as "user1" with password "pass1"
-    And I am on "admin/tags/permissons"
+    And I am on "admin/tags/permissions"
     Then I select "webmaster" from "Who can add tags?"
     And I press "Submit"
     Then the option "webmaster" from "Who can add tags?" is selected
 
   Scenario: Manage Who can add tags and allow nobody
     Given I am logged in as "user1" with password "pass1"
-    And I am on "admin/tags/permissons"
+    And I am on "admin/tags/permissions"
     Then I select "webmaster" from "Who can add tags?"
     And I press "Submit"
     Then I select "" from "Who can add tags?"
@@ -26,14 +26,14 @@ Feature: Tags
 
   Scenario: Manage Who can delete tags
     Given I am logged in as "user1" with password "pass1"
-    And I am on "admin/tags/permissons"
+    And I am on "admin/tags/permissions"
     Then I select "admin" from "Who can delete related tags?"
     And I press "Submit"
     Then the option "admin" from "Who can delete related tags?" is selected
 
   Scenario: Manage Who can deleted tags and allow nobody
     Given I am logged in as "user1" with password "pass1"
-    And I am on "admin/tags/permissons"
+    And I am on "admin/tags/permissions"
     Then I select "webmaster" from "Who can delete related tags?"
     And I press "Submit"
     Then I select "" from "Who can delete related tags?"
@@ -42,7 +42,7 @@ Feature: Tags
 
   Scenario Outline: Manage options
     Given I am logged in as "user1" with password "pass1"
-    And I am on "admin/tags/permissons"
+    And I am on "admin/tags/permissions"
     Then I check "<label>"
     And I press "Submit"
     Then the checkbox "<label>" should be checked

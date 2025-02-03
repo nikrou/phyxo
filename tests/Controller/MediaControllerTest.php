@@ -46,7 +46,7 @@ class MediaControllerTest extends WebTestCase
         $mediaCacheDir = $kernel->getContainer()->getParameter('media_cache_dir');
 
         $now = new DateTime('now');
-        $base_image_path = sprintf('tests/upload/%s/%s-%s', $now->format('Y/m/d'), $now->format('YmdHis'), substr(md5((string) $this->sample_image), 0, 8));
+        $base_image_path = sprintf('tests/upload/%s/%s-%s', $now->format('Y/m/d'), $now->format('YmdHis'), substr(md5($this->sample_image), 0, 8));
         $image_upload_path = sprintf('%s/%s.jpg', $kernel->getContainer()->getParameter('root_project_dir'), $base_image_path);
         $this->image_paths = [
             'path' => sprintf('%s.jpg', $base_image_path),

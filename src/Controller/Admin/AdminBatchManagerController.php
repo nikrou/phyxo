@@ -42,9 +42,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[Route('/admin')]
 class AdminBatchManagerController extends AbstractController
 {
     private TranslatorInterface $translator;
@@ -92,6 +93,12 @@ class AdminBatchManagerController extends AbstractController
         return $filter;
     }
 
+    #[Route(
+        '/batch/global/{start}/{filter}/{value}',
+        name: 'admin_batch_manager_global',
+        defaults: ['filter' => null, 'start' => 0, 'value' => null],
+        requirements: ['filter' => 'caddie|favorites|last_import|album|no_album|tag|no_tag|duplicates|all_photos', 'start' => '\d+']
+    )]
     public function global(
         Request $request,
         Conf $conf,
@@ -109,7 +116,6 @@ class AdminBatchManagerController extends AbstractController
         ImageAlbumRepository $imageAlbumRepository,
         FavoriteRepository $favoriteRepository,
         TagRepository $tagRepository,
-        RouterInterface $router,
         ManagerRegistry $managerRegistry,
         string $rootProjectDir,
         ImageLibraryGuesser $imageLibraryGuesser,
@@ -449,12 +455,18 @@ class AdminBatchManagerController extends AbstractController
         return $this->render('batch_manager_global.html.twig', $tpl_params);
     }
 
-    public function emptyCaddie(Request $request, CaddieRepository $caddieRepository, TranslatorInterface $translator): Response
+    #[Route(
+        '/batch/global/empty_caddie/{start}',
+        name: 'admin_batch_manager_global_empty_caddie',
+        defaults: ['start' => 0],
+        requirements: ['start' => '\d+']
+    )]
+    public function emptyCaddie(CaddieRepository $caddieRepository, TranslatorInterface $translator, int $start = 0): Response
     {
         $caddieRepository->emptyCaddies($this->user->getId());
         $this->addFlash('success', $translator->trans('Caddie has been emptied', [], 'admin'));
 
-        return $this->redirectToRoute('admin_batch_manager_global', ['start' => $request->get('start')]);
+        return $this->redirectToRoute('admin_batch_manager_global', ['start' => $start]);
     }
 
     /**
@@ -704,11 +716,7 @@ class AdminBatchManagerController extends AbstractController
                         $duplicates_on_fields[] = 'width';
                         $duplicates_on_fields[] = 'height';
                     }
-
-                    $array_of_ids_string = [];
-                    foreach ($imageMapper->getRepository()->findDuplicates($duplicates_on_fields) as $image_ids) {
-                        $array_of_ids_string[] = $image_ids;
-                    }
+                    $array_of_ids_string = $imageMapper->getRepository()->findDuplicates($duplicates_on_fields);
 
                     $ids = [];
                     foreach ($array_of_ids_string as $ids_string) {
@@ -976,6 +984,12 @@ class AdminBatchManagerController extends AbstractController
         return $tpl_params;
     }
 
+    #[Route(
+        '/batch/unit/{start}/{filter}/{value}',
+        name: 'admin_batch_manager_unit',
+        defaults: ['filter' => null, 'start' => 0, 'value' => null],
+        requirements: ['filter' => 'caddie|favorites|last_import|album|no_album|tag|no_tag|duplicates|all_photos', 'start' => '\d+']
+    )]
     public function unit(
         Request $request,
         Conf $conf,
@@ -989,7 +1003,6 @@ class AdminBatchManagerController extends AbstractController
         AlbumRepository $albumRepository,
         ImageAlbumRepository $imageAlbumRepository,
         FavoriteRepository $favoriteRepository,
-        RouterInterface $router,
         ManagerRegistry $managerRegistry,
         ?string $filter = null,
         int $start = 0

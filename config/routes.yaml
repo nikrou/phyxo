@@ -26,8 +26,4 @@ api_platform:
     type: api_platform
     prefix: /api
 
-admin_routes:
-  resource: routes/admin/*.yaml
-  prefix: /admin
-
 

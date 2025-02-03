@@ -37,17 +37,25 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Requirement\EnumRequirement;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[Route('/admin')]
 class AdminMaintenanceController extends AbstractController
 {
     public function __construct(private readonly ImageRepository $imageRepository, private readonly Filesystem $fs, private readonly string $uploadDir, private readonly string $rootProjectDir)
     {
     }
 
+    #[Route(
+        '/maintenace/{action}',
+        name: 'admin_maintenance',
+        defaults: ['action' => null],
+        requirements: ['action' => 'configuration|lock_gallery|unlock_gallery|albums|albums_virtualize|images|delete_orphan_tags|app_cache|user_cache|history_summary|feeds|database|search|obsolete']
+    )]
     public function index(
         Request $request,
-        ?string $action,
         Conf $conf,
         ParameterBagInterface $params,
         HistoryRepository $historyRepository,
@@ -62,6 +70,7 @@ class AdminMaintenanceController extends AbstractController
         UserFeedRepository $userFeedRepository,
         AlbumMapper $albumMapper,
         UpgradeRepository $upgradeRepository,
+        ?string $action,
     ): Response {
         $purge_urls = [];
         $tpl_params = [];
@@ -224,7 +233,6 @@ class AdminMaintenanceController extends AbstractController
             'U_MAINT_OBSOLETE' => $this->generateUrl('admin_maintenance', ['action' => 'obsolete']),
         ]);
 
-        $purge_urls[$translator->trans('All', [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => 'all']);
         foreach ($image_std_params->getDefinedTypeMap() as $std_params) {
             $purge_urls[$translator->trans($std_params->type->value, [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => $std_params->type->value]);
         }
@@ -282,9 +290,12 @@ class AdminMaintenanceController extends AbstractController
         }
     }
 
-    public function derivatives(string $type, DerivativeService $derivativeService): Response
+    #[Route('/maintenance/derivatives/{type}', name: 'admin_maintenance_derivatives', requirements: ['type' => new EnumRequirement(ImageSizeType::class)])]
+    public function derivatives(string $type, DerivativeService $derivativeService, TranslatorInterface $translator): Response
     {
         $derivativeService->clearCache([ImageSizeType::from($type)], ImageSizeType::getAllTypes());
+
+        $this->addFlash('success', $translator->trans('Image cache for size "%type%" has been clear.', ['%type%' => $type], 'admin'));
 
         return $this->redirectToRoute('admin_maintenance');
     }

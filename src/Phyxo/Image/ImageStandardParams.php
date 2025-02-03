@@ -26,7 +26,7 @@ class ImageStandardParams
     private $derivatives;
 
     /** @var array<string, DerivativeParams> $all_type_map */
-    private $all_type_map = [];
+    private array $all_type_map = [];
 
     /** @var array<string, DerivativeParams> $type_map */
     private array $type_map = [];

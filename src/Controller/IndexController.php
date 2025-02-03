@@ -211,7 +211,7 @@ class IndexController extends AbstractController
             $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()
         );
 
-        if (count($list) === 0) {
+        if ($list === []) {
             return $this->redirectToRoute('homepage');
         } else {
             return $this->redirectToRoute('random_list', ['list' => implode(',', $list)]);

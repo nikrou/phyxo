@@ -943,7 +943,7 @@ class AlbumMapper
         // remove userCache for albums
         $this->userCacheAlbumRepository->deleteForAlbums($ids);
 
-        if (count($wrong_representants) > 0) {
+        if ($wrong_representants !== []) {
             $this->getRepository()->updateAlbums(['representative_picture_id' => null], $wrong_representants);
         }
 
@@ -953,7 +953,7 @@ class AlbumMapper
             // must be added to the list of albums to set to a random representant.
             $to_rand = $this->getRepository()->findNeedeedRandomRepresentant($ids);
 
-            if (count($to_rand) > 0) {
+            if ($to_rand !== []) {
                 $this->setRandomRepresentant($to_rand);
             }
         }

@@ -19,8 +19,10 @@ use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[Route('/admin')]
 class AdminAlbumsOptionsController extends AbstractController
 {
     private TranslatorInterface $translator;
@@ -43,6 +45,7 @@ class AdminAlbumsOptionsController extends AbstractController
         return $tabsheet;
     }
 
+    #[Route('/albums/options/{section}', name: 'admin_albums_options', defaults: ['section' => 'status'], requirements: ['status' => 'status|lock|comments|representative'])]
     public function index(Request $request, string $section, Conf $conf, AlbumMapper $albumMapper, AlbumRepository $albumRepository, TranslatorInterface $translator): Response
     {
         $tpl_params = [];

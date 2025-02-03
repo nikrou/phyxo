@@ -132,11 +132,7 @@ class AdminLanguagesController extends AbstractController
         if ($action === 'set_default') {
             $userInfosRepository->updateFieldForUsers('language', $language, [$userMapper->getDefaultUser()->getId()]);
         } else {
-            $error = $languages->performAction($action, $language);
-        }
-
-        if (!empty($error)) {
-            $this->addFlash('error', $error);
+            $this->addFlash('error', $languages->performAction($action, $language));
         }
 
         return $this->redirectToRoute('admin_languages_installed');

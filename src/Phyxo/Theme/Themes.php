@@ -307,7 +307,7 @@ class Themes extends Extensions
     /**
      * Retrieve PEM server datas to $server_themes
      */
-    public function getServerThemes(string $pem_category, string $phyxo_version, $new = false)
+    public function getServerThemes(string $pem_category, string $phyxo_version, $new = false): array
     {
         if (!$this->server_themes_retrieved) {
             $get_data = [
@@ -454,7 +454,7 @@ class Themes extends Extensions
         return strcmp(strtolower((string) $a['extension_name']), strtolower((string) $b['extension_name']));
     }
 
-    public function extensionAuthorCompare(array $a, array $b)
+    public function extensionAuthorCompare(array $a, array $b): int
     {
         $r = strcasecmp((string) $a['author_name'], (string) $b['author_name']);
         if ($r == 0) {

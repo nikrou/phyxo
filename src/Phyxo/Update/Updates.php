@@ -316,7 +316,7 @@ class Updates
     }
 
     // Check if extension have been upgraded since last check
-    public function checkUpdatedExtensions(array $updates_ignored = [])
+    public function checkUpdatedExtensions(array $updates_ignored = []): array|false|null
     {
         foreach ($this->types as $type) {
             if (!empty($this->extensions_need_update[$type])) {
