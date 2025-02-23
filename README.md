@@ -29,20 +29,20 @@ You can found more informations on [Installation from source page](../../wiki/In
 Clone this repository:
 
 ```sh
-$ git clone git@github.com:nikrou/phyxo.git
+git clone git@github.com:nikrou/phyxo.git
 ```
 
 Download the [`composer.phar`](https://getcomposer.org/composer.phar) executable or use the installer.
 
 ```sh
-$ curl -sS https://getcomposer.org/installer | php
-$ mv composer.phar composer
+curl -sS https://getcomposer.org/installer | php
+mv composer.phar composer
 ```
 
 Update dependencies via composer:
 
-```
-$ composer install
+```sh
+composer install
 ```
 
 Install Phyxo through web interface.
@@ -50,13 +50,13 @@ Install Phyxo through web interface.
 For both methods you can make installation process from command line:
 
 ```sh
-$ ./bin/console phyxo:install
+./bin/console phyxo:install
 ```
 
 And create first user:
 
 ```sh
-$ ./bin/console phyxo:user:create
+./bin/console phyxo:user:create
 ```
 
 ## Contributing
@@ -72,40 +72,40 @@ phyxo is tested using a BDD framework - [Behat](http://www.behat.org).
 To run test:
 
 ```
-$ ./bin/behat
+./bin/behat
 ```
 
 But there's also unit tests in phyxo runned with [PHPUnit](https://phpunit.de/).
 To run tests:
 
 ```sh
-$ ./bin/simple-phpunit --testdox
+./bin/simple-phpunit --testdox
 ```
 
 or
 
 ```sh
-$ make unit-test
+make unit-test
 ```
 
 You can also get coverage report for tests by running:
 
 ```sh
-$ ./bin/simple-phpunit --testdox --coverage-html=coverage
+./bin/simple-phpunit --testdox --coverage-html=coverage
 ```
 
 or
 
 ```sh
-$ make unit-test-coverage
+make unit-test-coverage
 ```
 
 ## Static code analysis
 
 Analysis is made using [PHPStan](https://github.com/phpstan/phpstan) :
 
-```
-$ composer phpstan
+```sh
+composer phpstan
 ```
 
 The analysis is made with level 6 but the idea is to increase that level and fix more and more possible issues.
