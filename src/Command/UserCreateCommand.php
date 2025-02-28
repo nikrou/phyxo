@@ -103,7 +103,7 @@ class UserCreateCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        if (is_null($input->getOption('username')) || is_null($input->getOption('password')) || is_null($input->getOption('mail_address')) || is_null($input->getOption('status'))) {
+        if (is_null($input->getOption('username')) || is_null($input->getOption('status'))) {
             $io->error("Missing option");
 
             return Command::INVALID;

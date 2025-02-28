@@ -20,6 +20,7 @@ use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use App\Entity\User as EntityUser;
 use App\Entity\UserInfos;
+use App\Enum\UserStatusType;
 use IntlDateFormatter;
 
 class User
@@ -207,7 +208,7 @@ class User
 
         // an admin can't delete other admin/webmaster
         if ($service->getUserMapper()->isAdmin()) {
-            foreach ($service->getManagerRegistry()->getRepository(UserInfos::class)->findBy(['status' => [EntityUser::STATUS_WEBMASTER, EntityUser::STATUS_ADMIN]]) as $userInfos) {
+            foreach ($service->getManagerRegistry()->getRepository(UserInfos::class)->findBy(['status' => [UserStatusType::WEBMASTER, UserStatusType::ADMIN]]) as $userInfos) {
                 $protected_users[] = $userInfos->getUser()->getId();
             }
         }
@@ -292,11 +293,11 @@ class User
         }
 
         if (!empty($params['status'])) {
-            if (in_array($params['status'], [EntityUser::STATUS_WEBMASTER, EntityUser::STATUS_ADMIN]) && !$service->getUserMapper()->isWebmaster()) {
+            if (in_array($params['status'], [UserStatusType::WEBMASTER, UserStatusType::ADMIN]) && !$service->getUserMapper()->isWebmaster()) {
                 return new Error(403, 'Only webmasters can grant "webmaster/admin" status');
             }
 
-            if (!in_array($params['status'], EntityUser::ALL_STATUS)) {
+            if (UserStatusType::tryFrom($params['status']) === null) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid status');
             }
 
@@ -305,7 +306,7 @@ class User
 
             // an admin can't change status of other admin/webmaster
             if ($service->getUserMapper()->isAdmin() && !$service->getUserMapper()->isWebmaster()) {
-                foreach ($service->getManagerRegistry()->getRepository(UserInfos::class)->findOneBy(['status' => [EntityUser::STATUS_WEBMASTER, EntityUser::STATUS_ADMIN]]) as $userInfos) {
+                foreach ($service->getManagerRegistry()->getRepository(UserInfos::class)->findOneBy(['status' => [UserStatusType::WEBMASTER, UserStatusType::ADMIN]]) as $userInfos) {
                     $protected_users[] = $userInfos->getUser()->getId();
                 }
             }

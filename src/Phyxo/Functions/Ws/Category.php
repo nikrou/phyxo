@@ -17,6 +17,7 @@ use App\Entity\User;
 use App\Entity\UserCacheAlbum;
 use App\Entity\UserInfos;
 use App\Enum\ImageSizeType;
+use App\Enum\UserStatusType;
 use App\Repository\UserCacheAlbumRepository;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\Server;
@@ -256,7 +257,7 @@ class Category
 
         $admin_ids = [];
         if ($service->getUserMapper()->isAdmin()) {
-            foreach ($service->getManagerRegistry()->getRepository(UserInfos::class)->findBy(['status' => [User::STATUS_WEBMASTER, User::STATUS_ADMIN]]) as $userInfos) {
+            foreach ($service->getManagerRegistry()->getRepository(UserInfos::class)->findBy(['status' => [UserStatusType::WEBMASTER, UserStatusType::ADMIN]]) as $userInfos) {
                 $admin_ids[] = $userInfos->getUser()->getId();
             }
         }
