@@ -194,7 +194,7 @@ class AdminThemesController extends AbstractController
         $server_themes = $themes->getServerThemes($conf['pem_themes_category'], $params->get('core_version'), $new = false);
         $tpl_params['update_themes'] = [];
 
-        if (count($server_themes) > 0) {
+        if ($server_themes !== []) {
             foreach ($themes->getFsThemes() as $extension_id => $fs_extension) {
                 if (!isset($fs_extension['extension']) || !isset($server_themes[$fs_extension['extension']])) {
                     continue;

@@ -15,6 +15,7 @@ use DateTime;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Exception;
+use PDO;
 use Phyxo\Functions\Utils;
 use Phyxo\Language\Languages;
 use Phyxo\Upgrade;
@@ -196,17 +197,17 @@ class PhyxoInstaller
         $file_content = "\n";
         if ($db_params['db_layer'] !== 'sqlite') {
             $file_content .= sprintf(
-                'DATABASE_URL=%s://%s:%s@%s/%s' . "\n",
+                'DATABASE_URL=%s://%s:%s@%s/%s?serverVersion=%d' . "\n",
                 $db_params['db_layer'],
                 $db_params['db_user'],
-                urlencode(
-                    (string) $db_params['db_password']
-                ),
+                urlencode((string) $db_params['db_password']),
                 $db_params['db_host'],
-                $db_params['db_name']
+                $db_params['db_name'],
+                /** @phpstan-ignore-next-line */
+                $conn->getNativeConnection()->getAttribute(PDO::ATTR_SERVER_VERSION)
             );
         } else {
-            $file_content .= 'DATABASE_URL="sqlite:///%kernel.project_dir%/db/' . $db_params['db_name'] . "\"\n";
+            $file_content .= sprintf('DATABASE_URL="sqlite:///%s/db/%s"' . "\n", $this->rootProjectDir, $db_params['db_name']);
         }
 
         $file_content .= "DATABASE_PREFIX='" . $db_params['db_prefix'] . "'\n\n";
