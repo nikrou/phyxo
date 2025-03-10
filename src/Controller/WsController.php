@@ -39,7 +39,6 @@ use App\ImageLibraryGuesser;
 use App\Security\AppUserService;
 use App\Security\UserProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use App\Utils\UserManager;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -59,7 +58,6 @@ class WsController extends AbstractController
         TagMapper $tagMapper,
         CommentMapper $commentMapper,
         Conf $conf,
-        UserManager $userManager,
         UserPasswordHasherInterface $passwordHasher,
         RateMapper $rateMapper,
         SearchMapper $searchMapper,
@@ -89,7 +87,6 @@ class WsController extends AbstractController
         $this->service->setCoreVersion($phyxoVersion);
         $this->service->setConf($conf);
         $this->service->setRouter($router);
-        $this->service->setUserManager($userManager);
         $this->service->setImageStandardParams($image_std_params);
         $this->service->setPasswordHasher($passwordHasher);
         $this->service->setExtensionsURL($pemURL);

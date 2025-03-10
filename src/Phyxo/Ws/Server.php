@@ -24,7 +24,6 @@ use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
 use App\Security\AppUserService;
 use App\Security\UserProvider;
-use App\Utils\UserManager;
 use Doctrine\Persistence\ManagerRegistry;
 use Imagine\Image\ImagineInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -47,7 +46,6 @@ class Server
     private ?Conf $conf = null;
     private ?RouterInterface $router = null;
     private ?ImageStandardParams $image_std_params = null;
-    private ?UserManager $userManager = null;
     private ?UserPasswordHasherInterface $passwordHasher = null;
     private ?string $pem_url = null;
     private ?Security $security = null;
@@ -218,16 +216,6 @@ class Server
     public function getRouter(): ?RouterInterface
     {
         return $this->router;
-    }
-
-    public function setUserManager(UserManager $userManager): void
-    {
-        $this->userManager = $userManager;
-    }
-
-    public function getUserManager(): ?UserManager
-    {
-        return $this->userManager;
     }
 
     public function setPasswordHasher(UserPasswordHasherInterface $passwordHasher): void

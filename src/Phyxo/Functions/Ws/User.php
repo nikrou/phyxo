@@ -183,7 +183,7 @@ class User
             $user->setPassword($service->getPasswordHasher()->hashPassword($user, $params['password']));
             $user->addRole('ROLE_NORMAL');
 
-            $user = $service->getUserManager()->register($user);
+            $user = $service->getAppUserService()->register($user);
 
             if ($params['send_password_by_mail']) {
                 // send password by mail

@@ -16,8 +16,6 @@ use Behat\Step\Given;
 use Behat\Step\When;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\AfterScenario;
-use DateTime;
-use Exception;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
@@ -36,11 +34,13 @@ use App\Enum\UserStatusType;
 use App\Repository\CommentRepository;
 use App\Repository\GroupRepository;
 use App\Repository\UserRepository;
-use App\Utils\UserManager;
+use App\Security\AppUserService;
 use Doctrine\DBAL\Connection;
 use Phyxo\Conf;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use DateTime;
+use Exception;
 
 class DBContext implements Context
 {
@@ -50,7 +50,7 @@ class DBContext implements Context
         private readonly string $sqlCleanupFile,
         private readonly Storage $storage,
         private readonly ContainerInterface $driverContainer,
-        private readonly UserManager $userManager,
+        private readonly AppUserService $appUserService,
         private readonly AlbumMapper $albumMapper,
         private readonly Conf $conf,
         private readonly UserRepository $userRepository,
@@ -82,7 +82,7 @@ class DBContext implements Context
                 $user->setMailAddress($userRow['mail_address']);
             }
 
-            $this->userManager->register($user);
+            $this->appUserService->register($user);
 
             if (!empty($userRow['activation_key'])) {
                 $user->getUserInfos()->setActivationKey($userRow['activation_key']);
@@ -289,7 +289,7 @@ class DBContext implements Context
         $user->setUsername('guest');
         $user->addRole(User::getRoleFromStatus(UserStatusType::GUEST));
 
-        $this->userManager->register($user);
+        $this->appUserService->register($user);
     }
 
     protected function cleanUploadAndMediaDirectories(): void

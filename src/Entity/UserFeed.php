@@ -17,7 +17,6 @@ use App\Repository\UserFeedRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Table(name: 'user_feed')]
 #[ORM\Entity(repositoryClass: UserFeedRepository::class)]
@@ -35,9 +34,9 @@ class UserFeed
     #[ORM\JoinColumn(name: 'user_id', nullable: false)]
     private User $user;
 
-    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\Column(type: Types::STRING, unique: true)]
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
-    private UuidInterface $uuid;
+    private string $uuid;
 
     public function __construct()
     {
@@ -78,7 +77,7 @@ class UserFeed
         return $this->uuid;
     }
 
-    public function setUuid(UuidInterface $uuid): self
+    public function setUuid(string $uuid): self
     {
         $this->uuid = $uuid;
 

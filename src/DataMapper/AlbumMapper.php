@@ -33,7 +33,7 @@ class AlbumMapper
     /**
      *  @var array<int, Album> $cache
      */
-    private array $cache;
+    private array $cache = [];
     private bool $albums_retrieved = false;
 
     public function __construct(

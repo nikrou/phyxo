@@ -17,9 +17,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use App\Utils\UserManager;
 use App\Entity\User;
 use App\Enum\UserStatusType;
+use App\Security\AppUserService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -31,7 +31,7 @@ class UserCreateCommand extends Command
 {
     private string $localEnvFile = '';
 
-    public function __construct(private readonly UserManager $userManager, private readonly UserPasswordHasherInterface $passwordHasher, private readonly string $rootProjectDir)
+    public function __construct(private readonly AppUserService $appUserService, private readonly UserPasswordHasherInterface $passwordHasher, private readonly string $rootProjectDir)
     {
         parent::__construct();
         $this->localEnvFile = sprintf('%s/.env.local', $this->rootProjectDir);
@@ -118,7 +118,7 @@ class UserCreateCommand extends Command
         }
 
         try {
-            $user = $this->userManager->register($user);
+            $user = $this->appUserService->register($user);
             $output->writeln(sprintf(
                 'Successfully created user "%s" with mail address "%s" and status "%s"',
                 $user->getUsername(),

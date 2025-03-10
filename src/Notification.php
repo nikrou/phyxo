@@ -156,7 +156,7 @@ class Notification
      * Returns if there was new activity between two dates.
      *
      * Takes in account: number of new comments, number of new elements, number of
-     * updated categories. Administrators are also informed about: number of
+     * updated albums. Administrators are also informed about: number of
      * unvalidated comments, number of new users.
      * @todo number of unvalidated elements
      */
@@ -191,11 +191,11 @@ class Notification
      * Returns new activity between two dates.
      *
      * Takes in account: number of new comments, number of new elements, number of
-     * updated categories. Administrators are also informed about: number of
+     * updated albums. Administrators are also informed about: number of
      * unvalidated comments, number of new users.
      * @todo number of unvalidated elements
      *
-     * @param bool $exclude_img_cats if true, no info about new images/categories
+     * @param bool $exclude_img_cats if true, no info about new images/albums
      * @param bool $add_url add html link around news
      * @return string[]
      */
@@ -257,7 +257,7 @@ class Notification
      *
      * @param int $max_dates maximum number of recent dates
      * @param int $max_elements maximum number of elements per date
-     * @param int $max_cats maximum number of categories per date
+     * @param int $max_cats maximum number of albums per date
      */
     public function get_recent_post_dates(int $max_dates, int $max_elements, int $max_cats): array
     {
@@ -275,7 +275,10 @@ class Notification
             }
 
             if ($max_cats > 0) { // get some albums ...
-                $dates[$i]['categories'] = $this->imageMapper->getRepository()->getRecentImages($max_cats, $dates[$i]['date_available'], $this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums());
+                $recentImages = $this->imageMapper->getRepository()->getRecentImages($max_cats, $dates[$i]['date_available'], $this->userMapper->getUser()->getUserInfos()->getForbiddenAlbums());
+                if ($recentImages !== []) {
+                    $dates[$i]['albums'] = $recentImages;
+                }
             }
         }
 
@@ -332,26 +335,31 @@ class Notification
 
         $description .= '...<br>';
 
-        $description .=
-            '<li>'
-            . $this->translator->trans('number_of_albums_updated', ['count' => $date_detail['categories']])
-            . '</li>';
-
-        $description .= '<ul>';
-        foreach ($date_detail['categories'] as $cat) {
+        if (!empty($date_detail['albums'])) {
             $description .=
                 '<li>'
-                . $this->albumMapper->getAlbumsDisplayNameCache($cat['upp'])
-                . ' (' . $this->translator->trans('number_of_new_photos', ['count' => $cat['img_count']]) . ')'
+                . $this->translator->trans('number_of_albums_updated', ['count' => $date_detail['albums']])
                 . '</li>';
-        }
 
-        $description .= '</ul>'; // @TODO: fix html output. Cannot have two </ul>
+            $description .= '<ul>';
+            foreach ($date_detail['albums'] as $album) {
+                if (isset($album['upp'], $album['img_count'])) {
+                    $description .=
+                        '<li>'
+                        . $this->albumMapper->getAlbumsDisplayNameCache($album['upp'])
+                        . ' (' . $this->translator->trans('number_of_new_photos', ['count' => $album['img_count']]) . ')'
+                        . '</li>';
+                }
+            }
+
+            $description .= '</ul>'; // @TODO: fix html output. Cannot have two </ul>
+        }
 
         return $description . '</ul>';
     }
 
     /**
+     *
      * Returns title about recently published elements grouped by post date.
      *
      * @param array $date_detail returned value of get_recent_post_dates()

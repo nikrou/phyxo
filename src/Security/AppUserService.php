@@ -12,10 +12,17 @@
 namespace App\Security;
 
 use App\Entity\User;
+use App\Entity\UserInfos;
+use App\Enum\UserPrivacyLevelType;
+use App\Enum\UserStatusType;
+use App\Repository\GroupRepository;
+use App\Repository\UserRepository;
 use Phyxo\Conf;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use DateTime;
+use Exception;
 
 class AppUserService
 {
@@ -23,8 +30,16 @@ class AppUserService
     private User $guest_user;
     private bool $guest_user_retrieved = false;
 
-    public function __construct(private readonly Security $security, private readonly UserProvider $userProvider, private readonly Conf $conf, private readonly AuthorizationCheckerInterface $authorizationChecker)
-    {
+    public function __construct(
+        private readonly Security $security,
+        private readonly UserProvider $userProvider,
+        private readonly Conf $conf,
+        private readonly AuthorizationCheckerInterface $authorizationChecker,
+        private readonly string $defaultLanguage,
+        private readonly string $defaultTheme,
+        private readonly UserRepository $userRepository,
+        private readonly GroupRepository $groupRepository
+    ) {
     }
 
     public function getUser(): ?User
@@ -48,8 +63,12 @@ class AppUserService
     public function getDefaultUser(): User
     {
         if (!$this->guest_user_retrieved) {
-            $this->guest_user = $this->userProvider->loadUserByIdentifier('guest');
-            $this->guest_user_retrieved = true;
+            try {
+                $this->guest_user = $this->userProvider->loadUserByIdentifier('guest');
+                $this->guest_user_retrieved = true;
+            } catch (Exception) {
+                throw new Exception('Cannot find guest user');
+            }
         }
 
         return $this->guest_user;
@@ -97,5 +116,44 @@ class AppUserService
         }
 
         return $action === 'delete' && $this->conf['user_can_delete_comment'] && $comment_author_id == $this->getUser()->getId();
+    }
+
+    public function register(User $user): User
+    {
+        $userInfos = new UserInfos();
+
+        if (!in_array('ROLE_NORMAL', $user->getRoles())) {
+            $userInfos->setLanguage($this->defaultLanguage);
+            $userInfos->setTheme($this->defaultTheme);
+        } else {
+            try {
+                $guest_user = $this->userRepository->findOneByStatus(UserStatusType::GUEST);
+                $userInfos->fromArray($guest_user->getUserInfos()->toArray());
+            } catch (Exception) {
+            }
+        }
+
+        $userInfos->setRegistrationDate(new DateTime());
+        $userInfos->setLastModified(new DateTime());
+        if (in_array('ROLE_WEBMASTER', $user->getRoles())) {
+            $userInfos->setLevel(UserPrivacyLevelType::ADMINS);
+        }
+
+        $userInfos->setStatus($user->getStatusFromRoles());
+        $user->setUserInfos($userInfos);
+
+        // find default groups
+        foreach ($this->groupRepository->findDefaultGroups() as $group) {
+            $user->addGroup($group);
+        }
+
+        $this->userRepository->addUser($user);
+
+        return $user;
+    }
+
+    public function generateActivationKey(int $size = 50): string
+    {
+        return hash('sha256', openssl_random_pseudo_bytes($size));
     }
 }

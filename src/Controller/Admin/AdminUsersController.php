@@ -25,7 +25,6 @@ use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\UserRepository;
 use App\Security\AppUserService;
-use App\Utils\UserManager;
 use Exception;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
@@ -222,7 +221,7 @@ class AdminUsersController extends AbstractController
     }
 
     #[Route('/users/add', name: 'admin_user_add')]
-    public function add(Request $request, UserPasswordHasherInterface $passwordHasher, UserManager $userManager, TranslatorInterface $translator): Response
+    public function add(Request $request, UserPasswordHasherInterface $passwordHasher, AppUserService $appUserService, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
         $this->translator = $translator;
@@ -244,7 +243,7 @@ class AdminUsersController extends AbstractController
             $user->addRole('ROLE_NORMAL');
 
             try {
-                $userManager->register($user);
+                $appUserService->register($user);
 
                 $this->addFlash('info', $translator->trans('User has been added'));
                 return $this->redirectToRoute('admin_users');

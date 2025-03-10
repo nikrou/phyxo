@@ -20,7 +20,6 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\User;
 use App\Events\ActivationKeyEvent;
-use App\Utils\UserManager;
 use App\Form\ForgotPasswordType;
 use App\Form\PasswordResetType;
 use App\Form\UserProfileType;
@@ -86,7 +85,7 @@ class SecurityController extends AbstractController
     #[Route('/register', name: 'register')]
     public function register(
         Request $request,
-        UserManager $user_manager,
+        AppUserService $appUserService,
         UserPasswordHasherInterface $passwordHasher,
         UserAuthenticatorInterface $userAuthenticator,
         LoginFormAuthenticator $loginFormAuthenticator,
@@ -106,7 +105,7 @@ class SecurityController extends AbstractController
             $user->addRole('ROLE_NORMAL');
 
             try {
-                $user_manager->register($user);
+                $appUserService->register($user);
 
                 return $userAuthenticator->authenticateUser($user, $loginFormAuthenticator, $request);
             } catch (Exception $e) {
@@ -171,7 +170,7 @@ class SecurityController extends AbstractController
     #[Route('/password', name: 'forgot_password')]
     public function forgotPassword(
         Request $request,
-        UserManager $user_manager,
+        AppUserService $appUserService,
         UserRepository $userRepository,
         EventDispatcherInterface $dispatcher,
         TranslatorInterface $translator,
@@ -189,7 +188,7 @@ class SecurityController extends AbstractController
             } elseif (is_null($user->getMailAddress())) {
                 $this->addFlash('error', $translator->trans('User "%username%" has no email address, password reset is not possible', ['%username%' => $user->getUserIdentifier()]));
             } else {
-                $activation_key = $user_manager->generateActivationKey();
+                $activation_key = $appUserService->generateActivationKey();
                 $user->getUserInfos()->setActivationKey($activation_key);
                 $user->getUserInfos()->setActivationKeyExpire((new DateTime())->add(new DateInterval('PT1H')));
                 $userRepository->updateUser($user);
