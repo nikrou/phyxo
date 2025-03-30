@@ -1,6 +1,8 @@
-# Phyxo 4.0.0 - YYYY-MM-DD
+# Phyxo 4.0.0 - 2025-03-30
 
-- Not yet released
+- Use DSN for Doctrine instead of database.yaml file parameters
+- Use Enums instead of string constants (images sizes, privacy levels, plugins states,...)
+- Use attributes for routes. No more route files definitions
 
 # Phyxo 3.0.0 - 2024-04-27
 

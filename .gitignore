@@ -46,3 +46,8 @@
 /galleries
 /.php-cs-fixer.cache
 /public/bundles/apiplatform
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
