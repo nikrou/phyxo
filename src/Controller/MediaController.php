@@ -11,21 +11,21 @@
 
 namespace App\Controller;
 
-use Phyxo\Image\ImageRect;
-use DateTime;
 use App\Entity\Image;
 use App\ImageLibraryGuesser;
 use App\Repository\ImageRepository;
 use App\Security\AppUserService;
-use Symfony\Component\HttpFoundation\Response;
+use DateTime;
 use Phyxo\Image\DerivativeParams;
 use Phyxo\Image\ImageOptimizer;
+use Phyxo\Image\ImageRect;
+use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SizingParams;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Phyxo\Image\ImageStandardParams;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\MimeTypeGuesserInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -37,7 +37,7 @@ class MediaController extends AbstractController
     #[Route(
         '/media/{path}-{derivative}.{image_extension}',
         name: 'media',
-        requirements: ['derivative' => 'sq|th|2s|xs|sm|me|la|xl|xx', 'path' => '.*', 'image_extension' => 'jpg|jpeg|png|mp4'
+        requirements: ['derivative' => 'sq|th|2s|xs|sm|me|la|xl|xx', 'path' => '.*', 'image_extension' => 'jpg|jpeg|png|mp4',
         ]
     )]
     public function derivative(
@@ -51,7 +51,7 @@ class MediaController extends AbstractController
         string $rootProjectDir,
         MimeTypeGuesserInterface $mimeTypeGuesser,
         ImageLibraryGuesser $imageLibraryGuesser,
-        AppUserService $appUserService
+        AppUserService $appUserService,
     ): Response {
         $image_path = sprintf('%s.%s', $path, $image_extension);
         $derivative_path = sprintf('%s-%s.%s', $path, $derivative, $image_extension);
@@ -97,7 +97,7 @@ class MediaController extends AbstractController
         name: 'media_custom',
         defaults: ['derivative' => 'cu'],
         requirements: [
-            'path' => '.*', 'image_extension' => 'jpg|jpeg|png|mp4', 'sizes' => '(e|s)[^\.]*'
+            'path' => '.*', 'image_extension' => 'jpg|jpeg|png|mp4', 'sizes' => '(e|s)[^\.]*',
         ]
     )]
     public function custom(
@@ -112,7 +112,7 @@ class MediaController extends AbstractController
         string $rootProjectDir,
         MimeTypeGuesserInterface $mimeTypeGuesser,
         ImageLibraryGuesser $imageLibraryGuesser,
-        AppUserService $appUserService
+        AppUserService $appUserService,
     ): Response {
         $image_path = sprintf('%s.%s', $path, $image_extension);
         $derivative_path = sprintf('%s-%s%s.%s', $path, $derivative, $sizes, $image_extension);
@@ -175,7 +175,7 @@ class MediaController extends AbstractController
         '/media/{path}.{image_extension}',
         name: 'media_original',
         requirements: [
-            'path' => '[^_]*', 'image_extension' => 'jpg|jpeg|png'
+            'path' => '[^_]*', 'image_extension' => 'jpg|jpeg|png',
         ]
     )]
     public function original(
@@ -188,7 +188,7 @@ class MediaController extends AbstractController
         string $rootProjectDir,
         MimeTypeGuesserInterface $mimeTypeGuesser,
         ImageLibraryGuesser $imageLibraryGuesser,
-        AppUserService $appUserService
+        AppUserService $appUserService,
     ): Response {
         $image_path = sprintf('%s.%s', $path, $image_extension);
         $derivative_path = sprintf('%s-%s.%s', $path, 'original', $image_extension);
@@ -234,7 +234,7 @@ class MediaController extends AbstractController
         '/admin/media/{path}-{derivative}.{image_extension}',
         name: 'admin_media',
         requirements: [
-            'path' => '[^_]*', 'derivative' => 'sq|th|2s|xs|sm|me|la|xl|xx', 'image_extension' => 'jpg|jpeg|png'
+            'path' => '[^_]*', 'derivative' => 'sq|th|2s|xs|sm|me|la|xl|xx', 'image_extension' => 'jpg|jpeg|png',
         ]
     )]
     public function mediaForAdmin(string $path, string $derivative, string $image_extension): Response
@@ -242,7 +242,7 @@ class MediaController extends AbstractController
         $this->forAdmin = true;
 
         return $this->forward(
-            \App\Controller\MediaController::class . '::derivative',
+            MediaController::class . '::derivative',
             ['path' => $path, 'derivative' => $derivative, 'image_extension' => $image_extension]
         );
     }
@@ -332,7 +332,7 @@ class MediaController extends AbstractController
         $response = new BinaryFileResponse($image_path);
         $response->setEtag(md5_file($image_path));
         $response->setLastModified((new DateTime())->setTimestamp(filemtime($image_path)));
-        $response->setMaxAge(3600); //@TODO : read from conf
+        $response->setMaxAge(3600); // @TODO : read from conf
         $response->setPublic();
 
         $response->headers->set('Content-Type', $mimeTypeGuesser->guessMimeType($image_path));

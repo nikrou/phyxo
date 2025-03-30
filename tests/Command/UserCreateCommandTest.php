@@ -14,7 +14,6 @@ namespace App\Tests\Command;
 use App\Command\UserCreateCommand;
 use App\Enum\UserStatusType;
 use App\Tests\Factory\UserFactory;
-use App\Tests\Factory\UserInfosFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
 use Zenstruck\Console\Test\InteractsWithConsole;
@@ -27,9 +26,9 @@ class UserCreateCommandTest extends KernelTestCase
     use Factories;
     use InteractsWithConsole;
 
-    public function test_can_create_user(): void
+    public function testCanCreateUser(): void
     {
-        UserFactory::createOne(['username' => 'guest', 'user_infos' => UserInfosFactory::new(['status' => UserStatusType::GUEST])->withoutPersisting()]);
+        UserFactory::new(['username' => 'guest'])->withUserInfos(['status' => UserStatusType::GUEST])->create();
 
         $username = 'nicolas';
         $password = 'my_pass';
@@ -52,7 +51,7 @@ class UserCreateCommandTest extends KernelTestCase
             ));
     }
 
-    public function test_missing_option(): void
+    public function testMissingOption(): void
     {
         $this->consoleCommand(UserCreateCommand::class)
             ->splitOutputStreams()

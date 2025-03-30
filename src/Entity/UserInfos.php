@@ -13,13 +13,12 @@ namespace App\Entity;
 
 use App\Enum\UserPrivacyLevelType;
 use App\Enum\UserStatusType;
-use Doctrine\DBAL\Types\Types;
-use DateTimeInterface;
 use App\Repository\UserInfosRepository;
+use DateTimeInterface;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- *
  * @phpstan-type UserInfosArray array{nb_image_page: int, language: ?string, expand: bool, show_nb_comments: bool, show_nb_hits: bool,
  *  recent_period: int, theme: ?string, enabled_high: bool, level: UserPrivacyLevelType}
  */
@@ -35,12 +34,12 @@ class UserInfos
     private int $nb_total_images;
 
     /**
-     * @var int[] $forbidden_albums
+     * @var int[]
      */
     private array $forbidden_albums = [];
 
     /**
-     * @var int[] $image_access_list
+     * @var int[]
      */
     private array $image_access_list = [];
     private string $image_access_type = 'NOT IN';

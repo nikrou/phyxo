@@ -33,7 +33,7 @@ class AddImagesToCaddieTest extends ApiTestCase
 
     public function testAddImagesToCaddie(): void
     {
-        $user = UserFactory::createOne();
+        $user = UserFactory::new()->withUserInfos()->create();
         $images = ImageFactory::createMany(2);
 
         $client = static::createClient();

@@ -1,3 +1,7 @@
+# Phyxo 4.0.0 - YYYY-MM-DD
+
+-- Not yet released
+
 # Phyxo 4.0.0 - 2025-03-30
 
 - Use DSN for Doctrine instead of database.yaml file parameters

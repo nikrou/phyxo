@@ -12,10 +12,10 @@
 namespace App\Entity;
 
 use App\Enum\UserStatusType;
-use Doctrine\DBAL\Types\Types;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -61,7 +61,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     private Collection $userCacheAlbums;
 
     /**
-     *
      * @var Collection<int, Album>
      */
     #[ORM\JoinTable(name: 'user_access')]
@@ -516,7 +515,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
             'id' => $this->id,
             'username' => $this->username,
             'password' => $this->password,
-            'roles' => json_encode($this->roles, JSON_THROW_ON_ERROR)
+            'roles' => json_encode($this->roles, JSON_THROW_ON_ERROR),
         ];
     }
 

@@ -41,8 +41,12 @@ final class UserFactory extends PersistentProxyObjectFactory
             'username' => self::faker()->userName(),
             'mail_address' => self::faker()->email(),
             'plain_password' => self::faker()->password(8),
-            'user_infos' => UserInfosFactory::new()->withoutPersisting()
         ];
+    }
+
+    public function withUserInfos(array|callable $attributes = []): self
+    {
+        return $this->with(static fn (): array => ['userInfos' => UserInfosFactory::new($attributes)]);
     }
 
     /**

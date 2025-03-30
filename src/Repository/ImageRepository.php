@@ -11,12 +11,12 @@
 
 namespace App\Repository;
 
-use DateTimeInterface;
-use DateTime;
-use DateInterval;
 use App\Entity\Album;
 use App\Entity\Image;
 use App\Enum\UserPrivacyLevelType;
+use DateInterval;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -109,7 +109,7 @@ class ImageRepository extends ServiceEntityRepository
     }
 
     /**
-     * this list does not contain images that are not in at least an authorized album
+     * this list does not contain images that are not in at least an authorized album.
      *
      * @param int[] $forbidden_albums
      *
@@ -130,7 +130,7 @@ class ImageRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int[] $forbidden_albums
+     * @param int[]                     $forbidden_albums
      * @param array<array<int, string>> $sorts
      *
      * @return Image[]
@@ -157,7 +157,7 @@ class ImageRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int[] $forbidden_albums
+     * @param int[]                     $forbidden_albums
      * @param array<array<int, string>> $sorts
      *
      * @return Image[]
@@ -194,7 +194,7 @@ class ImageRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int[] $forbidden_albums
+     * @param int[]                     $forbidden_albums
      * @param array<array<int, string>> $sorts
      *
      * @return Image[]
@@ -252,7 +252,7 @@ class ImageRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find a random photo among all photos inside an album (including sub-albums)
+     * Find a random photo among all photos inside an album (including sub-albums).
      *
      * @param int[] $forbidden_albums
      */
@@ -303,7 +303,7 @@ class ImageRepository extends ServiceEntityRepository
 
     /**
      * @param array<int> $ids
-     * @param int[] $forbidden_albums
+     * @param int[]      $forbidden_albums
      *
      * @return Image[]
      */
@@ -423,7 +423,7 @@ class ImageRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int[] $forbidden_albums
+     * @param int[]                     $forbidden_albums
      * @param array<array<int, string>> $order_by
      *
      * @return Image[]
@@ -450,7 +450,7 @@ class ImageRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int[] $forbidden_albums
+     * @param int[]                     $forbidden_albums
      * @param array<array<int, string>> $order_by
      *
      * @return Image[]
@@ -581,7 +581,7 @@ class ImageRepository extends ServiceEntityRepository
 
     /**
      * @param array<int, string> $months
-     * @param int[] $forbidden_albums
+     * @param int[]              $forbidden_albums
      *
      * @return Image[]
      */
@@ -651,7 +651,7 @@ class ImageRepository extends ServiceEntityRepository
 
     /**
      * @param array<int, string> $days
-     * @param int[] $forbidden_albums
+     * @param int[]              $forbidden_albums
      *
      * @return Image[]
      */
@@ -816,7 +816,7 @@ class ImageRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int[] $image_ids
+     * @param int[]                     $image_ids
      * @param array<array<int, string>> $order_by
      *
      * @return Image[]
@@ -842,7 +842,7 @@ class ImageRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findMaxDateAvailable() : ?DateTimeInterface
+    public function findMaxDateAvailable(): ?DateTimeInterface
     {
         $qb = $this->createQueryBuilder('i');
         $qb->select('MAX(i.date_available) AS max_date');
@@ -1052,7 +1052,7 @@ class ImageRepository extends ServiceEntityRepository
 
     /**
      * @param array<string, array<string, array<string, array<string>|string>>> $rules
-     * @param int[] $forbidden_albums
+     * @param int[]                                                             $forbidden_albums
      *
      * @return Image[]
      */
@@ -1169,7 +1169,7 @@ class ImageRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int[] $forbidden_albums
+     * @param int[]    $forbidden_albums
      * @param string[] $tag_ids
      *
      * @return Image[]

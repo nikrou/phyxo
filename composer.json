@@ -11,7 +11,7 @@
   ],
   "minimum-stability": "stable",
   "require": {
-    "php": ">=8.2.0",
+    "php": ">=8.3.0",
     "api-platform/doctrine-orm": "^4.0",
     "api-platform/symfony": "^4.0",
     "doctrine/dbal": "^3",
@@ -44,7 +44,6 @@
     "symfony/serializer": "^7.0",
     "symfony/translation": "^7.0",
     "symfony/twig-bundle": "^7.0",
-    "symfony/type-info": "7.1.8",
     "symfony/validator": "^7.0",
     "symfony/yaml": "^7.0",
     "twig/cssinliner-extra": "^3.4",

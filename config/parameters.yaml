@@ -4,7 +4,7 @@ parameters:
   env(DATABASE_URL): ''
   env(DATABASE_PREFIX): 'phyxo_'
 
-  core_version: 4.0.0
+  core_version: 5.0.0-dev
   phyxo_website: https://www.phyxo.net
   pem_url: 'https://ext.phyxo.net'
   update_url: https://download.phyxo.net/versions
