@@ -23,9 +23,9 @@ use Symfony\Component\Filesystem\Filesystem;
 class PluginsTest extends TestCase
 {
     use ProphecyTrait;
-    final public const PLUGINS_PATH = __DIR__ . '/../../fixtures/plugins';
-    final public const PLUGINS_DIR = __DIR__ . '/../../tmp/plugins';
-    final public const PLUGINS_ZIP_PATH = __DIR__ . '/../../fixtures/zip';
+    final public const string PLUGINS_PATH = __DIR__ . '/../../fixtures/plugins';
+    final public const string PLUGINS_DIR = __DIR__ . '/../../tmp/plugins';
+    final public const string PLUGINS_ZIP_PATH = __DIR__ . '/../../fixtures/zip';
 
     protected function setUp(): void
     {

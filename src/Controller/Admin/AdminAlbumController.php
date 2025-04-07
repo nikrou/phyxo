@@ -39,11 +39,9 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminAlbumController extends AbstractController
 {
     private TranslatorInterface $translator;
-
     protected function setTabsheet(int $album_id, string $section = 'properties', ?int $parent_id = null): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -55,8 +53,7 @@ class AdminAlbumController extends AbstractController
 
         return $tabsheet;
     }
-
-    #[Route('/album/{album_id}/edit/{parent_id}', name: 'admin_album', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
+    #[Route('/admin/album/{album_id}/edit/{parent_id}', name: 'admin_album', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
     public function properties(
         Request $request,
         int $album_id,
@@ -217,8 +214,7 @@ class AdminAlbumController extends AbstractController
 
         return $this->render('album_properties.html.twig', $tpl_params);
     }
-
-    #[Route('/album/{album_id}/sort_order/{parent_id}', name: 'admin_album_sort_order', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
+    #[Route('/admin/album/{album_id}/sort_order/{parent_id}', name: 'admin_album_sort_order', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
     public function sort_order(
         Request $request,
         int $album_id,
@@ -353,8 +349,7 @@ class AdminAlbumController extends AbstractController
 
         return $this->render('album_sort_order.html.twig', $tpl_params);
     }
-
-    #[Route('/album/{album_id}/permissions/{parent_id}', name: 'admin_album_permissions', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
+    #[Route('/admin/album/{album_id}/permissions/{parent_id}', name: 'admin_album_permissions', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
     public function permissions(
         Request $request,
         int $album_id,
@@ -509,8 +504,7 @@ class AdminAlbumController extends AbstractController
 
         return $this->render('album_permissions.html.twig', $tpl_params);
     }
-
-    #[Route('/album/{album_id}/notification/{parent_id}', name: 'admin_album_notification', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
+    #[Route('/admin/album/{album_id}/notification/{parent_id}', name: 'admin_album_notification', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
     public function notification(
         Request $request,
         int $album_id,
@@ -595,8 +589,7 @@ class AdminAlbumController extends AbstractController
 
         return $this->render('album_notification.html.twig', $tpl_params);
     }
-
-    #[Route('/album/create/{parent_id}', name: 'admin_album_create', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+'])]
+    #[Route('/admin/album/create/{parent_id}', name: 'admin_album_create', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+'])]
     public function create(
         Request $request,
         AppUserService $appUserService,
@@ -637,8 +630,7 @@ class AdminAlbumController extends AbstractController
 
         return $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
     }
-
-    #[Route('/album/{album_id}/delete/{parent_id}', name: 'admin_album_delete', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
+    #[Route('/admin/album/{album_id}/delete/{parent_id}', name: 'admin_album_delete', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
     public function delete(int $album_id, AlbumMapper $albumMapper, ImageMapper $imageMapper, UserMapper $userMapper, TranslatorInterface $translator, ?int $parent_id = null): Response
     {
         $albumMapper->deleteAlbums([$album_id]);

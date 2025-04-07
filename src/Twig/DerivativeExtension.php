@@ -11,6 +11,7 @@
 
 namespace App\Twig;
 
+use Override;
 use App\Entity\Image;
 use App\Enum\ImageSizeType;
 use Exception;
@@ -27,6 +28,7 @@ class DerivativeExtension extends AbstractExtension
     {
     }
 
+    #[Override]
     public function getFunctions(): array
     {
         return [

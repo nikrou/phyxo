@@ -35,7 +35,6 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminConfigurationController extends AbstractController
 {
     /** @var array<string> $main_checkboxes */
@@ -50,10 +49,8 @@ class AdminConfigurationController extends AbstractController
         'history_admin',
         'history_guest',
     ];
-
     /** @var array<string> $sizes_checkboxes */
     private array $sizes_checkboxes = ['original_resize'];
-
     /** @var array<string> $comments_checkboxes */
     private array $comments_checkboxes = [
         'activate_comments',
@@ -69,16 +66,12 @@ class AdminConfigurationController extends AbstractController
         'comments_email_mandatory',
         'comments_enable_website',
     ];
-
     /** @var array<string, string> $sort_fields */
     private readonly array $sort_fields;
-
     /** @var array<string, string> $comments_order */
     private readonly array $comments_order;
-
     /** @var array<string, string> $mail_themes */
     private array $mail_themes;
-
     public function __construct(private readonly TranslatorInterface $translator)
     {
         $this->sort_fields = [
@@ -110,7 +103,6 @@ class AdminConfigurationController extends AbstractController
             'dark' => $this->translator->trans('Dark', [], 'admin')
         ];
     }
-
     protected function setTabsheet(string $section = 'main'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -124,8 +116,7 @@ class AdminConfigurationController extends AbstractController
 
         return $tabsheet;
     }
-
-    #[Route('/configuration/{section}', name: 'admin_configuration', defaults: ['section' => 'main'], requirements: ['section' => 'main|sizes|watermark|comments'])]
+    #[Route('/admin/configuration/{section}', name: 'admin_configuration', defaults: ['section' => 'main'], requirements: ['section' => 'main|sizes|watermark|comments'])]
     public function index(
         string $section,
         Conf $conf,
@@ -167,7 +158,7 @@ class AdminConfigurationController extends AbstractController
         return $this->render('configuration_' . $section . '.html.twig', $tpl_params);
     }
 
-    #[Route('/configuration/sizes/restore', 'admin_configuration_size_restore')]
+    #[Route('/admin/configuration/sizes/restore', 'admin_configuration_size_restore')]
     public function sizeRestore(ImageStandardParams $image_std_params, Conf $conf, TranslatorInterface $translator, DerivativeService $derivativeService): Response
     {
         $image_std_params->setAndSave($image_std_params->getDefaultSizes());
@@ -177,7 +168,6 @@ class AdminConfigurationController extends AbstractController
 
         return $this->redirectToRoute('admin_configuration', ['section' => 'sizes']);
     }
-
     /**
      * @return array<string, mixed>
      */
@@ -209,7 +199,6 @@ class AdminConfigurationController extends AbstractController
 
         return $tpl_params;
     }
-
     /**
      * @return array<string, mixed>
      */
@@ -230,7 +219,7 @@ class AdminConfigurationController extends AbstractController
         return $tpl_params;
     }
 
-    #[Route('/configuration/display', 'admin_configuration_display')]
+    #[Route('/admin/configuration/display', 'admin_configuration_display')]
     public function displayConfiguration(Request $request, Conf $conf, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
@@ -254,7 +243,6 @@ class AdminConfigurationController extends AbstractController
 
         return $this->render('configuration_display.html.twig', $tpl_params);
     }
-
     /**
      * @return array<string, mixed>
      */
@@ -313,7 +301,6 @@ class AdminConfigurationController extends AbstractController
 
         return $tpl_params;
     }
-
     /**
      * @return array<string, mixed>
      */
@@ -382,7 +369,7 @@ class AdminConfigurationController extends AbstractController
         return $tpl_params;
     }
 
-    #[Route('/configuration/default', 'admin_configuration_default')]
+    #[Route('/admin/configuration/default', 'admin_configuration_default')]
     public function defaultConfiguration(Request $request, UserMapper $userMapper, UserInfosRepository $userInfosRepository, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
@@ -406,7 +393,7 @@ class AdminConfigurationController extends AbstractController
         return $this->render('configuration_default.html.twig', $tpl_params);
     }
 
-    #[Route('/configuration/{section}/update', 'admin_configuration_update', methods: 'POST', defaults: ['section' => 'main'], requirements: ['section' => 'main|sizes|watermark|comments'])]
+    #[Route('/admin/configuration/{section}/update', 'admin_configuration_update', methods: 'POST', defaults: ['section' => 'main'], requirements: ['section' => 'main|sizes|watermark|comments'])]
     public function update(
         Request $request,
         string $section,
@@ -831,7 +818,6 @@ class AdminConfigurationController extends AbstractController
 
         return $this->redirectToRoute('admin_configuration', ['section' => $section]);
     }
-
     /**
      * @TODO: use symfony form
      *
@@ -873,7 +859,6 @@ class AdminConfigurationController extends AbstractController
             ],
         ];
     }
-
     /**
      * @param array<string, mixed> $data
      * @param array<mixed> $errors

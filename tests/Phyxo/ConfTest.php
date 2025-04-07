@@ -20,7 +20,7 @@ use Prophecy\PhpUnit\ProphecyTrait;
 class ConfTest extends TestCase
 {
     use ProphecyTrait;
-    final public const TESTS_CONFIG_PATH = __DIR__ . '/../fixtures/config';
+    final public const string TESTS_CONFIG_PATH = __DIR__ . '/../fixtures/config';
 
     public function testLoadFile(): void
     {

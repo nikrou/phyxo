@@ -11,6 +11,7 @@
 
 namespace App\Tests\Factory;
 
+use Override;
 use App\Entity\Image;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -46,6 +47,7 @@ final class ImageFactory extends PersistentProxyObjectFactory
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
      */
+    #[Override]
     protected function initialize(): static
     {
         return $this

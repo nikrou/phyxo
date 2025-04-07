@@ -11,6 +11,7 @@
 
 namespace App\Twig;
 
+use Override;
 use App\Services\AssetsManager;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Extension\AbstractExtension;
@@ -22,6 +23,7 @@ class PluginAssetExtension extends AbstractExtension
     {
     }
 
+    #[Override]
     public function getFunctions(): array
     {
         return [

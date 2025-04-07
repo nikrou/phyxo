@@ -11,6 +11,7 @@
 
 namespace Phyxo\Theme;
 
+use Override;
 use Phyxo\Functions\Utils;
 use Exception;
 use App\DataMapper\UserMapper;
@@ -25,7 +26,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 class Themes extends Extensions
 {
-    final public const CONFIG_FILE = 'config.yaml';
+    final public const string CONFIG_FILE = 'config.yaml';
     private ?string $themes_root_path = null;
     private array $fs_themes = [];
     private $db_themes = [];
@@ -213,6 +214,7 @@ class Themes extends Extensions
     /**
      * @return array<string, mixed>
      */
+    #[Override]
     public function getFsExtensions(): array
     {
         return $this->getFsThemes();

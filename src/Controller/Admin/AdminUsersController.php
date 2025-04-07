@@ -37,11 +37,9 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminUsersController extends AbstractController
 {
     private TranslatorInterface $translator;
-
     public function setTabsheet(string $section = 'list', int $user_id = 0): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -51,8 +49,7 @@ class AdminUsersController extends AbstractController
 
         return $tabsheet;
     }
-
-    #[Route('/users', name: 'admin_users')]
+    #[Route('/admin/users', name: 'admin_users')]
     public function list(
         Conf $conf,
         AppUserService $appUserService,
@@ -162,8 +159,7 @@ class AdminUsersController extends AbstractController
 
         return $this->render('users_list.html.twig', $tpl_params);
     }
-
-    #[Route('/users/{user_id}/perm', name: 'admin_user_perm', requirements: ['user_id' => '\d+'])]
+    #[Route('/admin/users/{user_id}/perm', name: 'admin_user_perm', requirements: ['user_id' => '\d+'])]
     public function perm(Request $request, int $user_id, AlbumMapper $albumMapper, TranslatorInterface $translator, UserRepository $userRepository): Response
     {
         $tpl_params = [];
@@ -219,8 +215,7 @@ class AdminUsersController extends AbstractController
 
         return $this->render('user_perm.html.twig', $tpl_params);
     }
-
-    #[Route('/users/add', name: 'admin_user_add')]
+    #[Route('/admin/users/add', name: 'admin_user_add')]
     public function add(Request $request, UserPasswordHasherInterface $passwordHasher, AppUserService $appUserService, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
@@ -258,8 +253,7 @@ class AdminUsersController extends AbstractController
 
         return $this->render('user_form.html.twig', $tpl_params);
     }
-
-    #[Route('/users/{user_id}/edit', name: 'admin_user_edit', requirements: ['user_id' => '\d+'])]
+    #[Route('/admin/users/{user_id}/edit', name: 'admin_user_edit', requirements: ['user_id' => '\d+'])]
     public function edit(
         int $user_id,
         Request $request,

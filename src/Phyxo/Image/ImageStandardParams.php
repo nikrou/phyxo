@@ -18,7 +18,7 @@ use Phyxo\Conf;
 
 class ImageStandardParams
 {
-    private const CONF_KEY = 'derivatives';
+    private const string CONF_KEY = 'derivatives';
 
     /**
      * @var array{'d'?: array<string, DerivativeParams>, 'q'?: int, 'w'?: WatermarkParams, 'c'?: array<string, int>} $derivatives

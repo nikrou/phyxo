@@ -11,10 +11,13 @@
 
 namespace App;
 
+use Override;
+
 class UpdateKernel extends Kernel
 {
     use IdentityGeneratorTrait;
 
+    #[Override]
     public function getCacheDir(): string
     {
         return $this->getProjectDir() . '/var/cache/' . $this->environment . '/update/';

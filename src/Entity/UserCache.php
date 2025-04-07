@@ -19,8 +19,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: UserCacheRepository::class)]
 class UserCache
 {
-    final public const ACCESS_IN = 'IN';
-    final public const ACCESS_NOT_IN = 'NOT IN';
+    final public const string ACCESS_IN = 'IN';
+    final public const string ACCESS_NOT_IN = 'NOT IN';
 
     #[ORM\Id]
     #[ORM\OneToOne(targetEntity: User::class, inversedBy: 'userCache', cascade: ['persist', 'remove'])]

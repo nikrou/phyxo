@@ -11,6 +11,7 @@
 
 namespace App\Tests\Factory;
 
+use Override;
 use App\Entity\UserInfos;
 use App\Enum\UserStatusType;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
@@ -58,6 +59,7 @@ final class UserInfosFactory extends PersistentProxyObjectFactory
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
      */
+    #[Override]
     protected function initialize(): static
     {
         return $this

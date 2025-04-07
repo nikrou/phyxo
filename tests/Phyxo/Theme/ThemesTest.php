@@ -23,8 +23,8 @@ use Symfony\Component\Filesystem\Filesystem;
 class ThemesTest extends TestCase
 {
     use ProphecyTrait;
-    final public const THEMES_PATH = __DIR__ . '/../../fixtures/themes';
-    final public const THEMES_DIR = __DIR__ . '/../../tmp/themes';
+    final public const string THEMES_PATH = __DIR__ . '/../../fixtures/themes';
+    final public const string THEMES_DIR = __DIR__ . '/../../tmp/themes';
 
     protected function setUp(): void
     {

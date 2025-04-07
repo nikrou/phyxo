@@ -32,8 +32,8 @@ class Conf implements ArrayAccess
 {
     /** @var array<string, mixed> */
     private array $keys = [];
-    final public const FILE_PREFIX = 'file_';
-    final public const DB_PREFIX = 'db_';
+    final public const string FILE_PREFIX = 'file_';
+    final public const string DB_PREFIX = 'db_';
 
     public function __construct(private readonly ConfigRepository $configRepository)
     {

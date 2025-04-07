@@ -41,15 +41,13 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\EnumRequirement;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminMaintenanceController extends AbstractController
 {
     public function __construct(private readonly ImageRepository $imageRepository, private readonly Filesystem $fs, private readonly string $uploadDir, private readonly string $rootProjectDir)
     {
     }
-
     #[Route(
-        '/maintenace/{action}',
+        '/admin/maintenace/{action}',
         name: 'admin_maintenance',
         defaults: ['action' => null],
         requirements: ['action' => 'configuration|lock_gallery|unlock_gallery|albums|albums_virtualize|images|delete_orphan_tags|app_cache|user_cache|history_summary|feeds|database|search|obsolete']
@@ -249,13 +247,11 @@ class AdminMaintenanceController extends AbstractController
 
         return $this->render('maintenance.html.twig', $tpl_params);
     }
-
     private function fixConfiguration(Conf $conf): void
     {
         $conf->addOrUpdateParam('order_by', $conf['order_by'], ConfEnum::JSON);
         $conf->addOrUpdateParam('order_by_inside_category', $conf['order_by_inside_category'], ConfEnum::JSON);
     }
-
     private function virtualizeAlbums(): void
     {
         $baseDirectory = dirname(__DIR__, 2);
@@ -289,8 +285,7 @@ class AdminMaintenanceController extends AbstractController
             }
         }
     }
-
-    #[Route('/maintenance/derivatives/{type}', name: 'admin_maintenance_derivatives', requirements: ['type' => new EnumRequirement(ImageSizeType::class)])]
+    #[Route('/admin/maintenance/derivatives/{type}', name: 'admin_maintenance_derivatives', requirements: ['type' => new EnumRequirement(ImageSizeType::class)])]
     public function derivatives(string $type, DerivativeService $derivativeService, TranslatorInterface $translator): Response
     {
         $derivativeService->clearCache([ImageSizeType::from($type)], ImageSizeType::getAllTypes());

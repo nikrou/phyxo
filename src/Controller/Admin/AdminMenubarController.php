@@ -26,10 +26,9 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminMenubarController extends AbstractController
 {
-    #[Route('/menubar', name: 'admin_menubar')]
+    #[Route('/admin/menubar', name: 'admin_menubar')]
     public function index(Conf $conf, EventDispatcherInterface $eventDispatcher): Response
     {
         $tpl_params = [];
@@ -60,8 +59,7 @@ class AdminMenubarController extends AbstractController
 
         return $this->render('menubar.html.twig', $tpl_params);
     }
-
-    #[Route('/menubar/update', name: 'admin_menubar_update')]
+    #[Route('/admin/menubar/update', name: 'admin_menubar_update')]
     public function update(Request $request, Conf $conf, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator): Response
     {
         if ($request->isMethod('POST')) {
@@ -89,7 +87,6 @@ class AdminMenubarController extends AbstractController
 
         return $this->redirectToRoute('admin_menubar');
     }
-
     /**
      * @param array<RegisteredBlock> $blocks
      * @param array<int> $orders
@@ -117,8 +114,7 @@ class AdminMenubarController extends AbstractController
 
         return $orders;
     }
-
-    #[Route('/menubar_navigation', name: 'admin_menubar_navigation')]
+    #[Route('/admin/menubar_navigation', name: 'admin_menubar_navigation')]
     public function navigation(AppUserService $appUserService, Conf $conf, CaddieRepository $caddieRepository, CommentRepository $commentRepository, ParameterBagInterface $params): Response
     {
         $tpl_params = [

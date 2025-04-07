@@ -27,13 +27,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminExtensionController extends AbstractController
 {
     protected ParameterBagInterface $params;
     protected Conf $conf;
-
-    #[Route('/theme/{theme}', name: 'admin_theme')]
+    #[Route('/admin/theme/{theme}', name: 'admin_theme')]
     public function theme(
         Request $request,
         string $theme,
@@ -73,8 +71,7 @@ class AdminExtensionController extends AbstractController
 
         return $this->render($themeConfig->getAdminTemplate(), $tpl_params);
     }
-
-    #[Route('plugin/{plugin}', name: 'admin_plugin')]
+    #[Route('/adminplugin/{plugin}', name: 'admin_plugin')]
     public function plugin(
         string $plugin,
         PluginRepository $pluginRepository,

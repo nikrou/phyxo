@@ -24,11 +24,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminCommentsController extends AbstractController
 {
     private TranslatorInterface $translator;
-
     protected function setTabsheet(string $section = 'all'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -38,8 +36,7 @@ class AdminCommentsController extends AbstractController
 
         return $tabsheet;
     }
-
-    #[Route('/comments/{section}/{start}', name: 'admin_comments', defaults: ['section' => 'all', 'start' => 0], requirements: ['section' => 'all|pending', 'start' => '\d+'])]
+    #[Route('/admin/comments/{section}/{start}', name: 'admin_comments', defaults: ['section' => 'all', 'start' => 0], requirements: ['section' => 'all|pending', 'start' => '\d+'])]
     public function index(
         ImageStandardParams $image_std_params,
         Conf $conf,
@@ -95,8 +92,7 @@ class AdminCommentsController extends AbstractController
 
         return $this->render('comments.html.twig', $tpl_params);
     }
-
-    #[Route('/comments/update/{section}/{start}', name: 'admin_comments_update', defaults: ['section' => 'all', 'start' => 0], requirements: ['section' => 'all|pending', 'start' => '\d+'])]
+    #[Route('/admin/comments/update/{section}/{start}', name: 'admin_comments_update', defaults: ['section' => 'all', 'start' => 0], requirements: ['section' => 'all|pending', 'start' => '\d+'])]
     public function update(
         Request $request,
         CommentRepository $commentRepository,

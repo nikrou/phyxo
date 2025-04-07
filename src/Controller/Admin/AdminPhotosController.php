@@ -29,11 +29,9 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminPhotosController extends AbstractController
 {
     private TranslatorInterface $translator;
-
     protected function setTabsheet(string $section = 'direct'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -42,8 +40,7 @@ class AdminPhotosController extends AbstractController
 
         return $tabsheet;
     }
-
-    #[Route('/photos/add/{album_id}', name: 'admin_photos_add', defaults: ['album_id' => null], requirements: ['album_id' => '\d+'])]
+    #[Route('/admin/photos/add/{album_id}', name: 'admin_photos_add', defaults: ['album_id' => null], requirements: ['album_id' => '\d+'])]
     public function direct(
         Request $request,
         Conf $conf,
@@ -160,8 +157,7 @@ class AdminPhotosController extends AbstractController
 
         return $this->render('photos_add_direct.html.twig', $tpl_params);
     }
-
-    #[Route('/photos/batch/{album_id}', name: 'admin_photos_add_batch', defaults: ['album_id' => null], requirements: ['album_id' => '\d+'])]
+    #[Route('/admin/photos/batch/{album_id}', name: 'admin_photos_add_batch', defaults: ['album_id' => null], requirements: ['album_id' => '\d+'])]
     public function batch(Request $request, AppUserService $appUserService, ImageRepository $imageRepository, CaddieRepository $caddieRepository): Response
     {
         $caddieRepository->emptyCaddies($appUserService->getUser()->getId());
@@ -174,7 +170,6 @@ class AdminPhotosController extends AbstractController
 
         return $this->redirectToRoute('admin_batch_manager_global', ['filter' => 'caddie']);
     }
-
     private function getIniSize(string $ini_key, bool $in_bytes = true): string
     {
         $size = ini_get($ini_key);
@@ -185,7 +180,6 @@ class AdminPhotosController extends AbstractController
 
         return $size;
     }
-
     private function convertShorthandNotationToBytes(string $value): string
     {
         $suffix = substr($value, -1);

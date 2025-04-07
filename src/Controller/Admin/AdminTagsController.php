@@ -25,11 +25,9 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminTagsController extends AbstractController
 {
     private TranslatorInterface $translator;
-
     protected function setTabsheet(string $section = 'all'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -41,8 +39,7 @@ class AdminTagsController extends AbstractController
 
         return $tabsheet;
     }
-
-    #[Route('/tags', name: 'admin_tags')]
+    #[Route('/admin/tags', name: 'admin_tags')]
     public function list(
         CsrfTokenManagerInterface $csrfTokenManager,
         TranslatorInterface $translator,
@@ -106,8 +103,7 @@ class AdminTagsController extends AbstractController
 
         return $this->render('tags_all.html.twig', $tpl_params);
     }
-
-    #[Route('/tags/actions', name: 'admin_tags_actions')]
+    #[Route('/admin/tags/actions', name: 'admin_tags_actions')]
     public function actions(Request $request, TagMapper $tagMapper, TranslatorInterface $translator): Response
     {
         if ($request->request->get('action') === 'edit') {
@@ -225,8 +221,7 @@ class AdminTagsController extends AbstractController
 
         return $this->redirectToRoute('admin_tags');
     }
-
-    #[Route('/tags/add', name: 'admin_tags_add')]
+    #[Route('/admin/tags/add', name: 'admin_tags_add')]
     public function add(Request $request, TagMapper $tagMapper, TranslatorInterface $translator): Response
     {
         if ($request->request->get('add_tag')) {
@@ -245,8 +240,7 @@ class AdminTagsController extends AbstractController
 
         return $this->redirectToRoute('admin_tags');
     }
-
-    #[Route('/tags/delete_orphans', name: 'admin_tags_delete_orphans')]
+    #[Route('/admin/tags/delete_orphans', name: 'admin_tags_delete_orphans')]
     public function deleteOrphans(TagMapper $tagMapper, TranslatorInterface $translator): Response
     {
         $tagMapper->deleteOrphanTags();
@@ -254,8 +248,7 @@ class AdminTagsController extends AbstractController
 
         return $this->redirectToRoute('admin_tags');
     }
-
-    #[Route('/tags/permissions', name: 'admin_tags_permissions')]
+    #[Route('/admin/tags/permissions', name: 'admin_tags_permissions')]
     public function permissions(Request $request, Conf $conf, TranslatorInterface $translator): Response
     {
         $this->translator = $translator;
@@ -281,8 +274,7 @@ class AdminTagsController extends AbstractController
 
         return $this->render('tags_permissions.html.twig', $tpl_params);
     }
-
-    #[Route('/tags/pending', name: 'admin_tags_pending')]
+    #[Route('/admin/tags/pending', name: 'admin_tags_pending')]
     public function pending(Request $request, TagMapper $tagMapper, TranslatorInterface $translator, CsrfTokenManagerInterface $tokenManager): Response
     {
         $tpl_params = [];

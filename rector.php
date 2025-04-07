@@ -11,7 +11,6 @@
 
 declare(strict_types=1);
 
-use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
 use Rector\Config\RectorConfig;
 use Rector\Doctrine\Set\DoctrineSetList;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
@@ -21,7 +20,7 @@ use Rector\Symfony\Set\SymfonySetList;
 return RectorConfig::configure()
     ->withPaths([
         __DIR__ . '/src',
-        __DIR__ . '/tests'
+        __DIR__ . '/tests',
     ])
 
     ->withSkipPath(__DIR__ . '/src/Phyxo/Functions/Ws/')
@@ -38,13 +37,13 @@ return RectorConfig::configure()
         DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
         SymfonySetList::SYMFONY_CODE_QUALITY,
         SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
+        SymfonySetList::SYMFONY_72,
         LevelSetList::UP_TO_PHP_84,
-        DoctrineSetList::DOCTRINE_CODE_QUALITY
+        DoctrineSetList::DOCTRINE_CODE_QUALITY,
     ])
 
     ->withRules([
         ClassPropertyAssignToConstructorPromotionRector::class,
-        InlineConstructorDefaultToPropertyRector::class,
     ])
 
     ->withPreparedSets(

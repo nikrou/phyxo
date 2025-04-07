@@ -40,11 +40,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminPhotoController extends AbstractController
 {
     private TranslatorInterface $translator;
-
     /**
      * @param array<string, int|string|null> $params
      */
@@ -58,8 +56,7 @@ class AdminPhotoController extends AbstractController
 
         return $tabsheet;
     }
-
-    #[Route('/photo/{image_id}/{category_id}', name: 'admin_photo', defaults: ['category_id' => null], requirements: ['category_id' => '\d+', 'image_id' => '\d+'])]
+    #[Route('/admin/photo/{image_id}/{category_id}', name: 'admin_photo', defaults: ['category_id' => null], requirements: ['category_id' => '\d+', 'image_id' => '\d+'])]
     public function edit(
         Request $request,
         int $image_id,
@@ -253,8 +250,7 @@ class AdminPhotoController extends AbstractController
 
         return $this->render('photo_properties.html.twig', $tpl_params);
     }
-
-    #[Route('/photo/{image_id}/delete/{category_id}', name: 'admin_photo_delete', defaults: ['category_id' => null], requirements: ['category_id' => '\d+', 'image_id' => '\d+'])]
+    #[Route('/admin/photo/{image_id}/delete/{category_id}', name: 'admin_photo_delete', defaults: ['category_id' => null], requirements: ['category_id' => '\d+', 'image_id' => '\d+'])]
     public function delete(
         int $image_id,
         AppUserService $appUserService,
@@ -291,8 +287,7 @@ class AdminPhotoController extends AbstractController
 
         return $this->redirectToRoute('admin_home');
     }
-
-    #[Route('/photo/{image_id}/sync/{category_id}', name: 'admin_photo_sync_metadata', defaults: ['category_id' => null], requirements: ['category_id' => '\d+', 'image_id' => '\d+'])]
+    #[Route('/admin/photo/{image_id}/sync/{category_id}', name: 'admin_photo_sync_metadata', defaults: ['category_id' => null], requirements: ['category_id' => '\d+', 'image_id' => '\d+'])]
     public function syncMetadata(int $image_id, AppUserService $appUserService, TagMapper $tagMapper, TranslatorInterface $translator, ?int $category_id = null): Response
     {
         $tagMapper->sync_metadata([$image_id], $appUserService->getUser());
@@ -300,8 +295,7 @@ class AdminPhotoController extends AbstractController
 
         return $this->redirectToRoute('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);
     }
-
-    #[Route('/photo/{image_id}/coi/{category_id}', name: 'admin_photo_coi', defaults: ['category_id' => null], requirements: ['category_id' => '\d+', 'image_id' => '\d+'])]
+    #[Route('/admin/photo/{image_id}/coi/{category_id}', name: 'admin_photo_coi', defaults: ['category_id' => null], requirements: ['category_id' => '\d+', 'image_id' => '\d+'])]
     public function coi(
         Request $request,
         int $image_id,
@@ -374,8 +368,7 @@ class AdminPhotoController extends AbstractController
 
         return $this->render('photo_coi.html.twig', $tpl_params);
     }
-
-    #[Route('/photo/{image_id}/rotate/{category_id}', name: 'admin_photo_rotate', defaults: ['category_id' => null], requirements: ['category_id' => '\d+', 'image_id' => '\d+'])]
+    #[Route('/admin/photo/{image_id}/rotate/{category_id}', name: 'admin_photo_rotate', defaults: ['category_id' => null], requirements: ['category_id' => '\d+', 'image_id' => '\d+'])]
     public function rotate(
         Request $request,
         int $image_id,

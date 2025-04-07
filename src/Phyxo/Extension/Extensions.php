@@ -17,7 +17,7 @@ use PclZip;
 
 class Extensions
 {
-    final public const TYPES = ['plugins', 'themes', 'languages'];
+    final public const array TYPES = ['plugins', 'themes', 'languages'];
     protected string $directory_pattern = '';
     protected string $pem_url;
 

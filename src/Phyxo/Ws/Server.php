@@ -55,19 +55,19 @@ class Server
     private ImagineInterface $imageLibrary;
     private UserProvider $userProvider;
     private array $_methods = [];
-    final public const WS_PARAM_ACCEPT_ARRAY = 0x010000;
-    final public const WS_PARAM_FORCE_ARRAY = 0x030000;
-    final public const WS_PARAM_OPTIONAL = 0x040000;
-    final public const WS_TYPE_BOOL = 0x01;
-    final public const WS_TYPE_INT = 0x02;
-    final public const WS_TYPE_FLOAT = 0x04;
-    final public const WS_TYPE_POSITIVE = 0x10;
-    final public const WS_TYPE_NOTNULL = 0x20;
+    final public const int WS_PARAM_ACCEPT_ARRAY = 0x010000;
+    final public const int WS_PARAM_FORCE_ARRAY = 0x030000;
+    final public const int WS_PARAM_OPTIONAL = 0x040000;
+    final public const int WS_TYPE_BOOL = 0x01;
+    final public const int WS_TYPE_INT = 0x02;
+    final public const int WS_TYPE_FLOAT = 0x04;
+    final public const int WS_TYPE_POSITIVE = 0x10;
+    final public const int WS_TYPE_NOTNULL = 0x20;
     final public const WS_TYPE_ID = self::WS_TYPE_INT | self::WS_TYPE_POSITIVE | self::WS_TYPE_NOTNULL;
-    final public const WS_ERR_INVALID_METHOD = 501;
-    final public const WS_ERR_MISSING_PARAM = 1002;
-    final public const WS_ERR_INVALID_PARAM = 1003;
-    final public const WS_XML_ATTRIBUTES = 'attributes_xml_';
+    final public const int WS_ERR_INVALID_METHOD = 501;
+    final public const int WS_ERR_MISSING_PARAM = 1002;
+    final public const int WS_ERR_INVALID_PARAM = 1003;
+    final public const string WS_XML_ATTRIBUTES = 'attributes_xml_';
 
     public function __construct(private readonly string $upload_dir = '.')
     {

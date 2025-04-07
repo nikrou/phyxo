@@ -34,11 +34,10 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminDashboardController extends AbstractController
 {
-    #[Route('/', name: 'admin_home', defaults: ['check_upgrade' => false])]
-    #[Route('/check_upgrade', name: 'admin_check_upgrade', defaults: ['check_upgrade' => true])]
+    #[Route('/admin/', name: 'admin_home', defaults: ['check_upgrade' => false])]
+    #[Route('/admin/check_upgrade', name: 'admin_check_upgrade', defaults: ['check_upgrade' => true])]
     public function index(
         Request $request,
         Conf $conf,

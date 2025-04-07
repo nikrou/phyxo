@@ -38,13 +38,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminHistoryController extends AbstractController
 {
     public function __construct(private readonly ImageStandardParams $image_std_params, private readonly TranslatorInterface $translator)
     {
     }
-
     protected function setTabsheet(string $section = 'stats'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -54,16 +52,14 @@ class AdminHistoryController extends AbstractController
 
         return $tabsheet;
     }
-
     protected function getLocale(Request $request): string
     {
         return $request->get('_locale', $request->getSession()->get('_locale'));
     }
-
-    #[Route('/history', name: 'admin_history', defaults: ['year' => null, 'month' => null, 'day' => null])]
-    #[Route('/history/{year}', name: 'admin_history_year', defaults: ['year' => null, 'month' => null, 'day' => null], requirements: ['year' => '\d{4}'])]
-    #[Route('/history/{year}/{month}', name: 'admin_history_month', defaults: ['year' => null, 'month' => null, 'day' => null], requirements: ['year' => '\d{4}', 'month' => '\d{2}'])]
-    #[Route('/history/{year}/{month}/{day}', name: 'admin_history_day', defaults: ['year' => null, 'month' => null, 'day' => null], requirements: ['year' => '\d{4}', 'month' => '\d{2}', 'day' => '\d{2}'])]
+    #[Route('/admin/history', name: 'admin_history', defaults: ['year' => null, 'month' => null, 'day' => null])]
+    #[Route('/admin/history/{year}', name: 'admin_history_year', defaults: ['year' => null, 'month' => null, 'day' => null], requirements: ['year' => '\d{4}'])]
+    #[Route('/admin/history/{year}/{month}', name: 'admin_history_month', defaults: ['year' => null, 'month' => null, 'day' => null], requirements: ['year' => '\d{4}', 'month' => '\d{2}'])]
+    #[Route('/admin/history/{year}/{month}/{day}', name: 'admin_history_day', defaults: ['year' => null, 'month' => null, 'day' => null], requirements: ['year' => '\d{4}', 'month' => '\d{2}', 'day' => '\d{2}'])]
     public function stats(
         Request $request,
         Conf $conf,
@@ -169,8 +165,7 @@ class AdminHistoryController extends AbstractController
 
         return $this->render('history_stats.html.twig', $tpl_params);
     }
-
-    #[Route('/history/search/{search_id}/{start}', name: 'admin_history_search', defaults: ['search_id' => null, 'start' => 0], requirements: ['search_id' => '\d+', 'start' => '\d+'])]
+    #[Route('/admin/history/search/{search_id}/{start}', name: 'admin_history_search', defaults: ['search_id' => null, 'start' => 0], requirements: ['search_id' => '\d+', 'start' => '\d+'])]
     public function search(
         Request $request,
         SearchRepository $searchRepository,
@@ -233,7 +228,6 @@ class AdminHistoryController extends AbstractController
 
         return $this->render('history_search.html.twig', $tpl_params);
     }
-
     /**
      * @return array<string, mixed>
      */
@@ -374,7 +368,6 @@ class AdminHistoryController extends AbstractController
             'search_summary' => $search_summary
         ];
     }
-
     /**
      * @param array<string, mixed> $image_infos
      */
@@ -438,7 +431,6 @@ class AdminHistoryController extends AbstractController
 
         return $image_string;
     }
-
     protected function dateFormat(string $locale, int $timestamp, string $format): string
     {
         $date_time = (new DateTime())->setTimestamp($timestamp);
@@ -446,7 +438,6 @@ class AdminHistoryController extends AbstractController
 
         return $intl_date_formatter->format($date_time);
     }
-
     protected function refreshSummary(HistoryRepository $historyRepository, HistorySummaryRepository $historySummaryRepository): void
     {
         $need_update = [];

@@ -21,9 +21,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: HistoryRepository::class)]
 class History
 {
-    final public const IMAGE_TYPE_PICTURE = 'picture';
-    final public const IMAGE_TYPE_HIGH = 'high';
-    final public const IMAGE_TYPE_OTHER = 'other';
+    final public const string IMAGE_TYPE_PICTURE = 'picture';
+    final public const string IMAGE_TYPE_HIGH = 'high';
+    final public const string IMAGE_TYPE_OTHER = 'other';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

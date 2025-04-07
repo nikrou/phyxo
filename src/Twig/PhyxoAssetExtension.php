@@ -11,6 +11,7 @@
 
 namespace App\Twig;
 
+use Override;
 use Symfony\Component\Asset\Context\RequestStackContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -21,6 +22,7 @@ class PhyxoAssetExtension extends AbstractExtension
     {
     }
 
+    #[Override]
     public function getFunctions(): array
     {
         return [

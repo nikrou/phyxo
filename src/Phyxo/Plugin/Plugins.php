@@ -11,6 +11,7 @@
 
 namespace Phyxo\Plugin;
 
+use Override;
 use Exception;
 use Phyxo\Functions\Utils;
 use App\DataMapper\UserMapper;
@@ -23,7 +24,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class Plugins extends Extensions
 {
-    final public const CONFIG_FILE = 'config.yaml';
+    final public const string CONFIG_FILE = 'config.yaml';
     private array $fs_plugins = [];
     private $db_plugins = [];
     private array $server_plugins = [];
@@ -173,6 +174,7 @@ class Plugins extends Extensions
     /**
      * @return array<string, mixed>
      */
+    #[Override]
     public function getFsExtensions(): array
     {
         return $this->getFsPlugins();

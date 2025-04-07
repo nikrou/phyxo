@@ -11,6 +11,7 @@
 
 namespace App\Command;
 
+use Override;
 use Exception;
 use App\Install\PhyxoInstaller;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -39,6 +40,7 @@ class InstallCommand extends Command
         $this->localEnvFile = sprintf('%s/.env.local', $this->rootProjectDir);
     }
 
+    #[Override]
     public function isEnabled(): bool
     {
         return !is_readable($this->localEnvFile);

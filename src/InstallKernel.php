@@ -11,12 +11,14 @@
 
 namespace App;
 
+use Override;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 class InstallKernel extends Kernel
 {
     use IdentityGeneratorTrait;
 
+    #[Override]
     public function getCacheDir(): string
     {
         return $this->getProjectDir() . '/var/cache/' . $this->environment . '/install/';

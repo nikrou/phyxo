@@ -25,11 +25,9 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminLanguagesController extends AbstractController
 {
     private TranslatorInterface $translator;
-
     public function setTabsheet(string $section = 'installed'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -40,8 +38,7 @@ class AdminLanguagesController extends AbstractController
 
         return $tabsheet;
     }
-
-    #[Route('/languages', name: 'admin_languages_installed')]
+    #[Route('/admin/languages', name: 'admin_languages_installed')]
     public function installed(
         UserMapper $userMapper,
         ParameterBagInterface $params,
@@ -116,8 +113,7 @@ class AdminLanguagesController extends AbstractController
 
         return $this->render('languages_installed.html.twig', $tpl_params);
     }
-
-    #[Route('/languages/{action}/{language}', name: 'admin_languages_action', requirements: ['action' => 'activate|deactivate|delete|set_default', 'language' => '[a-z]{2}_[A-Z]{2}'])]
+    #[Route('/admin/languages/{action}/{language}', name: 'admin_languages_action', requirements: ['action' => 'activate|deactivate|delete|set_default', 'language' => '[a-z]{2}_[A-Z]{2}'])]
     public function action(
         string $language,
         string $action,
@@ -137,8 +133,7 @@ class AdminLanguagesController extends AbstractController
 
         return $this->redirectToRoute('admin_languages_installed');
     }
-
-    #[Route('/languages/new', name: 'admin_languages_new')]
+    #[Route('/admin/languages/new', name: 'admin_languages_new')]
     public function new(UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator, LanguageRepository $languageRepository): Response
     {
         $tpl_params = [];
@@ -172,8 +167,7 @@ class AdminLanguagesController extends AbstractController
 
         return $this->render('languages_new.html.twig', $tpl_params);
     }
-
-    #[Route('/languages/install/{revision}', name: 'admin_languages_install', requirements: ['revision' => '\d+'])]
+    #[Route('/admin/languages/install/{revision}', name: 'admin_languages_install', requirements: ['revision' => '\d+'])]
     public function install(
         int $revision,
         ParameterBagInterface $params,
@@ -202,8 +196,7 @@ class AdminLanguagesController extends AbstractController
             return $this->redirectToRoute('admin_languages_new');
         }
     }
-
-    #[Route('/languages/update', name: 'admin_languages_update')]
+    #[Route('/admin/languages/update', name: 'admin_languages_update')]
     public function update(
         UserMapper $userMapper,
         Conf $conf,

@@ -24,11 +24,9 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminGroupsController extends AbstractController
 {
     private TranslatorInterface $translator;
-
     public function setTabsheet(string $section = 'list', int $group_id = 0): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -38,8 +36,7 @@ class AdminGroupsController extends AbstractController
 
         return $tabsheet;
     }
-
-    #[Route('/groups', name: 'admin_groups')]
+    #[Route('/admin/groups', name: 'admin_groups')]
     public function list(Request $request, TranslatorInterface $translator, GroupRepository $groupRepository, CsrfTokenManagerInterface $tokenManager): Response
     {
         $tpl_params = [];
@@ -90,8 +87,7 @@ class AdminGroupsController extends AbstractController
 
         return $this->render('groups_list.html.twig', $tpl_params);
     }
-
-    #[Route('/groups/{group_id}/permissions', name: 'admin_groups_permissions', requirements: ['group_id' => '\d+'])]
+    #[Route('/admin/groups/{group_id}/permissions', name: 'admin_groups_permissions', requirements: ['group_id' => '\d+'])]
     public function permissions(
         Request $request,
         int $group_id,
@@ -162,8 +158,7 @@ class AdminGroupsController extends AbstractController
 
         return $this->render('groups_perm.html.twig', $tpl_params);
     }
-
-    #[Route('/groups/{action}', name: 'admin_groups_action', defaults: ['action' => null], requirements: ['action' => 'rename|duplicate|merge|delete|toggle_default'])]
+    #[Route('/admin/groups/{action}', name: 'admin_groups_action', defaults: ['action' => null], requirements: ['action' => 'rename|duplicate|merge|delete|toggle_default'])]
     public function action(Request $request, GroupRepository $groupRepository, TranslatorInterface $translator, ?string $action = null): Response
     {
         $group_selection = $request->request->all('group_selection');

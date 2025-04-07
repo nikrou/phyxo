@@ -22,15 +22,12 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminNotificationController extends AbstractController
 {
     private TranslatorInterface $translator;
-
     public function __construct(private readonly AuthorizationCheckerInterface $authorizationChecker)
     {
     }
-
     protected function setTabsheet(string $section = 'params'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -44,8 +41,7 @@ class AdminNotificationController extends AbstractController
 
         return $tabsheet;
     }
-
-    #[Route('/notification', name: 'admin_notification')]
+    #[Route('/admin/notification', name: 'admin_notification')]
     public function params(Request $request, Conf $conf, Notification $notification, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
@@ -74,8 +70,7 @@ class AdminNotificationController extends AbstractController
 
         return $this->render('notification_by_mail_params.html.twig', $tpl_params);
     }
-
-    #[Route('/notification/subscribe', name: 'admin_notification_subscribe')]
+    #[Route('/admin/notification/subscribe', name: 'admin_notification_subscribe')]
     public function subscribe(Request $request, Notification $notification, TranslatorInterface $translator): Response
     {
         $tpl_params = [];
@@ -130,8 +125,7 @@ class AdminNotificationController extends AbstractController
 
         return $this->render('notification_by_mail_subscribe.html.twig', $tpl_params);
     }
-
-    #[Route('/notification/send', name: 'admin_notification_send')]
+    #[Route('/admin/notification/send', name: 'admin_notification_send')]
     public function send(Request $request, Conf $conf, Notification $notification, TranslatorInterface $translator): Response
     {
         $tpl_params = [];

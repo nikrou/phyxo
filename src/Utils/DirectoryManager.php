@@ -17,9 +17,9 @@ use Symfony\Component\Finder\Finder;
 
 class DirectoryManager
 {
-    final public const METHOD_COPY = 'copy';
-    final public const METHOD_ABSOLUTE_SYMLINK = 'absolute symlink';
-    final public const METHOD_RELATIVE_SYMLINK = 'relative symlink';
+    final public const string METHOD_COPY = 'copy';
+    final public const string METHOD_ABSOLUTE_SYMLINK = 'absolute symlink';
+    final public const string METHOD_RELATIVE_SYMLINK = 'relative symlink';
 
     public function __construct(
         private readonly Filesystem $fs,

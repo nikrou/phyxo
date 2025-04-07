@@ -11,6 +11,7 @@
 
 namespace App\Command;
 
+use Override;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,6 +42,7 @@ class UserListCommand extends Command
         $this->localEnvFile = sprintf('%s/.env.local', $this->rootProjectDir);
     }
 
+    #[Override]
     public function isEnabled(): bool
     {
         return is_readable($this->localEnvFile);

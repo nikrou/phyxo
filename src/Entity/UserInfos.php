@@ -26,11 +26,11 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: UserInfosRepository::class)]
 class UserInfos
 {
-    final public const DEFAULT_NB_IMAGE_PAGE = 15;
-    final public const DEFAULT_RECENT_PERIOD = 7;
-    final public const DEFAULT_SHOW_NB_COMMENTS = false;
-    final public const DEFAULT_SHOW_NB_HITS = false;
-    final public const DEFAULT_ENABLED_HIGH = false;
+    final public const int DEFAULT_NB_IMAGE_PAGE = 15;
+    final public const int DEFAULT_RECENT_PERIOD = 7;
+    final public const bool DEFAULT_SHOW_NB_COMMENTS = false;
+    final public const bool DEFAULT_SHOW_NB_HITS = false;
+    final public const bool DEFAULT_ENABLED_HIGH = false;
     private int $nb_total_images;
 
     /**

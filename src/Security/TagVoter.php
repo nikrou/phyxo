@@ -28,8 +28,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class TagVoter extends Voter
 {
-    final public const ADD = 'add-atg';
-    final public const DELETE = 'delete-tag';
+    final public const string ADD = 'add-atg';
+    final public const string DELETE = 'delete-tag';
 
     public function __construct(private readonly Security $security, private readonly Conf $conf)
     {

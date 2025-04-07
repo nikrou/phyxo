@@ -11,6 +11,7 @@
 
 namespace Phyxo\Language;
 
+use Override;
 use Exception;
 use Phyxo\Functions\Utils;
 use App\Entity\Language;
@@ -122,6 +123,7 @@ class Languages extends Extensions
     /**
      * @return array<string, mixed>
      */
+    #[Override]
     public function getFsExtensions(): array
     {
         return $this->getFsLanguages();

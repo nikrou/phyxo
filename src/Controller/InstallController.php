@@ -27,7 +27,6 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class InstallController extends AbstractController
 {
     /** @var array<string, array{label: string}> */
@@ -38,11 +37,9 @@ class InstallController extends AbstractController
         'user' => ['label' => 'Create first user'],
         'success' => ['label' => 'Installation completed']
     ];
-
     /** @var array<string, string> */
     private ?array $languages_options = null;
     private string $localEnvFile = '';
-
     public function __construct(
         private readonly string $translationsDir,
         private readonly string $defaultLanguage,
@@ -61,8 +58,7 @@ class InstallController extends AbstractController
     ) {
         $this->localEnvFile = sprintf('%s/.env.local', $this->rootProjectDir);
     }
-
-    #[Route('/install/{step}', name: 'install', defaults: ['step' => 'language'], requirements: ['step' => 'language|check|database|user|success'])]
+    #[Route('/admin/install/{step}', name: 'install', defaults: ['step' => 'language'], requirements: ['step' => 'language|check|database|user|success'])]
     public function index(Request $request, string $step = 'language'): Response
     {
         $tpl_params = [];
@@ -105,7 +101,6 @@ class InstallController extends AbstractController
 
         return $this->render('install.html.twig', $tpl_params);
     }
-
     /**
      * @return array<string, array<string, string>|string>
      */
@@ -124,7 +119,6 @@ class InstallController extends AbstractController
 
         return $tpl_params;
     }
-
     /**
      * @return array<string, array<string, array<string, bool|string>>|string>
      */
@@ -213,7 +207,6 @@ class InstallController extends AbstractController
 
         return $tpl_params;
     }
-
     /**
      * @return array<string, array<string, string>|string>
      */
@@ -288,7 +281,6 @@ class InstallController extends AbstractController
 
         return $tpl_params;
     }
-
     /**
      * @return array<string, array<int, string>|float|int|string|bool>
      */
@@ -427,7 +419,6 @@ class InstallController extends AbstractController
 
         return $tpl_params;
     }
-
     /**
      * @return array<string, array<string, string>|string>
      */

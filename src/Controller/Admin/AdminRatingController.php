@@ -27,11 +27,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminRatingController extends AbstractController
 {
     private TranslatorInterface $translator;
-
     protected function setTabsheet(string $section = 'photos'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -41,8 +39,7 @@ class AdminRatingController extends AbstractController
 
         return $tabsheet;
     }
-
-    #[Route('/rating/{start}', name: 'admin_rating', defaults: ['start' => 0], requirements: ['start' => '\d+'])]
+    #[Route('/admin/rating/{start}', name: 'admin_rating', defaults: ['start' => 0], requirements: ['start' => '\d+'])]
     public function photos(
         Request $request,
         TranslatorInterface $translator,
@@ -179,8 +176,7 @@ class AdminRatingController extends AbstractController
 
         return $this->render('rating_photos.html.twig', $tpl_params);
     }
-
-    #[Route('/rating/users/{start}', name: 'admin_rating_users', defaults: ['start' => 0], requirements: ['start' => '\d+'])]
+    #[Route('/admin/rating/users/{start}', name: 'admin_rating_users', defaults: ['start' => 0], requirements: ['start' => '\d+'])]
     public function users(
         Request $request,
         Conf $conf,
@@ -355,7 +351,6 @@ class AdminRatingController extends AbstractController
 
         return $this->render('rating_users.html.twig', $tpl_params);
     }
-
     /**
      * @param array{avg:float} $a
      * @param array{avg:float} $b
@@ -366,7 +361,6 @@ class AdminRatingController extends AbstractController
 
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
-
     /**
      * @param array{count:int} $a
      * @param array{count:int} $b
@@ -377,7 +371,6 @@ class AdminRatingController extends AbstractController
 
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
-
     /**
      * @param array{cv:int} $a
      * @param array{cv:int} $b
@@ -388,7 +381,6 @@ class AdminRatingController extends AbstractController
 
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
-
     /**
      * @param array{cd:int} $a
      * @param array{cd:int} $b
@@ -399,7 +391,6 @@ class AdminRatingController extends AbstractController
 
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
-
     /**
      * @param array{last_date:string} $a
      * @param array{last_date:string} $b

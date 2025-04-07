@@ -23,11 +23,9 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminAlbumsController extends AbstractController
 {
     private TranslatorInterface $translator;
-
     protected function setTabsheet(string $section = 'list'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -37,8 +35,7 @@ class AdminAlbumsController extends AbstractController
 
         return $tabsheet;
     }
-
-    #[Route('/albums/{parent_id}', name: 'admin_albums', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+'])]
+    #[Route('/admin/albums/{parent_id}', name: 'admin_albums', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+'])]
     public function list(
         AlbumRepository $albumRepository,
         CsrfTokenManagerInterface $csrfTokenManager,
@@ -132,8 +129,7 @@ class AdminAlbumsController extends AbstractController
 
         return $this->render('albums_list.html.twig', $tpl_params);
     }
-
-    #[Route('/albums/update/{parent_id}', name: 'admin_albums_update', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+'])]
+    #[Route('/admin/albums/update/{parent_id}', name: 'admin_albums_update', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+'])]
     public function update(Request $request, AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator, ?int $parent_id = null): Response
     {
         if ($request->isMethod('POST')) {
@@ -187,8 +183,7 @@ class AdminAlbumsController extends AbstractController
 
         return $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
     }
-
-    #[Route('/albums/move/{parent_id}', name: 'admin_albums_move', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+'])]
+    #[Route('/admin/albums/move/{parent_id}', name: 'admin_albums_move', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+'])]
     public function move(Request $request, AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator, ?int $parent_id = null): Response
     {
         $tpl_params = [];

@@ -45,18 +45,15 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route('/admin')]
 class AdminBatchManagerController extends AbstractController
 {
     private TranslatorInterface $translator;
     private DerivativeService $derivativeService;
     private readonly User $user;
-
     public function __construct(AppUserService $appUserService)
     {
         $this->user = $appUserService->getUser();
     }
-
     protected function setTabsheet(string $section = 'global'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -66,7 +63,6 @@ class AdminBatchManagerController extends AbstractController
 
         return $tabsheet;
     }
-
     /**
      * @param array<string, int|float|bool|string|null|array<int>> $filter
      */
@@ -79,7 +75,6 @@ class AdminBatchManagerController extends AbstractController
 
         $session->set('bulk_manager_filter', [...$previous_filter, ...$filter]);
     }
-
     /**
      * @return array<string, int|float|bool|string|null|UserPrivacyLevelType|array<int>|array<string>>
      */
@@ -92,9 +87,8 @@ class AdminBatchManagerController extends AbstractController
 
         return $filter;
     }
-
     #[Route(
-        '/batch/global/{start}/{filter}/{value}',
+        '/admin/batch/global/{start}/{filter}/{value}',
         name: 'admin_batch_manager_global',
         defaults: ['filter' => null, 'start' => 0, 'value' => null],
         requirements: ['filter' => 'caddie|favorites|last_import|album|no_album|tag|no_tag|duplicates|all_photos', 'start' => '\d+']
@@ -454,9 +448,8 @@ class AdminBatchManagerController extends AbstractController
 
         return $this->render('batch_manager_global.html.twig', $tpl_params);
     }
-
     #[Route(
-        '/batch/global/empty_caddie/{start}',
+        '/admin/batch/global/empty_caddie/{start}',
         name: 'admin_batch_manager_global_empty_caddie',
         defaults: ['start' => 0],
         requirements: ['start' => '\d+']
@@ -468,7 +461,6 @@ class AdminBatchManagerController extends AbstractController
 
         return $this->redirectToRoute('admin_batch_manager_global', ['start' => $start]);
     }
-
     /**
      * @param int[] $collection
      */
@@ -636,14 +628,12 @@ class AdminBatchManagerController extends AbstractController
             return null;
         }
     }
-
     protected function filterFromSession(SessionInterface $session): void
     {
         if (!$session->has('bulk_manager_filter')) {
             $this->appendFilter($session, ['prefilter' => 'caddie']);
         }
     }
-
     /**
      * @return array<int, array<int, int|string|null>|int>
      */
@@ -860,7 +850,6 @@ class AdminBatchManagerController extends AbstractController
 
         return $filter_sets;
     }
-
     /**
      * @return array<string, mixed>
      */
@@ -983,9 +972,8 @@ class AdminBatchManagerController extends AbstractController
 
         return $tpl_params;
     }
-
     #[Route(
-        '/batch/unit/{start}/{filter}/{value}',
+        '/admin/batch/unit/{start}/{filter}/{value}',
         name: 'admin_batch_manager_unit',
         defaults: ['filter' => null, 'start' => 0, 'value' => null],
         requirements: ['filter' => 'caddie|favorites|last_import|album|no_album|tag|no_tag|duplicates|all_photos', 'start' => '\d+']

@@ -20,7 +20,7 @@ use Prophecy\PhpUnit\ProphecyTrait;
 class LanguagesTest extends TestCase
 {
     use ProphecyTrait;
-    final public const LANGUAGES_PATH = __DIR__ . '/../../fixtures/translations/';
+    final public const string LANGUAGES_PATH = __DIR__ . '/../../fixtures/translations/';
 
     public function testFsLanguages(): void
     {

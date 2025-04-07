@@ -32,10 +32,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserInfosType extends AbstractType
 {
-    final public const IN_ADMIN_OPTION = 'in_admin';
-    final public const TITLE_OPTION = 'title';
-    final public const FORM_GROUP_OPTION = 'form_group';
-    final public const WITH_SUBMIT_BUTTONS_OPTION = 'with_submit_buttons';
+    final public const string IN_ADMIN_OPTION = 'in_admin';
+    final public const string TITLE_OPTION = 'title';
+    final public const string FORM_GROUP_OPTION = 'form_group';
+    final public const string WITH_SUBMIT_BUTTONS_OPTION = 'with_submit_buttons';
 
     public function __construct(
         private readonly LanguageRepository $languageRepository,

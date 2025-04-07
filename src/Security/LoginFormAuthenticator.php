@@ -11,6 +11,7 @@
 
 namespace App\Security;
 
+use Override;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -33,11 +34,13 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
     {
     }
 
+    #[Override]
     public function supports(Request $request): bool
     {
         return $request->isMethod('POST') && $request->attributes->get('_route') === 'login';
     }
 
+    #[Override]
     public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
         if ($authException instanceof AuthenticationException) {
