@@ -51,7 +51,7 @@ class FavoriteRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function isFavorite(int $user_id, int $image_id) : bool
+    public function isFavorite(int $user_id, int $image_id): bool
     {
         $qb = $this->createQueryBuilder('f');
         $qb->select('COUNT(1)');

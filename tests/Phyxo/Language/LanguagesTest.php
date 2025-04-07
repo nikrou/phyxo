@@ -45,7 +45,7 @@ class LanguagesTest extends TestCase
                 'uri' => 'http://ext.phyxo.net/extension_view.php?eid=16',
                 'author' => 'Nicolas',
                 'author uri' => 'http://www.phyxo.net/',
-                'extension' => '16'
+                'extension' => '16',
             ],
             'gg_GG' => [
                 'name' => 'GG Language [GG]',
@@ -53,7 +53,7 @@ class LanguagesTest extends TestCase
                 'version' => '3.0.0',
                 'uri' => 'http://ext.phyxo.net/extension_view.php?eid=61',
                 'author' => 'Jean',
-                'extension' => '61'
+                'extension' => '61',
             ],
             'ss_SS' => [
                 'name' => 'SS Language [SS]',
@@ -61,7 +61,7 @@ class LanguagesTest extends TestCase
                 'version' => '1.2.0',
                 'uri' => 'http://ext.phyxo.net/extension_view.php?eid=33',
                 'author' => 'Jean',
-                'extension' => '33'
+                'extension' => '33',
             ],
             'tt_TT' => [
                 'name' => 'TT Language [TT]',
@@ -70,7 +70,7 @@ class LanguagesTest extends TestCase
                 'uri' => 'http://ext.phyxo.net/extension_view.php?eid=99',
                 'author' => 'Arthur',
                 'author uri' => 'http://www.phyxo.net/',
-                'extension' => '99'
+                'extension' => '99',
             ],
             'en_GB' => [
                 'name' => 'English [GB]',
@@ -79,8 +79,8 @@ class LanguagesTest extends TestCase
                 'uri' => 'http://ext.phyxo.net/extension_view.php?eid=61',
                 'author' => 'Nicolas Roudaire',
                 'author uri' => 'https://www.phyxo.net',
-                'extension' => '61'
-            ]
+                'extension' => '61',
+            ],
         ];
     }
 }

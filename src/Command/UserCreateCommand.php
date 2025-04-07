@@ -11,17 +11,17 @@
 
 namespace App\Command;
 
-use Override;
-use Exception;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use App\Entity\User;
 use App\Enum\UserStatusType;
 use App\Security\AppUserService;
+use Exception;
+use Override;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[AsCommand(
@@ -106,7 +106,7 @@ class UserCreateCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         if (is_null($input->getOption('username')) || is_null($input->getOption('status'))) {
-            $io->error("Missing option");
+            $io->error('Missing option');
 
             return Command::INVALID;
         }

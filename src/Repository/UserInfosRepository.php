@@ -11,12 +11,12 @@
 
 namespace App\Repository;
 
+use App\Entity\UserInfos;
 use DateTime;
 use DateTimeInterface;
-use App\Entity\UserInfos;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<UserInfos>
@@ -48,7 +48,7 @@ class UserInfosRepository extends ServiceEntityRepository
 
     /**
      * @param array<string, string> $fields
-     * @param int[] $user_ids
+     * @param int[]                 $user_ids
      */
     public function updateFieldsForUsers(array $fields, array $user_ids = []): void
     {
@@ -63,7 +63,7 @@ class UserInfosRepository extends ServiceEntityRepository
             $qb->where($qb->expr()->in('u.user', $user_ids));
         }
 
-        /** @phpstan-ignore-next-line */
+        /* @phpstan-ignore-next-line */
         $qb->getQuery()->getResult();
     }
 

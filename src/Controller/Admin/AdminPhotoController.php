@@ -11,7 +11,6 @@
 
 namespace App\Controller\Admin;
 
-use DateTime;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
@@ -26,6 +25,7 @@ use App\Repository\RateRepository;
 use App\Repository\UserRepository;
 use App\Security\AppUserService;
 use App\Services\DerivativeService;
+use DateTime;
 use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
@@ -43,6 +43,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminPhotoController extends AbstractController
 {
     private TranslatorInterface $translator;
+
     /**
      * @param array<string, int|string|null> $params
      */
@@ -56,6 +57,7 @@ class AdminPhotoController extends AbstractController
 
         return $tabsheet;
     }
+
     #[Route('/admin/photo/{image_id}/{category_id}', name: 'admin_photo', defaults: ['category_id' => null], requirements: ['category_id' => '\d+', 'image_id' => '\d+'])]
     public function edit(
         Request $request,
@@ -72,7 +74,7 @@ class AdminPhotoController extends AbstractController
         ImageAlbumRepository $imageAlbumRepository,
         RateRepository $rateRepository,
         ManagerRegistry $managerRegistry,
-        ?int $category_id = null
+        ?int $category_id = null,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -171,7 +173,7 @@ class AdminPhotoController extends AbstractController
                 'Posted {since} on {date}',
                 [
                     'since' => $image->getDateAvailable()->format('Y'),
-                    'date' => $image->getDateAvailable()->format('c')
+                    'date' => $image->getDateAvailable()->format('c'),
                 ],
                 'admin'
             ),
@@ -250,6 +252,7 @@ class AdminPhotoController extends AbstractController
 
         return $this->render('photo_properties.html.twig', $tpl_params);
     }
+
     #[Route('/admin/photo/{image_id}/delete/{category_id}', name: 'admin_photo_delete', defaults: ['category_id' => null], requirements: ['category_id' => '\d+', 'image_id' => '\d+'])]
     public function delete(
         int $image_id,
@@ -258,7 +261,7 @@ class AdminPhotoController extends AbstractController
         UserMapper $userMapper,
         ImageMapper $imageMapper,
         ImageAlbumRepository $imageAlbumRepository,
-        ?int $category_id = null
+        ?int $category_id = null,
     ): Response {
         $imageMapper->deleteElements([$image_id], true);
         $userMapper->invalidateUserCache();
@@ -287,6 +290,7 @@ class AdminPhotoController extends AbstractController
 
         return $this->redirectToRoute('admin_home');
     }
+
     #[Route('/admin/photo/{image_id}/sync/{category_id}', name: 'admin_photo_sync_metadata', defaults: ['category_id' => null], requirements: ['category_id' => '\d+', 'image_id' => '\d+'])]
     public function syncMetadata(int $image_id, AppUserService $appUserService, TagMapper $tagMapper, TranslatorInterface $translator, ?int $category_id = null): Response
     {
@@ -295,6 +299,7 @@ class AdminPhotoController extends AbstractController
 
         return $this->redirectToRoute('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);
     }
+
     #[Route('/admin/photo/{image_id}/coi/{category_id}', name: 'admin_photo_coi', defaults: ['category_id' => null], requirements: ['category_id' => '\d+', 'image_id' => '\d+'])]
     public function coi(
         Request $request,
@@ -303,7 +308,7 @@ class AdminPhotoController extends AbstractController
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
         DerivativeService $derivativeService,
-        ?int $category_id = null
+        ?int $category_id = null,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -368,6 +373,7 @@ class AdminPhotoController extends AbstractController
 
         return $this->render('photo_coi.html.twig', $tpl_params);
     }
+
     #[Route('/admin/photo/{image_id}/rotate/{category_id}', name: 'admin_photo_rotate', defaults: ['category_id' => null], requirements: ['category_id' => '\d+', 'image_id' => '\d+'])]
     public function rotate(
         Request $request,
@@ -410,7 +416,7 @@ class AdminPhotoController extends AbstractController
         $tpl_params['orientations'] = [
             ['value' => 6, 'name' => $this->translator->trans('90° right', [], 'admin')],
             ['value' => 8, 'name' => $this->translator->trans('90° left', [], 'admin')],
-            ['value' => 4, 'name' => $this->translator->trans('180°', [], 'admin')]
+            ['value' => 4, 'name' => $this->translator->trans('180°', [], 'admin')],
         ];
 
         return $this->render('photo_rotate.html.twig', $tpl_params);

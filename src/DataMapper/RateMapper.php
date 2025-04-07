@@ -11,11 +11,11 @@
 
 namespace App\DataMapper;
 
-use DateTime;
 use App\Entity\Rate;
-use Phyxo\Conf;
 use App\Repository\RateRepository;
 use App\Security\AppUserService;
+use DateTime;
+use Phyxo\Conf;
 
 class RateMapper
 {
@@ -24,7 +24,7 @@ class RateMapper
         private readonly UserMapper $userMapper,
         private readonly ImageMapper $imageMapper,
         private readonly RateRepository $rateRepository,
-        private readonly AppUserService $appUserService
+        private readonly AppUserService $appUserService,
     ) {
     }
 
@@ -51,7 +51,7 @@ class RateMapper
             $rate = $this->getRepository()->findOneBy([
                 'user' => $this->userMapper->getUser()->getId(),
                 'image' => $image_id,
-                'anonymous_id' => $anonymous_id
+                'anonymous_id' => $anonymous_id,
             ]);
             if (!is_null($rate)) {
                 $this->getRepository()->delete($rate);
@@ -78,7 +78,7 @@ class RateMapper
      * Update images.rating_score field.
      * We use a bayesian average (http://en.wikipedia.org/wiki/Bayesian_average) with
      *  C = average number of rates per item
-     *  m = global average rate (all rates)
+     *  m = global average rate (all rates).
      *
      * @param ?int $element_id if null applies to all
      *

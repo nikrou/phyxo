@@ -11,9 +11,9 @@
 
 namespace App\Entity;
 
-use Doctrine\DBAL\Types\Types;
-use DateTimeInterface;
 use App\Repository\SearchRepository;
+use DateTimeInterface;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'search')]

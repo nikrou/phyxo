@@ -11,8 +11,8 @@
 
 namespace App\Entity;
 
-use Doctrine\DBAL\Types\Types;
 use App\Repository\ImageAlbumRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'image_category')]

@@ -11,17 +11,17 @@
 
 namespace App\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
-use Phyxo\MenuBar;
-use Phyxo\Conf;
-use Phyxo\Functions\Language;
-use App\DataMapper\TagMapper;
-use App\Repository\TagRepository;
 use App\DataMapper\ImageMapper;
+use App\DataMapper\TagMapper;
 use App\Entity\Tag;
 use App\Enum\PictureSectionType;
+use App\Repository\TagRepository;
 use App\Security\AppUserService;
+use Phyxo\Conf;
+use Phyxo\Functions\Language;
+use Phyxo\MenuBar;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
@@ -79,7 +79,7 @@ class TagController extends AbstractController
                     $letter['TITLE'] = $tag_letter;
                 }
 
-                //lettre precedente differente de la lettre suivante
+                // lettre precedente differente de la lettre suivante
                 if ($tag_letter !== $current_letter) {
                     if ($current_column < $conf['tag_letters_column_number'] && $current_tag_idx > $current_column * $nb_tags / $conf['tag_letters_column_number']) {
                         $letter['CHANGE_COLUMN'] = true;
@@ -97,7 +97,7 @@ class TagController extends AbstractController
                 $letter['tags'][] = array_merge(
                     $tag->toArray(),
                     [
-                        'URL' => $this->generateUrl('images_by_tags', ['tag_ids' => $tag->toUrl()])
+                        'URL' => $this->generateUrl('images_by_tags', ['tag_ids' => $tag->toUrl()]),
                     ]
                 );
 
@@ -127,7 +127,7 @@ class TagController extends AbstractController
                 $tpl_params['tags'][] = array_merge(
                     $tag->toArray(),
                     [
-                        'URL' => $this->generateUrl('images_by_tags', ['tag_ids' => $tag->toUrl()])
+                        'URL' => $this->generateUrl('images_by_tags', ['tag_ids' => $tag->toUrl()]),
                     ]
                 );
             }
@@ -158,7 +158,7 @@ class TagController extends AbstractController
         RouterInterface $router,
         AppUserService $appUserService,
         array $publicTemplates,
-        int $start = 0
+        int $start = 0,
     ): Response {
         $tpl_params = [];
 

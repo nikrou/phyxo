@@ -20,8 +20,10 @@ class Theme
 {
     /**
      * API method
-     * Performs an action on a theme
+     * Performs an action on a theme.
+     *
      * @param mixed[] $params
+     *
      *    @option string action
      *    @option string theme
      */

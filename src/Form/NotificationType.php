@@ -37,7 +37,7 @@ class NotificationType extends AbstractType
                         TextType::class,
                         [
                             'label' => 'Send mail as',
-                            'help' => 'With blank value, gallery title will be used'
+                            'help' => 'With blank value, gallery title will be used',
                         ]
                     );
                     $builder->add('nbm_send_detailed_content', CheckboxType::class, ['label' => 'Add detailed content']);
@@ -47,10 +47,10 @@ class NotificationType extends AbstractType
                         CheckboxType::class,
                         [
                             'label' => 'Include display of recent photos grouped by dates',
-                            'help' => 'Available only with HTML format'
+                            'help' => 'Available only with HTML format',
                         ]
                     );
-                }
+                },
             ]
         );
     }

@@ -12,9 +12,9 @@
 namespace App;
 
 use Imagine\Gd\Imagine as GdImagine;
-use Imagine\Imagick\Imagine as ImagickImagine;
 use Imagine\Gmagick\Imagine as GmagickImagine;
 use Imagine\Image\ImagineInterface;
+use Imagine\Imagick\Imagine as ImagickImagine;
 
 class ImageLibraryGuesser
 {

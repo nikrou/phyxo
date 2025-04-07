@@ -25,6 +25,7 @@ class SearchMapper
      * It can be either a quick search or a regular search.
      *
      * @param array<string, string>|array<string, array<string, array<string, string|string[]>>> $rules
+     *
      * @return int[]
      */
     public function getSearchResults(array $rules, User $user): array

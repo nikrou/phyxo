@@ -40,6 +40,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminUsersController extends AbstractController
 {
     private TranslatorInterface $translator;
+
     public function setTabsheet(string $section = 'list', int $user_id = 0): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -49,6 +50,7 @@ class AdminUsersController extends AbstractController
 
         return $tabsheet;
     }
+
     #[Route('/admin/users', name: 'admin_users')]
     public function list(
         Conf $conf,
@@ -60,7 +62,7 @@ class AdminUsersController extends AbstractController
         LanguageRepository $languageRepository,
         UserRepository $userRepository,
         UserInfosRepository $userInfosRepository,
-        GroupRepository $groupRepository
+        GroupRepository $groupRepository,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -159,6 +161,7 @@ class AdminUsersController extends AbstractController
 
         return $this->render('users_list.html.twig', $tpl_params);
     }
+
     #[Route('/admin/users/{user_id}/perm', name: 'admin_user_perm', requirements: ['user_id' => '\d+'])]
     public function perm(Request $request, int $user_id, AlbumMapper $albumMapper, TranslatorInterface $translator, UserRepository $userRepository): Response
     {
@@ -215,6 +218,7 @@ class AdminUsersController extends AbstractController
 
         return $this->render('user_perm.html.twig', $tpl_params);
     }
+
     #[Route('/admin/users/add', name: 'admin_user_add')]
     public function add(Request $request, UserPasswordHasherInterface $passwordHasher, AppUserService $appUserService, TranslatorInterface $translator): Response
     {
@@ -241,6 +245,7 @@ class AdminUsersController extends AbstractController
                 $appUserService->register($user);
 
                 $this->addFlash('info', $translator->trans('User has been added'));
+
                 return $this->redirectToRoute('admin_users');
             } catch (Exception $e) {
                 $tpl_params['errors'] = $e->getMessage();
@@ -253,6 +258,7 @@ class AdminUsersController extends AbstractController
 
         return $this->render('user_form.html.twig', $tpl_params);
     }
+
     #[Route('/admin/users/{user_id}/edit', name: 'admin_user_edit', requirements: ['user_id' => '\d+'])]
     public function edit(
         int $user_id,

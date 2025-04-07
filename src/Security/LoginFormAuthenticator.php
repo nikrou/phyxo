@@ -12,11 +12,11 @@
 namespace App\Security;
 
 use Override;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
@@ -61,7 +61,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
             new PasswordCredentials($password),
             [
                 new CsrfTokenBadge('authenticate', $csrf_token),
-                new RememberMeBadge()
+                new RememberMeBadge(),
             ]
         );
     }

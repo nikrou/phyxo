@@ -30,6 +30,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminRatingController extends AbstractController
 {
     private TranslatorInterface $translator;
+
     protected function setTabsheet(string $section = 'photos'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -39,6 +40,7 @@ class AdminRatingController extends AbstractController
 
         return $tabsheet;
     }
+
     #[Route('/admin/rating/{start}', name: 'admin_rating', defaults: ['start' => 0], requirements: ['start' => '\d+'])]
     public function photos(
         Request $request,
@@ -46,7 +48,7 @@ class AdminRatingController extends AbstractController
         UserMapper $userMapper,
         UserRepository $userRepository,
         RateRepository $rateRepository,
-        int $start = 0
+        int $start = 0,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -140,7 +142,7 @@ class AdminRatingController extends AbstractController
                 'NB_RATES' => (int) $image['nb_rates'],
                 'NB_RATES_TOTAL' => $nb_rates,
                 'FILE' => $image['file'],
-                'rates' => []
+                'rates' => [],
             ];
 
             foreach ($rates as $rate) {
@@ -161,7 +163,7 @@ class AdminRatingController extends AbstractController
                     'element_id' => $rate->getImage()->getId(),
                     'anonymous_id' => $rate->getAnonymousId(),
                     'rate' => $rate->getRate(),
-                    'date' => $rate->getDate()
+                    'date' => $rate->getDate(),
                 ];
             }
 
@@ -176,6 +178,7 @@ class AdminRatingController extends AbstractController
 
         return $this->render('rating_photos.html.twig', $tpl_params);
     }
+
     #[Route('/admin/rating/users/{start}', name: 'admin_rating_users', defaults: ['start' => 0], requirements: ['start' => '\d+'])]
     public function users(
         Request $request,
@@ -186,7 +189,7 @@ class AdminRatingController extends AbstractController
         UserRepository $userRepository,
         ImageMapper $imageMapper,
         RateRepository $rateRepository,
-        int $start = 0
+        int $start = 0,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -206,7 +209,7 @@ class AdminRatingController extends AbstractController
         foreach ($userRepository->findAll() as $user) {
             $users_by_id[$user->getId()] = [
                 'name' => $user->getUsername(),
-                'anon' => $userMapper->isClassicUser()
+                'anon' => $userMapper->isClassicUser(),
             ];
         }
 
@@ -252,14 +255,14 @@ class AdminRatingController extends AbstractController
                 $derivative = new DerivativeImage($image, $d_params, $image_std_params);
                 $image_urls[$image->getId()] = [
                     'tn' => $this->generateUrl('admin_media', [
-                        'path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()
+                        'path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension(),
                     ]),
                     'page' => $this->generateUrl('picture', ['image_id' => $image->getId(), 'type' => 'file', 'element_id' => $image->getFile()]),
                 ];
             }
         }
 
-        //all image averages
+        // all image averages
         $all_img_sum = [];
         foreach ($rateRepository->calculateAverageByImage() as $rate) {
             $all_img_sum[$rate['image']] = ['avg' => (float) $rate['avg']];
@@ -351,6 +354,7 @@ class AdminRatingController extends AbstractController
 
         return $this->render('rating_users.html.twig', $tpl_params);
     }
+
     /**
      * @param array{avg:float} $a
      * @param array{avg:float} $b
@@ -361,6 +365,7 @@ class AdminRatingController extends AbstractController
 
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
+
     /**
      * @param array{count:int} $a
      * @param array{count:int} $b
@@ -371,26 +376,29 @@ class AdminRatingController extends AbstractController
 
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
+
     /**
      * @param array{cv:int} $a
      * @param array{cv:int} $b
      */
     protected function cv_compare(array $a, array $b): int
     {
-        $d = $b['cv'] - $a['cv']; //desc
+        $d = $b['cv'] - $a['cv']; // desc
 
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
+
     /**
      * @param array{cd:int} $a
      * @param array{cd:int} $b
      */
     protected function consensus_dev_compare(array $a, array $b): int
     {
-        $d = $b['cd'] - $a['cd']; //desc
+        $d = $b['cd'] - $a['cd']; // desc
 
         return ($d == 0) ? 0 : ($d < 0 ? -1 : 1);
     }
+
     /**
      * @param array{last_date:string} $a
      * @param array{last_date:string} $b

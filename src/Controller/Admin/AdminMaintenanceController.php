@@ -11,12 +11,11 @@
 
 namespace App\Controller\Admin;
 
-use App\Enum\ConfEnum;
-use Exception;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\RateMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
+use App\Enum\ConfEnum;
 use App\Enum\ImageSizeType;
 use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
@@ -25,10 +24,11 @@ use App\Repository\SearchRepository;
 use App\Repository\UpgradeRepository;
 use App\Repository\UserFeedRepository;
 use App\Services\DerivativeService;
+use Exception;
 use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -46,6 +46,7 @@ class AdminMaintenanceController extends AbstractController
     public function __construct(private readonly ImageRepository $imageRepository, private readonly Filesystem $fs, private readonly string $uploadDir, private readonly string $rootProjectDir)
     {
     }
+
     #[Route(
         '/admin/maintenace/{action}',
         name: 'admin_maintenance',
@@ -77,31 +78,38 @@ class AdminMaintenanceController extends AbstractController
             case 'configuration':
                 $this->fixConfiguration($conf);
                 $this->addFlash('success', $translator->trans('Database configuration has been fixed.', [], 'admin'));
+
                 return $this->redirectToRoute('admin_maintenance');
             case 'lock_gallery':
                 $conf['gallery_locked'] = true;
+
                 return $this->redirectToRoute('admin_maintenance');
             case 'unlock_gallery':
                 $conf['gallery_locked'] = false;
+
                 return $this->redirectToRoute('admin_maintenance');
             case 'albums':
                 $albumMapper->updateUppercats();
                 $albumMapper->updateAlbums();
                 $albumMapper->updateGlobalRank();
                 $userMapper->invalidateUserCache(true);
+
                 return $this->redirectToRoute('admin_maintenance');
             case 'albums_virtualize':
                 $this->virtualizeAlbums();
                 $albumMapper->getRepository()->removePhysicalAlbums();
                 $this->addFlash('success', $translator->trans('All albums were virtualized.', [], 'admin'));
+
                 return $this->redirectToRoute('admin_maintenance');
             case 'images':
                 $rateMapper->updateRatingScore();
                 $userMapper->invalidateUserCache();
+
                 return $this->redirectToRoute('admin_maintenance');
             case 'delete_orphan_tags':
                 $tagMapper->deleteOrphanTags();
                 $this->addFlash('success', $translator->trans('Orphan tags deleted', [], 'admin'));
+
                 return $this->redirectToRoute('admin_maintenance');
             case 'app_cache':
                 $application = new Application($kernel);
@@ -114,7 +122,7 @@ class AdminMaintenanceController extends AbstractController
                     return new JsonResponse(
                         [
                             'status' => 'ok',
-                            'title' => 'application cache clear'
+                            'title' => 'application cache clear',
                         ]
                     );
                 }
@@ -122,15 +130,19 @@ class AdminMaintenanceController extends AbstractController
                 return $this->redirectToRoute('admin_maintenance');
             case 'user_cache':
                 $userMapper->invalidateUserCache();
+
                 return $this->redirectToRoute('admin_maintenance');
             case 'history_detail':
                 $historyRepository->deleteAll();
+
                 return $this->redirectToRoute('admin_maintenance');
             case 'history_summary':
                 $historySummaryRepository->deleteAll();
+
                 return $this->redirectToRoute('admin_maintenance');
             case 'feeds':
                 $userFeedRepository->deleteUserFeedNotChecked();
+
                 return $this->redirectToRoute('admin_maintenance');
             case 'database':
                 $applied_upgrades = [];
@@ -144,8 +156,8 @@ class AdminMaintenanceController extends AbstractController
                     $current_release = '1.1.0';
                 } elseif (!in_array(145, $applied_upgrades)) {
                     $current_release = '1.2.0';
-                    // } elseif (in_array('validated', $columns_of[$em->getConnection()->getPrefix() . 'tags'])) {
-                    //     $current_release = '1.3.0';
+                // } elseif (in_array('validated', $columns_of[$em->getConnection()->getPrefix() . 'tags'])) {
+                //     $current_release = '1.3.0';
                 } elseif (!in_array(146, $applied_upgrades)) {
                     $current_release = '1.5.0';
                 } elseif (!in_array(147, $applied_upgrades)) {
@@ -168,6 +180,7 @@ class AdminMaintenanceController extends AbstractController
                 return $this->redirectToRoute('admin_maintenance');
             case 'search':
                 $searchRepository->purge();
+
                 return $this->redirectToRoute('admin_maintenance');
             case 'obsolete':
                 $obsolete_file = $params->get('install_dir') . '/obsolete.list';
@@ -247,11 +260,13 @@ class AdminMaintenanceController extends AbstractController
 
         return $this->render('maintenance.html.twig', $tpl_params);
     }
+
     private function fixConfiguration(Conf $conf): void
     {
         $conf->addOrUpdateParam('order_by', $conf['order_by'], ConfEnum::JSON);
         $conf->addOrUpdateParam('order_by_inside_category', $conf['order_by_inside_category'], ConfEnum::JSON);
     }
+
     private function virtualizeAlbums(): void
     {
         $baseDirectory = dirname(__DIR__, 2);
@@ -285,6 +300,7 @@ class AdminMaintenanceController extends AbstractController
             }
         }
     }
+
     #[Route('/admin/maintenance/derivatives/{type}', name: 'admin_maintenance_derivatives', requirements: ['type' => new EnumRequirement(ImageSizeType::class)])]
     public function derivatives(string $type, DerivativeService $derivativeService, TranslatorInterface $translator): Response
     {

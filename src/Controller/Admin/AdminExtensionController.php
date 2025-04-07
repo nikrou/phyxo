@@ -31,6 +31,7 @@ class AdminExtensionController extends AbstractController
 {
     protected ParameterBagInterface $params;
     protected Conf $conf;
+
     #[Route('/admin/theme/{theme}', name: 'admin_theme')]
     public function theme(
         Request $request,
@@ -40,7 +41,7 @@ class AdminExtensionController extends AbstractController
         string $themesDir,
         Conf $conf,
         ThemeLoader $themeLoader,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ): Response {
         $tpl_params = [];
         $this->conf = $conf;
@@ -71,6 +72,7 @@ class AdminExtensionController extends AbstractController
 
         return $this->render($themeConfig->getAdminTemplate(), $tpl_params);
     }
+
     #[Route('/adminplugin/{plugin}', name: 'admin_plugin')]
     public function plugin(
         string $plugin,
@@ -79,7 +81,7 @@ class AdminExtensionController extends AbstractController
         UserMapper $userMapper,
         string $pluginsDir,
         Conf $conf,
-        ParameterBagInterface $params
+        ParameterBagInterface $params,
     ): Response {
         $tpl_params = [];
         $this->conf = $conf;
@@ -110,7 +112,7 @@ class AdminExtensionController extends AbstractController
 
                 return [
                     'template_filename' => $template_filename,
-                    'tpl_params' => $tpl_params
+                    'tpl_params' => $tpl_params,
                 ];
             });
         } else {

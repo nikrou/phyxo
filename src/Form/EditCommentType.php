@@ -45,7 +45,7 @@ class EditCommentType extends AbstractType
                 'attr' => [
                     'novalidate' => 'novalidate',
                 ],
-                'redirect' => ''
+                'redirect' => '',
             ])
             ->addAllowedTypes('redirect', 'string');
     }

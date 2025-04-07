@@ -14,8 +14,8 @@ namespace App\Form\Transformer;
 use App\Enum\ConfEnum;
 use App\Enum\TagPermissionEnum;
 use App\Enum\UserStatusType;
-use Phyxo\Conf;
 use App\Form\Model\TagPermissionsModel;
+use Phyxo\Conf;
 use Symfony\Component\Form\DataTransformerInterface;
 
 /**
@@ -41,7 +41,7 @@ class ConfToTagPermissionsTransformer implements DataTransformerInterface
     }
 
     /**
-     *  @param TagPermissionsModel $model
+     * @param TagPermissionsModel $model
      */
     public function reverseTransform(mixed $model): mixed
     {

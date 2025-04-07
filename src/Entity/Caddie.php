@@ -27,7 +27,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ApiResource(operations: [
     new Post(
         uriTemplate: '/caddy/add',
-        name: "add_images_to_caddy",
+        name: 'add_images_to_caddy',
         description: 'Add images to caddy',
         input: AddImagesToCaddieInput::class,
         processor: AddImagesToCaddieProcessor::class,
@@ -54,7 +54,7 @@ use Doctrine\ORM\Mapping as ORM;
                 )
             )
         )
-    )
+    ),
 ])]
 class Caddie
 {

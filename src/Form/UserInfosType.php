@@ -54,7 +54,7 @@ class UserInfosType extends AbstractType
             TextType::class,
             [
                 'label' => 'Number of photos per page',
-                'attr' => ['placeholder' => 'Number of photos per page'], 'required' => false
+                'attr' => ['placeholder' => 'Number of photos per page'], 'required' => false,
             ]
         );
 
@@ -66,7 +66,7 @@ class UserInfosType extends AbstractType
                 'choice_label' => 'name',
                 'choice_value' => 'id',
                 'label' => 'Theme',
-                'required' => true
+                'required' => true,
             ]
         );
         $fields->add(
@@ -91,7 +91,7 @@ class UserInfosType extends AbstractType
             TextType::class,
             [
                 'label' => 'Recent period',
-                'attr' => ['placeholder' => 'Recent period'], 'required' => false
+                'attr' => ['placeholder' => 'Recent period'], 'required' => false,
             ]
         );
         $fields->add(
@@ -101,7 +101,7 @@ class UserInfosType extends AbstractType
                 'label' => 'Expand all albums',
                 'choices' => ['Yes' => true, 'No' => false],
                 'expanded' => true,
-                'required' => true
+                'required' => true,
             ]
         );
         $fields->add(
@@ -111,7 +111,7 @@ class UserInfosType extends AbstractType
                 'label' => 'Show number of comments',
                 'choices' => ['Yes' => true, 'No' => false],
                 'expanded' => true,
-                'required' => true
+                'required' => true,
             ]
         );
         $fields->add(
@@ -121,7 +121,7 @@ class UserInfosType extends AbstractType
                 'label' => 'Show number of hits',
                 'choices' => ['Yes' => true, 'No' => false],
                 'expanded' => true,
-                'required' => true
+                'required' => true,
             ]
         );
 
@@ -132,7 +132,7 @@ class UserInfosType extends AbstractType
                     foreach ($fields->all() as $child) {
                         $builder->add($child);
                     }
-                }
+                },
             ]);
         } else {
             foreach ($fields->all() as $child) {

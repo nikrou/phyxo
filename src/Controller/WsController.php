@@ -11,41 +11,41 @@
 
 namespace App\Controller;
 
-use Phyxo\Functions\Ws\Main;
-use Phyxo\Functions\Ws\Category;
-use Phyxo\Functions\Ws\Image;
-use Phyxo\Functions\Ws\Rate;
-use Phyxo\Functions\Ws\Session;
-use Phyxo\Functions\Ws\Tag;
-use Phyxo\Functions\Ws\Plugin;
-use Phyxo\Functions\Ws\Theme;
-use Phyxo\Functions\Ws\Extension;
-use Phyxo\Functions\Ws\Group;
-use Phyxo\Functions\Ws\User;
-use Phyxo\Functions\Ws\Permission;
 use App\DataMapper\AlbumMapper;
-use Symfony\Component\HttpFoundation\Response;
-use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
-use App\DataMapper\UserMapper;
 use App\DataMapper\ImageMapper;
-use Phyxo\Ws\Server;
-use Phyxo\Conf;
-use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\RateMapper;
-use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
+use App\DataMapper\TagMapper;
+use App\DataMapper\UserMapper;
 use App\ImageLibraryGuesser;
 use App\Security\AppUserService;
 use App\Security\UserProvider;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Doctrine\Persistence\ManagerRegistry;
+use Phyxo\Conf;
+use Phyxo\Functions\Ws\Category;
+use Phyxo\Functions\Ws\Extension;
+use Phyxo\Functions\Ws\Group;
+use Phyxo\Functions\Ws\Image;
+use Phyxo\Functions\Ws\Main;
+use Phyxo\Functions\Ws\Permission;
+use Phyxo\Functions\Ws\Plugin;
+use Phyxo\Functions\Ws\Rate;
+use Phyxo\Functions\Ws\Session;
+use Phyxo\Functions\Ws\Tag;
+use Phyxo\Functions\Ws\Theme;
+use Phyxo\Functions\Ws\User;
+use Phyxo\Image\ImageStandardParams;
+use Phyxo\Ws\Server;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\RouterInterface;
 
 class WsController extends AbstractController
 {
@@ -72,7 +72,7 @@ class WsController extends AbstractController
         ManagerRegistry $managerRegistry,
         AlbumMapper $albumMapper,
         ImageLibraryGuesser $imageLibraryGuesser,
-        UserProvider $userProvider
+        UserProvider $userProvider,
     ): Response {
         $this->service = new Server($params->get('upload_dir'));
         $this->service->setRequest($request);
@@ -151,7 +151,7 @@ class WsController extends AbstractController
             [
                 'cat_id' => [
                     'default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE,
-                    'info' => 'Parent category. "0" or empty for root.'
+                    'info' => 'Parent category. "0" or empty for root.',
                 ],
                 'recursive' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
                 'public' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
@@ -167,7 +167,7 @@ class WsController extends AbstractController
             array_merge([
                 'types' => [
                     'default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY,
-                    'info' => 'square, thumb, 2small, xsmall, small, medium, large, xlarge, xxlarge'
+                    'info' => 'square, thumb, 2small, xsmall, small, medium, large, xlarge, xxlarge',
                 ],
                 'ids' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
                 'max_urls' => ['default' => 200, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
@@ -241,7 +241,7 @@ class WsController extends AbstractController
             [
                 'image_id' => ['type' => Server::WS_TYPE_ID],
                 'category_id' => ['type' => Server::WS_TYPE_ID],
-                'rank' => ['type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE | Server::WS_TYPE_NOTNULL]
+                'rank' => ['type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE | Server::WS_TYPE_NOTNULL],
             ],
             'Sets the rank of a photo for a given album.',
             ['admin_only' => true, 'post_only' => true]
@@ -319,7 +319,7 @@ class WsController extends AbstractController
                 'data' => [],
                 'original_sum' => [],
                 'type' => ['default' => 'file', 'info' => 'Must be "file", for backward compatiblity "high" and "thumb" are allowed.'],
-                'position' => []
+                'position' => [],
             ],
             'Add a chunk of a file.',
             ['admin_only' => true, 'post_only' => true]
@@ -528,11 +528,11 @@ class WsController extends AbstractController
                 'comment' => ['default' => null],
                 'categories' => [
                     'default' => null,
-                    'info' => 'String list "category_id[,rank];category_id[,rank]".<br>The rank is optional and is equivalent to "auto" if not given.'
+                    'info' => 'String list "category_id[,rank];category_id[,rank]".<br>The rank is optional and is equivalent to "auto" if not given.',
                 ],
                 'tag_ids' => [
                     'default' => null,
-                    'info' => 'Comma separated ids'
+                    'info' => 'Comma separated ids',
                 ],
                 'level' => ['default' => null, 'maxValue' => max($this->service->getConf()['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
                 'single_value_mode' => ['default' => 'fill_if_empty'],
@@ -684,7 +684,7 @@ class WsController extends AbstractController
                 'group_id' => ['type' => Server::WS_TYPE_ID],
                 'user_id' => [
                     'flags' => Server::WS_PARAM_FORCE_ARRAY,
-                    'type' => Server::WS_TYPE_ID
+                    'type' => Server::WS_TYPE_ID,
                 ],
             ],
             'Removes one or more users from a group.',
@@ -697,7 +697,7 @@ class WsController extends AbstractController
             [
                 'user_id' => [
                     'flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY,
-                    'type' => Server::WS_TYPE_ID
+                    'type' => Server::WS_TYPE_ID,
                 ],
                 'username' => ['flags' => Server::WS_PARAM_OPTIONAL, 'info' => 'Use "%" as wildcard.'],
                 'status' => ['flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'info' => 'guest,normal,admin,webmaster'],
@@ -793,15 +793,15 @@ class WsController extends AbstractController
             [
                 'cat_id' => [
                     'flags' => Server::WS_PARAM_FORCE_ARRAY,
-                    'type' => Server::WS_TYPE_ID
+                    'type' => Server::WS_TYPE_ID,
                 ],
                 'group_id' => [
                     'flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL,
-                    'type' => Server::WS_TYPE_ID
+                    'type' => Server::WS_TYPE_ID,
                 ],
                 'user_id' => [
                     'flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL,
-                    'type' => Server::WS_TYPE_ID
+                    'type' => Server::WS_TYPE_ID,
                 ],
             ],
             'Removes permissions from an album.',

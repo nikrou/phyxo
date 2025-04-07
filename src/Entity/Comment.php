@@ -11,9 +11,9 @@
 
 namespace App\Entity;
 
-use Doctrine\DBAL\Types\Types;
-use DateTimeInterface;
 use App\Repository\CommentRepository;
+use DateTimeInterface;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 

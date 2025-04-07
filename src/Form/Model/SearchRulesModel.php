@@ -11,8 +11,8 @@
 
 namespace App\Form\Model;
 
-use DateTime;
 use App\Entity\User;
+use DateTime;
 
 class SearchRulesModel
 {

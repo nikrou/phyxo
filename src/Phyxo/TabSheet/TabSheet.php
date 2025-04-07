@@ -12,8 +12,8 @@
 namespace Phyxo\TabSheet;
 
 use App\Model\ItemModel;
-use IteratorAggregate;
 use ArrayIterator;
+use IteratorAggregate;
 use Traversable;
 
 /**

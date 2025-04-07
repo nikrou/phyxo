@@ -14,17 +14,17 @@ namespace App\Controller;
 use App\DataMapper\AlbumMapper;
 use App\Enum\ImageSizeType;
 use App\Enum\PictureSectionType;
-use Symfony\Component\HttpFoundation\Request;
-use Phyxo\Conf;
-use App\Repository\CommentRepository;
 use App\Form\CommentFilterType;
 use App\Form\DeleteCommentType;
 use App\Form\EditCommentType;
 use App\Form\Model\CommentFilterModel;
 use App\Form\ValidateCommentType;
+use App\Repository\CommentRepository;
 use App\Security\AppUserService;
+use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
@@ -60,7 +60,7 @@ class CommentController extends AbstractController
         AlbumMapper $albumMapper,
         array $publicTemplates,
         ?int $comment_id = null,
-        int $start = 0
+        int $start = 0,
     ): Response {
         $tpl_params = [];
         $tpl_params['PAGE_TITLE'] = $translator->trans('User comments');
@@ -74,7 +74,7 @@ class CommentController extends AbstractController
                 'since' => null,
                 'album' => null,
                 'author' => null,
-                'keyword' => null
+                'keyword' => null,
             ]
         );
         $queryParams = $request->query->all();
@@ -122,7 +122,7 @@ class CommentController extends AbstractController
                 [
                     'image_id' => $comment->getImage()->getId(),
                     'element_id' => $comment->getImage()->getImageAlbums()->first()->getAlbum()->getId(),
-                    'section' => PictureSectionType::ALBUM->value
+                    'section' => PictureSectionType::ALBUM->value,
                 ]
             );
 
@@ -133,7 +133,7 @@ class CommentController extends AbstractController
                     [
                         'id' => $comment->getId(),
                         'redirect' => $redirectRoute,
-                        'action' => $this->generateUrl('comment_validate', ['comment_id' => $comment->getId()])
+                        'action' => $this->generateUrl('comment_validate', ['comment_id' => $comment->getId()]),
                     ]
                 );
                 $tpl_comment['VALIDATE_FORM'] = $validateForm->createView();
@@ -146,7 +146,7 @@ class CommentController extends AbstractController
                     [
                         'id' => $comment->getId(),
                         'redirect' => $redirectRoute,
-                        'action' => $this->generateUrl('comment_delete', ['comment_id' => $comment->getId()])
+                        'action' => $this->generateUrl('comment_delete', ['comment_id' => $comment->getId()]),
                     ]
                 );
 
@@ -163,7 +163,7 @@ class CommentController extends AbstractController
                         $comment,
                         [
                             'redirect' => $redirectRoute,
-                            'action' => $this->generateUrl('comment_update', ['comment_id' => $comment->getId()])
+                            'action' => $this->generateUrl('comment_update', ['comment_id' => $comment->getId()]),
                         ]
                     );
                     $tpl_comment['FORM'] = $editForm->createView();

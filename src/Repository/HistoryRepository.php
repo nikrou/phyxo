@@ -11,10 +11,10 @@
 
 namespace App\Repository;
 
-use DateTime;
-use App\Entity\User;
 use App\Entity\History;
+use App\Entity\User;
 use App\Form\Model\SearchRulesModel;
+use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -90,7 +90,7 @@ class HistoryRepository extends ServiceEntityRepository
         if ($count_only) {
             $qb->select('COUNT(1)');
 
-            /** @phpstan-ignore-next-line */
+            /* @phpstan-ignore-next-line */
             return $qb->getQuery()->getSingleScalarResult();
         } else {
             $qb->setMaxResults($limit);

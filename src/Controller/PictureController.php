@@ -11,21 +11,12 @@
 
 namespace App\Controller;
 
-use DateTimeInterface;
-use IntlDateFormatter;
-use DateTime;
 use App\DataMapper\AlbumMapper;
-use Symfony\Component\HttpFoundation\Request;
-use Phyxo\Conf;
-use Phyxo\Image\ImageStandardParams;
-use App\Repository\FavoriteRepository;
-use App\DataMapper\TagMapper;
-use App\Repository\RateRepository;
-use Phyxo\Functions\Utils;
-use App\DataMapper\UserMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\RateMapper;
+use App\DataMapper\TagMapper;
+use App\DataMapper\UserMapper;
 use App\Entity\Comment;
 use App\Entity\Image;
 use App\Entity\User;
@@ -38,13 +29,22 @@ use App\Form\ImageCommentType;
 use App\Form\ValidateCommentType;
 use App\Metadata;
 use App\Repository\CommentRepository;
+use App\Repository\FavoriteRepository;
 use App\Repository\ImageAlbumRepository;
+use App\Repository\RateRepository;
 use App\Security\AppUserService;
 use App\Security\TagVoter;
+use DateTime;
+use DateTimeInterface;
+use IntlDateFormatter;
+use Phyxo\Conf;
+use Phyxo\Functions\Utils;
+use Phyxo\Image\ImageStandardParams;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
@@ -59,7 +59,7 @@ class PictureController extends AbstractController
 
     /**
      * @param array{current_day?: DateTimeInterface, date_type?: string, year?: int, month?: int, day?: int} $extra
-     * @param array<string, string> $publicTemplates
+     * @param array<string, string>                                                                          $publicTemplates
      */
     #[Route(
         '/picture/{image_id}/{section}/{element_id}',
@@ -87,7 +87,7 @@ class PictureController extends AbstractController
         CommentRepository $commentRepository,
         array $publicTemplates,
         PictureSectionType $section = PictureSectionType::ALBUM,
-        array $extra = []
+        array $extra = [],
     ): Response {
         $this->translator = $translator;
         $tpl_params = [];
@@ -109,7 +109,7 @@ class PictureController extends AbstractController
         } else {
             $album = $albumMapper->getRepository()->find((int) $element_id);
             if (!is_null($album) && in_array($album->getId(), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums())) {
-                throw new AccessDeniedHttpException("Access denied to that album");
+                throw new AccessDeniedHttpException('Access denied to that album');
             }
 
             $tpl_params['items'] = [];
@@ -153,17 +153,17 @@ class PictureController extends AbstractController
                             'picture_from_calendar',
                             [
                                 'image_id' => $tpl_params['items'][0], 'date_type' => $extra['date_type'],
-                                'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day'])
+                                'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day']),
                             ]
-                        )
+                        ),
                     ];
-                    ;
+
                     $tpl_params['previous'] = [
                         'U_IMG' => $this->generateUrl(
                             'picture_from_calendar',
                             [
                                 'image_id' => $tpl_params['items'][$current_index - 1], 'date_type' => $extra['date_type'],
-                                'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day'])
+                                'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day']),
                             ]
                         ),
                     ];
@@ -184,7 +184,7 @@ class PictureController extends AbstractController
                             'picture_from_calendar',
                             [
                                 'image_id' => $tpl_params['items'][(is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0) - 1], 'date_type' => $extra['date_type'],
-                                'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day'])
+                                'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day']),
                             ]
                         ),
                     ];
@@ -193,9 +193,9 @@ class PictureController extends AbstractController
                             'picture_from_calendar',
                             [
                                 'image_id' => $tpl_params['items'][$current_index + 1], 'date_type' => $extra['date_type'],
-                                'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day'])
+                                'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day']),
                             ]
-                        )
+                        ),
                     ];
                 } else {
                     $tpl_params['last'] = [
@@ -204,7 +204,7 @@ class PictureController extends AbstractController
                             [
                                 'image_id' => $tpl_params['items'][(is_countable($tpl_params['items']) ? count($tpl_params['items']) : 0) - 1],
                                 'section' => $section->value,
-                                'element_id' => $element_id
+                                'element_id' => $element_id,
                             ]
                         ),
                     ];
@@ -250,9 +250,9 @@ class PictureController extends AbstractController
                 'calendar_by_day',
                 [
                     'date_type' => 'posted', 'year' => $picture['date_available']->format('Y'),
-                    'month' => $picture['date_available']->format('m'), 'day' => $picture['date_available']->format('d')
+                    'month' => $picture['date_available']->format('m'), 'day' => $picture['date_available']->format('d'),
                 ]
-            )
+            ),
         ];
 
         if ($picture['date_creation']) {
@@ -262,14 +262,14 @@ class PictureController extends AbstractController
                     'calendar_by_day',
                     [
                         'date_type' => 'created', 'year' => $picture['date_creation']->format('Y'),
-                        'month' => $picture['date_creation']->format('m'), 'day' => $picture['date_creation']->format('d')
+                        'month' => $picture['date_creation']->format('m'), 'day' => $picture['date_creation']->format('d'),
                     ]
-                )
+                ),
             ];
         } else {
             $tpl_params['INFO_CREATION_DATE'] = [
                 'label' => 'N/A',
-                'url' => $this->generateUrl('calendar', ['date_type' => 'created'])
+                'url' => $this->generateUrl('calendar', ['date_type' => 'created']),
             ];
         }
 
@@ -303,7 +303,7 @@ class PictureController extends AbstractController
                         'image_id' => $image_id,
                         'section' => $section->value,
                         'element_id' => $element_id,
-                        'action' => 'set_as_representative'
+                        'action' => 'set_as_representative',
                     ]
                 );
             }
@@ -314,7 +314,7 @@ class PictureController extends AbstractController
                     'image_id' => $image_id,
                     'section' => $section->value,
                     'element_id' => $element_id,
-                    'action' => 'add_to_caddie'
+                    'action' => 'add_to_caddie',
                 ]
             );
             $tpl_params['U_PHOTO_ADMIN'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'album_id' => (int) $element_id]);
@@ -327,7 +327,7 @@ class PictureController extends AbstractController
             $is_favorite = $favoriteRepository->isFavorite($appUserService->getUser()->getId(), $image_id);
             $tpl_params['favorite'] = [
                 'IS_FAVORITE' => $is_favorite,
-                'U_FAVORITE' => $this->generateUrl($is_favorite ? 'remove_from_favorites' : 'add_to_favorites', ['image_id' => $image_id])
+                'U_FAVORITE' => $this->generateUrl($is_favorite ? 'remove_from_favorites' : 'add_to_favorites', ['image_id' => $image_id]),
             ];
         }
 
@@ -367,7 +367,7 @@ class PictureController extends AbstractController
             $tpl_params = array_merge($tpl_params, $this->addRateInfos($rateRepository, $conf, $image, $request, $appUserService->getUser()));
         }
 
-        if (($conf['show_exif'] || $conf['show_iptc'])) {
+        if ($conf['show_exif'] || $conf['show_iptc']) {
             $tpl_params = array_merge($tpl_params, $this->addMetadataInfos($metadata, $conf, $picture['path']));
         }
 
@@ -386,10 +386,9 @@ class PictureController extends AbstractController
                             [
                                 'image_id' => $comment->getImage()->getId(),
                                 'element_id' => $comment->getImage()->getImageAlbums()->first()->getAlbum()->getId(),
-                                'section' => PictureSectionType::ALBUM->value
+                                'section' => PictureSectionType::ALBUM->value,
                             ]
-                        )
-
+                        ),
                     ];
 
                     $tpl_comment['IN_EDIT'] = false;
@@ -402,7 +401,7 @@ class PictureController extends AbstractController
                                 $comment,
                                 [
                                     'redirect' => $redirectRoute,
-                                    'action' => $this->generateUrl('comment_update', ['comment_id' => $comment->getId()])
+                                    'action' => $this->generateUrl('comment_update', ['comment_id' => $comment->getId()]),
                                 ]
                             );
                             $tpl_comment['FORM'] = $editForm->createView();
@@ -416,7 +415,7 @@ class PictureController extends AbstractController
                                 'comment_id' => $comment->getId(),
                                 'image_id' => $image_id,
                                 'section' => $section->value,
-                                'element_id' => $element_id
+                                'element_id' => $element_id,
                             ]
                         );
                     }
@@ -428,7 +427,7 @@ class PictureController extends AbstractController
                             [
                                 'id' => $comment->getId(),
                                 'redirect' => $redirectRoute,
-                                'action' => $this->generateUrl('comment_validate', ['comment_id' => $comment->getId()])
+                                'action' => $this->generateUrl('comment_validate', ['comment_id' => $comment->getId()]),
                             ]
                         );
                         $tpl_comment['VALIDATE_FORM'] = $validateForm->createView();
@@ -441,7 +440,7 @@ class PictureController extends AbstractController
                             [
                                 'id' => $comment->getId(),
                                 'redirect' => $redirectRoute,
-                                'action' => $this->generateUrl('comment_delete', ['comment_id' => $comment->getId()])
+                                'action' => $this->generateUrl('comment_delete', ['comment_id' => $comment->getId()]),
                             ]
                         );
 
@@ -546,17 +545,17 @@ class PictureController extends AbstractController
             'section' => new EnumRequirement(
                 [PictureSectionType::FAVORITES, PictureSectionType::MOST_VISITED, PictureSectionType::RECENT_PICS, PictureSectionType::BEST_RATED],
             ),
-            'start' => '\d+'
+            'start' => '\d+',
         ],
     )]
     public function picturesByTypes(int $image_id, PictureSectionType $section = PictureSectionType::ALBUM): Response
     {
         return $this->forward(
-            \App\Controller\PictureController::class . '::picture',
+            PictureController::class . '::picture',
             [
                 'image_id' => $image_id,
                 'section' => $section->value,
-                'element_id' => 'n/a'
+                'element_id' => 'n/a',
             ]
         );
     }
@@ -565,11 +564,11 @@ class PictureController extends AbstractController
     public function pictureBySearch(int $image_id, int $search_id): Response
     {
         return $this->forward(
-            \App\Controller\PictureController::class . '::picture',
+            PictureController::class . '::picture',
             [
                 'image_id' => $image_id,
                 'section' => PictureSectionType::SEARCH->value,
-                'element_id' => $search_id
+                'element_id' => $search_id,
             ]
         );
     }
@@ -584,12 +583,12 @@ class PictureController extends AbstractController
         $current_day = new DateTime(sprintf('%d-%02d-%02d', $year, $month, $day));
 
         return $this->forward(
-            \App\Controller\PictureController::class . '::picture',
+            PictureController::class . '::picture',
             [
                 'image_id' => $image_id,
                 'section' => PictureSectionType::FROM_CALENDAR->value,
                 'element_id' => 'extra',
-                'extra' => ['year' => $year, 'month' => $month, 'day' => $day, 'current_day' => $current_day, 'date_type' => $date_type]
+                'extra' => ['year' => $year, 'month' => $month, 'day' => $day, 'current_day' => $current_day, 'date_type' => $date_type],
             ]
         );
     }
@@ -621,7 +620,7 @@ class PictureController extends AbstractController
                 $rate = $rateRepository->findOneBy([
                     'user' => $user->getId(),
                     'image' => $image->getId(),
-                    'anonymous_id' => $anonymous_id
+                    'anonymous_id' => $anonymous_id,
                 ]);
                 if (!is_null($rate)) {
                     $user_rate = $rate->getRate();
@@ -632,7 +631,7 @@ class PictureController extends AbstractController
                 'F_ACTION' => $this->generateUrl('picture_rate'),
                 'image_id' => $image->getId(),
                 'USER_RATE' => $user_rate,
-                'marks' => $conf['rate_items']
+                'marks' => $conf['rate_items'],
             ];
         }
 
@@ -647,7 +646,7 @@ class PictureController extends AbstractController
 
         if ($request->isMethod('POST')) {
             if (!$imageMapper->getRepository()->isAuthorizedToUser($request->request->get('image_id'), $appUserService->getUser()->getUserInfos()->getForbiddenAlbums())) {
-                throw new AccessDeniedException("Cannot rate that image");
+                throw new AccessDeniedException('Cannot rate that image');
             }
 
             if (!$appUserService->isGuest() || $conf['rate_anonymous']) {
@@ -685,7 +684,7 @@ class PictureController extends AbstractController
     {
         $tpl_params = [];
 
-        if (($conf['show_exif']) && (function_exists('exif_read_data'))) {
+        if ($conf['show_exif'] && function_exists('exif_read_data')) {
             $exif_mapping = [];
             foreach ($conf['show_exif_fields'] as $field) {
                 $exif_mapping[$field] = $field;

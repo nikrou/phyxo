@@ -11,18 +11,20 @@
 
 namespace Phyxo\Functions\Ws;
 
-use Exception;
 use App\Entity\Group as EntityGroup;
 use App\Entity\User;
-use Phyxo\Ws\Server;
+use Exception;
 use Phyxo\Ws\Error;
+use Phyxo\Ws\Server;
 
 class Group
 {
     /**
      * API method
-     * Returns the list of groups
+     * Returns the list of groups.
+     *
      * @param mixed[] $params
+     *
      *    @option int[] group_id (optional)
      *    @option string name (optional)
      */
@@ -50,7 +52,7 @@ class Group
             'paging' => [
                 'page' => $params['page'],
                 'per_page' => $params['per_page'],
-                'count' => count($groups)
+                'count' => count($groups),
             ],
             'groups' => $groups,
         ];
@@ -58,8 +60,10 @@ class Group
 
     /**
      * API method
-     * Adds a group
+     * Adds a group.
+     *
      * @param mixed[] $params
+     *
      *    @option string name
      *    @option bool is_default
      */
@@ -80,8 +84,10 @@ class Group
 
     /**
      * API method
-     * Deletes a group
+     * Deletes a group.
+     *
      * @param mixed[] $params
+     *
      *    @option int[] group_id
      */
     public static function delete($params, Server $service)
@@ -95,8 +101,10 @@ class Group
 
     /**
      * API method
-     * Updates a group
+     * Updates a group.
+     *
      * @param mixed[] $params
+     *
      *    @option int group_id
      *    @option string name (optional)
      *    @option bool is_default (optional)
@@ -127,8 +135,10 @@ class Group
 
     /**
      * API method
-     * Adds user(s) to a group
+     * Adds user(s) to a group.
+     *
      * @param mixed[] $params
+     *
      *    @option int group_id
      *    @option int[] user_id
      */
@@ -152,8 +162,10 @@ class Group
 
     /**
      * API method
-     * Removes user(s) from a group
+     * Removes user(s) from a group.
+     *
      * @param mixed[] $params
+     *
      *    @option int group_id
      *    @option int[] user_id
      */

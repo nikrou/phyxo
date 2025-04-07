@@ -32,7 +32,7 @@ class PasswordResetType extends AbstractType
                 'first_options' => ['label' => 'New password', 'attr' => ['placeholder' => 'Your new password']],
                 'second_options' => ['label' => 'Confirm password', 'attr' => ['placeholder' => 'Confirm password']],
                 'attr' => ['placeholder' => 'Password'],
-                'required' => false
+                'required' => false,
             ]
         );
 
@@ -45,7 +45,7 @@ class PasswordResetType extends AbstractType
             'data_class' => PasswordResetModel::class,
             'attr' => [
                 'novalidate' => 'novalidate',
-            ]
+            ],
         ]);
     }
 }

@@ -11,14 +11,14 @@
 
 namespace App\Controller;
 
-use DateTime;
-use DateInterval;
-use Symfony\Component\HttpFoundation\Request;
-use Phyxo\Conf;
 use App\DataMapper\ImageMapper;
 use App\Enum\PictureSectionType;
 use App\Security\AppUserService;
+use DateInterval;
+use DateTime;
+use Phyxo\Conf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
@@ -40,7 +40,7 @@ class IndexController extends AbstractController
         RouterInterface $router,
         AppUserService $appUserService,
         array $publicTemplates,
-        int $start = 0
+        int $start = 0,
     ): Response {
         $tpl_params = [];
 
@@ -96,7 +96,7 @@ class IndexController extends AbstractController
         RouterInterface $router,
         AppUserService $appUserService,
         array $publicTemplates,
-        int $start = 0
+        int $start = 0,
     ): Response {
         $tpl_params = [];
 
@@ -156,7 +156,7 @@ class IndexController extends AbstractController
         RouterInterface $router,
         AppUserService $appUserService,
         array $publicTemplates,
-        int $start = 0
+        int $start = 0,
     ): Response {
         $tpl_params = [];
 
@@ -229,7 +229,7 @@ class IndexController extends AbstractController
         TranslatorInterface $translator,
         AppUserService $appUserService,
         array $publicTemplates,
-        int $start = 0
+        int $start = 0,
     ): Response {
         $tpl_params = [];
 

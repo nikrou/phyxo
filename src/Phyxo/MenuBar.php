@@ -12,13 +12,13 @@
 namespace Phyxo;
 
 use App\DataMapper\AlbumMapper;
-use Phyxo\Block\BlockManager;
-use Symfony\Component\Routing\RouterInterface;
-use App\DataMapper\UserMapper;
 use App\DataMapper\TagMapper;
+use App\DataMapper\UserMapper;
 use App\Entity\Tag;
 use App\Security\AppUserService;
+use Phyxo\Block\BlockManager;
 use Phyxo\Block\DisplayBlock;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -42,7 +42,7 @@ class MenuBar
         private readonly TagMapper $tagMapper,
         private readonly TranslatorInterface $translator,
         private readonly string $defaultDateType,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -109,13 +109,13 @@ class MenuBar
 
                 $tpl_var = [
                     'URL' => $url,
-                    'LABEL' => $url_data['label']
+                    'LABEL' => $url_data['label'],
                 ];
 
                 if (!isset($url_data['new_window']) || $url_data['new_window']) {
                     $tpl_var['new_window'] = [
                         'NAME' => ($url_data['nw_name'] ?? ''),
-                        'FEATURES' => ($url_data['nw_features'] ?? '')
+                        'FEATURES' => ($url_data['nw_features'] ?? ''),
                     ];
                 }
 
@@ -165,7 +165,7 @@ class MenuBar
                             'URL' => $this->router->generate(
                                 'images_by_tags',
                                 ['tag_ids' => $tag->toUrl()]
-                            )
+                            ),
                         ]
                     );
                 }
@@ -211,21 +211,21 @@ class MenuBar
                 $data['favorites'] = [
                     'URL' => $this->router->generate('favorites'),
                     'TITLE' => $this->translator->trans('display your favorites photos'),
-                    'NAME' => $this->translator->trans('Your favorites')
+                    'NAME' => $this->translator->trans('Your favorites'),
                 ];
             }
 
             $data['most_visited'] = [
                 'URL' => $this->router->generate('most_visited'),
                 'TITLE' => $this->translator->trans('display most visited photos'),
-                'NAME' => $this->translator->trans('Most visited')
+                'NAME' => $this->translator->trans('Most visited'),
             ];
 
             if ($this->conf['rate']) {
                 $data['best_rated'] = [
                     'URL' => $this->router->generate('best_rated'),
                     'TITLE' => $this->translator->trans('display best rated photos'),
-                    'NAME' => $this->translator->trans('Best rated')
+                    'NAME' => $this->translator->trans('Best rated'),
                 ];
             }
 
@@ -251,7 +251,7 @@ class MenuBar
                 'URL' => $this->router->generate(
                     'calendar',
                     [
-                        'date_type' => $this->defaultDateType
+                        'date_type' => $this->defaultDateType,
                     ]
                 ),
                 'TITLE' => $this->translator->trans('display each day with photos, month per month'),
@@ -281,7 +281,7 @@ class MenuBar
                 'TITLE' => $this->translator->trans('search'),
                 'NAME' => $this->translator->trans('Search'),
                 'URL' => $this->router->generate('search'),
-                'REL' => 'rel="search"'
+                'REL' => 'rel="search"',
             ];
 
             if ($this->conf['activate_comments']) {

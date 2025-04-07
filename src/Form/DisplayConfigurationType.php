@@ -64,10 +64,10 @@ class DisplayConfigurationType extends AbstractType
                     IntegerType::class,
                     [
                         'label' => 'Number of albums per page',
-                        'constraints' => new GreaterThan(4, null, 'The number of albums per page must be above 4')
+                        'constraints' => new GreaterThan(4, null, 'The number of albums per page must be above 4'),
                     ]
                 );
-            }
+            },
         ]);
 
         $builder->add('photo_page', FormGroupType::class, [
@@ -91,7 +91,7 @@ class DisplayConfigurationType extends AbstractType
                 $builder->add('picture_navigation_icons', CheckboxType::class, ['label' => 'Activate navigation bar']);
                 $builder->add('picture_navigation_thumb', CheckboxType::class, ['label' => 'Activate navigation thumbnails']);
                 $builder->add('picture_menu', CheckboxType::class, ['label' => 'Show menubar']);
-            }
+            },
         ]);
 
         $builder->add('photo_properties', FormGroupType::class, [
@@ -108,7 +108,7 @@ class DisplayConfigurationType extends AbstractType
                 $builder->add('visits', CheckboxType::class);
                 $builder->add('rating_score', CheckboxType::class);
                 $builder->add('privacy_level', CheckboxType::class, ['label' => 'Who can see this photo?', 'help' => 'available for administrators only']);
-            }
+            },
         ]);
     }
 
@@ -119,7 +119,7 @@ class DisplayConfigurationType extends AbstractType
             'translation_domain' => 'admin',
             'attr' => [
                 'novalidate' => 'novalidate',
-            ]
+            ],
         ]);
     }
 }

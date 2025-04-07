@@ -20,8 +20,10 @@ class Session
 {
     /**
      * API method
-     * Performs a login
+     * Performs a login.
+     *
      * @param mixed[] $params
+     *
      *    @option string username
      *    @option string password
      */
@@ -36,7 +38,8 @@ class Session
 
     /**
      * API method
-     * Performs a logout
+     * Performs a logout.
+     *
      * @param mixed[] $params
      */
     public static function logout($params, Server $service)
@@ -50,7 +53,8 @@ class Session
 
     /**
      * API method
-     * Returns info about the current user
+     * Returns info about the current user.
+     *
      * @param mixed[] $params
      */
     public static function getStatus($params, Server $service)

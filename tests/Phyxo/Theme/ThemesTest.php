@@ -92,7 +92,7 @@ class ThemesTest extends TestCase
             ['author', ['theme2', 'theme3', 'theme4', 'my theme dir with space', 'theme1']],
             ['id', ['my theme dir with space', 'theme1', 'theme2', 'theme3', 'theme4']],
             ['status', ['my theme dir with space', 'theme1', 'theme3', 'theme4', 'theme2']],
-            ['name', ['my theme dir with space', 'theme1', 'theme3', 'theme4', 'theme2']]
+            ['name', ['my theme dir with space', 'theme1', 'theme3', 'theme4', 'theme2']],
         ];
     }
 
@@ -119,7 +119,7 @@ class ThemesTest extends TestCase
                 'description' => 'Simple Number One',
                 'author' => 'Nicolas',
                 'author_uri' => 'https://www.phyxo.net',
-                'admin_uri' => false
+                'admin_uri' => false,
             ],
             'theme2' => [
                 'id' => 'theme2',
@@ -129,7 +129,7 @@ class ThemesTest extends TestCase
                 'uri' => 'https://ext.phyxo.net/extension_view.php?eid=456',
                 'description' => 'Theme mobile without author uri',
                 'author' => 'Arthur',
-                'admin_uri' => false
+                'admin_uri' => false,
             ],
             'theme3' => [
                 'id' => 'theme3',
@@ -140,7 +140,7 @@ class ThemesTest extends TestCase
                 'description' => 'Simple Number Three',
                 'author' => 'Jean',
                 'author_uri' => 'https://www.phyxo.net',
-                'admin_uri' => false
+                'admin_uri' => false,
             ],
             'theme4' => [
                 'id' => 'theme4',
@@ -151,7 +151,7 @@ class ThemesTest extends TestCase
                 'description' => 'Simple Number Four',
                 'author' => 'Jean',
                 'author_uri' => 'https://www.phyxo.net',
-                'admin_uri' => false
+                'admin_uri' => false,
             ],
         ];
     }

@@ -11,7 +11,6 @@
 
 namespace App\Controller\Admin;
 
-use Exception;
 use App\DataMapper\ImageMapper;
 use App\Kernel;
 use App\Repository\AlbumRepository;
@@ -23,6 +22,7 @@ use App\Repository\RateRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Connection;
+use Exception;
 use IntlDateFormatter;
 use PDO;
 use Phyxo\Conf;
@@ -54,7 +54,7 @@ class AdminDashboardController extends AbstractController
         TagRepository $tagRepository,
         ImageTagRepository $imageTagRepository,
         Connection $connection,
-        bool $check_upgrade = false
+        bool $check_upgrade = false,
     ): Response {
         $tpl_params = [];
 
@@ -111,7 +111,7 @@ class AdminDashboardController extends AbstractController
                 'DB_USERS' => $translator->trans('number_of_users', ['count' => $nb_users], 'admin'),
                 'DB_GROUPS' => $translator->trans('number_of_groups', ['count' => $nb_groups], 'admin'),
                 'DB_RATES' => $translator->trans('number_of_rates', ['count' => $nb_rates], 'admin'),
-                'U_CHECK_UPGRADE' => $this->generateUrl('admin_check_upgrade')
+                'U_CHECK_UPGRADE' => $this->generateUrl('admin_check_upgrade'),
             ]
         );
 

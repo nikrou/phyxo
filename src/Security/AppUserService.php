@@ -17,12 +17,12 @@ use App\Enum\UserPrivacyLevelType;
 use App\Enum\UserStatusType;
 use App\Repository\GroupRepository;
 use App\Repository\UserRepository;
+use DateTime;
+use Exception;
 use Phyxo\Conf;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use DateTime;
-use Exception;
 
 class AppUserService
 {
@@ -38,7 +38,7 @@ class AppUserService
         private readonly string $defaultLanguage,
         private readonly string $defaultTheme,
         private readonly UserRepository $userRepository,
-        private readonly GroupRepository $groupRepository
+        private readonly GroupRepository $groupRepository,
     ) {
     }
 

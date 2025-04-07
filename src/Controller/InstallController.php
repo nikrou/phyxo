@@ -11,17 +11,17 @@
 
 namespace App\Controller;
 
-use Exception;
-use Doctrine\DBAL\Configuration;
-use DateTime;
-use Symfony\Component\HttpFoundation\Request;
-use Phyxo\Language\Languages;
 use App\Entity\User;
 use App\Enum\UserStatusType;
 use App\Install\PhyxoInstaller;
+use DateTime;
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
+use Exception;
+use Phyxo\Language\Languages;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -35,11 +35,12 @@ class InstallController extends AbstractController
         'check' => ['label' => 'Verify requirements'],
         'database' => ['label' => 'Install database'],
         'user' => ['label' => 'Create first user'],
-        'success' => ['label' => 'Installation completed']
+        'success' => ['label' => 'Installation completed'],
     ];
     /** @var array<string, string> */
     private ?array $languages_options = null;
     private string $localEnvFile = '';
+
     public function __construct(
         private readonly string $translationsDir,
         private readonly string $defaultLanguage,
@@ -54,10 +55,11 @@ class InstallController extends AbstractController
         private readonly string $rootProjectDir,
         private readonly string $varDir,
         private readonly string $localDir,
-        private readonly string $prefix
+        private readonly string $prefix,
     ) {
         $this->localEnvFile = sprintf('%s/.env.local', $this->rootProjectDir);
     }
+
     #[Route('/admin/install/{step}', name: 'install', defaults: ['step' => 'language'], requirements: ['step' => 'language|check|database|user|success'])]
     public function index(Request $request, string $step = 'language'): Response
     {
@@ -101,6 +103,7 @@ class InstallController extends AbstractController
 
         return $this->render('install.html.twig', $tpl_params);
     }
+
     /**
      * @return array<string, array<string, string>|string>
      */
@@ -119,6 +122,7 @@ class InstallController extends AbstractController
 
         return $tpl_params;
     }
+
     /**
      * @return array<string, array<string, array<string, bool|string>>|string>
      */
@@ -207,6 +211,7 @@ class InstallController extends AbstractController
 
         return $tpl_params;
     }
+
     /**
      * @return array<string, array<string, string>|string>
      */
@@ -281,6 +286,7 @@ class InstallController extends AbstractController
 
         return $tpl_params;
     }
+
     /**
      * @return array<string, array<int, string>|float|int|string|bool>
      */
@@ -331,7 +337,7 @@ class InstallController extends AbstractController
                     'password' => $_params['pass'],
                     'host' => $_params['host'],
                     'driver' => 'pdo_' . $_params['scheme'],
-                    'path' => ''
+                    'path' => '',
                 ];
                 unset($_params);
 
@@ -419,6 +425,7 @@ class InstallController extends AbstractController
 
         return $tpl_params;
     }
+
     /**
      * @return array<string, array<string, string>|string>
      */

@@ -13,22 +13,22 @@ namespace App\DataMapper;
 
 use App\Enum\ImageSizeType;
 use App\Enum\PictureSectionType;
-use Exception;
 use App\Repository\CaddieRepository;
-use Phyxo\Conf;
-use Phyxo\Image\ImageStandardParams;
 use App\Repository\CommentRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\ImageAlbumRepository;
-use App\Repository\ImageTagRepository;
 use App\Repository\ImageRepository;
+use App\Repository\ImageTagRepository;
 use App\Repository\RateRepository;
 use App\Services\DerivativeService;
 use DateTimeInterface;
+use Exception;
+use Phyxo\Conf;
 use Phyxo\Functions\Utils;
-use Symfony\Component\Routing\RouterInterface;
+use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ImageMapper
@@ -48,7 +48,7 @@ class ImageMapper
         private readonly FavoriteRepository $favoriteRepository,
         private readonly RateRepository $rateRepository,
         private readonly ImageTagRepository $imageTagRepository,
-        private readonly DerivativeService $derivativeService
+        private readonly DerivativeService $derivativeService,
     ) {
     }
 
@@ -58,9 +58,9 @@ class ImageMapper
     }
 
     /**
-     * @param int|string $element_id
+     * @param int|string                                                                                      $element_id
      * @param array{current_day?: DateTimeInterface, date_type?: string, year?: int, month?: int, day?: int } $extra
-     * @param int[] $selection
+     * @param int[]                                                                                           $selection
      *
      * @return array<string, mixed>
      */
@@ -118,7 +118,7 @@ class ImageMapper
                         'image_id' => $picture['image']->getId(),
                         'date_type' => $extra['date_type'],
                         'year' => $extra['year'], 'month' => sprintf('%02d', $extra['month']), 'day' => sprintf('%02d', $extra['day']),
-                        'start_id' => $start_id
+                        'start_id' => $start_id,
                     ]
                 );
             } else {
@@ -127,7 +127,7 @@ class ImageMapper
                     [
                         'image_id' => $picture['image']->getId(),
                         'section' => $section->value,
-                        'start_id' => $start_id
+                        'start_id' => $start_id,
                     ]
                 );
             }
@@ -148,7 +148,7 @@ class ImageMapper
             ]);
 
             if ($this->conf['index_new_icon']) {
-                //$tpl_var['icon_ts'] = $this->em->getRepository(BaseRepository::class)->getIcon($row['date_available'], $this->userMapper->getUser());
+                // $tpl_var['icon_ts'] = $this->em->getRepository(BaseRepository::class)->getIcon($row['date_available'], $this->userMapper->getUser());
             }
 
             if ($this->userMapper->getUser()->getUserInfos()->getShowNbHits()) {
@@ -178,9 +178,10 @@ class ImageMapper
      *    - all the comments related to elements
      *    - all the links between categories/tags and elements
      *    - all the favorites/rates associated to elements
-     *    - removes elements from caddie
+     *    - removes elements from caddie.
      *
      * @param int[] $ids
+     *
      * @return int number of deleted elements
      */
     public function deleteElements(array $ids, bool $physical_deletion = false): int
@@ -237,6 +238,7 @@ class ImageMapper
      * Deletes all files (on disk) related to given image ids.
      *
      * @param int[] $ids
+     *
      * @return 0|int[] image ids where files were successfully deleted
      */
     public function deleteElementFiles(array $ids = []): int|array
@@ -257,7 +259,7 @@ class ImageMapper
                     try {
                         $fs->remove($path);
                     } catch (Exception) {
-                        $ok = false; //trigger_error('"' . $path . '" cannot be removed', E_USER_WARNING);
+                        $ok = false; // trigger_error('"' . $path . '" cannot be removed', E_USER_WARNING);
                     }
                 }
             }

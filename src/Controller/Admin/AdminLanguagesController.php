@@ -11,10 +11,10 @@
 
 namespace App\Controller\Admin;
 
-use Exception;
 use App\DataMapper\UserMapper;
 use App\Repository\LanguageRepository;
 use App\Repository\UserInfosRepository;
+use Exception;
 use Phyxo\Conf;
 use Phyxo\Language\Languages;
 use Phyxo\TabSheet\TabSheet;
@@ -28,6 +28,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminLanguagesController extends AbstractController
 {
     private TranslatorInterface $translator;
+
     public function setTabsheet(string $section = 'installed'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -38,13 +39,14 @@ class AdminLanguagesController extends AbstractController
 
         return $tabsheet;
     }
+
     #[Route('/admin/languages', name: 'admin_languages_installed')]
     public function installed(
         UserMapper $userMapper,
         ParameterBagInterface $params,
         TranslatorInterface $translator,
         LanguageRepository $languageRepository,
-        UserInfosRepository $userInfosRepository
+        UserInfosRepository $userInfosRepository,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -113,6 +115,7 @@ class AdminLanguagesController extends AbstractController
 
         return $this->render('languages_installed.html.twig', $tpl_params);
     }
+
     #[Route('/admin/languages/{action}/{language}', name: 'admin_languages_action', requirements: ['action' => 'activate|deactivate|delete|set_default', 'language' => '[a-z]{2}_[A-Z]{2}'])]
     public function action(
         string $language,
@@ -120,7 +123,7 @@ class AdminLanguagesController extends AbstractController
         UserMapper $userMapper,
         LanguageRepository $languageRepository,
         UserInfosRepository $userInfosRepository,
-        ParameterBagInterface $params
+        ParameterBagInterface $params,
     ): Response {
         $languages = new Languages($languageRepository, $userMapper->getDefaultLanguage());
         $languages->setRootPath($params->get('translator.default_path'));
@@ -133,6 +136,7 @@ class AdminLanguagesController extends AbstractController
 
         return $this->redirectToRoute('admin_languages_installed');
     }
+
     #[Route('/admin/languages/new', name: 'admin_languages_new')]
     public function new(UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator, LanguageRepository $languageRepository): Response
     {
@@ -144,7 +148,7 @@ class AdminLanguagesController extends AbstractController
         $languages->setExtensionsURL($params->get('pem_url'));
 
         foreach ($languages->getServerLanguages($conf['pem_languages_category'], $params->get('core_version'), $new = true) as $language) {
-            [$date, ] = explode(' ', (string) $language['revision_date']);
+            [$date] = explode(' ', (string) $language['revision_date']);
 
             $tpl_params['languages'][] = [
                 'EXT_NAME' => $language['extension_name'],
@@ -155,7 +159,7 @@ class AdminLanguagesController extends AbstractController
                 'DATE' => $date,
                 'AUTHOR' => $language['author_name'],
                 'URL_INSTALL' => $this->generateUrl('admin_languages_install', ['revision' => $language['revision_id']]),
-                'URL_DOWNLOAD' => $language['download_url'] . '&amp;origin=phyxo'
+                'URL_DOWNLOAD' => $language['download_url'] . '&amp;origin=phyxo',
             ];
         }
 
@@ -167,13 +171,14 @@ class AdminLanguagesController extends AbstractController
 
         return $this->render('languages_new.html.twig', $tpl_params);
     }
+
     #[Route('/admin/languages/install/{revision}', name: 'admin_languages_install', requirements: ['revision' => '\d+'])]
     public function install(
         int $revision,
         ParameterBagInterface $params,
         UserMapper $userMapper,
         TranslatorInterface $translator,
-        LanguageRepository $languageRepository
+        LanguageRepository $languageRepository,
     ): Response {
         if (!$userMapper->isWebmaster()) {
             $this->addFlash('error', $translator->trans('Webmaster status is required.', [], 'admin'));
@@ -196,6 +201,7 @@ class AdminLanguagesController extends AbstractController
             return $this->redirectToRoute('admin_languages_new');
         }
     }
+
     #[Route('/admin/languages/update', name: 'admin_languages_update')]
     public function update(
         UserMapper $userMapper,
@@ -203,7 +209,7 @@ class AdminLanguagesController extends AbstractController
         CsrfTokenManagerInterface $csrfTokenManager,
         ParameterBagInterface $params,
         TranslatorInterface $translator,
-        LanguageRepository $languageRepository
+        LanguageRepository $languageRepository,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;

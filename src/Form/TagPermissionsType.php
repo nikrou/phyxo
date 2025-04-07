@@ -40,7 +40,7 @@ class TagPermissionsType extends AbstractType
                 );
                 $builder->add('tags_existing_only', CheckboxType::class, ['label' => 'Only add existing tags']);
                 $builder->add('tags_publish_immediately', CheckboxType::class, ['label' => 'Moderate added tags']);
-            }
+            },
         ]);
 
         $builder->add('who_delete', FormGroupType::class, [
@@ -61,10 +61,10 @@ class TagPermissionsType extends AbstractType
                     CheckboxType::class,
                     [
                         'label' => 'Moderate deleted tags',
-                        'help' => 'If a user delete a tag and you "moderate delete tags", then theses tags will be displayed to all users until you validate the deletion.'
+                        'help' => 'If a user delete a tag and you "moderate delete tags", then theses tags will be displayed to all users until you validate the deletion.',
                     ]
                 );
-            }
+            },
         ]);
 
         $builder->add('display_pending', FormGroupType::class, [
@@ -76,7 +76,7 @@ class TagPermissionsType extends AbstractType
                     CheckboxType::class,
                     [
                         'label' => 'Show added pending tags to the user who add them',
-                        'help' => 'A css class is added to tag to show added pending tags differently to the user who add them'
+                        'help' => 'A css class is added to tag to show added pending tags differently to the user who add them',
                     ]
                 );
                 $builder->add(
@@ -84,10 +84,10 @@ class TagPermissionsType extends AbstractType
                     CheckboxType::class,
                     [
                         'label' => 'Show deleted pending tags to the user who delete them',
-                        'help' => 'A css class is added to tag to show deleted pending tags differently to the user who delete them'
+                        'help' => 'A css class is added to tag to show deleted pending tags differently to the user who delete them',
                     ]
                 );
-            }
+            },
         ]);
     }
 
@@ -98,7 +98,7 @@ class TagPermissionsType extends AbstractType
             'translation_domain' => 'admin',
             'attr' => [
                 'novalidate' => 'novalidate',
-            ]
+            ],
         ]);
     }
 }

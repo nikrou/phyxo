@@ -11,19 +11,19 @@
 
 namespace App\Controller\Admin;
 
-use App\Enum\ConfEnum;
-use Phyxo\Functions\Utils;
-use Exception;
-use Phyxo\Image\SizingParams;
-use Phyxo\Image\DerivativeParams;
 use App\DataMapper\UserMapper;
+use App\Enum\ConfEnum;
 use App\Enum\ImageSizeType;
 use App\Form\DisplayConfigurationType;
 use App\Form\UserInfosType;
 use App\Repository\UserInfosRepository;
 use App\Services\DerivativeService;
+use Exception;
 use Phyxo\Conf;
+use Phyxo\Functions\Utils;
+use Phyxo\Image\DerivativeParams;
 use Phyxo\Image\ImageStandardParams;
+use Phyxo\Image\SizingParams;
 use Phyxo\Image\WatermarkParams;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -37,7 +37,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminConfigurationController extends AbstractController
 {
-    /** @var array<string> $main_checkboxes */
+    /** @var array<string> */
     private array $main_checkboxes = [
         'allow_user_registration',
         'obligatory_user_mail_address',
@@ -49,9 +49,9 @@ class AdminConfigurationController extends AbstractController
         'history_admin',
         'history_guest',
     ];
-    /** @var array<string> $sizes_checkboxes */
+    /** @var array<string> */
     private array $sizes_checkboxes = ['original_resize'];
-    /** @var array<string> $comments_checkboxes */
+    /** @var array<string> */
     private array $comments_checkboxes = [
         'activate_comments',
         'comments_forall',
@@ -66,12 +66,13 @@ class AdminConfigurationController extends AbstractController
         'comments_email_mandatory',
         'comments_enable_website',
     ];
-    /** @var array<string, string> $sort_fields */
+    /** @var array<string, string> */
     private readonly array $sort_fields;
-    /** @var array<string, string> $comments_order */
+    /** @var array<string, string> */
     private readonly array $comments_order;
-    /** @var array<string, string> $mail_themes */
+    /** @var array<string, string> */
     private array $mail_themes;
+
     public function __construct(private readonly TranslatorInterface $translator)
     {
         $this->sort_fields = [
@@ -100,9 +101,10 @@ class AdminConfigurationController extends AbstractController
 
         $this->mail_themes = [
             'clear' => $this->translator->trans('Clear', [], 'admin'),
-            'dark' => $this->translator->trans('Dark', [], 'admin')
+            'dark' => $this->translator->trans('Dark', [], 'admin'),
         ];
     }
+
     protected function setTabsheet(string $section = 'main'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -116,13 +118,14 @@ class AdminConfigurationController extends AbstractController
 
         return $tabsheet;
     }
+
     #[Route('/admin/configuration/{section}', name: 'admin_configuration', defaults: ['section' => 'main'], requirements: ['section' => 'main|sizes|watermark|comments'])]
     public function index(
         string $section,
         Conf $conf,
         ParameterBagInterface $params,
         CsrfTokenManagerInterface $csrfTokenManager,
-        ImageStandardParams $image_std_params
+        ImageStandardParams $image_std_params,
     ): Response {
         $tpl_params = [];
 
@@ -168,6 +171,7 @@ class AdminConfigurationController extends AbstractController
 
         return $this->redirectToRoute('admin_configuration', ['section' => 'sizes']);
     }
+
     /**
      * @return array<string, mixed>
      */
@@ -199,6 +203,7 @@ class AdminConfigurationController extends AbstractController
 
         return $tpl_params;
     }
+
     /**
      * @return array<string, mixed>
      */
@@ -209,7 +214,7 @@ class AdminConfigurationController extends AbstractController
         $tpl_params['comments'] = [
             'NB_COMMENTS_PAGE' => $conf['nb_comment_page'],
             'comments_order' => $conf['comments_order'],
-            'comments_order_options' => $this->comments_order
+            'comments_order_options' => $this->comments_order,
         ];
 
         foreach ($this->comments_checkboxes as $checkbox) {
@@ -243,6 +248,7 @@ class AdminConfigurationController extends AbstractController
 
         return $this->render('configuration_display.html.twig', $tpl_params);
     }
+
     /**
      * @return array<string, mixed>
      */
@@ -282,7 +288,7 @@ class AdminConfigurationController extends AbstractController
                 if (($tpl_var['crop'] = round(100 * $params->getSizing()->getMaxCrop())) > 0) {
                     [$tpl_var['minw'], $tpl_var['minh']] = $params->getSizing()->getMinSize();
                 } else {
-                    $tpl_var['minw'] = $tpl_var['minh'] = "";
+                    $tpl_var['minw'] = $tpl_var['minh'] = '';
                 }
             }
 
@@ -301,6 +307,7 @@ class AdminConfigurationController extends AbstractController
 
         return $tpl_params;
     }
+
     /**
      * @return array<string, mixed>
      */
@@ -400,7 +407,7 @@ class AdminConfigurationController extends AbstractController
         Conf $conf,
         string $localDir,
         ImageStandardParams $image_std_params,
-        DerivativeService $derivativeService
+        DerivativeService $derivativeService,
     ): Response {
         $watermarke = [];
         $conf_updated = false;
@@ -818,6 +825,7 @@ class AdminConfigurationController extends AbstractController
 
         return $this->redirectToRoute('admin_configuration', ['section' => $section]);
     }
+
     /**
      * @TODO: use symfony form
      *
@@ -859,9 +867,10 @@ class AdminConfigurationController extends AbstractController
             ],
         ];
     }
+
     /**
      * @param array<string, mixed> $data
-     * @param array<mixed> $errors
+     * @param array<mixed>         $errors
      * @param array<string, mixed> $form_errors
      *
      * @return array<array<string, mixed>>
@@ -880,7 +889,7 @@ class AdminConfigurationController extends AbstractController
                 $value = isset($value);
                 $updates[] = [
                     'param' => $field,
-                    'value' => true
+                    'value' => true,
                 ];
             } elseif ($upload_form_config[$field]['can_be_null'] && empty($value)) {
                 $updates[] = [
@@ -895,7 +904,7 @@ class AdminConfigurationController extends AbstractController
                 if (preg_match($pattern, (string) $value) && $value >= $min && $value <= $max) {
                     $updates[] = [
                         'param' => $field,
-                        'value' => $value
+                        'value' => $value,
                     ];
                 } else {
                     $errors[] = sprintf(

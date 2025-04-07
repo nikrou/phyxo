@@ -13,19 +13,19 @@ namespace App\DataMapper;
 
 use App\Entity\User;
 use App\Enum\UserStatusType;
-use App\Repository\UserCacheRepository;
-use App\Repository\UserRepository;
-use App\Repository\UserInfosRepository;
-use App\Repository\ThemeRepository;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use App\Repository\UserMailNotificationRepository;
-use App\Repository\UserFeedRepository;
-use App\Repository\FavoriteRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\CommentRepository;
+use App\Repository\FavoriteRepository;
 use App\Repository\ImageTagRepository;
+use App\Repository\ThemeRepository;
 use App\Repository\UserCacheAlbumRepository;
+use App\Repository\UserCacheRepository;
+use App\Repository\UserFeedRepository;
+use App\Repository\UserInfosRepository;
+use App\Repository\UserMailNotificationRepository;
+use App\Repository\UserRepository;
 use App\Security\AppUserService;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class UserMapper
 {
@@ -51,7 +51,7 @@ class UserMapper
         private readonly UserCacheAlbumRepository $userCacheAlbumRepository,
         private readonly CaddieRepository $caddieRepository,
         private readonly FavoriteRepository $favoriteRepository,
-        private readonly ImageTagRepository $imageTagRepository
+        private readonly ImageTagRepository $imageTagRepository,
     ) {
     }
 
@@ -66,7 +66,7 @@ class UserMapper
     }
 
     /**
-     * Returns webmaster user
+     * Returns webmaster user.
      */
     public function getWebmaster(): User
     {
@@ -100,7 +100,7 @@ class UserMapper
     public function getDefaultTheme(): string
     {
         $theme = is_null($this->getDefaultUser()) ? $this->defaultTheme : $this->getDefaultUser()->getUserInfos()->getTheme();
-        if (is_readable($this->themesDir . '/' . $theme . '/' . 'config.yaml')) {
+        if (is_readable($this->themesDir . '/' . $theme . '/config.yaml')) {
             return $theme;
         }
 
@@ -146,7 +146,7 @@ class UserMapper
     }
 
     /**
-     * returns the number of available comments for the connected user
+     * returns the number of available comments for the connected user.
      */
     public function getNumberAvailableComments(): int
     {
@@ -172,7 +172,8 @@ class UserMapper
 
     /**
      * Deletes an user.
-     * It also deletes all related data (accesses, favorites, permissions, etc.)
+     * It also deletes all related data (accesses, favorites, permissions, etc.).
+     *
      * @todo : accept array input
      */
     public function deleteUser(int $user_id): void

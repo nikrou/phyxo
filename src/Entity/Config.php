@@ -12,8 +12,8 @@
 namespace App\Entity;
 
 use App\Enum\ConfEnum;
-use Doctrine\DBAL\Types\Types;
 use App\Repository\ConfigRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'config')]

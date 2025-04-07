@@ -11,9 +11,9 @@
 
 namespace App\Entity;
 
-use Doctrine\DBAL\Types\Types;
-use DateTimeInterface;
 use App\Repository\UserFeedRepository;
+use DateTimeInterface;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\Uuid;

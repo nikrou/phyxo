@@ -11,12 +11,12 @@
 
 namespace App\Controller\Admin;
 
-use Exception;
-use DateTime;
 use App\DataMapper\UserMapper;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use App\Utils\DirectoryManager;
+use DateTime;
+use Exception;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Theme\Themes;
@@ -33,6 +33,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminThemesController extends AbstractController
 {
     private TranslatorInterface $translator;
+
     protected function setTabsheet(string $section = 'installed'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -43,13 +44,14 @@ class AdminThemesController extends AbstractController
 
         return $tabsheet;
     }
+
     #[Route('/admin/themes', name: 'admin_themes_installed')]
     public function installed(
         ThemeRepository $themeRepository,
         UserMapper $userMapper,
         ParameterBagInterface $params,
         TranslatorInterface $translator,
-        CsrfTokenManagerInterface $tokenManager
+        CsrfTokenManagerInterface $tokenManager,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -79,7 +81,7 @@ class AdminThemesController extends AbstractController
                 'PARENT' => $fs_theme['parent'] ?? null,
                 'SCREENSHOT' => $fs_theme['screenshot'] ?? null,
                 'IS_DEFAULT' => ($theme_id === $default_theme),
-                'ADMIN_URI' => $fs_theme['admin_uri'] ? $this->generateUrl('admin_theme', ['theme' => $theme_id]) : ''
+                'ADMIN_URI' => $fs_theme['admin_uri'] ? $this->generateUrl('admin_theme', ['theme' => $theme_id]) : '',
             ];
 
             if (in_array($theme_id, $db_theme_ids)) {
@@ -164,6 +166,7 @@ class AdminThemesController extends AbstractController
 
         return $this->render('themes_installed.html.twig', $tpl_params);
     }
+
     #[Route('/admin/themes/update', name: 'admin_themes_update')]
     public function update(
         UserMapper $userMapper,
@@ -171,7 +174,7 @@ class AdminThemesController extends AbstractController
         CsrfTokenManagerInterface $tokenManager,
         ThemeRepository $themeRepository,
         ParameterBagInterface $params,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -233,6 +236,7 @@ class AdminThemesController extends AbstractController
 
         return $this->render('themes_update.html.twig', $tpl_params);
     }
+
     #[Route('/admin/themes/{action}/{theme}', name: 'admin_themes_action', requirements: ['action' => 'activate|deactivate|delete|set_default', 'theme' => '.+'])]
     public function action(
         string $theme,
@@ -244,7 +248,7 @@ class AdminThemesController extends AbstractController
         DirectoryManager $directoryManager,
         string $themesDir,
         string $publicThemesDir,
-        Filesystem $fs
+        Filesystem $fs,
     ): Response {
         $themes = new Themes($themeRepository, $userMapper);
         $themes->setRootPath($params->get('themes_dir'));
@@ -276,6 +280,7 @@ class AdminThemesController extends AbstractController
 
         return $this->redirectToRoute('admin_themes_installed');
     }
+
     #[Route('/admin/themes/install/{revision}', name: 'admin_themes_install')]
     public function install(int $revision, ParameterBagInterface $params, UserMapper $userMapper, ThemeRepository $themeRepository, TranslatorInterface $translator): Response
     {
@@ -300,6 +305,7 @@ class AdminThemesController extends AbstractController
             return $this->redirectToRoute('admin_themes_new');
         }
     }
+
     #[Route('/admin/themes/new', name: 'admin_themes_new')]
     public function new(ThemeRepository $themeRepository, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator): Response
     {
@@ -318,7 +324,7 @@ class AdminThemesController extends AbstractController
                 'name' => $theme['extension_name'],
                 'thumbnail' => $params->get('pem_url') . '/upload/extension-' . $theme['extension_id'] . '/thumbnail.jpg',
                 'screenshot' => $params->get('pem_url') . '/upload/extension-' . $theme['extension_id'] . '/screenshot.jpg',
-                'install' => $this->generateUrl('admin_themes_install', ['revision' => $theme['revision_id']])
+                'install' => $this->generateUrl('admin_themes_install', ['revision' => $theme['revision_id']]),
             ];
         }
 
@@ -332,6 +338,7 @@ class AdminThemesController extends AbstractController
 
         return $this->render('themes_new.html.twig', $tpl_params);
     }
+
     #[Route('/admin/themes/screenshot/{theme}', name: 'admin_theme_screenshot')]
     public function screenshot(string $theme, string $themesDir, MimeTypeGuesserInterface $mimeTypeGuesser): Response
     {

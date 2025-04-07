@@ -11,21 +11,21 @@
 
 namespace App\DataMapper;
 
-use DateTime;
 use App\Entity\Image;
 use App\Entity\ImageTag;
 use App\Entity\Tag;
 use App\Entity\User;
 use App\Enum\ImageSizeType;
 use App\Metadata;
-use Phyxo\Image\DerivativeImage;
-use Phyxo\Conf;
-use App\Repository\TagRepository;
-use App\Repository\ImageTagRepository;
-use App\Repository\UserCacheRepository;
 use App\Repository\ImageRepository;
+use App\Repository\ImageTagRepository;
+use App\Repository\TagRepository;
+use App\Repository\UserCacheRepository;
+use DateTime;
+use Phyxo\Conf;
 use Phyxo\Functions\Language;
 use Phyxo\Functions\Utils;
+use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -39,7 +39,7 @@ class TagMapper
         private readonly ImageTagRepository $imageTagRepository,
         private readonly UserCacheRepository $userCacheRepository,
         private readonly ImageRepository $imageRepository,
-        private readonly TagRepository $tagRepository
+        private readonly TagRepository $tagRepository,
     ) {
     }
 
@@ -64,7 +64,7 @@ class TagMapper
 
     /**
      * Returns all tags even associated to no image.
-     * The list can be filtered by $q
+     * The list can be filtered by $q.
      *
      * @return Tag[]
      */
@@ -137,6 +137,7 @@ class TagMapper
 
     /**
      * @param int[] $excluded_tag_ids
+     *
      * @return Tag[]
      */
     public function getRelatedTags(User $user, int $image_id, int $max_tags, array $excluded_tag_ids = []): array
@@ -190,14 +191,15 @@ class TagMapper
     }
 
     /**
-     * Get tags list and surround ids by ~~, for getTagsIds()) to differenciate new tags from existing tags
+     * Get tags list and surround ids by ~~, for getTagsIds()) to differenciate new tags from existing tags.
      *
      * @param Tag[] $tags
-     * @param bool $only_user_language - if true, only local name is returned for
-     *    multilingual tags (if ExtendedDescription plugin is active)
+     * @param bool  $only_user_language - if true, only local name is returned for
+     *                                  multilingual tags (if ExtendedDescription plugin is active)
+     *
      * @return array<int, array{id: string, name?: string}>
      */
-    public function prepareTagsListForUI(array $tags, $only_user_language = true) : array
+    public function prepareTagsListForUI(array $tags, $only_user_language = true): array
     {
         $taglist = [];
         $altlist = [];
@@ -237,6 +239,7 @@ class TagMapper
      * or "1234" (numeric characters only)
      *
      * @param string|string[] $raw_tags - array or comma separated string
+     *
      * @return int[]
      */
     public function getTagsIds(string|array $raw_tags, bool $allow_create = true): array
@@ -261,7 +264,7 @@ class TagMapper
     /**
      * Returns a tag id from its name. If nothing found, create a new tag.
      */
-    public function tagIdFromTagName(string $tag_name) : int
+    public function tagIdFromTagName(string $tag_name): int
     {
         $tag_name = trim($tag_name);
 
@@ -379,7 +382,7 @@ class TagMapper
     }
 
     /**
-     * Deletes all tags linked to no photo
+     * Deletes all tags linked to no photo.
      */
     public function deleteOrphanTags(): void
     {
@@ -556,9 +559,10 @@ class TagMapper
      * nearly the same count when set are small.
      *
      * @param array<int, Tag> $tags
+     *
      * @return Tag[]
      */
-    public function addLevelToTags(array $tags = [], int $tags_levels = 5) : array
+    public function addLevelToTags(array $tags = [], int $tags_levels = 5): array
     {
         if ($tags === []) {
             return $tags;

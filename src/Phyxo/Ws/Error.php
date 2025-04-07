@@ -39,7 +39,7 @@ class Error
     }
 
     /**
-     * Sets the http status header (200,401,...)
+     * Sets the http status header (200,401,...).
      */
     private function setStatusHeader(int $code, string $text = ''): void
     {
@@ -81,7 +81,7 @@ class Error
             }
         }
 
-        $protocol = $_SERVER["SERVER_PROTOCOL"];
+        $protocol = $_SERVER['SERVER_PROTOCOL'];
         if (('HTTP/1.1' != $protocol) && ('HTTP/1.0' != $protocol)) {
             $protocol = 'HTTP/1.0';
         }

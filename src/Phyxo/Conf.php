@@ -11,10 +11,10 @@
 
 namespace Phyxo;
 
-use App\Enum\ConfEnum;
-use ArrayAccess;
 use App\Entity\Config;
+use App\Enum\ConfEnum;
 use App\Repository\ConfigRepository;
+use ArrayAccess;
 use Exception;
 
 /**
@@ -61,7 +61,7 @@ class Conf implements ArrayAccess
         require $conf_file;
         ob_end_clean();
 
-        /** @phpstan-ignore-next-line */
+        /* @phpstan-ignore-next-line */
         if ($conf !== []) {
             foreach ($conf as $key => $value) {
                 $this->keys[self::FILE_PREFIX . $key] = ['value' => $value, 'type' => ConfEnum::STRING];
@@ -72,20 +72,20 @@ class Conf implements ArrayAccess
     }
 
     /**
-     * Add configuration parameters from database to global $conf array
+     * Add configuration parameters from database to global $conf array.
      */
     public function loadFromDB(): void
     {
         foreach ($this->configRepository->findAll() as $config) {
             $this->keys[self::DB_PREFIX . $config->getParam()] = [
                 'value' => $this->dbToConf($config->getValue(), $config->getType()),
-                'type' => $config->getType()
+                'type' => $config->getType(),
             ];
         }
     }
 
     /**
-     * Add or update a config parameter
+     * Add or update a config parameter.
      */
     public function addOrUpdateParam(string $param, mixed $value, ConfEnum $type = ConfEnum::STRING): void
     {
@@ -108,7 +108,7 @@ class Conf implements ArrayAccess
         if (is_null($value)) {
             return null;
         } elseif ($type === ConfEnum::BOOLEAN) {
-            return ($value === 'true');
+            return $value === 'true';
         } elseif ($type === ConfEnum::INTEGER) {
             return (int) $value;
         } elseif ($type === ConfEnum::JSON) {
@@ -171,7 +171,7 @@ class Conf implements ArrayAccess
     }
 
     /**
-     * Delete one or more config parameters
+     * Delete one or more config parameters.
      *
      * @param string|string[] $params
      */

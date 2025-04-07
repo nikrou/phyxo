@@ -22,7 +22,7 @@ class ThemePathSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly ThemeLoader $themeLoader,
         private readonly string $themesDir,
-        private readonly string $defaultTheme
+        private readonly string $defaultTheme,
     ) {
     }
 

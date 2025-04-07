@@ -11,19 +11,19 @@
 
 namespace App\Tests\Behat;
 
-use Behat\Step\Given;
-use Behat\Step\When;
-use Behat\Step\Then;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Step\Given;
+use Behat\Step\Then;
+use Behat\Step\When;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Psr7\Request;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Exception;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ApiContext implements Context
 {
@@ -55,9 +55,9 @@ class ApiContext implements Context
     /**
      * Sends HTTP request to specific URL with field values from Table.
      *
-     * @param string    $http_method    request method
-     * @param string    $method         relative url
-     * @param TableNode $values         table of post values
+     * @param string    $http_method request method
+     * @param string    $method      relative url
+     * @param TableNode $values      table of post values
      *
      *      * @When /^I send a "(GET|POST)" request to "([^"]*)"$/
      */
@@ -176,6 +176,7 @@ class ApiContext implements Context
             }
 
             $this->json_decoded = true;
+
             return $this->json_data;
         } else {
             return $this->json_data;

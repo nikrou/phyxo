@@ -11,12 +11,12 @@
 
 namespace App\Form\Transformer;
 
-use LogicException;
 use App\Entity\UserInfos;
 use App\Form\Model\UserInfosModel;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserRepository;
+use LogicException;
 use Symfony\Component\Form\DataTransformerInterface;
 
 /**
@@ -34,7 +34,7 @@ class UserToUserInfosTransformer implements DataTransformerInterface
             throw new LogicException('The UserInfosType can only be used with UserInfos objects');
         }
 
-        $userInfosModel = new userInfosModel();
+        $userInfosModel = new UserInfosModel();
         $userInfosModel->setUsername($userInfos->getUser()->getUserIdentifier());
         $userInfosModel->setTheme($this->themeRepository->findOneBy(['id' => $userInfos->getTheme()]));
         $userInfosModel->setLanguage($this->languageRepository->findOneBy(['id' => $userInfos->getLanguage()]));
@@ -50,7 +50,7 @@ class UserToUserInfosTransformer implements DataTransformerInterface
     }
 
     /**
-     *  @param UserInfosModel $userInfosModel
+     * @param UserInfosModel $userInfosModel
      */
     public function reverseTransform($userInfosModel): UserInfos
     {

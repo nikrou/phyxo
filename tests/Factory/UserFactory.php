@@ -11,8 +11,8 @@
 
 namespace App\Tests\Factory;
 
-use Override;
 use App\Entity\User;
+use Override;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
 

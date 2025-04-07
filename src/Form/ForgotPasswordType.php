@@ -37,7 +37,7 @@ class ForgotPasswordType extends AbstractType
                 'label' => 'Username or email',
                 'help' => 'You will receive a link to create a new password via email.',
                 'attr' => ['placeholder' => 'Please enter your username or email address.'],
-                'required' => false
+                'required' => false,
             ]
         );
         $builder->add('validate', SubmitType::class, ['label' => 'Change my password', 'row_attr' => ['class' => 'no_div'], 'attr' => ['class' => 'btn-raised btn-primary']]);
@@ -49,7 +49,7 @@ class ForgotPasswordType extends AbstractType
             'data_class' => ForgotPasswordModel::class,
             'attr' => [
                 'novalidate' => 'novalidate',
-            ]
+            ],
         ]);
     }
 }

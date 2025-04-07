@@ -49,7 +49,7 @@ class AdminMenubarController extends AbstractController
             if (isset($reg_blocks[$id])) {
                 $tpl_params['blocks'][] = [
                     'pos' => $pos / 5,
-                    'reg' => $reg_blocks[$id]
+                    'reg' => $reg_blocks[$id],
                 ];
             }
         }
@@ -59,6 +59,7 @@ class AdminMenubarController extends AbstractController
 
         return $this->render('menubar.html.twig', $tpl_params);
     }
+
     #[Route('/admin/menubar/update', name: 'admin_menubar_update')]
     public function update(Request $request, Conf $conf, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator): Response
     {
@@ -87,9 +88,10 @@ class AdminMenubarController extends AbstractController
 
         return $this->redirectToRoute('admin_menubar');
     }
+
     /**
      * @param array<RegisteredBlock> $blocks
-     * @param array<int> $orders
+     * @param array<int>             $orders
      *
      * @return array<int>
      */
@@ -114,6 +116,7 @@ class AdminMenubarController extends AbstractController
 
         return $orders;
     }
+
     #[Route('/admin/menubar_navigation', name: 'admin_menubar_navigation')]
     public function navigation(AppUserService $appUserService, Conf $conf, CaddieRepository $caddieRepository, CommentRepository $commentRepository, ParameterBagInterface $params): Response
     {

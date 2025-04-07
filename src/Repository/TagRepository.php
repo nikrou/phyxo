@@ -62,7 +62,7 @@ class TagRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int[] $ids
+     * @param int[]    $ids
      * @param string[] $names
      * @param string[] $url_names
      *
@@ -185,7 +185,7 @@ class TagRepository extends ServiceEntityRepository
     /**
      * @return Tag[]
      */
-    public function getTagsByImage(int $image_id, ? bool $validated = null)
+    public function getTagsByImage(int $image_id, ?bool $validated = null)
     {
         $qb = $this->createQueryBuilder('t');
         $qb->leftJoin('t.imageTags', 'it');

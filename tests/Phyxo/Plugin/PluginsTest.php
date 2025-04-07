@@ -108,7 +108,7 @@ class PluginsTest extends TestCase
         $plugins = new Plugins($pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
         $plugins->setExtensionsURL('./');
-        $this->expectExceptionMessage("Cannot download plugin file");
+        $this->expectExceptionMessage('Cannot download plugin file');
         $plugins->extractPluginFiles('install', 10);
     }
 
@@ -145,8 +145,8 @@ class PluginsTest extends TestCase
                 'description' => 'My first plugin',
                 'author' => 'Nicolas',
                 'author uri' => 'http://www.phyxo.net/',
-                'extension' => '1'
-            ]
+                'extension' => '1',
+            ],
         ];
         // tests
         $plugins->sortFsPlugins('id');
@@ -187,8 +187,8 @@ class PluginsTest extends TestCase
                 'description' => 'My first plugin',
                 'author' => 'Nicolas',
                 'author uri' => 'http://www.phyxo.net/',
-                'extension' => '1'
-            ]
+                'extension' => '1',
+            ],
         ];
         // tests
         $plugins->sortFsPlugins('id');
@@ -219,7 +219,7 @@ class PluginsTest extends TestCase
             ['author', ['Plugin2', 'Plugin3', 'Plugin4', 'plugin_lowercase', 'Plugin1']],
             ['id', ['Plugin1', 'Plugin2', 'Plugin3', 'Plugin4', 'plugin_lowercase']],
             ['status', ['Plugin1', 'plugin_lowercase', 'Plugin3', 'Plugin4', 'Plugin2']],
-            ['name', ['Plugin1', 'plugin_lowercase', 'Plugin3', 'Plugin4', 'Plugin2']]
+            ['name', ['Plugin1', 'plugin_lowercase', 'Plugin3', 'Plugin4', 'Plugin2']],
         ];
     }
 
@@ -233,7 +233,7 @@ class PluginsTest extends TestCase
                 'description' => 'My first plugin',
                 'author' => 'Nicolas',
                 'author_uri' => 'https://www.nikrou.net/',
-                'extension' => '10'
+                'extension' => '10',
             ],
             'Plugin2' => [
                 'name' => 'ZZ Plugin',
@@ -241,7 +241,7 @@ class PluginsTest extends TestCase
                 'uri' => 'https://ext.phyxo.net/extension_view.php?eid=20',
                 'description' => 'My second plugin',
                 'author' => 'Arthur',
-                'extension' => '20'
+                'extension' => '20',
             ],
             'Plugin3' => [
                 'name' => 'My Plugin',
@@ -250,7 +250,7 @@ class PluginsTest extends TestCase
                 'description' => 'Fake description replace by ones in description.txt file',
                 'author' => 'Jean',
                 'author_uri' => 'https://www.phyxo.net/',
-                'extension' => '30'
+                'extension' => '30',
             ],
             'Plugin4' => [
                 'name' => 'Photos Plugin',
@@ -259,7 +259,7 @@ class PluginsTest extends TestCase
                 'description' => 'The best plugin',
                 'author' => 'Jean',
                 'author_uri' => 'https://www.phyxo.net/',
-                'extension' => '40'
+                'extension' => '40',
             ],
             'plugin_lowercase' => [
                 'name' => 'Awesome plugin',
@@ -268,7 +268,7 @@ class PluginsTest extends TestCase
                 'description' => 'Another plugin',
                 'author' => 'Momo',
                 'author_uri' => 'https://www.momo.net/',
-                'extension' => '50'
+                'extension' => '50',
             ],
         ];
     }

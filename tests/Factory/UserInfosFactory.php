@@ -11,9 +11,9 @@
 
 namespace App\Tests\Factory;
 
-use Override;
 use App\Entity\UserInfos;
 use App\Enum\UserStatusType;
+use Override;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**

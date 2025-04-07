@@ -11,17 +11,17 @@
 
 namespace App\Controller;
 
-use DateTime;
-use DateInterval;
 use App\DataMapper\AlbumMapper;
-use Symfony\Component\HttpFoundation\Request;
-use Phyxo\Conf;
 use App\DataMapper\ImageMapper;
 use App\Enum\PictureSectionType;
 use App\Repository\UserCacheAlbumRepository;
 use App\Security\AppUserService;
+use DateInterval;
+use DateTime;
+use Phyxo\Conf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
@@ -64,7 +64,7 @@ class AlbumController extends AbstractController
         $album = $albumMapper->getRepository()->find($album_id);
 
         if (in_array($album_id, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums())) {
-            throw new AccessDeniedHttpException("Access denied to that album");
+            throw new AccessDeniedHttpException('Access denied to that album');
         }
 
         $tpl_params['TITLE'] = $albumMapper->getBreadcrumb($album);
@@ -102,7 +102,7 @@ class AlbumController extends AbstractController
                 $tpl_params['image_orders'][] = [
                     'DISPLAY' => $order[0],
                     'URL' => $this->generateUrl('album', ['album_id' => $album->getId(), 'start' => $start, 'order' => $order_id]),
-                    'SELECTED' => false
+                    'SELECTED' => false,
                 ];
             }
         }
@@ -235,7 +235,7 @@ class AlbumController extends AbstractController
         RouterInterface $router,
         AppUserService $appUserService,
         array $publicTemplates,
-        int $start = 0
+        int $start = 0,
     ): Response {
         $tpl_params = [];
 
@@ -337,7 +337,7 @@ class AlbumController extends AbstractController
         RouterInterface $router,
         AppUserService $appUserService,
         array $publicTemplates,
-        int $start = 0
+        int $start = 0,
     ): Response {
         $tpl_params = [];
 

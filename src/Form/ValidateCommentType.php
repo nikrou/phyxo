@@ -35,7 +35,7 @@ class ValidateCommentType extends AbstractType
                     'novalidate' => 'novalidate',
                 ],
                 'id' => null,
-                'redirect' => ''
+                'redirect' => '',
             ])
             ->addAllowedTypes('id', 'int')
             ->addAllowedTypes('redirect', 'string');

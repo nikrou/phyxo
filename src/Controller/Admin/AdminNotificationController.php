@@ -25,9 +25,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminNotificationController extends AbstractController
 {
     private TranslatorInterface $translator;
+
     public function __construct(private readonly AuthorizationCheckerInterface $authorizationChecker)
     {
     }
+
     protected function setTabsheet(string $section = 'params'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -41,6 +43,7 @@ class AdminNotificationController extends AbstractController
 
         return $tabsheet;
     }
+
     #[Route('/admin/notification', name: 'admin_notification')]
     public function params(Request $request, Conf $conf, Notification $notification, TranslatorInterface $translator): Response
     {
@@ -70,6 +73,7 @@ class AdminNotificationController extends AbstractController
 
         return $this->render('notification_by_mail_params.html.twig', $tpl_params);
     }
+
     #[Route('/admin/notification/subscribe', name: 'admin_notification_subscribe')]
     public function subscribe(Request $request, Notification $notification, TranslatorInterface $translator): Response
     {
@@ -125,6 +129,7 @@ class AdminNotificationController extends AbstractController
 
         return $this->render('notification_by_mail_subscribe.html.twig', $tpl_params);
     }
+
     #[Route('/admin/notification/send', name: 'admin_notification_send')]
     public function send(Request $request, Conf $conf, Notification $notification, TranslatorInterface $translator): Response
     {
@@ -157,7 +162,7 @@ class AdminNotificationController extends AbstractController
                     'CHECKED' => ($request->request->get('send_selection') && !in_array($nbm_user->getCheckKey(), $request->request->all('send_selection'))) ? '' : 'checked="checked"',
                     'USERNAME' => $nbm_user->getUser()->getUsername(),
                     'EMAIL' => $nbm_user->getUser()->getMailAddress(),
-                    'LAST_SEND' => $nbm_user->getLastSend() ? $nbm_user->getLastSend()->format('Y-m-d H:m:i') : ''
+                    'LAST_SEND' => $nbm_user->getLastSend() ? $nbm_user->getLastSend()->format('Y-m-d H:m:i') : '',
                 ];
             }
         }

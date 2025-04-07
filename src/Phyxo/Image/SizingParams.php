@@ -20,7 +20,8 @@ class SizingParams
     /**
      * $ideal_size - two elements array of maximum output dimensions (width, height)
      * $max_crop - from 0=no cropping to 1= max cropping (100% of width/height) expressed as a factor of the input width/height
-     * $min_size - (used only if _$max_crop_ !=0) two elements array of output dimensions (width, height)
+     * $min_size - (used only if _$max_crop_ !=0) two elements array of output dimensions (width, height).
+     *
      * @param int[] $ideal_size
      * @param int[] $min_size
      */
@@ -65,9 +66,9 @@ class SizingParams
     /**
      * Calculates the cropping rectangle and the scaled size for an input image size.
      *
-     * @param array{0:int, 1:int} $in_size - two elements array of input dimensions (width, height)
-     * @param string $coi - four character encoded string containing the center of interest (unused if max_crop=0)
-     * @param ImageRect &$crop_rect - ImageRect containing the cropping rectangle or null if cropping is not required
+     * @param array{0:int, 1:int}                     $in_size     - two elements array of input dimensions (width, height)
+     * @param string                                  $coi         - four character encoded string containing the center of interest (unused if max_crop=0)
+     * @param ImageRect                               &$crop_rect  - ImageRect containing the cropping rectangle or null if cropping is not required
      * @param array{0:int|float, 1:int|float}|array{} &$scale_size - two elements array containing width and height of the scaled image
      */
     public function compute(array $in_size, ?ImageRect &$crop_rect, array &$scale_size, string $coi = ''): void

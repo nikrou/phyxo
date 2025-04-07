@@ -11,16 +11,16 @@
 
 namespace App\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
-use Phyxo\Conf;
-use App\Repository\FavoriteRepository;
 use App\DataMapper\ImageMapper;
 use App\Entity\Favorite;
 use App\Enum\PictureSectionType;
+use App\Repository\FavoriteRepository;
 use App\Repository\ImageRepository;
 use App\Security\AppUserService;
+use Phyxo\Conf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
@@ -43,7 +43,7 @@ class FavoriteController extends AbstractController
         RouterInterface $router,
         AppUserService $appUserService,
         array $publicTemplates,
-        int $start = 0
+        int $start = 0,
     ): Response {
         $tpl_params = [];
 
@@ -98,7 +98,7 @@ class FavoriteController extends AbstractController
         FavoriteRepository $favoriteRepository,
         AppUserService $appUserService,
         Request $request,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ): Response {
         $image = $imageRepository->find($image_id);
         $favorite = new Favorite();

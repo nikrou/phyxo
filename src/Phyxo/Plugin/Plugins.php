@@ -11,14 +11,14 @@
 
 namespace Phyxo\Plugin;
 
-use Override;
-use Exception;
-use Phyxo\Functions\Utils;
 use App\DataMapper\UserMapper;
 use App\Entity\Plugin;
 use App\Enum\ExtensionStateType;
-use Phyxo\Extension\Extensions;
 use App\Repository\PluginRepository;
+use Exception;
+use Override;
+use Phyxo\Extension\Extensions;
+use Phyxo\Functions\Utils;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
 
@@ -45,7 +45,7 @@ class Plugins extends Extensions
 
     /**
      * Returns the maintain class of a plugin
-     * or build a new class with the procedural methods
+     * or build a new class with the procedural methods.
      */
     private function buildMaintainClass(string $plugin_id)
     {
@@ -54,6 +54,7 @@ class Plugins extends Extensions
 
         if (is_readable($file_to_include . '.class.php')) {
             include_once $file_to_include . '.class.php';
+
             return new $classname($plugin_id);
         }
 
@@ -69,7 +70,7 @@ class Plugins extends Extensions
     }
 
     /**
-     * Perform requested actions
+     * Perform requested actions.
      */
     public function performAction(string $action, string $plugin_id, ?int $revision = null): string
     {
@@ -181,7 +182,7 @@ class Plugins extends Extensions
     }
 
     /**
-     * Get plugins defined in the plugin directory
+     * Get plugins defined in the plugin directory.
      *
      * @return array<string, mixed>
      */
@@ -203,7 +204,7 @@ class Plugins extends Extensions
     }
 
     /**
-     * Load metadata of a plugin in `fs_plugins` array
+     * Load metadata of a plugin in `fs_plugins` array.
      */
     public function getFsPlugin(string $plugin_id): void
     {
@@ -233,7 +234,7 @@ class Plugins extends Extensions
      * Returns an array of plugins defined in the database.
      *
      * @param ExtensionStateType $state optional filter
-     * @param string $id returns only data about given plugin
+     * @param string             $id    returns only data about given plugin
      */
     public function getDbPlugins(?ExtensionStateType $state = null, string $id = ''): array
     {
@@ -254,7 +255,7 @@ class Plugins extends Extensions
     }
 
     /**
-     * Sort fs_plugins
+     * Sort fs_plugins.
      */
     public function sortFsPlugins($order = 'name'): void
     {
@@ -303,7 +304,7 @@ class Plugins extends Extensions
     }
 
     /**
-     * Retrieve PEM server datas to $server_plugins
+     * Retrieve PEM server datas to $server_plugins.
      */
     public function getServerPlugins(string $pem_category, string $core_version, $new = false): array
     {
@@ -417,7 +418,7 @@ class Plugins extends Extensions
     }
 
     /**
-     * Sort $server_plugins
+     * Sort $server_plugins.
      */
     public function sortServerPlugins($order = 'date'): void
     {
@@ -441,7 +442,7 @@ class Plugins extends Extensions
     }
 
     /**
-     * Extract plugin files from archive
+     * Extract plugin files from archive.
      */
     public function extractPluginFiles(string $action, int $revision): void
     {
@@ -454,7 +455,7 @@ class Plugins extends Extensions
         try {
             $this->download($archive, $get_data);
         } catch (Exception $exception) {
-            throw new Exception("Cannot download plugin file", $exception->getCode(), $exception);
+            throw new Exception('Cannot download plugin file', $exception->getCode(), $exception);
         }
 
         $extract_path = $this->plugins_root_path;
@@ -468,7 +469,7 @@ class Plugins extends Extensions
     }
 
     /**
-     * Sort functions
+     * Sort functions.
      */
     protected function extensionRevisionCompare(array $a, array $b): int
     {

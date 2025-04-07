@@ -11,10 +11,8 @@
 
 namespace App\DataMapper;
 
-use App\Entity\Image;
-use Exception;
-use DateTime;
 use App\Entity\Album;
+use App\Entity\Image;
 use App\Entity\ImageAlbum;
 use App\Entity\User;
 use App\Enum\UserPrivacyLevelType;
@@ -23,15 +21,17 @@ use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageRepository;
 use App\Repository\UserCacheAlbumRepository;
 use App\Repository\UserRepository;
+use DateTime;
+use Exception;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AlbumMapper
 {
     /**
-     *  @var array<int, Album> $cache
+     * @var array<int, Album>
      */
     private array $cache = [];
     private bool $albums_retrieved = false;
@@ -44,7 +44,7 @@ class AlbumMapper
         private readonly UserRepository $userRepository,
         private readonly UserCacheAlbumRepository $userCacheAlbumRepository,
         private readonly ImageAlbumRepository $imageAlbumRepository,
-        private readonly ImageRepository $imageRepository
+        private readonly ImageRepository $imageRepository,
     ) {
     }
 
@@ -55,6 +55,7 @@ class AlbumMapper
 
     /**
      * Returns template vars for main albums menu.
+     *
      * @param array{id?: int, id_uppercat?: int} $selected_album
      *
      * @return array<string, mixed>
@@ -95,6 +96,7 @@ class AlbumMapper
 
     /**
      * Returns template vars for main albums menu.
+     *
      * @param array{id?: int, id_uppercat?: int} $selected_album
      *
      * @return array<string, mixed>
@@ -126,7 +128,7 @@ class AlbumMapper
                     'SELECTED' => isset($selected_album['id']) && $selected_album['id'] === $album->getId(),
                     'IS_UPPERCAT' => isset($selected_album['id_uppercat']) && $selected_album['id_uppercat'] === $album->getId(),
                     'count_images' => $userCacheAlbum->getCountImages(),
-                    'icon_ts' => ''
+                    'icon_ts' => '',
                 ]
             );
 
@@ -174,7 +176,7 @@ class AlbumMapper
             $parent = &$albums[$album['id_uppercat']];
             $parent['nb_categories']++;
 
-            do {
+            while (true) {
                 $parent['count_images'] += $album['nb_images'];
                 $parent['count_categories']++;
 
@@ -187,7 +189,7 @@ class AlbumMapper
                 }
 
                 $parent = &$albums[$parent['id_uppercat']];
-            } while (true);
+            }
 
             unset($parent);
         }
@@ -199,7 +201,7 @@ class AlbumMapper
      * Removes an album from computed array of albums and updates counters.
      *
      * @param array<array<string, int|string|null>> $albums
-     * @param array<string, mixed> $album
+     * @param array<string, mixed>                  $album
      *
      * @return array<string, mixed>
      */
@@ -209,7 +211,7 @@ class AlbumMapper
             $parent = $albums[$album['id_uppercat']];
             $parent['nb_categories']--;
 
-            do {
+            while (true) {
                 $parent['count_images'] -= $album['nb_images'];
                 $parent['count_categories'] -= 1 + $album['count_categories'];
 
@@ -218,7 +220,7 @@ class AlbumMapper
                 }
 
                 $parent = $albums[$parent['id_uppercat']];
-            } while (true);
+            }
         }
 
         unset($albums[$album['album_id']]);
@@ -269,7 +271,7 @@ class AlbumMapper
         foreach (explode(',', $uppercats) as $album_id) {
             $names[] = [
                 'name' => $this->getCacheAlbums()[(int) $album_id]->getName(),
-                'url' => $this->router->generate($route_name, array_merge($params, ['album_id' => $this->getCacheAlbums()[(int) $album_id]->getId()]))
+                'url' => $this->router->generate($route_name, array_merge($params, ['album_id' => $this->getCacheAlbums()[(int) $album_id]->getId()])),
             ];
         }
 
@@ -290,7 +292,7 @@ class AlbumMapper
                 [
                     'id' => $album->getId(),
                     'name' => $album->getName(),
-                ]
+                ],
             ];
         } else {
             foreach ($upper_ids as $album_id) {
@@ -304,7 +306,7 @@ class AlbumMapper
         foreach ($upper_names as $album) {
             $breadcumb[] = [
                 'url' => $this->router->generate('album', ['album_id' => $album['id']]),
-                'label' => $album['name']
+                'label' => $album['name'],
             ];
         }
 
@@ -313,6 +315,7 @@ class AlbumMapper
 
     /**
      * Generates breadcrumb from albums list using a cache.
+     *
      * @see getAlbumDisplayName()
      */
     public function getAlbumsDisplayNameCache(string $uppercats, string $url = '', bool $single_link = false, string $link_class = ''): string
@@ -355,7 +358,7 @@ class AlbumMapper
     }
 
     /**
-     * @param array<mixed> $albums
+     * @param array<mixed>         $albums
      * @param array<string, mixed> $selecteds
      *
      * @return array<string, mixed>
@@ -367,7 +370,7 @@ class AlbumMapper
             if ($fullname) {
                 $option = strip_tags($this->getAlbumsDisplayNameCache($album->getUppercats()));
             } else {
-                $option = str_repeat('&nbsp;', (3 * substr_count((string) $album->getGlobalRank(), '.')));
+                $option = str_repeat('&nbsp;', 3 * substr_count((string) $album->getGlobalRank(), '.'));
                 $option .= '- ';
                 $option .= strip_tags((string) $album->getName());
             }
@@ -377,15 +380,16 @@ class AlbumMapper
 
         return [
             $blockname => $tpl_cats,
-            $blockname . '_selected' => $selecteds
+            $blockname . '_selected' => $selecteds,
         ];
     }
 
     /**
-     * Same as displaySelectAlbums but albums are ordered by rank
+     * Same as displaySelectAlbums but albums are ordered by rank.
+     *
      * @see displaySelectAlbums()
      *
-     * @param array<mixed> $albums
+     * @param array<mixed>         $albums
      * @param array<string, mixed> $selecteds
      *
      * @return array<mixed>
@@ -399,6 +403,7 @@ class AlbumMapper
 
     /**
      * Change the parent album of the given albums.
+     *
      * @param int[] $ids
      */
     public function moveAlbums(array $ids, ?int $new_parent = null): void
@@ -454,7 +459,7 @@ class AlbumMapper
     }
 
     /**
-     * Updates albums uppercats field based on albums id + albums id_uppercat
+     * Updates albums uppercats field based on albums id + albums id_uppercat.
      */
     public function updateUppercats(): void
     {
@@ -477,6 +482,7 @@ class AlbumMapper
 
     /**
      * Change the **status** property on a set of albums : private or public.
+     *
      * @param int[] $album_ids
      */
     public function setAlbumsStatus(array $album_ids, string $status): void
@@ -601,6 +607,7 @@ class AlbumMapper
 
     /**
      * Returns all uppercats Album ids of the given Album ids.
+     *
      * @param int[] $ids
      *
      * @return array<int>
@@ -621,6 +628,7 @@ class AlbumMapper
 
     /**
      * Grant access to a list of categories for a list of users.
+     *
      * @param int[] $album_ids
      * @param int[] $user_ids
      */
@@ -651,7 +659,7 @@ class AlbumMapper
     /**
      * Create an album.
      *
-     * @param int[] $admin_ids
+     * @param int[]                                                                                        $admin_ids
      * @param array{commentable?: bool, visible?: bool, status?: string, comment?: string, inherit?: bool} $options
      */
     public function createAlbum(string $name, int $user_id, ?Album $parent = null, array $admin_ids = [], array $options = []): Album
@@ -739,7 +747,7 @@ class AlbumMapper
     }
 
     /**
-     * Callback used for sorting by global_rank
+     * Callback used for sorting by global_rank.
      */
     public static function globalRankCompare(Album $a, Album $b): int
     {
@@ -881,6 +889,7 @@ class AlbumMapper
 
     /**
      * Set a new random representant to the albums.
+     *
      * @param int[] $album_ids
      */
     public function setRandomRepresentant(array $album_ids): void
@@ -898,7 +907,7 @@ class AlbumMapper
      * $album_nb_images nb images directly in album
      * $album_count_images nb images in album (including sub-albums)
      * $album_count_albums nb sub-albums
-     * $short_message if true append " in this album"
+     * $short_message if true append " in this album".
      */
     public function getDisplayImagesCount(int $album_nb_images, int $album_count_images, int $album_count_albums, bool $short_message = true, string $separator = "\n"): string
     {
@@ -911,11 +920,11 @@ class AlbumMapper
                 $album_nb_images = 0;
             }
 
-            //at least one image direct or indirect
+            // at least one image direct or indirect
             $display_text .= $this->translator->trans('number_of_photos', ['count' => $album_count_images]);
 
             if ($album_count_albums === 0 || $album_nb_images === $album_count_images) {
-                //no descendant categories or descendants do not contain images
+                // no descendant categories or descendants do not contain images
                 if (!$short_message) {
                     $display_text .= ' ' . $this->translator->trans('in this album');
                 }
@@ -964,7 +973,7 @@ class AlbumMapper
      * It also deletes :
      *    - all the elements physically linked to the album (with ImageMapper::deleteElements)
      *    - all the links between elements and this album
-     *    - all the restrictions linked to the album
+     *    - all the restrictions linked to the album.
      *
      * @param int[] $ids
      */
@@ -1026,6 +1035,7 @@ class AlbumMapper
      * Dissociate images from all old albums except their storage album and
      * associate to new albums.
      * This methods will preserve ranks.
+     *
      * @param int[] $image_ids
      * @param int[] $album_ids
      */
@@ -1049,7 +1059,7 @@ class AlbumMapper
     }
 
     /**
-     * save the rank depending on given albums order
+     * save the rank depending on given albums order.
      *
      * The list of ordered albums id is supposed to be in the same parent album
      *
@@ -1133,7 +1143,7 @@ class AlbumMapper
 
     /**
      * @param Album[] $albums
-     * @param int[] $image_ids
+     * @param int[]   $image_ids
      *
      * @return array<string, mixed>
      */

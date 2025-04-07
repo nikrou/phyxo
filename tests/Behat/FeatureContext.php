@@ -11,12 +11,12 @@
 
 namespace App\Tests\Behat;
 
+use Behat\Gherkin\Node\PyStringNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use Exception;
 use DateTime;
-use Behat\Gherkin\Node\PyStringNode;
+use Exception;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -197,7 +197,7 @@ class FeatureContext extends BaseContext
     }
 
     /**
-     * admin
+     * admin.
      */
     #[Then('I should see :nb_images for album :album_name')]
     public function iShouldSeeTextNumberOfImagesForAlbum(string $nb_images, string $album_name): void
@@ -221,7 +221,7 @@ class FeatureContext extends BaseContext
     {
         $picture_derivatives = $this->getPage()->find('css', '*[data-testid="picture.derivatives"]');
         if (is_null($picture_derivatives)) {
-            throw new Exception("Cannot find picture derivatives");
+            throw new Exception('Cannot find picture derivatives');
         }
 
         // $derivative = $picture_derivatives->find('css', sprintf('*[data-type-save="%s"]', $type_map));
@@ -250,7 +250,7 @@ class FeatureContext extends BaseContext
             throw new Exception(sprintf('The select "%s" was not found in the page', $from));
         }
 
-        $optionField = $selectField->find('xpath', "//option[@selected]");
+        $optionField = $selectField->find('xpath', '//option[@selected]');
         if ($optionField === null) {
             throw new Exception(sprintf('No option is selected in the %s select', $from));
         }
@@ -405,7 +405,7 @@ class FeatureContext extends BaseContext
     }
 
     /**
-     * Example: Then the "date_creation" field date should contain "now"
+     * Example: Then the "date_creation" field date should contain "now".
      */
     #[Then('the :field_name field date should contain :date')]
     public function theFieldDateShouldContain(string $field_name, string $date): void
@@ -425,7 +425,7 @@ class FeatureContext extends BaseContext
     }
 
     /**
-     * Example: When I follow "delete album" for album "album 1"
+     * Example: When I follow "delete album" for album "album 1".
      */
     #[When('I follow :link_label for album :album_name')]
     public function iFollowLinkForAlbum(string $link_label, string $album_name): void

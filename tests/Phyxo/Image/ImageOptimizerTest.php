@@ -12,9 +12,9 @@
 namespace App\Tests\Phyxo\Image;
 
 use App\ImageLibraryGuesser;
-use Phyxo\Image\ImageOptimizer;
 use Imagine\Image\ImagineInterface;
 use PHPUnit\Framework\TestCase;
+use Phyxo\Image\ImageOptimizer;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ImageOptimizerTest extends TestCase

@@ -42,7 +42,7 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
         string $pemURL,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ExtensionCollection $extensionCollection,
-        private readonly ThemeLoader $themeLoader
+        private readonly ThemeLoader $themeLoader,
     ) {
         $this->plugins = new Plugins($pluginRepository, $userMapper);
         $this->plugins->setRootPath($pluginsDir);
@@ -53,7 +53,7 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
     {
         return [
             KernelEvents::REQUEST => ['registerPlugins'],
-            ConsoleEvents::COMMAND => ['checkAvailability']
+            ConsoleEvents::COMMAND => ['checkAvailability'],
         ];
     }
 
@@ -85,7 +85,7 @@ class ExtensionManagerSubscriber implements EventSubscriberInterface
         if ($command->getName() === 'list') {
             foreach ($this->plugins->getDbPlugins(ExtensionStateType::INACTIVE) as $plugin) {
                 if ($this->extensionCollection->getExtensionsByClass()) {
-                    /** @phpstan-ignore-next-line */
+                    /* @phpstan-ignore-next-line */
                     foreach ($this->extensionCollection->getExtensionsByClass()[$plugin->getId()] as $command_name) {
                         $application->get($command_name)->setHidden(true);
                     }

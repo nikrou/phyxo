@@ -11,14 +11,14 @@
 
 namespace Phyxo\Update;
 
-use Exception;
-use Phyxo\Functions\Utils;
 use App\DataMapper\UserMapper;
-use Phyxo\Plugin\Plugins;
-use Phyxo\Theme\Themes;
-use Phyxo\Language\Languages;
+use Exception;
 use PclZip;
 use Phyxo\Extension\Extensions;
+use Phyxo\Functions\Utils;
+use Phyxo\Language\Languages;
+use Phyxo\Plugin\Plugins;
+use Phyxo\Theme\Themes;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\HttpClient;
 
@@ -39,7 +39,7 @@ class Updates
         private readonly string $core_version,
         private readonly Plugins $plugins,
         private readonly Themes $themes,
-        private readonly Languages $languages
+        private readonly Languages $languages,
     ) {
     }
 
@@ -70,6 +70,7 @@ class Updates
             $response = $client->request('GET', $this->update_url);
             if ($response->getStatusCode() == 200 && $response->getContent()) {
                 $this->versions = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
                 return $this->versions;
             }
         } catch (Exception $exception) {
@@ -182,7 +183,7 @@ class Updates
             if ($response->getStatusCode() == 200 && $response->getContent()) {
                 $pem_versions = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
             } else {
-                throw new Exception("Reponse from server is not readable");
+                throw new Exception('Reponse from server is not readable');
             }
 
             $version = $this->core_version;
@@ -221,7 +222,7 @@ class Updates
             'version' => implode(',', $versions_to_check),
             'lang' => $this->userMapper->getUser()->getLang(),
             'get_nb_downloads' => 'true',
-            'format' => 'json'
+            'format' => 'json',
         ]);
         $url .= '?' . http_build_query($get_data, '', '&');
 
@@ -236,7 +237,7 @@ class Updates
             if ($response->getStatusCode() == 200 && $response->getContent()) {
                 $pem_exts = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
             } else {
-                throw new Exception("Reponse from server is not readable");
+                throw new Exception('Reponse from server is not readable');
             }
 
             if (!is_array($pem_exts)) {
@@ -259,6 +260,7 @@ class Updates
             }
 
             $this->checkMissingExtensions($ext_to_check);
+
             return [];
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);

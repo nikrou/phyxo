@@ -11,14 +11,14 @@
 
 namespace App\EventSubscriber;
 
-use App\Entity\Album;
-use App\Entity\Image;
-use DateTime;
 use App\DataMapper\UserMapper;
+use App\Entity\Album;
 use App\Entity\History;
+use App\Entity\Image;
 use App\Events\HistoryEvent;
 use App\Repository\HistoryRepository;
 use App\Security\AppUserService;
+use DateTime;
 use Phyxo\Conf;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -28,14 +28,14 @@ class HistorySubscriber implements EventSubscriberInterface
         private Conf $conf,
         private readonly AppUserService $appUserService,
         private readonly UserMapper $userMapper,
-        private readonly HistoryRepository $historyRepository
+        private readonly HistoryRepository $historyRepository,
     ) {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            HistoryEvent::class => 'onVisit'
+            HistoryEvent::class => 'onVisit',
         ];
     }
 

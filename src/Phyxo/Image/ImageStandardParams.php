@@ -11,8 +11,8 @@
 
 namespace Phyxo\Image;
 
-use App\Enum\ConfEnum;
 use App\Entity\Image;
+use App\Enum\ConfEnum;
 use App\Enum\ImageSizeType;
 use Phyxo\Conf;
 
@@ -21,22 +21,22 @@ class ImageStandardParams
     private const string CONF_KEY = 'derivatives';
 
     /**
-     * @var array{'d'?: array<string, DerivativeParams>, 'q'?: int, 'w'?: WatermarkParams, 'c'?: array<string, int>} $derivatives
+     * @var array{'d'?: array<string, DerivativeParams>, 'q'?: int, 'w'?: WatermarkParams, 'c'?: array<string, int>}
      */
     private $derivatives;
 
-    /** @var array<string, DerivativeParams> $all_type_map */
+    /** @var array<string, DerivativeParams> */
     private array $all_type_map = [];
 
-    /** @var array<string, DerivativeParams> $type_map */
+    /** @var array<string, DerivativeParams> */
     private array $type_map = [];
     private WatermarkParams $watermark;
 
-    /** @var array<string, int> $customs */
+    /** @var array<string, int> */
     private array $customs = [];
     private int $quality = 95;
 
-    /** @var array<string, string> $undefined_type_map */
+    /** @var array<string, string> */
     private $undefined_type_map = [];
 
     public function __construct(private Conf $conf)
@@ -157,7 +157,6 @@ class ImageStandardParams
      * the XLARGE is disabled.
      *
      * @return array<string, DerivativeImage>
-     *
      */
     public function getAll(Image $image): array
     {

@@ -29,14 +29,14 @@ class ResetPasswordLinkSubscriber implements EventSubscriberInterface
         private readonly UserMapper $userMapper,
         private Conf $conf,
         private readonly RouterInterface $router,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            ActivationKeyEvent::class => 'onActivationKeyNotifiy'
+            ActivationKeyEvent::class => 'onActivationKeyNotifiy',
         ];
     }
 

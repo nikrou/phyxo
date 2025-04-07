@@ -11,10 +11,10 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Image;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\Entity\Caddie;
+use App\Entity\Image;
 use App\Repository\CaddieRepository;
 use App\Repository\ImageRepository;
 use App\Security\AppUserService;
@@ -32,6 +32,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminPhotosController extends AbstractController
 {
     private TranslatorInterface $translator;
+
     protected function setTabsheet(string $section = 'direct'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -40,6 +41,7 @@ class AdminPhotosController extends AbstractController
 
         return $tabsheet;
     }
+
     #[Route('/admin/photos/add/{album_id}', name: 'admin_photos_add', defaults: ['album_id' => null], requirements: ['album_id' => '\d+'])]
     public function direct(
         Request $request,
@@ -49,7 +51,7 @@ class AdminPhotosController extends AbstractController
         TranslatorInterface $translator,
         ImageMapper $imageMapper,
         ManagerRegistry $managerRegistry,
-        ?int $album_id = null
+        ?int $album_id = null,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -78,7 +80,7 @@ class AdminPhotosController extends AbstractController
         $max_upload_width = round($max_upload_width / 100) * 100;
         $max_upload_height = round($max_upload_height / 100) * 100;
 
-        $max_upload_resolution = floor($max_upload_width * $max_upload_height / (1_000_000));
+        $max_upload_resolution = floor($max_upload_width * $max_upload_height / 1_000_000);
 
         // no need to display a limitation warning if the limitation is huge like 20MP
         if ($max_upload_resolution < 25) {
@@ -87,7 +89,7 @@ class AdminPhotosController extends AbstractController
             $tpl_params['max_upload_resolution'] = $max_upload_resolution;
         }
 
-        //warn the user if the picture will be resized after upload
+        // warn the user if the picture will be resized after upload
         if ($conf['original_resize']) {
             $tpl_params['original_resize_maxwidth'] = $conf['original_resize_maxwidth'];
             $tpl_params['original_resize_maxheight'] = $conf['original_resize_maxheight'];
@@ -136,7 +138,7 @@ class AdminPhotosController extends AbstractController
             $tpl_params['setup_warnings'][] = $translator->trans(
                 'In your php.ini file, the upload_max_filesize ({upload_max_filesize}B) is bigger than post_max_size ({post_max_size}B), you should change this setting',
                 ['upload_max_filesize' => $this->getIniSize('upload_max_filesize', false),
-                    'post_max_size' => $this->getIniSize('post_max_size', false)
+                    'post_max_size' => $this->getIniSize('post_max_size', false),
                 ],
                 'admin'
             );
@@ -157,6 +159,7 @@ class AdminPhotosController extends AbstractController
 
         return $this->render('photos_add_direct.html.twig', $tpl_params);
     }
+
     #[Route('/admin/photos/batch/{album_id}', name: 'admin_photos_add_batch', defaults: ['album_id' => null], requirements: ['album_id' => '\d+'])]
     public function batch(Request $request, AppUserService $appUserService, ImageRepository $imageRepository, CaddieRepository $caddieRepository): Response
     {
@@ -170,6 +173,7 @@ class AdminPhotosController extends AbstractController
 
         return $this->redirectToRoute('admin_batch_manager_global', ['filter' => 'caddie']);
     }
+
     private function getIniSize(string $ini_key, bool $in_bytes = true): string
     {
         $size = ini_get($ini_key);
@@ -180,6 +184,7 @@ class AdminPhotosController extends AbstractController
 
         return $size;
     }
+
     private function convertShorthandNotationToBytes(string $value): string
     {
         $suffix = substr($value, -1);

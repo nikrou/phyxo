@@ -11,8 +11,6 @@
 
 namespace App\Controller\Admin;
 
-use DateTimeInterface;
-use DateTime;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\SearchMapper;
@@ -31,6 +29,8 @@ use App\Repository\ImageTagRepository;
 use App\Repository\TagRepository;
 use App\Security\AppUserService;
 use App\Services\DerivativeService;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Phyxo\Conf;
 use Phyxo\Functions\Utils;
@@ -50,10 +50,12 @@ class AdminBatchManagerController extends AbstractController
     private TranslatorInterface $translator;
     private DerivativeService $derivativeService;
     private readonly User $user;
+
     public function __construct(AppUserService $appUserService)
     {
         $this->user = $appUserService->getUser();
     }
+
     protected function setTabsheet(string $section = 'global'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -63,8 +65,9 @@ class AdminBatchManagerController extends AbstractController
 
         return $tabsheet;
     }
+
     /**
-     * @param array<string, int|float|bool|string|null|array<int>> $filter
+     * @param array<string, int|float|bool|string|array<int>|null> $filter
      */
     protected function appendFilter(SessionInterface $session, array $filter = []): void
     {
@@ -75,8 +78,9 @@ class AdminBatchManagerController extends AbstractController
 
         $session->set('bulk_manager_filter', [...$previous_filter, ...$filter]);
     }
+
     /**
-     * @return array<string, int|float|bool|string|null|UserPrivacyLevelType|array<int>|array<string>>
+     * @return array<string, int|float|bool|string|UserPrivacyLevelType|array<int>|array<string>|null>
      */
     protected function getFilter(SessionInterface $session): array
     {
@@ -87,6 +91,7 @@ class AdminBatchManagerController extends AbstractController
 
         return $filter;
     }
+
     #[Route(
         '/admin/batch/global/{start}/{filter}/{value}',
         name: 'admin_batch_manager_global',
@@ -114,7 +119,7 @@ class AdminBatchManagerController extends AbstractController
         string $rootProjectDir,
         ImageLibraryGuesser $imageLibraryGuesser,
         ?string $filter = null,
-        int $start = 0
+        int $start = 0,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -131,8 +136,8 @@ class AdminBatchManagerController extends AbstractController
             ['id' => 'last_import', 'name' => $translator->trans('Last import', [], 'admin')],
             ['id' => 'no_album', 'name' => $translator->trans('With no album', [], 'admin')],
             ['id' => 'no_tag', 'name' => $translator->trans('With no tag', [], 'admin')],
-            //['id' => 'duplicates', 'name' => $translator->trans('Duplicates', [], 'admin')],
-            ['id' => 'all_photos', 'name' => $translator->trans('All', [], 'admin')]
+            // ['id' => 'duplicates', 'name' => $translator->trans('Duplicates', [], 'admin')],
+            ['id' => 'all_photos', 'name' => $translator->trans('All', [], 'admin')],
         ];
 
         if ($request->isMethod('POST')) {
@@ -321,7 +326,7 @@ class AdminBatchManagerController extends AbstractController
         $tpl_params['level_options'] = Utils::getPrivacyLevelOptions($translator, $conf['available_permission_levels'], 'admin');
         $tpl_params['level_options_selected'] = 0;
 
-        //derivatives
+        // derivatives
         $del_deriv_map = [];
         foreach ($image_std_params->getDefinedTypeMap() as $derivative_params) {
             $del_deriv_map[$derivative_params->type->value] = $translator->trans($derivative_params->type->value, [], 'admin');
@@ -399,7 +404,7 @@ class AdminBatchManagerController extends AbstractController
                             'admin_media',
                             ['path' => $image->getPathBasename(), 'derivative' => $derivative_large->getUrlType(), 'image_extension' => $image->getExtension()]
                         ),
-                        'U_EDIT' => $this->generateUrl('admin_photo', ['image_id' => $image->getId()])
+                        'U_EDIT' => $this->generateUrl('admin_photo', ['image_id' => $image->getId()]),
                     ]
                 );
             }
@@ -448,6 +453,7 @@ class AdminBatchManagerController extends AbstractController
 
         return $this->render('batch_manager_global.html.twig', $tpl_params);
     }
+
     #[Route(
         '/admin/batch/global/empty_caddie/{start}',
         name: 'admin_batch_manager_global_empty_caddie',
@@ -461,6 +467,7 @@ class AdminBatchManagerController extends AbstractController
 
         return $this->redirectToRoute('admin_batch_manager_global', ['start' => $start]);
     }
+
     /**
      * @param int[] $collection
      */
@@ -480,6 +487,7 @@ class AdminBatchManagerController extends AbstractController
         // if the user tries to apply an action, it means that there is at least 1 photo in the selection
         if ($collection === [] && !$request->request->get('submitFilter')) {
             $this->addFlash('error', $this->translator->trans('Select at least one photo', [], 'admin'));
+
             return null;
         }
 
@@ -628,12 +636,14 @@ class AdminBatchManagerController extends AbstractController
             return null;
         }
     }
+
     protected function filterFromSession(SessionInterface $session): void
     {
         if (!$session->has('bulk_manager_filter')) {
             $this->appendFilter($session, ['prefilter' => 'caddie']);
         }
     }
+
     /**
      * @return array<int, array<int, int|string|null>|int>
      */
@@ -643,7 +653,7 @@ class AdminBatchManagerController extends AbstractController
         AlbumRepository $albumRepository,
         FavoriteRepository $favoriteRepository,
         TagRepository $tagRepository,
-        SessionInterface $session
+        SessionInterface $session,
     ): array {
         $filter_sets = [];
 
@@ -652,7 +662,6 @@ class AdminBatchManagerController extends AbstractController
         if (!empty($bulk_manager_filter['prefilter'])) {
             switch ($bulk_manager_filter['prefilter']) {
                 case 'caddie':
-
                     $filter_sets[] = $this->user->getCaddies()->map(fn (Caddie $caddie): ?int => $caddie->getImage()->getId())->toArray();
 
                     break;
@@ -850,6 +859,7 @@ class AdminBatchManagerController extends AbstractController
 
         return $filter_sets;
     }
+
     /**
      * @return array<string, mixed>
      */
@@ -908,7 +918,7 @@ class AdminBatchManagerController extends AbstractController
         $tpl_params['orientations'] = [
             ['value' => 6, 'name' => $this->translator->trans('90° right', [], 'admin')],
             ['value' => 8, 'name' => $this->translator->trans('90° left', [], 'admin')],
-            ['value' => 4, 'name' => $this->translator->trans('180°', [], 'admin')]
+            ['value' => 4, 'name' => $this->translator->trans('180°', [], 'admin')],
         ];
 
         foreach ($ratios as $ratio) {
@@ -972,6 +982,7 @@ class AdminBatchManagerController extends AbstractController
 
         return $tpl_params;
     }
+
     #[Route(
         '/admin/batch/unit/{start}/{filter}/{value}',
         name: 'admin_batch_manager_unit',
@@ -993,7 +1004,7 @@ class AdminBatchManagerController extends AbstractController
         FavoriteRepository $favoriteRepository,
         ManagerRegistry $managerRegistry,
         ?string $filter = null,
-        int $start = 0
+        int $start = 0,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -1103,7 +1114,7 @@ class AdminBatchManagerController extends AbstractController
         $tpl_params['level_options'] = Utils::getPrivacyLevelOptions($translator, $conf['available_permission_levels'], 'admin');
         $tpl_params['level_options_selected'] = 0;
 
-        //derivatives
+        // derivatives
         $del_deriv_map = [];
         foreach ($image_std_params->getDefinedTypeMap() as $derivative_params) {
             $del_deriv_map[$derivative_params->type->value] = $translator->trans($derivative_params->type->value, [], 'admin');

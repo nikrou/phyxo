@@ -11,18 +11,18 @@
 
 namespace App\Command;
 
-use Override;
-use Exception;
 use App\Install\PhyxoInstaller;
+use Exception;
+use Override;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Console\Output\NullOutput;
-use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'phyxo:install',
@@ -134,7 +134,7 @@ class InstallCommand extends Command
         if (!empty($_SERVER['DATABASE_URL'])) {
             $this->db_params['dsn'] = $_SERVER['DATABASE_URL'];
             $this->db_params['db_prefix'] = $input->getOption('db_prefix') ?: $this->prefix;
-        } elseif (!$io->askQuestion(new ConfirmationQuestion("Install Phyxo using these settings?", true))) {
+        } elseif (!$io->askQuestion(new ConfirmationQuestion('Install Phyxo using these settings?', true))) {
             return Command::SUCCESS;
         }
 
@@ -157,6 +157,7 @@ class InstallCommand extends Command
             $command->run(new ArrayInput($arguments), $output);
         } catch (Exception $exception) {
             $io->error($exception->getMessage());
+
             return Command::FAILURE;
         }
 
@@ -164,7 +165,7 @@ class InstallCommand extends Command
         $io->listing([
             'Create a webmaster, using phyxo:user:create command',
             'Create a guest user, using phyxo:user:create command',
-            'Go to http://your.hostname/path/to/phyxo and start using your application'
+            'Go to http://your.hostname/path/to/phyxo and start using your application',
         ]);
 
         return Command::SUCCESS;

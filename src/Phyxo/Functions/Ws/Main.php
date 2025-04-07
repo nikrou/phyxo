@@ -17,16 +17,18 @@ use App\Entity\Image;
 use App\Entity\ImageAlbum;
 use App\Entity\ImageTag;
 use App\Entity\User;
-use Phyxo\Ws\Server;
-use Phyxo\Ws\Error;
 use Phyxo\Image\DerivativeImage;
+use Phyxo\Ws\Error;
+use Phyxo\Ws\Server;
 
 class Main
 {
     /**
      * API method
-     * Returns a list of missing derivatives (not generated yet)
+     * Returns a list of missing derivatives (not generated yet).
+     *
      * @param mixed[] $params
+     *
      *    @option string types (optional)
      *    @option int[] ids
      *    @option int max_urls
@@ -40,7 +42,7 @@ class Main
         } else {
             $types = array_intersect(array_keys($service->getImageStandardParams()->getDefinedTypeMap()), $params['types']);
             if (count($types) == 0) {
-                return new Error(Server::WS_ERR_INVALID_PARAM, "Invalid types");
+                return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid types');
             }
         }
 
@@ -85,12 +87,14 @@ class Main
             $ret['next_page'] = $start_id;
         }
         $ret['urls'] = $urls;
+
         return $ret;
     }
 
     /**
      * API method
-     * Returns Phyxo version
+     * Returns Phyxo version.
+     *
      * @param mixed[] $params
      */
     public static function getVersion($params, Server $service)
@@ -100,7 +104,8 @@ class Main
 
     /**
      * API method
-     * Returns general informations about the installation
+     * Returns general informations about the installation.
+     *
      * @param mixed[] $params
      */
     public static function getInfos($params, Server $service)
@@ -138,7 +143,7 @@ class Main
 
     /**
      * returns a "standard" (for our web service) array of sql where clauses that
-     * filters the images (images table only)
+     * filters the images (images table only).
      */
     public static function stdImageSqlFilter($params, $tbl_name = '')
     {
@@ -182,7 +187,7 @@ class Main
 
     /**
      * returns an array map of urls (thumb/element) for image_row - to be returned
-     * in a standard way by different web service methods
+     * in a standard way by different web service methods.
      */
     public static function stdGetUrls(Image $image, Server $service)
     {
@@ -207,7 +212,7 @@ class Main
             $derivatives_arr[$type] = [
                 'url' => $service->getRouter()->generate('admin_media', ['path' => $image->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $image->getExtension()]),
                 'width' => $size[0],
-                'height' => $size[1]
+                'height' => $size[1],
             ];
         }
         $ret['derivatives'] = $derivatives_arr;

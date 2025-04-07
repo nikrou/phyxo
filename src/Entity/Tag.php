@@ -11,11 +11,11 @@
 
 namespace App\Entity;
 
-use Doctrine\DBAL\Types\Types;
-use DateTimeInterface;
 use App\Repository\TagRepository;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'tags')]
@@ -117,7 +117,7 @@ class Tag
         $this->related_image_tag_infos = [
             'status' => $imageTag->getStatus(),
             'validated' => $imageTag->isValidated(),
-            'created_by' => $imageTag->getCreatedBy()
+            'created_by' => $imageTag->getCreatedBy(),
         ];
 
         return $this;

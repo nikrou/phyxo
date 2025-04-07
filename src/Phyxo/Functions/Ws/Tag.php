@@ -11,10 +11,10 @@
 
 namespace Phyxo\Functions\Ws;
 
-use DateTime;
 use App\Entity\Tag as EntityTag;
-use Phyxo\Ws\Error;
+use DateTime;
 use Phyxo\Functions\Utils;
+use Phyxo\Ws\Error;
 use Phyxo\Ws\Server;
 
 class Tag
@@ -23,7 +23,9 @@ class Tag
      * API method
      * Returns al list of all tags even associated to no image.
      * The list can be can be filtered with option "q".
+     *
      * @param mixed[] $params
+     *
      *    @option q     subtsring of tag o search for
      *    @option limit limit the number of tags to retrieved
      */
@@ -34,8 +36,10 @@ class Tag
 
     /**
      * API method
-     * Returns a list of tags
+     * Returns a list of tags.
+     *
      * @param mixed[] $params
+     *
      *    @option bool sort_by_counter
      */
     public static function getList($params, Server $service)
@@ -45,11 +49,12 @@ class Tag
 
     /**
      * API method
-     * Returns the list of tags as you can see them in administration
+     * Returns the list of tags as you can see them in administration.
+     *
      * @param mixed[] $params
      *
      * Only admin can run this method and permissions are not taken into
-     * account.
+     * account
      */
     public static function getAdminList($params, Server $service)
     {
@@ -63,8 +68,10 @@ class Tag
 
     /**
      * API method
-     * Returns a list of images for tags
+     * Returns a list of images for tags.
+     *
      * @param mixed[] $params
+     *
      *    @option int[] tag_id (optional)
      *    @option string[] tag_url_name (optional)
      *    @option string[] tag_name (optional)
@@ -152,14 +159,16 @@ class Tag
 
     /**
      * API method
-     * Adds a tag
+     * Adds a tag.
+     *
      * @param mixed[] $params
+     *
      *    @option string name
      */
     public static function add($params, Server $service)
     {
         if (!is_null($service->getTagMapper()->getRepository()->findOneBy(['name' => $params['name']]))) {
-            return new Error(500, "Tag already exists");
+            return new Error(500, 'Tag already exists');
         } else {
             $tag = new EntityTag();
             $tag->setName($params['name']);
@@ -186,7 +195,7 @@ class Tag
             if (!empty($params['sort_by_counter'])) {
                 $tags[$i]['counter'] = (int) $tags[$i]['counter'];
             }
-            //$tags[$i]['url'] = $service->getRouter()->generate('images_by_tags', ['tag_ids' => $tags[$i]->toUrl()]);
+            // $tags[$i]['url'] = $service->getRouter()->generate('images_by_tags', ['tag_ids' => $tags[$i]->toUrl()]);
         }
 
         return ['tags' => $tags];

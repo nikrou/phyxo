@@ -11,13 +11,13 @@
 
 namespace App\Form;
 
-use Doctrine\ORM\QueryBuilder;
-use DateTimeImmutable;
-use DateInterval;
 use App\Entity\Album;
 use App\Form\Model\CommentFilterModel;
 use App\Repository\AlbumRepository;
 use App\Security\AppUserService;
+use DateInterval;
+use DateTimeImmutable;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -40,17 +40,17 @@ class CommentFilterType extends AbstractType
             'today' => $now->sub(new DateInterval('P1D')),
             'last 7 days' => $now->sub(new DateInterval('P7D')),
             'last 30 days' => $now->sub(new DateInterval('P30D')),
-            'the beginning' => null
+            'the beginning' => null,
         ];
 
         $sort_order_options = [
             'descending' => 'DESC',
-            'ascending' => 'ASC'
+            'ascending' => 'ASC',
         ];
 
         $sort_by_options = [
             'comment date' => 'date',
-            'photo' => 'image_id'
+            'photo' => 'image_id',
         ];
 
         $items_number_options = [5 => 5, 10 => 10, 20 => 20, 50 => 50, 'All comments' => null];
@@ -79,7 +79,7 @@ class CommentFilterType extends AbstractType
                 ChoiceType::class,
                 [
                     'choices' => $since_options,
-                    'required' => false
+                    'required' => false,
                 ]
             )
 
@@ -89,7 +89,7 @@ class CommentFilterType extends AbstractType
                 [
                     'choices' => $sort_by_options,
                     'data' => 'date',
-                    'required' => false
+                    'required' => false,
                 ]
             )
 
@@ -99,7 +99,7 @@ class CommentFilterType extends AbstractType
                 [
                     'choices' => $sort_order_options,
                     'data' => 'DESC',
-                    'required' => false
+                    'required' => false,
                 ]
             )
 
@@ -108,7 +108,7 @@ class CommentFilterType extends AbstractType
                 ChoiceType::class,
                 [
                     'choices' => $items_number_options,
-                    'required' => false
+                    'required' => false,
                 ]
             )
 
@@ -122,7 +122,7 @@ class CommentFilterType extends AbstractType
             'attr' => [
                 'data_class' => CommentFilterModel::class,
                 'novalidate' => 'novalidate',
-            ]
+            ],
         ]);
     }
 }

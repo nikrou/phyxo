@@ -11,13 +11,6 @@
 
 namespace App\Controller;
 
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Exception;
-use DateTime;
-use DateInterval;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Component\HttpFoundation\Request;
 use App\Entity\User;
 use App\Events\ActivationKeyEvent;
 use App\Form\ForgotPasswordType;
@@ -28,13 +21,20 @@ use App\Repository\UserRepository;
 use App\Security\AppUserService;
 use App\Security\LoginFormAuthenticator;
 use App\Security\UserProvider;
+use DateInterval;
+use DateTime;
+use Exception;
 use Phyxo\Conf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\Form;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -50,7 +50,7 @@ class SecurityController extends AbstractController
         Request $request,
         Conf $conf,
         TranslatorInterface $translator,
-        array $publicTemplates
+        array $publicTemplates,
     ): Response {
         $tpl_params = [];
 
@@ -89,7 +89,7 @@ class SecurityController extends AbstractController
         UserPasswordHasherInterface $passwordHasher,
         UserAuthenticatorInterface $userAuthenticator,
         LoginFormAuthenticator $loginFormAuthenticator,
-        array $publicTemplates
+        array $publicTemplates,
     ): Response {
         $tpl_params = [];
         $form = $this->createForm(UserRegistrationType::class);
@@ -128,7 +128,7 @@ class SecurityController extends AbstractController
         UserPasswordHasherInterface $passwordHasher,
         AppUserService $appUserService,
         TranslatorInterface $translator,
-        array $publicTemplates
+        array $publicTemplates,
     ): Response {
         $tpl_params = [];
         /** @var Form $form */
@@ -174,7 +174,7 @@ class SecurityController extends AbstractController
         UserRepository $userRepository,
         EventDispatcherInterface $dispatcher,
         TranslatorInterface $translator,
-        array $publicTemplates
+        array $publicTemplates,
     ): Response {
         $tpl_params = [];
         $form = $this->createForm(ForgotPasswordType::class);
@@ -215,7 +215,7 @@ class SecurityController extends AbstractController
         UserProvider $userProvider,
         TranslatorInterface $translator,
         UserRepository $userRepository,
-        array $publicTemplates
+        array $publicTemplates,
     ): Response {
         try {
             $tpl_params = [];

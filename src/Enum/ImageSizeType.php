@@ -31,7 +31,7 @@ enum ImageSizeType: string
     public static function getAllTypes(): array
     {
         return [
-            self::SQUARE, self::THUMB, self::XXSMALL, self::XSMALL, self::SMALL, self::MEDIUM, self::LARGE, self::XLARGE, self::XXLARGE
+            self::SQUARE, self::THUMB, self::XXSMALL, self::XSMALL, self::SMALL, self::MEDIUM, self::LARGE, self::XLARGE, self::XXLARGE,
         ];
     }
 

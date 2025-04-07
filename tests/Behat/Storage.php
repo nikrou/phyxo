@@ -13,7 +13,7 @@ namespace App\Tests\Behat;
 
 class Storage
 {
-    /** @var array<string> $data */
+    /** @var array<string> */
     private array $data;
 
     public function set(string $name, mixed $value): void
@@ -21,10 +21,7 @@ class Storage
         $this->data[$name] = $value;
     }
 
-    /**
-     * @return mixed
-     */
-    public function get(string $name)
+    public function get(string $name): mixed
     {
         return $this->data[$name] ?? null;
     }

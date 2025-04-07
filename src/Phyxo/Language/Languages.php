@@ -11,13 +11,13 @@
 
 namespace Phyxo\Language;
 
-use Override;
-use Exception;
-use Phyxo\Functions\Utils;
 use App\Entity\Language;
 use App\Repository\LanguageRepository;
-use Phyxo\Extension\Extensions;
+use Exception;
+use Override;
 use PclZip;
+use Phyxo\Extension\Extensions;
+use Phyxo\Functions\Utils;
 use Symfony\Component\Filesystem\Filesystem;
 
 class Languages extends Extensions
@@ -40,7 +40,7 @@ class Languages extends Extensions
     }
 
     /**
-     * Perform requested actions
+     * Perform requested actions.
      */
     public function performAction(string $action, string $language_id, ?string $revision_id = null): string
     {
@@ -130,7 +130,7 @@ class Languages extends Extensions
     }
 
     /**
-     *  Get languages defined in the language directory
+     *  Get languages defined in the language directory.
      *
      * @return array<string, mixed>
      */
@@ -149,31 +149,31 @@ class Languages extends Extensions
                     'code' => $language_code,
                     'version' => '0',
                     'uri' => '',
-                    'author' => ''
+                    'author' => '',
                 ];
                 $language_data = file_get_contents($messages_file, false, null, 0, 2048);
 
-                if (preg_match("|Language Name:\\s*(.+)|", $language_data, $val)) {
+                if (preg_match('|Language Name:\\s*(.+)|', $language_data, $val)) {
                     $language['name'] = trim($val[1]);
                 }
 
-                if (preg_match("|Version:\\s*([\\w.-]+)|", $language_data, $val)) {
+                if (preg_match('|Version:\\s*([\\w.-]+)|', $language_data, $val)) {
                     $language['version'] = trim($val[1]);
                 }
 
-                if (preg_match("|Language URI:\\s*(https?:\\/\\/.+)|", $language_data, $val)) {
+                if (preg_match('|Language URI:\\s*(https?:\\/\\/.+)|', $language_data, $val)) {
                     $language['uri'] = trim($val[1]);
                 }
 
-                if (preg_match("|Author:\\s*(.+)|", $language_data, $val)) {
+                if (preg_match('|Author:\\s*(.+)|', $language_data, $val)) {
                     $language['author'] = trim($val[1]);
                 }
 
-                if (preg_match("|Author URI:\\s*(https?:\\/\\/.+)|", $language_data, $val)) {
+                if (preg_match('|Author URI:\\s*(https?:\\/\\/.+)|', $language_data, $val)) {
                     $language['author uri'] = trim($val[1]);
                 }
 
-                /** @phpstan-ignore-next-line */
+                /* @phpstan-ignore-next-line */
                 if (isset($language['uri']) && ($language['uri'] !== '' && $language['uri'] !== '0') && strpos($language['uri'], 'extension_view.php?eid=')) {
                     [, $extension] = explode('extension_view.php?eid=', $language['uri']);
                     if (is_numeric($extension)) {
@@ -207,7 +207,7 @@ class Languages extends Extensions
     }
 
     /**
-     * Retrieve PEM server datas to $server_languages
+     * Retrieve PEM server datas to $server_languages.
      */
     public function getServerLanguages(string $pem_category, string $phyxo_version, $new = false): array
     {
@@ -289,7 +289,7 @@ class Languages extends Extensions
     }
 
     /**
-     * Extract language files from archive
+     * Extract language files from archive.
      */
     public function extractLanguageFiles(string $action, int $revision): void
     {
@@ -303,7 +303,7 @@ class Languages extends Extensions
         try {
             $this->download($archive, $get_data);
         } catch (Exception $exception) {
-            throw new Exception("Cannot download language archive", $exception->getCode(), $exception);
+            throw new Exception('Cannot download language archive', $exception->getCode(), $exception);
         }
 
         try {
@@ -341,10 +341,10 @@ class Languages extends Extensions
                 if ($results = @$zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $extract_path, PCLZIP_OPT_REPLACE_NEWER)) {
                     $errors = array_filter($results, fn ($f): bool => ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory');
                     if ($errors !== []) {
-                        throw new Exception("Error while extracting some files from archive");
+                        throw new Exception('Error while extracting some files from archive');
                     }
                 } else {
-                    throw new Exception("Error while extracting archive");
+                    throw new Exception('Error while extracting archive');
                 }
             }
 
@@ -355,7 +355,7 @@ class Languages extends Extensions
     }
 
     /**
-     * Sort functions
+     * Sort functions.
      */
     public function extensionNameCompare(array $a, array $b): int
     {

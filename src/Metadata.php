@@ -13,9 +13,9 @@ namespace App;
 
 use DateTime;
 use Exception;
+use Phyxo\Conf;
 use Phyxo\Functions\Language;
 use Phyxo\Functions\Utils;
-use Phyxo\Conf;
 
 class Metadata
 {
@@ -71,6 +71,7 @@ class Metadata
 
     /**
      * Returns IPTC metadata to sync from a file, depending on IPTC mapping.
+     *
      * @toto : clean code (factorize foreach)
      *
      * @return array<string, mixed>
@@ -195,10 +196,11 @@ class Metadata
      * Converts EXIF GPS format to a float value.
      *
      * @param string[] $raw eg:
-     *    - 41/1
-     *    - 54/1
-     *    - 9843/500
-     * @param string $ref 'S', 'N', 'E', 'W'. eg: 'N'
+     *                      - 41/1
+     *                      - 54/1
+     *                      - 9843/500
+     * @param string   $ref 'S', 'N', 'E', 'W'. eg: 'N'
+     *
      * @return float eg: 41.905468
      */
     public function parseExifGpsData(array $raw, string $ref): float

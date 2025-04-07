@@ -47,7 +47,7 @@ class UserRegistrationType extends AbstractType
                     'first_options' => ['label' => 'Password', 'attr' => ['placeholder' => 'Password']],
                     'second_options' => ['label' => 'Confirm password', 'attr' => ['placeholder' => 'Confirm password']],
                     'attr' => ['placeholder' => 'Password'],
-                    'required' => true
+                    'required' => true,
                 ]
             )
             ->add(
@@ -57,7 +57,7 @@ class UserRegistrationType extends AbstractType
                     'label' => 'Email address',
                     'help' => '(useful when password forgotten)',
                     'attr' => ['placeholder' => 'Email address'], 'required' => $this->conf['obligatory_user_mail_address'],
-                    'constraints' => $emailConstraints
+                    'constraints' => $emailConstraints,
                 ]
             )
             ->add(
@@ -74,7 +74,7 @@ class UserRegistrationType extends AbstractType
             'data_class' => UserModel::class,
             'attr' => [
                 'novalidate' => 'novalidate',
-            ]
+            ],
         ]);
     }
 }

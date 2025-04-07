@@ -30,18 +30,18 @@ class PhyxoInstaller
     private array $dblayers = [
         'mysql' => [
             'engine' => 'MySQL, MariaDB, Percona Server, ...',
-            'function_available' => 'mysqli_connect'
+            'function_available' => 'mysqli_connect',
         ],
 
         'pgsql' => [
             'engine' => 'PostgreSQL',
-            'function_available' => 'pg_connect'
+            'function_available' => 'pg_connect',
         ],
 
         'sqlite' => [
             'engine' => 'SQLite',
-            'class_available' => 'PDO'
-        ]
+            'class_available' => 'PDO',
+        ],
     ];
 
     public function __construct(
@@ -50,7 +50,7 @@ class PhyxoInstaller
         private readonly string $translationsDir,
         private readonly string $defaultTheme,
         private readonly string $prefix,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->localEnvFile = sprintf('%s/.env.local', $this->rootProjectDir);
     }
@@ -96,7 +96,7 @@ class PhyxoInstaller
             'password' => $db_params['db_password'],
             'host' => $db_params['db_host'],
             'driver' => 'pdo_' . $db_params['db_layer'],
-            'path' => ''
+            'path' => '',
         ];
         if ($db_params['db_layer'] === 'sqlite') {
             $connectionParams['path'] = $sqlite_db;
@@ -203,7 +203,7 @@ class PhyxoInstaller
                 urlencode((string) $db_params['db_password']),
                 $db_params['db_host'],
                 $db_params['db_name'],
-                /** @phpstan-ignore-next-line */
+                /* @phpstan-ignore-next-line */
                 $conn->getNativeConnection()->getAttribute(PDO::ATTR_SERVER_VERSION)
             );
         } else {
@@ -222,7 +222,7 @@ class PhyxoInstaller
     /**
      * Returns queries from an SQL file.
      * Before returting a query, $replaced is... replaced by $replacing. This is
-     * useful when the SQL file contains generic words. Drop table queries are not returned
+     * useful when the SQL file contains generic words. Drop table queries are not returned.
      *
      * @return array<string>
      */
@@ -246,7 +246,7 @@ class PhyxoInstaller
                 // we don't execute "DROP TABLE" queries
                 if (!preg_match('/^DROP TABLE/i', $query)) {
                     if ($dblayer === 'mysql' && preg_match('/^(CREATE TABLE .*)[\s]*;[\s]*/im', $query, $matches)) {
-                        $query = $matches[1] . ' DEFAULT CHARACTER SET utf8' . ';';
+                        $query = $matches[1] . ' DEFAULT CHARACTER SET utf8;';
                     }
 
                     $queries[] = $query;

@@ -11,8 +11,8 @@
 
 namespace App\Twig;
 
-use Override;
 use App\Services\AssetsManager;
+use Override;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -29,7 +29,6 @@ class PluginAssetExtension extends AbstractExtension
         return [
             new TwigFunction('publicHeadContent', $this->publicHeadContent(...), ['is_safe' => ['html']]),
             new TwigFunction('publicFooterContent', $this->publicFooterContent(...), ['is_safe' => ['html']]),
-
         ];
     }
 

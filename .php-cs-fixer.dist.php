@@ -39,5 +39,6 @@ return $config
         'no_leading_import_slash' => false,
         'global_namespace_import' => false,
         'concat_space' => ['spacing' => 'one'],
+        'increment_style' => ['style' => 'post'],
     ])
     ->setFinder($finder);

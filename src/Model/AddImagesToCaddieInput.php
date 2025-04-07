@@ -17,7 +17,7 @@ class AddImagesToCaddieInput
      * @param int[] $imageIds
      */
     public function __construct(
-        public array $imageIds
+        public array $imageIds,
     ) {
     }
 }

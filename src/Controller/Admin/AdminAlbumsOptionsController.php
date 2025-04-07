@@ -25,6 +25,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminAlbumsOptionsController extends AbstractController
 {
     private TranslatorInterface $translator;
+
     protected function setTabsheet(Conf $conf, string $section = 'status'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -42,6 +43,7 @@ class AdminAlbumsOptionsController extends AbstractController
 
         return $tabsheet;
     }
+
     #[Route('/admin/albums/options/{section}', name: 'admin_albums_options', defaults: ['section' => 'status'], requirements: ['status' => 'status|lock|comments|representative'])]
     public function index(Request $request, string $section, Conf $conf, AlbumMapper $albumMapper, AlbumRepository $albumRepository, TranslatorInterface $translator): Response
     {
@@ -90,6 +92,7 @@ class AdminAlbumsOptionsController extends AbstractController
 
         return $this->render('albums_options.html.twig', $tpl_params);
     }
+
     /**
      * @return array<string, mixed>
      */

@@ -11,10 +11,10 @@
 
 namespace App\Security;
 
-use LogicException;
 use App\Entity\Image;
 use App\Entity\User;
 use App\Enum\UserStatusType;
+use LogicException;
 use Phyxo\Conf;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -22,7 +22,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * Voter to allow manage tags on image
+ * Voter to allow manage tags on image.
  *
  * @extends Voter<string, string>
  */

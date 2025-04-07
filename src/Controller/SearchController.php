@@ -11,20 +11,20 @@
 
 namespace App\Controller;
 
-use DateTime;
 use App\DataMapper\AlbumMapper;
-use Symfony\Component\HttpFoundation\Request;
-use Phyxo\Conf;
-use App\DataMapper\TagMapper;
-use App\Repository\SearchRepository;
-use App\DataMapper\SearchMapper;
 use App\DataMapper\ImageMapper;
+use App\DataMapper\SearchMapper;
+use App\DataMapper\TagMapper;
 use App\Entity\Search;
 use App\Enum\PictureSectionType;
+use App\Repository\SearchRepository;
 use App\Repository\TagRepository;
 use App\Security\AppUserService;
+use DateTime;
+use Phyxo\Conf;
 use Phyxo\Functions\Utils;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
@@ -75,7 +75,7 @@ class SearchController extends AbstractController
         TranslatorInterface $translator,
         ImageMapper $imageMapper,
         AppUserService $appUserService,
-        array $publicTemplates
+        array $publicTemplates,
     ): Response {
         $tpl_params = [];
 
@@ -108,7 +108,7 @@ class SearchController extends AbstractController
 
         $tpl_params['AUTHORS'] = $authors;
 
-        $month_list = [1 => "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        $month_list = [1 => 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         foreach ($month_list as &$month) {
             $month = $translator->trans($month);
         }
@@ -134,11 +134,11 @@ class SearchController extends AbstractController
 
                 $drop_char_match = [
                     '-', '^', '$', ';', '#', '&', '(', ')', '<', '>', '`', "'", '"', '|', ',', '@', '_',
-                    '?', '%', '~', '.', '[', ']', '{', '}', ':', '\\', '/', '=', "'", '!', '*'
+                    '?', '%', '~', '.', '[', ']', '{', '}', ':', '\\', '/', '=', "'", '!', '*',
                 ];
                 $drop_char_replace = [
                     ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', ' ', ' ', ' ', ' ', '', ' ',
-                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', ' ', ' ', ' ', ' ', ' '
+                    ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', ' ', ' ', ' ', ' ', ' ',
                 ];
 
                 // Split words
@@ -165,7 +165,7 @@ class SearchController extends AbstractController
                 ];
             }
 
-            /** @phpstan-ignore-next-line */
+            /* @phpstan-ignore-next-line */
             if ($request->request->has('authors') && is_array($request->request->all('authors')) && (is_countable($request->request->all('authors')) ? count($request->request->all('authors')) : 0) > 0) {
                 $authors = $request->request->all('authors');
                 $rules['fields']['author'] = [
@@ -268,7 +268,7 @@ class SearchController extends AbstractController
         RouterInterface $router,
         AppUserService $appUserService,
         array $publicTemplates,
-        int $start = 0
+        int $start = 0,
     ): Response {
         $tpl_params = [];
 
@@ -285,16 +285,16 @@ class SearchController extends AbstractController
         $tpl_params['items'] = $searchMapper->getSearchResults($rules, $appUserService->getUser());
         $search_results = [];
 
-        /** @phpstan-ignore-next-line */
+        /* @phpstan-ignore-next-line */
         if (!empty($search_results['qsearch_details'])) {
             $cats = [];
-            /** @phpstan-ignore-next-line */
+            /* @phpstan-ignore-next-line */
             if (!empty($search_results['qsearch_details']['matching_cats_no_image'])) {
                 /** @phpstan-ignore-next-line */
                 $cats = array_merge($cats, $search_results['qsearch_details']['matching_cats_no_image']);
             }
 
-            /** @phpstan-ignore-next-line */
+            /* @phpstan-ignore-next-line */
             if ($search_results['qsearch_details']['matching_cats']) {
                 /** @phpstan-ignore-next-line */
                 $cats = array_merge($cats, $search_results['qsearch_details']['matching_cats']);
@@ -310,9 +310,9 @@ class SearchController extends AbstractController
                 $tpl_params['category_search_results'] = $hints;
             }
 
-            /** @phpstan-ignore-next-line */
+            /* @phpstan-ignore-next-line */
             if (!empty($search_results['qsearch_details']['matching_tags'])) {
-                /** @phpstan-ignore-next-line */
+                /* @phpstan-ignore-next-line */
                 foreach ($search_results['qsearch_details']['matching_tags'] as $tag) {
                     $tag['URL'] = $this->generateUrl('images_by_tags', ['tag_ids' => Utils::tagToUrl($tag)]);
                     $tpl_params['tag_search_results'] = $tag;
@@ -341,15 +341,15 @@ class SearchController extends AbstractController
                 )
             );
 
-            /** @phpstan-ignore-next-line */
+            /* @phpstan-ignore-next-line */
             if (!empty($search_results['qsearch_details']) && !empty($search_results['qsearch_details']['unmatched_terms'])) {
-                /** @phpstan-ignore-next-line */
+                /* @phpstan-ignore-next-line */
                 $tpl_params['no_search_results'] = $search_results['qsearch_details']['unmatched_terms'];
             }
 
-            /** @phpstan-ignore-next-line */
+        /* @phpstan-ignore-next-line */
         } elseif (!empty($search_results['qsearch_details']) && !empty($search_results['qsearch_details']['q'])) {
-            /** @phpstan-ignore-next-line */
+            /* @phpstan-ignore-next-line */
             $tpl_params['no_search_results'] = $search_results['qsearch_details']['q'];
         }
 

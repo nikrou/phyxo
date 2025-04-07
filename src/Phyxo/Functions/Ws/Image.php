@@ -11,8 +11,6 @@
 
 namespace Phyxo\Functions\Ws;
 
-use DateTime;
-use Exception;
 use App\Entity\Comment;
 use App\Entity\Image as EntityImage;
 use App\Entity\ImageAlbum;
@@ -20,12 +18,14 @@ use App\Entity\ImageTag;
 use App\Entity\Rate;
 use App\Enum\ImageSizeType;
 use App\Enum\UserPrivacyLevelType;
-use Phyxo\Ws\Server;
-use Phyxo\Ws\Error;
 use App\Security\TagVoter;
+use DateTime;
+use Exception;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageOptimizer;
+use Phyxo\Ws\Error;
+use Phyxo\Ws\Server;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -33,8 +33,10 @@ class Image
 {
     /**
      * API method
-     * Adds a comment to an image
+     * Adds a comment to an image.
+     *
      * @param mixed[] $params
+     *
      *    @option int image_id
      *    @option string author
      *    @option string content
@@ -50,7 +52,7 @@ class Image
             'author' => trim((string) $params['author']),
             'content' => trim((string) $params['content']),
             'image_id' => $params['image_id'],
-            'ip' => $service->getRequest()->getClientIp()
+            'ip' => $service->getRequest()->getClientIp(),
         ];
 
         $infos = [];
@@ -59,7 +61,8 @@ class Image
         switch ($comment_action) {
             case 'reject':
                 $infos[] = 'Your comment has NOT been registered because it did not pass the validation rules';
-                return new Error(403, implode("; ", $infos));
+
+                return new Error(403, implode('; ', $infos));
 
             case 'validate':
             case 'moderate':
@@ -67,16 +70,19 @@ class Image
                     'id' => $comm['id'],
                     'validation' => $comment_action == 'validate',
                 ];
+
                 return ['comment' => $ret];
             default:
-                return new Error(500, "Unknown comment action " . $comment_action);
+                return new Error(500, 'Unknown comment action ' . $comment_action);
         }
     }
 
     /**
      * API method
-     * Returns detailed information for an element
+     * Returns detailed information for an element.
+     *
      * @param mixed[] $params
+     *
      *    @option int image_id
      *    @option int comments_page
      *    @option int comments_per_page
@@ -88,7 +94,7 @@ class Image
             return new Error(404, 'image_id not found');
         }
 
-        //-------------------------------------------------------- related categories
+        // -------------------------------------------------------- related categories
         $is_commentable = false;
         $related_categories = [];
         foreach ($service->getAlbumMapper()->getRepository()->findRelative($image->getId(), $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenAlbums()) as $album) {
@@ -97,7 +103,7 @@ class Image
                 $album->toArray(),
                 [
                     'url' => $service->getRouter()->generate('album', ['category_id' => $album->getId()]),
-                    'page_url' => $service->getRouter()->generate('picture', ['image_id' => $params['image_id'], 'type' => 'category', 'element_id' => $album->getId()])
+                    'page_url' => $service->getRouter()->generate('picture', ['image_id' => $params['image_id'], 'type' => 'category', 'element_id' => $album->getId()]),
                 ]
             );
 
@@ -109,7 +115,7 @@ class Image
             return new Error(401, 'Access denied');
         }
 
-        //-------------------------------------------------------------- related tags
+        // -------------------------------------------------------------- related tags
         $related_tags = $service->getTagMapper()->getCommonTags($service->getUserMapper()->getUser(), [$image->getId()], -1);
         foreach ($related_tags as $i => $tag) {
             $tag['url'] = $service->getRouter()->generate('images_by_tags', ['tag_ids' => Utils::tagToUrl($tag)]);
@@ -120,7 +126,7 @@ class Image
             $related_tags[$i] = $tag;
         }
 
-        //------------------------------------------------------------- related rates
+        // ------------------------------------------------------------- related rates
         $rating = [
             'score' => $image->getRatingScore(),
             'count' => 0,
@@ -135,7 +141,7 @@ class Image
             $rating['count'] = (int) $rate_summary['count'];
         }
 
-        //---------------------------------------------------------- related comments
+        // ---------------------------------------------------------- related comments
         $related_comments = [];
 
         $nb_comments = $service->getManagerRegistry()->getRepository(Comment::class)->countForImage($image->getId(), $service->getUserMapper()->isAdmin());
@@ -158,7 +164,7 @@ class Image
         }
 
         $comment_post_data = null;
-        /** @phpstan-ignore-next-line */
+        /* @phpstan-ignore-next-line */
         if ($is_commentable && (!$service->getAppUserService()->isGuest() || ($service->getAppUserService()->isGuest() && $service->getConf()['comments_forall']))) {
             $comment_post_data['author'] = $service->getUserMapper()->getUser()->getUsername();
         }
@@ -172,7 +178,7 @@ class Image
 
         if (isset($comment_post_data)) {
             $ret['comment_post'] = [
-                Server::WS_XML_ATTRIBUTES => $comment_post_data
+                Server::WS_XML_ATTRIBUTES => $comment_post_data,
             ];
         }
         $ret['comments_paging'] = [
@@ -189,8 +195,10 @@ class Image
 
     /**
      * API method
-     * Rates an image
+     * Rates an image.
+     *
      * @param mixed[] $params
+     *
      *    @option int image_id
      *    @option float rate
      */
@@ -211,8 +219,10 @@ class Image
 
     /**
      * API method
-     * Returns a list of elements corresponding to a query search
+     * Returns a list of elements corresponding to a query search.
+     *
      * @param mixed[] $params
+     *
      *    @option string query
      *    @option int per_page
      *    @option int page
@@ -254,8 +264,10 @@ class Image
 
     /**
      * API method
-     * Sets the level of an image
+     * Sets the level of an image.
+     *
      * @param mixed[] $params
+     *
      *    @option int image_id
      *    @option int level
      */
@@ -267,13 +279,16 @@ class Image
 
         $service->getImageMapper()->getRepository()->updateFieldForImages($params['image_id'], 'level', (int) $params['level']);
         $service->getUserMapper()->invalidateUserCache();
+
         return null;
     }
 
     /**
      * API method
-     * Sets the rank of an image in a category
+     * Sets the rank of an image in a category.
+     *
      * @param mixed[] $params
+     *
      *    @option int image_id
      *    @option int category_id
      *    @option int rank
@@ -317,8 +332,10 @@ class Image
 
     /**
      * API method
-     * Adds a file chunk
+     * Adds a file chunk.
+     *
      * @param mixed[] $params
+     *
      *    @option string data
      *    @option string original_sum
      *    @option string type = 'file'
@@ -358,13 +375,16 @@ class Image
                 'an error has occured while writting chunk ' . $params['position'] . ' for ' . $params['type']
             );
         }
+
         return null;
     }
 
     /**
      * API method
-     * Adds a file
+     * Adds a file.
+     *
      * @param mixed[] $params
+     *
      *    @option int image_id
      *    @option string type = 'file'
      *    @option string sum
@@ -375,12 +395,13 @@ class Image
         $image = $service->getImageMapper()->getRepository()->find($params['image_id']);
 
         if (is_null($image)) {
-            return new Error(404, "image_id not found");
+            return new Error(404, 'image_id not found');
         }
 
         // we do not take the imported "thumb" into account
         if ($params['type'] === 'thumb') {
             self::remove_chunks($image->getMd5sum(), $params['type'], $service);
+
             return true;
         }
 
@@ -407,6 +428,7 @@ class Image
 
             if (!$do_update) {
                 unlink($file_path);
+
                 return true;
             }
         }
@@ -421,13 +443,16 @@ class Image
             $image->getMd5sum() // we force the md5sum to remain the same
         );
         $service->getTagMapper()->sync_metadata([$image_id]);
+
         return null;
     }
 
     /**
      * API method
-     * Adds an image
+     * Adds an image.
+     *
      * @param mixed[] $params
+     *
      *    @option string original_sum
      *    @option string original_filename (optional)
      *    @option string name (optional)
@@ -537,8 +562,10 @@ class Image
 
     /**
      * API method
-     * Adds a image (simple way)
+     * Adds a image (simple way).
+     *
      * @param mixed[] $params
+     *
      *    @option int[] category
      *    @option string name (optional)
      *    @option string author (optional)
@@ -622,8 +649,10 @@ class Image
 
     /**
      * API method
-     * Adds a image (simple way)
+     * Adds a image (simple way).
+     *
      * @param mixed[] $params
+     *
      *    @option int[] category
      *    @option string name (optional)
      *    @option string author (optional)
@@ -643,35 +672,35 @@ class Image
         }
 
         // Get a file name
-        if (isset($_REQUEST["name"])) {
-            $fileName = $_REQUEST["name"];
+        if (isset($_REQUEST['name'])) {
+            $fileName = $_REQUEST['name'];
         } elseif ($_FILES !== []) {
-            $fileName = $_FILES["file"]["name"];
+            $fileName = $_FILES['file']['name'];
         } else {
-            $fileName = uniqid("file_");
+            $fileName = uniqid('file_');
         }
 
         $filePath = $upload_dir . DIRECTORY_SEPARATOR . $fileName;
 
         // Chunking might be enabled
-        $chunk = isset($_REQUEST["chunk"]) ? intval($_REQUEST["chunk"]) : 0;
-        $chunks = isset($_REQUEST["chunks"]) ? intval($_REQUEST["chunks"]) : 0;
+        $chunk = isset($_REQUEST['chunk']) ? intval($_REQUEST['chunk']) : 0;
+        $chunks = isset($_REQUEST['chunks']) ? intval($_REQUEST['chunks']) : 0;
 
         // Open temp file
-        if (!$out = @fopen("{$filePath}.part", $chunks !== 0 ? "ab" : "wb")) {
-            die('{"jsonrpc" : "2.0", "error" : {"code": 102, "message": "Failed to open output stream."}, "id" : "id"}');
+        if (!$out = @fopen("{$filePath}.part", $chunks !== 0 ? 'ab' : 'wb')) {
+            exit('{"jsonrpc" : "2.0", "error" : {"code": 102, "message": "Failed to open output stream."}, "id" : "id"}');
         }
 
         if ($_FILES !== []) {
-            if ($_FILES["file"]["error"] || !is_uploaded_file($_FILES["file"]["tmp_name"])) {
-                die('{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "Failed to move uploaded file."}, "id" : "id"}');
+            if ($_FILES['file']['error'] || !is_uploaded_file($_FILES['file']['tmp_name'])) {
+                exit('{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "Failed to move uploaded file."}, "id" : "id"}');
             }
             // Read binary input stream and append it to temp file
-            if (!$in = @fopen($_FILES["file"]["tmp_name"], "rb")) {
-                die('{"jsonrpc" : "2.0", "error" : {"code": 101, "message": "Failed to open input stream."}, "id" : "id"}');
+            if (!$in = @fopen($_FILES['file']['tmp_name'], 'rb')) {
+                exit('{"jsonrpc" : "2.0", "error" : {"code": 101, "message": "Failed to open input stream."}, "id" : "id"}');
             }
-        } elseif (!$in = @fopen("php://input", "rb")) {
-            die('{"jsonrpc" : "2.0", "error" : {"code": 101, "message": "Failed to open input stream."}, "id" : "id"}');
+        } elseif (!$in = @fopen('php://input', 'rb')) {
+            exit('{"jsonrpc" : "2.0", "error" : {"code": 101, "message": "Failed to open input stream."}, "id" : "id"}');
         }
 
         while ($buff = fread($in, 4096)) {
@@ -714,16 +743,19 @@ class Image
                     'id' => $params['category'][0],
                     'nb_photos' => $nb_photos_in[$params['category'][0]],
                     'label' => $category_name,
-                ]
+                ],
             ];
         }
+
         return null;
     }
 
     /**
      * API method
-     * Check if an image exists by it's name or md5 sum
+     * Check if an image exists by it's name or md5 sum.
+     *
      * @param mixed[] $params
+     *
      *    @option string md5sum_list (optional)
      *    @option string filename_list (optional)
      */
@@ -776,7 +808,7 @@ class Image
 
             foreach ($filenames as $filename) {
                 $res[$filename] = null;
-                /** @phpstan-ignore-next-line */
+                /* @phpstan-ignore-next-line */
                 if (isset($id_of_filename[$filename])) {
                     $res[$filename] = $id_of_filename[$filename];
                 }
@@ -788,8 +820,10 @@ class Image
 
     /**
      * API method
-     * Check is file has been update
+     * Check is file has been update.
+     *
      * @param mixed[] $params
+     *
      *    @option int image_id
      *    @option string file_sum
      */
@@ -824,14 +858,16 @@ class Image
 
     /**
      * API method
-     * Set list of related tags of an image
+     * Set list of related tags of an image.
+     *
      * @param mixed[] $params
+     *
      *    @option bool sort_by_counter
      */
     public static function setRelatedTags($params, Server $service)
     {
         if (!$service->isPost()) {
-            return new Error(405, "This method requires HTTP POST");
+            return new Error(405, 'This method requires HTTP POST');
         }
 
         $image = $service->getImageMapper()->getRepository()->find($params['image_id']);
@@ -888,13 +924,16 @@ class Image
         } catch (Exception) {
             return new Error(500, '[ws_images_setRelatedTags]  Something went wrong when updating tags');
         }
+
         return null;
     }
 
     /**
      * API method
-     * Sets details of an image
+     * Sets details of an image.
+     *
      * @param mixed[] $params
+     *
      *    @option int image_id
      *    @option string file (optional)
      *    @option string name (optional)
@@ -953,7 +992,7 @@ class Image
                 $service,
                 $params['image_id'],
                 $params['categories'],
-                ('replace' == $params['multiple_value_mode'])
+                'replace' == $params['multiple_value_mode']
             );
         }
 
@@ -984,13 +1023,16 @@ class Image
         }
 
         $service->getUserMapper()->invalidateUserCache();
+
         return null;
     }
 
     /**
      * API method
-     * Deletes an image
+     * Deletes an image.
+     *
      * @param mixed[] $params
+     *
      *    @option int|int[] image_id
      */
     public static function delete($params, Server $service)
@@ -1021,7 +1063,8 @@ class Image
 
     /**
      * API method
-     * Checks if Phyxo is ready for upload
+     * Checks if Phyxo is ready for upload.
+     *
      * @param mixed[] $params
      */
     public static function checkUpload($params, Server $service)
@@ -1040,9 +1083,10 @@ class Image
 
     // protected methods, not part of the API
     /**
-     * Sets associations of an image
+     * Sets associations of an image.
+     *
      * @param string $categories_string - "cat_id[,rank];cat_id[,rank]"
-     * @param bool $replace_mode - removes old associations
+     * @param bool   $replace_mode      - removes old associations
      */
     protected static function addImageAlbumRelations(Server $service, int $image_id, $categories_string, $replace_mode = false)
     {
@@ -1109,11 +1153,12 @@ class Image
         }
 
         $service->getAlbumMapper()->updateAlbums($album_ids);
+
         return null;
     }
 
     /**
-     * Merge chunks added by pwg.images.addChunk
+     * Merge chunks added by pwg.images.addChunk.
      */
     protected static function merge_chunks(string $output_filepath, string $original_sum, string $type, Server $service)
     {
@@ -1149,11 +1194,13 @@ class Image
 
             unlink($chunk);
         }
+
         return null;
     }
 
     /**
-     * Deletes chunks added with pwg.images.addChunk
+     * Deletes chunks added with pwg.images.addChunk.
+     *
      * @param string $type
      *
      * Function introduced for Piwigo 2.4 and the new "multiple size"

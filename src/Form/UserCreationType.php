@@ -31,7 +31,7 @@ class UserCreationType extends AbstractType
             TextType::class,
             ['attr' => ['placeholder' => 'Username'],
                 'required' => true,
-                'constraints' => [new NotBlank(['message' => 'Username is mandatory'])]
+                'constraints' => [new NotBlank(['message' => 'Username is mandatory'])],
             ]
         );
         $builder->add(
@@ -63,7 +63,7 @@ class UserCreationType extends AbstractType
             'data_class' => UserProfileModel::class,
             'attr' => [
                 'novalidate' => 'novalidate',
-            ]
+            ],
         ]);
     }
 }

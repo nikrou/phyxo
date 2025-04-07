@@ -25,7 +25,7 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
 {
     private readonly PhpFileLoader $loader;
 
-    /** @var array<mixed> $runtimeResources */
+    /** @var array<mixed> */
     private array $runtimeResources = [];
 
     /**

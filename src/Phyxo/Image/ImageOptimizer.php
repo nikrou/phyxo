@@ -151,7 +151,7 @@ class ImageOptimizer
         bool $automaticRotation = true,
         bool $stripMetadata = false,
         bool $crop = false,
-        bool $followOrientation = true
+        bool $followOrientation = true,
     ): array {
         $starttime = microtime(true);
 

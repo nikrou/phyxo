@@ -82,6 +82,7 @@ class DerivativeParams
     {
         if ($this->use_watermark) {
             $min_size = $image_std_params->getWatermark()->getMinSize();
+
             return $min_size[0] <= $out_size[0] || $min_size[1] <= $out_size[1];
         }
 
@@ -116,7 +117,7 @@ class DerivativeParams
      */
     public static function sizeEquals(array $s1, array $s2): bool
     {
-        return ($s1[0] === $s2[0] && $s1[1] === $s2[1]);
+        return $s1[0] === $s2[0] && $s1[1] === $s2[1];
     }
 
     /**

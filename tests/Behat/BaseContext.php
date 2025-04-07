@@ -11,13 +11,13 @@
 
 namespace App\Tests\Behat;
 
-use RuntimeException;
-use Exception;
 use Behat\Behat\Context\Context;
 use Behat\Mink\Element\NodeElement;
-use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Mink\Exception\ExpectationException;
+use Behat\MinkExtension\Context\RawMinkContext;
 use Closure;
+use Exception;
+use RuntimeException;
 
 /**
  * @method getPage()
@@ -30,10 +30,7 @@ use Closure;
  */
 abstract class BaseContext extends RawMinkContext implements Context
 {
-    /**
-     * @return mixed
-     */
-    public function __call(string $method, mixed $parameters)
+    public function __call(string $method, mixed $parameters): mixed
     {
         $page = $this->getSession()->getPage();
         if (method_exists($page, $method)) {

@@ -15,10 +15,10 @@ use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\Enum\ImageSizeType;
 use App\Security\AppUserService;
-use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -41,7 +41,7 @@ class DefaultController extends AbstractController
         AlbumMapper $albumMapper,
         AppUserService $appUserService,
         ImageStandardParams $image_std_params,
-        string $rootProjectDir
+        string $rootProjectDir,
     ): Response {
         $image = $imageMapper->getRepository()->find($image_id);
 

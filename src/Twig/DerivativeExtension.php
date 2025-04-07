@@ -11,10 +11,10 @@
 
 namespace App\Twig;
 
-use Override;
 use App\Entity\Image;
 use App\Enum\ImageSizeType;
 use Exception;
+use Override;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\DerivativeParams;
 use Phyxo\Image\ImageStandardParams;
@@ -35,7 +35,7 @@ class DerivativeExtension extends AbstractExtension
             new TwigFunction('define_derivative', $this->defineDerivative(...)),
             new TwigFunction('define_derivative_square', $this->defineDerivativeSquare(...)),
             new TwigFunction('derivative_from_image', $this->derivativeFromImage(...)),
-            new TwigFunction('media_path', $this->mediaPath(...))
+            new TwigFunction('media_path', $this->mediaPath(...)),
         ];
     }
 

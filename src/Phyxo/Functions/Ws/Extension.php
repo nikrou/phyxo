@@ -11,16 +11,15 @@
 
 namespace Phyxo\Functions\Ws;
 
-use Exception;
 use App\Entity\Language;
 use App\Entity\Plugin;
 use App\Entity\Theme;
+use Exception;
 use Phyxo\Extension\Extensions;
-use Phyxo\Theme\Themes;
-use Phyxo\Plugin\Plugins;
 use Phyxo\Language\Languages;
+use Phyxo\Plugin\Plugins;
+use Phyxo\Theme\Themes;
 use Phyxo\Update\Updates;
-
 use Phyxo\Ws\Error;
 use Phyxo\Ws\Server;
 
@@ -28,8 +27,10 @@ class Extension
 {
     /**
      * API method
-     * Updates an extension
+     * Updates an extension.
+     *
      * @param mixed[] $params
+     *
      *    @option string type
      *    @option string id
      *    @option string revision
@@ -42,7 +43,7 @@ class Extension
         }
 
         if (!in_array($params['type'], Extensions::TYPES)) {
-            return new Error(403, "invalid extension type");
+            return new Error(403, 'invalid extension type');
         }
 
         $type = $params['type'];
@@ -90,8 +91,10 @@ class Extension
 
     /**
      * API method
-     * Ignore an update
+     * Ignore an update.
+     *
      * @param mixed[] $params
+     *
      *    @option string type (optional)
      *    @option string id (optional)
      *    @option bool reset
@@ -119,6 +122,7 @@ class Extension
             }
 
             $service->getConf()->addOrUpdateParam('updates_ignored', $updates_ignored);
+
             return true;
         }
 
@@ -138,7 +142,8 @@ class Extension
 
     /**
      * API method
-     * Checks for updates (core and extensions)
+     * Checks for updates (core and extensions).
+     *
      * @param mixed[] $params
      */
     public static function checkupdates($params, Server $service)

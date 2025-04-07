@@ -11,10 +11,10 @@
 
 namespace App\Controller\Admin;
 
-use Exception;
 use App\DataMapper\UserMapper;
 use App\Enum\ExtensionStateType;
 use App\Repository\PluginRepository;
+use Exception;
 use Phyxo\Conf;
 use Phyxo\Plugin\Plugins;
 use Phyxo\TabSheet\TabSheet;
@@ -28,6 +28,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminPluginsController extends AbstractController
 {
     private TranslatorInterface $translator;
+
     protected function setTabsheet(string $section = 'installed'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -38,6 +39,7 @@ class AdminPluginsController extends AbstractController
 
         return $tabsheet;
     }
+
     #[Route('/admin/plugins', name: 'admin_plugins_installed')]
     public function installed(
         UserMapper $userMapper,
@@ -45,7 +47,7 @@ class AdminPluginsController extends AbstractController
         Conf $conf,
         CsrfTokenManagerInterface $csrfTokenManager,
         ParameterBagInterface $params,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -115,6 +117,7 @@ class AdminPluginsController extends AbstractController
 
         return $this->render('plugins_installed.html.twig', $tpl_params);
     }
+
     #[Route('/admin/plugins/install/{revision}', name: 'admin_plugins_install', requirements: ['revision' => '\d+'])]
     public function install(int $revision, PluginRepository $pluginRepository, ParameterBagInterface $params, UserMapper $userMapper, TranslatorInterface $translator): Response
     {
@@ -139,6 +142,7 @@ class AdminPluginsController extends AbstractController
             return $this->redirectToRoute('admin_plugins_new');
         }
     }
+
     #[Route('/admin/plugins/new', name: 'admin_plugins_new')]
     public function new(
         UserMapper $userMapper,
@@ -146,7 +150,7 @@ class AdminPluginsController extends AbstractController
         Conf $conf,
         ParameterBagInterface $params,
         TranslatorInterface $translator,
-        CsrfTokenManagerInterface $tokenManager
+        CsrfTokenManagerInterface $tokenManager,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -185,6 +189,7 @@ class AdminPluginsController extends AbstractController
 
         return $this->render('plugins_new.html.twig', $tpl_params);
     }
+
     #[Route('/admin/plugins/update', name: 'admin_plugins_update')]
     public function update(
         UserMapper $userMapper,
@@ -192,7 +197,7 @@ class AdminPluginsController extends AbstractController
         Conf $conf,
         CsrfTokenManagerInterface $csrfTokenManager,
         ParameterBagInterface $params,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;

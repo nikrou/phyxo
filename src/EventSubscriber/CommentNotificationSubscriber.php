@@ -29,14 +29,14 @@ class CommentNotificationSubscriber implements EventSubscriberInterface
         private Conf $conf,
         private readonly RouterInterface $router,
         private readonly UserMapper $userMapper,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            CommentEvent::class => 'onCommentAction'
+            CommentEvent::class => 'onCommentAction',
         ];
     }
 

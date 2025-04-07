@@ -11,11 +11,11 @@
 
 namespace App\Repository;
 
-use Doctrine\ORM\Query\Expr\Join;
 use App\Entity\Album;
 use App\Enum\UserPrivacyLevelType;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -53,7 +53,7 @@ class AlbumRepository extends ServiceEntityRepository
 
     /**
      * @param array<string, string|bool|int|null> $fields
-     * @param int[] $ids
+     * @param int[]                               $ids
      */
     public function updateAlbums(array $fields, array $ids): void
     {
@@ -114,7 +114,7 @@ class AlbumRepository extends ServiceEntityRepository
     }
 
     /**
-     * Returns all sub-album of given album ids
+     * Returns all sub-album of given album ids.
      *
      * @param int[] $ids
      *
@@ -135,7 +135,7 @@ class AlbumRepository extends ServiceEntityRepository
     }
 
     /**
-     * Returns all sub-album identifiers of given album ids
+     * Returns all sub-album identifiers of given album ids.
      *
      * @param int[] $ids
      *
@@ -182,7 +182,7 @@ class AlbumRepository extends ServiceEntityRepository
     /**
      * @param int[] $forbidden_albums
      */
-    public function getQueryBuilderForFindAllowedAlbums(array $forbidden_albums = [], ? QueryBuilder $qb = null): QueryBuilder
+    public function getQueryBuilderForFindAllowedAlbums(array $forbidden_albums = [], ?QueryBuilder $qb = null): QueryBuilder
     {
         $method = 'andWhere';
 
@@ -625,7 +625,7 @@ class AlbumRepository extends ServiceEntityRepository
     /**
      * @param int[] $forbidden_albums
      */
-    public function hasAccessToImage(int $image_id, array $forbidden_albums = []) : bool
+    public function hasAccessToImage(int $image_id, array $forbidden_albums = []): bool
     {
         $qb = $this->createQueryBuilder('a');
         $qb->select('COUNT(1)');

@@ -11,8 +11,8 @@
 
 namespace App\Entity;
 
-use Doctrine\DBAL\Types\Types;
 use App\Repository\ImageTagRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ImageTagRepository::class)]

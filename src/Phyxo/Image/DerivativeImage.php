@@ -119,7 +119,7 @@ class DerivativeImage
                     'path' => $this->getPathBasename(),
                     'derivative' => substr((string) $this->params->type->value, 0, 2),
                     'sizes' => '',
-                    'image_extension' => $this->getExtension()
+                    'image_extension' => $this->getExtension(),
                 ];
             }
 
@@ -131,11 +131,12 @@ class DerivativeImage
                         $smaller = $this->image_std_params->getByType($defined_types[$i]->type);
                         if ($smaller->getSizing()->getMaxCrop() === $this->params->getSizing()->getMaxCrop() && $smaller->isIdentity($this->getSize())) {
                             $this->params = $smaller;
+
                             return [
                                 'path' => $this->getPathBasename(),
                                 'derivative' => substr($this->params->type->value, 0, 2),
                                 'sizes' => '',
-                                'image_extension' => $this->getExtension()
+                                'image_extension' => $this->getExtension(),
                             ];
                         }
                     }
@@ -156,7 +157,7 @@ class DerivativeImage
             'path' => $this->getPathBasename(),
             'derivative' => substr((string) $this->params->type->value, 0, 2),
             'sizes' => '',
-            'image_extension' => $this->getExtension()
+            'image_extension' => $this->getExtension(),
         ];
     }
 

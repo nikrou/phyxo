@@ -31,7 +31,7 @@ class IdentifierToUserTransformer implements DataTransformerInterface
     }
 
     /**
-     *  @param ForgotPasswordModel $forgotPasswordModel
+     * @param ForgotPasswordModel $forgotPasswordModel
      */
     public function reverseTransform(mixed $forgotPasswordModel): ?User
     {

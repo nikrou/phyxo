@@ -28,7 +28,7 @@ class HistorySearchType extends AbstractType
         'none' => 'none',
         'picture' => 'picture',
         'high' => 'high',
-        'other' => 'other'
+        'other' => 'other',
     ];
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -36,7 +36,7 @@ class HistorySearchType extends AbstractType
         $display_thumbnails = [
             'No display' => 'no_display_thumbnail',
             'Classic display' => 'display_thumbnail_classic',
-            'Hoverbox display' => 'display_thumbnail_hoverbox'
+            'Hoverbox display' => 'display_thumbnail_hoverbox',
         ];
 
         $builder->add('start', DateType::class, ['label' => 'Start date', 'widget' => 'single_text', 'required' => false]);
@@ -54,7 +54,7 @@ class HistorySearchType extends AbstractType
             'data_class' => SearchRulesModel::class,
             'attr' => [
                 'novalidate' => 'novalidate',
-            ]
+            ],
         ]);
     }
 }

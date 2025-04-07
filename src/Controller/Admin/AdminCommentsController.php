@@ -27,6 +27,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminCommentsController extends AbstractController
 {
     private TranslatorInterface $translator;
+
     protected function setTabsheet(string $section = 'all'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -36,6 +37,7 @@ class AdminCommentsController extends AbstractController
 
         return $tabsheet;
     }
+
     #[Route('/admin/comments/{section}/{start}', name: 'admin_comments', defaults: ['section' => 'all', 'start' => 0], requirements: ['section' => 'all|pending', 'start' => '\d+'])]
     public function index(
         ImageStandardParams $image_std_params,
@@ -43,7 +45,7 @@ class AdminCommentsController extends AbstractController
         TranslatorInterface $translator,
         CommentRepository $commentRepository,
         string $section = 'all',
-        int $start = 0
+        int $start = 0,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -92,6 +94,7 @@ class AdminCommentsController extends AbstractController
 
         return $this->render('comments.html.twig', $tpl_params);
     }
+
     #[Route('/admin/comments/update/{section}/{start}', name: 'admin_comments_update', defaults: ['section' => 'all', 'start' => 0], requirements: ['section' => 'all|pending', 'start' => '\d+'])]
     public function update(
         Request $request,
@@ -99,7 +102,7 @@ class AdminCommentsController extends AbstractController
         UserCacheRepository $userCacheRepository,
         TranslatorInterface $translator,
         string $section = 'all',
-        int $start = 0
+        int $start = 0,
     ): Response {
         if ($request->isMethod('POST')) {
             if (!$request->request->has('comments')) {

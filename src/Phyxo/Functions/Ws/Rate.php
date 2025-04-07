@@ -18,8 +18,10 @@ class Rate
 {
     /**
      * API method
-     * Deletes rates of an user
+     * Deletes rates of an user.
+     *
      * @param mixed[] $params
+     *
      *    @option int user_id
      *    @option string anonymous_id (optional)
      */

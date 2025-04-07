@@ -11,8 +11,8 @@
 
 namespace App\Repository;
 
-use DateTime;
 use App\Entity\Search;
+use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

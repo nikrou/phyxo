@@ -12,10 +12,10 @@
 namespace App\Controller;
 
 use App\Enum\ImageSizeType;
-use IntlDateFormatter;
-use DateTime;
 use App\Repository\ImageRepository;
 use App\Security\AppUserService;
+use DateTime;
+use IntlDateFormatter;
 use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -46,7 +46,7 @@ class CalendarController extends AbstractController
                 $tpl_params['years'][$rowYear['year']] = [
                     'label' => $rowYear['year'],
                     'nb_images' => $rowYear['nb_images'],
-                    'url' => $this->generateUrl('calendar_by_year', ['date_type' => $date_type, 'year' => $rowYear['year']])
+                    'url' => $this->generateUrl('calendar_by_year', ['date_type' => $date_type, 'year' => $rowYear['year']]),
                 ];
             }
         }
@@ -56,7 +56,7 @@ class CalendarController extends AbstractController
             if (!isset($tpl_params['years'][$year])) {
                 $tpl_params['years'][$year] = [
                     'label' => $year,
-                    'nb_images' => 0
+                    'nb_images' => 0,
                 ];
             }
         }
@@ -103,7 +103,7 @@ class CalendarController extends AbstractController
                 [
                     'date_type' => $date_type,
                     'year' => $year,
-                    'month' => $this->formatDatePart($rowMonth['month'])
+                    'month' => $this->formatDatePart($rowMonth['month']),
                 ]
             );
         }
@@ -150,7 +150,7 @@ class CalendarController extends AbstractController
                     'date_type' => $date_type,
                     'year' => $year,
                     'month' => $this->formatDatePart($month),
-                    'day' => $this->formatDatePart($rowDay['day'])
+                    'day' => $this->formatDatePart($rowDay['day']),
                 ]
             );
         }
@@ -183,7 +183,7 @@ class CalendarController extends AbstractController
         int $year,
         int $month,
         int $day,
-        int $start = 0
+        int $start = 0,
     ): Response {
         $tpl_params = [];
         $tpl_params['date_type'] = $date_type;
@@ -202,7 +202,7 @@ class CalendarController extends AbstractController
             $tpl_thumbnail['URL'] = $this->generateUrl(
                 'picture_from_calendar',
                 [
-                    'image_id' => $image->getId(), 'date_type' => $date_type, 'year' => $year, 'month' => $this->formatDatePart($month), 'day' => $this->formatDatePart($day)
+                    'image_id' => $image->getId(), 'date_type' => $date_type, 'year' => $year, 'month' => $this->formatDatePart($month), 'day' => $this->formatDatePart($day),
                 ]
             );
             $tpl_thumbnail['TN_ALT'] = '';

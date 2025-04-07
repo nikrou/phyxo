@@ -11,11 +11,11 @@
 
 namespace App\Controller\Admin;
 
-use DateTime;
 use App\DataMapper\TagMapper;
 use App\Entity\Tag;
 use App\Form\TagPermissionsType;
 use App\Repository\ImageTagRepository;
+use DateTime;
 use Phyxo\Conf;
 use Phyxo\TabSheet\TabSheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,6 +28,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminTagsController extends AbstractController
 {
     private TranslatorInterface $translator;
+
     protected function setTabsheet(string $section = 'all'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -39,12 +40,13 @@ class AdminTagsController extends AbstractController
 
         return $tabsheet;
     }
+
     #[Route('/admin/tags', name: 'admin_tags')]
     public function list(
         CsrfTokenManagerInterface $csrfTokenManager,
         TranslatorInterface $translator,
         TagMapper $tagMapper,
-        ImageTagRepository $imageTagRepository
+        ImageTagRepository $imageTagRepository,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -103,6 +105,7 @@ class AdminTagsController extends AbstractController
 
         return $this->render('tags_all.html.twig', $tpl_params);
     }
+
     #[Route('/admin/tags/actions', name: 'admin_tags_actions')]
     public function actions(Request $request, TagMapper $tagMapper, TranslatorInterface $translator): Response
     {
@@ -221,12 +224,13 @@ class AdminTagsController extends AbstractController
 
         return $this->redirectToRoute('admin_tags');
     }
+
     #[Route('/admin/tags/add', name: 'admin_tags_add')]
     public function add(Request $request, TagMapper $tagMapper, TranslatorInterface $translator): Response
     {
         if ($request->request->get('add_tag')) {
             if (!is_null($tagMapper->getRepository()->findOneBy(['name' => $request->request->get('add_tag')]))) {
-                $this->addFlash('error', "Tag already exists");
+                $this->addFlash('error', 'Tag already exists');
             } else {
                 $tag = new Tag();
                 $tag->setName($request->request->get('add_tag'));
@@ -240,6 +244,7 @@ class AdminTagsController extends AbstractController
 
         return $this->redirectToRoute('admin_tags');
     }
+
     #[Route('/admin/tags/delete_orphans', name: 'admin_tags_delete_orphans')]
     public function deleteOrphans(TagMapper $tagMapper, TranslatorInterface $translator): Response
     {
@@ -248,6 +253,7 @@ class AdminTagsController extends AbstractController
 
         return $this->redirectToRoute('admin_tags');
     }
+
     #[Route('/admin/tags/permissions', name: 'admin_tags_permissions')]
     public function permissions(Request $request, Conf $conf, TranslatorInterface $translator): Response
     {
@@ -274,6 +280,7 @@ class AdminTagsController extends AbstractController
 
         return $this->render('tags_permissions.html.twig', $tpl_params);
     }
+
     #[Route('/admin/tags/pending', name: 'admin_tags_pending')]
     public function pending(Request $request, TagMapper $tagMapper, TranslatorInterface $translator, CsrfTokenManagerInterface $tokenManager): Response
     {

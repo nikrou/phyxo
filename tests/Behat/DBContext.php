@@ -11,11 +11,6 @@
 
 namespace App\Tests\Behat;
 
-use App\Enum\ConfEnum;
-use Behat\Step\Given;
-use Behat\Step\When;
-use Behat\Hook\BeforeScenario;
-use Behat\Hook\AfterScenario;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\TagMapper;
@@ -25,22 +20,27 @@ use App\Entity\Group;
 use App\Entity\Image;
 use App\Entity\ImageTag;
 use App\Entity\Tag;
-use Behat\Behat\Context\Context;
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
-use Behat\Behat\Hook\Scope\BeforeScenarioScope;
-use Behat\Gherkin\Node\TableNode;
 use App\Entity\User;
+use App\Enum\ConfEnum;
 use App\Enum\UserStatusType;
 use App\Repository\CommentRepository;
 use App\Repository\GroupRepository;
 use App\Repository\UserRepository;
 use App\Security\AppUserService;
+use Behat\Behat\Context\Context;
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Gherkin\Node\TableNode;
+use Behat\Hook\AfterScenario;
+use Behat\Hook\BeforeScenario;
+use Behat\Step\Given;
+use Behat\Step\When;
+use DateTime;
 use Doctrine\DBAL\Connection;
+use Exception;
 use Phyxo\Conf;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use DateTime;
-use Exception;
 
 class DBContext implements Context
 {
@@ -60,7 +60,7 @@ class DBContext implements Context
         private readonly TagMapper $tagMapper,
         private readonly UserMapper $userMapper,
         private readonly string $prefix,
-        private readonly Connection $connection
+        private readonly Connection $connection,
     ) {
     }
 
@@ -362,7 +362,7 @@ class DBContext implements Context
     protected function addTag(string $tag_name): void
     {
         if (!is_null($this->tagMapper->getRepository()->findOneBy(['name' => $tag_name]))) {
-            throw new Exception("Tag already exists");
+            throw new Exception('Tag already exists');
         } else {
             $tag = new Tag();
             $tag->setName($tag_name);

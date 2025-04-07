@@ -11,11 +11,11 @@
 
 namespace App\Entity;
 
-use Doctrine\DBAL\Types\Types;
-use DateTimeInterface;
 use App\Repository\AlbumRepository;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'categories')]
@@ -443,7 +443,7 @@ class Album
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
-            'id_uppercat' => $this->getParent() instanceof \App\Entity\Album ? $this->getParent()->getId() : null,
+            'id_uppercat' => $this->getParent() instanceof Album ? $this->getParent()->getId() : null,
             'comment' => $this->getComment(),
             'dir' => $this->getDir(),
             'rank' => $this->getRank(),

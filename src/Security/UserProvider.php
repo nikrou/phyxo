@@ -11,20 +11,20 @@
 
 namespace App\Security;
 
-use DateTime;
 use App\DataMapper\AlbumMapper;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use App\Repository\UserRepository;
-use App\Entity\User;
 use App\Entity\Album;
+use App\Entity\User;
 use App\Entity\UserCache;
 use App\Entity\UserCacheAlbum;
 use App\Repository\ImageAlbumRepository;
 use App\Repository\ImageRepository;
 use App\Repository\UserCacheAlbumRepository;
 use App\Repository\UserCacheRepository;
+use App\Repository\UserRepository;
+use DateTime;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Csrf\Exception\TokenNotFoundException;
 
 /**
@@ -38,7 +38,7 @@ class UserProvider implements UserProviderInterface
         private readonly ImageRepository $imageRepository,
         private readonly AlbumMapper $albumMapper,
         private readonly UserCacheRepository $userCacheRepository,
-        private readonly UserCacheAlbumRepository $userCacheAlbumRepository
+        private readonly UserCacheAlbumRepository $userCacheAlbumRepository,
     ) {
     }
 

@@ -11,24 +11,26 @@
 
 namespace Phyxo\Functions\Ws;
 
-use Exception;
 use App\Entity\Group;
 use App\Entity\History;
 use App\Entity\Language;
 use App\Entity\Theme;
-use Phyxo\Ws\Server;
-use Phyxo\Ws\Error;
 use App\Entity\User as EntityUser;
 use App\Entity\UserInfos;
 use App\Enum\UserStatusType;
+use Exception;
 use IntlDateFormatter;
+use Phyxo\Ws\Error;
+use Phyxo\Ws\Server;
 
 class User
 {
     /**
      * API method
-     * Returns a list of users
+     * Returns a list of users.
+     *
      * @param mixed[] $params
+     *
      *    @option int[] user_id (optional)
      *    @option string username (optional)
      *    @option string[] status (optional)
@@ -156,7 +158,7 @@ class User
             'paging' => [
                 'page' => $params['page'],
                 'per_page' => $params['per_page'],
-                'count' => count($users)
+                'count' => count($users),
             ],
             'users' => array_values($users),
         ];
@@ -164,8 +166,10 @@ class User
 
     /**
      * API method
-     * Adds a user
+     * Adds a user.
+     *
      * @param mixed[] $params
+     *
      *    @option string username
      *    @option string password (optional)
      *    @option string email (optional)
@@ -197,8 +201,10 @@ class User
 
     /**
      * API method
-     * Deletes users
+     * Deletes users.
+     *
      * @param mixed[] $params
+     *
      *    @option int[] user_id
      */
     public static function delete($params, Server $service)
@@ -227,8 +233,10 @@ class User
 
     /**
      * API method
-     * Updates users
+     * Updates users.
+     *
      * @param mixed[] $params
+     *
      *    @option int[] user_id
      *    @option string username (optional)
      *    @option string password (optional)

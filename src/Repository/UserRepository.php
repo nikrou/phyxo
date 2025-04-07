@@ -11,12 +11,12 @@
 
 namespace App\Repository;
 
-use DateTime;
 use App\Entity\User;
 use App\Enum\UserStatusType;
+use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\AbstractQuery;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<User>
@@ -64,7 +64,7 @@ class UserRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult(AbstractQuery::HYDRATE_ARRAY);
     }
 
-    public function isEmailExistsExceptUser(string $mail_address, int $user_id) : bool
+    public function isEmailExistsExceptUser(string $mail_address, int $user_id): bool
     {
         $qb = $this->createQueryBuilder('u');
         $qb->select('count(1)');
@@ -76,7 +76,7 @@ class UserRepository extends ServiceEntityRepository
         return (int) $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
-    public function isUsernameExistsExceptUser(string $username, int $user_id) : bool
+    public function isUsernameExistsExceptUser(string $username, int $user_id): bool
     {
         $qb = $this->createQueryBuilder('u');
         $qb->select('count(1)');
@@ -88,7 +88,7 @@ class UserRepository extends ServiceEntityRepository
         return (int) $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
-    public function isUserExists(string $value, string $field = 'username') : bool
+    public function isUserExists(string $value, string $field = 'username'): bool
     {
         $qb = $this->createQueryBuilder('u');
         $qb->select('count(1)');
@@ -121,6 +121,7 @@ class UserRepository extends ServiceEntityRepository
 
     /**
      * @param int[] $album_ids
+     *
      * @return User[]
      */
     public function findWithAlbumsAccess(array $album_ids = [])

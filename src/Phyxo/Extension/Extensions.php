@@ -12,8 +12,8 @@
 namespace Phyxo\Extension;
 
 use Exception;
-use Symfony\Component\HttpClient\HttpClient;
 use PclZip;
+use Symfony\Component\HttpClient\HttpClient;
 
 class Extensions
 {
@@ -34,7 +34,7 @@ class Extensions
             if ($response->getStatusCode() === 200 && $response->getContent()) {
                 return json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
             } else {
-                throw new Exception("Response is not readable");
+                throw new Exception('Response is not readable');
             }
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
@@ -72,7 +72,7 @@ class Extensions
             if ($response->getStatusCode() === 200 && $response->getContent()) {
                 file_put_contents($filename, $response->getContent());
             } else {
-                throw new Exception("Response is not readable");
+                throw new Exception('Response is not readable');
             }
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
@@ -104,10 +104,10 @@ class Extensions
                 if ($results = @$zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $root, PCLZIP_OPT_REPLACE_NEWER)) {
                     $errors = array_filter($results, fn ($f): bool => ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory');
                     if ($errors !== []) {
-                        throw new Exception("Error while extracting some files from archive");
+                        throw new Exception('Error while extracting some files from archive');
                     }
                 } else {
-                    throw new Exception("Error while extracting archive");
+                    throw new Exception('Error while extracting archive');
                 }
             }
 

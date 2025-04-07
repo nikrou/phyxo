@@ -49,7 +49,7 @@ class ImageCommentType extends AbstractType
                 [
                     'constraints' => $authorConstraints,
                     'required' => $this->conf['comments_author_mandatory'],
-                    'empty_data' => 'guest'
+                    'empty_data' => 'guest',
                 ]
             );
         }
@@ -61,7 +61,7 @@ class ImageCommentType extends AbstractType
                 [
                     'constraints' => $this->conf['comments_email_mandatory'] ? [new NotBlank()] : [],
                     'label' => 'Email address',
-                    'required' => $this->conf['comments_email_mandatory']
+                    'required' => $this->conf['comments_email_mandatory'],
                 ]
             );
         }
@@ -81,7 +81,7 @@ class ImageCommentType extends AbstractType
             'data_class' => ImageCommentModel::class,
             'attr' => [
                 'novalidate' => 'novalidate',
-            ]
+            ],
         ]);
     }
 }

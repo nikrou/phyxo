@@ -11,26 +11,26 @@
 
 namespace Phyxo\Ws;
 
-use Exception;
 use App\DataMapper\AlbumMapper;
-use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\ImageMapper;
-use App\DataMapper\UserMapper;
-use Phyxo\Conf;
-use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\RateMapper;
-use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
+use App\DataMapper\TagMapper;
+use App\DataMapper\UserMapper;
 use App\Security\AppUserService;
 use App\Security\UserProvider;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
 use Imagine\Image\ImagineInterface;
+use Phyxo\Conf;
+use Phyxo\Image\ImageStandardParams;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\RouterInterface;
 
 class Server
 {
@@ -279,7 +279,7 @@ class Server
     }
 
     /**
-     * Runs the web service call (handler and response encoder should have been created)
+     * Runs the web service call (handler and response encoder should have been created).
      */
     public function run(Request $request): Error|array
     {
@@ -339,7 +339,8 @@ class Server
      * Registers a web service method.
      * methodName string -name of the method as seen externally
      * callback mixed - php method to be invoked internally
-     * params array - map of allowed parameter names with options
+     * params array - map of allowed parameter names with options.
+     *
      *    @option mixed default (optional)
      *    @option int flags (optional)
      *      possible values: WS_PARAM_ALLOW_ARRAY, WS_PARAM_FORCE_ARRAY, WS_PARAM_OPTIONAL
@@ -395,27 +396,30 @@ class Server
     public function getMethodDescription($methodName)
     {
         $desc = @$this->_methods[$methodName]['description'];
+
         return $desc ?? '';
     }
 
     public function getMethodSignature($methodName)
     {
         $signature = @$this->_methods[$methodName]['signature'];
+
         return $signature ?? [];
     }
 
     public function getMethodOptions($methodName)
     {
         $options = @$this->_methods[$methodName]['options'];
+
         return $options ?? [];
     }
 
     public static function isPost(): bool
     {
         $contentType = isset($_SERVER['CONTENT_TYPE']) ? trim((string) $_SERVER['CONTENT_TYPE']) : '';
-        if ($contentType === "application/json") {
-            //Receive the RAW post data.
-            $content = trim(file_get_contents("php://input"));
+        if ($contentType === 'application/json') {
+            // Receive the RAW post data.
+            $content = trim(file_get_contents('php://input'));
 
             return $content !== '' && $content !== '0';
         } else {
@@ -496,7 +500,7 @@ class Server
 
     /**
      *  Invokes a registered method. Returns the return of the method (or
-     *  a Error object if the method is not found)
+     *  a Error object if the method is not found).
      */
     public function invoke(string $methodName, array $params)
     {
@@ -563,7 +567,7 @@ class Server
     }
 
     /**
-     * WS reflection method implementation: lists all available methods
+     * WS reflection method implementation: lists all available methods.
      */
     public static function getMethodList($params, &$service): array
     {
@@ -571,11 +575,12 @@ class Server
             $service->_methods,
             fn ($m): bool => !isset($m['options']['hidden']) || !$m['options']['hidden']
         );
+
         return ['methods' => array_keys($methods)];
     }
 
     /**
-     * WS reflection method implementation: gets information about a given method
+     * WS reflection method implementation: gets information about a given method.
      */
     public static function getMethodDetails(array $params, &$service): Error|array
     {

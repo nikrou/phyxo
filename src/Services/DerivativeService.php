@@ -23,7 +23,7 @@ class DerivativeService
     }
 
     /**
-     * Delete all derivative files for one or several types
+     * Delete all derivative files for one or several types.
      *
      * @param ImageSizeType[] $types
      * @param ImageSizeType[] $all_types
@@ -37,7 +37,7 @@ class DerivativeService
                 $pattern = DerivativeParams::derivativeToUrl($type->value) . '[a-zA-Z0-9]+';
             } elseif (in_array($type, $all_types)) {
                 $pattern = DerivativeParams::derivativeToUrl($type->value);
-            } else { //assume a custom type
+            } else { // assume a custom type
                 $pattern = DerivativeParams::derivativeToUrl(ImageSizeType::CUSTOM->value) . '_' . $type;
             }
 
@@ -64,7 +64,7 @@ class DerivativeService
     }
 
     /**
-     * Deletes derivatives of a particular element
+     * Deletes derivatives of a particular element.
      */
     public function deleteForElement(string $path, string $type = 'all'): void
     {

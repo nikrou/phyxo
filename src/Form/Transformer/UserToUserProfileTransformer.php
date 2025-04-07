@@ -43,7 +43,7 @@ class UserToUserProfileTransformer implements DataTransformerInterface
     }
 
     /**
-     *  @param UserProfileModel $userProfileModel
+     * @param UserProfileModel $userProfileModel
      */
     public function reverseTransform(mixed $userProfileModel): ?User
     {

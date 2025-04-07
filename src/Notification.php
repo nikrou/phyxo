@@ -11,14 +11,8 @@
 
 namespace App;
 
-use DateTimeInterface;
-use Exception;
-use DateTime;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
-use App\Repository\CommentRepository;
-use App\Repository\UserMailNotificationRepository;
-use App\Repository\UserInfosRepository;
 use App\DataMapper\UserMapper;
 use App\Entity\Album;
 use App\Entity\Comment;
@@ -27,9 +21,15 @@ use App\Entity\User;
 use App\Entity\UserInfos;
 use App\Entity\UserMailNotification;
 use App\Enum\ImageSizeType;
+use App\Repository\CommentRepository;
+use App\Repository\UserInfosRepository;
+use App\Repository\UserMailNotificationRepository;
+use DateTime;
+use DateTimeInterface;
+use Exception;
+use Phyxo\Conf;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
-use Phyxo\Conf;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
@@ -39,13 +39,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Notification
 {
-    /** @var array<string, User|int|float|string|bool> $env */
+    /** @var array<string, User|int|float|string|bool> */
     private array $env;
 
-    /** @var string[] $infos */
+    /** @var string[] */
     private array $infos = [];
 
-    /** @var string[] $errors */
+    /** @var string[] */
     private array $errors = [];
 
     public function __construct(
@@ -58,15 +58,15 @@ class Notification
         private readonly TranslatorInterface $translator,
         private readonly CommentRepository $commentRepository,
         private readonly UserMailNotificationRepository $userMailNotificationRepository,
-        private readonly UserInfosRepository $userInfosRepository
+        private readonly UserInfosRepository $userInfosRepository,
     ) {
         $this->env = [
             'start_time' => microtime(true),
             'sendmail_timeout' => (intval(ini_get('max_execution_time')) * $conf['nbm_max_treatment_timeout_percent']),
-            'is_sendmail_timeout' => false
+            'is_sendmail_timeout' => false,
         ];
 
-        /** @phpstan-ignore-next-line */
+        /* @phpstan-ignore-next-line */
         if ((!isset($this->env['sendmail_timeout'])) || (!is_numeric($this->env['sendmail_timeout'])) || ($this->env['sendmail_timeout'] <= 0)) {
             $this->env['sendmail_timeout'] = $conf['nbm_treatment_timeout_default'];
         }
@@ -107,7 +107,7 @@ class Notification
     }
 
     /**
-     * Returns new photos between two dates
+     * Returns new photos between two dates.
      *
      * @return Image[]
      */
@@ -158,19 +158,21 @@ class Notification
      * Takes in account: number of new comments, number of new elements, number of
      * updated albums. Administrators are also informed about: number of
      * unvalidated comments, number of new users.
+     *
      * @todo number of unvalidated elements
      */
     public function news_exists(?DateTimeInterface $start = null, ?DateTimeInterface $end = null): bool
     {
-        return (($this->nb_new_comments($start, $end) > 0) || ($this->nb_new_elements($start, $end) > 0)
-            || ($this->nb_updated_albums($start, $end) > 0) || (($this->userMapper->isAdmin())
-            && ($this->nb_unvalidated_comments($start, $end) > 0)) || (($this->userMapper->isAdmin()) && ($this->nb_new_users($start, $end) > 0)));
+        return ($this->nb_new_comments($start, $end) > 0) || ($this->nb_new_elements($start, $end) > 0)
+            || ($this->nb_updated_albums($start, $end) > 0) || ($this->userMapper->isAdmin()
+            && ($this->nb_unvalidated_comments($start, $end) > 0)) || ($this->userMapper->isAdmin() && ($this->nb_new_users($start, $end) > 0));
     }
 
     /**
-     * Formats a news line and adds it to the array (e.g. '5 new elements')
+     * Formats a news line and adds it to the array (e.g. '5 new elements').
      *
      * @param string[] $news
+     *
      * @return string[]
      */
     public function add_news_line(array $news, int $count, string $lang_key, string $url = '', bool $add_url = false): array
@@ -193,10 +195,12 @@ class Notification
      * Takes in account: number of new comments, number of new elements, number of
      * updated albums. Administrators are also informed about: number of
      * unvalidated comments, number of new users.
+     *
      * @todo number of unvalidated elements
      *
      * @param bool $exclude_img_cats if true, no info about new images/albums
-     * @param bool $add_url add html link around news
+     * @param bool $add_url          add html link around news
+     *
      * @return string[]
      */
     public function news(?DateTimeInterface $start = null, ?DateTimeInterface $end = null, bool $exclude_img_cats = false, bool $add_url = false): array
@@ -255,9 +259,9 @@ class Notification
     /**
      * Returns information about recently published elements grouped by post date.
      *
-     * @param int $max_dates maximum number of recent dates
+     * @param int $max_dates    maximum number of recent dates
      * @param int $max_elements maximum number of elements per date
-     * @param int $max_cats maximum number of albums per date
+     * @param int $max_cats     maximum number of albums per date
      */
     public function get_recent_post_dates(int $max_dates, int $max_elements, int $max_cats): array
     {
@@ -288,19 +292,21 @@ class Notification
     /**
      * Returns information about recently published elements grouped by post date.
      * Same as get_recent_post_dates() but parameters as an indexed array.
+     *
      * @see get_recent_post_dates()
      */
     public function get_recent_post_dates_array(array $args): array
     {
         return $this->get_recent_post_dates(
-            (empty($args['max_dates']) ? 3 : $args['max_dates']),
-            (empty($args['max_elements']) ? 3 : $args['max_elements']),
-            (empty($args['max_cats']) ? 3 : $args['max_cats'])
+            empty($args['max_dates']) ? 3 : $args['max_dates'],
+            empty($args['max_elements']) ? 3 : $args['max_elements'],
+            empty($args['max_cats']) ? 3 : $args['max_cats']
         );
     }
 
     /**
      * Returns html description about recently published elements grouped by post date.
+     *
      * @todo clean up HTML output, currently messy and invalid !
      *
      * @param array $date_detail returned value of get_recent_post_dates()
@@ -359,14 +365,13 @@ class Notification
     }
 
     /**
-     *
      * Returns title about recently published elements grouped by post date.
      *
      * @param array $date_detail returned value of get_recent_post_dates()
      */
     public function get_title_recent_post_date(array $date_detail): string
     {
-        $english_months = [1 => "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        $english_months = [1 => 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
         $date = $date_detail['date_available'];
 
@@ -398,7 +403,8 @@ class Notification
     {
         if (in_array($action, ['subscribe', 'send'])) {
             $orders = $action === 'send' ? ['n.last_send', 'u.username'] : ['u.username'];
-            return $this->userMailNotificationRepository->findInfosForUsers(($action === 'send'), $enabled_filter_value, $check_key_list, $orders);
+
+            return $this->userMailNotificationRepository->findInfosForUsers($action === 'send', $enabled_filter_value, $check_key_list, $orders);
         } else {
             return [];
         }
@@ -413,7 +419,7 @@ class Notification
         // Save $user, $lang_info and $lang arrays
         $this->env['save_user'] = $this->userMapper->getUser();
         // Save current language to stack, necessary because $user change during NBM
-        //\Phyxo\Functions\Mail::switch_lang_to($user['language']);
+        // \Phyxo\Functions\Mail::switch_lang_to($user['language']);
 
         $this->env['is_to_send_mail'] = $is_to_send_mail;
 
@@ -440,28 +446,28 @@ class Notification
     // Inc Counter success
     public function inc_mail_sent_success($nbm_user): void
     {
-        $this->env['sent_mail_count'] += 1;
+        $this->env['sent_mail_count']++;
         $this->infos[] = sprintf($this->env['msg_info'], $nbm_user->getUser()->getUsername(), $nbm_user->getUser()->getMailAddress());
     }
 
     // Inc Counter failed
     public function inc_mail_sent_failed($nbm_user): void
     {
-        $this->env['error_on_mail_count'] += 1;
+        $this->env['error_on_mail_count']++;
         $this->errors[] = sprintf($this->env['msg_error'], $nbm_user->getUser()->getUsername(), $nbm_user->getUser()->getMailAddress());
     }
 
     public function display_counter_info(): void
     {
-        /** @phpstan-ignore-next-line */
+        /* @phpstan-ignore-next-line */
         if ($this->env['error_on_mail_count'] != 0) {
             $this->errors[] = $this->translator->trans('number_of_mails_not_sent', ['count' => $this->env['error_on_mail_count']]);
-            /** @phpstan-ignore-next-line */
+            /* @phpstan-ignore-next-line */
             if ($this->env['sent_mail_count'] != 0) {
                 $this->infos[] = $this->translator->trans('number_of_mails_sent', ['count' => $this->env['sent_mail_count']]);
             }
 
-            /** @phpstan-ignore-next-line */
+        /* @phpstan-ignore-next-line */
         } elseif ($this->env['sent_mail_count'] == 0) {
             $this->infos[] = $this->translator->trans('No mail to send.');
         } else {
@@ -479,7 +485,7 @@ class Notification
             'SEND_AS_NAME' => $this->env['send_as_name'],
             'UNSUBSCRIBE_LINK' => $this->router->generate('notification_unsubscribe', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'SUBSCRIBE_LINK' => $this->router->generate('notification_subscribe', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            'CONTACT_MAIL' => $this->env['send_as_mail_address']
+            'CONTACT_MAIL' => $this->env['send_as_mail_address'],
         ];
     }
 
@@ -542,7 +548,7 @@ class Notification
                             ],
                             [
                                 'name' => $this->env['send_as_name'],
-                                'email' => $this->env['send_as_mail_address']
+                                'email' => $this->env['send_as_mail_address'],
                             ],
                             $subject,
                             $mail_params
@@ -557,10 +563,10 @@ class Notification
                 if ($do_update) {
                     $nbm_user->setEnabled($is_subscribe);
                     $this->userMailNotificationRepository->addOrUpdateUserMailNotification($nbm_user);
-                    $updated_data_count += 1;
+                    $updated_data_count++;
                     $this->infos[] = sprintf($msg_info, $nbm_user->getUser()->getUsername(), $nbm_user->getUser()->getMailAddress());
                 } else {
-                    $error_on_updated_data_count += 1;
+                    $error_on_updated_data_count++;
                     $this->errors[] = sprintf($msg_error, $nbm_user->getUser()->getUsername(), $nbm_user->getUser()->getMailAddress());
                 }
             }
@@ -686,7 +692,7 @@ class Notification
         $is_list_all_without_test = ($this->env['is_sendmail_timeout'] || $this->conf['nbm_list_all_enabled_users_to_send']);
 
         // Check if exist news to list user or send mails
-        if ((!$is_list_all_without_test) || ($is_action_send)) {
+        if ((!$is_list_all_without_test) || $is_action_send) {
             if ($data_users !== []) {
                 if (!isset($customize_mail_content)) {
                     $customize_mail_content = $this->conf['nbm_complementary_mail_content'];
@@ -708,7 +714,7 @@ class Notification
                         break;
                     }
 
-                    if (($is_action_send) && $this->check_sendmail_timeout()) {
+                    if ($is_action_send && $this->check_sendmail_timeout()) {
                         // Stop fill list on 'send', if the quota is override
                         $this->errors[] = $msg_break_timeout;
                         break;
@@ -758,7 +764,7 @@ class Notification
                                 foreach ($recent_post_dates as $date_detail) {
                                     $tpl_params['recent_posts'][] = [
                                         'TITLE' => $this->get_title_recent_post_date($date_detail),
-                                        'HTML_DATA' => $this->get_html_description_recent_post_date($date_detail, $this->conf['picture_ext'])
+                                        'HTML_DATA' => $this->get_html_description_recent_post_date($date_detail, $this->conf['picture_ext']),
                                     ];
                                 }
                             }
@@ -773,7 +779,7 @@ class Notification
                                     ],
                                     [
                                         'name' => $this->env['send_as_name'],
-                                        'email' => $this->env['send_as_mail_address']
+                                        'email' => $this->env['send_as_mail_address'],
                                     ],
                                     $subject,
                                     $tpl_params

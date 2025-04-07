@@ -12,15 +12,16 @@
 namespace Phyxo\Functions\Ws;
 
 use App\Entity\Plugin as EntityPlugin;
-use Phyxo\Ws\Error;
 use Phyxo\Plugin\Plugins;
+use Phyxo\Ws\Error;
 use Phyxo\Ws\Server;
 
 class Plugin
 {
     /**
      * API method
-     * Returns the list of all plugins
+     * Returns the list of all plugins.
+     *
      * @param mixed[] $params
      */
     public static function getList($params, Server $service)
@@ -47,8 +48,10 @@ class Plugin
 
     /**
      * API method
-     * Performs an action on a plugin
+     * Performs an action on a plugin.
+     *
      * @param mixed[] $params
+     *
      *    @option string action
      *    @option string plugin
      */
@@ -61,6 +64,7 @@ class Plugin
         if ($error !== '' && $error !== '0') {
             return new Error(500, $error);
         }
+
         return null;
     }
 }

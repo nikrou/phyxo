@@ -11,8 +11,8 @@
 
 namespace App\Repository;
 
-use DateTimeInterface;
 use App\Entity\ImageAlbum;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -36,7 +36,7 @@ class ImageAlbumRepository extends ServiceEntityRepository
      * @param int[] $forbidden_albums
      * @param int[] $image_ids
      */
-    public function countTotalImages(string $access_type, array $forbidden_albums = [], array $image_ids = []) : int
+    public function countTotalImages(string $access_type, array $forbidden_albums = [], array $image_ids = []): int
     {
         $qb = $this->createQueryBuilder('ia');
         $qb->select('count(distinct(ia.image))');
@@ -125,7 +125,7 @@ class ImageAlbumRepository extends ServiceEntityRepository
         return (int) $qb->getQuery()->getSingleScalarResult() === 1;
     }
 
-    public function maxRankForAlbum(int $album_id) : int
+    public function maxRankForAlbum(int $album_id): int
     {
         $qb = $this->createQueryBuilder('ia');
         $qb->select('MAX(ia.rank)');

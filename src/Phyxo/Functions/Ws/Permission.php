@@ -14,15 +14,17 @@ namespace Phyxo\Functions\Ws;
 use App\Entity\Album;
 use App\Entity\Group;
 use App\Entity\User;
-use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
+use Phyxo\Ws\Server;
 
 class Permission
 {
     /**
      * API method
-     * Returns permissions
+     * Returns permissions.
+     *
      * @param mixed[] $params
+     *
      *    @option int[] cat_id (optional)
      *    @option int[] group_id (optional)
      *    @option int[] user_id (optional)
@@ -97,8 +99,10 @@ class Permission
 
     /**
      * API method
-     * Add permissions
+     * Add permissions.
+     *
      * @param mixed[] $params
+     *
      *    @option int[] cat_id
      *    @option int[] group_id (optional)
      *    @option int[] user_id (optional)
@@ -149,8 +153,10 @@ class Permission
 
     /**
      * API method
-     * Removes permissions
+     * Removes permissions.
+     *
      * @param mixed[] $params
+     *
      *    @option int[] cat_id
      *    @option int[] group_id (optional)
      *    @option int[] user_id (optional)

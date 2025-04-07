@@ -37,7 +37,7 @@ class ConfToNotificationTransformer implements DataTransformerInterface
     }
 
     /**
-     *  @param NotificationModel $model
+     * @param NotificationModel $model
      */
     public function reverseTransform(mixed $model): mixed
     {

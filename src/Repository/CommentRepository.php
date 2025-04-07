@@ -11,9 +11,9 @@
 
 namespace App\Repository;
 
-use DateTimeInterface;
-use DateTime;
 use App\Entity\Comment;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\Persistence\ManagerRegistry;
@@ -209,12 +209,12 @@ class CommentRepository extends ServiceEntityRepository
         if ($count_only) {
             return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR) ?? 0;
         } else {
-            /** @phpstan-ignore-next-line */
+            /* @phpstan-ignore-next-line */
             return $qb->getQuery()->getResult();
         }
     }
 
-    public function countForImage(int $image_id, bool $isAdmin = false) : int
+    public function countForImage(int $image_id, bool $isAdmin = false): int
     {
         $qb = $this->createQueryBuilder('c');
         $qb->select('COUNT(1)');

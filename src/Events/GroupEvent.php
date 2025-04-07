@@ -22,7 +22,7 @@ class GroupEvent extends Event
         private readonly int $group,
         private readonly array $album,
         private readonly string $image_url,
-        private readonly string $mail_content
+        private readonly string $mail_content,
     ) {
     }
 

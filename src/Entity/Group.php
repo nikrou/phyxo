@@ -11,12 +11,12 @@
 
 namespace App\Entity;
 
-use Doctrine\DBAL\Types\Types;
-use DateTimeInterface;
-use DateTime;
 use App\Repository\GroupRepository;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'groups')]
@@ -38,7 +38,6 @@ class Group
     private ?DateTimeInterface $last_modified;
 
     /**
-     *
      * @var Collection<int, User>
      */
     #[ORM\JoinTable(name: 'user_group')]
@@ -46,7 +45,6 @@ class Group
     private Collection $users;
 
     /**
-     *
      * @var Collection<int, Album>
      */
     #[ORM\JoinTable(name: 'group_access')]

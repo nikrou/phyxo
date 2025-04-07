@@ -29,14 +29,14 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
         private Conf $conf,
         private readonly RouterInterface $router,
         private readonly UserMapper $userMapper,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            GroupEvent::class => 'onGroupNotify'
+            GroupEvent::class => 'onGroupNotify',
         ];
     }
 
@@ -66,7 +66,7 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
         $message = (new TemplatedEmail())->subject($subject);
 
         foreach ($languages as $users) {
-            //@switch to language in template (@see switch_lang_to and switch_lang_back from Mail class)
+            // @switch to language in template (@see switch_lang_to and switch_lang_back from Mail class)
             foreach ($users as $user) {
                 $message->addBcc($user->getMailAddress(), $user->getUsername());
             }

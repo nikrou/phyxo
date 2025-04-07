@@ -11,13 +11,13 @@
 
 namespace Phyxo\Theme;
 
-use Override;
-use Phyxo\Functions\Utils;
-use Exception;
 use App\DataMapper\UserMapper;
 use App\Entity\Theme;
-use Phyxo\Extension\Extensions;
 use App\Repository\ThemeRepository;
+use Exception;
+use Override;
+use Phyxo\Extension\Extensions;
+use Phyxo\Functions\Utils;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
 
@@ -46,7 +46,7 @@ class Themes extends Extensions
 
     /**
      * Returns the maintain class of a theme
-     * or build a new class with the procedural methods
+     * or build a new class with the procedural methods.
      */
     private function buildMaintainClass(string $theme_id)
     {
@@ -65,7 +65,7 @@ class Themes extends Extensions
     }
 
     /**
-     * Perform requested actions
+     * Perform requested actions.
      */
     public function performAction($action, string $theme_id): string
     {
@@ -221,7 +221,7 @@ class Themes extends Extensions
     }
 
     /**
-     *  Get themes defined in the theme directory
+     *  Get themes defined in the theme directory.
      *
      * @return array<string, mixed>
      */
@@ -282,7 +282,7 @@ class Themes extends Extensions
     }
 
     /**
-     * Sort fs_themes
+     * Sort fs_themes.
      */
     public function sortFsThemes($order = 'name'): void
     {
@@ -307,7 +307,7 @@ class Themes extends Extensions
     }
 
     /**
-     * Retrieve PEM server datas to $server_themes
+     * Retrieve PEM server datas to $server_themes.
      */
     public function getServerThemes(string $pem_category, string $phyxo_version, $new = false): array
     {
@@ -389,7 +389,7 @@ class Themes extends Extensions
     }
 
     /**
-     * Sort $server_themes
+     * Sort $server_themes.
      */
     public function sortServerThemes($order = 'date'): void
     {
@@ -413,20 +413,20 @@ class Themes extends Extensions
     }
 
     /**
-     * Extract theme files from archive
+     * Extract theme files from archive.
      */
     public function extractThemeFiles(string $action, int $revision): void
     {
         $archive = tempnam($this->themes_root_path, 'zip');
         $get_data = [
             'rid' => $revision,
-            'origin' => 'phyxo_' . $action
+            'origin' => 'phyxo_' . $action,
         ];
 
         try {
             $this->download($archive, $get_data);
         } catch (Exception $exception) {
-            throw new Exception("Cannot download theme archive", $exception->getCode(), $exception);
+            throw new Exception('Cannot download theme archive', $exception->getCode(), $exception);
         }
 
         $extract_path = $this->themes_root_path;
@@ -440,7 +440,7 @@ class Themes extends Extensions
     }
 
     /**
-     * Sort functions
+     * Sort functions.
      */
     public function extensionRevisionCompare(array $a, array $b): int
     {

@@ -26,6 +26,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminAlbumsController extends AbstractController
 {
     private TranslatorInterface $translator;
+
     protected function setTabsheet(string $section = 'list'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -35,13 +36,14 @@ class AdminAlbumsController extends AbstractController
 
         return $tabsheet;
     }
+
     #[Route('/admin/albums/{parent_id}', name: 'admin_albums', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+'])]
     public function list(
         AlbumRepository $albumRepository,
         CsrfTokenManagerInterface $csrfTokenManager,
         TranslatorInterface $translator,
         ImageAlbumRepository $imageAlbumRepository,
-        ?int $parent_id = null
+        ?int $parent_id = null,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -129,6 +131,7 @@ class AdminAlbumsController extends AbstractController
 
         return $this->render('albums_list.html.twig', $tpl_params);
     }
+
     #[Route('/admin/albums/update/{parent_id}', name: 'admin_albums_update', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+'])]
     public function update(Request $request, AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator, ?int $parent_id = null): Response
     {
@@ -183,6 +186,7 @@ class AdminAlbumsController extends AbstractController
 
         return $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
     }
+
     #[Route('/admin/albums/move/{parent_id}', name: 'admin_albums_move', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+'])]
     public function move(Request $request, AlbumRepository $albumRepository, AlbumMapper $albumMapper, TranslatorInterface $translator, ?int $parent_id = null): Response
     {

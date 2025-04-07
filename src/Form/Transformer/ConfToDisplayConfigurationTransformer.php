@@ -12,8 +12,8 @@
 namespace App\Form\Transformer;
 
 use App\Enum\ConfEnum;
-use Phyxo\Conf;
 use App\Form\Model\DisplayConfigurationModel;
+use Phyxo\Conf;
 use Symfony\Component\Form\DataTransformerInterface;
 
 /**
@@ -48,7 +48,7 @@ class ConfToDisplayConfigurationTransformer implements DataTransformerInterface
     }
 
     /**
-     *  @param DisplayConfigurationModel $displayConfigurationModel
+     * @param DisplayConfigurationModel $displayConfigurationModel
      */
     public function reverseTransform(mixed $displayConfigurationModel): mixed
     {
@@ -66,7 +66,7 @@ class ConfToDisplayConfigurationTransformer implements DataTransformerInterface
             'picture_navigation_icons' => ['value' => $displayConfigurationModel->getPictureNavigationIcons(), 'type' => ConfEnum::BOOLEAN],
             'picture_navigation_thumb' => ['value' => $displayConfigurationModel->getPictureNavigationThumb(), 'type' => ConfEnum::BOOLEAN],
             'picture_menu' => ['value' => $displayConfigurationModel->getPictureMenu(), 'type' => ConfEnum::BOOLEAN],
-            'picture_informations' => ['value' => $displayConfigurationModel->getPictureInformations(), 'type' => ConfEnum::JSON]
+            'picture_informations' => ['value' => $displayConfigurationModel->getPictureInformations(), 'type' => ConfEnum::JSON],
         ];
     }
 }

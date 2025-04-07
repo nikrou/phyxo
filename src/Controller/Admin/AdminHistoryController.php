@@ -11,8 +11,6 @@
 
 namespace App\Controller\Admin;
 
-use DateTime;
-use IntlDateFormatter;
 use App\DataMapper\AlbumMapper;
 use App\DataMapper\ImageMapper;
 use App\DataMapper\UserMapper;
@@ -26,6 +24,8 @@ use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
 use App\Repository\SearchRepository;
 use App\Repository\TagRepository;
+use DateTime;
+use IntlDateFormatter;
 use Phyxo\Conf;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
@@ -43,6 +43,7 @@ class AdminHistoryController extends AbstractController
     public function __construct(private readonly ImageStandardParams $image_std_params, private readonly TranslatorInterface $translator)
     {
     }
+
     protected function setTabsheet(string $section = 'stats'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -52,10 +53,12 @@ class AdminHistoryController extends AbstractController
 
         return $tabsheet;
     }
+
     protected function getLocale(Request $request): string
     {
         return $request->get('_locale', $request->getSession()->get('_locale'));
     }
+
     #[Route('/admin/history', name: 'admin_history', defaults: ['year' => null, 'month' => null, 'day' => null])]
     #[Route('/admin/history/{year}', name: 'admin_history_year', defaults: ['year' => null, 'month' => null, 'day' => null], requirements: ['year' => '\d{4}'])]
     #[Route('/admin/history/{year}/{month}', name: 'admin_history_month', defaults: ['year' => null, 'month' => null, 'day' => null], requirements: ['year' => '\d{4}', 'month' => '\d{2}'])]
@@ -67,7 +70,7 @@ class AdminHistoryController extends AbstractController
         HistoryRepository $historyRepository,
         ?int $year = null,
         ?int $month = null,
-        ?int $day = null
+        ?int $day = null,
     ): Response {
         $tpl_params = [];
         $this->refreshSummary($historyRepository, $historySummaryRepository);
@@ -155,7 +158,7 @@ class AdminHistoryController extends AbstractController
                 $tpl_params['statrows'][] = [
                     'VALUE' => $value,
                     'PAGES' => $datas[$i],
-                    'WIDTH' => round($datas[$i] / $numberOfPages * 100)
+                    'WIDTH' => round($datas[$i] / $numberOfPages * 100),
                 ];
             }
         }
@@ -165,6 +168,7 @@ class AdminHistoryController extends AbstractController
 
         return $this->render('history_stats.html.twig', $tpl_params);
     }
+
     #[Route('/admin/history/search/{search_id}/{start}', name: 'admin_history_search', defaults: ['search_id' => null, 'start' => 0], requirements: ['search_id' => '\d+', 'start' => '\d+'])]
     public function search(
         Request $request,
@@ -176,7 +180,7 @@ class AdminHistoryController extends AbstractController
         TagRepository $tagRepository,
         HistoryRepository $historyRepository,
         int $start = 0,
-        ?int $search_id = null
+        ?int $search_id = null,
     ): Response {
         $tpl_params = [];
         $search = null;
@@ -228,6 +232,7 @@ class AdminHistoryController extends AbstractController
 
         return $this->render('history_search.html.twig', $tpl_params);
     }
+
     /**
      * @return array<string, mixed>
      */
@@ -239,7 +244,7 @@ class AdminHistoryController extends AbstractController
         AlbumMapper $albumMapper,
         UserMapper $userMapper,
         ImageMapper $imageMapper,
-        TagRepository $tagRepository
+        TagRepository $tagRepository,
     ): array {
         $search_results = [];
 
@@ -365,9 +370,10 @@ class AdminHistoryController extends AbstractController
         return [
             'nb_lines' => $nb_lines,
             'search_results' => $search_results,
-            'search_summary' => $search_summary
+            'search_summary' => $search_summary,
         ];
     }
+
     /**
      * @param array<string, mixed> $image_infos
      */
@@ -403,7 +409,7 @@ class AdminHistoryController extends AbstractController
                     [
                         'path' => $image_infos[$line->getImage()->getId()]->getPathBasename(),
                         'derivative' => $derivative->getUrlType(),
-                        'image_extension' => $image_infos[$line->getImage()->getId()]->getExtension()
+                        'image_extension' => $image_infos[$line->getImage()->getId()]->getExtension(),
                     ]
                 );
             }
@@ -431,6 +437,7 @@ class AdminHistoryController extends AbstractController
 
         return $image_string;
     }
+
     protected function dateFormat(string $locale, int $timestamp, string $format): string
     {
         $date_time = (new DateTime())->setTimestamp($timestamp);
@@ -438,6 +445,7 @@ class AdminHistoryController extends AbstractController
 
         return $intl_date_formatter->format($date_time);
     }
+
     protected function refreshSummary(HistoryRepository $historyRepository, HistorySummaryRepository $historySummaryRepository): void
     {
         $need_update = [];

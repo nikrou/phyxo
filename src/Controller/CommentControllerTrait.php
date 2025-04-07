@@ -28,7 +28,7 @@ trait CommentControllerTrait
         CommentRepository $commentRepository,
         AppUserService $appUserService,
         TranslatorInterface $translator,
-        RedirectResponse $redirectResponse
+        RedirectResponse $redirectResponse,
     ): array {
         $tpl_comments = [];
 
@@ -40,7 +40,7 @@ trait CommentControllerTrait
                 [
                     'image_id' => $comment->getImage()->getId(),
                     'element_id' => $comment->getImage()->getImageAlbums()->first()->getAlbum()->getId(),
-                    'type' => 'category'
+                    'type' => 'category',
                 ]
             );
 

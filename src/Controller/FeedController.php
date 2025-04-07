@@ -11,20 +11,20 @@
 
 namespace App\Controller;
 
-use DateTime;
-use UniversalFeedCreator;
-use FeedItem;
-use DateInterval;
 use App\Entity\UserFeed;
-use Phyxo\Conf;
-use App\Repository\UserFeedRepository;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use App\Notification;
+use App\Repository\UserFeedRepository;
 use App\Security\AppUserService;
+use DateInterval;
+use DateTime;
+use FeedItem;
+use Phyxo\Conf;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use UniversalFeedCreator;
 
 class FeedController extends AbstractController
 {
@@ -61,7 +61,7 @@ class FeedController extends AbstractController
         string $cacheDir,
         Notification $notification,
         TranslatorInterface $translator,
-        bool $image_only = false
+        bool $image_only = false,
     ): void {
         $feed = $userFeedRepository->findOneBy(['uuid' => $feed_id]);
         if (is_null($feed)) {

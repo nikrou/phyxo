@@ -11,12 +11,12 @@
 
 namespace App\Controller\Admin;
 
-use Exception;
 use App\DataMapper\UserMapper;
 use App\Repository\PluginRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UpgradeRepository;
 use App\Repository\UserInfosRepository;
+use Exception;
 use Phyxo\Language\Languages;
 use Phyxo\Plugin\Plugins;
 use Phyxo\TabSheet\TabSheet;
@@ -35,6 +35,7 @@ class AdminUpdateController extends AbstractController
 {
     private TranslatorInterface $translator;
     private string $defaultTheme;
+
     protected function setTabsheet(string $section = 'core'): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -44,6 +45,7 @@ class AdminUpdateController extends AbstractController
 
         return $tabsheet;
     }
+
     #[Route('/admin/update/{step}/{version}', name: 'admin_update', defaults: ['step' => 0, 'version' => null], requirements: ['step' => '\d+'])]
     public function core(
         Request $request,
@@ -60,7 +62,7 @@ class AdminUpdateController extends AbstractController
         Themes $themes,
         Languages $languages,
         ?string $version = null,
-        int $step = 0
+        int $step = 0,
     ): Response {
         $tpl_params = [];
 
@@ -179,7 +181,7 @@ class AdminUpdateController extends AbstractController
             }
 
             if ($request->isMethod('POST') && $request->request->get('upgrade_to')) {
-                $zip = $params->get('cache_dir') . '/update' . '/' . $request->request->get('upgrade_to') . '.zip';
+                $zip = $params->get('cache_dir') . '/update/' . $request->request->get('upgrade_to') . '.zip';
                 $updater->upgradeTo($request->request->get('upgrade_to'));
                 $updater->download($zip);
 
@@ -214,8 +216,8 @@ class AdminUpdateController extends AbstractController
                         $current_release = '1.1.0';
                     } elseif (!in_array(145, $applied_upgrades)) {
                         $current_release = '1.2.0';
-                        // } elseif (in_array('validated', $columns_of[$em->getConnection()->getPrefix() . 'tags'])) {
-                        //     $current_release = '1.3.0';
+                    // } elseif (in_array('validated', $columns_of[$em->getConnection()->getPrefix() . 'tags'])) {
+                    //     $current_release = '1.3.0';
                     } elseif (!in_array(146, $applied_upgrades)) {
                         $current_release = '1.5.0';
                     } elseif (!in_array(147, $applied_upgrades)) {
@@ -272,6 +274,7 @@ class AdminUpdateController extends AbstractController
 
         return $this->render('updates_core.html.twig', $tpl_params);
     }
+
     #[Route('/admin/update/extensions', name: 'admin_update_extensions')]
     public function extensions(TranslatorInterface $translator): Response
     {

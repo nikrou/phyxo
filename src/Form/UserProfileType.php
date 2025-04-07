@@ -86,7 +86,7 @@ class UserProfileType extends AbstractType
                     'first_options' => ['label' => 'New password', 'attr' => ['placeholder' => 'Your new password']],
                     'second_options' => ['label' => 'Confirm password', 'attr' => ['placeholder' => 'Confirm password']],
                     'attr' => ['placeholder' => 'Password'],
-                    'required' => false
+                    'required' => false,
                 ]
             );
         }
@@ -95,10 +95,10 @@ class UserProfileType extends AbstractType
             'mail_address',
             EmailType::class,
             [
-                'constraints' => [new Email(['message' => "Please enter a valid mail address. Ex: john.doe@phyxo.net"])],
+                'constraints' => [new Email(['message' => 'Please enter a valid mail address. Ex: john.doe@phyxo.net'])],
                 'label' => 'Email address',
                 'attr' => ['placeholder' => 'Email address'],
-                'required' => false
+                'required' => false,
             ]
         );
 
@@ -108,7 +108,7 @@ class UserProfileType extends AbstractType
                 foreach ($fields->all() as $child) {
                     $builder->add($child);
                 }
-            }
+            },
         ]);
 
         $builder->add('id', HiddenType::class);

@@ -14,7 +14,7 @@ namespace Phyxo\Functions;
 class Language
 {
     /**
-     *  return language file content or emmty string if file does not exist
+     *  return language file content or emmty string if file does not exist.
      */
     public static function loadLanguageFile(string $filename, string $dirname = ''): string
     {
@@ -34,7 +34,8 @@ class Language
     // charset methods
 
     /**
-     * finds out if a string is in ASCII, UTF-8 or other encoding
+     * finds out if a string is in ASCII, UTF-8 or other encoding.
+     *
      * @return int *0* if _$str_ is ASCII, *1* if UTF-8, *-1* otherwise
      */
     public static function qualify_utf8(string $Str): int
@@ -78,9 +79,10 @@ class Language
     }
 
     /**
-     * Remove accents from a UTF-8 or ISO-8859-1 string (from wordpress)
+     * Remove accents from a UTF-8 or ISO-8859-1 string (from wordpress).
      *
      * @param string $string
+     *
      * @return string
      */
     public static function remove_accents($string)
@@ -193,7 +195,7 @@ class Language
                 // Euro Sign
                 "\xe2\x82\xac" => 'E',
                 // GBP (Pound) Sign
-                "\xc2\xa3" => ''
+                "\xc2\xa3" => '',
             ];
 
             $string = strtr($string, $chars);
@@ -210,7 +212,7 @@ class Language
                 . chr(244) . chr(245) . chr(246) . chr(248) . chr(249) . chr(250) . chr(251)
                 . chr(252) . chr(253) . chr(255);
 
-            $chars['out'] = "EfSZszYcYuAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy";
+            $chars['out'] = 'EfSZszYcYuAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy';
 
             $string = strtr($string, $chars['in'], $chars['out']);
             $double_chars['in'] = [chr(140), chr(156), chr(198), chr(208), chr(222), chr(223), chr(230), chr(240), chr(254)];
@@ -222,9 +224,10 @@ class Language
     }
 
     /**
-     * removes accents from a string and converts it to lower case
+     * removes accents from a string and converts it to lower case.
      *
      * @param string $term
+     *
      * @return string
      */
     public static function transliterate($term)
@@ -237,7 +240,7 @@ class Language
     }
 
     /**
-     * simplify a string to insert it into an URL
+     * simplify a string to insert it into an URL.
      */
     public static function str2url(string $str): string
     {

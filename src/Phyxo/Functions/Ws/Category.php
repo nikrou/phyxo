@@ -19,16 +19,18 @@ use App\Entity\UserInfos;
 use App\Enum\ImageSizeType;
 use App\Enum\UserStatusType;
 use App\Repository\UserCacheAlbumRepository;
+use Phyxo\Image\DerivativeImage;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\Server;
-use Phyxo\Image\DerivativeImage;
 
 class Category
 {
     /**
      * API method
-     * Returns images per category
+     * Returns images per category.
+     *
      * @param mixed[] $params
+     *
      *    @option int[] cat_id (optional)
      *    @option bool recursive
      *    @option int per_page
@@ -39,7 +41,7 @@ class Category
     {
         $images = [];
 
-        //------------------------------------------------- get the related categories
+        // ------------------------------------------------- get the related categories
         $album_ids = [];
 
         $forbidden_categories = $service->getUserMapper()->getUser()->getUserInfos()->getForbiddenAlbums();
@@ -55,7 +57,7 @@ class Category
             $album_ids[] = $album->getId();
         }
 
-        //-------------------------------------------------------- get the images
+        // -------------------------------------------------------- get the images
         if ($album_ids !== []) {
             foreach ($service->getImageMapper()->getRepository()->getImagesFromAlbums($album_ids, $params['per_page'], $params['per_page'] * $params['page']) as $image) {
                 $images[] = $image->toArray();
@@ -66,7 +68,7 @@ class Category
             'paging' => [
                 'page' => $params['page'],
                 'per_page' => $params['per_page'],
-                'count' => count($images)
+                'count' => count($images),
             ],
             'images' => $images,
         ];
@@ -74,8 +76,10 @@ class Category
 
     /**
      * API method
-     * Returns a list of categories
+     * Returns a list of categories.
+     *
      * @param mixed[] $params
+     *
      *    @option int cat_id (optional)
      *    @option bool recursive
      *    @option bool public
@@ -192,11 +196,12 @@ class Category
 
     /**
      * API method
-     * Returns the list of categories as you can see them in administration
+     * Returns the list of categories as you can see them in administration.
+     *
      * @param mixed[] $params
      *
      * Only admin can run this method and permissions are not taken into
-     * account.
+     * account
      */
     public static function getAdminList($params, Server $service)
     {
@@ -231,8 +236,10 @@ class Category
 
     /**
      * API method
-     * Adds a category
+     * Adds a category.
+     *
      * @param mixed[] $params
+     *
      *    @option string name
      *    @option int parent (optional)
      *    @option string comment (optional)
@@ -276,8 +283,10 @@ class Category
 
     /**
      * API method
-     * Sets details of a category
+     * Sets details of a category.
+     *
      * @param mixed[] $params
+     *
      *    @option int cat_id
      *    @option string name (optional)
      *    @option string comment (optional)
@@ -304,13 +313,16 @@ class Category
         if ($perform_update) {
             $service->getAlbumMapper()->getRepository()->addOrUpdateAlbum($album);
         }
+
         return null;
     }
 
     /**
      * API method
-     * Sets representative image of a category
+     * Sets representative image of a category.
+     *
      * @param mixed[] $params
+     *
      *    @option int category_id
      *    @option int image_id
      */
@@ -333,13 +345,16 @@ class Category
 
         $service->getAlbumMapper()->getRepository()->addOrUpdateAlbum($album);
         $service->getManagerRegistry()->getRepository(UserCacheAlbum::class)->unsetUserRepresentativePictureForAlbum($params['category_id']);
+
         return null;
     }
 
     /**
      * API method
-     * Deletes a category
+     * Deletes a category.
+     *
      * @param mixed[] $params
+     *
      *    @option string|int[] category_id
      *    @option string photo_deletion_mode
      */
@@ -401,13 +416,16 @@ class Category
 
         $service->getAlbumMapper()->deleteAlbums($album_ids);
         $service->getAlbumMapper()->updateGlobalRank();
+
         return null;
     }
 
     /**
      * API method
-     * Moves a category
+     * Moves a category.
+     *
      * @param mixed[] $params
+     *
      *    @option string|int[] category_id
      *    @option int parent
      */
@@ -467,11 +485,12 @@ class Category
         if ($page['errors'] !== []) {
             return new Error(403, implode('; ', $page['errors']));
         }
+
         return null;
     }
 
     /**
-     * create a tree from a flat list of categories, no recursivity for high speed
+     * create a tree from a flat list of categories, no recursivity for high speed.
      */
     protected static function categoriesFlatlistToTree($categories)
     {

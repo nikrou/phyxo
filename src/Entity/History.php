@@ -12,9 +12,9 @@
 namespace App\Entity;
 
 use App\Enum\PictureSectionType;
-use Doctrine\DBAL\Types\Types;
-use DateTimeInterface;
 use App\Repository\HistoryRepository;
+use DateTimeInterface;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'history')]

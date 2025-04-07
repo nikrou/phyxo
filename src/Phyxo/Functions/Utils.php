@@ -42,7 +42,7 @@ class Utils
     }
 
     /**
-     * returns the part of the string after the last "."
+     * returns the part of the string after the last ".".
      */
     public static function getExtension(string $filename): string
     {
@@ -51,17 +51,18 @@ class Utils
 
     /**
      * returns the part of the string before the last ".".
-     * get_filename_wo_extension( 'test.tar.gz' ) = 'test.tar'
+     * get_filename_wo_extension( 'test.tar.gz' ) = 'test.tar'.
      */
     public static function getFilenameWithoutExtension(string $filename): string
     {
         $pos = strrpos($filename, '.');
+
         return ($pos === false) ? $filename : substr($filename, 0, $pos);
     }
 
     /**
      * returns the element name from its filename.
-     * removes file extension and replace underscores by spaces
+     * removes file extension and replace underscores by spaces.
      */
     public static function getNameFromFile(string $filename): string
     {
@@ -69,7 +70,7 @@ class Utils
     }
 
     /**
-     * converts a string from a character set to another character set
+     * converts a string from a character set to another character set.
      */
     public static function convertCharset(string $str, string $source_charset, string $dest_charset): string
     {
@@ -127,7 +128,7 @@ class Utils
     }
 
     /**
-     * return the branch from the version. For example version 2.2.4 is for branch 2.2
+     * return the branch from the version. For example version 2.2.4 is for branch 2.2.
      */
     public static function getBranchFromVersion(string $version): string
     {
@@ -135,7 +136,7 @@ class Utils
     }
 
     /**
-     * Callback used for sorting by global_rank
+     * Callback used for sorting by global_rank.
      *
      * @param array{global_rank: string} $a
      * @param array{global_rank: string} $b
@@ -146,7 +147,7 @@ class Utils
     }
 
     /**
-     * Callback used for sorting by rank
+     * Callback used for sorting by rank.
      *
      * @param array{rank: int} $a
      * @param array{rank: int} $b
@@ -235,7 +236,7 @@ class Utils
      * Warning: By definition, this function breaks original keys.
      *
      * @param array<int, int> $element_ids
-     * @param array<string> $name
+     * @param array<string>   $name
      *
      * @return array<string, int>
      */
@@ -257,7 +258,7 @@ class Utils
      * last modification timestamp and the total of items (separated by a _).
      * Additionally returns the hash of root path.
      * Used to invalidate LocalStorage cache on admin pages.
-     * list of keys to retrieve (categories,groups,images,tags,users)
+     * list of keys to retrieve (categories,groups,images,tags,users).
      *
      * @param array<string> $requested
      *
@@ -296,6 +297,7 @@ class Utils
         // rotation must be applied to the resized photo, then we should test
         // invert width and height.
         $file_infos = self::imageInfos($image_filepath);
+
         return $file_infos['width'] > $max_width || $file_infos['height'] > $max_height;
     }
 

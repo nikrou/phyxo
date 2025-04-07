@@ -42,6 +42,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AdminAlbumController extends AbstractController
 {
     private TranslatorInterface $translator;
+
     protected function setTabsheet(int $album_id, string $section = 'properties', ?int $parent_id = null): TabSheet
     {
         $tabsheet = new TabSheet();
@@ -53,6 +54,7 @@ class AdminAlbumController extends AbstractController
 
         return $tabsheet;
     }
+
     #[Route('/admin/album/{album_id}/edit/{parent_id}', name: 'admin_album', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
     public function properties(
         Request $request,
@@ -64,7 +66,7 @@ class AdminAlbumController extends AbstractController
         ImageAlbumRepository $imageAlbumRepository,
         ImageMapper $imageMapper,
         ManagerRegistry $managerRegistry,
-        ?int $parent_id = null
+        ?int $parent_id = null,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -74,7 +76,7 @@ class AdminAlbumController extends AbstractController
         $tpl_params['albums_options'] = [
             ['id' => 'true', 'label' => $translator->trans('Yes', [], 'admin')],
             ['id' => 'true_sub', 'label' => $translator->trans('No and unlock sub-albums', [], 'admin')],
-            ['id' => 'false', 'label' => $translator->trans('No', [], 'admin')]
+            ['id' => 'false', 'label' => $translator->trans('No', [], 'admin')],
         ];
 
         if ($request->isMethod('POST')) {
@@ -154,7 +156,7 @@ class AdminAlbumController extends AbstractController
                     'This album contains {count} photos, added on {date}.',
                     [
                         'count' => $image_count,
-                        'date' => $min_date->format('l d M Y')
+                        'date' => $min_date->format('l d M Y'),
                     ],
                     'admin'
                 );
@@ -164,7 +166,7 @@ class AdminAlbumController extends AbstractController
                     [
                         'count' => $image_count,
                         'min_date' => $min_date->format('l d M Y'),
-                        'max_date' => $max_date->format('l d M Y')
+                        'max_date' => $max_date->format('l d M Y'),
                     ],
                     'admin'
                 );
@@ -189,7 +191,7 @@ class AdminAlbumController extends AbstractController
 
                     $tpl_params['representant']['picture'] = [
                         'SRC' => $src,
-                        'URL' => $url
+                        'URL' => $url,
                     ];
                 }
             }
@@ -214,6 +216,7 @@ class AdminAlbumController extends AbstractController
 
         return $this->render('album_properties.html.twig', $tpl_params);
     }
+
     #[Route('/admin/album/{album_id}/sort_order/{parent_id}', name: 'admin_album_sort_order', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
     public function sort_order(
         Request $request,
@@ -222,7 +225,7 @@ class AdminAlbumController extends AbstractController
         AlbumMapper $albumMapper,
         ImageStandardParams $image_std_params,
         TranslatorInterface $translator,
-        ?int $parent_id = null
+        ?int $parent_id = null,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -255,7 +258,7 @@ class AdminAlbumController extends AbstractController
             $image_order = '';
             if ($image_order_choice === 'user_define') {
                 for ($i = 0; $i < 3; $i++) {
-                    /** @phpstan-ignore-next-line */
+                    /* @phpstan-ignore-next-line */
                     if ($request->request->get('image_order')[$i] !== '' && $request->request->get('image_order')[$i] !== '0') {
                         if ($image_order !== '') {
                             $image_order .= ',';
@@ -349,6 +352,7 @@ class AdminAlbumController extends AbstractController
 
         return $this->render('album_sort_order.html.twig', $tpl_params);
     }
+
     #[Route('/admin/album/{album_id}/permissions/{parent_id}', name: 'admin_album_permissions', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
     public function permissions(
         Request $request,
@@ -361,7 +365,7 @@ class AdminAlbumController extends AbstractController
         UserRepository $userRepository,
         GroupRepository $groupRepository,
         ManagerRegistry $managerRegistry,
-        ?int $parent_id = null
+        ?int $parent_id = null,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -378,8 +382,8 @@ class AdminAlbumController extends AbstractController
                 if (!$request->request->has('groups')) {
                     $album->clearAllGroupAccess();
 
-                    // need to clear group access for sub-albums
-                    // $subcats = $albumRepository->getSubcatIds([$album_id]);
+                // need to clear group access for sub-albums
+                // $subcats = $albumRepository->getSubcatIds([$album_id]);
                 } else {
                     $sub_albums = null;
                     if ($request->request->get('apply_on_sub')) {
@@ -400,7 +404,7 @@ class AdminAlbumController extends AbstractController
                 if (!$request->request->has('users')) {
                     $album->clearAllUserAccess();
 
-                    // need to clear user access for sub albums
+                // need to clear user access for sub albums
                 } else {
                     $sub_albums = null;
                     if ($request->request->get('apply_on_sub')) {
@@ -504,6 +508,7 @@ class AdminAlbumController extends AbstractController
 
         return $this->render('album_permissions.html.twig', $tpl_params);
     }
+
     #[Route('/admin/album/{album_id}/notification/{parent_id}', name: 'admin_album_notification', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
     public function notification(
         Request $request,
@@ -515,7 +520,7 @@ class AdminAlbumController extends AbstractController
         GroupRepository $groupRepository,
         ImageMapper $imageMapper,
         TranslatorInterface $translator,
-        ?int $parent_id = null
+        ?int $parent_id = null,
     ): Response {
         $tpl_params = [];
         $this->translator = $translator;
@@ -531,7 +536,7 @@ class AdminAlbumController extends AbstractController
                     $img_src = $this->generateUrl('admin_media', [
                         'path' => $element->getPathBasename(),
                         'derivative' => $derivative->getUrlType(),
-                        'image_extension' => $element->getExtension()
+                        'image_extension' => $element->getExtension(),
                     ]);
                     $img_url = '<a href="' . $this->generateUrl('picture', ['image_id' => $element->getId(), 'type' => 'album', 'element_id' => $album_id], UrlGeneratorInterface::ABSOLUTE_URL);
                     $img_url .= '"><img src="' . $img_src . '" alt="X"></a>';
@@ -589,6 +594,7 @@ class AdminAlbumController extends AbstractController
 
         return $this->render('album_notification.html.twig', $tpl_params);
     }
+
     #[Route('/admin/album/create/{parent_id}', name: 'admin_album_create', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+'])]
     public function create(
         Request $request,
@@ -597,7 +603,7 @@ class AdminAlbumController extends AbstractController
         UserMapper $userMapper,
         UserInfosRepository $userInfosRepository,
         TranslatorInterface $translator,
-        ?int $parent_id = null
+        ?int $parent_id = null,
     ): Response {
         if ($request->isMethod('POST')) {
             $album_name = $request->request->get('album_name');
@@ -630,6 +636,7 @@ class AdminAlbumController extends AbstractController
 
         return $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
     }
+
     #[Route('/admin/album/{album_id}/delete/{parent_id}', name: 'admin_album_delete', defaults: ['parent_id' => null], requirements: ['parent_id' => '\d+', 'album_id' => '\d+'])]
     public function delete(int $album_id, AlbumMapper $albumMapper, ImageMapper $imageMapper, UserMapper $userMapper, TranslatorInterface $translator, ?int $parent_id = null): Response
     {

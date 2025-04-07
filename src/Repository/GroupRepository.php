@@ -35,7 +35,7 @@ class GroupRepository extends ServiceEntityRepository
         return $group->getId();
     }
 
-    public function isGroupNameExists(string $name) : bool
+    public function isGroupNameExists(string $name): bool
     {
         $qb = $this->createQueryBuilder('g');
         $qb->select('count(1)');

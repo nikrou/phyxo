@@ -11,8 +11,8 @@
 
 namespace App\EventSubscriber;
 
-use Doctrine\ORM\Id\SequenceGenerator;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
+use Doctrine\ORM\Id\SequenceGenerator;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -33,7 +33,7 @@ class TablePrefixSubscriber implements EventSubscriberInterface
         $classMetadata = $event->getClassMetadata();
         if (!$classMetadata->isInheritanceTypeSingleTable() || $classMetadata->getName() === $classMetadata->rootEntityName) {
             $classMetadata->setPrimaryTable([
-                'name' => $this->prefix . $classMetadata->getTableName()
+                'name' => $this->prefix . $classMetadata->getTableName(),
             ]);
         }
 
