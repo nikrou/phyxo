@@ -14,8 +14,6 @@
 	</div>
     </nav>
 
-    {{ include('_infos_errors.html.twig') }}
-
     <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
 	<form action="{{login_route}}" method="post" name="login_form" class="form-horizontal">
 	    <div class="card col-lg-6">
@@ -23,6 +21,12 @@
 		    {{'Connection settings'|trans}}
 		</h4>
 		<div class="card-body">
+		    {% if errors %}
+			<div class="alert alert-error fade show" role="alert">
+			    <p>{{ errors }}</p>
+			</div>
+		    {% endif %}
+		    
 		    <div class="form-group">
 			<label for="username" class="control-label">{{'Username'|trans}}</label>
 			<input tabindex="1" class="form-control" type="text" name="_username" id="username" placeholder="{{'Username'|trans}}" value="{{last_username}}">

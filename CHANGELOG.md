@@ -1,6 +1,6 @@
-# Phyxo 4.0.0 - YYYY-MM-DD
+# Phyxo 5.0.0 - YYYY-MM-DD
 
--- Not yet released
+- Ignore album with no representative picture
 
 # Phyxo 4.0.0 - 2025-03-30
 

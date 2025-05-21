@@ -270,6 +270,10 @@ class AlbumController extends AbstractController
                 $userCacheAlbum = $album->getUserCacheAlbum();
                 $name = $albumMapper->getAlbumsDisplayNameCache($album->getUppercats());
 
+                if (!isset($infos_of_images[$album->getRepresentativePictureId()])) {
+                    continue;
+                }
+
                 $representative_infos = $infos_of_images[$album->getRepresentativePictureId()];
 
                 $tpl_var = array_merge(
