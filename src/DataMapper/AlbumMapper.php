@@ -350,7 +350,7 @@ class AlbumMapper
             }
         }
 
-        if ($single_link && isset($single_url)) {
+        if ($single_link) {
             $output .= '</a>';
         }
 

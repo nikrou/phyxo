@@ -90,8 +90,8 @@ class AlbumController extends AbstractController
             $order_index = $request->getSession()->get('image_order_index');
         }
 
-        if ($request->get('order')) {
-            $order_index = (int) $request->get('order');
+        if ($request->query->get('order')) {
+            $order_index = (int) $request->query->get('order');
             $request->getSession()->set('image_order_index', $order_index);
         }
 

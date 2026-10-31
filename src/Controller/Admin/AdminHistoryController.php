@@ -56,7 +56,7 @@ class AdminHistoryController extends AbstractController
 
     protected function getLocale(Request $request): string
     {
-        return $request->get('_locale', $request->getSession()->get('_locale'));
+        return $request->attributes->get('_locale', $request->getSession()->get('_locale'));
     }
 
     #[Route('/admin/history', name: 'admin_history', defaults: ['year' => null, 'month' => null, 'day' => null])]

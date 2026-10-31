@@ -28,8 +28,8 @@ class MenubarController extends AbstractController
         $tpl_params = [];
 
         $tpl_params['blocks'] = $menuBar->getBlocks();
-        $tpl_params['current_route'] = $requestStack->getMainRequest()->get('_route');
-        $tpl_params['current_route_params'] = $requestStack->getMainRequest()->get('_route_params');
+        $tpl_params['current_route'] = $requestStack->getMainRequest()->attributes->get('_route');
+        $tpl_params['current_route_params'] = $requestStack->getMainRequest()->attributes->get('_route_params');
 
         return $this->render(sprintf('%s.html.twig', $publicTemplates['menubar']), $tpl_params);
     }

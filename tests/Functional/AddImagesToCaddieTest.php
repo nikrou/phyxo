@@ -47,7 +47,7 @@ class AddImagesToCaddieTest extends ApiTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
 
         $caddieRepository = $this->entityManager->getRepository(Caddie::class);

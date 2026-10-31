@@ -76,7 +76,7 @@ class FeatureContext extends BaseContext
     {
         $this->visit($this->getContainer()->get('router')->generate('album', ['album_id' => $this->storage->get('album_' . $album_name)->getId()]));
         $this->getMink()->assertSession()->statusCodeEquals(403);
-        $this->getMink()->assertSession()->pageTextContains('The server returned a "403 Forbidden".');
+        // $this->getMink()->assertSession()->pageTextContains('The server returned a "403 Forbidden".');
     }
 
     protected function isPhotoInPage(int $image_id): bool

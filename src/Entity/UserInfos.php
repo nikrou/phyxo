@@ -122,7 +122,7 @@ class UserInfos
 
     public function getNbImagePage(): int
     {
-        return $this->nb_image_page ?? self::DEFAULT_NB_IMAGE_PAGE;
+        return $this->nb_image_page;
     }
 
     public function setNbImagePage(int $nb_image_page): self
@@ -182,7 +182,7 @@ class UserInfos
 
     public function getRecentPeriod(): int
     {
-        return $this->recent_period ?? self::DEFAULT_RECENT_PERIOD;
+        return $this->recent_period;
     }
 
     public function setRecentPeriod(int $recent_period = self::DEFAULT_RECENT_PERIOD): self
@@ -266,7 +266,7 @@ class UserInfos
 
     public function getShowNbComments(): bool
     {
-        return $this->show_nb_comments ?? self::DEFAULT_SHOW_NB_COMMENTS;
+        return $this->show_nb_comments;
     }
 
     public function setShowNbComments(bool $show_nb_comments = self::DEFAULT_SHOW_NB_COMMENTS): self
@@ -278,7 +278,7 @@ class UserInfos
 
     public function getShowNbHits(): bool
     {
-        return $this->show_nb_hits ?? self::DEFAULT_SHOW_NB_HITS;
+        return $this->show_nb_hits;
     }
 
     public function setShowNbHits(bool $show_nb_hits = self::DEFAULT_SHOW_NB_HITS): self
@@ -290,7 +290,7 @@ class UserInfos
 
     public function hasEnabledHigh(): bool
     {
-        return $this->enabled_high ?? self::DEFAULT_ENABLED_HIGH;
+        return $this->enabled_high;
     }
 
     public function setEnabledHigh(bool $enabled_high = self::DEFAULT_ENABLED_HIGH): self

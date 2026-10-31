@@ -125,6 +125,7 @@ class DBContext implements Context
     #[Given('some albums:')]
     public function givenAlbums(TableNode $table): void
     {
+        /** @var array{commentable?: bool, visible?: bool, status?: string, name?: string, comment?: string, inherit?: bool} $albumRow */
         foreach ($table->getHash() as $albumRow) {
             $parent = null;
             if (isset($albumRow['parent']) && $albumRow['parent'] != '') {
@@ -363,15 +364,14 @@ class DBContext implements Context
     {
         if (!is_null($this->tagMapper->getRepository()->findOneBy(['name' => $tag_name]))) {
             throw new Exception('Tag already exists');
-        } else {
-            $tag = new Tag();
-            $tag->setName($tag_name);
-            $tag->setUrlName($tag_name);
-            $tag->setLastModified(new DateTime());
-            $this->tagMapper->getRepository()->addOrUpdateTag($tag);
-
-            $this->storage->set('tag_' . $tag_name, $tag->getId());
         }
+        $tag = new Tag();
+        $tag->setName($tag_name);
+        $tag->setUrlName($tag_name);
+        $tag->setLastModified(new DateTime());
+        $this->tagMapper->getRepository()->addOrUpdateTag($tag);
+
+        $this->storage->set('tag_' . $tag_name, $tag->getId());
     }
 
     /**

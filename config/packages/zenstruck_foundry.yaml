@@ -2,5 +2,10 @@ when@dev: &dev
   zenstruck_foundry:
     make_factory:
       default_namespace: 'App\Tests\Factory'
+    persistence:
+      flush_once: true
+    orm:
+      reset:
+        mode: auto
 
 when@test: *dev

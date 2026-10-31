@@ -10,7 +10,10 @@ framework:
   assets:
     packages:
       admin:
-        json_manifest_path: "%kernel.project_dir%/public/admin/theme/build/manifest.json"
+        json_manifest_path: '%kernel.project_dir%/public/admin/theme/build/manifest.json'
+
+  property_info:
+    with_constructor_extractor: true
 
   # Enables session support. Note that the session will ONLY be started if you read or write from it.
   session:

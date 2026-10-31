@@ -405,9 +405,9 @@ class Notification
             $orders = $action === 'send' ? ['n.last_send', 'u.username'] : ['u.username'];
 
             return $this->userMailNotificationRepository->findInfosForUsers($action === 'send', $enabled_filter_value, $check_key_list, $orders);
-        } else {
-            return [];
         }
+
+        return [];
     }
 
     /*
@@ -459,15 +459,12 @@ class Notification
 
     public function display_counter_info(): void
     {
-        /* @phpstan-ignore-next-line */
         if ($this->env['error_on_mail_count'] != 0) {
             $this->errors[] = $this->translator->trans('number_of_mails_not_sent', ['count' => $this->env['error_on_mail_count']]);
-            /* @phpstan-ignore-next-line */
+
             if ($this->env['sent_mail_count'] != 0) {
                 $this->infos[] = $this->translator->trans('number_of_mails_sent', ['count' => $this->env['sent_mail_count']]);
             }
-
-        /* @phpstan-ignore-next-line */
         } elseif ($this->env['sent_mail_count'] == 0) {
             $this->infos[] = $this->translator->trans('No mail to send.');
         } else {
