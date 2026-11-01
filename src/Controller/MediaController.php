@@ -331,7 +331,7 @@ class MediaController extends AbstractController
     {
         $response = new BinaryFileResponse($image_path);
         $response->setEtag(md5_file($image_path));
-        $response->setLastModified((new DateTime())->setTimestamp(filemtime($image_path)));
+        $response->setLastModified(new DateTime()->setTimestamp(filemtime($image_path)));
         $response->setMaxAge(3600); // @TODO : read from conf
         $response->setPublic();
 

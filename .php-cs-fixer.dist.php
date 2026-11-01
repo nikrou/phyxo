@@ -40,5 +40,6 @@ return $config
         'global_namespace_import' => false,
         'concat_space' => ['spacing' => 'one'],
         'increment_style' => ['style' => 'post'],
+        'ternary_to_null_coalescing' => false,
     ])
     ->setFinder($finder);

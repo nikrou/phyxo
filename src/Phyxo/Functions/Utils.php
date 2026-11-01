@@ -283,7 +283,7 @@ class Utils
         foreach ($returned as $repository) {
             if (isset($tables[$repository])) {
                 $tableInfos = $managerRegistry->getRepository($tables[$repository])->getMaxLastModified();
-                $max = (new DateTime($tableInfos['max'] ?? 'now'))->getTimestamp();
+                $max = new DateTime($tableInfos['max'] ?? 'now')->getTimestamp();
                 $keys[$repository] = sprintf('%s_%s', $max, $tableInfos['count']);
             }
         }

@@ -440,7 +440,7 @@ class AdminHistoryController extends AbstractController
 
     protected function dateFormat(string $locale, int $timestamp, string $format): string
     {
-        $date_time = (new DateTime())->setTimestamp($timestamp);
+        $date_time = new DateTime()->setTimestamp($timestamp);
         $intl_date_formatter = new IntlDateFormatter($locale, IntlDateFormatter::FULL, IntlDateFormatter::NONE, null, null, $format);
 
         return $intl_date_formatter->format($date_time);
@@ -504,7 +504,7 @@ class AdminHistoryController extends AbstractController
         $updates = [];
 
         if (isset($first_time_key)) {
-            foreach ($historySummaryRepository->getSummaryToUpdate(...array_map('intval', explode('-', $first_time_key))) as $historySummary) {
+            foreach ($historySummaryRepository->getSummaryToUpdate(...array_map(intval(...), explode('-', $first_time_key))) as $historySummary) {
                 $key = sprintf('%4u', $historySummary->getYear());
                 if ($historySummary->getMonth()) {
                     $key .= sprintf('-%02u', $historySummary->getMonth());
@@ -525,7 +525,7 @@ class AdminHistoryController extends AbstractController
         }
 
         foreach ($need_update as $time_key => $nb_pages) {
-            $time_tokens = array_map('intval', explode('-', $time_key));
+            $time_tokens = array_map(intval(...), explode('-', $time_key));
 
             $historySummary = new HistorySummary();
             $historySummary->setYear($time_tokens[0]);

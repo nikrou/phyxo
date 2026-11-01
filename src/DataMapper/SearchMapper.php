@@ -32,9 +32,9 @@ class SearchMapper
     {
         if (!isset($rules['q'])) {
             return $this->getRegularSearchResults($rules, $user);
-        } else {
-            return $this->getQuickSearchResults($rules['q'], $user);
         }
+
+        return $this->getQuickSearchResults($rules['q'], $user);
     }
 
     /**
@@ -60,7 +60,7 @@ class SearchMapper
         if (isset($rules['fields']['cat']) && $rules['fields']['cat']['sub_inc']) {
             $rules['fields']['cat']['words'] = array_merge(
                 array_values($rules['fields']['cat']['words']),
-                $this->albumRepository->getSubcatIds(array_map('intval', $rules['fields']['cat']['words']))
+                $this->albumRepository->getSubcatIds(array_map(intval(...), $rules['fields']['cat']['words']))
             );
         }
 

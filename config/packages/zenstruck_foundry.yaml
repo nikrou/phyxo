@@ -8,4 +8,6 @@ when@dev: &dev
       reset:
         mode: auto
 
+    enable_auto_refresh_with_lazy_objects: true
+
 when@test: *dev

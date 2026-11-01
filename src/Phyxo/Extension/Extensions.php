@@ -33,9 +33,8 @@ class Extensions
             $response = $client->request('GET', $url, ['query' => $params]);
             if ($response->getStatusCode() === 200 && $response->getContent()) {
                 return json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
-            } else {
-                throw new Exception('Response is not readable');
             }
+            throw new Exception('Response is not readable');
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
@@ -112,8 +111,7 @@ class Extensions
             }
 
             return $root;
-        } else {
-            throw new Exception("Can't read or extract archive.");
         }
+        throw new Exception("Can't read or extract archive.");
     }
 }

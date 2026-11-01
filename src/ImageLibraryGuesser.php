@@ -39,9 +39,9 @@ class ImageLibraryGuesser
             return new GmagickImagine();
         } elseif (class_exists('Imagick')) {
             return new ImagickImagine();
-        } else {
-            return new GdImagine();
         }
+
+        return new GdImagine();
     }
 
     public function getLibrary(): ImagineInterface

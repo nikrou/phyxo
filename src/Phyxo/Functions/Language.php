@@ -234,9 +234,9 @@ class Language
     {
         if (function_exists('mb_strtolower')) {
             return self::remove_accents(mb_strtolower($term, 'utf-8'));
-        } else {
-            return self::remove_accents(strtolower($term));
         }
+
+        return self::remove_accents(strtolower($term));
     }
 
     /**

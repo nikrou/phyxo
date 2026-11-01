@@ -190,7 +190,7 @@ class SecurityController extends AbstractController
             } else {
                 $activation_key = $appUserService->generateActivationKey();
                 $user->getUserInfos()->setActivationKey($activation_key);
-                $user->getUserInfos()->setActivationKeyExpire((new DateTime())->add(new DateInterval('PT1H')));
+                $user->getUserInfos()->setActivationKeyExpire(new DateTime()->add(new DateInterval('PT1H')));
                 $userRepository->updateUser($user);
 
                 $dispatcher->dispatch(new ActivationKeyEvent($activation_key, $user));

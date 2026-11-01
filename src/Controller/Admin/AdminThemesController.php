@@ -147,9 +147,9 @@ class AdminThemesController extends AbstractController
             $s = ['active' => 0, 'inactive' => 1];
             if ($a['state'] === $b['state']) {
                 return strcasecmp((string) $a['NAME'], (string) $b['NAME']);
-            } else {
-                return $s[$a['state']] >= $s[$b['state']];
             }
+
+            return $s[$a['state']] >= $s[$b['state']];
         });
 
         $tpl_params['ws'] = $this->generateUrl('ws');
@@ -349,7 +349,7 @@ class AdminThemesController extends AbstractController
 
         $response = new BinaryFileResponse($path);
         $response->setEtag(md5_file($path));
-        $response->setLastModified((new DateTime())->setTimestamp(filemtime($path)));
+        $response->setLastModified(new DateTime()->setTimestamp(filemtime($path)));
         $response->setMaxAge(3600);
         $response->setPublic();
 

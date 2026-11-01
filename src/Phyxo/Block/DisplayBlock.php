@@ -46,9 +46,9 @@ class DisplayBlock
     {
         if ($this->title !== '') {
             return $this->title;
-        } else {
-            return $this->registeredBlock->getName();
         }
+
+        return $this->registeredBlock->getName();
     }
 
     public function setTitle(string $title): void

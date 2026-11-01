@@ -328,7 +328,7 @@ class InstallController extends AbstractController
             }
 
             if ($errors === []) {
-                $envParams = (new Dotenv())->parse(file_get_contents($this->localEnvFile . '.tmp'));
+                $envParams = new Dotenv()->parse(file_get_contents($this->localEnvFile . '.tmp'));
                 $_params = parse_url((string) $envParams['DATABASE_URL']);
                 $connectionParams = [
                     'dsn' => $envParams['DATABASE_URL'],

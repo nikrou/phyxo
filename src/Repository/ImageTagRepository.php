@@ -63,9 +63,9 @@ class ImageTagRepository extends ServiceEntityRepository
 
         if ($count_only) {
             return (int) $qb->getQuery()->getSingleScalarResult();
-        } else {
-            return $qb->getQuery()->getResult();
         }
+
+        return $qb->getQuery()->getResult();
     }
 
     /**

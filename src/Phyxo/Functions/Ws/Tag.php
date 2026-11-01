@@ -169,13 +169,12 @@ class Tag
     {
         if (!is_null($service->getTagMapper()->getRepository()->findOneBy(['name' => $params['name']]))) {
             return new Error(500, 'Tag already exists');
-        } else {
-            $tag = new EntityTag();
-            $tag->setName($params['name']);
-            $tag->setUrlName($params['name']);
-            $tag->setLastModified(new DateTime());
-            $service->getTagMapper()->getRepository()->addOrUpdateTag($tag);
         }
+        $tag = new EntityTag();
+        $tag->setName($params['name']);
+        $tag->setUrlName($params['name']);
+        $tag->setLastModified(new DateTime());
+        $service->getTagMapper()->getRepository()->addOrUpdateTag($tag);
 
         return ['info' => 'Tag was added', 'id' => $tag->getId()];
     }

@@ -58,7 +58,7 @@ class ResetPasswordLinkSubscriber implements EventSubscriberInterface
             'CONTENT_ENCODING' => 'utf-8',
         ];
 
-        $message = (new TemplatedEmail())
+        $message = new TemplatedEmail()
             ->subject($subject)
             ->to(new Address($event->getUser()->getMailAddress(), $event->getUser()->getUserIdentifier()))
             ->textTemplate('mail/text/reset_password.text.twig')

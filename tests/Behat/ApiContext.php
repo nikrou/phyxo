@@ -21,7 +21,6 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -161,9 +160,8 @@ class ApiContext implements Context
             return $data;
         } elseif (isset($data[$property])) {
             return $data[$property];
-        } else {
-            throw new Exception("Property '" . $property . "' is not set!\n");
         }
+        throw new Exception("Property '" . $property . "' is not set!\n");
     }
 
     private function getJson()
@@ -178,9 +176,9 @@ class ApiContext implements Context
             $this->json_decoded = true;
 
             return $this->json_data;
-        } else {
-            return $this->json_data;
         }
+
+        return $this->json_data;
     }
 
     private function getJsonAsString(): string

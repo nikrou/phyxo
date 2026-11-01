@@ -165,7 +165,7 @@ class DBContext implements Context
 
             if (!empty($image['tags'])) {
                 if (preg_match('`\[(.*)]`', (string) $image['tags'], $matches)) {
-                    $tags = array_map('trim', explode(',', $matches[1]));
+                    $tags = array_map(trim(...), explode(',', $matches[1]));
                 } else {
                     $tags = [$image['tags']];
                 }

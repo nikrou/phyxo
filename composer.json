@@ -11,7 +11,7 @@
   ],
   "minimum-stability": "stable",
   "require": {
-    "php": ">=8.3.0",
+    "php": ">=8.4.0",
     "api-platform/doctrine-orm": "^4.0",
     "api-platform/symfony": "^4.0",
     "doctrine/dbal": "^3",
@@ -102,6 +102,7 @@
     "behat": "@php behat --stop-on-failure --suite=web",
     "phpunit": "@php phpunit --testdox",
     "phpstan": "@php phpstan analyse",
+    "php-cs-fixer": "php-cs-fixer fix --allow-unsupported-php-version=yes",
     "rector": "@php rector process",
     "auto-scripts": {
       "cache:clear": "symfony-cmd"

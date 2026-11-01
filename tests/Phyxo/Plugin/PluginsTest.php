@@ -108,7 +108,7 @@ class PluginsTest extends TestCase
         $plugins = new Plugins($pluginRepository->reveal(), $userMapper->reveal());
         $plugins->setRootPath($workspace);
         $plugins->setExtensionsURL('./');
-        $this->expectExceptionMessage('Cannot download plugin file');
+        $this->expectExceptionMessageIsOrContains('Cannot download plugin file');
         $plugins->extractPluginFiles('install', 10);
     }
 

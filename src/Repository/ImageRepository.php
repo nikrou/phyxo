@@ -350,9 +350,9 @@ class ImageRepository extends ServiceEntityRepository
 
         if ($count_only) {
             return $qb->getQuery()->getSingleScalarResult();
-        } else {
-            return $qb->getQuery()->getResult();
         }
+
+        return $qb->getQuery()->getResult();
     }
 
     /**

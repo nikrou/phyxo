@@ -33,7 +33,7 @@ class AdminMenubarController extends AbstractController
     {
         $tpl_params = [];
 
-        $mb_conf = is_null($conf['blk_menubar']) ? [] : $conf['blk_menubar'];
+        $mb_conf = $conf['blk_menubar'] ?? [];
 
         $menu = new BlockManager('menubar');
         $menu->loadDefaultBlocks();
@@ -69,7 +69,7 @@ class AdminMenubarController extends AbstractController
             $menu->loadRegisteredBlocks($eventDispatcher);
             $reg_blocks = $menu->getRegisteredBlocks();
 
-            $mb_conf = is_null($conf['blk_menubar']) ? [] : $conf['blk_menubar'];
+            $mb_conf = $conf['blk_menubar'] ?? [];
 
             foreach ($mb_conf as $id => $pos) {
                 $hide = $request->request->get('hide_' . $id);

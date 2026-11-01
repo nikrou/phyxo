@@ -213,9 +213,9 @@ class IndexController extends AbstractController
 
         if ($list === []) {
             return $this->redirectToRoute('homepage');
-        } else {
-            return $this->redirectToRoute('random_list', ['list' => implode(',', $list)]);
         }
+
+        return $this->redirectToRoute('random_list', ['list' => implode(',', $list)]);
     }
 
     /**
@@ -239,7 +239,7 @@ class IndexController extends AbstractController
 
         $tpl_params['TITLE'] = $translator->trans('Random photos');
         $tpl_params['items'] = [];
-        $listIds = array_map(fn ($s): int => intval($s), explode(',', $list));
+        $listIds = array_map(intval(...), explode(',', $list));
         foreach ($imageMapper->getRepository()->getList($listIds, $appUserService->getUser()->getUserInfos()->getForbiddenAlbums()) as $image) {
             $tpl_params['items'][] = $image->getId();
         }

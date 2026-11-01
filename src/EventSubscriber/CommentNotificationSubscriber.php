@@ -79,7 +79,7 @@ class CommentNotificationSubscriber implements EventSubscriberInterface
             $from = ['email' => $webmaster->getMailAddress(), 'name' => $webmaster->getUsername()];
         }
 
-        $message = (new TemplatedEmail())
+        $message = new TemplatedEmail()
             ->subject($subject)
             ->to(new Address($from['email'], $from['name']))
             ->textTemplate('mail/text/new_comment.text.twig')

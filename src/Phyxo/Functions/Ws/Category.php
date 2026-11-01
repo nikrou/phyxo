@@ -13,7 +13,6 @@ namespace Phyxo\Functions\Ws;
 
 use App\Entity\Album;
 use App\Entity\ImageAlbum;
-use App\Entity\User;
 use App\Entity\UserCacheAlbum;
 use App\Entity\UserInfos;
 use App\Enum\ImageSizeType;

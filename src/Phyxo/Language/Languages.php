@@ -349,9 +349,8 @@ class Languages extends Extensions
             }
 
             return $language_id;
-        } else {
-            throw new Exception("Can't read or extract archive.");
         }
+        throw new Exception("Can't read or extract archive.");
     }
 
     /**

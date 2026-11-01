@@ -17,8 +17,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 abstract class AbstractPlugin implements EventSubscriberInterface
 {
-    private const CLASSNAME_FORMAT = '\\Plugins\\%s\\%s';
-    private const COMMAND_CLASSNAME_FORMAT = 'Plugins\%s\Command';
+    private const string CLASSNAME_FORMAT = '\\Plugins\\%s\\%s';
+    private const string COMMAND_CLASSNAME_FORMAT = 'Plugins\%s\Command';
 
     public function __construct(protected AssetsManager $assetsManager, private readonly ThemeLoader $themeLoader)
     {

@@ -226,9 +226,8 @@ class SearchController extends AbstractController
                 }
 
                 return $this->redirectToRoute('search_results', ['search_id' => $search->getId()]);
-            } else {
-                $tpl_params['errors'][] = $translator->trans('Empty query. No criteria has been entered.');
             }
+            $tpl_params['errors'][] = $translator->trans('Empty query. No criteria has been entered.');
 
             if ($request->request->has('start_day')) {
                 $tpl_params['START_DAY_SELECTED'] = $request->request->get('start_day');
@@ -404,7 +403,7 @@ class SearchController extends AbstractController
         }
 
         if (isset($rules['fields']['author'])) {
-            $tpl_params['search_words'] = $translator->trans('author(s) : {authors}', ['authors' => implode(', ', array_map('strip_tags', $rules['fields']['author']['words']))]);
+            $tpl_params['search_words'] = $translator->trans('author(s) : {authors}', ['authors' => implode(', ', array_map(strip_tags(...), $rules['fields']['author']['words']))]);
         }
 
         if (isset($rules['fields']['cat'])) {

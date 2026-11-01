@@ -92,14 +92,13 @@ class HistoryRepository extends ServiceEntityRepository
 
             /* @phpstan-ignore-next-line */
             return $qb->getQuery()->getSingleScalarResult();
-        } else {
-            $qb->setMaxResults($limit);
-            $qb->setFirstResult($offset);
-            $qb->orderBy('h.date', 'DESC');
-            $qb->addOrderBy('h.time', 'DESC');
-
-            return $qb->getQuery()->getResult();
         }
+        $qb->setMaxResults($limit);
+        $qb->setFirstResult($offset);
+        $qb->orderBy('h.date', 'DESC');
+        $qb->addOrderBy('h.time', 'DESC');
+
+        return $qb->getQuery()->getResult();
     }
 
     /**

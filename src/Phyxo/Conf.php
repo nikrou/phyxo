@@ -115,9 +115,9 @@ class Conf implements ArrayAccess
             return json_decode($value, true, 512, JSON_THROW_ON_ERROR);
         } elseif ($type === ConfEnum::BASE64) {
             return unserialize(base64_decode($value));
-        } else {
-            return $value;
         }
+
+        return $value;
     }
 
     protected function confToDb(mixed $value, ConfEnum $type = ConfEnum::STRING): ?string
@@ -130,9 +130,9 @@ class Conf implements ArrayAccess
             return base64_encode(serialize($value));
         } elseif ($type === ConfEnum::JSON || is_array($value) || is_object($value)) {
             return json_encode($value, JSON_THROW_ON_ERROR);
-        } else {
-            return $value;
         }
+
+        return $value;
     }
 
     public function offsetExists(mixed $param): bool

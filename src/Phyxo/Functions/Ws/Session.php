@@ -31,9 +31,9 @@ class Session
     {
         if ($service->getAppUserService()->getUser() instanceof User) {
             return true;
-        } else {
-            return new Error(999, 'Invalid username/password');
         }
+
+        return new Error(999, 'Invalid username/password');
     }
 
     /**

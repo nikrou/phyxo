@@ -208,10 +208,10 @@ class CommentRepository extends ServiceEntityRepository
 
         if ($count_only) {
             return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR) ?? 0;
-        } else {
-            /* @phpstan-ignore-next-line */
-            return $qb->getQuery()->getResult();
         }
+
+        /* @phpstan-ignore-next-line */
+        return $qb->getQuery()->getResult();
     }
 
     public function countForImage(int $image_id, bool $isAdmin = false): int
@@ -296,9 +296,9 @@ class CommentRepository extends ServiceEntityRepository
 
         if ($count_only) {
             return $qb->getQuery()->getSingleScalarResult();
-        } else {
-            return $qb->getQuery()->getResult();
         }
+
+        return $qb->getQuery()->getResult();
     }
 
     /**
@@ -327,9 +327,9 @@ class CommentRepository extends ServiceEntityRepository
 
         if ($count_only) {
             return $qb->getQuery()->getSingleScalarResult();
-        } else {
-            return $qb->getQuery()->getResult();
         }
+
+        return $qb->getQuery()->getResult();
     }
 
     /**

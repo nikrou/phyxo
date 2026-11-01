@@ -48,7 +48,7 @@ class ExtensionAssetController extends AbstractController
             readfile($path);
         });
         $response->setEtag(md5_file($path));
-        $response->setLastModified((new DateTime())->setTimestamp(filemtime($path)));
+        $response->setLastModified(new DateTime()->setTimestamp(filemtime($path)));
         $response->setMaxAge(3600); // @TODO : read from conf
         $response->setPublic();
 

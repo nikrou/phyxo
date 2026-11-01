@@ -295,7 +295,7 @@ class Server
             ['methodName']
         );
 
-        uksort($this->_methods, 'strnatcmp');
+        uksort($this->_methods, strnatcmp(...));
 
         $method = null;
         $request_params = [];
@@ -422,9 +422,9 @@ class Server
             $content = trim(file_get_contents('php://input'));
 
             return $content !== '' && $content !== '0';
-        } else {
-            return $_POST !== [];
         }
+
+        return $_POST !== [];
     }
 
     public static function makeArrayParam(&$param): void

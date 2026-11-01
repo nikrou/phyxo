@@ -823,7 +823,7 @@ class Notification
 
         $tpl_params = array_merge($tpl_params, $params);
 
-        $message = (new TemplatedEmail())
+        $message = new TemplatedEmail()
             ->subject('[' . $this->conf['gallery_title'] . '] ' . $subject)
             ->to(new Address($to['email'], $to['name']))
             ->textTemplate('mail/text/notification.text.twig')

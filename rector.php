@@ -12,10 +12,8 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
-use Rector\Doctrine\Set\DoctrineSetList;
+use Rector\Php74\Rector\If_\IfToNullCoalescingAssignRector;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
-use Rector\Set\ValueObject\LevelSetList;
-use Rector\Symfony\Set\SymfonySetList;
 
 return RectorConfig::configure()
     ->withPaths([
@@ -33,23 +31,10 @@ return RectorConfig::configure()
 
     ->withComposerBased(twig: true, doctrine: true, phpunit: true)
 
-    ->withSets([
-        DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
-        SymfonySetList::SYMFONY_CODE_QUALITY,
-        SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
-        SymfonySetList::SYMFONY_72,
-        LevelSetList::UP_TO_PHP_84,
-        DoctrineSetList::DOCTRINE_CODE_QUALITY,
+    ->withSkip([
+        IfToNullCoalescingAssignRector::class,
     ])
 
     ->withRules([
         ClassPropertyAssignToConstructorPromotionRector::class,
-    ])
-
-    ->withPreparedSets(
-        deadCode: true,
-        codeQuality: true,
-        // naming: true,
-        privatization: true,
-        typeDeclarations: true
-    );
+    ]);

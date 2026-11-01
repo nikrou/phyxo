@@ -632,9 +632,9 @@ class AdminBatchManagerController extends AbstractController
 
         if ($redirect) {
             return $this->redirectToRoute('admin_batch_manager_global');
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     protected function filterFromSession(SessionInterface $session): void

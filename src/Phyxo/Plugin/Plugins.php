@@ -249,9 +249,9 @@ class Plugins extends Extensions
 
         if ($id !== '' && $id !== '0') {
             return $this->db_plugins[$id] ?? [];
-        } else {
-            return $this->db_plugins;
         }
+
+        return $this->db_plugins;
     }
 
     /**
@@ -274,7 +274,7 @@ class Plugins extends Extensions
                 uasort($this->fs_plugins, $this->pluginAuthorCompare(...));
                 break;
             case 'id':
-                uksort($this->fs_plugins, 'strcasecmp');
+                uksort($this->fs_plugins, strcasecmp(...));
                 break;
         }
     }
@@ -475,9 +475,9 @@ class Plugins extends Extensions
     {
         if ($a['revision_date'] < $b['revision_date']) {
             return 1;
-        } else {
-            return -1;
         }
+
+        return -1;
     }
 
     protected function extensionNameCompare(array $a, array $b): int
@@ -490,9 +490,9 @@ class Plugins extends Extensions
         $r = strcasecmp((string) $a['author_name'], (string) $b['author_name']);
         if ($r == 0) {
             return $this->extensionNameCompare($a, $b);
-        } else {
-            return $r;
         }
+
+        return $r;
     }
 
     protected function pluginAuthorCompare(array $a, array $b): int
@@ -500,18 +500,18 @@ class Plugins extends Extensions
         $r = strcasecmp((string) $a['author'], (string) $b['author']);
         if ($r == 0) {
             return Utils::nameCompare($a, $b);
-        } else {
-            return $r;
         }
+
+        return $r;
     }
 
     protected function extensionDownloadsCompare(array $a, array $b): int
     {
         if ($a['extension_nb_downloads'] < $b['extension_nb_downloads']) {
             return 1;
-        } else {
-            return -1;
         }
+
+        return -1;
     }
 
     public function sortPluginsByState(): void

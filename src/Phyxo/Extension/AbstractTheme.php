@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 abstract class AbstractTheme
 {
-    private const CLASSNAME_FORMAT = '\\Themes\\%s\\%s';
+    private const string CLASSNAME_FORMAT = '\\Themes\\%s\\%s';
 
     public static function getClassName(string $theme_id): string
     {

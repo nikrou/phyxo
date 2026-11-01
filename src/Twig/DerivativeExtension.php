@@ -112,12 +112,12 @@ class DerivativeExtension extends AbstractExtension
                 ['path' => $derivative->getPathBasename(), 'image_extension' => $derivative->getExtension()],
                 $relative ? UrlGeneratorInterface::RELATIVE_PATH : UrlGeneratorInterface::ABSOLUTE_PATH
             );
-        } else {
-            return $this->urlGenerator->generate(
-                'media',
-                ['path' => $derivative->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $derivative->getExtension()],
-                $relative ? UrlGeneratorInterface::RELATIVE_PATH : UrlGeneratorInterface::ABSOLUTE_PATH
-            );
         }
+
+        return $this->urlGenerator->generate(
+            'media',
+            ['path' => $derivative->getPathBasename(), 'derivative' => $derivative->getUrlType(), 'image_extension' => $derivative->getExtension()],
+            $relative ? UrlGeneratorInterface::RELATIVE_PATH : UrlGeneratorInterface::ABSOLUTE_PATH
+        );
     }
 }

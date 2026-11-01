@@ -301,7 +301,7 @@ class Themes extends Extensions
                 uasort($this->fs_themes, $this->themeAuthorCompare(...));
                 break;
             case 'id':
-                uksort($this->fs_themes, 'strcasecmp');
+                uksort($this->fs_themes, strcasecmp(...));
                 break;
         }
     }
@@ -446,9 +446,9 @@ class Themes extends Extensions
     {
         if ($a['revision_date'] < $b['revision_date']) {
             return 1;
-        } else {
-            return -1;
         }
+
+        return -1;
     }
 
     public function extensionNameCompare(array $a, array $b): int
@@ -461,9 +461,9 @@ class Themes extends Extensions
         $r = strcasecmp((string) $a['author_name'], (string) $b['author_name']);
         if ($r == 0) {
             return $this->extensionNameCompare($a, $b);
-        } else {
-            return $r;
         }
+
+        return $r;
     }
 
     public function themeAuthorCompare(array $a, array $b): int
@@ -471,18 +471,18 @@ class Themes extends Extensions
         $r = strcasecmp((string) $a['author'], (string) $b['author']);
         if ($r == 0) {
             return Utils::nameCompare($a, $b);
-        } else {
-            return $r;
         }
+
+        return $r;
     }
 
     public function extensionDownloadsCompare(array $a, array $b): int
     {
         if ($a['extension_nb_downloads'] < $b['extension_nb_downloads']) {
             return 1;
-        } else {
-            return -1;
         }
+
+        return -1;
     }
 
     public function sortThemesByState(): void

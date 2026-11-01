@@ -416,7 +416,7 @@ class FeatureContext extends BaseContext
         }
 
         if ($date === 'now') {
-            $date = (new DateTime())->format('Y-m-d');
+            $date = new DateTime()->format('Y-m-d');
         }
 
         if ($field->getValue() !== $date) {

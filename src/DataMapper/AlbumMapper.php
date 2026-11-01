@@ -620,7 +620,7 @@ class AlbumMapper
 
         $uppercats = [];
         foreach ($ids as $id) {
-            $uppercats = array_merge($uppercats, array_map(fn ($s): int => intval($s), explode(',', (string) $this->getCacheAlbums()[$id]->getUppercats())));
+            $uppercats = array_merge($uppercats, array_map(intval(...), explode(',', (string) $this->getCacheAlbums()[$id]->getUppercats())));
         }
 
         return array_unique($uppercats);

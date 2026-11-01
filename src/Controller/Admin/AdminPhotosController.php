@@ -95,7 +95,7 @@ class AdminPhotosController extends AbstractController
             $tpl_params['original_resize_maxheight'] = $conf['original_resize_maxheight'];
         }
 
-        $unique_exts = array_unique(array_map('strtolower', $conf['upload_form_all_types'] ? $conf['file_ext'] : $conf['picture_ext']));
+        $unique_exts = array_unique(array_map(strtolower(...), $conf['upload_form_all_types'] ? $conf['file_ext'] : $conf['picture_ext']));
 
         $tpl_params['upload_file_types'] = implode(', ', $unique_exts);
         $tpl_params['file_exts'] = implode(',', $unique_exts);

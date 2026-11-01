@@ -63,7 +63,7 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
             $languages[$user->getUserInfos()->getLanguage()][] = $user;
         }
 
-        $message = (new TemplatedEmail())->subject($subject);
+        $message = new TemplatedEmail()->subject($subject);
 
         foreach ($languages as $users) {
             // @switch to language in template (@see switch_lang_to and switch_lang_back from Mail class)
