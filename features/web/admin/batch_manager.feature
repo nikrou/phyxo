@@ -28,8 +28,8 @@ Feature: Batch manager
   Scenario: Associate images to an album
     Given I am logged in as "user1" with password "pass1"
     When I go to "admin/albums"
-    Then I should see "one photo" for album "album 1"
-    Then I should see "no photos" for album "album 3"
+    Then I should see text "one photo" for album "album 1"
+    Then I should see text "no photos" for album "album 3"
     And I am on "admin/batch/global"
     Then I select "With no album" from "filter_prefilter"
     And I press "Refresh photo set"

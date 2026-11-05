@@ -13,7 +13,10 @@ namespace App\Repository;
 
 use App\Entity\HistorySummary;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Query\Parameter;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /**
  * @extends ServiceEntityRepository<HistorySummary>
@@ -86,25 +89,36 @@ class HistorySummaryRepository extends ServiceEntityRepository
             $qb->andWhere('h.month = :month');
             $qb->andWhere('h.day = :day');
             $qb->andWhere($qb->expr()->isNotNull('h.hour'));
-            $qb->orderBy('h.year, h.month, h.day, h.hour', 'ASC');
-            $qb->setParameters(['year' => $year, 'month' => $month, 'day' => $day]);
+            $qb->orderBy('h.year, h.month, h.day, h.hour', SortDirection::Ascending);
+            $qb->setParameters(new ArrayCollection(
+                [
+                    new Parameter('year', $year),
+                    new Parameter('month', $month),
+                    new Parameter('day', $day),
+                ]
+            ));
         } elseif (!is_null($month)) {
             $qb->where('h.year = :year');
             $qb->andWhere('h.month = :month');
             $qb->andWhere($qb->expr()->isNotNull('h.day'));
             $qb->andWhere($qb->expr()->isNull('h.hour'));
-            $qb->orderBy('h.year, h.month, h.day', 'ASC');
-            $qb->setParameters(['year' => $year, 'month' => $month]);
+            $qb->orderBy('h.year, h.month, h.day', SortDirection::Ascending);
+            $qb->setParameters(new ArrayCollection(
+                [
+                    new Parameter('year', $year),
+                    new Parameter('month', $month),
+                ]
+            ));
         } elseif (!is_null($year)) {
             $qb->where('h.year = :year');
             $qb->andWhere($qb->expr()->isNotNull('h.month'));
             $qb->andWhere($qb->expr()->isNull('h.day'));
-            $qb->orderBy('h.year, h.month', 'ASC');
+            $qb->orderBy('h.year, h.month', SortDirection::Ascending);
             $qb->setParameter('year', $year);
         } else {
             $qb->where($qb->expr()->isNotNull('h.year'));
             $qb->andWhere($qb->expr()->isNull('h.month'));
-            $qb->orderBy('h.year', 'ASC');
+            $qb->orderBy('h.year', SortDirection::Ascending);
         }
 
         return $qb->getQuery()->getResult();

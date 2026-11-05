@@ -20,12 +20,10 @@ class Favorite
 {
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'favorites')]
-    #[ORM\JoinColumn(nullable: false)]
     private User $user;
 
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Image::class)]
-    #[ORM\JoinColumn(nullable: false)]
     private Image $image;
 
     public function getUser(): ?User

@@ -47,8 +47,8 @@ class TagController extends AbstractController
         $tpl_params['PAGE_TITLE'] = $translator->trans('Tags');
 
         $display_mode = $conf['tags_default_display_mode'];
-        if ($request->get('display_mode')) {
-            $display_mode = $request->get('display_mode');
+        if ($request->query->get('display_mode')) {
+            $display_mode = $request->query->get('display_mode');
         }
 
         foreach (['cloud', 'letters'] as $mode) {

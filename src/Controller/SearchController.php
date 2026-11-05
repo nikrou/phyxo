@@ -40,11 +40,11 @@ class SearchController extends AbstractController
     #[Route('/qsearch', name: 'qsearch')]
     public function qsearch(Request $request, SearchRepository $searchRepository, array $publicTemplates): Response
     {
-        if (!$request->get('q')) {
+        if (!$request->query->get('q')) {
             throw $this->createNotFoundException();
         }
 
-        $rules = ['q' => $request->get('q')];
+        $rules = ['q' => $request->query->get('q')];
         $search_id = null;
         $search = $searchRepository->findOneBy(['rules' => base64_encode(serialize($rules))]);
 

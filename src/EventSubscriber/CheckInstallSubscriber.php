@@ -36,7 +36,7 @@ class CheckInstallSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($event->getRequest()->get('_route') && ($event->getRequest()->get('_route') !== 'install')) {
+        if ($event->getRequest()->attributes->get('_route') && ($event->getRequest()->attributes->get('_route') !== 'install')) {
             $install_url = $this->urlGenerator->generate('install');
             $response = new RedirectResponse($install_url);
             $event->setResponse($response);

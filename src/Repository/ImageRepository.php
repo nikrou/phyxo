@@ -20,6 +20,7 @@ use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /**
  * @extends ServiceEntityRepository<Image>
@@ -187,7 +188,7 @@ class ImageRepository extends ServiceEntityRepository
     public function findBestRatedImages(int $limit)
     {
         $qb = $this->createQueryBuilder('i');
-        $qb->orderBy('i.rating_score', 'DESC');
+        $qb->orderBy('i.rating_score', SortDirection::Descending);
         $qb->setMaxResults($limit);
 
         return $qb->getQuery()->getResult();
@@ -384,7 +385,7 @@ class ImageRepository extends ServiceEntityRepository
         }
 
         $qb->groupBy('a.id, a.uppercats');
-        $qb->orderBy('img_count', 'DESC');
+        $qb->orderBy('img_count', SortDirection::Descending);
         $qb->setMaxResults($limit);
 
         $results = [];
@@ -411,7 +412,7 @@ class ImageRepository extends ServiceEntityRepository
         }
 
         $qb->groupBy('i.date_available');
-        $qb->orderBy('i.date_available', 'DESC');
+        $qb->orderBy('i.date_available', SortDirection::Descending);
         $qb->setMaxResults($limit);
 
         $results = [];
@@ -508,7 +509,7 @@ class ImageRepository extends ServiceEntityRepository
             $qb->having($qb->expr()->andX(...$andXExpression));
         }
 
-        $qb->orderBy('year', 'DESC');
+        $qb->orderBy('year', SortDirection::Descending);
 
         return $qb->getQuery()->getResult();
     }
@@ -570,7 +571,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->where('YEAR(i.' . $this->getFieldFromDateType($date_type) . ') = :year');
         $qb->setParameter('year', $year);
         $qb->groupBy('month');
-        $qb->orderBy('month', 'ASC');
+        $qb->orderBy('month', SortDirection::Ascending);
 
         if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
@@ -640,7 +641,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb->andWhere('MONTH(i.' . $this->getFieldFromDateType($date_type) . ') = :month');
         $qb->setParameter('year', $year);
         $qb->setParameter('month', $month);
-        $qb->orderBy('day', 'ASC');
+        $qb->orderBy('day', SortDirection::Ascending);
 
         if ($forbidden_albums !== []) {
             $qb->andWhere($qb->expr()->notIn('ia.album', $forbidden_albums));
@@ -981,7 +982,7 @@ class ImageRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('i');
         $qb->leftJoin('i.imageAlbums', 'ia');
         $qb->where($qb->expr()->isNull('ia.album'));
-        $qb->orderBy('i.id', 'DESC');
+        $qb->orderBy('i.id', SortDirection::Descending);
         $qb->setMaxResults(1);
 
         return $qb->getQuery()->getOneOrNullResult();

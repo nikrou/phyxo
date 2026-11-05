@@ -29,8 +29,8 @@ class TablePrefixSubscriber implements EventSubscriberInterface
 
     public function loadClassMetadata(LoadClassMetadataEventArgs $event): void
     {
-        /** @var ClassMetadata $classMetadata @phpstan-ignore-next-line */
         $classMetadata = $event->getClassMetadata();
+        assert($classMetadata instanceof ClassMetadata);
         if (!$classMetadata->isInheritanceTypeSingleTable() || $classMetadata->getName() === $classMetadata->rootEntityName) {
             $classMetadata->setPrimaryTable([
                 'name' => $this->prefix . $classMetadata->getTableName(),
@@ -43,22 +43,21 @@ class TablePrefixSubscriber implements EventSubscriberInterface
 
             $classMetadata->setSequenceGeneratorDefinition($newDefinition);
             $em = $event->getEntityManager();
-            if ($classMetadata->idGenerator !== null) {
-                $sequenceGenerator = new SequenceGenerator(
-                    $em->getConfiguration()->getQuoteStrategy()->getSequenceName(
-                        $newDefinition,
-                        $classMetadata,
-                        $em->getConnection()->getDatabasePlatform()
-                    ),
-                    (int) $newDefinition['allocationSize']
-                );
-                $classMetadata->setIdGenerator($sequenceGenerator);
-            }
+
+            $sequenceGenerator = new SequenceGenerator(
+                $em->getConfiguration()->getQuoteStrategy()->getSequenceName(
+                    $newDefinition,
+                    $classMetadata,
+                    $em->getConnection()->getDatabasePlatform()
+                ),
+                (int) $newDefinition['allocationSize']
+            );
+            $classMetadata->setIdGenerator($sequenceGenerator);
         }
 
         foreach ($classMetadata->getAssociationMappings() as $fieldName => $mapping) {
             if ($mapping['type'] == ClassMetadata::MANY_TO_MANY && $mapping['isOwningSide']) {
-                $mappedTableName = $mapping['joinTable']['name'];
+                $mappedTableName = $mapping['joinTable']->name;
                 $classMetadata->associationMappings[$fieldName]['joinTable']['name'] = $this->prefix . $mappedTableName;
             }
         }

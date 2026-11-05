@@ -216,11 +216,11 @@ class AdminBatchManagerController extends AbstractController
             } elseif ($filter === 'last_import') {
                 $this->appendFilter($request->getSession(), ['prefilter' => 'last_import']);
                 $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global', ['filter' => 'last_import']);
-            } elseif ($filter === 'album' && $request->get('value') !== null) {
-                $this->appendFilter($request->getSession(), ['category' => (int) $request->get('value')]);
+            } elseif ($filter === 'album' && $request->query->get('value') !== null) {
+                $this->appendFilter($request->getSession(), ['category' => (int) $request->query->get('value')]);
                 $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
-            } elseif ($filter === 'tag' && $request->get('value') !== null) {
-                $this->appendFilter($request->getSession(), ['tags' => [(int) $request->get('value')]]);
+            } elseif ($filter === 'tag' && $request->query->get('value') !== null) {
+                $this->appendFilter($request->getSession(), ['tags' => [(int) $request->query->get('value')]]);
                 $this->appendFilter($request->getSession(), ['tag_mode' => 'AND']);
                 $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
             }
@@ -337,11 +337,11 @@ class AdminBatchManagerController extends AbstractController
         $tpl_params['del_derivatives_types'] = $del_deriv_map;
         $tpl_params['generate_derivatives_types'] = $gen_deriv_map;
 
-        if ($request->get('display')) {
-            if ($request->get('display') === 'all') {
+        if ($request->query->get('display')) {
+            if ($request->query->get('display') === 'all') {
                 $nb_images = is_countable($current_set) ? count($current_set) : 0;
             } else {
-                $nb_images = (int) $request->get('display');
+                $nb_images = (int) $request->query->get('display');
             }
 
             $request->getSession()->set('unit_display', $nb_images);
@@ -1127,8 +1127,8 @@ class AdminBatchManagerController extends AbstractController
 
         $element_ids = [];
 
-        if ($request->get('display')) {
-            $nb_images = (int) $request->get('display');
+        if ($request->query->get('display')) {
+            $nb_images = (int) $request->query->get('display');
             $request->getSession()->set('global_display', $nb_images);
         } elseif ($request->getSession()->has('global_display')) {
             $nb_images = $request->getSession()->get('global_display');

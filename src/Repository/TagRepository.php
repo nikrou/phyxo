@@ -14,6 +14,7 @@ namespace App\Repository;
 use App\Entity\Tag;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /**
  * @extends ServiceEntityRepository<Tag>
@@ -112,7 +113,7 @@ class TagRepository extends ServiceEntityRepository
         $qb->groupBy('it.validated, it.created_by, it.status, t.id');
 
         if ($max_tags > 0) {
-            $qb->orderBy('counter', 'DESC');
+            $qb->orderBy('counter', SortDirection::Descending);
             $qb->setMaxResults($max_tags);
         }
 

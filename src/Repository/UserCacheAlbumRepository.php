@@ -27,8 +27,9 @@ class UserCacheAlbumRepository extends ServiceEntityRepository
 
     public function addOrUpdateUserCacheAlbum(UserCacheAlbum $userCacheAlbum): void
     {
-        $this->getEntityManager()->persist($userCacheAlbum);
-        $this->getEntityManager()->flush();
+        $em = $this->getEntityManager();
+        $em->persist($userCacheAlbum);
+        $em->flush();
     }
 
     public function deleteAll(): void

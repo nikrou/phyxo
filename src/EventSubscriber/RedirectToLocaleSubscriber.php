@@ -40,7 +40,7 @@ class RedirectToLocaleSubscriber implements EventSubscriberInterface
 
         if ($locale = $request->attributes->get('_locale')) {
             $request->getSession()->set('_locale', $locale);
-            $response = new RedirectResponse($this->router->generate($request->get('_route'), $request->get('_route_params')));
+            $response = new RedirectResponse($this->router->generate($request->attributes->get('_route'), $request->attributes->get('_route_params')));
             $event->setResponse($response);
         }
     }

@@ -21,12 +21,12 @@ class ImageAlbum
 {
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Image::class, inversedBy: 'imageAlbums')]
-    #[ORM\JoinColumn(name: 'image_id', nullable: false)]
+    #[ORM\JoinColumn(name: 'image_id')]
     private Image $image;
 
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'imageAlbums')]
-    #[ORM\JoinColumn(name: 'category_id', nullable: false)]
+    #[ORM\JoinColumn(name: 'category_id')]
     private Album $album;
 
     #[ORM\Column(type: Types::INTEGER, nullable: true)]

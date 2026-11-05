@@ -42,5 +42,5 @@ Feature: Album
     Given I am logged in as "user1" with password "pass1"
     When I go to "admin/albums"
     Then I should see 2 ".album" elements
-    When I follow "delete album" for album "album 1"
+    When I click "delete album" for album "album 1"
     Then I should see 1 ".album" elements

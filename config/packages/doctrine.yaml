@@ -1,59 +1,57 @@
 doctrine:
-    dbal:
-        url: '%env(DATABASE_URL)%'
+  dbal:
+    url: '%env(DATABASE_URL)%'
 
-        types:
-            uuid: Ramsey\Uuid\Doctrine\UuidType
+    types:
+      uuid: Ramsey\Uuid\Doctrine\UuidType
 
-        mapping_types:
-            enum: string
+    mapping_types:
+      enum: string
 
-        # IMPORTANT: You MUST configure your server version,
-        # either here or in the DATABASE_URL env var (see .env file)
-        server_version: 1
+    server_version: '1'
 
-        profiling_collect_backtrace: '%kernel.debug%'
-        use_savepoints: true
-    orm:
-        dql:
-            datetime_functions:
-                date: App\DQL\Date
-                year: App\DQL\Year
-                month: App\DQL\Month
-                day: App\DQL\Day
+    profiling_collect_backtrace: '%kernel.debug%'
 
-        auto_generate_proxy_classes: true
-        enable_lazy_ghost_objects: true
-        report_fields_where_declared: true
-        validate_xml_mapping: true
-        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
-        controller_resolver:
-            auto_mapping: false
-        auto_mapping: true
-        mappings:
-            App:
-                is_bundle: false
-                type: attribute
-                dir: '%kernel.project_dir%/src/Entity'
-                prefix: 'App\Entity'
-                alias: App
+  orm:
+    dql:
+      datetime_functions:
+        date: App\DQL\Date
+        year: App\DQL\Year
+        month: App\DQL\Month
+        day: App\DQL\Day
+
+    validate_xml_mapping: true
+    naming_strategy: doctrine.orm.naming_strategy.underscore
+    identity_generation_preferences:
+      Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
+    auto_mapping: true
+    mappings:
+      App:
+        type: attribute
+        is_bundle: false
+        dir: '%kernel.project_dir%/src/Entity'
+        prefix: 'App\Entity'
+
+# when@test:
+#   doctrine:
+#     dbal:
+#       # "TEST_TOKEN" is typically set by ParaTest
+#       dbname_suffix: '_test%env(default::TEST_TOKEN)%'
 
 when@prod:
-    doctrine:
-        orm:
-            auto_generate_proxy_classes: false
-            proxy_dir: '%kernel.build_dir%/doctrine/orm/Proxies'
-            query_cache_driver:
-                type: pool
-                pool: doctrine.system_cache_pool
-            result_cache_driver:
-                type: pool
-                pool: doctrine.result_cache_pool
+  doctrine:
+    orm:
+      query_cache_driver:
+        type: pool
+        pool: doctrine.system_cache_pool
+      result_cache_driver:
+        type: pool
+        pool: doctrine.result_cache_pool
 
-    framework:
-        cache:
-            pools:
-                doctrine.result_cache_pool:
-                    adapter: cache.app
-                doctrine.system_cache_pool:
-                    adapter: cache.system
+  framework:
+    cache:
+      pools:
+        doctrine.result_cache_pool:
+          adapter: cache.app
+        doctrine.system_cache_pool:
+          adapter: cache.system

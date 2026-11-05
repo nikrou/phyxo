@@ -17,6 +17,7 @@ use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /**
  * @extends ServiceEntityRepository<Comment>
@@ -118,7 +119,7 @@ class CommentRepository extends ServiceEntityRepository
         $qb->leftJoin('c.image', 'i');
         $qb->andWhere('c.validated = :validated');
         $qb->setParameter('validated', $validated);
-        $qb->orderBy('c.date', 'ASC');
+        $qb->orderBy('c.date', SortDirection::Ascending);
         $qb->setFirstResult($offset);
         $qb->setMaxResults($limit);
 

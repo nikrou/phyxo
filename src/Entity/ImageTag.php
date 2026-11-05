@@ -23,12 +23,10 @@ class ImageTag
 
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Image::class, inversedBy: 'imageTags')]
-    #[ORM\JoinColumn(nullable: false)]
     private Image $image;
 
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Tag::class, inversedBy: 'imageTags')]
-    #[ORM\JoinColumn(nullable: false)]
     private Tag $tag;
 
     #[ORM\Column(type: Types::BOOLEAN)]

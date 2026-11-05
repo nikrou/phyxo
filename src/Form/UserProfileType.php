@@ -95,7 +95,7 @@ class UserProfileType extends AbstractType
             'mail_address',
             EmailType::class,
             [
-                'constraints' => [new Email(['message' => 'Please enter a valid mail address. Ex: john.doe@phyxo.net'])],
+                'constraints' => [new Email(null, 'Please enter a valid mail address. Ex: john.doe@phyxo.net')],
                 'label' => 'Email address',
                 'attr' => ['placeholder' => 'Email address'],
                 'required' => false,

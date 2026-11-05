@@ -14,12 +14,12 @@ namespace App\Tests\Factory;
 use App\Entity\UserInfos;
 use App\Enum\UserStatusType;
 use Override;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<UserInfos>
+ * @extends PersistentObjectFactory<UserInfos>
  */
-final class UserInfosFactory extends PersistentProxyObjectFactory
+final class UserInfosFactory extends PersistentObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services

@@ -15,6 +15,7 @@ use App\Entity\ImageAlbum;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /**
  * @extends ServiceEntityRepository<ImageAlbum>
@@ -226,7 +227,7 @@ class ImageAlbumRepository extends ServiceEntityRepository
     public function getAlbumWithLastPhotoAdded(): ?ImageAlbum
     {
         $qb = $this->createQueryBuilder('ia');
-        $qb->orderBy('ia.image', 'DESC');
+        $qb->orderBy('ia.image', SortDirection::Descending);
         $qb->setMaxResults(1);
 
         return $qb->getQuery()->getOneOrNullResult();

@@ -46,7 +46,7 @@ class UserInfos
 
     #[ORM\Id]
     #[ORM\OneToOne(targetEntity: User::class, inversedBy: 'userInfos', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(name: 'user_id', nullable: false)]
+    #[ORM\JoinColumn(name: 'user_id')]
     private ?User $user = null;
 
     #[ORM\Column(type: Types::STRING, length: 50, enumType: UserStatusType::class)]

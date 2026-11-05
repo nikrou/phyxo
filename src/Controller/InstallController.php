@@ -76,8 +76,8 @@ class InstallController extends AbstractController
             $this->languages_options[$language_code] = $fs_language['name'];
         }
 
-        if ($request->get('language')) {
-            $language = $request->get('language');
+        if ($request->query->get('language')) {
+            $language = $request->query->get('language');
         } elseif ($request->isMethod('POST') && $request->request->get('language')) {
             $language = $request->request->get('language');
         } else {
@@ -371,7 +371,7 @@ class InstallController extends AbstractController
                 $statement->bindValue('user_id', $user_id);
                 $statement->bindValue('status', UserStatusType::WEBMASTER);
                 $statement->bindValue('nb_image_page', 15);
-                $statement->bindValue('language', $request->get('language'));
+                $statement->bindValue('language', $request->query->get('language'));
                 $statement->bindValue('expand', 0);
                 $statement->bindValue('show_nb_comments', 0);
                 $statement->bindValue('show_nb_hits', 0);
@@ -393,7 +393,7 @@ class InstallController extends AbstractController
                 $statement->bindValue('user_id', $user_id);
                 $statement->bindValue('status', UserStatusType::GUEST);
                 $statement->bindValue('nb_image_page', 15);
-                $statement->bindValue('language', $request->get('language'));
+                $statement->bindValue('language', $request->query->get('language'));
                 $statement->bindValue('expand', 0);
                 $statement->bindValue('show_nb_comments', 0);
                 $statement->bindValue('show_nb_hits', 0);

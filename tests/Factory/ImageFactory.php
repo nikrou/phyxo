@@ -13,12 +13,12 @@ namespace App\Tests\Factory;
 
 use App\Entity\Image;
 use Override;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Image>
+ * @extends PersistentObjectFactory<Image>
  */
-final class ImageFactory extends PersistentProxyObjectFactory
+final class ImageFactory extends PersistentObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services

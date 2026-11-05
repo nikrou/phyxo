@@ -17,6 +17,7 @@ use App\Form\Model\SearchRulesModel;
 use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /**
  * @extends ServiceEntityRepository<History>
@@ -95,8 +96,8 @@ class HistoryRepository extends ServiceEntityRepository
         }
         $qb->setMaxResults($limit);
         $qb->setFirstResult($offset);
-        $qb->orderBy('h.date', 'DESC');
-        $qb->addOrderBy('h.time', 'DESC');
+        $qb->orderBy('h.date', SortDirection::Descending);
+        $qb->addOrderBy('h.time', SortDirection::Descending);
 
         return $qb->getQuery()->getResult();
     }
@@ -144,8 +145,8 @@ class HistoryRepository extends ServiceEntityRepository
         $qb->where('h.summarized = :summarized');
         $qb->setParameter('summarized', false);
         $qb->groupBy('h.id, h.date, h.time');
-        $qb->orderBy('h.date', 'ASC');
-        $qb->addOrderBy('h.time', 'ASC');
+        $qb->orderBy('h.date', SortDirection::Ascending);
+        $qb->addOrderBy('h.time', SortDirection::Ascending);
 
         return $qb->getQuery()->getResult();
     }

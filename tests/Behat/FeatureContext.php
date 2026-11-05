@@ -199,7 +199,7 @@ class FeatureContext extends BaseContext
     /**
      * admin.
      */
-    #[Then('I should see :nb_images for album :album_name')]
+    #[Then('I should see text :nb_images for album :album_name')]
     public function iShouldSeeTextNumberOfImagesForAlbum(string $nb_images, string $album_name): void
     {
         $div_album = $this->getPage()->find('css', sprintf('#album-%d', $this->storage->get('album_' . $album_name)->getId()));
@@ -425,9 +425,9 @@ class FeatureContext extends BaseContext
     }
 
     /**
-     * Example: When I follow "delete album" for album "album 1".
+     * Example: When I click "delete album" for album "album 1".
      */
-    #[When('I follow :link_label for album :album_name')]
+    #[When('I click :link_label for album :album_name')]
     public function iFollowLinkForAlbum(string $link_label, string $album_name): void
     {
         $album = $this->storage->get('album_' . $album_name);

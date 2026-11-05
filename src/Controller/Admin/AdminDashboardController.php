@@ -122,7 +122,7 @@ class AdminDashboardController extends AbstractController
         }
 
         if ($nb_elements > 0 && $min_date_available = $imageMapper->getRepository()->findMinDateAvailable()) {
-            $fmt = new IntlDateFormatter($request->get('_locale'), IntlDateFormatter::FULL, IntlDateFormatter::NONE);
+            $fmt = new IntlDateFormatter($request->attributes->get('_locale'), IntlDateFormatter::FULL, IntlDateFormatter::NONE);
             $tpl_params['first_added'] = $translator->trans('first photo added on {date}', ['date' => $fmt->format($min_date_available)], 'admin');
         }
 

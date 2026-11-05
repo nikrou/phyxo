@@ -14,6 +14,7 @@ declare(strict_types=1);
 use Rector\Config\RectorConfig;
 use Rector\Php74\Rector\If_\IfToNullCoalescingAssignRector;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
+use Zenstruck\Foundry\Utils\Rector\FoundrySetList;
 
 return RectorConfig::configure()
     ->withPaths([
@@ -25,7 +26,7 @@ return RectorConfig::configure()
 
     ->withImportNames()
 
-    ->withAttributesSets()
+    ->withAttributesSets(behat: true)
 
     ->withPhpSets()
 
@@ -34,6 +35,8 @@ return RectorConfig::configure()
     ->withSkip([
         IfToNullCoalescingAssignRector::class,
     ])
+
+    ->withSets([FoundrySetList::FOUNDRY_2_7])
 
     ->withRules([
         ClassPropertyAssignToConstructorPromotionRector::class,

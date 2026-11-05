@@ -60,12 +60,12 @@ class Caddie
 {
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'caddies')]
-    #[ORM\JoinColumn(name: 'user_id', nullable: false)]
+    #[ORM\JoinColumn(name: 'user_id')]
     private User $user;
 
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Image::class)]
-    #[ORM\JoinColumn(name: 'element_id', nullable: false)]
+    #[ORM\JoinColumn(name: 'element_id')]
     private Image $image;
 
     public function getUser(): ?User

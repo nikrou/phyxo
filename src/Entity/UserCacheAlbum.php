@@ -25,12 +25,12 @@ class UserCacheAlbum
 {
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userCacheAlbums', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(name: 'user_id', nullable: false)]
+    #[ORM\JoinColumn(name: 'user_id')]
     private User $user;
 
     #[ORM\Id]
     #[ORM\OneToOne(targetEntity: Album::class, inversedBy: 'userCacheAlbum', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(name: 'cat_id', nullable: false)]
+    #[ORM\JoinColumn(name: 'cat_id')]
     private Album $album;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]

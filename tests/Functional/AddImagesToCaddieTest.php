@@ -13,6 +13,7 @@ namespace App\Tests\Functional;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Caddie;
+use App\Enum\UserStatusType;
 use App\Tests\Factory\ImageFactory;
 use App\Tests\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -33,9 +34,11 @@ class AddImagesToCaddieTest extends ApiTestCase
 
     public function testAddImagesToCaddie(): void
     {
+        UserFactory::new(['username' => 'guest'])->withUserInfos(['status' => UserStatusType::GUEST])->create();
         $user = UserFactory::new()->withUserInfos()->create();
         $images = ImageFactory::createMany(2);
 
+        static::$alwaysBootKernel = true;
         $client = static::createClient();
         $client->loginUser($user);
 

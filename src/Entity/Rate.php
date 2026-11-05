@@ -22,12 +22,12 @@ class Rate
 {
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'rates')]
-    #[ORM\JoinColumn(name: 'user_id', nullable: false)]
+    #[ORM\JoinColumn(name: 'user_id')]
     private User $user;
 
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Image::class, inversedBy: 'rates')]
-    #[ORM\JoinColumn(name: 'element_id', nullable: false)]
+    #[ORM\JoinColumn(name: 'element_id')]
     private Image $image;
 
     #[ORM\Id]

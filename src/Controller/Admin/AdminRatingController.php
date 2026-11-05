@@ -55,29 +55,29 @@ class AdminRatingController extends AbstractController
 
         $navbar_params = [];
         $elements_per_page = 10;
-        if ($request->get('display') && is_numeric($request->get('display'))) {
-            $elements_per_page = $request->get('display');
+        if ($request->query->get('display') && is_numeric($request->query->get('display'))) {
+            $elements_per_page = $request->query->get('display');
             $navbar_params['display'] = $elements_per_page;
         }
 
         $order_by_index = 0;
-        if ($request->get('order_by') && is_numeric($request->get('order_by'))) {
-            $order_by_index = $request->get('order_by');
+        if ($request->query->get('order_by') && is_numeric($request->query->get('order_by'))) {
+            $order_by_index = $request->query->get('order_by');
             $navbar_params['order_by'] = $order_by_index;
         }
 
         $operator_user_filter = null;
         $guest_id = 0;
-        if ($request->get('users')) {
+        if ($request->query->get('users')) {
             $guest_id = $userMapper->getDefaultUser()->getId();
 
-            if ($request->get('users') === 'user') {
+            if ($request->query->get('users') === 'user') {
                 $operator_user_filter = '!=';
-            } elseif ($request->get('users') === 'guest') {
+            } elseif ($request->query->get('users') === 'guest') {
                 $operator_user_filter = '=';
             }
 
-            $navbar_params['users'] = $request->get('users');
+            $navbar_params['users'] = $request->query->get('users');
         }
 
         $users = [];
@@ -116,7 +116,7 @@ class AdminRatingController extends AbstractController
         ];
 
         $tpl_params['user_options'] = $user_options;
-        $tpl_params['user_options_selected'] = [$request->get('users')];
+        $tpl_params['user_options_selected'] = [$request->query->get('users')];
 
         $tpl_params['images'] = [];
         foreach ($rateRepository->getRatePerImage($guest_id, $available_order_by[$order_by_index][1], $elements_per_page, $operator_user_filter, $start) as $image) {
@@ -195,13 +195,13 @@ class AdminRatingController extends AbstractController
         $this->translator = $translator;
 
         $filter_min_rates = 2;
-        if ($request->get('f_min_rates') && is_numeric($request->get('f_min_rates'))) {
-            $filter_min_rates = $request->get('f_min_rates');
+        if ($request->query->get('f_min_rates') && is_numeric($request->query->get('f_min_rates'))) {
+            $filter_min_rates = $request->query->get('f_min_rates');
         }
 
         $consensus_top_number = $conf['top_number'];
-        if ($request->get('consensus_top_number') && is_numeric($request->get('consensus_top_number'))) {
-            $consensus_top_number = $request->get('consensus_top_number');
+        if ($request->query->get('consensus_top_number') && is_numeric($request->query->get('consensus_top_number'))) {
+            $consensus_top_number = $request->query->get('consensus_top_number');
         }
 
         // build users
@@ -319,8 +319,8 @@ class AdminRatingController extends AbstractController
         }
 
         $order_by_index = 4;
-        if ($request->get('order_by') && is_numeric($request->get('order_by'))) {
-            $order_by_index = $request->get('order_by');
+        if ($request->query->get('order_by') && is_numeric($request->query->get('order_by'))) {
+            $order_by_index = $request->query->get('order_by');
         }
 
         $available_order_by = [
