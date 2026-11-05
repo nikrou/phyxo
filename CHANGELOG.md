@@ -1,6 +1,7 @@
 # Phyxo 5.0.0 - YYYY-MM-DD
 
 - Ignore album with no representative picture
+- Fix issue #170 : unvalidated image comments exposed by pwg.images.getInfo. Thanks to Ludovic (http://github.com/lhirlimann)
 
 # Phyxo 4.0.0 - 2025-03-30
 

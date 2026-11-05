@@ -232,7 +232,7 @@ class CommentRepository extends ServiceEntityRepository
     /**
      * @return Comment[]
      */
-    public function getCommentsForImagePerPage(int $image_id, int $limit, int $offset = 0)
+    public function getCommentsForImagePerPage(int $image_id, bool $isAdmin, int $limit, int $offset = 0)
     {
         $qb = $this->createQueryBuilder('c');
         $qb->where('c.image = :image_id');
@@ -240,6 +240,10 @@ class CommentRepository extends ServiceEntityRepository
         $qb->orderBy('c.date');
         $qb->setFirstResult($offset);
         $qb->setMaxResults($limit);
+        if (!$isAdmin) {
+            $qb->andWhere('c.validated = :validated');
+            $qb->setParameter('validated', true);
+        }
 
         return $qb->getQuery()->getResult();
     }
