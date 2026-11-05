@@ -19,7 +19,7 @@ security:
 
   firewalls:
     dev:
-      pattern: ^/(_(profiler|wdt)|css|images|js)/
+      pattern: ^/(_profiler(/|$)|(_wdt|assets|build)/)
       security: false
 
     install:

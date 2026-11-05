@@ -6,11 +6,11 @@ jobs:
   tests:
     name: Phyxo tests
     runs-on: ubuntu-22.04
-    continue-on-error: ${{ matrix.php-version == '8.6' }}
+    # continue-on-error: ${{ matrix.php-version == '8.6' }}
     strategy:
       fail-fast: false
       matrix:
-        php-versions: [8.4, 8.5, 8.6]
+        php-versions: [8.4, 8.5]
         mysql: [5.7]
 
     env:

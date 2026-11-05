@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-use App\Kernel;
 use App\InstallKernel;
+use App\Kernel;
 use App\UpdateKernel;
 
 require_once dirname(__DIR__) . '/vendor/autoload_runtime.php';
 
-return function (array $context) {
+return static function (array $context) {
     if (is_readable(dirname(__DIR__) . '/.env.local')) {
         if (is_readable(dirname(__DIR__) . '/.update.mode')) {
             $kernel = new UpdateKernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);

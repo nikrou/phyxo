@@ -9,8 +9,6 @@
  * file that was distributed with this source code.
  */
 
-// the final goal is to respect all PSR-2 rules.
-
 $header = <<<'EOF'
     This file is part of Phyxo package
 
@@ -21,12 +19,18 @@ $header = <<<'EOF'
     file that was distributed with this source code.
     EOF;
 
-$finder = PhpCsFixer\Finder::create()->in(
-    [
-        __DIR__ . '/src',
-        __DIR__ . '/tests',
-    ]
-);
+$finder = PhpCsFixer\Finder::create()
+    ->in(
+        [
+            __DIR__ . '/src',
+            __DIR__ . '/tests',
+        ]
+    )
+    ->exclude('var')
+    ->notPath([
+        'config/bundles.php',
+        'config/reference.php',
+    ]);
 
 $config = new PhpCsFixer\Config();
 
