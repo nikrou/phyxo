@@ -28,13 +28,30 @@ class ExtensionAssetController extends AbstractController
     #[Route('/asset/plugin/{id}/{path}', name: 'plugin_asset', requirements: ['id' => '[^/]*', 'path' => '.+'])]
     public function pluginAsset(string $id, string $path, string $pluginsDir): Response
     {
-        return $this->sendFile(sprintf('%s/%s/%s', $pluginsDir, $id, $path));
+        $asset_path = sprintf('%s/%s/%s', $pluginsDir, $id, $path);
+
+        if (!$this->isAssetInRightDirectory($asset_path, $pluginsDir . DIRECTORY_SEPARATOR . $id)) {
+            throw new NotFoundHttpException(sprintf('Asset "%s" not found"', $path));
+        }
+
+        return $this->sendFile($asset_path);
     }
 
     #[Route('/asset/theme/{id}/{path}', name: 'theme_asset', requirements: ['id' => '[^/]*', 'path' => '.+'])]
     public function themeAsset(string $id, string $path, string $themesDir): Response
     {
-        return $this->sendFile(sprintf('%s/%s/%s', $themesDir, $id, $path));
+        $asset_path = sprintf('%s/%s/%s', $themesDir, $id, $path);
+
+        if (!$this->isAssetInRightDirectory($asset_path, $themesDir . DIRECTORY_SEPARATOR . $id)) {
+            throw new NotFoundHttpException(sprintf('Asset "%s" not found"', $path));
+        }
+
+        return $this->sendFile($asset_path);
+    }
+
+    protected function isAssetInRightDirectory(string $path, string $assetDirectory): bool
+    {
+        return str_starts_with(realpath($path), realpath($assetDirectory));
     }
 
     protected function sendFile(string $path): Response
