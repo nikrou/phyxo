@@ -77,7 +77,7 @@ class AdminPluginsController extends AbstractController
                 $tpl_plugin['state'] = ExtensionStateType::INACTIVE;
             }
 
-            $tpl_params['plugins_by_state'][$tpl_plugin['state']]++;
+            $tpl_params['plugins_by_state'][$tpl_plugin['state']->value]++;
 
             $tpl_plugins[] = $tpl_plugin;
         }
